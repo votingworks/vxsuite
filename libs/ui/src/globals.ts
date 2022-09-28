@@ -12,3 +12,5 @@ export const DisplayTextForYesOrNo: Record<YesOrNo, string> = {
 };
 
 export const SECURITY_PIN_LENGTH = 6;
+
+export const DEFAULT_NUMBER_POLL_REPORT_COPIES = 2;

@@ -46,7 +46,6 @@ test('renders as expected for all precincts in a general election', () => {
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
-      reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}
     />
@@ -89,7 +88,6 @@ test('renders as expected for a single precinct in a general election', () => {
       precinctSelection={singlePrecinctSelectionFor(
         electionSample.precincts[0].id
       )}
-      reportPurpose="Testing"
       isPollsOpen
       tally={tally}
     />
@@ -147,7 +145,6 @@ test('renders as expected for all precincts in a primary election', () => {
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
-      reportPurpose="Testing"
       isPollsOpen
       tally={tally}
       partyId={party0}
@@ -219,7 +216,6 @@ test('renders as expected for a single precincts in a primary election', () => {
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
-      reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}
       partyId={party1}

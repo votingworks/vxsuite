@@ -74,7 +74,6 @@ interface Props {
   precinctScannerMachineId: string;
   timeTallySaved?: number;
   precinctSelection: PrecinctSelection;
-  reportPurpose: string;
 }
 
 export function PrecinctScannerPollsReport({
@@ -86,7 +85,6 @@ export function PrecinctScannerPollsReport({
   precinctScannerMachineId,
   timeTallySaved,
   precinctSelection,
-  reportPurpose,
 }: Props): JSX.Element {
   const { title, date, county, precincts, state, seal, sealUrl } = election;
   const precinctName = getPrecinctSelectionName(precincts, precinctSelection);
@@ -140,9 +138,6 @@ export function PrecinctScannerPollsReport({
       </Header>
       <Content>
         <Prose maxWidth={false}>
-          <p>
-            This report should be <strong>{reportPurpose}</strong>.
-          </p>
           <dl>
             {machineSection}
             <dt>Status</dt>

@@ -51,7 +51,6 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen
       isLiveMode
       compressedTally={compressedTally}
@@ -77,7 +76,6 @@ test('renders with results reporting when there are CVRs and polls are closed', 
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen={false}
       isLiveMode
       compressedTally={compressedTally}
@@ -120,7 +118,6 @@ test('renders with results reporting when there are CVRs and polls are closed in
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen={false}
       isLiveMode={false}
       compressedTally={compressedTally}
@@ -156,7 +153,6 @@ test('renders with unsigned results reporting when there is no kiosk', async () 
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen={false}
       isLiveMode
       compressedTally={compressedTally}
@@ -193,7 +189,6 @@ test('renders the correct signature on re-renders', async () => {
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen={false}
       isLiveMode
       compressedTally={compressedTally}
@@ -206,7 +201,6 @@ test('renders the correct signature on re-renders', async () => {
     <PrecinctScannerTallyQrCode
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      reportPurpose="Testing"
       isPollsOpen={false}
       isLiveMode={false} // change from live to test
       compressedTally={compressedTally}

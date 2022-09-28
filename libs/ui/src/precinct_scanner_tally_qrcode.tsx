@@ -17,7 +17,6 @@ interface Props {
   reportSavedTime: number;
   electionDefinition: ElectionDefinition;
   signingMachineId: string;
-  reportPurpose: string;
   isPollsOpen: boolean;
   isLiveMode: boolean;
   compressedTally: CompressedTally;
@@ -27,7 +26,6 @@ export function PrecinctScannerTallyQrCode({
   reportSavedTime,
   electionDefinition,
   signingMachineId,
-  reportPurpose,
   isPollsOpen,
   isLiveMode,
   compressedTally,
@@ -86,8 +84,6 @@ export function PrecinctScannerTallyQrCode({
         <h2>{election.title}</h2>
         <p>
           {electionDate}, {election.county.name}, {election.state}
-          <br /> <br />
-          This report should be <strong>{reportPurpose}.</strong>
           <br />
           <Text small as="span">
             Polls {pollsAction} and report created on{' '}

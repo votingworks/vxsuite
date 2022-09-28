@@ -12,6 +12,7 @@ import {
   TallyReport,
   UsbDrive,
   isPollWorkerAuth,
+  DEFAULT_NUMBER_POLL_REPORT_COPIES,
 } from '@votingworks/ui';
 import {
   assert,
@@ -85,7 +86,6 @@ async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
 }
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
-const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
 interface Props {
   scannedBallotCount: number;
@@ -264,7 +264,10 @@ export function PollWorkerScreen({
   }
 
   async function printTallyReport() {
-    await printer.print({ sides: 'one-sided' });
+    await printer.print({
+      sides: 'one-sided',
+      copies: DEFAULT_NUMBER_POLL_REPORT_COPIES,
+    });
   }
 
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
@@ -326,63 +329,55 @@ export function PollWorkerScreen({
     );
   }
 
-  const printableReport =
-    currentTally &&
-    reportPurposes.map((reportPurpose) => {
-      // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
-      return (
-        <React.Fragment key={reportPurpose}>
-          <PrecinctScannerPollsReport
-            ballotCount={scannedBallotCount}
-            currentTime={currentTime}
-            election={election}
-            isLiveMode={isLiveMode}
-            isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
-            precinctScannerMachineId={machineConfig.machineId}
-            precinctSelection={precinctSelection}
-            reportPurpose={reportPurpose}
-          />
-          <PrintableContainer>
-            <TallyReport>
-              {precinctList.map((precinctId) =>
-                parties.map((partyId) => {
-                  const tallyForReport = currentSubTallies.get(
-                    getTallyIdentifier(partyId, precinctId)
-                  );
-                  assert(tallyForReport);
-                  return (
-                    <PrecinctScannerTallyReport
-                      key={getTallyIdentifier(partyId, precinctId)}
-                      data-testid={getTallyIdentifier(partyId, precinctId)}
-                      electionDefinition={electionDefinition}
-                      tally={tallyForReport}
-                      precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                      partyId={partyId}
-                      reportPurpose={reportPurpose}
-                      isPollsOpen={!isPollsOpen}
-                      reportSavedTime={currentTime}
-                    />
-                  );
-                })
-              )}
-              {electionDefinition.election.quickResultsReportingUrl &&
-                currentCompressedTally &&
-                scannedBallotCount > 0 && (
-                  <PrecinctScannerTallyQrCode
-                    electionDefinition={electionDefinition}
-                    signingMachineId={machineConfig.machineId}
-                    compressedTally={currentCompressedTally}
-                    reportPurpose={reportPurpose}
-                    isPollsOpen={!isPollsOpen}
-                    isLiveMode={isLiveMode}
-                    reportSavedTime={currentTime}
-                  />
-                )}
-            </TallyReport>
-          </PrintableContainer>
-        </React.Fragment>
-      );
-    });
+  const printableReport = currentTally && (
+    <React.Fragment>
+      <PrecinctScannerPollsReport
+        ballotCount={scannedBallotCount}
+        currentTime={currentTime}
+        election={election}
+        isLiveMode={isLiveMode}
+        isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
+        precinctScannerMachineId={machineConfig.machineId}
+        precinctSelection={precinctSelection}
+      />
+      <PrintableContainer>
+        <TallyReport>
+          {precinctList.map((precinctId) =>
+            parties.map((partyId) => {
+              const tallyForReport = currentSubTallies.get(
+                getTallyIdentifier(partyId, precinctId)
+              );
+              assert(tallyForReport);
+              return (
+                <PrecinctScannerTallyReport
+                  key={getTallyIdentifier(partyId, precinctId)}
+                  data-testid={getTallyIdentifier(partyId, precinctId)}
+                  electionDefinition={electionDefinition}
+                  tally={tallyForReport}
+                  precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                  partyId={partyId}
+                  isPollsOpen={!isPollsOpen}
+                  reportSavedTime={currentTime}
+                />
+              );
+            })
+          )}
+          {electionDefinition.election.quickResultsReportingUrl &&
+            currentCompressedTally &&
+            scannedBallotCount > 0 && (
+              <PrecinctScannerTallyQrCode
+                electionDefinition={electionDefinition}
+                signingMachineId={machineConfig.machineId}
+                compressedTally={currentCompressedTally}
+                isPollsOpen={!isPollsOpen}
+                isLiveMode={isLiveMode}
+                reportSavedTime={currentTime}
+              />
+            )}
+        </TallyReport>
+      </PrintableContainer>
+    </React.Fragment>
+  );
 
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
     return (

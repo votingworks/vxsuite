@@ -244,13 +244,12 @@ test('precinct scanner report populated as expected with all precinct data for g
     screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(0);
 
-  const allPrecinctsReports = screen.getAllByTestId(
+  const allPrecinctsReport = screen.getByTestId(
     'tally-report-undefined-undefined'
   );
-  expect(allPrecinctsReports).toHaveLength(2);
-  expectBallotCountsInReport(allPrecinctsReports[0], 20, 5, 25);
+  expectBallotCountsInReport(allPrecinctsReport, 20, 5, 25);
   expectContestResultsInReport(
-    allPrecinctsReports[0],
+    allPrecinctsReport,
     'president',
     { ballotsCast: 34, undervotes: 6, overvotes: 0 },
     {
@@ -313,9 +312,7 @@ test('precinct scanner report with quickresults reporting turned on', async () =
   await printPollsClosedReport();
 
   // vxqr is turned on for this election
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(2); // two copies of the report
+  screen.getByText('Automatic Election Results Reporting');
 });
 
 test('precinct scanner report populated as expected with single precinct data for general election', async () => {
@@ -360,13 +357,12 @@ test('precinct scanner report populated as expected with single precinct data fo
 
   await printPollsClosedReport();
 
-  const centerSpringfieldReports = screen.getAllByTestId(
+  const centerSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-23'
   );
-  expect(centerSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(centerSpringfieldReports[0], 20, 5, 25);
+  expectBallotCountsInReport(centerSpringfieldReport, 20, 5, 25);
   expectContestResultsInReport(
-    centerSpringfieldReports[0],
+    centerSpringfieldReport,
     'president',
     {
       ballotsCast: 34,
@@ -457,13 +453,12 @@ test('precinct scanner report populated as expected with all precinct specific d
 
   await printPollsClosedReport();
 
-  const centerSpringfieldReports = screen.getAllByTestId(
+  const centerSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-23'
   );
-  expect(centerSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(centerSpringfieldReports[0], 10, 0, 10);
+  expectBallotCountsInReport(centerSpringfieldReport, 10, 0, 10);
   expectContestResultsInReport(
-    centerSpringfieldReports[0],
+    centerSpringfieldReport,
     'president',
     {
       ballotsCast: 10,
@@ -480,13 +475,12 @@ test('precinct scanner report populated as expected with all precinct specific d
     }
   );
 
-  const northSpringfieldReports = screen.getAllByTestId(
+  const northSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-21'
   );
-  expect(northSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(northSpringfieldReports[0], 10, 5, 15);
+  expectBallotCountsInReport(northSpringfieldReport, 10, 5, 15);
   expectContestResultsInReport(
-    northSpringfieldReports[0],
+    northSpringfieldReport,
     'president',
     {
       ballotsCast: 15,
@@ -503,13 +497,12 @@ test('precinct scanner report populated as expected with all precinct specific d
     }
   );
 
-  const southSpringfieldReports = screen.getAllByTestId(
+  const southSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-20'
   );
-  expect(southSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(southSpringfieldReports[0], 0, 0, 0);
+  expectBallotCountsInReport(southSpringfieldReport, 0, 0, 0);
   expectContestResultsInReport(
-    southSpringfieldReports[0],
+    southSpringfieldReport,
     'president',
     {
       ballotsCast: 0,
@@ -679,18 +672,15 @@ test('precinct scanner report populated as expected with all precinct specific d
   await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = screen.getAllByTestId(
-    'tally-report-0-precinct-1'
-  );
-  expect(precinct1MammalReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1MammalReports[0], 1, 0, 1);
+  const precinct1MammalReport = screen.getByTestId('tally-report-0-precinct-1');
+  expectBallotCountsInReport(precinct1MammalReport, 1, 0, 1);
   expect(
-    within(precinct1MammalReports[0]).queryAllByTestId(
+    within(precinct1MammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'best-animal-mammal',
     {
       ballotsCast: 1,
@@ -700,7 +690,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'zoo-council-mammal',
     {
       ballotsCast: 1,
@@ -710,7 +700,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'new-zoo-either',
     {
       ballotsCast: 1,
@@ -720,7 +710,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { yes: 1, no: 0 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'new-zoo-pick',
     {
       ballotsCast: 1,
@@ -730,18 +720,15 @@ test('precinct scanner report populated as expected with all precinct specific d
     { yes: 0, no: 0 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-1'
-  );
-  expect(precinct1FishReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1FishReports[0], 0, 0, 0);
+  const precinct1FishReport = screen.getByTestId('tally-report-1-precinct-1');
+  expectBallotCountsInReport(precinct1FishReport, 0, 0, 0);
   expect(
-    within(precinct1FishReports[0]).queryAllByTestId(
+    within(precinct1FishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'best-animal-fish',
     {
       ballotsCast: 0,
@@ -751,7 +738,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { seahorse: 0, salmon: 0 }
   );
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'aquarium-council-fish',
     {
       ballotsCast: 0,
@@ -767,24 +754,21 @@ test('precinct scanner report populated as expected with all precinct specific d
     }
   );
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'fishing',
     { ballotsCast: 0, undervotes: 0, overvotes: 0 },
     { yes: 0, no: 0 }
   );
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReports = screen.getAllByTestId(
-    'tally-report-0-precinct-2'
-  );
-  expect(precinct2MammalReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct2MammalReports[0], 0, 1, 1);
+  const precinct2MammalReport = screen.getByTestId('tally-report-0-precinct-2');
+  expectBallotCountsInReport(precinct2MammalReport, 0, 1, 1);
   expect(
-    within(precinct2MammalReports[0]).queryAllByTestId(
+    within(precinct2MammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'best-animal-mammal',
     {
       ballotsCast: 1,
@@ -794,7 +778,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { horse: 0, otter: 0, fox: 0 }
   );
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'zoo-council-mammal',
     {
       ballotsCast: 1,
@@ -804,7 +788,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
   );
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'new-zoo-either',
     {
       ballotsCast: 1,
@@ -814,7 +798,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { yes: 1, no: 0 }
   );
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'new-zoo-pick',
     {
       ballotsCast: 1,
@@ -824,18 +808,15 @@ test('precinct scanner report populated as expected with all precinct specific d
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-2'
-  );
-  expect(precinct2FishReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct2FishReports[0], 1, 0, 1);
+  const precinct2FishReport = screen.getByTestId('tally-report-1-precinct-2');
+  expectBallotCountsInReport(precinct2FishReport, 1, 0, 1);
   expect(
-    within(precinct2FishReports[0]).queryAllByTestId(
+    within(precinct2FishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct2FishReports[0],
+    precinct2FishReport,
     'best-animal-fish',
     {
       ballotsCast: 1,
@@ -845,7 +826,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
-    precinct2FishReports[0],
+    precinct2FishReport,
     'aquarium-council-fish',
     {
       ballotsCast: 1,
@@ -861,7 +842,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     }
   );
   expectContestResultsInReport(
-    precinct2FishReports[0],
+    precinct2FishReport,
     'fishing',
     { ballotsCast: 1, undervotes: 0, overvotes: 0 },
     { yes: 0, no: 1 }
@@ -943,18 +924,17 @@ test('precinct scanner report populated as expected with all precinct combined d
   await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const allPrecinctMammalReports = screen.getAllByTestId(
+  const allPrecinctMammalReport = screen.getByTestId(
     'tally-report-0-undefined'
   );
-  expect(allPrecinctMammalReports).toHaveLength(2);
-  expectBallotCountsInReport(allPrecinctMammalReports[0], 1, 1, 2);
+  expectBallotCountsInReport(allPrecinctMammalReport, 1, 1, 2);
   expect(
-    within(allPrecinctMammalReports[0]).queryAllByTestId(
+    within(allPrecinctMammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'best-animal-mammal',
     {
       ballotsCast: 2,
@@ -964,7 +944,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'zoo-council-mammal',
     {
       ballotsCast: 2,
@@ -974,7 +954,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'new-zoo-either',
     {
       ballotsCast: 2,
@@ -984,7 +964,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     { yes: 2, no: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'new-zoo-pick',
     {
       ballotsCast: 2,
@@ -994,18 +974,15 @@ test('precinct scanner report populated as expected with all precinct combined d
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const allPrecinctFishReports = screen.getAllByTestId(
-    'tally-report-1-undefined'
-  );
-  expect(allPrecinctFishReports).toHaveLength(2);
-  expectBallotCountsInReport(allPrecinctFishReports[0], 1, 0, 1);
+  const allPrecinctFishReport = screen.getByTestId('tally-report-1-undefined');
+  expectBallotCountsInReport(allPrecinctFishReport, 1, 0, 1);
   expect(
-    within(allPrecinctFishReports[0]).queryAllByTestId(
+    within(allPrecinctFishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'best-animal-fish',
     {
       ballotsCast: 1,
@@ -1015,7 +992,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'aquarium-council-fish',
     {
       ballotsCast: 1,
@@ -1031,7 +1008,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     }
   );
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'fishing',
     {
       ballotsCast: 1,
@@ -1115,18 +1092,17 @@ test('precinct scanner report populated as expected with a single precinct for p
   await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const allPrecinctMammalReports = screen.getAllByTestId(
+  const allPrecinctMammalReport = screen.getByTestId(
     'tally-report-0-precinct-1'
   );
-  expect(allPrecinctMammalReports).toHaveLength(2);
-  expectBallotCountsInReport(allPrecinctMammalReports[0], 1, 1, 2);
+  expectBallotCountsInReport(allPrecinctMammalReport, 1, 1, 2);
   expect(
-    within(allPrecinctMammalReports[0]).queryAllByTestId(
+    within(allPrecinctMammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'best-animal-mammal',
     {
       ballotsCast: 2,
@@ -1136,7 +1112,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'zoo-council-mammal',
     {
       ballotsCast: 2,
@@ -1146,7 +1122,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'new-zoo-either',
     {
       ballotsCast: 2,
@@ -1156,7 +1132,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     { yes: 2, no: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctMammalReports[0],
+    allPrecinctMammalReport,
     'new-zoo-pick',
     {
       ballotsCast: 2,
@@ -1166,18 +1142,15 @@ test('precinct scanner report populated as expected with a single precinct for p
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const allPrecinctFishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-1'
-  );
-  expect(allPrecinctFishReports).toHaveLength(2);
-  expectBallotCountsInReport(allPrecinctFishReports[0], 1, 0, 1);
+  const allPrecinctFishReport = screen.getByTestId('tally-report-1-precinct-1');
+  expectBallotCountsInReport(allPrecinctFishReport, 1, 0, 1);
   expect(
-    within(allPrecinctFishReports[0]).queryAllByTestId(
+    within(allPrecinctFishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'best-animal-fish',
     {
       ballotsCast: 1,
@@ -1187,7 +1160,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'aquarium-council-fish',
     {
       ballotsCast: 1,
@@ -1203,7 +1176,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     }
   );
   expectContestResultsInReport(
-    allPrecinctFishReports[0],
+    allPrecinctFishReport,
     'fishing',
     {
       ballotsCast: 1,
