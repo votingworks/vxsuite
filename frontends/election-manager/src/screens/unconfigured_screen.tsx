@@ -163,6 +163,10 @@ export function UnconfiguredScreen(): JSX.Element {
       }
 
       const electionFile = files.outputFiles[0];
+      if (!electionFile) {
+        return;
+      }
+
       if (electionFile.path) {
         await getOutputFile(electionFile.name);
         return;
