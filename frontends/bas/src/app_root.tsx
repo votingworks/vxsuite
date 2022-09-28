@@ -43,10 +43,6 @@ export interface Props {
 
 export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   const [isEncodingCard, setIsEncodingCard] = useState(false);
-  const [isWritableCard, setIsWritableCard] = useState(false);
-  const [isCardPresent, setIsCardPresent] = useState(false);
-  const [isAdminCardPresent, setIsAdminCardPresent] = useState(false);
-  const [isPollWorkerCardPresent, setIsPollWorkerCardPresent] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   const [isReadyToRemove, setIsReadyToRemove] = useState(false);
   const [isSinglePrecinctMode, setIsSinglePrecinctMode] = useStoredState(
@@ -142,6 +138,11 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
     cardReader,
   });
 
+  const isCardPresent = smartcard.status === 'ready';
+  const isAdminCardPresent = smartcard.data?.t === 'election_manager';
+  const isPollWorkerCardPresent = smartcard.data?.t === 'poll_worker';
+  const isWritableCard = smartcard.data?.t === 'voter';
+
   const fetchElection = useCallback(async () => {
     setIsLoadingElection(true);
     assert(smartcard.status === 'ready');
@@ -155,21 +156,13 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   }, []);
 
   useEffect(() => {
-    setIsCardPresent(smartcard.status === 'ready');
-    setIsAdminCardPresent(smartcard.data?.t === 'election_manager');
-    setIsPollWorkerCardPresent(smartcard.data?.t === 'poll_worker');
-    setIsWritableCard(smartcard.data?.t === 'voter');
     setIsLocked((prev) =>
-      smartcard.data?.t === 'election_manager'
-        ? true
-        : smartcard.data?.t === 'poll_worker'
-        ? false
-        : prev
+      isAdminCardPresent ? true : isPollWorkerCardPresent ? false : prev
     );
     if (!smartcard.data) {
       setIsReadyToRemove(false);
     }
-  }, [smartcard]);
+  }, [isAdminCardPresent, isPollWorkerCardPresent, smartcard]);
 
   const programCard: EventTargetFunction = useCallback(
     async (event) => {
