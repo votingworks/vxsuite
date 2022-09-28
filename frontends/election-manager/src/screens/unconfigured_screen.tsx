@@ -1,4 +1,10 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,7 +14,6 @@ import { Button, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 
 import {
-  ConverterClient,
   getElectionDefinitionConverterClient,
   VxFile,
 } from '../lib/converters';
@@ -67,12 +72,12 @@ export function UnconfiguredScreen(): JSX.Element {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
-  const [client, setClient] = useState<ConverterClient>();
   const [isUsingConverter, setIsUsingConverter] = useState(false);
 
-  useEffect(() => {
-    setClient(getElectionDefinitionConverterClient(converter));
-  }, [converter]);
+  const client = useMemo(
+    () => getElectionDefinitionConverterClient(converter),
+    [converter]
+  );
 
   async function loadDemoElection() {
     await saveElection(demoElection);
