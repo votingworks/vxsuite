@@ -1254,25 +1254,41 @@ test('printing polls opened report clears card and opens the polls', async () =>
   // confirm we start with polls closed
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
 
-  // print report and open polls
+  // open the polls
   screen.getByText('Polls Opened Report on Card');
-  fireEvent.click(screen.getByText('Open Polls and Print Report'));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Open Polls and Print Report' })
+  );
 
-  // check that the print started
+  // check that the report was printed
   await waitFor(() => {
     expect(printFn).toHaveBeenCalledTimes(1);
   });
-
-  // wait for the print to finish
+  screen.getByText('Printing polls opened report');
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await screen.findByText('Polls Opened Report Printed');
 
   // check that polls were opened
   expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+
+  // check that card was cleared
+  expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+
+  // print an additional report
+  userEvent.click(
+    screen.getByRole('button', { name: 'Print Additional Report' })
+  );
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(2);
+  });
+  screen.getByText('Printing polls opened report');
+  await screen.findByText('Polls Opened Report Printed');
+
+  // close out flow
+  userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  await waitFor(() => {
+    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
+  });
 });
 
 test('printing polls closed report clears card and closes the polls', async () => {
@@ -1313,27 +1329,43 @@ test('printing polls closed report clears card and closes the polls', async () =
   // confirm we start with polls open
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
-  // print report and close polls
+  // close the polls
   screen.getByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Close Polls and Print Report'));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Close Polls and Print Report' })
+  );
 
-  // check that the print started
+  // check that the report was printed
   await waitFor(() => {
     expect(printFn).toHaveBeenCalledTimes(1);
   });
-
   screen.getByText('Printing polls closed report');
-
-  // wait for the print to finish
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  await screen.findByText('Polls Closed Report Printed');
 
-  // check that the tallies are cleared
+  // check that polls were closed
+  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+
+  // check that the card was cleared
   await waitFor(() => {
     expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
   });
 
-  // check that polls were closed
-  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+  // print an additional report
+  userEvent.click(
+    screen.getByRole('button', { name: 'Print Additional Report' })
+  );
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(2);
+  });
+  screen.getByText('Printing polls closed report');
+  await screen.findByText('Polls Closed Report Printed');
+
+  // close out flow
+  userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  await waitFor(() => {
+    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
+  });
 });
 
 test('can toggle between vote activation and "other actions" during polls open', async () => {
