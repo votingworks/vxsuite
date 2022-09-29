@@ -23,6 +23,7 @@ import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
+  fakePrinter,
   fakePrinterInfo,
   fakeUsbDrive,
   makeElectionManagerCard,
@@ -36,7 +37,6 @@ import {
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 
 import { App } from './app';
-import { fakePrinter } from '../test/helpers/fake_printer';
 import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import {
   eitherNeitherElectionDefinition,

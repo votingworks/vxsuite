@@ -5,8 +5,9 @@ import {
   FullElectionExternalTally,
   DippedSmartcardAuth,
   FullElectionExternalTallies,
+  Printer,
 } from '@votingworks/types';
-import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
+import { usbstick, NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
 import {
   SaveElection,

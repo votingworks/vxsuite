@@ -6,11 +6,14 @@ import {
   getByText as domGetByText,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  fakePrinter,
+  fakePrinterInfo,
+} from '@votingworks/test-utils';
 import { deferred } from '@votingworks/utils';
 
 import { PrintButton } from './print_button';
-import { fakePrinter } from '../../test/helpers/fake_printer';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 beforeAll(() => {

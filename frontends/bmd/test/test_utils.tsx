@@ -12,6 +12,7 @@ import {
 
 import userEvent from '@testing-library/user-event';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from '../src/config/globals';
 
 import {
@@ -23,7 +24,6 @@ import {
 } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
-import { fakePrinter } from './helpers/fake_printer';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
 import { electionSampleNoSealDefinition } from '../src/data';
 

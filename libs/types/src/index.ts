@@ -11,6 +11,7 @@ export * from './image';
 export * from './interpretation';
 export * from './numeric';
 export * from './precinct_selection';
+export * from './printing';
 export * from './result';
 export * from './smartcard_auth';
 export * from './tallies';

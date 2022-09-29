@@ -37,6 +37,7 @@ import {
   Inserted,
   fakePollWorkerUser,
   fakeCardStorage,
+  fakePrinter,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -48,7 +49,6 @@ import { render } from '../../test/test_utils';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { fakePrinter } from '../../test/helpers/fake_printer';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';

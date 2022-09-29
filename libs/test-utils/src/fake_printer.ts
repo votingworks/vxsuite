@@ -1,4 +1,4 @@
-import { Printer } from '../../src/config/types';
+import { Printer } from '@votingworks/types';
 
 export function fakePrinter({
   print = async () => {

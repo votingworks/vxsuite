@@ -5,7 +5,11 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import React from 'react';
-import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  fakePrinter,
+  hasTextAcrossElements,
+} from '@votingworks/test-utils';
 import {
   renderInAppContext,
   renderRootElement,
@@ -21,7 +25,6 @@ import {
   TWO_SIDED_PRINT_TIME,
 } from './print_all_ballots_button';
 import { MachineConfig } from '../config/types';
-import { fakePrinter } from '../../test/helpers/fake_printer';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
 jest.mock('../components/hand_marked_paper_ballot');

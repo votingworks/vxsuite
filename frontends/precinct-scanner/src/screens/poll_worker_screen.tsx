@@ -26,7 +26,6 @@ import {
   isFeatureFlagEnabled,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
-  Printer,
   singlePrecinctSelectionFor,
   TallySourceMachineType,
 } from '@votingworks/utils';
@@ -40,6 +39,7 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
+  Printer,
 } from '@votingworks/types';
 import {
   CenteredLargeProse,

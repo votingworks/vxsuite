@@ -5,6 +5,7 @@ import {
   makeElectionManagerCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
+import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -22,7 +23,6 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { MarkAndPrint } from './config/types';
 import { enterPin } from '../test/test_utils';

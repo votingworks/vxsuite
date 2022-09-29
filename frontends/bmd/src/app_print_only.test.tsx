@@ -14,6 +14,7 @@ import {
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
+import { fakePrinter } from '@votingworks/test-utils';
 import { App } from './app';
 
 import {
@@ -29,7 +30,6 @@ import {
 import { withMarkup } from '../test/helpers/with_markup';
 
 import * as GLOBALS from './config/globals';
-import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { PrintOnly } from './config/types';
 import { enterPin } from '../test/test_utils';

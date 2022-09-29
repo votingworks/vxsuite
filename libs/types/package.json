@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
+    "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^2.3.2",
     "@types/node": "16.11.29",
     "@types/react": "17.0.39",
