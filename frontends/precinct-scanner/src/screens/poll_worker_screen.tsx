@@ -13,6 +13,7 @@ import {
   UsbDrive,
   isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
+  fontSizeTheme,
 } from '@votingworks/ui';
 import {
   assert,
@@ -27,6 +28,7 @@ import {
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
   singlePrecinctSelectionFor,
+  sleep,
   TallySourceMachineType,
 } from '@votingworks/utils';
 import {
@@ -55,6 +57,8 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
 
+export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
+
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
   OPEN_POLLS_FLOW__PROCESSING = 'open polls flow: processing',
@@ -62,6 +66,7 @@ enum PollWorkerFlowState {
   CLOSE_POLLS_FLOW__CONFIRM = 'close polls flow: confirm',
   CLOSE_POLLS_FLOW__PROCESSING = 'close polls flow: processing',
   CLOSE_POLLS_FLOW__COMPLETE = 'close polls flow: complete',
+  EITHER_FLOW__REPRINTING = 'either polls flow: reprinting',
 }
 
 async function saveTallyToCard(
@@ -263,10 +268,10 @@ export function PollWorkerScreen({
     }
   }
 
-  async function printTallyReport() {
+  async function printTallyReport(copies: number) {
     await printer.print({
       sides: 'one-sided',
-      copies: DEFAULT_NUMBER_POLL_REPORT_COPIES,
+      copies,
     });
   }
 
@@ -284,7 +289,7 @@ export function PollWorkerScreen({
   async function openPolls() {
     setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
-      await printTallyReport();
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
     } else {
       await saveTally();
     }
@@ -296,7 +301,7 @@ export function PollWorkerScreen({
     assert(electionDefinition);
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
-      await printTallyReport();
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
     } else {
       await saveTally();
     }
@@ -311,6 +316,14 @@ export function PollWorkerScreen({
     }
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
+  }
+
+  async function reprintReport() {
+    const initialFlowState = pollWorkerFlowState;
+    setPollWorkerFlowState(PollWorkerFlowState.EITHER_FLOW__REPRINTING);
+    await printTallyReport(1);
+    await sleep(REPRINT_REPORT_TIMEOUT_SECONDS * 1000);
+    setPollWorkerFlowState(initialFlowState);
   }
 
   const precinctName = getPrecinctSelectionName(
@@ -418,11 +431,20 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <h1>Polls are open.</h1>
           {hasPrinterAttached ? (
-            <p>Remove the poll worker card.</p>
+            <Prose theme={fontSizeTheme.medium}>
+              <Button onPress={reprintReport}>
+                Print Additional Polls Opened Report
+              </Button>
+              <p>
+                Remove the poll worker card if you have printed all necessary
+                reports.
+              </p>
+            </Prose>
           ) : (
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
+        {printableReport}
       </ScreenMainCenterChild>
     );
   }
@@ -468,12 +490,35 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <h1>Polls are closed.</h1>
           {hasPrinterAttached ? (
-            <p>Remove the poll worker card.</p>
+            <Prose theme={fontSizeTheme.medium}>
+              <Button onPress={reprintReport}>
+                Print Additional Polls Closed Report
+              </Button>
+              <p>
+                Remove the poll worker card if you have printed all necessary
+                reports.
+              </p>
+            </Prose>
           ) : (
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
+        {printableReport}
       </ScreenMainCenterChild>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING) {
+    return (
+      <React.Fragment>
+        <ScreenMainCenterChild infoBarMode="pollworker">
+          <IndeterminateProgressBar />
+          <CenteredLargeProse>
+            <h1>Printing Report…</h1>
+          </CenteredLargeProse>
+        </ScreenMainCenterChild>
+        {printableReport}
+      </React.Fragment>
     );
   }
   return (
