@@ -13,12 +13,12 @@ import {
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
+  Printer,
 } from '@votingworks/types';
 import {
   assert,
   throwIllegalValue,
   usbstick,
-  Printer,
   Hardware,
 } from '@votingworks/utils';
 import {

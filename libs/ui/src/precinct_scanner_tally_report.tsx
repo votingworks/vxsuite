@@ -28,7 +28,6 @@ interface Props {
   electionDefinition: ElectionDefinition;
   partyId?: PartyId;
   precinctSelection: PrecinctSelection;
-  reportPurpose: string;
   isPollsOpen: boolean;
   tally: Tally;
 }
@@ -37,7 +36,6 @@ export function PrecinctScannerTallyReport({
   reportSavedTime,
   electionDefinition,
   precinctSelection,
-  reportPurpose,
   isPollsOpen,
   partyId,
   tally,
@@ -72,8 +70,6 @@ export function PrecinctScannerTallyReport({
             <p>
               {electionDate}, {election.county.name}, {election.state}
               <br /> <br />
-              This report should be <strong>{reportPurpose}.</strong>
-              <br />
               <Text small as="span">
                 Polls {pollsAction} and report created on{' '}
                 {formatFullDateTimeZone(DateTime.fromMillis(reportSavedTime))}

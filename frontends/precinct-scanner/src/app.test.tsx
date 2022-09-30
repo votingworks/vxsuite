@@ -27,6 +27,7 @@ import {
   makeElectionManagerCard,
   makeSystemAdministratorCard,
   getZeroCompressedTally,
+  fakePrinter,
 } from '@votingworks/test-utils';
 import { join } from 'path';
 import {
@@ -50,6 +51,7 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
+import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
 
 jest.setTimeout(20000);
 
@@ -884,7 +886,15 @@ test('with printer: poll worker can open and close polls without scanning any ba
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  const printFn = jest.fn();
+  render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      printer={fakePrinter({ print: printFn })}
+    />
+  );
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
@@ -893,9 +903,18 @@ test('with printer: poll worker can open and close polls without scanning any ba
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  userEvent.click(screen.getByRole('button', { name: 'Yes, Open the Polls' }));
   await screen.findByText('Polls are open.');
-  await screen.findByText('Remove the poll worker card.');
+  expect(printFn).toHaveBeenCalledTimes(1);
+  userEvent.click(
+    screen.getByRole('button', { name: 'Print Additional Polls Opened Report' })
+  );
+  await screen.findByText('Printing Report…');
+  expect(printFn).toHaveBeenCalledTimes(2);
+  await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
+  await screen.findByText('Polls are open.');
+  screen.getByRole('button', { name: 'Print Additional Polls Opened Report' });
+  screen.getByText('Remove the poll worker card', { exact: false });
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
@@ -903,10 +922,18 @@ test('with printer: poll worker can open and close polls without scanning any ba
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  fireEvent.click(screen.getAllByText('No')[0]);
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
+  userEvent.click(screen.getByRole('button', { name: 'Yes, Close the Polls' }));
   await screen.findByText('Polls are closed.');
-  await screen.findByText('Remove the poll worker card.');
+  expect(printFn).toHaveBeenCalledTimes(3);
+  userEvent.click(
+    screen.getByRole('button', { name: 'Print Additional Polls Closed Report' })
+  );
+  await screen.findByText('Printing Report…');
+  expect(printFn).toHaveBeenCalledTimes(4);
+  await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
+  await screen.findByText('Polls are closed.');
+  screen.getByRole('button', { name: 'Print Additional Polls Closed Report' });
+  screen.getByText('Remove the poll worker card', { exact: false });
   card.removeCard();
   await screen.findByText('Polls Closed');
 });

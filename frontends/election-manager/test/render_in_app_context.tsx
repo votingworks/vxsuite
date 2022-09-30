@@ -11,8 +11,9 @@ import {
   FullElectionExternalTallies,
   AdjudicationId,
   DippedSmartcardAuth,
+  Printer,
 } from '@votingworks/types';
-import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
+import { usbstick, NullPrinter } from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';

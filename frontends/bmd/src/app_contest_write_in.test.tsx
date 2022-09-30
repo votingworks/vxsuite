@@ -10,6 +10,7 @@ import {
 import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { fakePrinter } from '@votingworks/test-utils';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
@@ -25,7 +26,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { MarkAndPrint } from './config/types';
-import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 
 beforeEach(() => {

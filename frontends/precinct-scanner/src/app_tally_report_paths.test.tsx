@@ -165,24 +165,20 @@ test('expected tally reports are printed for a primary election with all precinc
   await screen.findByText('Do you want to open the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  const NUMBER_REPORT_PURPOSES = 2;
-  expect(
-    screen.queryAllByText('All Precincts Unofficial TEST Polls Opened Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  // Check that there is a report for each precinct per report purpose per party
+  screen.getByText('All Precincts Unofficial TEST Polls Opened Report');
   expect(
     screen.queryAllByText('Precinct 1 Polls Opened Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
+  ).toHaveLength(election.parties.length);
   expect(
     screen.queryAllByText('Precinct 2 Polls Opened Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
+  ).toHaveLength(election.parties.length);
 
   expect(
     screen.queryAllByText('Mammal Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
+  ).toHaveLength(election.precincts.length);
   expect(
     screen.queryAllByText('Fish Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
+  ).toHaveLength(election.precincts.length);
 
   // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
   expect(
@@ -282,43 +278,34 @@ test('expected tally reports for a primary election with all precincts with CVRs
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  const NUMBER_REPORT_PURPOSES = 2;
-  expect(
-    screen.queryAllByText('All Precincts Unofficial TEST Polls Closed Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  // Check that there is a report for each precinct per report purpose per party
+  screen.getByText('All Precincts Unofficial TEST Polls Closed Report');
   expect(
     screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
+  ).toHaveLength(election.parties.length);
   expect(
     screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
+  ).toHaveLength(election.parties.length);
 
   expect(
     screen.queryAllByText('Mammal Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
+  ).toHaveLength(election.precincts.length);
   expect(
     screen.queryAllByText('Fish Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
+  ).toHaveLength(election.precincts.length);
 
-  // Check there there is 1 QR code page per report purpose since we are closing polls
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  // Check there there is a QR code page since we are closing polls
+  screen.getByText('Automatic Election Results Reporting');
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = screen.getAllByTestId(
-    'tally-report-0-precinct-1'
-  );
-  expect(precinct1MammalReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1MammalReports[0], 1, 0, 1);
+  const precinct1MammalReport = screen.getByTestId('tally-report-0-precinct-1');
+  expectBallotCountsInReport(precinct1MammalReport, 1, 0, 1);
   expect(
-    within(precinct1MammalReports[0]).queryAllByTestId(
+    within(precinct1MammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'best-animal-mammal',
     1,
     0,
@@ -326,7 +313,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'zoo-council-mammal',
     1,
     1,
@@ -334,34 +321,27 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'new-zoo-either',
     1,
     0,
     0,
     { yes: 1, no: 0 }
   );
-  expectContestResultsInReport(
-    precinct1MammalReports[0],
-    'new-zoo-pick',
-    1,
-    1,
-    0,
-    { yes: 0, no: 0 }
-  );
+  expectContestResultsInReport(precinct1MammalReport, 'new-zoo-pick', 1, 1, 0, {
+    yes: 0,
+    no: 0,
+  });
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-1'
-  );
-  expect(precinct1FishReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1FishReports[0], 0, 0, 0);
+  const precinct1FishReport = screen.getByTestId('tally-report-1-precinct-1');
+  expectBallotCountsInReport(precinct1FishReport, 0, 0, 0);
   expect(
-    within(precinct1FishReports[0]).queryAllByTestId(
+    within(precinct1FishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'best-animal-fish',
     0,
     0,
@@ -369,7 +349,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { seahorse: 0, salmon: 0 }
   );
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'aquarium-council-fish',
     0,
     0,
@@ -382,23 +362,20 @@ test('expected tally reports for a primary election with all precincts with CVRs
       'write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 0, 0, 0, {
+  expectContestResultsInReport(precinct1FishReport, 'fishing', 0, 0, 0, {
     yes: 0,
     no: 0,
   });
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReports = screen.getAllByTestId(
-    'tally-report-0-precinct-2'
-  );
-  expect(precinct2MammalReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct2MammalReports[0], 0, 1, 1);
+  const precinct2MammalReport = screen.getByTestId('tally-report-0-precinct-2');
+  expectBallotCountsInReport(precinct2MammalReport, 0, 1, 1);
   expect(
-    within(precinct2MammalReports[0]).queryAllByTestId(
+    within(precinct2MammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'best-animal-mammal',
     1,
     0,
@@ -406,7 +383,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { horse: 0, otter: 0, fox: 0 }
   );
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'zoo-council-mammal',
     1,
     2,
@@ -414,34 +391,27 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
   );
   expectContestResultsInReport(
-    precinct2MammalReports[0],
+    precinct2MammalReport,
     'new-zoo-either',
     1,
     0,
     0,
     { yes: 1, no: 0 }
   );
-  expectContestResultsInReport(
-    precinct2MammalReports[0],
-    'new-zoo-pick',
-    1,
-    0,
-    0,
-    { yes: 0, no: 1 }
-  );
+  expectContestResultsInReport(precinct2MammalReport, 'new-zoo-pick', 1, 0, 0, {
+    yes: 0,
+    no: 1,
+  });
   // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-2'
-  );
-  expect(precinct2FishReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct2FishReports[0], 1, 0, 1);
+  const precinct2FishReport = screen.getByTestId('tally-report-1-precinct-2');
+  expectBallotCountsInReport(precinct2FishReport, 1, 0, 1);
   expect(
-    within(precinct2FishReports[0]).queryAllByTestId(
+    within(precinct2FishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct2FishReports[0],
+    precinct2FishReport,
     'best-animal-fish',
     1,
     0,
@@ -449,7 +419,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
-    precinct2FishReports[0],
+    precinct2FishReport,
     'aquarium-council-fish',
     1,
     0,
@@ -462,7 +432,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       'write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct2FishReports[0], 'fishing', 1, 0, 0, {
+  expectContestResultsInReport(precinct2FishReport, 'fishing', 1, 0, 0, {
     yes: 0,
     no: 1,
   });
@@ -659,24 +629,16 @@ test('expected tally reports for a primary election with a single precincts with
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  const NUMBER_REPORT_PURPOSES = 2;
-  expect(
-    screen.queryAllByText('Precinct 1 Unofficial TEST Polls Closed Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  // Check that there is a report per report purpose per party
+  screen.getByText('Precinct 1 Unofficial TEST Polls Closed Report');
   expect(
     screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
+  ).toHaveLength(election.parties.length);
   expect(
     screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
   ).toHaveLength(0);
 
-  expect(
-    screen.queryAllByText('Mammal Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  expect(
-    screen.queryAllByText('Fish Party Example Primary Election')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  screen.getByText('Mammal Party Example Primary Election');
+  screen.getByText('Fish Party Example Primary Election');
 
   // quickresults disabled by default
   expect(
@@ -684,18 +646,15 @@ test('expected tally reports for a primary election with a single precincts with
   ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = screen.getAllByTestId(
-    'tally-report-0-precinct-1'
-  );
-  expect(precinct1MammalReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1MammalReports[0], 1, 1, 2);
+  const precinct1MammalReport = screen.getByTestId('tally-report-0-precinct-1');
+  expectBallotCountsInReport(precinct1MammalReport, 1, 1, 2);
   expect(
-    within(precinct1MammalReports[0]).queryAllByTestId(
+    within(precinct1MammalReport).queryAllByTestId(
       'results-table-best-animal-fish'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'best-animal-mammal',
     2,
     0,
@@ -703,7 +662,7 @@ test('expected tally reports for a primary election with a single precincts with
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'zoo-council-mammal',
     2,
     3,
@@ -711,34 +670,27 @@ test('expected tally reports for a primary election with a single precincts with
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
-    precinct1MammalReports[0],
+    precinct1MammalReport,
     'new-zoo-either',
     2,
     0,
     0,
     { yes: 2, no: 0 }
   );
-  expectContestResultsInReport(
-    precinct1MammalReports[0],
-    'new-zoo-pick',
-    2,
-    1,
-    0,
-    { yes: 0, no: 1 }
-  );
+  expectContestResultsInReport(precinct1MammalReport, 'new-zoo-pick', 2, 1, 0, {
+    yes: 0,
+    no: 1,
+  });
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = screen.getAllByTestId(
-    'tally-report-1-precinct-1'
-  );
-  expect(precinct1FishReports).toHaveLength(2);
-  expectBallotCountsInReport(precinct1FishReports[0], 1, 0, 1);
+  const precinct1FishReport = screen.getByTestId('tally-report-1-precinct-1');
+  expectBallotCountsInReport(precinct1FishReport, 1, 0, 1);
   expect(
-    within(precinct1FishReports[0]).queryAllByTestId(
+    within(precinct1FishReport).queryAllByTestId(
       'results-table-best-animal-mammal'
     )
   ).toHaveLength(0);
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'best-animal-fish',
     1,
     0,
@@ -746,7 +698,7 @@ test('expected tally reports for a primary election with a single precincts with
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
-    precinct1FishReports[0],
+    precinct1FishReport,
     'aquarium-council-fish',
     1,
     0,
@@ -759,7 +711,7 @@ test('expected tally reports for a primary election with a single precincts with
       'write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 1, 0, 0, {
+  expectContestResultsInReport(precinct1FishReport, 'fishing', 1, 0, 0, {
     yes: 0,
     no: 1,
   });
@@ -924,20 +876,10 @@ test('expected tally reports for a general election with all precincts with CVRs
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  const NUMBER_REPORT_PURPOSES = 2;
-  expect(
-    screen.queryAllByText('All Precincts Unofficial TEST Polls Closed Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  // Check that there is a report for each precinct per report purpose
-  expect(
-    screen.queryAllByText('Center Springfield Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  expect(
-    screen.queryAllByText('North Springfield Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  expect(
-    screen.queryAllByText('South Springfield Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  screen.getByText('All Precincts Unofficial TEST Polls Closed Report');
+  screen.getByText('Center Springfield Polls Closed Tally Report');
+  screen.getByText('North Springfield Polls Closed Tally Report');
+  screen.getByText('South Springfield Polls Closed Tally Report');
 
   // quickresults is turned off by default
   expect(
@@ -945,79 +887,55 @@ test('expected tally reports for a general election with all precincts with CVRs
   ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReports = screen.getAllByTestId(
+  const centerSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-23'
   );
-  expect(centerSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(centerSpringfieldReports[0], 1, 0, 1);
-  expectContestResultsInReport(
-    centerSpringfieldReports[0],
-    'president',
-    1,
-    0,
-    0,
-    {
-      'marie-curie': 0,
-      'indiana-jones': 0,
-      'mona-lisa': 0,
-      'jackie-chan': 1,
-      'tim-allen': 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 1, 0, 0, {
+  expectBallotCountsInReport(centerSpringfieldReport, 1, 0, 1);
+  expectContestResultsInReport(centerSpringfieldReport, 'president', 1, 0, 0, {
+    'marie-curie': 0,
+    'indiana-jones': 0,
+    'mona-lisa': 0,
+    'jackie-chan': 1,
+    'tim-allen': 0,
+    'write-in': 0,
+  });
+  expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 1, 0, 0, {
     yes: 1,
     no: 0,
   });
 
   // Check that the expected results are on the tally report for South Springfield
-  const southSpringfieldReports = screen.getAllByTestId(
+  const southSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-20'
   );
-  expect(southSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(southSpringfieldReports[0], 0, 0, 0);
-  expectContestResultsInReport(
-    southSpringfieldReports[0],
-    'president',
-    0,
-    0,
-    0,
-    {
-      'marie-curie': 0,
-      'indiana-jones': 0,
-      'mona-lisa': 0,
-      'jackie-chan': 0,
-      'tim-allen': 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(southSpringfieldReports[0], 'prop-1', 0, 0, 0, {
+  expectBallotCountsInReport(southSpringfieldReport, 0, 0, 0);
+  expectContestResultsInReport(southSpringfieldReport, 'president', 0, 0, 0, {
+    'marie-curie': 0,
+    'indiana-jones': 0,
+    'mona-lisa': 0,
+    'jackie-chan': 0,
+    'tim-allen': 0,
+    'write-in': 0,
+  });
+  expectContestResultsInReport(southSpringfieldReport, 'prop-1', 0, 0, 0, {
     yes: 0,
     no: 0,
   });
 
   // Check that the expected results are on the tally report for North Springfield
-  const northSpringfieldReports = screen.getAllByTestId(
+  const northSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-21'
   );
-  expect(northSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(northSpringfieldReports[0], 0, 1, 1);
-  expectContestResultsInReport(
-    northSpringfieldReports[0],
-    'president',
-    1,
-    0,
-    0,
-    {
-      'marie-curie': 1,
-      'indiana-jones': 0,
-      'mona-lisa': 0,
-      'jackie-chan': 0,
-      'tim-allen': 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(northSpringfieldReports[0], 'prop-1', 1, 1, 0, {
+  expectBallotCountsInReport(northSpringfieldReport, 0, 1, 1);
+  expectContestResultsInReport(northSpringfieldReport, 'president', 1, 0, 0, {
+    'marie-curie': 1,
+    'indiana-jones': 0,
+    'mona-lisa': 0,
+    'jackie-chan': 0,
+    'tim-allen': 0,
+    'write-in': 0,
+  });
+  expectContestResultsInReport(northSpringfieldReport, 'prop-1', 1, 1, 0, {
     yes: 0,
     no: 0,
   });
@@ -1183,16 +1101,8 @@ test('expected tally reports for a general election with a single precincts with
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  const NUMBER_REPORT_PURPOSES = 2;
-  expect(
-    screen.queryAllByText(
-      'Center Springfield Unofficial TEST Polls Closed Report'
-    )
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
-  // Check that there is a report for each precinct per report purpose
-  expect(
-    screen.queryAllByText('Center Springfield Polls Closed Tally Report')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  screen.getByText('Center Springfield Unofficial TEST Polls Closed Report');
+  screen.getByText('Center Springfield Polls Closed Tally Report');
   expect(
     screen.queryAllByText('North Springfield Polls Closed Tally Report')
   ).toHaveLength(0);
@@ -1206,27 +1116,19 @@ test('expected tally reports for a general election with a single precincts with
   ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReports = screen.getAllByTestId(
+  const centerSpringfieldReport = screen.getByTestId(
     'tally-report-undefined-23'
   );
-  expect(centerSpringfieldReports).toHaveLength(2);
-  expectBallotCountsInReport(centerSpringfieldReports[0], 1, 1, 2);
-  expectContestResultsInReport(
-    centerSpringfieldReports[0],
-    'president',
-    2,
-    0,
-    0,
-    {
-      'marie-curie': 1,
-      'indiana-jones': 0,
-      'mona-lisa': 0,
-      'jackie-chan': 1,
-      'tim-allen': 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 2, 1, 0, {
+  expectBallotCountsInReport(centerSpringfieldReport, 1, 1, 2);
+  expectContestResultsInReport(centerSpringfieldReport, 'president', 2, 0, 0, {
+    'marie-curie': 1,
+    'indiana-jones': 0,
+    'mona-lisa': 0,
+    'jackie-chan': 1,
+    'tim-allen': 0,
+    'write-in': 0,
+  });
+  expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 2, 1, 0, {
     yes: 1,
     no: 0,
   });

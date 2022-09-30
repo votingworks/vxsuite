@@ -15,6 +15,7 @@ import {
 import {
   Button,
   ButtonList,
+  DEFAULT_NUMBER_POLL_REPORT_COPIES,
   Devices,
   fontSizeTheme,
   HorizontalRule,
@@ -43,6 +44,7 @@ import {
   PrecinctScannerCardTally,
   singlePrecinctSelectionFor,
   sleep,
+  throwIllegalValue,
 } from '@votingworks/utils';
 
 import { MachineConfig, Printer, ScreenReader } from '../config/types';
@@ -109,38 +111,29 @@ function parsePrecinctScannerTally(
   };
 }
 
+type PrecinctScannerTallyReportModalState = 'initial' | 'printing' | 'reprint';
+
 function PrecinctScannerTallyReportModal({
   electionDefinition,
+  precinctScannerTally,
   pollworkerAuth,
   printer,
   machineConfig,
   isPollsOpen,
   togglePollsOpen,
+  onClose,
 }: {
   electionDefinition: ElectionDefinition;
+  precinctScannerTally: PrecinctScannerCardTally;
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   printer: Printer;
   machineConfig: MachineConfig;
   isPollsOpen: boolean;
-  togglePollsOpen: () => void;
+  togglePollsOpen: VoidFunction;
+  onClose: VoidFunction;
 }) {
-  const [precinctScannerTally, setPrecinctScannerTally] =
-    useState<PrecinctScannerCardTally>();
-  const [isPrinting, setIsPrinting] = useState(false);
-
-  useEffect(() => {
-    async function loadTallyFromCard() {
-      if (precinctScannerTally) return;
-      setPrecinctScannerTally(
-        (
-          await pollworkerAuth.card.readStoredObject(
-            PrecinctScannerCardTallySchema
-          )
-        ).ok()
-      );
-    }
-    void loadTallyFromCard();
-  }, [pollworkerAuth, precinctScannerTally]);
+  const [modalState, setModalState] =
+    useState<PrecinctScannerTallyReportModalState>('initial');
 
   const parties = getPartyIdsInBallotStyles(electionDefinition.election);
   const precinctScannerTallyInformation =
@@ -160,136 +153,184 @@ function PrecinctScannerTallyReportModal({
     }
   }
 
-  async function printReportAndTogglePolls() {
-    setIsPrinting(true);
+  async function togglePollsAndPrintReports() {
+    setModalState('printing');
     try {
-      await printer.print({ sides: 'one-sided' });
+      await printer.print({
+        sides: 'one-sided',
+        copies: DEFAULT_NUMBER_POLL_REPORT_COPIES,
+      });
       await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
       await pollworkerAuth.card.clearStoredData();
       togglePollsToMatchReport();
     } finally {
-      setIsPrinting(false);
-      setPrecinctScannerTally(undefined);
+      setModalState('reprint');
+    }
+  }
+
+  async function printAdditionalReport() {
+    setModalState('printing');
+    try {
+      await printer.print({
+        sides: 'one-sided',
+      });
+      await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+    } finally {
+      setModalState('reprint');
     }
   }
 
   const currentTime = Date.now();
-  const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
-  if (!precinctScannerTally) return null;
   assert(precinctScannerTallyInformation);
+
+  let modalContent: React.ReactNode = null;
+  let modalActions: React.ReactNode = null;
+
+  switch (modalState) {
+    case 'initial':
+      modalContent = (
+        <Prose id="modalaudiofocus">
+          {precinctScannerTally.isPollsOpen ? (
+            <React.Fragment>
+              <h1>Polls Opened Report on Card</h1>
+              <p>
+                This poll worker card contains a polls opened report. After
+                printing, the report will be cleared from the card and the polls
+                will be opened on VxMark.
+              </p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h1>Polls Closed Report on Card</h1>
+              <p>
+                This poll worker card contains a polls closed report. After
+                printing, the report will be cleared from the card and the polls
+                will be closed on VxMark.
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
+      );
+      modalActions = (
+        <Button primary onPress={togglePollsAndPrintReports}>
+          {precinctScannerTally.isPollsOpen
+            ? 'Open Polls and Print Report'
+            : 'Close Polls and Print Report'}
+        </Button>
+      );
+      break;
+    case 'printing':
+      modalContent = (
+        <Prose textCenter id="modalaudiofocus">
+          <Loading>
+            {precinctScannerTally.isPollsOpen
+              ? 'Printing polls opened report'
+              : 'Printing polls closed report'}
+          </Loading>
+        </Prose>
+      );
+      break;
+    case 'reprint':
+      modalContent = (
+        <Prose id="modalaudiofocus">
+          {precinctScannerTally.isPollsOpen ? (
+            <React.Fragment>
+              <h1>Polls Opened Report Printed</h1>
+              <p>
+                The polls are now open. If needed, you may print additional
+                copies of the polls opened report.
+              </p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h1>Polls Closed Report Printed</h1>
+              <p>
+                The polls are now closed. If needed, you may print additional
+                copies of the polls closed report.
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
+      );
+      modalActions = (
+        <React.Fragment>
+          <Button primary onPress={onClose}>
+            Continue
+          </Button>
+          <Button onPress={printAdditionalReport}>
+            Print Additional Report
+          </Button>
+        </React.Fragment>
+      );
+      break;
+    /* istanbul ignore next - compile time check for completeness */
+    default:
+      throwIllegalValue(modalState);
+  }
 
   return (
     <React.Fragment>
-      {!isPrinting && (
-        <Modal
-          content={
-            <Prose id="modalaudiofocus">
-              {precinctScannerTally.isPollsOpen ? (
-                <React.Fragment>
-                  <h1>Polls Opened Report on Card</h1>
-                  <p>
-                    This poll worker card contains a polls opened report. After
-                    printing, the report will be cleared from the card and the
-                    polls will be opened on VxMark.
-                  </p>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <h1>Polls Closed Report on Card</h1>
-                  <p>
-                    This poll worker card contains a polls closed report. After
-                    printing, the report will be cleared from the card and the
-                    polls will be closed on VxMark.
-                  </p>
-                </React.Fragment>
+      <Modal
+        // This modal is torn down in some way which react-modal doesn't expect
+        // and as a result, can leave the app hidden from the accessibility
+        // tree. We set this prop to false to disable hiding the app.
+        // https://github.com/votingworks/vxsuite/issues/2618
+        ariaHideApp={false}
+        content={modalContent}
+        actions={modalActions}
+      />
+      <React.Fragment>
+        <PrecinctScannerPollsReport
+          ballotCount={precinctScannerTally.totalBallotsScanned}
+          currentTime={currentTime}
+          election={electionDefinition.election}
+          isLiveMode={precinctScannerTally.isLiveMode}
+          isPollsOpen={precinctScannerTally.isPollsOpen}
+          precinctScannerMachineId={precinctScannerTally.machineId}
+          timeTallySaved={precinctScannerTally.timeSaved}
+          precinctSelection={precinctScannerTally.precinctSelection}
+        />
+        <PrintableContainer>
+          <TallyReport>
+            {precinctScannerTallyInformation.precinctList.map((precinctSel) =>
+              parties.map((partyId) => {
+                const precinctIdIfDefined =
+                  precinctSel.kind === 'SinglePrecinct'
+                    ? precinctSel.precinctId
+                    : undefined;
+                const tallyForReport =
+                  precinctScannerTallyInformation.subTallies.get(
+                    getTallyIdentifier(partyId, precinctIdIfDefined)
+                  );
+                assert(tallyForReport);
+                return (
+                  <PrecinctScannerTallyReport
+                    key={getTallyIdentifier(partyId, precinctIdIfDefined)}
+                    electionDefinition={electionDefinition}
+                    tally={tallyForReport}
+                    precinctSelection={precinctSel}
+                    partyId={partyId}
+                    isPollsOpen={precinctScannerTally.isPollsOpen}
+                    reportSavedTime={precinctScannerTally.timeSaved}
+                  />
+                );
+              })
+            )}
+            {electionDefinition.election.quickResultsReportingUrl &&
+              precinctScannerTally.totalBallotsScanned > 0 && (
+                <PrecinctScannerTallyQrCode
+                  electionDefinition={electionDefinition}
+                  signingMachineId={machineConfig.machineId}
+                  compressedTally={precinctScannerTallyInformation.overallTally}
+                  isPollsOpen={precinctScannerTally.isPollsOpen}
+                  isLiveMode={precinctScannerTally.isLiveMode}
+                  reportSavedTime={precinctScannerTally.timeSaved}
+                />
               )}
-            </Prose>
-          }
-          actions={
-            <Button primary onPress={printReportAndTogglePolls}>
-              {precinctScannerTally.isPollsOpen
-                ? 'Open Polls and Print Report'
-                : 'Close Polls and Print Report'}
-            </Button>
-          }
-        />
-      )}
-      {isPrinting && (
-        <Modal
-          content={
-            <Prose textCenter id="modalaudiofocus">
-              <Loading>
-                {precinctScannerTally.isPollsOpen
-                  ? 'Printing polls opened report'
-                  : 'Printing polls closed report'}
-              </Loading>
-            </Prose>
-          }
-        />
-      )}
-      {reportPurposes.map((reportPurpose) => {
-        return (
-          <React.Fragment key={reportPurpose}>
-            <PrecinctScannerPollsReport
-              key={`polls-report-${reportPurpose}`}
-              ballotCount={precinctScannerTally.totalBallotsScanned}
-              currentTime={currentTime}
-              election={electionDefinition.election}
-              isLiveMode={precinctScannerTally.isLiveMode}
-              isPollsOpen={precinctScannerTally.isPollsOpen}
-              precinctScannerMachineId={precinctScannerTally.machineId}
-              timeTallySaved={precinctScannerTally.timeSaved}
-              precinctSelection={precinctScannerTally.precinctSelection}
-              reportPurpose={reportPurpose}
-            />
-            <PrintableContainer>
-              <TallyReport>
-                {precinctScannerTallyInformation.precinctList.map(
-                  (precinctSel) =>
-                    parties.map((partyId) => {
-                      const precinctIdIfDefined =
-                        precinctSel.kind === 'SinglePrecinct'
-                          ? precinctSel.precinctId
-                          : undefined;
-                      const tallyForReport =
-                        precinctScannerTallyInformation.subTallies.get(
-                          getTallyIdentifier(partyId, precinctIdIfDefined)
-                        );
-                      assert(tallyForReport);
-                      return (
-                        <PrecinctScannerTallyReport
-                          key={getTallyIdentifier(partyId, precinctIdIfDefined)}
-                          electionDefinition={electionDefinition}
-                          tally={tallyForReport}
-                          precinctSelection={precinctSel}
-                          partyId={partyId}
-                          reportPurpose={reportPurpose}
-                          isPollsOpen={precinctScannerTally.isPollsOpen}
-                          reportSavedTime={precinctScannerTally.timeSaved}
-                        />
-                      );
-                    })
-                )}
-                {electionDefinition.election.quickResultsReportingUrl &&
-                  precinctScannerTally.totalBallotsScanned > 0 && (
-                    <PrecinctScannerTallyQrCode
-                      electionDefinition={electionDefinition}
-                      signingMachineId={machineConfig.machineId}
-                      compressedTally={
-                        precinctScannerTallyInformation.overallTally
-                      }
-                      reportPurpose={reportPurpose}
-                      isPollsOpen={precinctScannerTally.isPollsOpen}
-                      isLiveMode={precinctScannerTally.isLiveMode}
-                      reportSavedTime={precinctScannerTally.timeSaved}
-                    />
-                  )}
-              </TallyReport>
-            </PrintableContainer>
-          </React.Fragment>
-        );
-      })}
+          </TallyReport>
+        </PrintableContainer>
+      </React.Fragment>
     </React.Fragment>
   );
 }
@@ -371,7 +412,22 @@ export function PollWorkerScreen({
     return setIsConfirmingEnableLiveMode(false);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
-  const pollworkerCardHasTally = pollworkerAuth.card.hasStoredData;
+  const [precinctScannerTally, setPrecinctScannerTally] =
+    useState<PrecinctScannerCardTally>();
+  useEffect(() => {
+    if (precinctScannerTally) return;
+    if (!pollworkerAuth.card.hasStoredData) return;
+    async function loadTallyFromCard() {
+      setPrecinctScannerTally(
+        (
+          await pollworkerAuth.card.readStoredObject(
+            PrecinctScannerCardTallySchema
+          )
+        ).ok()
+      );
+    }
+    void loadTallyFromCard();
+  }, [pollworkerAuth, precinctScannerTally]);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -379,10 +435,10 @@ export function PollWorkerScreen({
    * add a new modal to this component add it's state parameter as a dependency here.
    */
   useEffect(() => {
-    if (!isConfirmingEnableLiveMode && !pollworkerCardHasTally) {
+    if (!isConfirmingEnableLiveMode && !precinctScannerTally) {
       triggerAudioFocus();
     }
-  }, [isConfirmingEnableLiveMode, pollworkerCardHasTally]);
+  }, [isConfirmingEnableLiveMode, precinctScannerTally]);
 
   const isPrintMode = machineConfig.appMode.isPrint;
   const isMarkAndPrintMode =
@@ -673,14 +729,16 @@ export function PollWorkerScreen({
           />
         )}
       </Screen>
-      {pollworkerCardHasTally && (
+      {precinctScannerTally && (
         <PrecinctScannerTallyReportModal
           pollworkerAuth={pollworkerAuth}
+          precinctScannerTally={precinctScannerTally}
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}
           printer={printer}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
+          onClose={() => setPrecinctScannerTally(undefined)}
         />
       )}
     </React.Fragment>

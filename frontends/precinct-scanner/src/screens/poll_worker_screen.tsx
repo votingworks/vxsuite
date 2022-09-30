@@ -12,6 +12,8 @@ import {
   TallyReport,
   UsbDrive,
   isPollWorkerAuth,
+  DEFAULT_NUMBER_POLL_REPORT_COPIES,
+  fontSizeTheme,
 } from '@votingworks/ui';
 import {
   assert,
@@ -25,8 +27,8 @@ import {
   isFeatureFlagEnabled,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
-  Printer,
   singlePrecinctSelectionFor,
+  sleep,
   TallySourceMachineType,
 } from '@votingworks/utils';
 import {
@@ -39,6 +41,7 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
+  Printer,
 } from '@votingworks/types';
 import {
   CenteredLargeProse,
@@ -54,6 +57,8 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
 
+export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
+
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
   OPEN_POLLS_FLOW__PROCESSING = 'open polls flow: processing',
@@ -61,6 +66,7 @@ enum PollWorkerFlowState {
   CLOSE_POLLS_FLOW__CONFIRM = 'close polls flow: confirm',
   CLOSE_POLLS_FLOW__PROCESSING = 'close polls flow: processing',
   CLOSE_POLLS_FLOW__COMPLETE = 'close polls flow: complete',
+  EITHER_FLOW__REPRINTING = 'either polls flow: reprinting',
 }
 
 async function saveTallyToCard(
@@ -85,7 +91,6 @@ async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
 }
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
-const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
 interface Props {
   scannedBallotCount: number;
@@ -263,8 +268,11 @@ export function PollWorkerScreen({
     }
   }
 
-  async function printTallyReport() {
-    await printer.print({ sides: 'one-sided' });
+  async function printTallyReport(copies: number) {
+    await printer.print({
+      sides: 'one-sided',
+      copies,
+    });
   }
 
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
@@ -281,7 +289,7 @@ export function PollWorkerScreen({
   async function openPolls() {
     setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
-      await printTallyReport();
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
     } else {
       await saveTally();
     }
@@ -293,7 +301,7 @@ export function PollWorkerScreen({
     assert(electionDefinition);
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
-      await printTallyReport();
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
     } else {
       await saveTally();
     }
@@ -308,6 +316,14 @@ export function PollWorkerScreen({
     }
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
+  }
+
+  async function reprintReport() {
+    const initialFlowState = pollWorkerFlowState;
+    setPollWorkerFlowState(PollWorkerFlowState.EITHER_FLOW__REPRINTING);
+    await printTallyReport(1);
+    await sleep(REPRINT_REPORT_TIMEOUT_SECONDS * 1000);
+    setPollWorkerFlowState(initialFlowState);
   }
 
   const precinctName = getPrecinctSelectionName(
@@ -326,63 +342,55 @@ export function PollWorkerScreen({
     );
   }
 
-  const printableReport =
-    currentTally &&
-    reportPurposes.map((reportPurpose) => {
-      // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
-      return (
-        <React.Fragment key={reportPurpose}>
-          <PrecinctScannerPollsReport
-            ballotCount={scannedBallotCount}
-            currentTime={currentTime}
-            election={election}
-            isLiveMode={isLiveMode}
-            isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
-            precinctScannerMachineId={machineConfig.machineId}
-            precinctSelection={precinctSelection}
-            reportPurpose={reportPurpose}
-          />
-          <PrintableContainer>
-            <TallyReport>
-              {precinctList.map((precinctId) =>
-                parties.map((partyId) => {
-                  const tallyForReport = currentSubTallies.get(
-                    getTallyIdentifier(partyId, precinctId)
-                  );
-                  assert(tallyForReport);
-                  return (
-                    <PrecinctScannerTallyReport
-                      key={getTallyIdentifier(partyId, precinctId)}
-                      data-testid={getTallyIdentifier(partyId, precinctId)}
-                      electionDefinition={electionDefinition}
-                      tally={tallyForReport}
-                      precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                      partyId={partyId}
-                      reportPurpose={reportPurpose}
-                      isPollsOpen={!isPollsOpen}
-                      reportSavedTime={currentTime}
-                    />
-                  );
-                })
-              )}
-              {electionDefinition.election.quickResultsReportingUrl &&
-                currentCompressedTally &&
-                scannedBallotCount > 0 && (
-                  <PrecinctScannerTallyQrCode
-                    electionDefinition={electionDefinition}
-                    signingMachineId={machineConfig.machineId}
-                    compressedTally={currentCompressedTally}
-                    reportPurpose={reportPurpose}
-                    isPollsOpen={!isPollsOpen}
-                    isLiveMode={isLiveMode}
-                    reportSavedTime={currentTime}
-                  />
-                )}
-            </TallyReport>
-          </PrintableContainer>
-        </React.Fragment>
-      );
-    });
+  const printableReport = currentTally && (
+    <React.Fragment>
+      <PrecinctScannerPollsReport
+        ballotCount={scannedBallotCount}
+        currentTime={currentTime}
+        election={election}
+        isLiveMode={isLiveMode}
+        isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
+        precinctScannerMachineId={machineConfig.machineId}
+        precinctSelection={precinctSelection}
+      />
+      <PrintableContainer>
+        <TallyReport>
+          {precinctList.map((precinctId) =>
+            parties.map((partyId) => {
+              const tallyForReport = currentSubTallies.get(
+                getTallyIdentifier(partyId, precinctId)
+              );
+              assert(tallyForReport);
+              return (
+                <PrecinctScannerTallyReport
+                  key={getTallyIdentifier(partyId, precinctId)}
+                  data-testid={getTallyIdentifier(partyId, precinctId)}
+                  electionDefinition={electionDefinition}
+                  tally={tallyForReport}
+                  precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                  partyId={partyId}
+                  isPollsOpen={!isPollsOpen}
+                  reportSavedTime={currentTime}
+                />
+              );
+            })
+          )}
+          {electionDefinition.election.quickResultsReportingUrl &&
+            currentCompressedTally &&
+            scannedBallotCount > 0 && (
+              <PrecinctScannerTallyQrCode
+                electionDefinition={electionDefinition}
+                signingMachineId={machineConfig.machineId}
+                compressedTally={currentCompressedTally}
+                isPollsOpen={!isPollsOpen}
+                isLiveMode={isLiveMode}
+                reportSavedTime={currentTime}
+              />
+            )}
+        </TallyReport>
+      </PrintableContainer>
+    </React.Fragment>
+  );
 
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
     return (
@@ -423,11 +431,20 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <h1>Polls are open.</h1>
           {hasPrinterAttached ? (
-            <p>Remove the poll worker card.</p>
+            <Prose theme={fontSizeTheme.medium}>
+              <Button onPress={reprintReport}>
+                Print Additional Polls Opened Report
+              </Button>
+              <p>
+                Remove the poll worker card if you have printed all necessary
+                reports.
+              </p>
+            </Prose>
           ) : (
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
+        {printableReport}
       </ScreenMainCenterChild>
     );
   }
@@ -473,12 +490,35 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <h1>Polls are closed.</h1>
           {hasPrinterAttached ? (
-            <p>Remove the poll worker card.</p>
+            <Prose theme={fontSizeTheme.medium}>
+              <Button onPress={reprintReport}>
+                Print Additional Polls Closed Report
+              </Button>
+              <p>
+                Remove the poll worker card if you have printed all necessary
+                reports.
+              </p>
+            </Prose>
           ) : (
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
+        {printableReport}
       </ScreenMainCenterChild>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING) {
+    return (
+      <React.Fragment>
+        <ScreenMainCenterChild infoBarMode="pollworker">
+          <IndeterminateProgressBar />
+          <CenteredLargeProse>
+            <h1>Printing Report…</h1>
+          </CenteredLargeProse>
+        </ScreenMainCenterChild>
+        {printableReport}
+      </React.Fragment>
     );
   }
   return (

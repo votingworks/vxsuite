@@ -1,16 +1,18 @@
 import React, { RefObject } from 'react';
 import userEvent from '@testing-library/user-event';
-import { BallotPaperSize } from '@votingworks/types';
+import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
   asElectionDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  fakePrinter,
+  fakePrinterInfo,
+} from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { Printer } from '@votingworks/utils';
 import { screen, waitFor } from '@testing-library/react';
 
-import { fakePrinter } from '../../test/helpers/fake_printer';
 import {
   LAST_PRINT_JOB_SLEEP_MS,
   ONE_SIDED_PAGE_PRINT_TIME_MS,

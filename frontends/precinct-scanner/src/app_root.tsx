@@ -9,6 +9,7 @@ import {
   MarkThresholds,
   ElectionDefinition,
   PrecinctSelection,
+  Printer,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -27,7 +28,6 @@ import {
   Hardware,
   Storage,
   usbstick,
-  Printer,
   assert,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';

@@ -1,5 +1,5 @@
 import makeDebug from 'debug';
-import { Printer, PrintOptions } from '../types';
+import { Printer, PrintOptions } from '@votingworks/types';
 
 /* eslint-disable @typescript-eslint/require-await */
 

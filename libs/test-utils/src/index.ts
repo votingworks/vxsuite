@@ -4,6 +4,7 @@ export * from './cast_vote_record';
 export * from './child_process';
 export * from './compressed_tallies';
 export * from './fake_kiosk';
+export * from './fake_printer';
 export * from './has_text_across_elements';
 export * from './observable';
 export * from './smartcards';

@@ -23,6 +23,7 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
+import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -44,7 +45,6 @@ import {
   measure420Contest,
   voterContests,
 } from '../test/helpers/election';
-import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { MarkAndPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
@@ -411,6 +411,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('Printing polls closed report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
   expect(printer.print).toHaveBeenCalledTimes(2);
+  fireEvent.click(await screen.findByText('Continue'));
 
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);
   expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(4, new Uint8Array());
