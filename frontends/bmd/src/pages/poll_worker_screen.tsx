@@ -271,13 +271,11 @@ function PrecinctScannerTallyReportModal({
 
   return (
     <React.Fragment>
-      {/* 
-        This modal is torn down in some way which react-modal doesn't expect
-        and as a result, can leave the app hidden from the accessibility tree.
-        For now, we need to set ariaHideApp to false.
-        https://github.com/votingworks/vxsuite/issues/2618
-      */}
       <Modal
+        // This modal is torn down in some way which react-modal doesn't expect
+        // and as a result, can leave the app hidden from the accessibility
+        // tree. We set this prop to false to disable hiding the app.
+        // https://github.com/votingworks/vxsuite/issues/2618
         ariaHideApp={false}
         content={modalContent}
         actions={modalActions}
