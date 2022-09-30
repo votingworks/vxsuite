@@ -1287,7 +1287,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
   // close out flow
   userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   await waitFor(() => {
-    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });
 
@@ -1364,7 +1364,7 @@ test('printing polls closed report clears card and closes the polls', async () =
   // close out flow
   userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   await waitFor(() => {
-    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });
 
