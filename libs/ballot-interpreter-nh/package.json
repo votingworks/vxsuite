@@ -32,6 +32,7 @@
     "debug": "^4.3.3",
     "he": "^1.2.0",
     "js-sha256": "^0.9.0",
+    "jsdom": "^20.0.1",
     "luxon": "^2.3.0",
     "tmp": "^0.2.1",
     "zod": "3.14.4"
@@ -41,6 +42,7 @@
     "@types/debug": "^4.1.7",
     "@types/he": "^1.1.2",
     "@types/jest": "^27.4.0",
+    "@types/jsdom": "^20.0.0",
     "@types/luxon": "^2.0.9",
     "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^5.37.0",

@@ -31,6 +31,7 @@ import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { ZodError } from 'zod';
+import makeDebug from 'debug';
 import {
   findTemplateOvals,
   getTemplateBallotCardGeometry,
@@ -40,12 +41,21 @@ import {
 import { DefaultMarkThresholds } from './interpret';
 import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
 import { Bit, FrontMarksMetadata, PartialTimingMarks, Size } from './types';
+import {
+  ParseConstitutionalQuestionError,
+  parseConstitutionalQuestions,
+} from './convert/parse_constitutional_questions';
 
 export { interpret } from './interpret';
 
+const debug = makeDebug('ballot-interpreter-nh:convert');
+
 function makeId(text: string): string {
   const hash = sha256(text);
-  return `${text.replace(/[^-_a-z\d+]+/gi, '-')}-${hash.substr(0, 8)}`;
+  return `${text.replace(/[^-_a-z\d+]+/gi, '-').slice(0, 64)}-${hash.slice(
+    0,
+    8
+  )}`;
 }
 
 const ElectionDefinitionVerticalTimingMarkDistance = 9;
@@ -182,57 +192,6 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   return issues.length
     ? { success: false, pairs, issues }
     : { success: true, pairs };
-}
-
-/**
- * Parse constitutional question gibberish. Here's an example:
- *
- * ```html
- * <![CDATA[<div>CONSTITUTIONAL AMENDMENT QUESTION </div><div>Constitutional Amendment Proposed by the General Court</div><div>Question Proposed pursuant to Part II, Article 100 of the New Hampshire Constitution.</div><div> </div><div>"Shall there be a convention to amend or revise the constitution?     YES  <FONT face=Arial> <IMG src="http://ertuat.sos.nh.gov/ballotpaper/assets/images/oval.png""></FONT>                                  NO  <FONT face=Arial> <IMG src="http://ertuat.sos.nh.gov/ballotpaper/assets/images/oval.png""></FONT></div>
- * ```
- *
- * This is not structured data, and isn't even valid HTML. We just strip all the
- * tags and assume that:
- *   1. Each question will start with a capital letter in A-Z.
- *   2. Each question will end with a question mark "?".
- *   3. Each question will be followed by "YES" and "NO".
- */
-function parseConstitutionalQuestions(text: string): string[] {
-  const questions: string[] = [];
-
-  let textWithoutTags = text
-    // remove any CDATA structures
-    .replace(/<!\[CDATA\[/i, '')
-    // remove section header
-    .replace('CONSTITUTIONAL AMENDMENT QUESTION', '')
-    // remove useless tags
-    .replaceAll(/<img\b[^>]*>/gi, '');
-
-  // unwrap all tags leaving just text content
-  for (;;) {
-    const nextTextWithoutTags = textWithoutTags.replaceAll(
-      /<([a-z]+)\b[^>]*>(.*?)<\/\1>/gi,
-      ' $2 '
-    );
-
-    if (nextTextWithoutTags === textWithoutTags) {
-      break;
-    }
-
-    textWithoutTags = nextTextWithoutTags;
-  }
-  const cleanedText = textWithoutTags.replaceAll(/\s+/gi, ' ').trim();
-  const questionPattern = /([A-Z][^.]+\?)\s+YES\s+NO\b/g;
-
-  for (;;) {
-    const match = questionPattern.exec(cleanedText);
-    if (!match || !match[1]) {
-      break;
-    }
-    questions.push(match[1]);
-  }
-
-  return questions;
 }
 
 /**
@@ -382,6 +341,7 @@ export enum ConvertIssueKind {
   MissingDefinitionProperty = 'MissingDefinitionProperty',
   MissingTimingMarkMetadata = 'MissingTimingMarkMetadata',
   TimingMarkDetectionFailed = 'TimingMarkDetectionFailed',
+  ConstitutionalQuestionError = 'ConstitutionalQuestionError',
 }
 
 /**
@@ -452,6 +412,11 @@ export type ConvertIssue =
       kind: ConvertIssueKind.TimingMarkDetectionFailed;
       message: string;
       side: 'front' | 'back';
+    }
+  | {
+      kind: ConvertIssueKind.ConstitutionalQuestionError;
+      message: string;
+      error: ParseConstitutionalQuestionError;
     };
 
 /**
@@ -801,15 +766,29 @@ export function convertElectionDefinitionHeader(
         });
       } else {
         const questionsDecoded = decodeHtmlEntities(questionsTextContent);
-        for (const question of parseConstitutionalQuestions(questionsDecoded)) {
-          contests.push({
-            type: 'yesno',
-            id: makeId(question),
-            section: 'Constitutional Amendment Question',
-            title: 'Constitutional Amendment Question',
-            description: question,
-            districtId,
+        const parseConstitutionalQuestionsResult =
+          parseConstitutionalQuestions(questionsDecoded);
+        debug('questions decoded: %o', parseConstitutionalQuestionsResult);
+
+        if (parseConstitutionalQuestionsResult.isErr()) {
+          issues.push({
+            kind: ConvertIssueKind.ConstitutionalQuestionError,
+            message: parseConstitutionalQuestionsResult.err().message,
+            error: parseConstitutionalQuestionsResult.err(),
           });
+        } else {
+          const parsedConstitutionalQuestions =
+            parseConstitutionalQuestionsResult.ok();
+          for (const question of parsedConstitutionalQuestions.questions) {
+            contests.push({
+              type: 'yesno',
+              id: makeId(question.title),
+              section: 'Constitutional Amendment Question',
+              title: 'Constitutional Amendment Question',
+              description: question.title,
+              districtId,
+            });
+          }
         }
       }
     }
@@ -920,7 +899,7 @@ export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
   {
     ovalTemplate,
-    debug = noDebug(),
+    debug: imdebug = noDebug(),
   }: { ovalTemplate: ImageData; debug?: Debugger }
 ): ConvertResult {
   const convertHeaderResult = convertElectionDefinitionHeader(
@@ -972,11 +951,11 @@ export function convertElectionDefinition(
   assert(paperSize, 'paperSize should always be set');
   const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
 
-  const frontLayout = debug.capture('front', () => {
-    debug.imageData(0, 0, cardDefinition.front);
+  const frontLayout = imdebug.capture('front', () => {
+    imdebug.imageData(0, 0, cardDefinition.front);
     return interpretBallotCardLayout(cardDefinition.front, {
       geometry: expectedCardGeometry,
-      debug,
+      debug: imdebug,
     });
   });
 
@@ -989,11 +968,11 @@ export function convertElectionDefinition(
     });
   }
 
-  const backLayout = debug.capture('back', () => {
-    debug.imageData(0, 0, cardDefinition.back);
+  const backLayout = imdebug.capture('back', () => {
+    imdebug.imageData(0, 0, cardDefinition.back);
     return interpretBallotCardLayout(cardDefinition.back, {
       geometry: expectedCardGeometry,
-      debug,
+      debug: imdebug,
     });
   });
 
@@ -1028,20 +1007,20 @@ export function convertElectionDefinition(
   const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-  const frontTemplateOvals = debug.capture('front ovals', () =>
+  const frontTemplateOvals = imdebug.capture('front ovals', () =>
     findTemplateOvals(
       cardDefinition.front,
       ovalTemplate,
       frontLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.frontUsableArea, debug }
+      { usableArea: expectedCardGeometry.frontUsableArea, debug: imdebug }
     )
   );
-  const backTemplateOvals = debug.capture('back ovals', () =>
+  const backTemplateOvals = imdebug.capture('back ovals', () =>
     findTemplateOvals(
       cardDefinition.back,
       ovalTemplate,
       backLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.backUsableArea, debug }
+      { usableArea: expectedCardGeometry.backUsableArea, debug: imdebug }
     )
   );
 
