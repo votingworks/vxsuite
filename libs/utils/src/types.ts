@@ -22,6 +22,7 @@ export interface PrecinctScannerCardTally {
   readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER;
   readonly machineId: string;
   readonly timeSaved: number;
+  readonly timePollsToggled: number;
   readonly totalBallotsScanned: number;
   readonly isLiveMode: boolean;
   readonly isPollsOpen: boolean;
@@ -36,6 +37,7 @@ export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTall
     tally: CompressedTallySchema,
     machineId: MachineId,
     timeSaved: z.number(),
+    timePollsToggled: z.number(),
     totalBallotsScanned: z.number(),
     isLiveMode: z.boolean(),
     isPollsOpen: z.boolean(),

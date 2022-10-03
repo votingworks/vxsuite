@@ -49,7 +49,7 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
 
   render(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen
       isLiveMode
@@ -74,7 +74,7 @@ test('renders with results reporting when there are CVRs and polls are closed', 
 
   render(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen={false}
       isLiveMode
@@ -116,7 +116,7 @@ test('renders with results reporting when there are CVRs and polls are closed in
 
   render(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen={false}
       isLiveMode={false}
@@ -151,7 +151,7 @@ test('renders with unsigned results reporting when there is no kiosk', async () 
 
   render(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen={false}
       isLiveMode
@@ -187,7 +187,7 @@ test('renders the correct signature on re-renders', async () => {
 
   const { rerender } = render(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen={false}
       isLiveMode
@@ -199,7 +199,7 @@ test('renders the correct signature on re-renders', async () => {
   // trigger a re-render with a new signature
   rerender(
     <PrecinctScannerTallyQrCode
-      reportSavedTime={time}
+      pollsToggledTime={time}
       electionDefinition={electionSampleDefinition}
       isPollsOpen={false}
       isLiveMode={false} // change from live to test

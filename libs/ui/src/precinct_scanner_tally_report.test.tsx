@@ -23,7 +23,8 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-const time = new Date(2021, 8, 19, 11, 5).getTime();
+const pollsToggledTime = new Date(2021, 8, 19, 11, 5).getTime();
+const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 const cvr: CastVoteRecord = {
   _precinctId: electionSample.precincts[0].id,
   _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
@@ -43,18 +44,21 @@ test('renders as expected for all precincts in a general election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      reportSavedTime={time}
+      pollsToggledTime={pollsToggledTime}
+      currentTime={currentTime}
+      precinctScannerMachineId="SC-01-000"
       electionDefinition={electionSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       isPollsOpen={false}
+      isLiveMode
       tally={tally}
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('All Precincts Polls Closed Tally Report');
+  screen.getByText('Official Polls Closed Report for All Precincts');
   screen.getByText('General Election');
   screen.getByText(
-    /Polls Closed and report created on Sun, Sep 19, 2021, 11:05 AM/
+    /Polls closed on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
   );
   const countyCommissioners = screen.getByTestId(
     'results-table-county-commissioners'
@@ -83,20 +87,23 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      reportSavedTime={time}
+      pollsToggledTime={pollsToggledTime}
+      currentTime={currentTime}
+      precinctScannerMachineId="SC-01-000"
       electionDefinition={electionSampleDefinition}
       precinctSelection={singlePrecinctSelectionFor(
         electionSample.precincts[0].id
       )}
       isPollsOpen
+      isLiveMode={false}
       tally={tally}
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Center Springfield Polls Opened Tally Report');
+  screen.getByText('TEST Polls Opened Report for Center Springfield');
   screen.getByText('General Election');
   screen.getByText(
-    /Polls Opened and report created on Sun, Sep 19, 2021, 11:05 AM/
+    /Polls opened on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
   );
   const countyCommissioners = screen.getByTestId(
     'results-table-county-commissioners'
@@ -142,18 +149,21 @@ test('renders as expected for all precincts in a primary election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      reportSavedTime={time}
+      pollsToggledTime={pollsToggledTime}
+      currentTime={currentTime}
+      precinctScannerMachineId="SC-01-000"
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       isPollsOpen
+      isLiveMode
       tally={tally}
       partyId={party0}
     />
   );
-  screen.getByText('All Precincts Polls Opened Tally Report');
+  screen.getByText('Official Polls Opened Report for All Precincts');
   screen.getByText('Mammal Party Example Primary Election');
   screen.getByText(
-    /Polls Opened and report created on Sun, Sep 19, 2021, 11:05 AM/
+    /Polls opened on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
   );
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
   const bestAnimal = screen.getByTestId('results-table-best-animal-mammal');
@@ -213,18 +223,21 @@ test('renders as expected for a single precincts in a primary election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      reportSavedTime={time}
+      pollsToggledTime={pollsToggledTime}
+      currentTime={currentTime}
+      precinctScannerMachineId="SC-01-000"
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       isPollsOpen={false}
+      isLiveMode
       tally={tally}
       partyId={party1}
     />
   );
-  screen.getByText('Precinct 1 Polls Closed Tally Report');
+  screen.getByText('Official Polls Closed Report for Precinct 1');
   screen.getByText('Fish Party Example Primary Election');
   screen.getByText(
-    /Polls Closed and report created on Sun, Sep 19, 2021, 11:05 AM/
+    /Polls closed on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM/
   );
   expect(screen.queryByTestId('results-table-best-animal-mammal')).toBeNull();
   const bestAnimal = screen.getByTestId('results-table-best-animal-fish');

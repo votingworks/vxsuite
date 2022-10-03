@@ -14,7 +14,7 @@ const QrCodeWrapper = styled.div`
 `;
 
 interface Props {
-  reportSavedTime: number;
+  pollsToggledTime: number;
   electionDefinition: ElectionDefinition;
   signingMachineId: string;
   isPollsOpen: boolean;
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function PrecinctScannerTallyQrCode({
-  reportSavedTime,
+  pollsToggledTime,
   electionDefinition,
   signingMachineId,
   isPollsOpen,
@@ -87,7 +87,7 @@ export function PrecinctScannerTallyQrCode({
           <br />
           <Text small as="span">
             Polls {pollsAction} and report created on{' '}
-            {formatFullDateTimeZone(DateTime.fromMillis(reportSavedTime))}
+            {formatFullDateTimeZone(DateTime.fromMillis(pollsToggledTime))}
           </Text>
         </p>
         <p>

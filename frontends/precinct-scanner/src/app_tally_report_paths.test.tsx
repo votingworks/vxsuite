@@ -165,12 +165,11 @@ test('expected tally reports are printed for a primary election with all precinc
   await screen.findByText('Do you want to open the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  screen.getByText('All Precincts Unofficial TEST Polls Opened Report');
   expect(
-    screen.queryAllByText('Precinct 1 Polls Opened Tally Report')
+    screen.queryAllByText('TEST Polls Opened Report for Precinct 1')
   ).toHaveLength(election.parties.length);
   expect(
-    screen.queryAllByText('Precinct 2 Polls Opened Tally Report')
+    screen.queryAllByText('TEST Polls Opened Report for Precinct 2')
   ).toHaveLength(election.parties.length);
 
   expect(
@@ -278,12 +277,11 @@ test('expected tally reports for a primary election with all precincts with CVRs
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  screen.getByText('All Precincts Unofficial TEST Polls Closed Report');
   expect(
-    screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for Precinct 1')
   ).toHaveLength(election.parties.length);
   expect(
-    screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for Precinct 2')
   ).toHaveLength(election.parties.length);
 
   expect(
@@ -629,12 +627,11 @@ test('expected tally reports for a primary election with a single precincts with
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  screen.getByText('Precinct 1 Unofficial TEST Polls Closed Report');
   expect(
-    screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for Precinct 1')
   ).toHaveLength(election.parties.length);
   expect(
-    screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for Precinct 2')
   ).toHaveLength(0);
 
   screen.getByText('Mammal Party Example Primary Election');
@@ -876,10 +873,9 @@ test('expected tally reports for a general election with all precincts with CVRs
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  screen.getByText('All Precincts Unofficial TEST Polls Closed Report');
-  screen.getByText('Center Springfield Polls Closed Tally Report');
-  screen.getByText('North Springfield Polls Closed Tally Report');
-  screen.getByText('South Springfield Polls Closed Tally Report');
+  screen.getByText('TEST Polls Closed Report for Center Springfield');
+  screen.getByText('TEST Polls Closed Report for North Springfield');
+  screen.getByText('TEST Polls Closed Report for South Springfield');
 
   // quickresults is turned off by default
   expect(
@@ -1101,13 +1097,12 @@ test('expected tally reports for a general election with a single precincts with
   await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  screen.getByText('Center Springfield Unofficial TEST Polls Closed Report');
-  screen.getByText('Center Springfield Polls Closed Tally Report');
+  screen.getByText('TEST Polls Closed Report for Center Springfield');
   expect(
-    screen.queryAllByText('North Springfield Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for North Springfield')
   ).toHaveLength(0);
   expect(
-    screen.queryAllByText('South Springfield Polls Closed Tally Report')
+    screen.queryAllByText('TEST Polls Closed Report for South Springfield')
   ).toHaveLength(0);
 
   // quickresults turned off by default

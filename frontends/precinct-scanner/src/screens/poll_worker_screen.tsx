@@ -5,7 +5,6 @@ import {
   Button,
   Prose,
   Loading,
-  PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
   PrecinctScannerTallyQrCode,
   PrintableContainer,
@@ -122,8 +121,11 @@ export function PollWorkerScreen({
   >(new Map());
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
+  const [pollsToggledTime, setPollsToggledTime] = useState<number>();
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
+
+  const currentTime = Date.now();
 
   const currentCompressedTally = useMemo(
     () => currentTally && compressTally(election, currentTally.overallTally),
@@ -246,7 +248,8 @@ export function PollWorkerScreen({
       isLiveMode,
       isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
       machineId: machineConfig.machineId,
-      timeSaved: Date.now(),
+      timeSaved: currentTime,
+      timePollsToggled: currentTime,
       precinctSelection,
       ballotCounts: ballotCountBreakdowns,
       talliesByPrecinct: compressedTalliesByPrecinct,
@@ -275,6 +278,15 @@ export function PollWorkerScreen({
     });
   }
 
+  async function dispatchReport() {
+    setPollsToggledTime(currentTime);
+    if (hasPrinterAttached) {
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
+    } else {
+      await saveTally();
+    }
+  }
+
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
     PollWorkerFlowState | undefined
   >(
@@ -288,11 +300,7 @@ export function PollWorkerScreen({
 
   async function openPolls() {
     setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
-    if (hasPrinterAttached) {
-      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-    } else {
-      await saveTally();
-    }
+    await dispatchReport();
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE);
   }
@@ -300,11 +308,7 @@ export function PollWorkerScreen({
   async function closePolls() {
     assert(electionDefinition);
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
-    if (hasPrinterAttached) {
-      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-    } else {
-      await saveTally();
-    }
+    await dispatchReport();
     if (scannedBallotCount > 0) {
       await saveCvrExportToUsb({
         electionDefinition,
@@ -330,7 +334,6 @@ export function PollWorkerScreen({
     electionDefinition.election.precincts,
     precinctSelection
   );
-  const currentTime = Date.now();
 
   if (!currentTally) {
     return (
@@ -343,53 +346,45 @@ export function PollWorkerScreen({
   }
 
   const printableReport = currentTally && (
-    <React.Fragment>
-      <PrecinctScannerPollsReport
-        ballotCount={scannedBallotCount}
-        currentTime={currentTime}
-        election={election}
-        isLiveMode={isLiveMode}
-        isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
-        precinctScannerMachineId={machineConfig.machineId}
-        precinctSelection={precinctSelection}
-      />
-      <PrintableContainer>
-        <TallyReport>
-          {precinctList.map((precinctId) =>
-            parties.map((partyId) => {
-              const tallyForReport = currentSubTallies.get(
-                getTallyIdentifier(partyId, precinctId)
-              );
-              assert(tallyForReport);
-              return (
-                <PrecinctScannerTallyReport
-                  key={getTallyIdentifier(partyId, precinctId)}
-                  data-testid={getTallyIdentifier(partyId, precinctId)}
-                  electionDefinition={electionDefinition}
-                  tally={tallyForReport}
-                  precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                  partyId={partyId}
-                  isPollsOpen={!isPollsOpen}
-                  reportSavedTime={currentTime}
-                />
-              );
-            })
-          )}
-          {electionDefinition.election.quickResultsReportingUrl &&
-            currentCompressedTally &&
-            scannedBallotCount > 0 && (
-              <PrecinctScannerTallyQrCode
+    <PrintableContainer>
+      <TallyReport>
+        {precinctList.map((precinctId) =>
+          parties.map((partyId) => {
+            const tallyForReport = currentSubTallies.get(
+              getTallyIdentifier(partyId, precinctId)
+            );
+            assert(tallyForReport);
+            return (
+              <PrecinctScannerTallyReport
+                key={getTallyIdentifier(partyId, precinctId)}
+                data-testid={getTallyIdentifier(partyId, precinctId)}
                 electionDefinition={electionDefinition}
-                signingMachineId={machineConfig.machineId}
-                compressedTally={currentCompressedTally}
+                tally={tallyForReport}
+                precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                partyId={partyId}
                 isPollsOpen={!isPollsOpen}
                 isLiveMode={isLiveMode}
-                reportSavedTime={currentTime}
+                currentTime={currentTime}
+                pollsToggledTime={pollsToggledTime || currentTime}
+                precinctScannerMachineId={machineConfig.machineId}
               />
-            )}
-        </TallyReport>
-      </PrintableContainer>
-    </React.Fragment>
+            );
+          })
+        )}
+        {electionDefinition.election.quickResultsReportingUrl &&
+          currentCompressedTally &&
+          scannedBallotCount > 0 && (
+            <PrecinctScannerTallyQrCode
+              electionDefinition={electionDefinition}
+              signingMachineId={machineConfig.machineId}
+              compressedTally={currentCompressedTally}
+              isPollsOpen={!isPollsOpen}
+              isLiveMode={isLiveMode}
+              pollsToggledTime={pollsToggledTime || currentTime}
+            />
+          )}
+      </TallyReport>
+    </PrintableContainer>
   );
 
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {

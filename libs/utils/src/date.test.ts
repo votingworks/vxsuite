@@ -40,9 +40,10 @@ test('formatFullDateTimeZone', () => {
   ).toEqual('Fri, Jan 1, 2021, 12:00 AM');
   expect(
     formatFullDateTimeZone(
-      DateTime.fromISO('2021-12-31', { zone: 'America/Los_Angeles' })
+      DateTime.fromISO('2021-12-31', { zone: 'America/Los_Angeles' }),
+      { includeWeekday: false }
     )
-  ).toEqual('Fri, Dec 31, 2021, 12:00 AM');
+  ).toEqual('Dec 31, 2021, 12:00 AM');
   expect(
     formatFullDateTimeZone(
       DateTime.fromISO('2021-01-01', { zone: 'America/Los_Angeles' }),
