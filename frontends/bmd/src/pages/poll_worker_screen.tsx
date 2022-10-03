@@ -22,7 +22,6 @@ import {
   Loading,
   Main,
   Modal,
-  PrecinctScannerPollsReport,
   PrecinctScannerTallyQrCode,
   PrecinctScannerTallyReport,
   PrintableContainer,
@@ -280,57 +279,48 @@ function PrecinctScannerTallyReportModal({
         content={modalContent}
         actions={modalActions}
       />
-      <React.Fragment>
-        <PrecinctScannerPollsReport
-          ballotCount={precinctScannerTally.totalBallotsScanned}
-          currentTime={currentTime}
-          election={electionDefinition.election}
-          isLiveMode={precinctScannerTally.isLiveMode}
-          isPollsOpen={precinctScannerTally.isPollsOpen}
-          precinctScannerMachineId={precinctScannerTally.machineId}
-          timeTallySaved={precinctScannerTally.timeSaved}
-          precinctSelection={precinctScannerTally.precinctSelection}
-        />
-        <PrintableContainer>
-          <TallyReport>
-            {precinctScannerTallyInformation.precinctList.map((precinctSel) =>
-              parties.map((partyId) => {
-                const precinctIdIfDefined =
-                  precinctSel.kind === 'SinglePrecinct'
-                    ? precinctSel.precinctId
-                    : undefined;
-                const tallyForReport =
-                  precinctScannerTallyInformation.subTallies.get(
-                    getTallyIdentifier(partyId, precinctIdIfDefined)
-                  );
-                assert(tallyForReport);
-                return (
-                  <PrecinctScannerTallyReport
-                    key={getTallyIdentifier(partyId, precinctIdIfDefined)}
-                    electionDefinition={electionDefinition}
-                    tally={tallyForReport}
-                    precinctSelection={precinctSel}
-                    partyId={partyId}
-                    isPollsOpen={precinctScannerTally.isPollsOpen}
-                    reportSavedTime={precinctScannerTally.timeSaved}
-                  />
+      <PrintableContainer>
+        <TallyReport>
+          {precinctScannerTallyInformation.precinctList.map((precinctSel) =>
+            parties.map((partyId) => {
+              const precinctIdIfDefined =
+                precinctSel.kind === 'SinglePrecinct'
+                  ? precinctSel.precinctId
+                  : undefined;
+              const tallyForReport =
+                precinctScannerTallyInformation.subTallies.get(
+                  getTallyIdentifier(partyId, precinctIdIfDefined)
                 );
-              })
-            )}
-            {electionDefinition.election.quickResultsReportingUrl &&
-              precinctScannerTally.totalBallotsScanned > 0 && (
-                <PrecinctScannerTallyQrCode
+              assert(tallyForReport);
+              return (
+                <PrecinctScannerTallyReport
+                  key={getTallyIdentifier(partyId, precinctIdIfDefined)}
                   electionDefinition={electionDefinition}
-                  signingMachineId={machineConfig.machineId}
-                  compressedTally={precinctScannerTallyInformation.overallTally}
+                  tally={tallyForReport}
+                  precinctSelection={precinctSel}
+                  partyId={partyId}
                   isPollsOpen={precinctScannerTally.isPollsOpen}
                   isLiveMode={precinctScannerTally.isLiveMode}
-                  reportSavedTime={precinctScannerTally.timeSaved}
+                  pollsToggledTime={precinctScannerTally.timePollsToggled}
+                  currentTime={currentTime}
+                  precinctScannerMachineId={precinctScannerTally.machineId}
                 />
-              )}
-          </TallyReport>
-        </PrintableContainer>
-      </React.Fragment>
+              );
+            })
+          )}
+          {electionDefinition.election.quickResultsReportingUrl &&
+            precinctScannerTally.totalBallotsScanned > 0 && (
+              <PrecinctScannerTallyQrCode
+                electionDefinition={electionDefinition}
+                signingMachineId={machineConfig.machineId}
+                compressedTally={precinctScannerTallyInformation.overallTally}
+                isPollsOpen={precinctScannerTally.isPollsOpen}
+                isLiveMode={precinctScannerTally.isLiveMode}
+                pollsToggledTime={precinctScannerTally.timePollsToggled}
+              />
+            )}
+        </TallyReport>
+      </PrintableContainer>
     </React.Fragment>
   );
 }

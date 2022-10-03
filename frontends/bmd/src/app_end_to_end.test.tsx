@@ -390,6 +390,7 @@ it('MarkAndPrint end-to-end flow', async () => {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),
+      timePollsToggled: new Date('2020-10-31').getTime(),
       precinctSelection: {
         kind: 'SinglePrecinct',
         precinctId: '23',

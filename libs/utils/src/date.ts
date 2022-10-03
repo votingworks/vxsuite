@@ -38,11 +38,11 @@ export function formatTimeZoneName(date: DateTime): string {
 
 export function formatFullDateTimeZone(
   date: DateTime,
-  { includeTimezone = false } = {}
+  { includeTimezone = false, includeWeekday = true } = {}
 ): string | undefined {
   return new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,
-    weekday: 'short',
+    weekday: includeWeekday ? 'short' : undefined,
     month: 'short',
     day: 'numeric',
     year: 'numeric',
