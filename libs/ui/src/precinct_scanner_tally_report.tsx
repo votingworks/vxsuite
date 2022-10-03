@@ -40,28 +40,29 @@ const Header = styled.div`
 
   & p {
     margin-top: 0;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.25em;
   }
 `;
 
 const SignatureContainer = styled.div`
-  margin: 0.75em;
+  margin: 1em 0;
   & p {
-    margin: 0;
+    margin-bottom: 1.5em;
   }
 `;
 
 const SignatureLine = styled.div`
   display: flex;
   justify-content: space-around;
-  margin-top: 0.75em;
 `;
 
 const SignatureSpace = styled.span`
   border-bottom: 1px solid #000000;
-  width: 25%;
+  width: 30%;
+  padding-bottom: 1px;
   &::before {
     font-family: 'Noto Emoji', sans-serif;
+    font-size: 1.5em;
     content: '⨉';
   }
 `;
@@ -69,15 +70,13 @@ const SignatureSpace = styled.span`
 function SignatureArea(): JSX.Element {
   return (
     <SignatureContainer>
-      <Text small as="p">
-        Certification Signatures:{' '}
-        <strong>
-          <em>
-            We, the undersigned, do hereby certify the election was conducted in
-            accordance with the laws of the state.
-          </em>
-        </strong>
-      </Text>
+      <p>
+        <strong>Certification Signatures:</strong>{' '}
+        <em>
+          We, the undersigned, do hereby certify the election was conducted in
+          accordance with the laws of the state.
+        </em>
+      </p>
       <SignatureLine>
         <SignatureSpace />
         <SignatureSpace />
