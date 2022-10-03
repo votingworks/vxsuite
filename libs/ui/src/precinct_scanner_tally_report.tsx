@@ -160,8 +160,7 @@ export function PrecinctScannerTallyReport({
             />
             <ContestTally
               election={election}
-              electionTally={tally}
-              externalTallies={[]}
+              scannedTally={tally}
               precinctId={precinctId}
             />
           </TallyReportColumns>

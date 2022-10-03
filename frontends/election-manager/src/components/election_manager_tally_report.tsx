@@ -2,6 +2,7 @@ import {
   ContestTally,
   LogoMark,
   Prose,
+  Text,
   ReportSection,
   TallyReport,
   TallyReportColumns,
@@ -12,6 +13,7 @@ import {
   ContestId,
   Election,
   ExternalTally,
+  ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionTally,
   getLabelForVotingMethod,
@@ -19,6 +21,7 @@ import {
   Tally,
   unsafeParse,
   VotingMethod,
+  Optional,
 } from '@votingworks/types';
 import { filterTalliesByParams, find } from '@votingworks/utils';
 import React, { forwardRef } from 'react';
@@ -27,6 +30,19 @@ import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { modifyTallyWithWriteInInfo } from '../lib/votecounting';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
+
+function ManualResultsNotice(): JSX.Element {
+  return (
+    <Prose maxWidth={false}>
+      <Text small as="span">
+        <em>
+          *This report contains manually entered results. Vote counts are
+          ordered as: scanned | manual | total
+        </em>
+      </Text>
+    </Prose>
+  );
+}
 
 export interface Props {
   batchId?: string;
@@ -96,7 +112,8 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                 ...tallyForReport.ballotCountsByVotingMethod,
               };
             let reportBallotCount = tallyForReport.numberOfBallotsCounted;
-            const externalTalliesForReport: ExternalTally[] = [];
+            let manualTallyForReport: Optional<ExternalTally>;
+            const otherExternalTalliesForReport: ExternalTally[] = [];
             for (const t of fullElectionExternalTallies.values()) {
               const filteredExternalTally = filterExternalTalliesByParams(
                 t,
@@ -109,8 +126,15 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   votingMethod,
                 }
               );
-              if (filteredExternalTally !== undefined) {
-                externalTalliesForReport.push(filteredExternalTally);
+              if (
+                filteredExternalTally &&
+                filteredExternalTally.numberOfBallotsCounted > 0
+              ) {
+                if (t.source === ExternalTallySourceType.Manual) {
+                  manualTallyForReport = filteredExternalTally;
+                } else {
+                  otherExternalTalliesForReport.push(filteredExternalTally);
+                }
                 ballotCountsByVotingMethod[t.votingMethod] =
                   filteredExternalTally.numberOfBallotsCounted +
                   (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
@@ -138,6 +162,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                       election={election}
                     />
                   </Prose>
+                  {manualTallyForReport && <ManualResultsNotice />}
                   <TallyReportColumns>
                     <TallyReportSummary
                       totalBallotCount={reportBallotCount}
@@ -145,8 +170,9 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     />
                     <ContestTally
                       election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={externalTalliesForReport}
+                      scannedTally={tallyForReport}
+                      manualTally={manualTallyForReport}
+                      otherExternalTallies={otherExternalTalliesForReport}
                       precinctId={precinctId}
                     />
                   </TallyReportColumns>
@@ -176,8 +202,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     />
                     <ContestTally
                       election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={[]}
+                      scannedTally={tallyForReport}
                     />
                   </TallyReportColumns>
                 </ReportSection>
@@ -205,8 +230,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     />
                     <ContestTally
                       election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={[]}
+                      scannedTally={tallyForReport}
                     />
                   </TallyReportColumns>
                 </ReportSection>
@@ -228,11 +252,13 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                       election={election}
                     />
                   </Prose>
+                  {manualTallyForReport && <ManualResultsNotice />}
                   <TallyReportColumns>
                     <ContestTally
                       election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={externalTalliesForReport}
+                      scannedTally={tallyForReport}
+                      manualTally={manualTallyForReport}
+                      otherExternalTallies={otherExternalTalliesForReport}
                     />
                   </TallyReportColumns>
                 </ReportSection>
@@ -254,6 +280,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     election={election}
                   />
                 </Prose>
+                {manualTallyForReport && <ManualResultsNotice />}
                 <TallyReportColumns>
                   <TallyReportSummary
                     totalBallotCount={reportBallotCount}
@@ -261,8 +288,9 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   />
                   <ContestTally
                     election={election}
-                    electionTally={tallyForReport}
-                    externalTallies={externalTalliesForReport}
+                    scannedTally={tallyForReport}
+                    manualTally={manualTallyForReport}
+                    otherExternalTallies={otherExternalTalliesForReport}
                   />
                 </TallyReportColumns>
               </ReportSection>

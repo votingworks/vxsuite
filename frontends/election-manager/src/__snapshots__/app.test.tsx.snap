@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-jgrIVw imgchW"
+    class="sc-khQdMy faJNgb"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -84,7 +84,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
     </nav>
     <main
-      class="sc-giYgFv jOIlkZ"
+      class="sc-bYoCmx kxzxEH"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -96,7 +96,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -119,7 +119,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </li>
         </ol>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
       </div>
       <p>
@@ -288,14 +288,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
     </div>
   </div>
   <div
-    class="sc-cCcYRi ePpLdy print-only"
+    class="sc-jcFkyM jIlYvr print-only"
   >
     <section
-      class="sc-jJoQpE jrcdmY"
+      class="sc-gWXaA-D jKchLK"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-iJKOzS kMVWwh"
+        class="sc-ezbkgU kWQDRj"
         src="/votingworks-wordmark-black.svg"
       />
       <div
@@ -327,10 +327,10 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </p>
       </div>
       <div
-        class="sc-gWXaA-D kNngbK"
+        class="sc-cidCJl ehMcmc"
       >
         <div
-          class="sc-cTApHj bQrcJt"
+          class="sc-dPiKHq fTCqDa"
         >
           <h3>
             Ballots by Voting Method
@@ -417,6 +417,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -424,58 +425,59 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020876-775031988"
                 >
-                  <td>
-                    Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020876-775031987"
                 >
-                  <td>
-                    Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020876-775031989"
                 >
-                  <td>
-                    Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020876-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
@@ -511,6 +513,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -518,58 +521,59 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020877-775031985"
                 >
-                  <td>
-                    Mike Espy
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Mike Espy
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020877-775031986"
                 >
-                  <td>
-                    Cindy Hyde-Smith
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Cindy Hyde-Smith
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020877-775031990"
                 >
-                  <td>
-                    Jimmy Edwards
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Jimmy Edwards
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020877-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
@@ -605,6 +609,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -612,46 +617,47 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020872-775031978"
                 >
-                  <td>
-                    Antonia Eliason
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Antonia Eliason
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="775020872-775031979"
                 >
-                  <td>
-                    Trent Kelly
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Trent Kelly
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020872-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
@@ -687,6 +693,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -694,46 +701,47 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020870-775031976"
                 >
-                  <td>
-                    Josiah Dennis Coleman
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Josiah Dennis Coleman
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="775020870-775031993"
                 >
-                  <td>
-                    Percy L. Lynchard
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Percy L. Lynchard
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020870-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
@@ -769,6 +777,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -776,32 +785,33 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020899-775032015"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Glynda Chaney Fulce
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020899-write-in"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
               </tbody>
             </table>
@@ -830,6 +840,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -837,42 +848,43 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020900-775032016"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Charles Beck
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020900-775032017"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Sharon Brooks
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020900-write-in"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
               </tbody>
             </table>
@@ -901,6 +913,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -908,32 +921,33 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020901-775032018"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Dorothy Anderson
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020901-write-in"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
               </tbody>
             </table>
@@ -962,6 +976,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -969,42 +984,43 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020902-775032019"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Willie Mae Guillory
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020902-775032020"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Lewis Wright
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
                 <tr
                   data-testid="775020902-write-in"
                 >
-                  <td>
+                  <th
+                    colspan="3"
+                  >
                     Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
-                  />
+                  </th>
+                  <td />
                 </tr>
               </tbody>
             </table>
@@ -1033,6 +1049,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1040,46 +1057,47 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020903-775032021"
                 >
-                  <td>
-                    Ouida A Loper
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Ouida A Loper
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="775020903-775032022"
                 >
-                  <td>
-                    Wayne McLeod
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Wayne McLeod
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
                 <tr
                   data-testid="775020903-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     2
                   </td>
                 </tr>
@@ -1115,6 +1133,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1122,34 +1141,35 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="775020904-775032023"
                 >
-                  <td>
-                    Michael D Thomas
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Michael D Thomas
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="775020904-write-in"
                 >
-                  <td>
-                    Write-In
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Write-In
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
@@ -1186,6 +1206,7 @@ House Concurrent Resolution No. 47
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1193,34 +1214,35 @@ House Concurrent Resolution No. 47
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="750000017-yes"
                 >
-                  <td>
-                    Yes
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Yes
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="750000017-no"
                 >
-                  <td>
-                    No
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    No
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
@@ -1257,6 +1279,7 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1264,34 +1287,35 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="750000018-yes"
                 >
-                  <td>
-                    Yes
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Yes
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="750000018-no"
                 >
-                  <td>
-                    No
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    No
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
@@ -1327,6 +1351,7 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1334,34 +1359,35 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="750000015-yes"
                 >
-                  <td>
-                    Yes
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Yes
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="750000015-no"
                 >
-                  <td>
-                    No
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    No
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
@@ -1397,6 +1423,7 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 overvotes
                  /
               </span>
@@ -1404,34 +1431,35 @@ House Bill 1796 - Flag Referendum
               <span
                 class="sc-hKwCoD kKHUyA"
               >
+                 
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-ieebsP kAYriC"
+              class="sc-kfPtPH gmkbdp"
             >
               <tbody>
                 <tr
                   data-testid="750000016-yes"
                 >
-                  <td>
-                    Yes
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    Yes
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
                 <tr
                   data-testid="750000016-no"
                 >
-                  <td>
-                    No
-                  </td>
-                  <td
-                    class="sc-dJjZJu iPeNYj"
+                  <th
+                    colspan="3"
                   >
+                    No
+                  </th>
+                  <td>
                     4
                   </td>
                 </tr>
@@ -1451,7 +1479,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-jgrIVw imgchW"
+    class="sc-khQdMy faJNgb"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -1530,7 +1558,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </nav>
     <main
-      class="sc-giYgFv jOIlkZ"
+      class="sc-bYoCmx kxzxEH"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -1542,7 +1570,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -1565,7 +1593,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </li>
         </ol>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
       </div>
       <p>
@@ -2919,7 +2947,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-jgrIVw imgchW"
+    class="sc-khQdMy faJNgb"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -2998,7 +3026,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       </div>
     </nav>
     <main
-      class="sc-giYgFv jOIlkZ"
+      class="sc-bYoCmx kxzxEH"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -3010,7 +3038,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -3033,7 +3061,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           </li>
         </ol>
         <p
-          class="sc-bBHwJV bHaIAi"
+          class="sc-cxpRKc fPixsk"
         />
       </div>
       <p>
@@ -3324,12 +3352,12 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-jJoQpE jrcdmY"
+  class="sc-gWXaA-D jKchLK"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-iJKOzS kMVWwh"
+    class="sc-ezbkgU kWQDRj"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -3358,10 +3386,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-gWXaA-D kNngbK"
+    class="sc-cidCJl ehMcmc"
   >
     <div
-      class="sc-cTApHj bQrcJt"
+      class="sc-dPiKHq fTCqDa"
     >
       <h3>
         Ballots by Voting Method
@@ -3448,6 +3476,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             1 overvote
              /
           </span>
@@ -3455,58 +3484,59 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             7 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020876-775031988"
             >
-              <td>
-                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+              </th>
+              <td>
                 27
               </td>
             </tr>
             <tr
               data-testid="775020876-775031987"
             >
-              <td>
-                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+              </th>
+              <td>
                 36
               </td>
             </tr>
             <tr
               data-testid="775020876-775031989"
             >
-              <td>
-                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+              </th>
+              <td>
                 29
               </td>
             </tr>
             <tr
               data-testid="775020876-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3542,6 +3572,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 overvotes
              /
           </span>
@@ -3549,58 +3580,59 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020877-775031985"
             >
-              <td>
-                Mike Espy
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Mike Espy
+              </th>
+              <td>
                 29
               </td>
             </tr>
             <tr
               data-testid="775020877-775031986"
             >
-              <td>
-                Cindy Hyde-Smith
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Cindy Hyde-Smith
+              </th>
+              <td>
                 35
               </td>
             </tr>
             <tr
               data-testid="775020877-775031990"
             >
-              <td>
-                Jimmy Edwards
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Jimmy Edwards
+              </th>
+              <td>
                 28
               </td>
             </tr>
             <tr
               data-testid="775020877-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3636,6 +3668,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             3 overvotes
              /
           </span>
@@ -3643,46 +3676,47 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020872-775031978"
             >
-              <td>
-                Antonia Eliason
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Antonia Eliason
+              </th>
+              <td>
                 46
               </td>
             </tr>
             <tr
               data-testid="775020872-775031979"
             >
-              <td>
-                Trent Kelly
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Trent Kelly
+              </th>
+              <td>
                 46
               </td>
             </tr>
             <tr
               data-testid="775020872-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3718,6 +3752,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -3725,46 +3760,47 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020870-775031976"
             >
-              <td>
-                Josiah Dennis Coleman
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Josiah Dennis Coleman
+              </th>
+              <td>
                 37
               </td>
             </tr>
             <tr
               data-testid="775020870-775031993"
             >
-              <td>
-                Percy L. Lynchard
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Percy L. Lynchard
+              </th>
+              <td>
                 58
               </td>
             </tr>
             <tr
               data-testid="775020870-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3800,6 +3836,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -3807,34 +3844,35 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             1 undervote
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020899-775032015"
             >
-              <td>
-                Glynda Chaney Fulce
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Glynda Chaney Fulce
+              </th>
+              <td>
                 17
               </td>
             </tr>
             <tr
               data-testid="775020899-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3865,6 +3903,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -3872,46 +3911,47 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             1 undervote
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020900-775032016"
             >
-              <td>
-                Charles Beck
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Charles Beck
+              </th>
+              <td>
                 5
               </td>
             </tr>
             <tr
               data-testid="775020900-775032017"
             >
-              <td>
-                Sharon Brooks
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Sharon Brooks
+              </th>
+              <td>
                 9
               </td>
             </tr>
             <tr
               data-testid="775020900-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -3942,6 +3982,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -3949,34 +3990,35 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             1 undervote
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020901-775032018"
             >
-              <td>
-                Dorothy Anderson
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Dorothy Anderson
+              </th>
+              <td>
                 22
               </td>
             </tr>
             <tr
               data-testid="775020901-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4007,6 +4049,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             1 overvote
              /
           </span>
@@ -4014,46 +4057,47 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020902-775032019"
             >
-              <td>
-                Willie Mae Guillory
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Willie Mae Guillory
+              </th>
+              <td>
                 10
               </td>
             </tr>
             <tr
               data-testid="775020902-775032020"
             >
-              <td>
-                Lewis Wright
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Lewis Wright
+              </th>
+              <td>
                 14
               </td>
             </tr>
             <tr
               data-testid="775020902-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4084,6 +4128,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 overvotes
              /
           </span>
@@ -4091,46 +4136,47 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020903-775032021"
             >
-              <td>
-                Ouida A Loper
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Ouida A Loper
+              </th>
+              <td>
                 9
               </td>
             </tr>
             <tr
               data-testid="775020903-775032022"
             >
-              <td>
-                Wayne McLeod
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Wayne McLeod
+              </th>
+              <td>
                 6
               </td>
             </tr>
             <tr
               data-testid="775020903-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4166,6 +4212,7 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -4173,34 +4220,35 @@ exports[`tabulating CVRs 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020904-775032023"
             >
-              <td>
-                Michael D Thomas
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Michael D Thomas
+              </th>
+              <td>
                 19
               </td>
             </tr>
             <tr
               data-testid="775020904-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4237,6 +4285,7 @@ House Concurrent Resolution No. 47
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 overvotes
              /
           </span>
@@ -4244,34 +4293,35 @@ House Concurrent Resolution No. 47
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000017-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 40
               </td>
             </tr>
             <tr
               data-testid="750000017-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 53
               </td>
             </tr>
@@ -4308,6 +4358,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             3 overvotes
              /
           </span>
@@ -4315,34 +4366,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000018-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 43
               </td>
             </tr>
             <tr
               data-testid="750000018-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 52
               </td>
             </tr>
@@ -4378,6 +4430,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             3 overvotes
              /
           </span>
@@ -4385,34 +4438,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             3 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000015-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 39
               </td>
             </tr>
             <tr
               data-testid="750000015-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 53
               </td>
             </tr>
@@ -4448,6 +4502,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 overvotes
              /
           </span>
@@ -4455,34 +4510,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000016-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 40
               </td>
             </tr>
             <tr
               data-testid="750000016-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 49
               </td>
             </tr>
@@ -4496,12 +4552,12 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-jJoQpE jrcdmY"
+  class="sc-gWXaA-D jKchLK"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-iJKOzS kMVWwh"
+    class="sc-ezbkgU kWQDRj"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -4530,10 +4586,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-gWXaA-D kNngbK"
+    class="sc-cidCJl ehMcmc"
   >
     <div
-      class="sc-cTApHj bQrcJt"
+      class="sc-dPiKHq fTCqDa"
     >
       <h3>
         Ballots by Voting Method
@@ -4620,6 +4676,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 overvotes
              /
           </span>
@@ -4627,58 +4684,59 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             14 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020876-775031988"
             >
-              <td>
-                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+              </th>
+              <td>
                 54
               </td>
             </tr>
             <tr
               data-testid="775020876-775031987"
             >
-              <td>
-                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+              </th>
+              <td>
                 72
               </td>
             </tr>
             <tr
               data-testid="775020876-775031989"
             >
-              <td>
-                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+              </th>
+              <td>
                 58
               </td>
             </tr>
             <tr
               data-testid="775020876-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4714,6 +4772,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             8 overvotes
              /
           </span>
@@ -4721,58 +4780,59 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             8 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020877-775031985"
             >
-              <td>
-                Mike Espy
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Mike Espy
+              </th>
+              <td>
                 58
               </td>
             </tr>
             <tr
               data-testid="775020877-775031986"
             >
-              <td>
-                Cindy Hyde-Smith
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Cindy Hyde-Smith
+              </th>
+              <td>
                 70
               </td>
             </tr>
             <tr
               data-testid="775020877-775031990"
             >
-              <td>
-                Jimmy Edwards
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Jimmy Edwards
+              </th>
+              <td>
                 56
               </td>
             </tr>
             <tr
               data-testid="775020877-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4808,6 +4868,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             6 overvotes
              /
           </span>
@@ -4815,46 +4876,47 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020872-775031978"
             >
-              <td>
-                Antonia Eliason
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Antonia Eliason
+              </th>
+              <td>
                 92
               </td>
             </tr>
             <tr
               data-testid="775020872-775031979"
             >
-              <td>
-                Trent Kelly
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Trent Kelly
+              </th>
+              <td>
                 92
               </td>
             </tr>
             <tr
               data-testid="775020872-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4890,6 +4952,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -4897,46 +4960,47 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020870-775031976"
             >
-              <td>
-                Josiah Dennis Coleman
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Josiah Dennis Coleman
+              </th>
+              <td>
                 74
               </td>
             </tr>
             <tr
               data-testid="775020870-775031993"
             >
-              <td>
-                Percy L. Lynchard
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Percy L. Lynchard
+              </th>
+              <td>
                 116
               </td>
             </tr>
             <tr
               data-testid="775020870-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -4972,6 +5036,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -4979,34 +5044,35 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020899-775032015"
             >
-              <td>
-                Glynda Chaney Fulce
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Glynda Chaney Fulce
+              </th>
+              <td>
                 34
               </td>
             </tr>
             <tr
               data-testid="775020899-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5037,6 +5103,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -5044,46 +5111,47 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020900-775032016"
             >
-              <td>
-                Charles Beck
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Charles Beck
+              </th>
+              <td>
                 10
               </td>
             </tr>
             <tr
               data-testid="775020900-775032017"
             >
-              <td>
-                Sharon Brooks
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Sharon Brooks
+              </th>
+              <td>
                 18
               </td>
             </tr>
             <tr
               data-testid="775020900-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5114,6 +5182,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -5121,34 +5190,35 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020901-775032018"
             >
-              <td>
-                Dorothy Anderson
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Dorothy Anderson
+              </th>
+              <td>
                 44
               </td>
             </tr>
             <tr
               data-testid="775020901-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5179,6 +5249,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             2 overvotes
              /
           </span>
@@ -5186,46 +5257,47 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020902-775032019"
             >
-              <td>
-                Willie Mae Guillory
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Willie Mae Guillory
+              </th>
+              <td>
                 20
               </td>
             </tr>
             <tr
               data-testid="775020902-775032020"
             >
-              <td>
-                Lewis Wright
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Lewis Wright
+              </th>
+              <td>
                 28
               </td>
             </tr>
             <tr
               data-testid="775020902-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5256,6 +5328,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 overvotes
              /
           </span>
@@ -5263,46 +5336,47 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020903-775032021"
             >
-              <td>
-                Ouida A Loper
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Ouida A Loper
+              </th>
+              <td>
                 18
               </td>
             </tr>
             <tr
               data-testid="775020903-775032022"
             >
-              <td>
-                Wayne McLeod
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Wayne McLeod
+              </th>
+              <td>
                 12
               </td>
             </tr>
             <tr
               data-testid="775020903-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5338,6 +5412,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 overvotes
              /
           </span>
@@ -5345,34 +5420,35 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="775020904-775032023"
             >
-              <td>
-                Michael D Thomas
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Michael D Thomas
+              </th>
+              <td>
                 38
               </td>
             </tr>
             <tr
               data-testid="775020904-write-in"
             >
-              <td>
-                Write-In
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Write-In
+              </th>
+              <td>
                 0
               </td>
             </tr>
@@ -5409,6 +5485,7 @@ House Concurrent Resolution No. 47
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 overvotes
              /
           </span>
@@ -5416,34 +5493,35 @@ House Concurrent Resolution No. 47
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000017-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 80
               </td>
             </tr>
             <tr
               data-testid="750000017-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 106
               </td>
             </tr>
@@ -5480,6 +5558,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             6 overvotes
              /
           </span>
@@ -5487,34 +5566,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000018-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 86
               </td>
             </tr>
             <tr
               data-testid="750000018-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 104
               </td>
             </tr>
@@ -5550,6 +5630,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             6 overvotes
              /
           </span>
@@ -5557,34 +5638,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             6 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000015-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 78
               </td>
             </tr>
             <tr
               data-testid="750000015-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 106
               </td>
             </tr>
@@ -5620,6 +5702,7 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             8 overvotes
              /
           </span>
@@ -5627,34 +5710,35 @@ House Bill 1796 - Flag Referendum
           <span
             class="sc-hKwCoD kKHUyA"
           >
+             
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-ieebsP kAYriC"
+          class="sc-kfPtPH gmkbdp"
         >
           <tbody>
             <tr
               data-testid="750000016-yes"
             >
-              <td>
-                Yes
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                Yes
+              </th>
+              <td>
                 80
               </td>
             </tr>
             <tr
               data-testid="750000016-no"
             >
-              <td>
-                No
-              </td>
-              <td
-                class="sc-dJjZJu iPeNYj"
+              <th
+                colspan="3"
               >
+                No
+              </th>
+              <td>
                 98
               </td>
             </tr>
