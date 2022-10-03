@@ -1,6 +1,7 @@
 {
   "extends": ["plugin:vx/recommended"],
   "rules": {
-    "no-bitwise": "off"
+    "no-bitwise": "off",
+    "vx/gts-identifiers": ["error", { "allowedNames": ["/.*(X|Y)Offset/"] }]
   }
 }

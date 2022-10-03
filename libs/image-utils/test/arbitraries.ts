@@ -28,6 +28,7 @@ export interface ArbitraryImageDataOptions {
   readonly width?: int | fc.Arbitrary<int>;
   readonly height?: int | fc.Arbitrary<int>;
   readonly channels?: int | fc.Arbitrary<int>;
+  readonly pixels?: fc.Arbitrary<int>;
 }
 
 /**
@@ -37,6 +38,7 @@ export function arbitraryImageData({
   width: arbitraryWidth = fc.integer({ min: 1, max: 20 }),
   height: arbitraryHeight = fc.integer({ min: 1, max: 20 }),
   channels: arbitraryChannels = arbitraryChannelCount(),
+  pixels: arbitraryPixels = fc.integer({ min: 0, max: 255 }),
 }: ArbitraryImageDataOptions = {}): fc.Arbitrary<ImageData> {
   return fc
     .record({
@@ -64,7 +66,7 @@ export function arbitraryImageData({
       const dataLength = width * height * channels;
       return fc.record({
         data: fc
-          .array(fc.integer({ min: 0, max: 255 }), {
+          .array(arbitraryPixels, {
             minLength: dataLength,
             maxLength: dataLength,
           })

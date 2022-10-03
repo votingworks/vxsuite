@@ -1,4 +1,4 @@
-import { getImageChannelCount, otsu } from '@votingworks/image-utils';
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { assert } from '@votingworks/utils';
 import { createImageData } from 'canvas';
 import { Point } from './types';
@@ -132,87 +132,4 @@ export function scoreTemplateMatch(image: ImageData, mask: ImageData): number {
   }
 
   return 1 - diff / maxDiff;
-}
-
-/**
- * Binarizes an image by thresholding it at a given value. Assumes that the
- * image is grayscale, even if it's stored as RGBA.
- */
-export function binarize(
-  image: ImageData,
-  threshold = otsu(image.data, getImageChannelCount(image))
-): ImageData {
-  const channels = getImageChannelCount(image);
-  const { data, width, height } = image;
-  const result = createImageData(
-    new Uint8ClampedArray(data.length),
-    width,
-    height
-  );
-
-  for (let offset = 0, { length } = data; offset < length; offset += channels) {
-    const lum = data[offset] as number;
-    const binarized = lum > threshold ? 255 : 0;
-
-    if (channels === 1) {
-      result.data[offset] = binarized;
-    } else if (channels === 4) {
-      result.data[offset] = binarized;
-      result.data[offset + 1] = binarized;
-      result.data[offset + 2] = binarized;
-      result.data[offset + 3] = 255;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Removes noise from a binarized image by removing pixels without a NSEW
- * neighbor. Assumes that the image is grayscale, even if it's stored as RGBA.
- */
-export function simpleRemoveNoise(
-  image: ImageData,
-  foreground: 0 | 255,
-  minimumNeighbors: 0 | 1 | 2 | 3 | 4 = 1
-): ImageData {
-  const channels = getImageChannelCount(image);
-  const background = 255 - foreground;
-  const { data, width, height } = image;
-  const result = createImageData(
-    new Uint8ClampedArray(data.length),
-    width,
-    height
-  );
-
-  for (let y = 0, offset = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1, offset += channels) {
-      const lum = data[offset] as number;
-      if (lum === foreground) {
-        const n = data[offset - width * channels] as number;
-        const s = data[offset + width * channels] as number;
-        const e = data[offset + channels] as number;
-        const w = data[offset - channels] as number;
-
-        const neighbors =
-          (n === foreground ? 1 : 0) +
-          (s === foreground ? 1 : 0) +
-          (e === foreground ? 1 : 0) +
-          (w === foreground ? 1 : 0);
-        const isNoise = neighbors < minimumNeighbors;
-        const resultLum = isNoise ? background : foreground;
-
-        if (channels === 1) {
-          result.data[offset] = resultLum;
-        } else if (channels === 4) {
-          result.data[offset] = resultLum;
-          result.data[offset + 1] = resultLum;
-          result.data[offset + 2] = resultLum;
-          result.data[offset + 3] = 255;
-        }
-      }
-    }
-  }
-
-  return result;
 }

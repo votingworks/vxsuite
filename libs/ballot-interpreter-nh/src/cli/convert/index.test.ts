@@ -9,11 +9,9 @@ import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 
 jest.mock('../../convert');
 jest.mock('../../images', (): typeof import('../../images') => ({
-  binarize: jest.fn(),
   matchTemplate: jest.fn(),
   matchTemplateImage: jest.fn(),
   scoreTemplateMatch: jest.fn(),
-  simpleRemoveNoise: jest.fn(),
 }));
 jest.mock(
   '@votingworks/image-utils',

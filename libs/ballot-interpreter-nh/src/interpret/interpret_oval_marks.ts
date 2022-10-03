@@ -1,12 +1,11 @@
-import { getImageChannelCount } from '@votingworks/image-utils';
-import { GridLayout } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
 import {
   binarize,
-  matchTemplateImage,
-  scoreTemplateMatch,
+  getImageChannelCount,
   simpleRemoveNoise,
-} from '../images';
+} from '@votingworks/image-utils';
+import { GridLayout } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
+import { matchTemplateImage, scoreTemplateMatch } from '../images';
 import { BallotCardGeometry, InterpretedOvalMark } from '../types';
 import { loc, makeRect, vec } from '../utils';
 import { InterpretBallotCardLayoutResult } from './interpret_ballot_card_layout';
