@@ -5,7 +5,7 @@
     "new-cap": ["error", { "newIsCapExceptionPattern": "^jsfeat\\.." }],
     "no-bitwise": "off",
 
-    "vx/gts-identifiers": ["error", { "allowedNames": ["$0", "/.*(X|Y)Offset/"] }],
+    "vx/gts-identifiers": ["error", { "allowedNames": ["$0"] }],
     "vx/gts-jsdoc": "off"
   }
 }

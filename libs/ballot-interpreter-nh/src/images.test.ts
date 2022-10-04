@@ -1,6 +1,6 @@
 import { getImageChannelCount } from '@votingworks/image-utils';
 import { createImageData } from 'canvas';
-import { binarize, matchTemplateImage, simpleRemoveNoise } from './images';
+import { matchTemplateImage } from './images';
 import { Rect } from './types';
 import { loc } from './utils';
 
@@ -13,10 +13,7 @@ const B = 0x00;
 /**
  *
  */
-export function describeBinaryImageData(
-  imageData: ImageData,
-  bounds?: Rect
-): string {
+function describeBinaryImageData(imageData: ImageData, bounds?: Rect): string {
   const {
     minY = 0,
     minX = 0,
@@ -81,77 +78,6 @@ function makeBinaryImageData(description: string): ImageData {
 
   return imageData;
 }
-
-test('simpleRemoveNoise leaves blank images alone', () => {
-  const blankImage = createImageData(10, 10);
-  assertBinaryImageDatasEqual(blankImage, simpleRemoveNoise(blankImage, 255));
-});
-
-test('simpleRemoveNoise removes noise', () => {
-  const imageData = makeBinaryImageData(`
-    .#....
-    ...#..
-    .#...#
-  `);
-
-  const expected = makeBinaryImageData(`
-    ......
-    ......
-    ......
-  `);
-
-  assertBinaryImageDatasEqual(simpleRemoveNoise(imageData, F), expected);
-});
-
-test('simpleRemoveNoise leaves foreground with a sufficient number of foreground neighbors', () => {
-  const imageData = makeBinaryImageData(`
-    .#....
-    ...##.
-    .#...#
-  `);
-
-  const expected = makeBinaryImageData(`
-    ......
-    ...##.
-    ......
-  `);
-
-  assertBinaryImageDatasEqual(simpleRemoveNoise(imageData, F), expected);
-});
-
-test('simpleRemoveNoise has a configurable minimum neighbor count', () => {
-  const imageData = makeBinaryImageData(`
-    .#....
-    ...###
-    .#...#
-  `);
-
-  const expected = makeBinaryImageData(`
-    ......
-    ....##
-    ......
-  `);
-
-  assertBinaryImageDatasEqual(simpleRemoveNoise(imageData, F, 2), expected);
-});
-
-test('binarize does not change an already-binarized image', () => {
-  const allBackground = makeBinaryImageData(`
-    ......
-    ......
-    ......
-  `);
-
-  assertBinaryImageDatasEqual(binarize(allBackground), allBackground);
-
-  const allForeground = makeBinaryImageData(`
-    ######
-    ######
-    ######
-  `);
-
-  assertBinaryImageDatasEqual(binarize(allForeground), allForeground);
-});
 
 test('matchTemplateImage returns all-background matching an image against itself', () => {
   const imageData = makeBinaryImageData(`

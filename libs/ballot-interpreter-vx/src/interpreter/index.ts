@@ -1,4 +1,11 @@
-import { crop, Debugger, noDebug, rotate180 } from '@votingworks/image-utils';
+import {
+  crop,
+  countPixels,
+  diff,
+  Debugger,
+  noDebug,
+  rotate180,
+} from '@votingworks/image-utils';
 import {
   BallotCandidateTargetMark,
   BallotIdSchema,
@@ -48,7 +55,6 @@ import { FindMarksResult, Interpreted } from '../types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
 import { defined } from '../utils/defined';
 import { rectCorners } from '../utils/geometry';
-import { countPixels, diff } from '../utils/jsfeat/diff';
 import { matToImageData } from '../utils/jsfeat/mat_to_image_data';
 import { readGrayscaleImage } from '../utils/jsfeat/read_grayscale_image';
 import { KeyedMap } from '../utils/keyed_map';
