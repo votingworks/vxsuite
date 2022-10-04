@@ -21,7 +21,7 @@
     "test": "is-ci test:ci test:watch",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit"
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7"
   },
   "packageManager": "pnpm@5.18.10",
   "dependencies": {

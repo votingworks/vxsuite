@@ -17,7 +17,7 @@
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",

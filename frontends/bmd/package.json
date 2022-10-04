@@ -20,7 +20,7 @@
     "start": "vite",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit && pnpm build:resources -- --check",
+    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=7 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit && pnpm build:resources -- --check",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:e2e": "is-ci \"test:e2e:ci\" \"test:e2e:watch\"",
     "test:e2e:ci": "start-server-and-test test:e2e:setup http-get://localhost:3000 cypress:run",
