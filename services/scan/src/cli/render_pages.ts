@@ -1,5 +1,9 @@
 import { pdfToImages } from '@votingworks/image-utils';
-import { BallotType, getPrecinctById } from '@votingworks/types';
+import {
+  BallotType,
+  getPrecinctById,
+  safeParseNumber,
+} from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import chalk from 'chalk';
@@ -9,9 +13,14 @@ import { ScannerImageFormat } from '../fujitsu_scanner';
 import { Store } from '../store';
 import { writeImageData } from '../util/images';
 
+const DEFAULT_SCALE = 2;
+const DEFAULT_IMAGE_FORMAT = ScannerImageFormat.JPEG;
+
 export function printHelp(out: NodeJS.WritableStream): void {
   out.write(
-    `${chalk.bold('render-pages')} SOURCE ${chalk.italic('[SOURCE …]')}\n`
+    `${chalk.bold('render-pages')} [options] SOURCE ${chalk.italic(
+      '[SOURCE …]'
+    )}\n`
   );
   out.write('\n');
   out.write(chalk.bold('Description\n'));
@@ -29,6 +38,20 @@ export function printHelp(out: NodeJS.WritableStream): void {
   out.write('📝 ballots-4-Bywy-TEST-p2.png\n');
   out.write('📝 ballots-5-District-5-TEST-p1.png\n');
   out.write('📝 ballots-5-District-5-TEST-p2.png\n');
+  out.write('\n');
+  out.write(chalk.bold('Options\n'));
+  out.write('  --help, -h\n');
+  out.write('    Show this help message and exit.\n');
+  out.write('  --format, -f\n');
+  out.write(
+    `    Output format. One of "${ScannerImageFormat.PNG}" or "${ScannerImageFormat.JPEG}" (default: "${DEFAULT_IMAGE_FORMAT}").\n`
+  );
+  out.write('  --scale, -s\n');
+  out.write(
+    `    Scale factor for output images (default: ${DEFAULT_SCALE}, or ${
+      72 * DEFAULT_SCALE
+    }ppi).\n`
+  );
 }
 
 export async function main(
@@ -43,7 +66,8 @@ export async function main(
     return -1;
   }
 
-  let format = ScannerImageFormat.JPEG;
+  let scale = DEFAULT_SCALE;
+  let format = DEFAULT_IMAGE_FORMAT;
   const paths: string[] = [];
 
   for (let i = 0; i < args.length; i += 1) {
@@ -63,6 +87,25 @@ export async function main(
           format = ScannerImageFormat.PNG;
         } else if (/^jpe?g/i.test(value)) {
           format = ScannerImageFormat.JPEG;
+        } else {
+          stderr.write(`error: invalid value "${value}" for option "${arg}"`);
+          return -1;
+        }
+        break;
+      }
+
+      case '-s':
+      case '--scale': {
+        i += 1;
+        const value = args[i];
+        const parseScaleResult = safeParseNumber(value, { min: 0 });
+        if (parseScaleResult.isOk()) {
+          scale = parseScaleResult.ok();
+        } else {
+          stderr.write(
+            `${chalk.red('error:')} invalid scale: ${chalk.yellow(value)}\n`
+          );
+          return -1;
         }
         break;
       }
@@ -78,7 +121,7 @@ export async function main(
     base: string,
     ext: string
   ): AsyncGenerator<string> {
-    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
+    for await (const { page, pageNumber } of pdfToImages(pdf, { scale })) {
       const path = join(dir, `${base}-p${pageNumber}${ext}`);
       await writeImageData(path, page);
       yield path;

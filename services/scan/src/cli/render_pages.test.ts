@@ -17,13 +17,13 @@ function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;
 }
 
-test('fails when given no PDF paths', async () => {
+test('no paths', async () => {
   const stderr = fakeOutput();
   expect(await main([], { stderr })).not.toEqual(0);
   expect(stderr.toString()).toContain('render-pages');
 });
 
-test('prints help when asked', async () => {
+test('--help', async () => {
   const stdout = fakeOutput();
   const stderr = fakeOutput();
   const code = await main(['--help'], { stdout, stderr });
@@ -38,7 +38,7 @@ test('prints help when asked', async () => {
   });
 });
 
-test('generates one PNG image per PDF page', async () => {
+test('render from PDF to JPEG by default', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpBallotPath = join(tmpDir, 'ballot.pdf');
@@ -70,7 +70,95 @@ test('generates one PNG image per PDF page', async () => {
   expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toBe(false);
 });
 
-test('generates one image per PDF page per DB', async () => {
+test('--format jpeg', async () => {
+  const tmpDir = tmpNameSync();
+  await fs.mkdir(tmpDir);
+  const tmpBallotPath = join(tmpDir, 'ballot.pdf');
+  await fs.copyFile(ballotPdf, tmpBallotPath);
+
+  const stdout = fakeOutput();
+  const stderr = fakeOutput();
+  const code = await main([tmpBallotPath, '--format', 'jpeg'], {
+    stdout,
+    stderr,
+  });
+  expect({
+    code,
+    stdout: stdout.toString(),
+    stderr: stderr.toString(),
+  }).toEqual({
+    code: 0,
+    stdout: `📝 ${join(tmpDir, 'ballot-p1.jpg')}\n📝 ${join(
+      tmpDir,
+      'ballot-p2.jpg'
+    )}\n`,
+    stderr: '',
+  });
+
+  for (const filename of ['ballot-p1.jpg', 'ballot-p2.jpg']) {
+    const { width, height } = await loadImageData(join(tmpDir, filename));
+    expect({ width, height }).toEqual({
+      width: 1224,
+      height: 1584,
+    });
+  }
+  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toBe(false);
+});
+
+test('--format png', async () => {
+  const tmpDir = tmpNameSync();
+  await fs.mkdir(tmpDir);
+  const tmpBallotPath = join(tmpDir, 'ballot.pdf');
+  await fs.copyFile(ballotPdf, tmpBallotPath);
+
+  const stdout = fakeOutput();
+  const stderr = fakeOutput();
+  const code = await main([tmpBallotPath, '--format', 'png'], {
+    stdout,
+    stderr,
+  });
+  expect({
+    code,
+    stdout: stdout.toString(),
+    stderr: stderr.toString(),
+  }).toEqual({
+    code: 0,
+    stdout: `📝 ${join(tmpDir, 'ballot-p1.png')}\n📝 ${join(
+      tmpDir,
+      'ballot-p2.png'
+    )}\n`,
+    stderr: '',
+  });
+
+  for (const filename of ['ballot-p1.png', 'ballot-p2.png']) {
+    const { width, height } = await loadImageData(join(tmpDir, filename));
+    expect({ width, height }).toEqual({
+      width: 1224,
+      height: 1584,
+    });
+  }
+  expect(await pathExists(join(tmpDir, 'ballot-p3.png'))).toBe(false);
+});
+
+test('invalid --format value', async () => {
+  const stdout = fakeOutput();
+  const stderr = fakeOutput();
+  const code = await main(['ballot.pdf', '--format', 'heif'], {
+    stdout,
+    stderr,
+  });
+  expect({
+    code,
+    stdout: stdout.toString(),
+    stderr: stderr.toString(),
+  }).toEqual({
+    code: -1,
+    stdout: '',
+    stderr: 'error: invalid value "heif" for option "--format"',
+  });
+});
+
+test('render from db', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
@@ -129,7 +217,7 @@ test('generates one image per PDF page per DB', async () => {
   );
 });
 
-test('fails with unknown file types', async () => {
+test('unknown file types', async () => {
   const stdout = fakeOutput();
   const stderr = fakeOutput();
 
@@ -139,7 +227,7 @@ test('fails with unknown file types', async () => {
   );
 });
 
-test('fails when a DB has no election', async () => {
+test('db without an election', async () => {
   const stdout = fakeOutput();
   const stderr = fakeOutput();
   const tmpDir = tmpNameSync();
