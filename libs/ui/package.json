@@ -21,7 +21,7 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
     "test:coverage": "TZ=UTC jest --coverage",
-    "test:ci": "TZ=UTC jest --coverage --reporters=default --reporters=jest-junit",
+    "test:ci": "TZ=UTC jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:watch": "TZ=UTC jest --watch",
     "pre-commit": "lint-staged"
   },

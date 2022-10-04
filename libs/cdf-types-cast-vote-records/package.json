@@ -16,7 +16,7 @@
     "schema:build": "mkdir -p src && cdf-schema-builder data/schema.xml data/schema.json > src/index.ts",
     "schema:update": "curl -sLo- https://raw.githubusercontent.com/usnistgov/ElectionEventLogging/master/NIST_V1_election_event_logging.xsd > data/schema.xml && pnpm schema:build",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit",
+    "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",

@@ -17,7 +17,7 @@
     "test": "is-ci test:ci test:watch",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit",
+    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=7",
     "pre-commit": "lint-staged"
   },
   "dependencies": {
