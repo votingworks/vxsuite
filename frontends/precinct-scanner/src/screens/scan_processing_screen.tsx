@@ -11,7 +11,7 @@ export function ScanProcessingScreen(): JSX.Element {
       <IndeterminateProgressBar />
       <CenteredLargeProse>
         <h1>Please wait…</h1>
-        <p>Checking your ballot for errors.</p>
+        <p>Scanning your ballot marks.</p>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
