@@ -53,6 +53,7 @@ export default defineConfig(async (env) => {
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'events', replacement: require.resolve('events/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
+        { find: 'jsdom', replacement: join(__dirname, './src/stubs/jsdom.ts') },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'stream', replacement: require.resolve('stream-browserify') },
