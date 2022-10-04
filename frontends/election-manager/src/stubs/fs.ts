@@ -293,7 +293,4 @@ export const promises = {
   appendFile: __stubFnDoNotCall,
   readFile: __stubFnDoNotCall,
   watch: __stubFnDoNotCall,
-  get constants() {
-    return constants;
-  },
 };
