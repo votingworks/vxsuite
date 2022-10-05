@@ -1,6 +1,7 @@
 import { Rect } from '@votingworks/types';
-import { PIXEL_BLACK } from './diff';
+import { PIXEL_BLACK, PIXEL_WHITE } from './diff';
 import { getImageChannelCount } from './image_data';
+import { int } from './types';
 
 /**
  * Options for counting functions.
@@ -47,4 +48,19 @@ export function countPixels(
 export function ratio(image: ImageData, options: CountOptions = {}): number {
   const { width, height } = options.bounds ?? image;
   return countPixels(image, options) / (width * height);
+}
+
+/**
+ * Determines the total luminance of an image.
+ */
+export function luminance(image: ImageData, { inverted = false } = {}): number {
+  const { data } = image;
+  const channels = getImageChannelCount(image);
+  let total = 0;
+
+  for (let i = 0; i < data.length; i += channels) {
+    total += inverted ? PIXEL_WHITE - (data[i] as int) : (data[i] as int);
+  }
+
+  return total;
 }
