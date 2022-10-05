@@ -65,6 +65,9 @@ const EITHER_NEITHER_CVR_TEST_FILE = new File(
 
 const EITHER_NEITHER_SEMS_DATA = electionWithMsEitherNeitherFixtures.semsData;
 
+const MANUALLY_ENTERED_RESULTS_TEXT =
+  /This report contains manually entered results/;
+
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -643,6 +646,8 @@ test('tabulating CVRs', async () => {
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
     eitherNeitherElectionDefinition.election.precincts.length * 2 + 1
   );
+  // We aren't entering manual results in this test, so there should be no notice
+  expect(screen.queryAllByText(MANUALLY_ENTERED_RESULTS_TEXT)).toHaveLength(0);
 
   // Save SEMS file
   fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
@@ -912,6 +917,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
       .length
   ).toBe(3);
   const printableArea1 = getByTestId('printable-area');
+
+  within(printableArea1).getByText(MANUALLY_ENTERED_RESULTS_TEXT);
+
   const absenteeRow1 = within(printableArea1).getByTestId('absentee');
   domGetByText(absenteeRow1, 'Absentee');
   domGetByText(absenteeRow1, '50');
@@ -980,6 +988,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
       .length
   ).toBe(3);
   const printableArea2 = getByTestId('printable-area');
+
+  within(printableArea2).getByText(MANUALLY_ENTERED_RESULTS_TEXT);
+
   const absenteeRow2 = within(printableArea2).getByTestId('absentee');
   domGetByText(absenteeRow2, 'Absentee');
   domGetByText(absenteeRow2, '250');
