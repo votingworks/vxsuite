@@ -8,9 +8,8 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
-    "dev": "esr --cache ./src/index.ts",
+    "dev": "concurrently --names 'server,watch' --kill-others  \"esr --cache ./src/index.ts\" \"tsc --build --watch tsconfig.build.json --preserveWatchOutput\"",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
