@@ -21,21 +21,12 @@ import {
   TallyReportColumns,
 } from './tally_report';
 import { TallyReportSummary } from './tally_report_summary';
-import { Text } from './text';
 
 const Header = styled.div`
-  margin-bottom: 0.75em;
-
   & h1 {
     margin-top: 0;
     margin-bottom: 0.5em;
     font-size: 1.5em;
-  }
-
-  & h2 {
-    margin-top: 0;
-    margin-bottom: 0.15em;
-    font-size: 1.25em;
   }
 
   & p {
@@ -44,32 +35,40 @@ const Header = styled.div`
   }
 `;
 
-const SignatureContainer = styled.div`
-  margin: 1em 0;
-  & p {
-    margin-bottom: 1.5em;
+const HeaderData = styled.span`
+  margin-right: 1em;
+  white-space: nowrap;
+  &:last-child {
+    margin-right: 0;
   }
 `;
 
-const SignatureLine = styled.div`
+const ReportCertificationSignaturesContainer = styled.div`
+  margin-top: 1em;
+`;
+
+const Signatures = styled.div`
   display: flex;
-  justify-content: space-around;
-`;
-
-const SignatureSpace = styled.span`
-  border-bottom: 1px solid #000000;
-  width: 30%;
-  padding-bottom: 1px;
-  &::before {
-    font-family: 'Noto Emoji', sans-serif;
-    font-size: 1.5em;
-    content: '⨉';
+  & > div {
+    flex: 1;
+    margin-top: 1.5rem;
+    margin-right: 0.3in;
+    border-bottom: 1px solid #000000;
+    padding-bottom: 1px;
+    &::before {
+      font-family: 'Noto Emoji', sans-serif;
+      font-size: 1em;
+      content: '✖️';
+    }
+    &:last-child {
+      margin-right: 0;
+    }
   }
 `;
 
-function SignatureArea(): JSX.Element {
+function ReportCertificationSignatures(): JSX.Element {
   return (
-    <SignatureContainer>
+    <ReportCertificationSignaturesContainer>
       <p>
         <strong>Certification Signatures:</strong>{' '}
         <em>
@@ -77,12 +76,12 @@ function SignatureArea(): JSX.Element {
           accordance with the laws of the state.
         </em>
       </p>
-      <SignatureLine>
-        <SignatureSpace />
-        <SignatureSpace />
-        <SignatureSpace />
-      </SignatureLine>
-    </SignatureContainer>
+      <Signatures>
+        <div />
+        <div />
+        <div />
+      </Signatures>
+    </ReportCertificationSignaturesContainer>
   );
 }
 
@@ -135,22 +134,28 @@ export function PrecinctScannerTallyReport({
           <LogoMark />
           <Header>
             <h1>{reportTitle}</h1>
-            <h2>{electionTitle}</h2>
             <p>
-              {electionDate}, {election.county.name}, {election.state}
+              <strong>{electionTitle}:</strong> {electionDate},{' '}
+              {election.county.name}, {election.state}
             </p>
-            <Text small as="p">
-              Polls {isPollsOpen ? 'opened' : 'closed'} on{' '}
-              {formatFullDateTimeZone(DateTime.fromMillis(pollsToggledTime), {
-                includeWeekday: false,
-              })}
-              . Report printed on{' '}
-              {formatFullDateTimeZone(DateTime.fromMillis(currentTime), {
-                includeWeekday: false,
-              })}
-              . <strong>Scanner ID:</strong> {precinctScannerMachineId}
-            </Text>
-            <SignatureArea />
+            <p>
+              <HeaderData>
+                <strong>Polls {isPollsOpen ? 'Opened' : 'Closed'}: </strong>
+                {formatFullDateTimeZone(DateTime.fromMillis(pollsToggledTime), {
+                  includeWeekday: false,
+                })}
+              </HeaderData>
+              <HeaderData>
+                <strong>Report Printed: </strong>
+                {formatFullDateTimeZone(DateTime.fromMillis(currentTime), {
+                  includeWeekday: false,
+                })}
+              </HeaderData>
+              <HeaderData>
+                <strong>Scanner ID:</strong> {precinctScannerMachineId}
+              </HeaderData>
+            </p>
+            <ReportCertificationSignatures />
           </Header>
 
           <TallyReportColumns>

@@ -56,10 +56,20 @@ test('renders as expected for all precincts in a general election', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Official Polls Closed Report for All Precincts');
-  screen.getByText('General Election');
-  screen.getByText(
-    /Polls closed on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
+  const electionTitle = screen.getByText('General Election:');
+  expect(electionTitle.parentElement).toHaveTextContent(
+    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
   );
+  const eventDate = screen.getByText('Polls Closed:');
+  expect(eventDate.parentNode).toHaveTextContent(
+    'Polls Closed: Sep 19, 2021, 11:05 AM'
+  );
+  const printedAt = screen.getByText('Report Printed:');
+  expect(printedAt.parentElement).toHaveTextContent(
+    'Report Printed: Sep 19, 2021, 11:06 AM'
+  );
+  const scannerId = screen.getByText('Scanner ID:');
+  expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   const countyCommissioners = screen.getByTestId(
     'results-table-county-commissioners'
   );
@@ -101,10 +111,20 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('TEST Polls Opened Report for Center Springfield');
-  screen.getByText('General Election');
-  screen.getByText(
-    /Polls opened on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
+  const electionTitle = screen.getByText('General Election:');
+  expect(electionTitle.parentElement).toHaveTextContent(
+    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
   );
+  const eventDate = screen.getByText('Polls Opened:');
+  expect(eventDate.parentNode).toHaveTextContent(
+    'Polls Opened: Sep 19, 2021, 11:05 AM'
+  );
+  const printedAt = screen.getByText('Report Printed:');
+  expect(printedAt.parentElement).toHaveTextContent(
+    'Report Printed: Sep 19, 2021, 11:06 AM'
+  );
+  const scannerId = screen.getByText('Scanner ID:');
+  expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   const countyCommissioners = screen.getByTestId(
     'results-table-county-commissioners'
   );
@@ -161,10 +181,23 @@ test('renders as expected for all precincts in a primary election', () => {
     />
   );
   screen.getByText('Official Polls Opened Report for All Precincts');
-  screen.getByText('Mammal Party Example Primary Election');
-  screen.getByText(
-    /Polls opened on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM./
+  const electionTitle = screen.getByText(
+    'Mammal Party Example Primary Election:'
   );
+  expect(electionTitle.parentElement).toHaveTextContent(
+    'Mammal Party Example Primary Election: Wednesday, September 8, 2021, Sample County, State of Sample'
+  );
+  const eventDate = screen.getByText('Polls Opened:');
+  expect(eventDate.parentNode).toHaveTextContent(
+    'Polls Opened: Sep 19, 2021, 11:05 AM'
+  );
+  const printedAt = screen.getByText('Report Printed:');
+  expect(printedAt.parentElement).toHaveTextContent(
+    'Report Printed: Sep 19, 2021, 11:06 AM'
+  );
+  expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
+  const scannerId = screen.getByText('Scanner ID:');
+  expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
   const bestAnimal = screen.getByTestId('results-table-best-animal-mammal');
   within(bestAnimal).getByText(/1 ballot cast/);
@@ -235,10 +268,23 @@ test('renders as expected for a single precincts in a primary election', () => {
     />
   );
   screen.getByText('Official Polls Closed Report for Precinct 1');
-  screen.getByText('Fish Party Example Primary Election');
-  screen.getByText(
-    /Polls closed on Sep 19, 2021, 11:05 AM. Report printed on Sep 19, 2021, 11:06 AM/
+  const electionTitle = screen.getByText(
+    'Fish Party Example Primary Election:'
   );
+  expect(electionTitle.parentElement).toHaveTextContent(
+    'Fish Party Example Primary Election: Wednesday, September 8, 2021, Sample County, State of Sample'
+  );
+  const eventDate = screen.getByText('Polls Closed:');
+  expect(eventDate.parentNode).toHaveTextContent(
+    'Polls Closed: Sep 19, 2021, 11:05 AM'
+  );
+  const printedAt = screen.getByText('Report Printed:');
+  expect(printedAt.parentElement).toHaveTextContent(
+    'Report Printed: Sep 19, 2021, 11:06 AM'
+  );
+  expect(screen.queryByTestId('results-table-best-animal-mammal')).toBeNull();
+  const scannerId = screen.getByText('Scanner ID:');
+  expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   expect(screen.queryByTestId('results-table-best-animal-mammal')).toBeNull();
   const bestAnimal = screen.getByTestId('results-table-best-animal-fish');
   within(bestAnimal).getByText(/1 ballot cast/);

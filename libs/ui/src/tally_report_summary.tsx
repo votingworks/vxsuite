@@ -14,6 +14,7 @@ const BallotSummary = styled.div`
   margin-bottom: 1em;
   border: 1px solid rgb(194, 200, 203);
   border-width: 0 1px;
+  break-inside: avoid;
   h3 {
     margin: 0;
     background: rgb(194, 200, 203);
