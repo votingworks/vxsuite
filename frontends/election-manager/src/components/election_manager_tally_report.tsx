@@ -27,6 +27,7 @@ import React, { forwardRef } from 'react';
 
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { modifyTallyWithWriteInInfo } from '../lib/votecounting';
+import { mergeWriteIns } from '../utils/write_ins';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
 
@@ -117,7 +118,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                 filteredExternalTally.numberOfBallotsCounted > 0
               ) {
                 if (t.source === ExternalTallySourceType.Manual) {
-                  manualTallyForReport = filteredExternalTally;
+                  manualTallyForReport = mergeWriteIns(filteredExternalTally);
                 } else {
                   otherExternalTalliesForReport.push(filteredExternalTally);
                 }

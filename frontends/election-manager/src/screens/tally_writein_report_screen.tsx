@@ -4,7 +4,11 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
+import {
+  VotingMethod,
+  getLabelForVotingMethod,
+  ExternalTallySourceType,
+} from '@votingworks/types';
 import {
   isElectionManagerAuth,
   Prose,
@@ -39,7 +43,10 @@ import { ElectionManagerWriteInTallyReport } from '../components/election_manage
 import { PrintableArea } from '../components/printable_area';
 
 import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
-import { getWriteInCountsByContestAndCandidate } from '../utils/write_ins';
+import {
+  getManualWriteInCounts,
+  getScreenAdjudicatedWriteInCounts,
+} from '../utils/write_ins';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -66,6 +73,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
+    fullElectionExternalTallies,
     isTabulationRunning,
     auth,
     logger,
@@ -77,13 +85,20 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
   const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
-  const writeInCountsByContestAndCandidate =
-    getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? []);
+  const screenAdjudicatedWriteInCounts = getScreenAdjudicatedWriteInCounts(
+    writeInSummaryQuery.data ?? []
+  );
+  const manualData = fullElectionExternalTallies.get(
+    ExternalTallySourceType.Manual
+  );
+  const manualWriteInCounts = manualData
+    ? getManualWriteInCounts(manualData.overallTally)
+    : undefined;
   useEffect(() => {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef, writeInCountsByContestAndCandidate]);
+  }, [previewReportRef, printReportRef, screenAdjudicatedWriteInCounts]);
 
   const precinctName =
     (precinctId &&
@@ -194,7 +209,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const generatedAtTime = new Date();
 
-  if (isTabulationRunning || !writeInCountsByContestAndCandidate) {
+  if (isTabulationRunning || !screenAdjudicatedWriteInCounts) {
     return (
       <NavigationScreen centerChild>
         <Prose textCenter>
@@ -257,7 +272,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
           batchId={batchId}
           batchLabel={batchLabel}
           election={election}
-          writeInCounts={writeInCountsByContestAndCandidate}
+          screenAdjudicatedWriteInCounts={screenAdjudicatedWriteInCounts}
+          manualWriteInCounts={manualWriteInCounts}
           generatedAtTime={generatedAtTime}
           isOfficialResults={isOfficialResults}
           partyId={partyId}

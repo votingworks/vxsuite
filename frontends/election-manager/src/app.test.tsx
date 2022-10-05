@@ -865,24 +865,21 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   fireEvent.click(getByText('Add Manually Entered Results'));
   getByText('Manually Entered Precinct Results');
   fireEvent.click(getByText('Edit Precinct Results for District 5'));
-  getByText('Save Precinct Results for District 5');
-  fireEvent.change(getByTestId('775020876-undervotes'), {
+  await screen.findByText('Save Precinct Results for District 5');
+  fireEvent.change(getByTestId('775020876-undervotes-input'), {
     target: { value: '12' },
   });
-  fireEvent.change(getByTestId('775020876-overvotes'), {
+  fireEvent.change(getByTestId('775020876-overvotes-input'), {
     target: { value: '8' },
   });
-  fireEvent.change(getByTestId('775020876-775031988'), {
+  fireEvent.change(getByTestId('775020876-775031988-input'), {
     target: { value: '32' },
   });
-  fireEvent.change(getByTestId('775020876-775031987'), {
+  fireEvent.change(getByTestId('775020876-775031987-input'), {
     target: { value: '28' },
   });
-  fireEvent.change(getByTestId('775020876-775031989'), {
-    target: { value: '10' },
-  });
-  fireEvent.change(getByTestId('775020876-write-in'), {
-    target: { value: '10' },
+  fireEvent.change(getByTestId('775020876-775031989-input'), {
+    target: { value: '20' },
   });
 
   fireEvent.click(getByText('Save Precinct Results for District 5'));
@@ -942,16 +939,16 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   // Change to another precinct
   fireEvent.click(getByText('Edit Absentee Results for Panhandle'));
   await screen.findByText('Save Absentee Results for Panhandle');
-  fireEvent.change(getByTestId('750000017-undervotes'), {
+  fireEvent.change(getByTestId('750000017-undervotes-input'), {
     target: { value: '17' },
   });
-  fireEvent.change(getByTestId('750000017-overvotes'), {
+  fireEvent.change(getByTestId('750000017-overvotes-input'), {
     target: { value: '3' },
   });
-  fireEvent.change(getByTestId('750000017-yes'), {
+  fireEvent.change(getByTestId('750000017-yes-input'), {
     target: { value: '54' },
   });
-  fireEvent.change(getByTestId('750000017-no'), {
+  fireEvent.change(getByTestId('750000017-no-input'), {
     target: { value: '26' },
   });
 

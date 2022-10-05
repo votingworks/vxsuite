@@ -12,6 +12,7 @@ import {
   AdjudicationId,
   DippedSmartcardAuth,
   Printer,
+  VotingMethod,
 } from '@votingworks/types';
 import { usbstick, NullPrinter } from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
@@ -68,6 +69,8 @@ interface RenderInAppContextParams {
   updateExternalTally?: (
     newExternalTally: FullElectionExternalTally
   ) => Promise<void>;
+  manualTallyVotingMethod?: VotingMethod;
+  setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
   fullElectionExternalTallies?: FullElectionExternalTallies;
   generateExportableTallies?: () => ExportableTallies;
   auth?: DippedSmartcardAuth.Auth;
@@ -125,6 +128,8 @@ export function renderInAppContext(
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
     updateExternalTally = jest.fn(),
+    manualTallyVotingMethod = VotingMethod.Precinct,
+    setManualTallyVotingMethod = jest.fn(),
     fullElectionExternalTallies = new Map(),
     saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
@@ -164,6 +169,8 @@ export function renderInAppContext(
         isTabulationRunning,
         setIsTabulationRunning,
         updateExternalTally,
+        manualTallyVotingMethod,
+        setManualTallyVotingMethod,
         fullElectionExternalTallies,
         generateExportableTallies,
         saveTranscribedValue,

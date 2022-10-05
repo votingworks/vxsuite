@@ -6,6 +6,7 @@ import {
   DippedSmartcardAuth,
   FullElectionExternalTallies,
   Printer,
+  VotingMethod,
 } from '@votingworks/types';
 import { usbstick, NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
@@ -48,6 +49,8 @@ export interface AppContextInterface {
   updateExternalTally: (
     newExternalTally: FullElectionExternalTally
   ) => Promise<void>;
+  manualTallyVotingMethod: VotingMethod;
+  setManualTallyVotingMethod: (votingMethod: VotingMethod) => void;
   saveTranscribedValue: (
     adjudicationId: string,
     transcribedValue: string
@@ -86,6 +89,8 @@ const appContext: AppContextInterface = {
   fullElectionTally: getEmptyFullElectionTally(),
   fullElectionExternalTallies: new Map(),
   updateExternalTally: async () => undefined,
+  manualTallyVotingMethod: VotingMethod.Precinct,
+  setManualTallyVotingMethod: () => undefined,
   saveTranscribedValue: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
