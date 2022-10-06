@@ -34,12 +34,12 @@ test('Tally results already marked as official', async () => {
 
   await screen.findByText(/No further changes may be made/);
 
-  const transcribeButtons = await screen.findAllByText(/Transcribe \d/);
+  const transcribeButtons = screen.queryAllByText(/Transcribe \d/);
   for (const transcribeButton of transcribeButtons) {
     expect(transcribeButton).toBeDisabled();
   }
 
-  const adjudicateButtons = await screen.findAllByText('Adjudicate');
+  const adjudicateButtons = screen.queryAllByText('Adjudicate');
   for (const adjudicateButton of adjudicateButtons) {
     expect(adjudicateButton).toBeDisabled();
   }
