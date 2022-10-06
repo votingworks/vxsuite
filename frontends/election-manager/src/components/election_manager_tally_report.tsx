@@ -2,7 +2,6 @@ import {
   ContestTally,
   LogoMark,
   Prose,
-  Text,
   ReportSection,
   TallyReport,
   TallyReportColumns,
@@ -30,19 +29,6 @@ import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { modifyTallyWithWriteInInfo } from '../lib/votecounting';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
-
-function ManualResultsNotice(): JSX.Element {
-  return (
-    <Prose maxWidth={false}>
-      <Text small as="span">
-        <em>
-          *This report contains manually entered results. Vote counts are
-          ordered as: scanned | manual | total
-        </em>
-      </Text>
-    </Prose>
-  );
-}
 
 export interface Props {
   batchId?: string;
@@ -162,7 +148,6 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                       election={election}
                     />
                   </Prose>
-                  {manualTallyForReport && <ManualResultsNotice />}
                   <TallyReportColumns>
                     <TallyReportSummary
                       totalBallotCount={reportBallotCount}
@@ -252,7 +237,6 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                       election={election}
                     />
                   </Prose>
-                  {manualTallyForReport && <ManualResultsNotice />}
                   <TallyReportColumns>
                     <ContestTally
                       election={election}
@@ -280,7 +264,6 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     election={election}
                   />
                 </Prose>
-                {manualTallyForReport && <ManualResultsNotice />}
                 <TallyReportColumns>
                   <TallyReportSummary
                     totalBallotCount={reportBallotCount}
