@@ -17,6 +17,34 @@ test('No CVRs loaded', async () => {
   expect(screen.queryByText('Transcribe')).not.toBeInTheDocument();
 });
 
+test('Tally results already marked as official', async () => {
+  const backend = new ElectionManagerStoreMemoryBackend({
+    electionDefinition,
+  });
+
+  await backend.addCastVoteRecordFile(
+    new File([abbreviatedCvrData], 'cvrs.jsonl')
+  );
+
+  renderInAppContext(<WriteInsScreen />, {
+    backend,
+    electionDefinition,
+    isOfficialResults: true,
+  });
+
+  await screen.findByText(/No further changes may be made/);
+
+  const transcribeButtons = screen.queryAllByText(/Transcribe \d/);
+  for (const transcribeButton of transcribeButtons) {
+    expect(transcribeButton).toBeDisabled();
+  }
+
+  const adjudicateButtons = screen.queryAllByText('Adjudicate');
+  for (const adjudicateButton of adjudicateButtons) {
+    expect(adjudicateButton).toBeDisabled();
+  }
+});
+
 test('CVRs with write-ins loaded', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition,

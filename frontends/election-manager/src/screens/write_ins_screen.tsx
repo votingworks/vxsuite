@@ -27,8 +27,13 @@ const ContentWrapper = styled.div`
   }
 `;
 
+const ResultsFinalizedNotice = styled.p`
+  color: rgb(71, 167, 75);
+`;
+
 export function WriteInsScreen(): JSX.Element {
-  const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
+  const { castVoteRecordFiles, electionDefinition, isOfficialResults } =
+    useContext(AppContext);
   const [contestBeingTranscribed, setContestBeingTranscribed] =
     useState<CandidateContest>();
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
@@ -123,20 +128,35 @@ export function WriteInsScreen(): JSX.Element {
     });
   }
 
+  function renderHeaderText() {
+    if (isOfficialResults) {
+      return (
+        <ResultsFinalizedNotice>
+          Tally results have been finalized. No further changes may be made.
+        </ResultsFinalizedNotice>
+      );
+    }
+
+    if (!castVoteRecordFiles.wereAdded) {
+      return (
+        <p>Load CVRs to begin transcribing and adjudicating write-in votes.</p>
+      );
+    }
+
+    return (
+      <p>
+        Transcribe all write-in values, then map the transcriptions to
+        adjudicated candidates.
+      </p>
+    );
+  }
+
   return (
     <NavigationScreen>
       <ContentWrapper>
         <Prose maxWidth={false}>
           <h1>Write-Ins Transcription and Adjudication</h1>
-          {!castVoteRecordFiles.wereAdded && (
-            <p>
-              Load CVRs to begin transcribing and adjudicating write-in votes.
-            </p>
-          )}
-          <p>
-            Transcribe all write-in values, then map the transcriptions to
-            adjudicated candidates.
-          </p>
+          {renderHeaderText()}
           <Table>
             <thead>
               <tr>
@@ -188,6 +208,7 @@ export function WriteInsScreen(): JSX.Element {
                         </Text>
                       ) : (
                         <Button
+                          disabled={isOfficialResults}
                           primary={!!transcriptionQueue}
                           onPress={() => setContestBeingTranscribed(contest)}
                         >
@@ -204,6 +225,7 @@ export function WriteInsScreen(): JSX.Element {
                         </Text>
                       ) : (
                         <Button
+                          disabled={isOfficialResults}
                           primary={!!adjudicationQueue}
                           onPress={() => setContestBeingAdjudicated(contest)}
                         >
