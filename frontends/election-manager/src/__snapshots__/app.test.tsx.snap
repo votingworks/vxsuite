@@ -330,7 +330,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class="sc-cidCJl ehMcmc"
       >
         <div
-          class="sc-dPiKHq fTCqDa"
+          class="sc-dPiKHq kAPQxi"
         >
           <h3>
             Ballots by Voting Method
@@ -3389,7 +3389,7 @@ exports[`tabulating CVRs 1`] = `
     class="sc-cidCJl ehMcmc"
   >
     <div
-      class="sc-dPiKHq fTCqDa"
+      class="sc-dPiKHq kAPQxi"
     >
       <h3>
         Ballots by Voting Method
@@ -4589,7 +4589,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     class="sc-cidCJl ehMcmc"
   >
     <div
-      class="sc-dPiKHq fTCqDa"
+      class="sc-dPiKHq kAPQxi"
     >
       <h3>
         Ballots by Voting Method

@@ -173,10 +173,10 @@ test('expected tally reports are printed for a primary election with all precinc
   ).toHaveLength(election.parties.length);
 
   expect(
-    screen.queryAllByText('Mammal Party Example Primary Election')
+    screen.queryAllByText('Mammal Party Example Primary Election:')
   ).toHaveLength(election.precincts.length);
   expect(
-    screen.queryAllByText('Fish Party Example Primary Election')
+    screen.queryAllByText('Fish Party Example Primary Election:')
   ).toHaveLength(election.precincts.length);
 
   // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
@@ -285,10 +285,10 @@ test('expected tally reports for a primary election with all precincts with CVRs
   ).toHaveLength(election.parties.length);
 
   expect(
-    screen.queryAllByText('Mammal Party Example Primary Election')
+    screen.queryAllByText('Mammal Party Example Primary Election:')
   ).toHaveLength(election.precincts.length);
   expect(
-    screen.queryAllByText('Fish Party Example Primary Election')
+    screen.queryAllByText('Fish Party Example Primary Election:')
   ).toHaveLength(election.precincts.length);
 
   // Check there there is a QR code page since we are closing polls
@@ -634,8 +634,8 @@ test('expected tally reports for a primary election with a single precincts with
     screen.queryAllByText('TEST Polls Closed Report for Precinct 2')
   ).toHaveLength(0);
 
-  screen.getByText('Mammal Party Example Primary Election');
-  screen.getByText('Fish Party Example Primary Election');
+  screen.getByText('Mammal Party Example Primary Election:');
+  screen.getByText('Fish Party Example Primary Election:');
 
   // quickresults disabled by default
   expect(

@@ -61,7 +61,7 @@ const SignatureLine = styled.div`
   &::before {
     font-family: 'Noto Emoji', sans-serif;
     font-size: 1.5rem;
-    content: '⨉';
+    content: '✖️';
   }
 `;
 
