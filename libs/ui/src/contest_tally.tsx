@@ -57,33 +57,33 @@ const ContestTable = styled.table`
   & tr.metadata {
     font-size: 0.75em;
   }
-  & tr.metadata.last {
-    border-bottom: 1px solid #808080;
+  & tr.metadata.metadatarow {
+    border-bottom: 1px solid #e6e6e6;
   }
   & td {
     width: 1%;
     height: 100%;
-    padding: 0.15rem;
+    padding: 0.1rem 0.25rem;
     padding-right: 0;
     text-align: right;
     white-space: no-wrap;
   }
   & th {
-    padding: 0.15rem 0.25rem;
-    text-align: left;
+    padding: 0 0.5rem;
+    text-align: right;
     font-weight: 400;
+    &:first-child {
+      padding-left: 0.1rem;
+      text-align: left;
+    }
+    &:not(:first-child) {
+      padding-right: 0;
+    }
   }
 `;
 
-// This styled container adds the vertical border between tallies and padding
-const TallyContainer = styled.div<{ border?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  border-right: ${({ border = true }) =>
-    border ? `1px solid ${tableBorderColor}` : undefined};
-  height: 100%;
-  padding-right: 3.5px;
+const Muted = styled.span`
+  color: #808080;
 `;
 
 function ContestOptionRow({
@@ -108,14 +108,16 @@ function ContestOptionRow({
     return (
       <tr data-testid={testId}>
         <th>{optionLabel}</th>
+        <td>{inferredTally - manualSubTally}</td>
         <td>
-          <TallyContainer>{inferredTally - manualSubTally}</TallyContainer>
+          {manualSubTally === 0 ? (
+            <Muted>{manualSubTally}</Muted>
+          ) : (
+            manualSubTally
+          )}
         </td>
         <td>
-          <TallyContainer>{manualSubTally}</TallyContainer>
-        </td>
-        <td>
-          <TallyContainer border={false}>{inferredTally}</TallyContainer>
+          <strong>{inferredTally}</strong>
         </td>
       </tr>
     );
@@ -141,16 +143,20 @@ function ContestMetadataRow({
   isLast?: boolean;
 }): JSX.Element {
   return (
-    <tr className={`metadata${isLast ? ' last' : ''}`}>
-      <th>{label}</th>
+    <tr className={`metadata ${isLast ? '' : 'metadatarow'}`}>
+      <th>
+        <em>{label}</em>
+      </th>
+      <td>{total - manualSubtotal}</td>
       <td>
-        <TallyContainer>{total - manualSubtotal}</TallyContainer>
+        {manualSubtotal === 0 ? (
+          <Muted>{manualSubtotal}</Muted>
+        ) : (
+          manualSubtotal
+        )}
       </td>
       <td>
-        <TallyContainer>{manualSubtotal}</TallyContainer>
-      </td>
-      <td>
-        <TallyContainer border={false}>{total}</TallyContainer>
+        <strong>{total}</strong>
       </td>
     </tr>
   );
@@ -274,6 +280,14 @@ export function ContestTally({
 
         if (hasManualTally) {
           contestTableRows = [
+            <tr className="metadata header" key={`${contest.id}-header`}>
+              <th> </th>
+              <th>scanned</th>
+              <th>manual</th>
+              <th>
+                <strong>total</strong>
+              </th>
+            </tr>,
             <ContestMetadataRow
               label="Ballots Cast"
               key={`${contest.id}-ballots-cast`}
