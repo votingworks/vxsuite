@@ -13,9 +13,6 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then get started like so:
 
 ```sh
-# automatically build changes
-pnpm build:watch
-
 # test on changes
 pnpm test:watch
 ```

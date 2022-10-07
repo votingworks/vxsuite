@@ -7,18 +7,17 @@ VxSuite [Ballot Scanning Device (BSD)](../bsd) or the VxSuite
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the service like so:
+then run the service from an appropriate frontend. You generally should not need
+to run this service directly. Instead, run like so:
 
 ```sh
-# in services/scan
-pnpm build:watch &
-# For central scanner
-VX_MACHINE_TYPE=bsd pnpm dev
-# For precinct scanner
-VX_MACHINE_TYPE=precinct-scanner pnpm dev
+cd frontends/bsd # or frontends/precinct-scanner
+pnpm start
 ```
 
-The server will be available at http://localhost:3002/.
+The server will be available at http://localhost:3002/. The commands to run the
+service below assume you'll be running them in a frontend, not this service
+directly.
 
 ## Mock Scanning
 
@@ -29,13 +28,13 @@ that's appropriate for you.
 
 ```sh
 # single batch with single sheet
-VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm dev
+MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm start
 
 # single batch with multiple sheets
-VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm dev
+MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm start
 
 # multiple batches with one sheet each (note ",," batch separator)
-VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm dev
+MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm start
 
 # use a manifest file
 cat <<EOS > manifest
@@ -47,11 +46,11 @@ back-01.jpeg
 front-02.jpeg
 back-02.jpeg
 EOS
-VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=@manifest pnpm dev
+MOCK_SCANNER_FILES=@manifest pnpm start
 
 # scanning from an election backup file
-./bin/extract-backup /path/to/election-backup.zip
-VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
+../../services/scan/bin/extract-backup /path/to/election-backup.zip
+MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
 ```
 
 If you are seeing unhandled promise rejection errors you may have an issue with
@@ -63,8 +62,10 @@ app.
 This mode is designed for use with `precinct-scanner`.
 
 ```sh
+cd frontends/precinct-scanner
+
 # start the server with an HTTP-based mock
-VX_MACHINE_TYPE=precinct-scanner MOCK_SCANNER_HTTP=1 pnpm dev
+MOCK_SCANNER_HTTP=1 pnpm start
 
 # in another terminal, simulate the user feeding paper into the scanner:
 ./bin/mock-scanner load path/to/front.jpg path/to/back.jpg
@@ -92,7 +93,7 @@ First init `services/smartcards` with:
 Init `services/scan` with:
 
 ```
-MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p2.png pnpm dev
+MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p2.png pnpm start
 ```
 
 #### Legal-sized ballots
@@ -106,7 +107,7 @@ First init `services/smartcards` with:
 Init `services/scan` with:
 
 ```
-MOCK_SCANNER_FILES=../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm dev
+MOCK_SCANNER_FILES=../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm start
 ```
 
 ## Switching Workspaces
@@ -116,7 +117,7 @@ in a `dev-workspace` folder inside `services/scan` when running this service. To
 choose another location, set `SCAN_WORKSPACE` to the path to another folder:
 
 ```sh
-$ SCAN_WORKSPACE=/path/to/workspace pnpm dev
+SCAN_WORKSPACE=/path/to/workspace pnpm start
 ```
 
 ## Testing

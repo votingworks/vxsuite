@@ -6,6 +6,7 @@
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "dependencies": {
+    "concurrently": "^7.4.0",
     "resolve-from": "^5.0.0",
     "yaml": "^2.1.0"
   },

@@ -12,7 +12,6 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
     "clean": "rm -rf build *.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
@@ -21,8 +20,7 @@
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "type-check": "tsc --build",
-    "type-check:watch": "tsc --build --watch"
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [

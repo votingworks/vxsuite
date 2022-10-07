@@ -6,7 +6,7 @@
     "prepare": "husky install",
     "configure-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts",
     "configure-vxdev-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts --isVxDev -o /vx/config/.env.local",
-    "run:smartcards": "make run -C services/smartcards"
+    "run-dev": "script/run-dev"
   },
   "lint-staged": {
     "package.json": "sort-package-json",
@@ -15,7 +15,6 @@
   "packageManager": "pnpm@5.18.10",
   "devDependencies": {
     "@codemod/cli": "^3.1.2",
-    "concurrently": "^7.4.0",
     "eslint": "^7.29.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",

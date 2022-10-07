@@ -10,11 +10,11 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "pnpm type-check && vite build",
-    "build:watch": "tsc --build --watch",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
-    "start": "vite",
+    "start": "pnpm -w run-dev -- bsd",
+    "start:core": "pnpm -w run-dev -- bsd --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
@@ -109,6 +109,8 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "esbuild": "^0.15.10",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
@@ -150,6 +152,9 @@
     "services": [
       "../../services/scan",
       "../../services/smartcards"
-    ]
+    ],
+    "env": {
+      "VX_MACHINE_TYPE": "bsd"
+    }
   }
 }
