@@ -17,6 +17,7 @@ import {
   isElectionManagerAuth,
 } from '@votingworks/ui';
 import {
+  ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   assert,
   singlePrecinctSelectionFor,
@@ -33,8 +34,9 @@ import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
+export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
-interface Props {
+export interface ElectionManagerScreenProps {
   scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
@@ -54,7 +56,7 @@ export function ElectionManagerScreen({
   setMarkThresholdOverrides,
   unconfigure,
   usbDrive,
-}: Props): JSX.Element {
+}: ElectionManagerScreenProps): JSX.Element {
   const {
     electionDefinition,
     precinctSelection,
@@ -156,10 +158,16 @@ export function ElectionManagerScreen({
             onChange={changeAppPrecinctSelection}
             large
           >
-            <option value="" disabled>
-              Select a precinct for this device…
-            </option>
-            <option value={ALL_PRECINCTS_OPTION_VALUE}>All Precincts</option>
+            {!precinctSelectionValue && (
+              <option value="" disabled>
+                {SELECT_PRECINCT_TEXT}
+              </option>
+            )}
+            {election.precincts.length > 1 && (
+              <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                {ALL_PRECINCTS_NAME}
+              </option>
+            )}
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {

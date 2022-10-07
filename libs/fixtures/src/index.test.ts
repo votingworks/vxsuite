@@ -16,6 +16,8 @@ test('has various election definitions', () => {
       "electionMinimalExhaustiveSampleFixtures",
       "electionMinimalExhaustiveSampleRightSideTargets",
       "electionMinimalExhaustiveSampleRightSideTargetsDefinition",
+      "electionMinimalExhaustiveSampleSinglePrecinct",
+      "electionMinimalExhaustiveSampleSinglePrecinctDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrl",
       "electionMinimalExhaustiveSampleWithReportingUrlDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrlFixtures",

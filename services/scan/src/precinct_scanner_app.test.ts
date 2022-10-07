@@ -14,7 +14,10 @@ import {
 import { dirSync } from 'tmp';
 import request from 'supertest';
 import { Application } from 'express';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+} from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   BallotPackageEntry,
@@ -340,6 +343,20 @@ async function configureApp(
   await setAppPrecinct(app);
   await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
 }
+
+test("setting the election also sets precinct if there's only one", async () => {
+  const { app } = await createApp();
+  await patch(
+    app,
+    '/precinct-scanner/config/election',
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData
+  );
+  const response = await get(app, '/precinct-scanner/config/precinct');
+  expect(response.body.precinctSelection).toMatchObject({
+    kind: 'SinglePrecinct',
+    precinctId: 'precinct-1',
+  });
+});
 
 test('configure and scan hmpb', async () => {
   const { app, mockPlustek, logger } = await createApp();

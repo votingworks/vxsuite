@@ -7,13 +7,24 @@ import {
   within,
 } from '@testing-library/react';
 import { Scan } from '@votingworks/api';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_NAME,
+  singlePrecinctSelectionFor,
+  usbstick,
+} from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import { AppContext } from '../contexts/app_context';
-import { ElectionManagerScreen } from './election_manager_screen';
+import { AppContext, AppContextInterface } from '../contexts/app_context';
+import {
+  ElectionManagerScreen,
+  ElectionManagerScreenProps,
+  SELECT_PRECINCT_TEXT,
+} from './election_manager_screen';
 
 beforeEach(() => {
   MockDate.set('2020-10-31T00:00:00.000Z');
@@ -34,7 +45,13 @@ const scannerStatus: Scan.PrecinctScannerStatus = {
   canUnconfigure: false,
 };
 
-test('renders date and time settings modal', async () => {
+function renderScreen({
+  appContextProps = {},
+  electionManagerScreenProps = {},
+}: {
+  appContextProps?: Partial<AppContextInterface>;
+  electionManagerScreenProps?: Partial<ElectionManagerScreenProps>;
+} = {}): void {
   render(
     <AppContext.Provider
       value={{
@@ -42,6 +59,7 @@ test('renders date and time settings modal', async () => {
         isSoundMuted: false,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         auth,
+        ...appContextProps,
       }}
     >
       <ElectionManagerScreen
@@ -53,9 +71,14 @@ test('renders date and time settings modal', async () => {
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
         toggleIsSoundMuted={jest.fn()}
+        {...electionManagerScreenProps}
       />
     </AppContext.Provider>
   );
+}
+
+test('renders date and time settings modal', async () => {
+  renderScreen();
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
@@ -86,30 +109,9 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('setting and un-setting the precinct', async () => {
+test('setting the precinct', async () => {
   const updatePrecinctSelection = jest.fn();
-
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        updatePrecinctSelection={updatePrecinctSelection}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
 
   const precinct = electionSampleDefinition.election.precincts[0];
   const selectPrecinct = await screen.findByTestId('selectPrecinct');
@@ -124,56 +126,37 @@ test('setting and un-setting the precinct', async () => {
   );
 });
 
+test('no All Precincts option if only one precinct', async () => {
+  renderScreen({
+    appContextProps: {
+      electionDefinition:
+        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    },
+  });
+
+  // Should have precinct name in both the dropdown and the footer
+  expect(await screen.findAllByText('Precinct 1')).toHaveLength(2);
+  expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
+  expect(screen.queryByText(SELECT_PRECINCT_TEXT)).not.toBeInTheDocument();
+});
+
 test('export from admin screen', () => {
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen();
 
   fireEvent.click(screen.getByText('Save Backup'));
 });
 
-test('unconfigure ejects a usb drive when it is mounted', () => {
+test('unconfigure does not eject a usb drive that is not mounted', () => {
   const ejectFn = jest.fn();
   const unconfigureFn = jest.fn();
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={unconfigureFn}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: ejectFn }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen({
+    electionManagerScreenProps: {
+      scannerStatus: { ...scannerStatus, canUnconfigure: true },
+      unconfigure: unconfigureFn,
+      usbDrive: { status: usbstick.UsbDriveStatus.absent, eject: ejectFn },
+    },
+  });
 
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   fireEvent.click(screen.getByText('Yes, Delete All'));
@@ -181,30 +164,16 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
   expect(ejectFn).toHaveBeenCalledTimes(0);
 });
 
-test('unconfigure does not eject a usb drive that is not mounted', async () => {
+test('unconfigure ejects a usb drive when it is mounted', async () => {
   const ejectFn = jest.fn();
   const unconfigureFn = jest.fn();
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={unconfigureFn}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: ejectFn }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen({
+    electionManagerScreenProps: {
+      scannerStatus: { ...scannerStatus, canUnconfigure: true },
+      unconfigure: unconfigureFn,
+      usbDrive: { status: usbstick.UsbDriveStatus.mounted, eject: ejectFn },
+    },
+  });
 
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   fireEvent.click(screen.getByText('Yes, Delete All'));
@@ -215,27 +184,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 });
 
 test('unconfigure button is disabled when the machine cannot be unconfigured', () => {
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen();
 
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
@@ -243,28 +192,9 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
 
 test('cannot toggle to testing mode when the machine cannot be unconfigured', () => {
   const toggleLiveModeFn = jest.fn();
-
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={toggleLiveModeFn}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen({
+    electionManagerScreenProps: { toggleLiveMode: toggleLiveModeFn },
+  });
 
   fireEvent.click(screen.getByText('Testing Mode'));
   expect(toggleLiveModeFn).not.toHaveBeenCalled();
@@ -273,28 +203,11 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
 
 test('Allows overriding mark thresholds', async () => {
   const setMarkThresholdOverridesFn = jest.fn();
-
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        auth,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={setMarkThresholdOverridesFn}
-        unconfigure={jest.fn()}
-        toggleIsSoundMuted={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
-  );
+  renderScreen({
+    electionManagerScreenProps: {
+      setMarkThresholdOverrides: setMarkThresholdOverridesFn,
+    },
+  });
 
   fireEvent.click(screen.getByText('Override Mark Thresholds'));
   fireEvent.click(screen.getByText('Proceed to Override Thresholds'));
