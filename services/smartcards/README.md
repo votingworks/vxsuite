@@ -4,16 +4,18 @@ This web server component provides a web interface to a connected smartcard.
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the service like so:
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
+This service is intended to be run as part of an application stack and is used
+by various frontends, not run on its own. To run it as part of an application,
+first build this service and then run the appropriate application:
 
 ```sh
 # in services/smartcards
 make build
-make run
-```
 
-The server will be available at http://localhost:3001/.
+# in an app frontend, e.g. frontends/election-manager
+pnpm start
+```
 
 ## Install Requisite Software
 

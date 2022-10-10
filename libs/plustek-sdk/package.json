@@ -13,9 +13,7 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "type-check:watch": "tsc --build --watch",
     "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "test": "is-ci test:ci test:watch",
     "test:watch": "jest --watch",
