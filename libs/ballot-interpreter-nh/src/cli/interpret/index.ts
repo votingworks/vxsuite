@@ -1,3 +1,4 @@
+import { writeImageData } from '@votingworks/image-utils';
 import {
   err,
   expandEitherNeitherContests,
@@ -12,6 +13,7 @@ import { find, groupBy } from '@votingworks/utils';
 import chalk from 'chalk';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
+import { parse as parsePath } from 'path';
 import { RealIo, Stdio } from '..';
 import { DefaultMarkThresholds, interpret } from '../../interpret';
 
@@ -21,7 +23,8 @@ interface InterpretOptions {
   readonly frontBallotPath: string;
   readonly backBallotPath: string;
   readonly markThresholds?: MarkThresholds;
-  readonly json?: boolean;
+  readonly json: boolean;
+  readonly writeNormalizedImages: boolean;
   readonly debug: boolean;
 }
 
@@ -37,8 +40,9 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   let backBallotPath: string | undefined;
   let marginalMarkThreshold: number | undefined;
   let definiteMarkThreshold: number | undefined;
-  let debug = false;
   let json = false;
+  let writeNormalizedImages = false;
+  let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -51,6 +55,12 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
       case '-J':
       case '--json': {
         json = true;
+        break;
+      }
+
+      case '-N':
+      case '--write-normalized-images': {
+        writeNormalizedImages = true;
         break;
       }
 
@@ -140,14 +150,53 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
           }
         : undefined,
     json,
+    writeNormalizedImages,
     debug,
   });
 }
 
 function usage(out: NodeJS.WritableStream): void {
+  const header = chalk.bold.underline;
+  const comment = chalk.dim;
+
+  out.write(`${header('Usage')}\n`);
   out.write(
-    `usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]\n`
+    `  interpret [options] <election.json> <front-ballot.jpg> <back-ballot.jpg>\n`
   );
+  out.write(`\n`);
+
+  out.write(header(`Options\n`));
+  out.write(
+    `  -h, --help                                 Show this help message\n`
+  );
+  out.write(
+    `  -t, --mark-thresholds [MARGINAL,]DEFINITE  Set mark thresholds (0-1 or 0%-100%)\n`
+  );
+  out.write(
+    `                                             ${chalk.italic(
+      'Uses the values from <election.json> by default'
+    )}\n`
+  );
+  out.write(
+    `  -J, --json                                 Output JSON instead of human-readable text\n`
+  );
+  out.write(
+    `  -N, --write-normalized-images              Write normalized images to disk\n`
+  );
+  out.write(
+    `  --debug                                    Enable debug logging\n`
+  );
+
+  out.write(`\n`);
+  out.write(header(`Examples\n`));
+  out.write(`  ${comment('# Interpret a ballot\n')}`);
+  out.write(`  interpret election.json front.jpg back.jpg\n`);
+  out.write(`\n`);
+  out.write(`  ${comment('# Interpret a ballot with custom thresholds\n')}`);
+  out.write(`  interpret -t 5%,8% election.json front.jpg back.jpg\n`);
+  out.write(`\n`);
+  out.write(`  ${comment('# Print output as JSON\n')}`);
+  out.write(`  interpret --json election.json front.jpg back.jpg\n`);
 }
 
 /**
@@ -221,14 +270,33 @@ export async function main(
     return 0;
   }
 
-  for (const [ballotPath, pageInterpretation] of [
-    [frontBallotPath, frontPageInterpretationResult.interpretation],
-    [backBallotPath, backPageInterpretationResult.interpretation],
+  for (const [ballotPath, pageInterpretation, normalizedImage] of [
+    [
+      frontBallotPath,
+      frontPageInterpretationResult.interpretation,
+      frontPageInterpretationResult.normalizedImage,
+    ],
+    [
+      backBallotPath,
+      backPageInterpretationResult.interpretation,
+      backPageInterpretationResult.normalizedImage,
+    ],
   ] as const) {
     io.stdout.write(chalk.bold.underline(`${ballotPath}:\n`));
     if (pageInterpretation.type !== 'InterpretedHmpbPage') {
       io.stdout.write(`  ${chalk.red(pageInterpretation.type)}\n`);
       continue;
+    }
+
+    if (options.writeNormalizedImages && normalizedImage) {
+      const pathParts = parsePath(ballotPath);
+      await writeImageData(
+        `${pathParts.dir}/${pathParts.base.slice(
+          0,
+          -pathParts.ext.length
+        )}.normalized${pathParts.ext}`,
+        normalizedImage
+      );
     }
 
     const marksByContest = groupBy(

@@ -34,10 +34,9 @@ test('--help', async () => {
 
   const exitCode = await main(['--help'], io);
 
-  expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]
-    "
-  `);
+  expect(io.stdout.toString()).toContain(
+    'interpret [options] <election.json> <front-ballot.jpg> <back-ballot.jpg>'
+  );
   expect(exitCode).toBe(0);
 });
 
@@ -50,10 +49,9 @@ test('-h', async () => {
 
   const exitCode = await main(['-h'], io);
 
-  expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]
-    "
-  `);
+  expect(io.stdout.toString()).toContain(
+    'interpret [options] <election.json> <front-ballot.jpg> <back-ballot.jpg>'
+  );
   expect(exitCode).toBe(0);
 });
 
