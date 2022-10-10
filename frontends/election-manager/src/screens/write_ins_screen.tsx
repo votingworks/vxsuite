@@ -225,8 +225,11 @@ export function WriteInsScreen(): JSX.Element {
                         </Text>
                       ) : (
                         <Button
-                          disabled={isOfficialResults}
                           primary={!!adjudicationQueue}
+                          disabled={
+                            isOfficialResults ||
+                            (!adjudicationQueue && !completedCount)
+                          }
                           onPress={() => setContestBeingAdjudicated(contest)}
                         >
                           Adjudicate

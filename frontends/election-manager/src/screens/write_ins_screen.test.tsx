@@ -60,6 +60,9 @@ test('CVRs with write-ins loaded', async () => {
 
   const transcribeButton = await screen.findByText('Transcribe 8');
   expect(transcribeButton).not.toBeDisabled();
+
+  const adjudicateButton = await screen.findByText('Adjudicate');
+  expect(adjudicateButton).toBeDisabled();
 });
 
 test('ballot pagination', async () => {
