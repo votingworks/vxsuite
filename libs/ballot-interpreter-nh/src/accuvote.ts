@@ -116,7 +116,7 @@ export const ScannedBallotCardGeometry8pt5x11: BallotCardGeometry = {
     maxX: 1696 - 1,
     maxY: 2200 - 1,
   }),
-  ovalSize: { width: 38, height: 25 },
+  ovalSize: { width: 40, height: 26 },
   /* Converted from the documented size in inches: 3/16" x 1/16" */
   timingMarkSize: { width: 37.5, height: 12.5 },
   gridSize: { width: 34, height: 41 },
@@ -152,7 +152,7 @@ export const ScannedBallotCardGeometry8pt5x14: BallotCardGeometry = {
     maxX: 1696 - 1,
     maxY: 2800 - 1,
   }),
-  ovalSize: { width: 38, height: 25 },
+  ovalSize: { width: 40, height: 26 },
   /* Converted from the documented size in inches: 3/16" x 1/16" */
   timingMarkSize: { width: 37.5, height: 12.5 },
   gridSize: { width: 34, height: 53 },

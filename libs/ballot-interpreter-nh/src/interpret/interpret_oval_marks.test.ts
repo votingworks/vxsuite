@@ -66,14 +66,14 @@ test('interpretOvalMarks unmarked sheet', async () => {
   expect(markWithLowestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
+        "height": 26,
         "maxX": 668,
         "maxY": 585,
-        "minX": 631,
-        "minY": 561,
-        "width": 38,
-        "x": 631,
-        "y": 561,
+        "minX": 629,
+        "minY": 560,
+        "width": 40,
+        "x": 629,
+        "y": 560,
       },
       "gridPosition": Object {
         "column": 12,
@@ -85,8 +85,8 @@ test('interpretOvalMarks unmarked sheet', async () => {
       },
       "score": 0,
       "scoredOffset": Object {
-        "x": 1,
-        "y": 2,
+        "x": 0,
+        "y": 1,
       },
     }
   `);
@@ -95,27 +95,27 @@ test('interpretOvalMarks unmarked sheet', async () => {
   expect(markWithHighestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 636,
-        "maxY": 1950,
-        "minX": 599,
-        "minY": 1926,
-        "width": 38,
-        "x": 599,
-        "y": 1926,
+        "height": 26,
+        "maxX": 668,
+        "maxY": 585,
+        "minX": 629,
+        "minY": 560,
+        "width": 40,
+        "x": 629,
+        "y": 560,
       },
       "gridPosition": Object {
         "column": 12,
-        "contestId": "State-Representatives-7d3a8821",
-        "optionId": "Andrew-Prout-1cd243e0",
-        "row": 37,
+        "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+        "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
+        "row": 9,
         "side": "front",
         "type": "option",
       },
-      "score": 0.002105263157894737,
+      "score": 0,
       "scoredOffset": Object {
-        "x": 1,
-        "y": 2,
+        "x": 0,
+        "y": 1,
       },
     }
   `);
@@ -173,13 +173,13 @@ test('interpretOvalMarks marked front', async () => {
   expect(markWithLowestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 658,
-        "maxY": 2249,
-        "minX": 621,
+        "height": 26,
+        "maxX": 659,
+        "maxY": 2250,
+        "minX": 620,
         "minY": 2225,
-        "width": 38,
-        "x": 621,
+        "width": 40,
+        "x": 620,
         "y": 2225,
       },
       "gridPosition": Object {
@@ -190,10 +190,10 @@ test('interpretOvalMarks marked front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.03368421052631579,
+      "score": 0.025,
       "scoredOffset": Object {
         "x": 1,
-        "y": 1,
+        "y": 2,
       },
     }
   `);
@@ -202,14 +202,14 @@ test('interpretOvalMarks marked front', async () => {
   expect(markWithHighestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 660,
+        "height": 26,
+        "maxX": 662,
         "maxY": 1226,
         "minX": 623,
-        "minY": 1202,
-        "width": 38,
+        "minY": 1201,
+        "width": 40,
         "x": 623,
-        "y": 1202,
+        "y": 1201,
       },
       "gridPosition": Object {
         "column": 12,
@@ -219,9 +219,9 @@ test('interpretOvalMarks marked front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.62,
+      "score": 0.5375,
       "scoredOffset": Object {
-        "x": 2,
+        "x": 3,
         "y": 1,
       },
     }
@@ -281,13 +281,13 @@ test('interpretOvalMarks marked rotated front', async () => {
   ).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 639,
-        "maxY": 577,
-        "minX": 602,
+        "height": 26,
+        "maxX": 640,
+        "maxY": 578,
+        "minX": 601,
         "minY": 553,
-        "width": 38,
-        "x": 602,
+        "width": 40,
+        "x": 601,
         "y": 553,
       },
       "gridPosition": Object {
@@ -298,10 +298,10 @@ test('interpretOvalMarks marked rotated front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.3505263157894737,
+      "score": 0.30865384615384617,
       "scoredOffset": Object {
         "x": 0,
-        "y": 2,
+        "y": 3,
       },
     }
   `);

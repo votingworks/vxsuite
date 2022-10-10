@@ -20,6 +20,12 @@ import {
 } from '@votingworks/types';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
+import {
+  printStatsAndReset,
+  resetTimerStats,
+  startTimer,
+  stopTimer,
+} from '../utils';
 import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
@@ -54,11 +60,15 @@ export async function interpret(
     markThresholds = electionDefinition.election.markThresholds ??
       DefaultMarkThresholds,
     adjudicationReasons = [],
+    debug: isDebugEnabled = false,
   }: {
     markThresholds?: MarkThresholds;
     adjudicationReasons?: readonly AdjudicationReason[];
+    debug?: boolean;
   } = {}
 ): Promise<Result<[InterpretFileResult, InterpretFileResult], Error>> {
+  resetTimerStats();
+
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 
   if (!paperSize) {
@@ -67,6 +77,7 @@ export async function interpret(
 
   const geometry = getScannedBallotCardGeometry(paperSize);
   let [frontPage, backPage] = sheet;
+  startTimer('load & resize image');
   let frontImageData = toImageData(await loadImage(frontPage), {
     maxWidth: geometry.canvasSize.width,
     maxHeight: geometry.canvasSize.height,
@@ -75,15 +86,18 @@ export async function interpret(
     maxWidth: geometry.canvasSize.width,
     maxHeight: geometry.canvasSize.height,
   });
+  stopTimer('load & resize image');
 
-  const frontDebug = imageDebugger(frontPage, frontImageData);
-  const backDebug = imageDebugger(backPage, backImageData);
+  const frontDebug = imageDebugger(frontPage, frontImageData, isDebugEnabled);
+  const backDebug = imageDebugger(backPage, backImageData, isDebugEnabled);
+  startTimer('interpretBallotCardLayout');
   let frontLayout = frontDebug.capture('front-interpret', (debug) =>
     interpretBallotCardLayout(frontImageData, { geometry, debug })
   );
   let backLayout = backDebug.capture('back-interpret', (debug) =>
     interpretBallotCardLayout(backImageData, { geometry, debug })
   );
+  stopTimer('interpretBallotCardLayout');
 
   if (!frontLayout) {
     return err(new Error('could not interpret front page layout'));
@@ -152,6 +166,7 @@ export async function interpret(
   }
 
   const ovalTemplate = await templates.getOvalScanTemplate();
+  startTimer('interpretOvalMarks');
   const interpretedOvalMarks = interpretOvalMarks({
     geometry,
     ovalTemplate,
@@ -161,6 +176,7 @@ export async function interpret(
     backLayout,
     gridLayout,
   });
+  stopTimer('interpretOvalMarks');
 
   const frontMarks = interpretedOvalMarks.filter(
     (m) => m.gridPosition.side === 'front'
@@ -261,6 +277,8 @@ export async function interpret(
     interpretation: backInterpretation,
     normalizedImage: backLayout.imageData,
   };
+
+  printStatsAndReset();
 
   return ok([frontPageInterpretationResult, backPageInterpretationResult]);
 }

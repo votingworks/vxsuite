@@ -12,9 +12,9 @@ import { createCanvas, Image, ImageData, loadImage } from 'canvas';
 /**
  * Data of data/templates/oval_scan.png encoded as base64.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
-const resourceDataBase64 = 'iVBORw0KGgoAAAANSUhEUgAAACYAAAAZCAYAAABdEVzWAAAABmJLR0QA/wD/AP+gvaeTAAAEP0lEQVRIib2X23LbOAyGP0m0TmXrdjK56Pu/VXvXm2Zi2ZJTS5Z4wl64ZOQ4m+3O7IYzGFsUCPwAIfAny7JICOFG5nmWEIIAAsh2u03//1Q+ffokgHz8+FEAqetaAMmyTKLf8/mcfB6PxzRHnHx8fEwK0zSJUkq2260URSHA1cI/EWut7Ha7K+fzPIvWWpRS0jSNACkBp9NJQghyOBwuCdnv91cGgSswwzDcON3v9+K9f1OibgRnrU1Bj+MogOR5Lk3TiDHmKqBpmiT7jZa2banrGhEhhID3nvP5TNM0eO8BKIqC3W7H/f09/3Ysy0JVVTfzeZ4D4JzDWpt08hACWmu22y3OOfb7PcuysCwLTdMwzzNFUXA+nwG4v79nnuc/AmOtBeBwOCSH3759A+Dp6QmAEAJKKcqypKoqhmEAIHPOSdu2GGMIISSjIYQUTczcNE1UVUVRFIjIm6DGcURr/aqd9TidTmitk04I4bJGRDDG8PXrV/q+TxFGRe99irxtW47H4yWiLHtTtNb0fZ/WTtOUQB0OB0IIiAhaa06nU8rcMAzkeU4GiNaah4cHyrJEKQWAiJBlWYpsnmc2m03a1peRvxzr9c45lFIJTFEUeO8pigK4bLmI8PnzZ0IIzPNM1jSNWGsZx5GiKMjzHGMMZVm+6fi/GK/5yfP8spXn8xljTAJ1Op3eBRRAWZYYY5imCSB9aAC51hpjDHme8/j4iNb6XUB575nnmbIsadsW5xx1XeO9f66xuK91XQOw3++5u7t7F4DLspBlGWVZ4r2nqipEhFwpRd/3qc/0ff9uoN4aKWNA6urvUfyxDcVdil9ubFN5Xdd0XQeQjpr3KP6iKKjrOhW/UioVfwjhOWN93/Plyxfg0lc2m83/Du7NdhHbRAQFJFDxfIxGYhd3ziEi6RkuDTUe9nHM88z5fL466uLaaZpeBRWbct62bXoxTRO/fv0CLllrmoZhGLDWUpYlm83m+XPOsvQcHRdFwbIsCWRd1zRNg3Mu2VVKkWUZbduyLAvOuQRYa/18Bo/jKEopKcvyijOFEGTNbruukxCCPD093bwLIYhzTkII8vPnzysGPI7jFd/a7XbivRdjTNJZM+X0PAxDosBrmhtBdl0n4zim+bVOBGSMuQG6DjACjuCXZUlM1TknXdfJ3d2daK1lGAZxzj1Ta35z9LhgzT7/TpxzV4AiPf7x48fNXARqrZVxHMV7L9ZasdYmmr2m98QorLUCyIcPH9LiqDSO41WmxnEU51zKwGsSKbkx5ipTL2l8Xdey3W5TqRhj5Hg8CrFmjsdjAlfXtSilJIQgDw8PV3UWtzhK3MZo5/v37+ndsiyJ/0fHXddJVVXptrSuq3Utsi7o+D9eRmIGo5F1BqKRtTHnnJRleXPly/NclFICpG1bA3pZt8uyPNfYa2KMSQaBFGn8/SdZB9g0zd/eul6TvwDkX2VYA5KzSQAAAABJRU5ErkJggg==';
+const resourceDataBase64 = 'iVBORw0KGgoAAAANSUhEUgAAACgAAAAaCAAAAADgJ0EXAAAAAXNSR0IArs4c6QAAA1xJREFUOE8FwUtrXVUUAOC11t5n7/PIvUlD0rRXUmtqBgkVYoqPdqaDgOIDQaQFByoiCP6eDgSLzszAQosUVBzUgQ7aYqwiJrWNlpqmSW5u7us89mMtvw8lqmowmY4H//754PFRFZE0IiDUqfLm6edOr/yzmI/rpoNdrTCJW7fXiUxrKkeyhh0ndoyxHh3tdV9668VqHp/M4VA3ub9+bbxyZnFKawyp0dGxsWpcJkWzff/77spn08Pju+hLGP9wLVtb6sxKAxprQolAKhPfsPhmsH733VdbUz08IPftN8sfnsrF1ZwkGEUQUaTJTGiCiBxf/+LSR/1JPGzdvJJ+srqTRbIJkeohEgLLdD12OhUXvXx16+JaSqOd6wcfPP9wdsRFm4b9CrW1iUpsv6Ziqp2bucmpteKXWBFt3nmj49t6xpa9EjXlWFesNUUh8mUw+1yfeefudxn1bs5eOFk2I2ONMSZRLEgoHIrcEvuqLMiohaWNA/IbSwu+zNXRsKxcZAYkBGEGAEQkIrBwYvnXHg2qF6SvWzrNi8xao5QiYAZkFkAiqmKMsVP36UF4Foqi9kWRaWRXKoXAglopAo4hRB5DnJ3bpn4jPoVhNqoaFwSYBQFEoHGekXRiIWA+PfmQNHpfgwImbbKJiYnaC6FE3zQ+gkoSolbQcWwpJHka8nQPgX01GvSaAEQQvUk0Rt/UDtu1O+qeogX4SyBISwlAbEKikH3jojQ+sghgwd2J5FFo0UzRf2QGlY2RUWkFVjEkWZYiIREh+UqOlTU/RQvPXE3dTHvAMYjSBJYATJZZm2gigBhnp//GO0snqXxzZ6fep0ShCCqlhJRGALKJIoQYaFTDxu+vE6Uvn7vcHbCzRhOpJHGiFTsXAASQCM1/++mV5VVP0+V78uXYaEClEFEFQYje++ADo1JKFvPL+xfzjA79K5/+cfVn7JdB2PugxXtBBBBmZo7d6vatS2e9xaHa7W19fvq1s1lhgFkmnEOjJZoQAdm53R9vfLzmY4HlSOzBTzd+e/v8qq214ZCRwxRq60rJ4/bmOl54f2G36eC+JeeO7t37Glvzi53Ei4m1WHTOWr+7tX24dn4lU21T4uOcnCRu+GTz/mi01wdLoZRUxSxQmp44t1LOH6tDocr/ATnd5/l2S3krAAAAAElFTkSuQmCC';
 
 /**
  * MIME type of data/templates/oval_scan.png.
@@ -24,7 +24,7 @@ export const mimeType = 'image/png';
 /**
  * Path to a file containing this file's contents.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
@@ -36,7 +36,7 @@ export function asFilePath(): string {
 /**
  * Convert to a `data:` URL of data/templates/oval_scan.png, suitable for embedding in HTML.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
 export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
@@ -45,7 +45,7 @@ export function asDataUrl(): string {
 /**
  * Raw data of data/templates/oval_scan.png.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
 export function asBuffer(): Buffer {
   return Buffer.from(resourceDataBase64, 'base64');
@@ -54,7 +54,7 @@ export function asBuffer(): Buffer {
 /**
  * Converts data/templates/oval_scan.png to an `Image`.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
 export async function asImage(): Promise<Image> {
   return await loadImage(asDataUrl());
@@ -63,7 +63,7 @@ export async function asImage(): Promise<Image> {
 /**
  * Converts data/templates/oval_scan.png to an `ImageData`.
  *
- * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ * SHA-256 hash of file data: 0dbd33c7462addbbc656e0e21553b3635a98913275911c7249c3b79bb734c11f
  */
 export async function asImageData(): Promise<ImageData> {
   const image = await asImage();

@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/utils';
+import makeDebug from 'debug';
 import { Bit, Point, Rect, Segment, Vector } from './types';
 
 /**
@@ -483,4 +484,64 @@ export function bitsToNumber(
     result = result * 2 + (bits[i] as number);
   }
   return result;
+}
+
+const debugStats = makeDebug('ballot-interpreter-nh:stats');
+const timerStartsByLabel = new Map<string, bigint>();
+const timerTotalsByLabel = new Map<string, bigint>();
+
+/**
+ * Starts a timer that is not already running.
+ */
+export function startTimer(label: string): void {
+  const startTime = process.hrtime.bigint();
+  assert(!timerStartsByLabel.has(label));
+  timerStartsByLabel.set(label, startTime);
+}
+
+/**
+ * Stops a timer and adds the elapsed time to the total.
+ */
+export function stopTimer(label: string): void {
+  const endTime = process.hrtime.bigint();
+  const startTime = timerStartsByLabel.get(label);
+  assert(startTime !== undefined);
+  timerStartsByLabel.delete(label);
+
+  const total = timerTotalsByLabel.get(label) ?? BigInt(0);
+  timerTotalsByLabel.set(label, total + (endTime - startTime));
+}
+
+/**
+ * Gets the current timer stats.
+ */
+export function getTimerStats(): ReadonlyMap<string, bigint> {
+  return timerTotalsByLabel;
+}
+
+/**
+ * Resets timer stats.
+ */
+export function resetTimerStats(): void {
+  timerStartsByLabel.clear();
+  timerTotalsByLabel.clear();
+}
+
+const NANOSECONDS_PER_MILLISECOND = BigInt(1_000_000);
+
+/**
+ * Prints the current timer stats.
+ */
+export function printStats(): void {
+  for (const [label, duration] of getTimerStats()) {
+    debugStats(`${label}: ${duration / NANOSECONDS_PER_MILLISECOND}ms`);
+  }
+}
+
+/**
+ * Prints the current timer stats and resets them.
+ */
+export function printStatsAndReset(): void {
+  printStats();
+  resetTimerStats();
 }

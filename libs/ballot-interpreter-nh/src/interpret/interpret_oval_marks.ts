@@ -8,7 +8,6 @@ import {
   PIXEL_BLACK,
   PIXEL_WHITE,
   ratio,
-  writeImageData,
 } from '@votingworks/image-utils';
 import { GridLayout } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
@@ -78,40 +77,6 @@ export function scoreOvalMark(
         )
       );
 
-      const formatter = new Intl.NumberFormat('en-US', {
-        style: 'percent',
-        minimumFractionDigits: 2,
-      });
-
-      if (ovalTopLeftPoint.x === 949 && ovalTopLeftPoint.y === 642) {
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-cropped-nonBinarized.png`,
-          crop(imageData, ovalRect)
-        );
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-cropped-binarizedIndependently.png`,
-          binarize(crop(imageData, ovalRect))
-        );
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-ovalTemplate.png`,
-          ovalTemplate
-        );
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-outlinedOvalTemplate.png`,
-          outlinedOvalTemplate
-        );
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-croppedBallotImageOvalArea.png`,
-          croppedAndBinarizedWithImageThreshold
-        );
-        void writeImageData(
-          `debug-x=${xOffset}-y=${yOffset}-score=${formatter.format(
-            matchScore
-          )}.png`,
-          diff(croppedAndBinarizedWithImageThreshold, outlinedOvalTemplate)
-        );
-      }
-
       if (matchScore > maximumMatchScore) {
         // it's better than the previous best match, so use it
         maximumMatchScore = matchScore;
@@ -154,6 +119,15 @@ export function interpretPageOvalMarks({
 }): InterpretedOvalMark[] {
   const { grid } = layout;
   const threshold = otsu(imageData.data, getImageChannelCount(imageData));
+
+  if (
+    ovalTemplate.width !== geometry.ovalSize.width ||
+    ovalTemplate.height !== geometry.ovalSize.height
+  ) {
+    throw new Error(
+      `Oval template size (${ovalTemplate.width}x${ovalTemplate.height}) does not match expected size (${geometry.ovalSize.width}x${geometry.ovalSize.height})`
+    );
+  }
 
   return gridLayout.gridPositions.flatMap<InterpretedOvalMark>(
     (gridPosition) => {
@@ -219,20 +193,20 @@ export function interpretOvalMarks({
     `frontImageChannels ${frontImageChannels} !== backImageChannels ${backImageChannels}`
   );
 
-  return [
-    ...interpretPageOvalMarks({
-      geometry,
-      ovalTemplate,
-      imageData: frontImageData,
-      layout: frontLayout,
-      gridLayout,
-    }),
-    ...interpretPageOvalMarks({
-      geometry,
-      ovalTemplate,
-      imageData: backImageData,
-      layout: backLayout,
-      gridLayout,
-    }),
-  ];
+  const frontMarks = interpretPageOvalMarks({
+    geometry,
+    ovalTemplate,
+    imageData: frontImageData,
+    layout: frontLayout,
+    gridLayout,
+  });
+  const backMarks = interpretPageOvalMarks({
+    geometry,
+    ovalTemplate,
+    imageData: backImageData,
+    layout: backLayout,
+    gridLayout,
+  });
+
+  return [...frontMarks, ...backMarks];
 }
