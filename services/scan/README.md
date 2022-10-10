@@ -7,17 +7,17 @@ VxSuite [Ballot Scanning Device (BSD)](../bsd) or the VxSuite
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the service from an appropriate frontend. You generally should not need
-to run this service directly. Instead, run like so:
+then start up VxScan (`frontends/precinct-scanner`) or VxCentralScan
+(`frontends/bsd`) by running the appropriate frontend. You generally should not
+need to run this service directly. Instead, run like so:
 
 ```sh
 cd frontends/bsd # or frontends/precinct-scanner
 pnpm start
 ```
 
-The server will be available at http://localhost:3002/. The commands to run the
-service below assume you'll be running them in a frontend, not this service
-directly.
+The commands to run the service below assume you'll be running them in a
+frontend, not this service directly.
 
 ## Mock Scanning
 

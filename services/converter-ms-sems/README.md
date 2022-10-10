@@ -3,12 +3,20 @@
 This web server component provides a web interface to convert files for
 Mississippi's SEMS.
 
-## Install Requisite Software
+## Setup
 
-```
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo make install
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
+This service is intended to be run as part of the VxAdmin stack and is used by
+the `election-manager` frontend, not run on its own. To run it as part of
+VxAdmin, first build this service and then run the `election-manager` frontend:
+
+```sh
+# in services/converter-ms-sems
+make install-dev-dependencies
 make build
+
+# in frontends/election-manager
+pnpm start
 ```
 
 ## Run Tests
