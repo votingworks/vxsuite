@@ -49,7 +49,7 @@ export function ElectionManager(): JSX.Element {
   }
 
   if (auth.status === 'remove_card') {
-    return <RemoveCardScreen />;
+    return <RemoveCardScreen productName="VxAdmin" />;
   }
 
   if (auth.status === 'logged_out') {

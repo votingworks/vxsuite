@@ -534,7 +534,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
   }
 
   if (auth.status === 'remove_card') {
-    return <RemoveCardScreen />;
+    return <RemoveCardScreen productName="VxCentralScan" />;
   }
 
   if (isSystemAdministratorAuth(auth)) {
