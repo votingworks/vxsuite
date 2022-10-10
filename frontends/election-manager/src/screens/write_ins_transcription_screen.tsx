@@ -295,7 +295,7 @@ export function WriteInsTranscriptionScreen({
               <HorizontalRule color="#cccccc" />
               <p>
                 {showNewTranscriptionForm ? (
-                  <InlineForm>
+                  <InlineForm as="span">
                     <TextInput
                       ref={transcribedValueInput}
                       placeholder="transcribed write-in"
