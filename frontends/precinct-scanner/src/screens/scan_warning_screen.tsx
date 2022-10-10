@@ -94,7 +94,7 @@ function OvervoteWarningScreen({
       )
     )
     .reduce<AnyContest[]>(
-      (a, c) => (a.findIndex((o) => o.title === c.title) >= 0 ? a : [...a, c]),
+      (acc, c) => (acc.find((o) => o.id === c.id) ? acc : [...acc, c]),
       []
     )
     .map((c) => c.title);
