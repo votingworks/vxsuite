@@ -502,6 +502,7 @@ test('authentication works', async () => {
 
   // 'Remove Card' screen is shown after successful authentication.
   await screen.findByText('Remove card to continue.');
+  screen.getByText('VxCentralScan Unlocked');
 
   // Machine is unlocked when card removed
   card.removeCard();
