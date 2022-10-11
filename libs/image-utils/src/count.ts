@@ -25,11 +25,13 @@ export function countPixels(
   const { x: startX, y: startY, width, height } = bounds;
   let count = 0;
 
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      if (
-        data[((startY + y) * image.width + startX + x) * channels] === color
-      ) {
+  for (
+    let y = 0, offset = (startY * image.width + startX) * channels;
+    y < height;
+    y += 1, offset += (image.width - width) * channels
+  ) {
+    for (let x = 0; x < width; x += 1, offset += channels) {
+      if (data[offset] === color) {
         count += 1;
       }
     }
