@@ -6,5 +6,9 @@ export {
   type ConvertIssue,
 } from './convert';
 export * as templates from './data/templates';
+export {
+  getScannedBallotCardGeometry,
+  getTemplateBallotCardGeometry,
+} from './accuvote';
 export { interpret } from './interpret';
 export * from './layout';

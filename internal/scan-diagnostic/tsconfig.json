@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "vite.config.ts"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "references": [
+    { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/image-utils/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/ui/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
+  ]
+}
