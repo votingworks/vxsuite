@@ -8,7 +8,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/utils';
+import { assert, find, singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
@@ -161,7 +161,14 @@ export async function buildPrecinctScannerApp(
       return;
     }
 
-    store.setElection(bodyParseResult.ok());
+    const electionDefinition = bodyParseResult.ok();
+    store.setElection(electionDefinition);
+    // If the election has only one precinct, set it automatically
+    if (electionDefinition.election.precincts.length === 1) {
+      store.setPrecinctSelection(
+        singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+      );
+    }
     response.json({ status: 'ok' });
   });
 

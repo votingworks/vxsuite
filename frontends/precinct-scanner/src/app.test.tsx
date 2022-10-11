@@ -52,6 +52,7 @@ import {
   scannerStatus,
 } from '../test/helpers/helpers';
 import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
+import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
 
 jest.setTimeout(20000);
 
@@ -318,10 +319,12 @@ test('election manager must set precinct', async () => {
   // Insert Election Manager card and set precinct
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
+  screen.getByText(SELECT_PRECINCT_TEXT);
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
   expect(
     fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
   ).toHaveLength(1);
+  expect(screen.queryByText(SELECT_PRECINCT_TEXT)).not.toBeInTheDocument();
   card.removeCard();
   await advanceTimersAndPromises(1);
 

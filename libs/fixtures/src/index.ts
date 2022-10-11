@@ -39,6 +39,10 @@ export {
   election as electionMinimalExhaustiveSampleRightSideTargets,
 } from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
 export {
+  electionDefinition as electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+  election as electionMinimalExhaustiveSampleSinglePrecinct,
+} from './data/electionMinimalExhaustiveSampleSinglePrecinct/election.json';
+export {
   electionDefinition as primaryElectionSampleDefinition,
   election as primaryElectionSample,
 } from './data/electionPrimary';
