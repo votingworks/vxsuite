@@ -115,6 +115,10 @@
     {
       "name": "integration-testing/election-manager",
       "path": "integration-testing/election-manager"
+    },
+    {
+      "name": "internal/scan-diagnostic",
+      "path": "internal/scan-diagnostic"
     }
   ],
   "settings": {

@@ -1,0 +1,15 @@
+{
+  "extends": ["plugin:vx/react"],
+  "overrides": [
+    {
+      "files": ["vite.config.ts"],
+      "rules": {
+        "vx/gts-no-default-exports": "off",
+        "import/no-extraneous-dependencies": [
+          "error",
+          { "devDependencies": true }
+        ]
+      }
+    }
+  ]
+}

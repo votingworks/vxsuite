@@ -1,0 +1,189 @@
+<head>
+    <style>
+        /* reset styles */
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+    </style>
+
+
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+            font-size: 16px;
+        }
+
+        .ballot-image {
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+
+        .sheet {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-mark {
+            color: lightgray;
+        }
+
+        .minimal-mark {
+            color: lightslategray;
+        }
+
+        .submarginal-mark {
+            color: goldenrod;
+        }
+
+        .marginal-mark {
+            color: darkgoldenrod;
+        }
+
+        .definite-mark {
+            color: darkgreen;
+        }
+
+        dl.mark-info {
+            display: grid;
+            grid-template-columns: max-content auto;
+        }
+
+        .mark-info dt {
+            grid-column-start: 1;
+        }
+
+        .mark-info dd {
+            grid-column-start: 2;
+            text-align: right;
+        }
+
+        .mark-contest-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            max-width: min-content;
+            margin-top: 1em;
+        }
+
+        .mark-bounds {
+            pointer-events: none;
+        }
+
+        .mark-bounds-expected {
+            background-color: #0000ff33;
+            border: 1px solid #0000ff99;
+        }
+
+        .mark-bounds-actual {
+            background-color: #00ff0033;
+            border: 1px solid #00ff0099;
+        }
+
+        .mark-score {
+            font-size: 1em;
+            margin-top: 0.8em;
+            text-shadow: 0.05em 0.05em 0.08em #333;
+        }
+
+        .sheet-tools {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0.5em;
+        }
+
+        .sheet-tools button {
+            margin: 0.5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="module" src="./src/frontend/index.tsx"></script>
+</body>

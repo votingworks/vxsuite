@@ -15,4 +15,5 @@ packages:
 
   # include top-level development project
   - 'codemods'
+  - 'internal/*'
   - 'script'
