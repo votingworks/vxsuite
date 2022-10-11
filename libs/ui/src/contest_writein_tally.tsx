@@ -43,7 +43,7 @@ export function ContestWriteInTally({
     <React.Fragment>
       {election.contests.map((contest) => {
         const contestWriteInCounts = writeInCounts.get(contest.id);
-        if (!contestWriteInCounts) {
+        if (!contestWriteInCounts || contestWriteInCounts.size === 0) {
           return null;
         }
 
