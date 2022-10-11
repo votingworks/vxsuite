@@ -23,6 +23,7 @@
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "^7.6.2",
     "buffer": "^6.0.3",
+    "canvas": "2.9.1",
     "chalk": "4",
     "concurrently": "^7.4.0",
     "esbuild": "^0.15.10",

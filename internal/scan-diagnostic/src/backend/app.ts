@@ -1,22 +1,25 @@
 import {
+  int,
   loadImage,
   rotate180,
   toImageData,
   writeImageData,
 } from '@votingworks/image-utils';
-import Database from 'better-sqlite3';
-import express from 'express';
-import { existsSync } from 'fs';
-import { isAbsolute, join } from 'path';
 import {
   ElectionDefinition,
   ElectionDefinitionSchema,
   Id,
   MarkThresholdsSchema,
+  PageInterpretationSchema,
+  PageInterpretationWithFiles,
   Result,
   safeParseInt,
   safeParseJson,
 } from '@votingworks/types';
+import Database from 'better-sqlite3';
+import express from 'express';
+import { existsSync } from 'fs';
+import { isAbsolute, join } from 'path';
 
 // TODO: use `Store` and/or `Client` from `@votingworks/scan`
 type Database = Database.Database;
@@ -35,6 +38,12 @@ function all(db: Database, sql: string, ...params: unknown[]): unknown[] {
 
 function joinPaths(...paths: string[]): string {
   return paths.reduce((a, b) => (isAbsolute(b) ? b : join(a, b)));
+}
+
+interface SheetInterpretation {
+  readonly id: Id;
+  readonly front: PageInterpretationWithFiles;
+  readonly back: PageInterpretationWithFiles;
 }
 
 /**
@@ -56,6 +65,78 @@ export function buildApp(backupRoot: string): express.Express {
 
   function getImagePath(imageBasename: string): string {
     return joinPaths(process.cwd(), backupRoot, imageBasename);
+  }
+
+  function getSheets({
+    limit,
+    offset,
+  }: {
+    limit: int;
+    offset: int;
+  }): SheetInterpretation[];
+  function getSheets({ id }: { id: Id }): SheetInterpretation[];
+  function getSheets({
+    id,
+    limit = 1,
+    offset = 0,
+  }: {
+    id?: Id;
+    limit?: int;
+    offset?: int;
+  }): SheetInterpretation[] {
+    const sheets = all(
+      db,
+      `
+        SELECT
+          id,
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson,
+          front_original_filename as frontOriginalFilename,
+          back_original_filename as backOriginalFilename,
+          front_normalized_filename as frontNormalizedFilename,
+          back_normalized_filename as backNormalizedFilename
+        FROM sheets
+        ${id ? 'WHERE id = ?' : ''}
+        ORDER BY created_at ASC
+        LIMIT ? OFFSET ?
+      `,
+      ...(id ? [id] : []),
+      limit,
+      offset
+    ) as Array<{
+      id: Id;
+      frontInterpretationJson: string;
+      backInterpretationJson: string;
+      frontOriginalFilename: string;
+      backOriginalFilename: string;
+      frontNormalizedFilename: string;
+      backNormalizedFilename: string;
+    }>;
+
+    return sheets.map((sheet): SheetInterpretation => {
+      const frontInterpretationParseResult = safeParseJson(
+        sheet.frontInterpretationJson,
+        PageInterpretationSchema
+      );
+      const backInterpretationParseResult = safeParseJson(
+        sheet.backInterpretationJson,
+        PageInterpretationSchema
+      );
+
+      return {
+        id: sheet.id,
+        front: {
+          interpretation: frontInterpretationParseResult.unsafeUnwrap(),
+          originalFilename: getImagePath(sheet.frontOriginalFilename),
+          normalizedFilename: getImagePath(sheet.frontNormalizedFilename),
+        },
+        back: {
+          interpretation: backInterpretationParseResult.unsafeUnwrap(),
+          originalFilename: getImagePath(sheet.backOriginalFilename),
+          normalizedFilename: getImagePath(sheet.backNormalizedFilename),
+        },
+      };
+    });
   }
 
   return express()
@@ -105,48 +186,18 @@ export function buildApp(backupRoot: string): express.Express {
       (req, res) => {
         const limit = safeParseInt(req.query.limit, { min: 1 }).ok() ?? 100;
         const offset = safeParseInt(req.query.offset, { min: 0 }).ok() ?? 0;
-
-        const sheets = all(
-          db,
-          `
-          SELECT
-            id,
-            front_interpretation_json as frontInterpretationJson,
-            back_interpretation_json as backInterpretationJson,
-            front_original_filename as frontOriginalFilename,
-            back_original_filename as backOriginalFilename
-          FROM sheets
-          ORDER BY created_at ASC
-          LIMIT ? OFFSET ?
-        `,
-          limit,
-          offset
-        ) as Array<{
-          id: Id;
-          frontInterpretationJson: string;
-          backInterpretationJson: string;
-          frontOriginalFilename: string;
-          backOriginalFilename: string;
-        }>;
+        const sheets = getSheets({ limit, offset });
 
         res.json({
           limit,
           offset,
           sheets: sheets.map((sheet) => {
-            const frontInterpretationParseResult = safeParseJson(
-              sheet.frontInterpretationJson
-            );
-            const backInterpretationParseResult = safeParseJson(
-              sheet.backInterpretationJson
-            );
-
             return {
               id: sheet.id,
-              frontInterpretation:
-                frontInterpretationParseResult.unsafeUnwrap(),
-              backInterpretation: backInterpretationParseResult.unsafeUnwrap(),
-              frontOriginalFilename: getImagePath(sheet.frontOriginalFilename),
-              backOriginalFilename: getImagePath(sheet.backOriginalFilename),
+              frontInterpretation: sheet.front.interpretation,
+              backInterpretation: sheet.back.interpretation,
+              frontOriginalFilename: sheet.front.originalFilename,
+              backOriginalFilename: sheet.back.originalFilename,
             };
           }),
         });
@@ -157,36 +208,16 @@ export function buildApp(backupRoot: string): express.Express {
       '/api/sheets/:sheetId/images/:side',
       (req, res) => {
         const { sheetId, side } = req.params;
+        const [sheet] = getSheets({ id: sheetId });
 
-        const imageBasenames = one(
-          db,
-          `
-              SELECT ${
-                side === 'front'
-                  ? 'front_normalized_filename'
-                  : 'back_normalized_filename'
-              } as normalizedFilename,
-              ${
-                side === 'front'
-                  ? 'front_original_filename'
-                  : 'back_original_filename'
-              } as originalFilename
-              FROM sheets
-              WHERE id = ?
-            `,
-          sheetId
-        ) as
-          | { normalizedFilename: string; originalFilename: string }
-          | undefined;
-
-        if (!imageBasenames) {
+        if (!sheet) {
           res.status(404).send(`sheet ID not found: ${sheetId}`);
           return;
         }
 
         for (const imageBasename of [
-          imageBasenames.normalizedFilename,
-          imageBasenames.originalFilename,
+          sheet[side].normalizedFilename,
+          sheet[side].originalFilename,
         ]) {
           const imagePath = getImagePath(imageBasename);
 
@@ -198,7 +229,7 @@ export function buildApp(backupRoot: string): express.Express {
 
         res
           .status(404)
-          .send(`images not found: ${JSON.stringify(imageBasenames)}`);
+          .send(`images not found for sheet: ${sheetId} side: ${side}`);
       }
     )
 
