@@ -97,7 +97,7 @@ export function PageImage({
               ].join(' ')}
               style={boundsStyle(mark.bounds, scale)}
             >
-              {format.percent(mark.score)}
+              {format.percent(mark.score, { maximumFractionDigits: 2 })}
             </div>
           ))}
           {marks.map((mark) => (
