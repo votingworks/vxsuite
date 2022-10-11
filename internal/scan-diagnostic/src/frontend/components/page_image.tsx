@@ -155,16 +155,21 @@ export function PageImage({
     displayImageData = createImageData(imageData.width, imageData.height);
     displayImageData.data.set(imageData.data);
     for (const mark of marks) {
+      // draw the original expected bounds
       drawBox(
         displayImageData,
-        mark.bounds,
+        rectShift(mark.bounds, {
+          x: -mark.scoredOffset.x,
+          y: -mark.scoredOffset.y,
+        }),
         [0, 0, 0xff, 0x33],
         [0, 0, 0xff, 0x99],
         1
       );
+      // draw the detected best match bounds
       drawBox(
         displayImageData,
-        rectShift(mark.bounds, mark.scoredOffset),
+        mark.bounds,
         [0, 0xff, 0, 0x33],
         [0, 0xff, 0, 0x99],
         1
