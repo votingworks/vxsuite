@@ -195,7 +195,7 @@ export async function writeImageData(
  * Extracts image data from an image.
  */
 export function toImageData(
-  image: Image,
+  image: Image | HTMLImageElement,
   {
     maxWidth = image.width,
     maxHeight = image.height,
