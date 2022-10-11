@@ -113,8 +113,11 @@ export function App(): JSX.Element | null {
     }
 
     document.title = `${electionQuery.data?.title} (${format.percent(
-      markThresholdsQuery.data.marginal
-    )}/${format.percent(markThresholdsQuery.data.definite)})`;
+      markThresholdsQuery.data.marginal,
+      { maximumFractionDigits: 2 }
+    )}/${format.percent(markThresholdsQuery.data.definite, {
+      maximumFractionDigits: 2,
+    })})`;
   }, [electionQuery.data, markThresholdsQuery.data]);
 
   if (
