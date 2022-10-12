@@ -62,7 +62,7 @@ def set_mock(request_data):
 
 
 def enable_no_card():
-    set_mock({"enabled": True, "hasCard": card})
+    set_mock({"enabled": True, "hasCard": False})
 
 
 def enable_fixture(fixture_path: str):
@@ -202,13 +202,14 @@ if command == "enable":
     card_type: Optional[str] = None
     precinct_id: Optional[str] = None
     ballot_style_id: Optional[str] = None
+    dip = False
 
     i = 2
     while i < len(sys.argv):
         arg = sys.argv[i]
 
-        if arg == "--card" or arg == "--no-card":
-            card = arg == "--card"
+        if arg == "--no-card":
+            card = False
         elif arg == "--fixture":
             i += 1
             fixture_path = sys.argv[i]
@@ -232,6 +233,8 @@ if command == "enable":
         elif arg == "--ballot-style":
             i += 1
             ballot_style_id = sys.argv[i]
+        elif arg == "--dip":
+            dip = True
         else:
             fatal("unexpected option: %s" % arg)
 
@@ -263,7 +266,11 @@ if command == "enable":
             enable_voter(election_definition, precinct_id, ballot_style_id)
     elif card_type == "system_administrator":
         enable_system_administrator()
-    else:
+    elif not card:
+        enable_no_card()
+
+    if dip:
+        time.sleep(0.1)
         enable_no_card()
 
 elif command == "disable":
