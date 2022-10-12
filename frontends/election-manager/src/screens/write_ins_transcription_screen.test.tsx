@@ -25,6 +25,7 @@ test('clicking a previously-saved value', async () => {
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
       contest={contest}
+      transcriptionQueue={4}
       adjudications={[
         {
           contestId: 'best-animal-mammal',
@@ -53,6 +54,6 @@ test('clicking a previously-saved value', async () => {
   userEvent.click(await screen.findByText('Previous'));
   await screen.findByTestId('transcribe:id-174');
 
-  userEvent.click(await screen.findByText('Done'));
+  userEvent.click(await screen.findByText('Back to All Write-Ins'));
   expect(onClose).toHaveBeenCalledTimes(1);
 });
