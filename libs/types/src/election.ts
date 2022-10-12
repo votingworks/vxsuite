@@ -950,11 +950,16 @@ export const TargetShapeSchema: z.ZodSchema<TargetShape> = z.object({
 
 export interface BallotCandidateTargetMark {
   type: CandidateContest['type'];
+  /** The area of the detected bubble. */
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
   optionId: CandidateId | WriteInId;
   score: number;
+  /**
+   * How far away `bounds` was from where it was expected. Thus, the expected
+   * bounds is `bounds - scoredOffset`.
+   */
   scoredOffset: Offset;
 }
 export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetMark> =
@@ -970,11 +975,16 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
 
 export interface BallotYesNoTargetMark {
   type: YesNoContest['type'];
+  /** The area of the detected bubble. */
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
   optionId: 'yes' | 'no';
   score: number;
+  /**
+   * How far away `bounds` was from where it was expected. Thus, the expected
+   * bounds is `bounds - scoredOffset`.
+   */
   scoredOffset: Offset;
 }
 export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
@@ -990,11 +1000,16 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
 
 export interface BallotMsEitherNeitherTargetMark {
   type: MsEitherNeitherContest['type'];
+  /** The area of the detected bubble. */
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
   optionId: YesNoOptionId;
   score: number;
+  /**
+   * How far away `bounds` was from where it was expected. Thus, the expected
+   * bounds is `bounds - scoredOffset`.
+   */
   scoredOffset: Offset;
 }
 export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNeitherTargetMark> =

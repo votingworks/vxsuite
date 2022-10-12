@@ -539,7 +539,7 @@ test('run interpret with JSON output', async () => {
               \\"option\\": \\"tim-smith\\",
               \\"score\\": 0.8765432098765432,
               \\"bounds\\": {
-                \\"x\\": 470,
+                \\"x\\": 471,
                 \\"y\\": 411,
                 \\"width\\": 33,
                 \\"height\\": 22
@@ -565,7 +565,7 @@ test('run interpret with JSON output', async () => {
               \\"option\\": \\"arjun-srinivasan\\",
               \\"score\\": 0.0024630541871921183,
               \\"bounds\\": {
-                \\"x\\": 470,
+                \\"x\\": 471,
                 \\"y\\": 489,
                 \\"width\\": 33,
                 \\"height\\": 22
@@ -591,8 +591,8 @@ test('run interpret with JSON output', async () => {
               \\"option\\": \\"ricardo-turullols-bonilla\\",
               \\"score\\": 0.007407407407407408,
               \\"bounds\\": {
-                \\"x\\": 470,
-                \\"y\\": 567,
+                \\"x\\": 471,
+                \\"y\\": 566,
                 \\"width\\": 33,
                 \\"height\\": 22
               },
@@ -618,7 +618,7 @@ test('run interpret with JSON output', async () => {
               \\"score\\": 0.7832512315270936,
               \\"bounds\\": {
                 \\"x\\": 470,
-                \\"y\\": 831,
+                \\"y\\": 832,
                 \\"width\\": 33,
                 \\"height\\": 22
               },
@@ -669,8 +669,8 @@ test('run interpret with JSON output', async () => {
               \\"option\\": \\"jane-bland\\",
               \\"score\\": 0.7524509803921569,
               \\"bounds\\": {
-                \\"x\\": 470,
-                \\"y\\": 1173,
+                \\"x\\": 471,
+                \\"y\\": 1174,
                 \\"width\\": 33,
                 \\"height\\": 22
               },
@@ -722,7 +722,7 @@ test('run interpret with JSON output', async () => {
               \\"score\\": 0.8029556650246306,
               \\"bounds\\": {
                 \\"x\\": 872,
-                \\"y\\": 320,
+                \\"y\\": 321,
                 \\"width\\": 33,
                 \\"height\\": 22
               },
@@ -748,7 +748,7 @@ test('run interpret with JSON output', async () => {
               \\"score\\": 0.8866995073891626,
               \\"bounds\\": {
                 \\"x\\": 872,
-                \\"y\\": 556,
+                \\"y\\": 555,
                 \\"width\\": 33,
                 \\"height\\": 22
               },
