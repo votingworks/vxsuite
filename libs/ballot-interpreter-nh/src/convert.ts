@@ -779,12 +779,17 @@ export function convertElectionDefinitionHeader(
         } else {
           const parsedConstitutionalQuestions =
             parseConstitutionalQuestionsResult.ok();
-          for (const question of parsedConstitutionalQuestions.questions) {
+          for (const [
+            i,
+            question,
+          ] of parsedConstitutionalQuestions.questions.entries()) {
             contests.push({
               type: 'yesno',
               id: makeId(question.title),
-              section: 'Constitutional Amendment Question',
-              title: 'Constitutional Amendment Question',
+              section:
+                parsedConstitutionalQuestions.title ??
+                'Constitutional Amendments',
+              title: `Constitutional Amendment Question #${i + 1}`,
               description: question.title,
               districtId,
             });

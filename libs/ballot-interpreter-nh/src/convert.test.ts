@@ -438,8 +438,8 @@ test('constitutional questions become yesno contests', async () => {
       {
         type: 'yesno',
         id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-        section: 'Constitutional Amendment Question',
-        title: 'Constitutional Amendment Question',
+        section: 'CONSTITUTIONAL AMENDMENT QUESTION',
+        title: 'Constitutional Amendment Question #1',
         description:
           'Shall there be a convention to amend or revise the constitution?',
         districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
@@ -478,8 +478,8 @@ test('constitutional question ovals get placed on the grid correctly', async () 
           {
             type: 'yesno',
             id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-            section: 'Constitutional Amendment Question',
-            title: 'Constitutional Amendment Question',
+            section: 'CONSTITUTIONAL AMENDMENT QUESTION',
+            title: 'Constitutional Amendment Question #1',
             description:
               'Shall there be a convention to amend or revise the constitution?',
             districtId: unsafeParse(
