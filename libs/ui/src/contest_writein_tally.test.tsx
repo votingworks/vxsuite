@@ -28,7 +28,6 @@ beforeEach(() => {
       ]),
     ],
     ['representative-district-18', new Map([])],
-    ['prop-1', new Map([])],
   ]);
 });
 
@@ -47,9 +46,7 @@ it('renders correctly', () => {
   within(screen.getByText('Bob').closest('tr')!).getByText('8');
   within(screen.getByText('Charlie').closest('tr')!).getByText('4');
 
-  within(
-    screen.getByText('Representative, District 18').closest('div')!
-  ).getByText(
-    'Adjudication of write-in votes has not been completed for this contest.'
-  );
+  expect(
+    screen.queryByText('Representative, District 18')
+  ).not.toBeInTheDocument();
 });

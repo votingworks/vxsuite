@@ -41,55 +41,44 @@ export function ContestWriteInTally({
 }: Props): JSX.Element {
   return (
     <React.Fragment>
-      {election.contests.map((contest) => {
-        const contestWriteInCounts = writeInCounts.get(contest.id);
-        if (!contestWriteInCounts || contestWriteInCounts.size === 0) {
-          return null;
-        }
-
-        const contestOptionTableRows: JSX.Element[] = [];
-        switch (contest.type) {
-          case 'candidate': {
-            for (const [transcribedValue, count] of contestWriteInCounts) {
-              const key = `${contest.id}-${transcribedValue}`;
-              contestOptionTableRows.push(
-                <tr key={key} data-testid={key}>
-                  <td>{transcribedValue}</td>
-                  <TD narrow textAlign="right">
-                    {count}
-                  </TD>
-                </tr>
-              );
-            }
-            break;
+      {election.contests
+        .filter((contest) => contest.type === 'candidate')
+        .map((contest) => {
+          const contestWriteInCounts = writeInCounts.get(contest.id);
+          if (!contestWriteInCounts || contestWriteInCounts.size === 0) {
+            return null;
           }
-          default:
-            break;
-        }
 
-        return (
-          <Contest key={`div-${contest.id}`}>
-            <Prose maxWidth={false} data-testid={`results-table-${contest.id}`}>
-              {contest.section !== contest.title && (
-                <Text small>{contest.section}</Text>
-              )}
-              <h3>{contest.title}</h3>
-              {contestOptionTableRows.length ? (
+          const contestOptionTableRows: JSX.Element[] = [];
+          for (const [transcribedValue, count] of contestWriteInCounts) {
+            const key = `${contest.id}-${transcribedValue}`;
+            contestOptionTableRows.push(
+              <tr key={key} data-testid={key}>
+                <td>{transcribedValue}</td>
+                <TD narrow textAlign="right">
+                  {count}
+                </TD>
+              </tr>
+            );
+          }
+
+          return (
+            <Contest key={`div-${contest.id}`}>
+              <Prose
+                maxWidth={false}
+                data-testid={`results-table-${contest.id}`}
+              >
+                {contest.section !== contest.title && (
+                  <Text small>{contest.section}</Text>
+                )}
+                <h3>{contest.title}</h3>
                 <Table borderTop condensed>
                   <tbody>{contestOptionTableRows}</tbody>
                 </Table>
-              ) : (
-                <p>
-                  <em>
-                    Adjudication of write-in votes has not been completed for
-                    this contest.
-                  </em>
-                </p>
-              )}
-            </Prose>
-          </Contest>
-        );
-      })}
+              </Prose>
+            </Contest>
+          );
+        })}
     </React.Fragment>
   );
 }
