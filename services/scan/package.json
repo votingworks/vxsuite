@@ -2,6 +2,8 @@
   "name": "@votingworks/scan",
   "version": "0.1.0",
   "private": true,
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build",
     "bin",

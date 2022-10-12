@@ -17,6 +17,9 @@ import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 import { plustekMockServer } from './plustek_mock_server';
 
+export { Store } from './store';
+export * from './util/workspace';
+
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotEnvPath = '.env';
 const dotenvFiles: string[] = [
@@ -81,7 +84,7 @@ function getScanner(): BatchScanner | undefined {
   return new LoopScanner(mockScannerFiles);
 }
 
-async function main(): Promise<number> {
+export async function main(): Promise<number> {
   await server.start({ batchScanner: getScanner(), createPlustekClient });
   return 0;
 }

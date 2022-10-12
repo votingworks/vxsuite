@@ -5,36 +5,17 @@ import {
   toImageData,
   writeImageData,
 } from '@votingworks/image-utils';
+import { Workspace } from '@votingworks/scan';
 import {
-  ElectionDefinition,
-  ElectionDefinitionSchema,
   Id,
-  MarkThresholdsSchema,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
-  Result,
   safeParseInt,
   safeParseJson,
 } from '@votingworks/types';
-import Database from 'better-sqlite3';
 import express from 'express';
 import { existsSync } from 'fs';
 import { isAbsolute, join } from 'path';
-
-// TODO: use `Store` and/or `Client` from `@votingworks/scan`
-type Database = Database.Database;
-
-function run(db: Database, sql: string, ...params: unknown[]): void {
-  db.prepare(sql).run(...params);
-}
-
-function one(db: Database, sql: string, ...params: unknown[]): unknown {
-  return db.prepare(sql).get(...params);
-}
-
-function all(db: Database, sql: string, ...params: unknown[]): unknown[] {
-  return db.prepare(sql).all(...params);
-}
 
 function joinPaths(...paths: string[]): string {
   return paths.reduce((a, b) => (isAbsolute(b) ? b : join(a, b)));
@@ -49,22 +30,12 @@ interface SheetInterpretation {
 /**
  * Builds an express app that serves the backend API.
  */
-export function buildApp(backupRoot: string): express.Express {
-  const db = new Database(join(backupRoot, 'ballots.db'));
-
-  function getElectionDefinition(): Result<ElectionDefinition, Error> {
-    return safeParseJson(
-      (
-        one(db, `SELECT value FROM configs WHERE key = 'election'`) as
-          | { value: string }
-          | undefined
-      )?.value ?? '',
-      ElectionDefinitionSchema
-    );
-  }
+export function buildApp(workspace: Workspace): express.Express {
+  const { store } = workspace;
+  const db = workspace.store['client'];
 
   function getImagePath(imageBasename: string): string {
-    return joinPaths(process.cwd(), backupRoot, imageBasename);
+    return joinPaths(process.cwd(), workspace.path, imageBasename);
   }
 
   function getSheets({
@@ -84,8 +55,7 @@ export function buildApp(backupRoot: string): express.Express {
     limit?: int;
     offset?: int;
   }): SheetInterpretation[] {
-    const sheets = all(
-      db,
+    const sheets = db.all(
       `
         SELECT
           id,
@@ -141,44 +111,34 @@ export function buildApp(backupRoot: string): express.Express {
 
   return express()
     .get('/api/election', (req, res) => {
-      const electionDefinitionResult = getElectionDefinition();
+      const electionDefinition = store.getElectionDefinition();
 
-      if (electionDefinitionResult.isErr()) {
+      if (!electionDefinition) {
         res.status(404).send('Election definition not found');
         return;
       }
 
       res
         .setHeader('Content-Type', 'application/json')
-        .send(electionDefinitionResult.ok().electionData);
+        .send(electionDefinition.electionData);
     })
 
     .get('/api/mark-thresholds', (req, res) => {
-      const selectMarkThresholdOverridesRow = one(
-        db,
-        `SELECT value FROM configs WHERE key = 'markThresholdOverrides'`
-      ) as { value: string } | undefined;
+      const markThresholdOverrides = store.getMarkThresholdOverrides();
 
-      if (selectMarkThresholdOverridesRow) {
-        const markThresholdOverridesResult = safeParseJson(
-          selectMarkThresholdOverridesRow.value,
-          MarkThresholdsSchema
-        );
-
-        if (markThresholdOverridesResult.isOk()) {
-          res.json(markThresholdOverridesResult.ok());
-          return;
-        }
+      if (markThresholdOverrides) {
+        res.json(markThresholdOverrides);
+        return;
       }
 
-      const electionDefinitionResult = getElectionDefinition();
+      const electionDefinition = store.getElectionDefinition();
 
-      if (electionDefinitionResult.isErr()) {
+      if (!electionDefinition) {
         res.status(404).send('Election definition not found');
         return;
       }
 
-      res.json(electionDefinitionResult.ok().election.markThresholds);
+      res.json(electionDefinition.election.markThresholds);
     })
 
     .get<unknown, unknown, unknown, { limit?: string; offset?: string }>(
@@ -208,16 +168,16 @@ export function buildApp(backupRoot: string): express.Express {
       '/api/sheets/:sheetId/images/:side',
       (req, res) => {
         const { sheetId, side } = req.params;
-        const [sheet] = getSheets({ id: sheetId });
+        const filenames = store.getBallotFilenames(sheetId, side);
 
-        if (!sheet) {
+        if (!filenames) {
           res.status(404).send(`sheet ID not found: ${sheetId}`);
           return;
         }
 
         for (const imageBasename of [
-          sheet[side].normalizedFilename,
-          sheet[side].originalFilename,
+          filenames.normalized,
+          filenames.original,
         ]) {
           const imagePath = getImagePath(imageBasename);
 
@@ -235,35 +195,15 @@ export function buildApp(backupRoot: string): express.Express {
 
     .post<{ sheetId: Id }>('/api/sheets/:sheetId/images/swap', (req, res) => {
       const { sheetId } = req.params;
+      const frontFilenames = store.getBallotFilenames(sheetId, 'front');
+      const backFilenames = store.getBallotFilenames(sheetId, 'back');
 
-      const row = one(
-        db,
-        `
-          SELECT
-            front_normalized_filename as frontNormalizedFilename,
-            back_normalized_filename as backNormalizedFilename,
-            front_original_filename as frontOriginalFilename,
-            back_original_filename as backOriginalFilename
-          FROM sheets
-          WHERE id = ?
-        `,
-        sheetId
-      ) as
-        | {
-            frontNormalizedFilename: string;
-            backNormalizedFilename: string;
-            frontOriginalFilename: string;
-            backOriginalFilename: string;
-          }
-        | undefined;
-
-      if (!row) {
+      if (!frontFilenames || !backFilenames) {
         res.status(404).send(`sheet ID not found: ${sheetId}`);
         return;
       }
 
-      run(
-        db,
+      db.run(
         `
           UPDATE sheets
           SET
@@ -273,10 +213,10 @@ export function buildApp(backupRoot: string): express.Express {
             back_original_filename = ?
           WHERE id = ?
         `,
-        row.backNormalizedFilename,
-        row.frontNormalizedFilename,
-        row.backOriginalFilename,
-        row.frontOriginalFilename,
+        backFilenames.normalized,
+        frontFilenames.normalized,
+        backFilenames.original,
+        frontFilenames.original,
         sheetId
       );
 
@@ -287,29 +227,10 @@ export function buildApp(backupRoot: string): express.Express {
       '/api/sheets/:sheetId/images/rotate',
       async (req, res) => {
         const { sheetId } = req.params;
+        const frontFilenames = store.getBallotFilenames(sheetId, 'front');
+        const backFilenames = store.getBallotFilenames(sheetId, 'back');
 
-        const row = one(
-          db,
-          `
-          SELECT
-            front_normalized_filename as frontNormalizedFilename,
-            back_normalized_filename as backNormalizedFilename,
-            front_original_filename as frontOriginalFilename,
-            back_original_filename as backOriginalFilename
-          FROM sheets
-          WHERE id = ?
-        `,
-          sheetId
-        ) as
-          | {
-              frontNormalizedFilename: string;
-              backNormalizedFilename: string;
-              frontOriginalFilename: string;
-              backOriginalFilename: string;
-            }
-          | undefined;
-
-        if (!row) {
+        if (!frontFilenames || !backFilenames) {
           res.status(404).send(`sheet ID not found: ${sheetId}`);
           return;
         }
@@ -322,10 +243,10 @@ export function buildApp(backupRoot: string): express.Express {
         }
 
         for (const imageBasename of [
-          row.frontNormalizedFilename,
-          row.backNormalizedFilename,
-          row.frontOriginalFilename,
-          row.backOriginalFilename,
+          frontFilenames.original,
+          frontFilenames.normalized,
+          backFilenames.original,
+          backFilenames.normalized,
         ]) {
           const imagePath = getImagePath(imageBasename);
           if (existsSync(imagePath)) {
