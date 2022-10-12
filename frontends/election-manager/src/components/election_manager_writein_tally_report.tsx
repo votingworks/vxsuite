@@ -14,16 +14,21 @@ import {
   PartyIdSchema,
   unsafeParse,
   VotingMethod,
-  ContestId,
 } from '@votingworks/types';
 import { find } from '@votingworks/utils';
 import React, { forwardRef } from 'react';
+import {
+  combineWriteInCounts,
+  CountsByContestAndCandidateName,
+  filterWriteInCountsByParty,
+} from '../utils/write_ins';
 
 export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  writeInCounts: Map<ContestId, Map<string, number>>;
+  screenAdjudicatedWriteInCounts: CountsByContestAndCandidateName;
+  manualWriteInCounts?: CountsByContestAndCandidateName;
   generatedAtTime?: Date;
   isOfficialResults: boolean;
   partyId?: string;
@@ -42,7 +47,8 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
       batchId,
       batchLabel,
       election,
-      writeInCounts,
+      screenAdjudicatedWriteInCounts,
+      manualWriteInCounts,
       generatedAtTime = new Date(),
       isOfficialResults,
       partyId: partyIdFromProps,
@@ -64,6 +70,13 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
         ? election.precincts.map((p) => p.id)
         : [precinctIdFromProps];
 
+    const writeInCounts = manualWriteInCounts
+      ? combineWriteInCounts([
+          screenAdjudicatedWriteInCounts,
+          manualWriteInCounts,
+        ])
+      : screenAdjudicatedWriteInCounts;
+
     const writeInMetadataFooter = (
       <React.Fragment>
         <br />
@@ -76,8 +89,13 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
 
     return (
       <TallyReport className="print-only" ref={ref}>
-        {ballotStylePartyIds.map((partyId) =>
-          precinctIds.map((precinctId) => {
+        {ballotStylePartyIds.map((partyId) => {
+          const writeInCountsFilteredByParty = filterWriteInCountsByParty(
+            writeInCounts,
+            election,
+            partyId
+          );
+          return precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId);
             const electionTitle = party
               ? `${party.fullName} ${election.title}`
@@ -189,13 +207,13 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
                 <TallyReportColumns>
                   <ContestWriteInTally
                     election={election}
-                    writeInCounts={writeInCounts}
+                    writeInCounts={writeInCountsFilteredByParty}
                   />
                 </TallyReportColumns>
               </ReportSection>
             );
-          })
-        )}
+          });
+        })}
       </TallyReport>
     );
   }

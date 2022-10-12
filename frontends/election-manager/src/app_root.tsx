@@ -14,6 +14,7 @@ import {
   ExternalTallySourceType,
   Provider,
   Printer,
+  VotingMethod,
 } from '@votingworks/types';
 import {
   assert,
@@ -68,6 +69,9 @@ export function AppRoot({
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
+  const [manualTallyVotingMethod, setManualTallyVotingMethod] = useState(
+    VotingMethod.Precinct
+  );
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     codeVersion: '',
@@ -279,6 +283,8 @@ export function AppRoot({
         fullElectionTally,
         fullElectionExternalTallies: store.fullElectionExternalTallies,
         updateExternalTally,
+        manualTallyVotingMethod,
+        setManualTallyVotingMethod,
         saveTranscribedValue,
         isTabulationRunning,
         setIsTabulationRunning,

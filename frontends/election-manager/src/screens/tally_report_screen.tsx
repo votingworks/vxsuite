@@ -38,7 +38,7 @@ import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 import { PrintableArea } from '../components/printable_area';
-import { getWriteInCountsByContestAndCandidate } from '../utils/write_ins';
+import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -77,8 +77,8 @@ export function TallyReportScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
   const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
-  const writeInCountsByContestAndCandidate =
-    getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? [], true);
+  const screenAdjudicatedOfficialCandidateWriteInCounts =
+    getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
 
   const location = useLocation();
 
@@ -233,7 +233,7 @@ export function TallyReportScreen(): JSX.Element {
     previewReportRef,
     printReportRef,
     isOfficialResults,
-    writeInCountsByContestAndCandidate,
+    screenAdjudicatedOfficialCandidateWriteInCounts,
   ]);
 
   return (
@@ -325,7 +325,9 @@ export function TallyReportScreen(): JSX.Element {
           election={election}
           fullElectionExternalTallies={fullElectionExternalTallies}
           fullElectionTally={fullElectionTally}
-          officialCandidateWriteIns={writeInCountsByContestAndCandidate}
+          officialCandidateWriteIns={
+            screenAdjudicatedOfficialCandidateWriteInCounts
+          }
           generatedAtTime={generatedAtTime}
           tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
           partyId={partyId}

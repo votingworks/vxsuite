@@ -6,10 +6,8 @@ import {
 import {
   CandidateContest,
   Dictionary,
-  Election,
   YesNoContest,
   expandEitherNeitherContests,
-  ContestOptionTally,
   ContestTally,
   ExternalTally,
   ExternalTallySourceType,
@@ -20,6 +18,7 @@ import {
   PartyIdSchema,
 } from '@votingworks/types';
 import { typedAs, combineContestTallies } from '@votingworks/utils';
+import { buildExternalTally } from '../../test/helpers/build_external_tally';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
 import {
@@ -27,7 +26,6 @@ import {
   convertStorageStringToExternalTallies,
   convertTalliesByPrecinctToFullExternalTally,
   filterExternalTalliesByParams,
-  getEmptyContestTallies,
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
   getPrecinctIdsInExternalTally,
@@ -40,50 +38,6 @@ const yesnocontest = electionSample.contests.find(
 const presidentcontest = electionSample.contests.find(
   (c) => c.id === 'president'
 ) as CandidateContest;
-
-// Note this helper uses 'getEmptyContestTallies' and 'getTotalNumberOfBallots' util functions so should not be used to test those implementations.
-function buildExternalTally(
-  election: Election,
-  multiplier: number,
-  contestIdsToPopulate: string[]
-): ExternalTally {
-  // Initialize an empty set of contest tallies
-  const contestTallies = getEmptyContestTallies(election);
-  for (const contestId of contestIdsToPopulate) {
-    if (!(contestId in contestTallies)) {
-      throw new Error(
-        `Contest ID ${contestId} is not in the provided election`
-      );
-    }
-    const emptyTally = contestTallies[contestId]!;
-    const populatedTallies: Dictionary<ContestOptionTally> = {};
-    const numSeats =
-      emptyTally.contest.type === 'candidate'
-        ? (emptyTally.contest as CandidateContest).seats
-        : 1;
-    let numberOfBallotsInContest = 2 * multiplier; // Undervotes and Overvotes
-    for (const optionId of Object.keys(emptyTally.tallies)) {
-      populatedTallies[optionId] = {
-        ...emptyTally.tallies[optionId]!,
-        tally: 1 * multiplier * numSeats,
-      };
-      numberOfBallotsInContest += 1 * multiplier;
-    }
-    contestTallies[contestId] = {
-      ...emptyTally,
-      tallies: populatedTallies,
-      metadata: {
-        undervotes: 1 * multiplier * numSeats,
-        overvotes: 1 * multiplier * numSeats,
-        ballots: numberOfBallotsInContest,
-      },
-    };
-  }
-  return {
-    contestTallies,
-    numberOfBallotsCounted: getTotalNumberOfBallots(contestTallies, election),
-  };
-}
 
 describe('combineContestTallies', () => {
   it('combine yes no tallies with an empty tally', () => {

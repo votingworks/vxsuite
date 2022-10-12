@@ -23,11 +23,7 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import {
-  convertTalliesByPrecinctToFullExternalTally,
-  getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
-} from '../utils/external_tallies';
+import { convertTalliesByPrecinctToFullExternalTally } from '../utils/external_tallies';
 import { LinkButton } from '../components/link_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 
@@ -51,6 +47,8 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     electionDefinition,
     fullElectionExternalTallies,
     updateExternalTally,
+    manualTallyVotingMethod,
+    setManualTallyVotingMethod,
     resetFiles,
     auth,
     logger,
@@ -67,11 +65,6 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
   );
-  const talliesByPrecinct =
-    existingTalliesByPrecinct ?? getEmptyExternalTalliesByPrecinct(election);
-  const [ballotType, setBallotType] = useState<VotingMethod>(
-    existingManualData?.votingMethod ?? VotingMethod.Precinct
-  );
   const [isClearing, setIsClearing] = useState(false);
   const hasManualData =
     !!existingManualData?.overallTally.numberOfBallotsCounted;
@@ -82,47 +75,51 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   }
 
   async function handleSettingBallotType(newBallotType: VotingMethod) {
-    setBallotType(newBallotType);
+    setManualTallyVotingMethod(newBallotType);
 
-    // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
-    const externalTally = convertTalliesByPrecinctToFullExternalTally(
-      talliesByPrecinct,
-      election,
-      newBallotType,
-      ExternalTallySourceType.Manual,
-      MANUAL_DATA_NAME,
-      new Date()
-    );
+    if (existingTalliesByPrecinct) {
+      const externalTally = convertTalliesByPrecinctToFullExternalTally(
+        existingTalliesByPrecinct,
+        election,
+        newBallotType,
+        ExternalTallySourceType.Manual,
+        MANUAL_DATA_NAME,
+        new Date()
+      );
+      await updateExternalTally(externalTally);
+    }
+
     await logger.log(LogEventId.ManualTallyDataEdited, userRole, {
       disposition: 'success',
       newBallotType,
       message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
     });
-    await updateExternalTally(externalTally);
   }
 
   useEffect(() => {
     // If the data gets cleared, reset voting method.
     if (existingManualData === undefined) {
-      setBallotType(VotingMethod.Precinct);
+      setManualTallyVotingMethod(VotingMethod.Precinct);
     }
-  }, [existingManualData]);
+  }, [existingManualData, setManualTallyVotingMethod]);
 
   const votingMethodName =
-    ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
+    manualTallyVotingMethod === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
 
   let totalNumberBallotsEntered = 0;
   const enteredDataRows: ReactChild[] = [];
   for (const precinct of election.precincts) {
     /* istanbul ignore next */
-    const tally = talliesByPrecinct[precinct.id] ?? getEmptyExternalTally();
+    const numberOfBallotsCounted = existingTalliesByPrecinct
+      ? existingTalliesByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0
+      : 0;
     enteredDataRows.push(
       <tr key={precinct.id}>
         <TD>
           <PrecinctRowText noWrap>{precinct.name}</PrecinctRowText>
         </TD>
         <TD nowrap textAlign="center" data-testid="numBallots">
-          <PrecinctRowText>{tally.numberOfBallotsCounted}</PrecinctRowText>
+          <PrecinctRowText>{numberOfBallotsCounted}</PrecinctRowText>
         </TD>
         <TD nowrap>
           <LinkButton
@@ -136,7 +133,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
         </TD>
       </tr>
     );
-    totalNumberBallotsEntered += tally.numberOfBallotsCounted;
+    totalNumberBallotsEntered += numberOfBallotsCounted;
   }
 
   return (
@@ -154,14 +151,14 @@ export function ManualDataImportIndexScreen(): JSX.Element {
               <SegmentedButton>
                 <Button
                   data-testid="ballottype-precinct"
-                  disabled={ballotType === VotingMethod.Precinct}
+                  disabled={manualTallyVotingMethod === VotingMethod.Precinct}
                   onPress={() => handleSettingBallotType(VotingMethod.Precinct)}
                 >
                   Precinct Results
                 </Button>
                 <Button
                   data-testid="ballottype-absentee"
-                  disabled={ballotType === VotingMethod.Absentee}
+                  disabled={manualTallyVotingMethod === VotingMethod.Absentee}
                   onPress={() => handleSettingBallotType(VotingMethod.Absentee)}
                 >
                   Absentee Results

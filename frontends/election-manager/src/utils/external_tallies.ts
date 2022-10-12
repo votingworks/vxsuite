@@ -12,10 +12,10 @@ import {
   OptionalFullElectionExternalTally,
   TallyCategory,
   VotingMethod,
-  writeInCandidate,
   PartyId,
   PrecinctId,
   FullElectionExternalTallies,
+  ContestId,
 } from '@votingworks/types';
 import {
   assert,
@@ -27,6 +27,7 @@ import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
 } from './election';
+import { getAdjudicatedWriteInCandidate } from './write_ins';
 
 export function convertExternalTalliesToStorageString(
   tallies: FullElectionExternalTallies
@@ -268,7 +269,8 @@ export function convertTalliesByPrecinctToFullExternalTally(
 }
 
 export function getEmptyContestTallies(
-  election: Election
+  election: Election,
+  allAdjudicatedValues?: Map<ContestId, string[]>
 ): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {};
   for (const contest of expandEitherNeitherContests(election.contests)) {
@@ -281,11 +283,20 @@ export function getEmptyContestTallies(
             tally: 0,
           };
         }
-        if (contest.allowWriteIns) {
-          optionTallies[writeInCandidate.id] = {
-            option: writeInCandidate,
-            tally: 0,
-          };
+        if (contest.allowWriteIns && allAdjudicatedValues) {
+          const adjudicatedValues = allAdjudicatedValues.get(contest.id);
+          if (adjudicatedValues) {
+            for (const adjudicatedValue of adjudicatedValues) {
+              const adjudicatedCandidate = getAdjudicatedWriteInCandidate(
+                adjudicatedValue,
+                false
+              );
+              optionTallies[adjudicatedCandidate.id] = {
+                option: adjudicatedCandidate,
+                tally: 0,
+              };
+            }
+          }
         }
         break;
       }
@@ -313,12 +324,13 @@ export function getEmptyContestTallies(
 }
 
 export function getEmptyExternalTalliesByPrecinct(
-  election: Election
+  election: Election,
+  allAdjudicatedValues?: Map<ContestId, string[]>
 ): Dictionary<ExternalTally> {
   const tallies: Dictionary<ExternalTally> = {};
   for (const precinct of election.precincts) {
     tallies[precinct.id] = {
-      contestTallies: getEmptyContestTallies(election),
+      contestTallies: getEmptyContestTallies(election, allAdjudicatedValues),
       numberOfBallotsCounted: 0,
     };
   }

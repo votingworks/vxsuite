@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/utils';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -15,10 +15,14 @@ import {
   TallyCategory,
   VotingMethod,
   ContestId,
+  Candidate,
+  CandidateId,
+  Election,
 } from '@votingworks/types';
 import {
   Button,
   isElectionManagerAuth,
+  Modal,
   Prose,
   Table,
   TD,
@@ -33,17 +37,18 @@ import { AppContext } from '../contexts/app_context';
 import { LinkButton } from '../components/link_button';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import {
-  getContestsForPrecinct,
-  getAllPossibleCandidatesForCandidateContest,
-} from '../utils/election';
+import { getContestsForPrecinct } from '../utils/election';
 import { TextInput } from '../components/text_input';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
   getTotalNumberOfBallots,
 } from '../utils/external_tallies';
+import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
+import {
+  getAdjudicatedWriteInCandidate,
+  isManuallyAdjudicatedWriteInCandidate,
+} from '../utils/write_ins';
 
 const MANUAL_DATA_NAME = 'Manually Added Data';
 
@@ -72,22 +77,95 @@ export const ContestData = styled.div`
 
 function ContestDataRow({
   label,
+  onRemove,
   children,
+  testId,
 }: {
   label: string | React.ReactNode;
+  onRemove?: VoidFunction;
   children: React.ReactNode;
+  testId: string;
 }) {
   return (
-    <tr>
+    <tr data-testid={testId}>
       <TD narrow>{children}</TD>
       <TD>{label}</TD>
+      <TD textAlign="right">
+        {onRemove && (
+          <Button onPress={onRemove} small>
+            Remove
+          </Button>
+        )}
+      </TD>
     </tr>
   );
 }
 
-// While we're holding data internally in this component tallys can be stored
+function AddWriteInRow({
+  addWriteInCandidate,
+  contestId,
+  disallowedCandidateNames,
+}: {
+  addWriteInCandidate: (name: string) => void;
+  contestId: ContestId;
+  disallowedCandidateNames: string[];
+}): JSX.Element {
+  const [isAddingWriteIn, setIsAddingWriteIn] = useState(false);
+  const [writeInName, setWriteInName] = useState('');
+  const onAdd = useCallback(() => {
+    addWriteInCandidate(writeInName);
+    setIsAddingWriteIn(false);
+    setWriteInName('');
+  }, [addWriteInCandidate, writeInName]);
+
+  return (
+    <tr>
+      <TD narrow textAlign="center">
+        {isAddingWriteIn && (
+          <Button
+            small
+            primary
+            onPress={onAdd}
+            disabled={
+              writeInName.length === 0 ||
+              disallowedCandidateNames.includes(writeInName)
+            }
+          >
+            Add
+          </Button>
+        )}
+      </TD>
+      {isAddingWriteIn ? (
+        <React.Fragment>
+          <TD>
+            <TextInput
+              defaultValue=""
+              data-testid={`${contestId}-write-in-input`}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setWriteInName(e.target.value)
+              }
+            />
+          </TD>
+          <TD textAlign="right">
+            <Button small onPress={() => setIsAddingWriteIn(false)}>
+              Cancel
+            </Button>
+          </TD>
+        </React.Fragment>
+      ) : (
+        <TD colSpan={2}>
+          <Button small onPress={() => setIsAddingWriteIn(true)}>
+            Add Write-In Candidate
+          </Button>
+        </TD>
+      )}
+    </tr>
+  );
+}
+
+// While we're holding data internally in this component tallies can be stored
 // as strings or as numbers to allow the user to delete a "0" in the text boxes.
-// When the data is saved empty strings are convertted back to 0s.
+// When the data is saved empty strings are converted back to 0s.
 type EmptyValue = '';
 interface TempContestOptionTally {
   readonly option: ContestVoteOption;
@@ -117,6 +195,53 @@ function getNumericalValueForTally(tally: number | EmptyValue): number {
   return tally;
 }
 
+// Convert internal structure of contest data that allows for empty strings, to the regular
+// type by mapping any empty string values to zeros.
+function convertContestTallies(
+  contestTallies: Dictionary<TempContestTally>
+): Dictionary<ContestTally> {
+  const convertedContestTallies: Dictionary<ContestTally> = {};
+  for (const contestId of Object.keys(contestTallies)) {
+    const contestTally = contestTallies[contestId];
+    assert(contestTally);
+    const convertedOptionTallies: Dictionary<ContestOptionTally> = {};
+    for (const optionId of Object.keys(contestTally.tallies)) {
+      const optionTally = contestTally.tallies[optionId];
+      assert(optionTally);
+      convertedOptionTallies[optionId] = {
+        ...optionTally,
+        tally: getNumericalValueForTally(optionTally.tally),
+      };
+    }
+    convertedContestTallies[contestId] = {
+      ...contestTally,
+      tallies: convertedOptionTallies,
+      metadata: {
+        ballots: getNumericalValueForTally(contestTally.metadata.ballots),
+        undervotes: getNumericalValueForTally(contestTally.metadata.undervotes),
+        overvotes: getNumericalValueForTally(contestTally.metadata.overvotes),
+      },
+    };
+  }
+  return convertedContestTallies;
+}
+
+// Re-calculates the total number of ballots in each contest to create an
+// external tally from contest tallies
+export function getExternalTallyFromContestTallies(
+  contestTallies: Dictionary<TempContestTally>,
+  election: Election
+): TempExternalTally {
+  const numberBallotsInPrecinct = getTotalNumberOfBallots(
+    convertContestTallies(contestTallies),
+    election
+  );
+  return {
+    numberOfBallotsCounted: numberBallotsInPrecinct,
+    contestTallies,
+  };
+}
+
 export function getExpectedNumberOfBallotsForContestTally(
   contestTally: TempContestTally
 ): number {
@@ -138,11 +263,46 @@ export function getExpectedNumberOfBallotsForContestTally(
   );
 }
 
+// Recalculates the total number of ballots in a contest, which is necessary
+// after an input field is changed or a manually added write-in candidate is removed
+export function getContestTallyWithUpdatedNumberOfBallots(
+  contestTally: TempContestTally
+): TempContestTally {
+  return {
+    ...contestTally,
+    metadata: {
+      ...contestTally.metadata,
+      ballots: getExpectedNumberOfBallotsForContestTally(contestTally),
+    },
+  };
+}
+
+export function getCandidatesFromContestTally(
+  contestTally: TempContestTally
+): Candidate[] {
+  if (contestTally.contest.type !== 'candidate') return [];
+  const contestOptions = Object.values(contestTally.tallies).map(
+    (optionTally) => {
+      assert(optionTally);
+      return optionTally.option;
+    }
+  );
+  return contestOptions as Candidate[];
+}
+
+export function getCandidateNamesFromContestTally(
+  contestTally: TempContestTally
+): string[] {
+  const candidates = getCandidatesFromContestTally(contestTally);
+  return candidates.map((candidate) => candidate.name);
+}
+
 export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
     updateExternalTally,
+    manualTallyVotingMethod,
     auth,
     logger,
   } = useContext(AppContext);
@@ -155,80 +315,70 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     useParams<ManualDataPrecinctScreenProps>();
   const history = useHistory();
 
-  const currentPrecinct = election.precincts.find(
-    (p) => p.id === currentPrecinctId
-  );
-  if (currentPrecinct === undefined) {
-    return (
-      <Prose>
-        Error: Could not find precinct {currentPrecinctId}.{' '}
-        <LinkButton to={routerPaths.manualDataImport}>Back to Index</LinkButton>
-      </Prose>
-    );
-  }
   const existingManualData = fullElectionExternalTallies.get(
     ExternalTallySourceType.Manual
   );
-  const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
-    TallyCategory.Precinct
+  const ballotType =
+    existingManualData?.votingMethod ?? manualTallyVotingMethod;
+  const existingTalliesByPrecinct: Dictionary<TempExternalTally> | undefined =
+    existingManualData?.resultsByCategory.get(TallyCategory.Precinct);
+
+  const currentPrecinct = election.precincts.find(
+    (p) => p.id === currentPrecinctId
   );
-  const talliesByPrecinct: Dictionary<TempExternalTally> =
-    existingTalliesByPrecinct ?? getEmptyExternalTalliesByPrecinct(election);
+  const existingPrecinctTally = existingTalliesByPrecinct
+    ? existingTalliesByPrecinct[currentPrecinctId]
+    : undefined;
 
-  const initialPrecinctTally =
-    talliesByPrecinct[currentPrecinctId] ?? getEmptyExternalTally();
-  const [currentPrecinctTally, setCurrentPrecinctTally] =
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useState(initialPrecinctTally);
+  const [talliesByPrecinct, setTalliesByPrecinct] = useState(
+    existingTalliesByPrecinct
+  );
+  const [currentPrecinctTally, setCurrentPrecinctTally] = useState(
+    existingPrecinctTally
+  );
 
-  const ballotType = existingManualData?.votingMethod || VotingMethod.Precinct;
+  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
+  // Get empty tallies with previously adjudicated candidate names, only
+  // when none already exist at initial page load
+  useEffect(() => {
+    if (talliesByPrecinct) return;
+    if (!writeInSummaryQuery.data) return;
+    if (!writeInSummaryQuery.isFetchedAfterMount) return;
 
-  // Convert internal structure of contest data that allows for empty strings, to the regular
-  // type by mapping any empty string values to zeros.
-  function convertContestTallies(
-    contestTallies: Dictionary<TempContestTally>
-  ): Dictionary<ContestTally> {
-    const convertedContestTallies: Dictionary<ContestTally> = {};
-    for (const contestId of Object.keys(contestTallies)) {
-      const contestTally = contestTallies[contestId];
-      assert(contestTally);
-      const convertedOptionTallies: Dictionary<ContestOptionTally> = {};
-      for (const optionId of Object.keys(contestTally.tallies)) {
-        const optionTally = contestTally.tallies[optionId];
-        assert(optionTally);
-        convertedOptionTallies[optionId] = {
-          ...optionTally,
-          tally: optionTally.tally === '' ? 0 : optionTally.tally,
-        };
+    const summaries = writeInSummaryQuery.data;
+    const adjudications = summaries
+      .filter((summary) => summary.writeInCount > 0)
+      .map((summary) => summary.writeInAdjudication);
+
+    const adjudicatedValuesByContestId: Map<ContestId, string[]> = new Map();
+    for (const adjudication of adjudications) {
+      // Omit adjudications for official candidates
+      if (!adjudication.adjudicatedOptionId) {
+        const currentValuesForContest =
+          adjudicatedValuesByContestId.get(adjudication.contestId) ?? [];
+        currentValuesForContest.push(adjudication.adjudicatedValue);
+        adjudicatedValuesByContestId.set(
+          adjudication.contestId,
+          currentValuesForContest
+        );
       }
-      convertedContestTallies[contestId] = {
-        ...contestTally,
-        tallies: convertedOptionTallies,
-        metadata: {
-          ballots:
-            contestTally.metadata.ballots === ''
-              ? 0
-              : contestTally.metadata.ballots,
-          undervotes:
-            contestTally.metadata.undervotes === ''
-              ? 0
-              : contestTally.metadata.undervotes,
-          overvotes:
-            contestTally.metadata.overvotes === ''
-              ? 0
-              : contestTally.metadata.overvotes,
-        },
-      };
     }
-    return convertedContestTallies;
-  }
 
+    const emptyExternalTalliesByPrecinct = getEmptyExternalTalliesByPrecinct(
+      election,
+      adjudicatedValuesByContestId
+    );
+    setTalliesByPrecinct(emptyExternalTalliesByPrecinct);
+    setCurrentPrecinctTally(emptyExternalTalliesByPrecinct[currentPrecinctId]);
+  }, [writeInSummaryQuery, talliesByPrecinct, currentPrecinctId, election]);
+
+  // Turn the precinct tallies into a CSV SEMS file and save that file as the
+  // external results file with a name implying manual data entry happened
   async function handleImportingData() {
-    // Turn the precinct tallies into a CSV SEMS file
-    // Save that file as the external results file with a name implied manual data entry happened
-
-    // Convert the temporary data structure that allows empty strings or numbers for all tallys to fill in 0s for
-    // any empty strings.
+    // Convert the temporary data structure that allows empty strings or
+    // numbers for all tallies to fill in 0s for any empty strings.
+    assert(talliesByPrecinct);
+    assert(currentPrecinctTally);
     const convertedTalliesByPrecinct: Dictionary<ExternalTally> = {};
     for (const precinctId of Object.keys(talliesByPrecinct)) {
       const precinctTally =
@@ -264,6 +414,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     contestId: ContestId,
     dataKey: string
   ): number | EmptyValue {
+    assert(currentPrecinctTally);
     const contestTally = currentPrecinctTally.contestTallies[contestId];
     assert(contestTally);
     switch (dataKey) {
@@ -283,6 +434,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     dataKey: string,
     event: React.FormEvent<HTMLInputElement>
   ) {
+    assert(currentPrecinctTally);
     const contestTally = currentPrecinctTally.contestTallies[contestId];
     assert(contestTally);
     const stringValue = event.currentTarget.value;
@@ -330,29 +482,157 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         };
       }
     }
-    // Update the total number of ballots for this contest.
-    const expectedNumberOfBallots =
-      getExpectedNumberOfBallotsForContestTally(newContestTally);
-    newContestTally = {
-      ...newContestTally,
-      metadata: {
-        ...newContestTally.metadata,
-        ballots: expectedNumberOfBallots,
-      },
-    };
-    const newContestTallies: Dictionary<TempContestTally> = {
-      ...currentPrecinctTally.contestTallies,
-      [contestId]: newContestTally,
-    };
-    const numberBallotsInPrecinct = getTotalNumberOfBallots(
-      convertContestTallies(newContestTallies),
-      election
+    // Update the total number of ballots for this contest
+    newContestTally =
+      getContestTallyWithUpdatedNumberOfBallots(newContestTally);
+    setCurrentPrecinctTally(
+      // Create tally with updated total number of ballots for the entire tally
+      getExternalTallyFromContestTallies(
+        {
+          ...currentPrecinctTally.contestTallies,
+          [contestId]: newContestTally,
+        },
+        election
+      )
     );
-    setCurrentPrecinctTally({
-      numberOfBallotsCounted: numberBallotsInPrecinct,
-      contestTallies: newContestTallies,
-    });
   }
+
+  // Modifies the external tally in place and returns the same object
+  function addWriteInCandidateToExternalTally(
+    externalTally: TempExternalTally,
+    contestId: string,
+    name: string
+  ) {
+    const contestTally = externalTally.contestTallies[contestId];
+    assert(contestTally);
+
+    const candidate = getAdjudicatedWriteInCandidate(name, true);
+    contestTally.tallies[candidate.id] = {
+      option: candidate,
+      tally: 0,
+    };
+
+    return externalTally;
+  }
+
+  // modifies the external tally in place and returns the same object
+  const removeCandidateFromTempExternalTally = useCallback(
+    (
+      externalTally: TempExternalTally,
+      contestId: ContestId,
+      removedCandidateId: CandidateId
+    ) => {
+      const contestTally = externalTally.contestTallies[contestId];
+      assert(contestTally);
+
+      const newContestOptionTallies: Dictionary<TempContestOptionTally> = {};
+      for (const [candidateId, candidateOptionTally] of Object.entries(
+        contestTally.tallies
+      )) {
+        if (candidateId !== removedCandidateId) {
+          newContestOptionTallies[candidateId] = candidateOptionTally;
+        }
+      }
+
+      const newContestTally = getContestTallyWithUpdatedNumberOfBallots({
+        ...contestTally,
+        tallies: newContestOptionTallies,
+      });
+
+      return getExternalTallyFromContestTallies(
+        {
+          ...externalTally.contestTallies,
+          [contestId]: newContestTally,
+        },
+        election
+      );
+    },
+    [election]
+  );
+
+  const addWriteInCandidate = useCallback(
+    (contestId: string, name: string) => {
+      assert(currentPrecinctTally);
+      assert(talliesByPrecinct);
+
+      setCurrentPrecinctTally({
+        ...addWriteInCandidateToExternalTally(
+          currentPrecinctTally,
+          contestId,
+          name
+        ),
+      });
+
+      const newTalliesByPrecinct: Dictionary<TempExternalTally> = {};
+
+      for (const [precinctId, precinctTally] of Object.entries(
+        talliesByPrecinct
+      )) {
+        assert(precinctTally);
+        newTalliesByPrecinct[precinctId] = addWriteInCandidateToExternalTally(
+          precinctTally,
+          contestId,
+          name
+        );
+      }
+
+      setTalliesByPrecinct(newTalliesByPrecinct);
+    },
+    [currentPrecinctTally, talliesByPrecinct]
+  );
+
+  const removeCandidate = useCallback(
+    (contestId: string, candidateId: string) => {
+      assert(currentPrecinctTally);
+      assert(talliesByPrecinct);
+
+      setCurrentPrecinctTally({
+        ...removeCandidateFromTempExternalTally(
+          currentPrecinctTally,
+          contestId,
+          candidateId
+        ),
+      });
+
+      const newTalliesByPrecinct: Dictionary<TempExternalTally> = {};
+
+      for (const [precinctId, precinctTally] of Object.entries(
+        talliesByPrecinct
+      )) {
+        assert(precinctTally);
+        newTalliesByPrecinct[precinctId] = removeCandidateFromTempExternalTally(
+          precinctTally,
+          contestId,
+          candidateId
+        );
+      }
+
+      setTalliesByPrecinct(newTalliesByPrecinct);
+    },
+    [
+      currentPrecinctTally,
+      removeCandidateFromTempExternalTally,
+      talliesByPrecinct,
+    ]
+  );
+
+  const [candidateToRemove, setCandidateToRemove] = useState<{
+    candidate: Candidate;
+    contest: Contest;
+  }>();
+
+  const onConfirmRemoveCandidate = useCallback(() => {
+    assert(candidateToRemove);
+    removeCandidate(
+      candidateToRemove.contest.id,
+      candidateToRemove.candidate.id
+    );
+    setCandidateToRemove(undefined);
+  }, [candidateToRemove, removeCandidate]);
+
+  const onCancelRemoveCandidate = useCallback(() => {
+    setCandidateToRemove(undefined);
+  }, []);
 
   const currentContests = expandEitherNeitherContests(
     getContestsForPrecinct(election, currentPrecinctId)
@@ -360,6 +640,27 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
   const votingMethodName =
     ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
+
+  if (currentPrecinct === undefined) {
+    return (
+      <NavigationScreen>
+        <Prose>
+          Error: Could not find precinct {currentPrecinctId}.{' '}
+          <LinkButton to={routerPaths.manualDataImport}>
+            Back to Index
+          </LinkButton>
+        </Prose>
+      </NavigationScreen>
+    );
+  }
+
+  if (!currentPrecinctTally) {
+    return (
+      <NavigationScreen>
+        <br />
+      </NavigationScreen>
+    );
+  }
 
   return (
     <NavigationScreen>
@@ -380,6 +681,10 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
               contestTitle = `${contestTitle} - ${party.fullName}`;
             }
           }
+
+          const contestTally = currentPrecinctTally.contestTallies[contest.id];
+          assert(contestTally);
+
           return (
             <ContestData key={contest.id}>
               <Text small>{contest.section}</Text>
@@ -387,15 +692,27 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
               <Table borderTop condensed>
                 <tbody>
                   {contest.type === 'candidate' &&
-                    getAllPossibleCandidatesForCandidateContest(contest).map(
+                    getCandidatesFromContestTally(contestTally).map(
                       (candidate) => (
                         <ContestDataRow
                           key={candidate.id}
-                          label={candidate.name}
+                          label={`${candidate.name}${
+                            candidate.isWriteIn ? ' (write-in)' : ''
+                          }`}
+                          onRemove={
+                            isManuallyAdjudicatedWriteInCandidate(candidate)
+                              ? () =>
+                                  setCandidateToRemove({
+                                    candidate,
+                                    contest,
+                                  })
+                              : undefined
+                          }
+                          testId={`${contest.id}-${candidate.id}`}
                         >
                           <TallyInput
                             name={`${contest.id}-${candidate.id}`}
-                            data-testid={`${contest.id}-${candidate.id}`}
+                            data-testid={`${contest.id}-${candidate.id}-input`}
                             value={getValueForInput(contest.id, candidate.id)}
                             onChange={(e) =>
                               updateContestData(contest.id, candidate.id, e)
@@ -404,22 +721,33 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
                         </ContestDataRow>
                       )
                     )}
+                  {contest.type === 'candidate' && contest.allowWriteIns && (
+                    <AddWriteInRow
+                      addWriteInCandidate={(name) =>
+                        addWriteInCandidate(contest.id, name)
+                      }
+                      contestId={contest.id}
+                      disallowedCandidateNames={getCandidateNamesFromContestTally(
+                        contestTally
+                      )}
+                    />
+                  )}
                   {contest.type === 'yesno' && (
                     <React.Fragment>
-                      <ContestDataRow label="Yes">
+                      <ContestDataRow label="Yes" testId={`${contest.id}-yes`}>
                         <TallyInput
                           name={`${contest.id}-yes`}
-                          data-testid={`${contest.id}-yes`}
+                          data-testid={`${contest.id}-yes-input`}
                           value={getValueForInput(contest.id, 'yes')}
                           onChange={(e) =>
                             updateContestData(contest.id, 'yes', e)
                           }
                         />
                       </ContestDataRow>
-                      <ContestDataRow label="No">
+                      <ContestDataRow label="No" testId={`${contest.id}-no`}>
                         <TallyInput
                           name={`${contest.id}-no`}
-                          data-testid={`${contest.id}-no`}
+                          data-testid={`${contest.id}-no-input`}
                           value={getValueForInput(contest.id, 'no')}
                           onChange={(e) =>
                             updateContestData(contest.id, 'no', e)
@@ -434,10 +762,11 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
                         undervotes
                       </Text>
                     }
+                    testId={`${contest.id}-undervotes`}
                   >
                     <TallyInput
                       name={`${contest.id}-undervotes`}
-                      data-testid={`${contest.id}-undervotes`}
+                      data-testid={`${contest.id}-undervotes-input`}
                       value={getValueForInput(contest.id, 'undervotes')}
                       onChange={(e) =>
                         updateContestData(contest.id, 'undervotes', e)
@@ -450,10 +779,11 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
                         overvotes
                       </Text>
                     }
+                    testId={`${contest.id}-overvotes`}
                   >
                     <TallyInput
                       name={`${contest.id}-overvotes`}
-                      data-testid={`${contest.id}-overvotes`}
+                      data-testid={`${contest.id}-overvotes-input`}
                       value={getValueForInput(contest.id, 'overvotes')}
                       onChange={(e) =>
                         updateContestData(contest.id, 'overvotes', e)
@@ -468,7 +798,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
                         {getValueForInput(contest.id, 'numBallots')}
                       </strong>
                     </TD>
-                    <TD>
+                    <TD colSpan={2}>
                       <strong>Total Ballots Cast</strong>
                     </TD>
                   </tr>
@@ -484,6 +814,36 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
           </Button>
         </p>
       </Prose>
+      {candidateToRemove && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <p>
+                Do you want to remove the following write-in candidate from the
+                manually entered results for the contest for{' '}
+                {candidateToRemove.contest.title}?
+              </p>
+              <p>
+                <strong>{candidateToRemove.candidate.name}</strong>
+              </p>
+              <p>
+                The candidate will be removed from the manual results for{' '}
+                <em>all precincts</em> once changes are saved.
+              </p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button danger onPress={onConfirmRemoveCandidate}>
+                Remove Candidate
+              </Button>
+              <Button onPress={onCancelRemoveCandidate}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={onCancelRemoveCandidate}
+        />
+      )}
     </NavigationScreen>
   );
 }
