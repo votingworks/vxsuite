@@ -513,7 +513,12 @@ export class Interpreter {
       debugScoredMark(layout, option.id, offset, score);
       const mark: BallotCandidateTargetMark = {
         type: 'candidate',
-        bounds: layout.target.bounds,
+        bounds: {
+          x: layout.target.bounds.x + offset.x,
+          y: layout.target.bounds.y + offset.y,
+          width: layout.target.bounds.width,
+          height: layout.target.bounds.height,
+        },
         contestId: contest.id,
         optionId: option.id,
         score,
@@ -541,7 +546,12 @@ export class Interpreter {
       debugScoredMark(layout, optionId, offset, score);
       const mark: BallotYesNoTargetMark = {
         type: 'yesno',
-        bounds: layout.target.bounds,
+        bounds: {
+          x: layout.target.bounds.x + offset.x,
+          y: layout.target.bounds.y + offset.y,
+          width: layout.target.bounds.width,
+          height: layout.target.bounds.height,
+        },
         contestId: contest.id,
         optionId,
         score,
@@ -580,7 +590,12 @@ export class Interpreter {
       );
       const mark: BallotMsEitherNeitherTargetMark = {
         type: 'ms-either-neither',
-        bounds: layout.target.bounds,
+        bounds: {
+          x: layout.target.bounds.x + offset.x,
+          y: layout.target.bounds.y + offset.y,
+          width: layout.target.bounds.width,
+          height: layout.target.bounds.height,
+        },
         contestId: contest.id,
         optionId: option.id,
         score,
