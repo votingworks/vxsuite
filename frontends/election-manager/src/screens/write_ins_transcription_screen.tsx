@@ -17,7 +17,7 @@ import {
   Prose,
   HorizontalRule,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert, format } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
 import { useWriteInImageQuery } from '../hooks/use_write_in_images_query';
@@ -59,6 +59,17 @@ const TranscriptionHeader = styled.div`
   background: #ffffff;
   width: 100%;
   padding: 0.5rem 1rem;
+  p + h1 {
+    margin-top: 0;
+  }
+`;
+
+const TranscriptionId = styled.p`
+  float: right;
+  text-align: right;
+  & > strong {
+    font-size: 1.5em;
+  }
 `;
 
 const TranscriptionForm = styled.div`
@@ -103,6 +114,7 @@ interface Props {
   contest: CandidateContest;
   election: Election;
   adjudications: readonly Adjudication[];
+  transcriptionQueue: number;
   onClose: () => void;
   saveTranscribedValue: (
     adjudicationId: string,
@@ -114,6 +126,7 @@ export function WriteInsTranscriptionScreen({
   contest,
   election,
   adjudications,
+  transcriptionQueue,
   onClose,
   saveTranscribedValue,
 }: Props): JSX.Element {
@@ -191,16 +204,23 @@ export function WriteInsTranscriptionScreen({
   }
 
   const isLastTranscription = offset >= adjudications.length - 1;
-  const isDoneTranscribing = isLastTranscription && !!currentTranscribedValue;
+  const isEmptyTranscriptionQueue = transcriptionQueue === 0;
 
   return (
     <Screen>
       <Navigation
         screenTitle="Write-In Transcription"
         secondaryNav={
-          <Button small primary={isDoneTranscribing} onPress={onClose}>
-            Done
-          </Button>
+          <React.Fragment>
+            <Text as="span">
+              {isEmptyTranscriptionQueue
+                ? 'No further write-ins to transcribe for this contest.'
+                : `${transcriptionQueue} write-ins to transcribe.`}
+            </Text>
+            <Button small primary={isEmptyTranscriptionQueue} onPress={onClose}>
+              Back to All Write-Ins
+            </Button>
+          </React.Fragment>
         }
       />
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
@@ -237,65 +257,61 @@ export function WriteInsTranscriptionScreen({
               Previous
             </Button>
             <Text center>
-              {offset + 1} of {adjudications.length}
+              {offset + 1} of {format.count(adjudications.length)}
             </Text>
-            {isLastTranscription ? (
-              <Button
-                ref={nextButton}
-                primary={isDoneTranscribing}
-                onPress={onClose}
-              >
-                Done
-              </Button>
-            ) : (
-              <Button
-                ref={nextButton}
-                primary={!!currentTranscribedValue}
-                onPress={goNext}
-              >
-                Next
-              </Button>
-            )}
+            <Button
+              ref={nextButton}
+              primary={!!currentTranscribedValue}
+              disabled={isLastTranscription}
+              onPress={goNext}
+            >
+              Next
+            </Button>
           </TranscriptionPagination>
           <TranscriptionHeader>
-            <Prose>
-              {contest.section !== contest.title && (
-                <Text bold>{contest.section}</Text>
-              )}
+            <Prose compact>
+              <TranscriptionId>
+                Transcription ID
+                <br />
+                <strong>{adjudicationId.substring(0, 4)}</strong>
+              </TranscriptionId>
+              <Text>
+                {contest.section !== contest.title
+                  ? contest.section
+                  : 'Contest'}
+              </Text>
               <h1>
                 {contest.title}
                 {contest.partyId &&
-                  `(${getPartyAbbreviationByPartyId({
+                  ` (${getPartyAbbreviationByPartyId({
                     partyId: contest.partyId,
                     election,
                   })})`}
               </h1>
-              <p>
-                Adjudication ID:{' '}
-                <strong>{adjudicationId.substring(0, 4)}</strong>
-              </p>
             </Prose>
           </TranscriptionHeader>
           <TranscriptionForm>
             <Prose>
               {!!cannedTranscriptions.size && (
-                <TranscribedButtons>
-                  {[...cannedTranscriptions].map((val, i) => (
-                    <Button
-                      key={val}
-                      ref={i === 0 ? firstTranscriptionButton : undefined}
-                      primary={val === currentTranscribedValue}
-                      onPress={() => onPressSetTranscribedValue(val)}
-                    >
-                      {val}
-                    </Button>
-                  ))}
-                </TranscribedButtons>
+                <React.Fragment>
+                  <TranscribedButtons>
+                    {[...cannedTranscriptions].map((val, i) => (
+                      <Button
+                        key={val}
+                        ref={i === 0 ? firstTranscriptionButton : undefined}
+                        primaryBlue={val === currentTranscribedValue}
+                        onPress={() => onPressSetTranscribedValue(val)}
+                      >
+                        {val}
+                      </Button>
+                    ))}
+                  </TranscribedButtons>
+                  <HorizontalRule color="#cccccc" />
+                </React.Fragment>
               )}
-              <HorizontalRule color="#cccccc" />
               <p>
                 {showNewTranscriptionForm ? (
-                  <InlineForm>
+                  <InlineForm as="span">
                     <TextInput
                       ref={transcribedValueInput}
                       placeholder="transcribed write-in"
@@ -307,7 +323,9 @@ export function WriteInsTranscriptionScreen({
                         }
                       }}
                     />
-                    <Button onPress={onSave}>Add</Button>
+                    <Button onPress={onSave} primaryBlue>
+                      Add
+                    </Button>
                   </InlineForm>
                 ) : (
                   <Button onPress={() => setShowNewTranscriptionForm(true)}>

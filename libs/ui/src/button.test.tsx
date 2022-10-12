@@ -25,39 +25,61 @@ describe('renders Button', () => {
   });
 
   test('with options: primary noFocus', () => {
-    const { container } = render(
+    render(
       <Button onPress={jest.fn()} primary noFocus>
         Primary
       </Button>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const button = screen.getByText('Primary');
+    expect(button).toHaveStyleRule('background', 'rgb(71,167,75)');
+    expect(button).toHaveStyleRule('color', '#FFFFFF');
+    expect(button).not.toHaveStyleRule('outline');
+  });
+
+  test('with options: primaryBlue', () => {
+    render(
+      <Button onPress={jest.fn()} primaryBlue>
+        PrimaryBlue
+      </Button>
+    );
+    const button = screen.getByText('PrimaryBlue');
+    expect(button).toHaveStyleRule('background', 'rgb(34,152,222)');
+    expect(button).toHaveStyleRule('color', '#FFFFFF');
   });
 
   test('with options: full-width disabled submit', () => {
-    const { container } = render(
+    render(
       <Button onPress={jest.fn()} type="submit" disabled fullWidth>
         Disabled Button
       </Button>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const button = screen.getByText('Disabled Button');
+    expect(button).toHaveStyleRule('width', '100%');
+    expect(button).toBeDisabled();
   });
 
   test('with options: big danger', () => {
-    const { container } = render(
+    render(
       <Button onPress={jest.fn()} large danger>
         I’m a big button!
       </Button>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const button = screen.getByText('I’m a big button!');
+    expect(button).toHaveStyleRule('padding', '1em 1.75em');
+    expect(button).toHaveStyleRule('font-size', '1.25em');
+    expect(button).toHaveStyleRule('background', 'red');
+    expect(button).toHaveStyleRule('color', '#FFFFFF');
   });
 
   test('as DecoyButton with options: small warning', () => {
-    const { container } = render(
+    render(
       <DecoyButton small warning>
         DecoyButton
       </DecoyButton>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const button = screen.getByText('DecoyButton');
+    expect(button).toHaveStyleRule('background', 'darkorange');
+    expect(button).toHaveStyleRule('padding', '0.35em 0.5em');
   });
 
   test('and tests clicks and touches', () => {

@@ -60,6 +60,9 @@ test('CVRs with write-ins loaded', async () => {
 
   const transcribeButton = await screen.findByText('Transcribe 8');
   expect(transcribeButton).not.toBeDisabled();
+
+  const adjudicateButton = await screen.findByText('Adjudicate');
+  expect(adjudicateButton).toBeDisabled();
 });
 
 test('ballot pagination', async () => {
@@ -85,13 +88,14 @@ test('ballot pagination', async () => {
     );
     expect(previousButton.disabled).toBe(pageNumber === 1);
 
+    const nextButton = await screen.findByText<HTMLButtonElement>('Next');
     if (pageNumber === pageCount) {
-      const doneButtons = await screen.findAllByText<HTMLButtonElement>('Done');
-      expect(doneButtons).toHaveLength(2);
-      const [doneButton] = doneButtons;
+      expect(nextButton).toBeDisabled();
+      const doneButton = await screen.findByText<HTMLButtonElement>(
+        'Back to All Write-Ins'
+      );
       doneButton.click();
     } else {
-      const nextButton = await screen.findByText<HTMLButtonElement>('Next');
       expect(nextButton).not.toBeDisabled();
       nextButton.click();
     }
@@ -129,7 +133,7 @@ test('adjudication', async () => {
 
   expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();
 
-  userEvent.click(await screen.findByText('Done'));
+  userEvent.click(await screen.findByText('Back to All Write-Ins'));
 
   // set up the table for a single transcribed value
   jest.spyOn(backend, 'getWriteInAdjudicationTable').mockResolvedValue({

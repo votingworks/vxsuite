@@ -9,6 +9,7 @@ export interface ButtonInterface {
   readonly noFocus?: boolean;
   readonly noWrap?: boolean;
   readonly primary?: boolean;
+  readonly primaryBlue?: boolean;
   readonly small?: boolean;
   readonly textAlign?: 'left' | 'center' | 'right';
   readonly warning?: boolean;
@@ -28,11 +29,12 @@ const buttonStyles = css<StyledButtonProps>`
   border-radius: 0.25em;
   box-shadow: 0 0 0 0 rgba(71, 167, 75, 1);
   box-sizing: border-box;
-  background: ${({ disabled, danger, warning, primary }) =>
+  background: ${({ disabled, danger, warning, primary, primaryBlue }) =>
     (disabled && 'rgb(211, 211, 211)') ||
     (danger && 'red') ||
     (warning && 'darkorange') ||
     (primary && 'rgb(71, 167, 75)') ||
+    (primaryBlue && 'rgb(34, 152, 222)') ||
     'rgb(211, 211, 211)'};
   cursor: ${({ disabled = false }) => (disabled ? undefined : 'pointer')};
   width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
@@ -40,11 +42,12 @@ const buttonStyles = css<StyledButtonProps>`
     small ? '0.35em 0.5em' : large ? '1em 1.75em' : '0.75em 1em'};
   text-align: ${({ textAlign }) => textAlign || 'center'};
   line-height: 1.25;
-  color: ${({ disabled, danger, warning, primary }) =>
+  color: ${({ disabled, danger, warning, primary, primaryBlue }) =>
     (disabled && 'rgb(160, 160, 160)') ||
     (danger && '#FFFFFF') ||
     (warning && '#FFFFFF') ||
     (primary && '#FFFFFF') ||
+    (primaryBlue && '#FFFFFF') ||
     'black'};
   font-size: ${({ large = false }) => (large ? '1.25em' : undefined)};
   touch-action: manipulation;

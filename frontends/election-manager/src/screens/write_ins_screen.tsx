@@ -139,7 +139,11 @@ export function WriteInsScreen(): JSX.Element {
 
     if (!castVoteRecordFiles.wereAdded) {
       return (
-        <p>Load CVRs to begin transcribing and adjudicating write-in votes.</p>
+        <p>
+          <em>
+            Load CVRs to begin transcribing and adjudicating write-in votes.
+          </em>
+        </p>
       );
     }
 
@@ -194,11 +198,13 @@ export function WriteInsScreen(): JSX.Element {
                     </TD>
                     {isPrimaryElection && (
                       <TD nowrap>
-                        {contest.partyId &&
-                          `(${getPartyAbbreviationByPartyId({
-                            partyId: contest.partyId,
-                            election,
-                          })})`}
+                        <Text as="span" muted={!hasWriteIns}>
+                          {contest.partyId &&
+                            `(${getPartyAbbreviationByPartyId({
+                              partyId: contest.partyId,
+                              election,
+                            })})`}
+                        </Text>
                       </TD>
                     )}
                     <TD nowrap textAlign="center">
@@ -225,8 +231,11 @@ export function WriteInsScreen(): JSX.Element {
                         </Text>
                       ) : (
                         <Button
-                          disabled={isOfficialResults}
                           primary={!!adjudicationQueue}
+                          disabled={
+                            isOfficialResults ||
+                            (!adjudicationQueue && !completedCount)
+                          }
                           onPress={() => setContestBeingAdjudicated(contest)}
                         >
                           Adjudicate
@@ -259,6 +268,11 @@ export function WriteInsScreen(): JSX.Element {
               election={election}
               contest={contestBeingTranscribed}
               adjudications={transcriptionsForCurrentContest}
+              transcriptionQueue={
+                writeInCountsByContest
+                  ?.get(contestBeingTranscribed.id)
+                  ?.get('pending') ?? 0
+              }
               onClose={() => setContestBeingTranscribed(undefined)}
               saveTranscribedValue={(writeInId, transcribedValue) =>
                 transcribeWriteInMutation.mutate({
