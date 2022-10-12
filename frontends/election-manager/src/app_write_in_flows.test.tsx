@@ -43,7 +43,6 @@ afterEach(() => {
 });
 
 test('manual write-in data end-to-end test', async () => {
-  // Set up an an existing adjudicated value
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
@@ -53,6 +52,22 @@ test('manual write-in data end-to-end test', async () => {
       'partial1.jsonl'
     )
   );
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+
+  // Navigate to manual data entry
+  await authenticateWithElectionManagerCard(
+    card,
+    electionMinimalExhaustiveSampleDefinition
+  );
+  userEvent.click(screen.getByText('Tally'));
+  userEvent.click(screen.getByText('Add Manually Entered Results'));
+  userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
+
+  // Navigate away, adjudicated a write-in, and return - to ensure the
+  // page does not use stale data
+  userEvent.click(await screen.findByText('Cancel'));
   const writeIn = (
     await backend.loadWriteIns({
       contestId: 'zoo-council-mammal',
@@ -64,17 +79,6 @@ test('manual write-in data end-to-end test', async () => {
     'Chimera',
     'Chimera'
   );
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-
-  await authenticateWithElectionManagerCard(
-    card,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  userEvent.click(screen.getByText('Tally'));
-  userEvent.click(screen.getByText('Add Manually Entered Results'));
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
 
   // Enter some official results for Precinct 1
