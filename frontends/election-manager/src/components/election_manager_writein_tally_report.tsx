@@ -21,6 +21,7 @@ import {
   combineWriteInCounts,
   CountsByContestAndCandidateName,
   filterWriteInCountsByParty,
+  writeInCountsAreEmpty,
 } from '../utils/write_ins';
 
 export interface Props {
@@ -95,6 +96,9 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
             election,
             partyId
           );
+          if (writeInCountsAreEmpty(writeInCountsFilteredByParty)) {
+            return null;
+          }
           return precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId);
             const electionTitle = party
