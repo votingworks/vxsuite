@@ -3,17 +3,17 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 
-import { canDistinguishPrecinctAndAbsenteeBallots } from './elections';
+import { canDistinguishVotingMethods } from './elections';
 
 test('returns true if gridLayouts is absent', () => {
   expect(
-    canDistinguishPrecinctAndAbsenteeBallots(electionSampleDefinition.election)
+    canDistinguishVotingMethods(electionSampleDefinition.election)
   ).toBeTruthy();
 });
 
 test('returns false if gridLayouts is present', () => {
   expect(
-    canDistinguishPrecinctAndAbsenteeBallots(
+    canDistinguishVotingMethods(
       electionGridLayoutNewHampshireAmherstFixtures.election
     )
   ).toBeFalsy();

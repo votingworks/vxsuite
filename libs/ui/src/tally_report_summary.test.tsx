@@ -4,17 +4,17 @@ import { render, getByText as domGetByText } from '@testing-library/react';
 import { Tally, VotingMethod } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
-import { canDistinguishPrecinctAndAbsenteeBallots } from '@votingworks/utils';
+import { canDistinguishVotingMethods } from '@votingworks/utils';
 
 import { TallyReportSummary } from './tally_report_summary';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
-  canDistinguishPrecinctAndAbsenteeBallots: jest.fn(),
+  canDistinguishVotingMethods: jest.fn(),
 }));
 
 beforeEach(() => {
-  mockOf(canDistinguishPrecinctAndAbsenteeBallots).mockReturnValue(true);
+  mockOf(canDistinguishVotingMethods).mockReturnValue(true);
 });
 
 test('Renders with data source table and voting method table when all data provided', () => {
@@ -77,7 +77,7 @@ test('Hides the other row in the voting method table when empty', () => {
 });
 
 test('Is empty element if voting methods cannot be distinguished for election', () => {
-  mockOf(canDistinguishPrecinctAndAbsenteeBallots).mockReturnValue(false);
+  mockOf(canDistinguishVotingMethods).mockReturnValue(false);
 
   const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
     [VotingMethod.Absentee]: 1200,

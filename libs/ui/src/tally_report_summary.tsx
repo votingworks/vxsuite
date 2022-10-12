@@ -8,10 +8,7 @@ import {
   Election,
 } from '@votingworks/types';
 
-import {
-  canDistinguishPrecinctAndAbsenteeBallots,
-  format,
-} from '@votingworks/utils';
+import { canDistinguishVotingMethods, format } from '@votingworks/utils';
 import { Table, TD } from './table';
 
 const BallotSummary = styled.div`
@@ -37,7 +34,7 @@ export function TallyReportSummary({
   ballotCountsByVotingMethod,
   election,
 }: Props): JSX.Element | null {
-  if (!canDistinguishPrecinctAndAbsenteeBallots(election)) {
+  if (!canDistinguishVotingMethods(election)) {
     return null;
   }
 
