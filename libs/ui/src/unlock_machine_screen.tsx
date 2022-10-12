@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import {
+  assert,
+  EnvironmentFlagName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { Screen } from './screen';
 import { Main } from './main';
@@ -55,6 +59,10 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   }, []);
 
   useEffect(() => {
+    if (isFeatureFlagEnabled(EnvironmentFlagName.SKIP_PIN_ENTRY)) {
+      auth.checkPasscode(auth.user.passcode);
+    }
+
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
       auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
