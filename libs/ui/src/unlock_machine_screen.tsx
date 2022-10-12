@@ -24,6 +24,9 @@ const NumberPadWrapper = styled.div`
   > div {
     width: 400px;
   }
+  *:focus {
+    outline: none;
+  }
 `;
 
 const EnteredCode = styled.div`
@@ -40,9 +43,13 @@ type CheckingPassCodeAuth =
 
 interface Props {
   auth: CheckingPassCodeAuth;
+  grayBackground?: boolean;
 }
 
-export function UnlockMachineScreen({ auth }: Props): JSX.Element {
+export function UnlockMachineScreen({
+  auth,
+  grayBackground,
+}: Props): JSX.Element {
   assert(auth.status === 'checking_passcode');
 
   const [currentPasscode, setCurrentPasscode] = useState('');
@@ -83,7 +90,7 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   }
 
   return (
-    <Screen white>
+    <Screen white={!grayBackground}>
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}

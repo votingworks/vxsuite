@@ -47,6 +47,7 @@ import {
   useInsertedSmartcardAuth,
   useUsbDrive,
   CARD_POLLING_INTERVAL,
+  UnlockMachineScreen,
 } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
@@ -80,7 +81,6 @@ import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
-import { UnlockAdminScreen } from './pages/unlock_admin_screen';
 
 interface UserState {
   userSettings: UserSettings;
@@ -737,7 +737,7 @@ export function AppRoot({
     );
   }
   if (auth.status === 'checking_passcode') {
-    return <UnlockAdminScreen auth={auth} />;
+    return <UnlockMachineScreen auth={auth} />;
   }
   if (isSystemAdministratorAuth(auth)) {
     return (
