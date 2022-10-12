@@ -153,6 +153,18 @@ export function combineWriteInCounts(
   return combinedCounts;
 }
 
+export function writeInCountsAreEmpty(
+  counts: CountsByContestAndCandidateName
+): boolean {
+  if (counts.size === 0) return true;
+
+  for (const candidateCounts of counts.values()) {
+    if (candidateCounts.size > 0) return false;
+  }
+
+  return true;
+}
+
 // Merges all the distinct write-in candidate tallies in an ExternalTally
 // into a single "Write-In" umbrella tally for the main tally reports
 export function mergeWriteIns(externalTally: ExternalTally): ExternalTally {

@@ -6,7 +6,11 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
-import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
+import {
+  advanceTimersAndPromises,
+  fakeKiosk,
+  hasTextAcrossElements,
+} from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
 import { renderRootElement } from '../test/render_in_app_context';
 import { authenticateWithElectionManagerCard } from '../test/util/authenticate';
@@ -36,6 +40,7 @@ beforeEach(() => {
     })
   );
   fetchMock.delete('/admin/write-ins/cvrs', { body: { status: 'ok ' } });
+  jest.useFakeTimers();
 });
 
 afterEach(() => {
@@ -250,4 +255,95 @@ test('manual write-in data end-to-end test', async () => {
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera10'));
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Rapidash20'));
   within(zooCouncilFish2).getByText(hasTextAcrossElements('Relicanth14'));
+
+  userEvent.click(screen.getByText('Reports'));
+});
+
+test('availability of write-in tally report', async () => {
+  // Start with transcribed, not adjudicated values
+  const backend = new ElectionManagerStoreMemoryBackend({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+  });
+  await backend.addCastVoteRecordFile(
+    new File(
+      [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],
+      'standard.jsonl'
+    )
+  );
+  const writeIn1 = (
+    await backend.loadWriteIns({
+      contestId: 'zoo-council-mammal',
+    })
+  )[0];
+  await backend.transcribeWriteIn(writeIn1.id, 'Chimera');
+  const writeIn2 = (
+    await backend.loadWriteIns({
+      contestId: 'aquarium-council-fish',
+    })
+  )[0];
+  await backend.transcribeWriteIn(writeIn2.id, 'Loch Ness');
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+
+  // Before any adjudication, report should be empty
+  await authenticateWithElectionManagerCard(
+    card,
+    electionMinimalExhaustiveSampleDefinition
+  );
+  userEvent.click(screen.getByText('Reports'));
+  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
+  screen.getByText(
+    /there are no write-in votes adjudicated to non-official candidates/
+  );
+  expect(screen.queryByText('Report Preview')).not.toBeInTheDocument();
+  expect(screen.queryByText('Print Report')).not.toBeInTheDocument();
+
+  // Navigate away and adjudicate one of the write-ins
+  userEvent.click(screen.getByText('Reports'));
+  await backend.adjudicateWriteInTranscription(
+    'zoo-council-mammal',
+    'Chimera',
+    'Chimera'
+  );
+
+  await advanceTimersAndPromises(1);
+
+  // We should now have a report for one of the parties, including one of the races
+  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
+  await screen.findByText('Report Preview');
+  screen.getAllByText(
+    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
+  );
+  expect(
+    screen.queryByText(
+      'Unofficial Fish Party Example Primary Election Write-In Tally Report'
+    )
+  ).not.toBeInTheDocument();
+  screen.getAllByTestId('results-table-zoo-council-mammal');
+  expect(
+    screen.queryByTestId('results-table-new-zoo-either')
+  ).not.toBeInTheDocument();
+
+  // Navigate away and adjudicate the other write-in
+  userEvent.click(screen.getByText('Reports'));
+  await backend.adjudicateWriteInTranscription(
+    'aquarium-council-fish',
+    'Loch Ness',
+    'Loch Ness'
+  );
+  await advanceTimersAndPromises(1);
+
+  // We should now have reports for both parties
+  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
+  await screen.findByText('Report Preview');
+  screen.getAllByText(
+    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
+  );
+  await screen.findAllByText(
+    'Unofficial Fish Party Example Primary Election Write-In Tally Report'
+  );
+  screen.getAllByTestId('results-table-zoo-council-mammal');
+  screen.getAllByTestId('results-table-aquarium-council-fish');
 });
