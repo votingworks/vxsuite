@@ -168,6 +168,9 @@ export function generateResultsCsv(
   fullElectionTally: FullElectionTally,
   election: Election
 ): string {
+  // TODO(https://github.com/votingworks/vxsuite/issues/2631): Omit the voting method column for
+  // elections where we can't distinguish between absentee/precinct ballots (e.g. NH). Punted as
+  // out-of-scope for the NH pilot.
   let finalDataString = `Contest, Contest ID, Selection, Selection ID, Precinct, Precinct ID, Voting Method, Votes`;
   for (const rowCsvString of generateRows(fullElectionTally, election)) {
     finalDataString += `\n${rowCsvString}`;

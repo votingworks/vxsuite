@@ -5,9 +5,10 @@ import {
   Dictionary,
   VotingMethod,
   getLabelForVotingMethod,
+  Election,
 } from '@votingworks/types';
 
-import { format } from '@votingworks/utils';
+import { canDistinguishVotingMethods, format } from '@votingworks/utils';
 import { Table, TD } from './table';
 
 const BallotSummary = styled.div`
@@ -25,12 +26,18 @@ const BallotSummary = styled.div`
 interface Props {
   totalBallotCount: number;
   ballotCountsByVotingMethod: Dictionary<number>;
+  election: Election;
 }
 
 export function TallyReportSummary({
   totalBallotCount,
   ballotCountsByVotingMethod,
-}: Props): JSX.Element {
+  election,
+}: Props): JSX.Element | null {
+  if (!canDistinguishVotingMethods(election)) {
+    return null;
+  }
+
   return (
     <BallotSummary>
       <h3>Ballots by Voting Method</h3>

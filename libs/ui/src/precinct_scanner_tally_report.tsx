@@ -162,6 +162,7 @@ export function PrecinctScannerTallyReport({
             <TallyReportSummary
               totalBallotCount={tally.numberOfBallotsCounted}
               ballotCountsByVotingMethod={tally.ballotCountsByVotingMethod}
+              election={election}
             />
             <ContestTally
               election={election}

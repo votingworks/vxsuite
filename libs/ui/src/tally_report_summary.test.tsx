@@ -2,6 +2,11 @@ import React from 'react';
 import { render, getByText as domGetByText } from '@testing-library/react';
 
 import { Tally, VotingMethod } from '@votingworks/types';
+import {
+  electionSampleDefinition,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
+
 import { TallyReportSummary } from './tally_report_summary';
 
 test('Renders with data source table and voting method table when all data provided', () => {
@@ -14,6 +19,7 @@ test('Renders with data source table and voting method table when all data provi
     <TallyReportSummary
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
+      election={electionSampleDefinition.election}
     />
   );
 
@@ -41,6 +47,7 @@ test('Hides the other row in the voting method table when empty', () => {
     <TallyReportSummary
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
+      election={electionSampleDefinition.election}
     />
   );
   expect(queryAllByText('Other').length).toBe(0);
@@ -55,7 +62,25 @@ test('Hides the other row in the voting method table when empty', () => {
     <TallyReportSummary
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts2}
+      election={electionSampleDefinition.election}
     />
   );
   expect(queryAllByText2('Other').length).toBe(0);
+});
+
+test('Is empty element if voting methods cannot be distinguished for election', () => {
+  const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
+    [VotingMethod.Absentee]: 1200,
+    [VotingMethod.Precinct]: 1045,
+    [VotingMethod.Unknown]: 12,
+  };
+  const { queryByText } = render(
+    <TallyReportSummary
+      totalBallotCount={3579}
+      ballotCountsByVotingMethod={ballotCounts}
+      election={electionGridLayoutNewHampshireAmherstFixtures.election}
+    />
+  );
+
+  expect(queryByText('Ballots by Voting Method')).toBeNull();
 });

@@ -7,6 +7,7 @@ export * as collections from './collections';
 export * from './compressed_tallies';
 export * from './date';
 export * from './deferred';
+export * from './elections';
 export * from './environment_flag';
 export * from './find';
 export * as format from './format';
