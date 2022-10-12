@@ -57,25 +57,15 @@ export function scoreOvalMark(
         maxY: y + geometry.ovalSize.height - 1,
       });
       const cropped = crop(imageData, ovalRect);
-      const croppedAndBinarizedWithImageThreshold = binarize(
-        cropped,
-        threshold
-      );
-      const croppedAndBinarizedIndependently = binarize(cropped);
-
+      const croppedAndBinarized = binarize(cropped, threshold);
+      const matchDiff = diff(croppedAndBinarized, outlinedOvalTemplate);
       // determine whether this offset lines up well with the template
-      const matchScore = Math.max(
-        ratio(
-          diff(croppedAndBinarizedWithImageThreshold, outlinedOvalTemplate),
-          // brighter image means a better match with the template
-          { color: PIXEL_WHITE }
-        ),
-        ratio(
-          diff(croppedAndBinarizedIndependently, outlinedOvalTemplate),
-          // brighter image means a better match with the template
-          { color: PIXEL_WHITE }
-        )
+      const matchScore = ratio(
+        matchDiff,
+        // brighter image means a better match with the template
+        { color: PIXEL_WHITE }
       );
+
 
       if (matchScore > maximumMatchScore) {
         // it's better than the previous best match, so use it
@@ -83,8 +73,9 @@ export function scoreOvalMark(
         bestMatchRect = ovalRect;
 
         // compute the new fill score based on how much of the oval is filled in
+        const fillDiff = diff(outlinedOvalTemplate, croppedAndBinarized);
         const fillScore = ratio(
-          diff(outlinedOvalTemplate, croppedAndBinarizedWithImageThreshold),
+          fillDiff,
           // darker image means more of the bubble is filled in
           { color: PIXEL_BLACK }
         );
