@@ -46,6 +46,7 @@ import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import {
   getManualWriteInCounts,
   getScreenAdjudicatedWriteInCounts,
+  writeInCountsAreEmpty,
 } from '../utils/write_ins';
 
 const TallyReportPreview = styled(TallyReport)`
@@ -220,42 +221,59 @@ export function TallyWriteInReportScreen(): JSX.Element {
     );
   }
 
+  const isReportEmpty =
+    writeInCountsAreEmpty(screenAdjudicatedWriteInCounts) &&
+    (!manualWriteInCounts || writeInCountsAreEmpty(manualWriteInCounts));
+
   return (
     <React.Fragment>
       <NavigationScreen>
         <Prose>
           <h1>{reportDisplayTitle}</h1>
-          <TallyReportMetadata
-            generatedAtTime={generatedAtTime}
-            election={election}
-          />
-          <p>
-            <PrintButton
-              afterPrint={afterPrint}
-              afterPrintError={afterPrintError}
-              primary
-              sides="one-sided"
-            >
-              Print Report
-            </PrintButton>{' '}
-            {window.kiosk && (
-              <Button onPress={() => setIsSaveModalOpen(true)}>
-                Save Report as PDF
-              </Button>
-            )}
-          </p>
+          {!isReportEmpty ? (
+            <React.Fragment>
+              <TallyReportMetadata
+                generatedAtTime={generatedAtTime}
+                election={election}
+              />
+              <p>
+                <PrintButton
+                  afterPrint={afterPrint}
+                  afterPrintError={afterPrintError}
+                  primary
+                  sides="one-sided"
+                >
+                  Print Report
+                </PrintButton>{' '}
+                {window.kiosk && (
+                  <Button onPress={() => setIsSaveModalOpen(true)}>
+                    Save Report as PDF
+                  </Button>
+                )}
+              </p>
+            </React.Fragment>
+          ) : (
+            <p>
+              The Write-In Tally Report is currently empty because there are no
+              write-in votes adjudicated to non-official candidates. Write-in
+              votes adjudicated to official candidates are included in the Full
+              Election Tally Report and not this report.
+            </p>
+          )}
           <p>
             <LinkButton small to={routerPaths.tally}>
               Back to Tally Index
             </LinkButton>
           </p>
-          <React.Fragment>
-            <h2>Report Preview</h2>
-            <Text italic small>
-              <strong>Note:</strong> Printed reports may be paginated to more
-              than one piece of paper.
-            </Text>
-          </React.Fragment>
+          {!isReportEmpty && (
+            <React.Fragment>
+              <h2>Report Preview</h2>
+              <Text italic small>
+                <strong>Note:</strong> Printed reports may be paginated to more
+                than one piece of paper.
+              </Text>
+            </React.Fragment>
+          )}
         </Prose>
         <TallyReportPreview ref={previewReportRef} />
       </NavigationScreen>
