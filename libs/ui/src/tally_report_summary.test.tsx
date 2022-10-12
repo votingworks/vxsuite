@@ -2,20 +2,12 @@ import React from 'react';
 import { render, getByText as domGetByText } from '@testing-library/react';
 
 import { Tally, VotingMethod } from '@votingworks/types';
-import { electionSampleDefinition } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils';
-import { canDistinguishVotingMethods } from '@votingworks/utils';
+import {
+  electionSampleDefinition,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 
 import { TallyReportSummary } from './tally_report_summary';
-
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  canDistinguishVotingMethods: jest.fn(),
-}));
-
-beforeEach(() => {
-  mockOf(canDistinguishVotingMethods).mockReturnValue(true);
-});
 
 test('Renders with data source table and voting method table when all data provided', () => {
   const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
@@ -77,8 +69,6 @@ test('Hides the other row in the voting method table when empty', () => {
 });
 
 test('Is empty element if voting methods cannot be distinguished for election', () => {
-  mockOf(canDistinguishVotingMethods).mockReturnValue(false);
-
   const ballotCounts: Tally['ballotCountsByVotingMethod'] = {
     [VotingMethod.Absentee]: 1200,
     [VotingMethod.Precinct]: 1045,
@@ -88,7 +78,7 @@ test('Is empty element if voting methods cannot be distinguished for election', 
     <TallyReportSummary
       totalBallotCount={3579}
       ballotCountsByVotingMethod={ballotCounts}
-      election={electionSampleDefinition.election}
+      election={electionGridLayoutNewHampshireAmherstFixtures.election}
     />
   );
 
