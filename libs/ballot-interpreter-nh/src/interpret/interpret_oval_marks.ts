@@ -8,12 +8,42 @@ import {
   PIXEL_BLACK,
   PIXEL_WHITE,
   ratio,
+  writeImageData,
 } from '@votingworks/image-utils';
-import { GridLayout } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { GridLayout, GridPosition } from '@votingworks/types';
+import { assert, format } from '@votingworks/utils';
+import makeDebug, { Debugger } from 'debug';
 import { BallotCardGeometry, InterpretedOvalMark, Point } from '../types';
 import { loc, makeRect, vec } from '../utils';
 import { InterpretBallotCardLayoutResult } from './interpret_ballot_card_layout';
+
+const DEBUG_NAMESPACE_PREFIX = 'ballot-interpreter-nh:oval-marks:';
+
+function makeGridPositionDebug(gridPosition: GridPosition): Debugger {
+  const label = `${DEBUG_NAMESPACE_PREFIX}${gridPosition.side}-row=${
+    gridPosition.column
+  }-column=${gridPosition.row}-${gridPosition.contestId}-${
+    gridPosition.type === 'option'
+      ? gridPosition.optionId
+      : `write-in-${gridPosition.writeInIndex}`
+  }`;
+
+  return makeDebug(label);
+}
+
+function writeDebugImage(
+  debug: Debugger,
+  imageData: ImageData,
+  name: string
+): void {
+  if (debug.enabled) {
+    const filePath = `./debug-${debug.namespace.slice(
+      DEBUG_NAMESPACE_PREFIX.length + 1
+    )}-${name}.png`;
+    debug(`%s`, filePath);
+    void writeImageData(filePath, imageData);
+  }
+}
 
 /**
  * Score oval mark at a given location.
@@ -23,7 +53,8 @@ export function scoreOvalMark(
   ovalTemplate: ImageData,
   ovalTopLeftPoint: Point,
   geometry: BallotCardGeometry,
-  threshold: number
+  threshold: number,
+  debug: Debugger
 ): Omit<InterpretedOvalMark, 'gridPosition'> {
   const maximumOffset = 7;
   const outlinedOvalTemplate = outline(binarize(ovalTemplate, threshold));
@@ -66,6 +97,35 @@ export function scoreOvalMark(
         { color: PIXEL_WHITE }
       );
 
+      writeDebugImage(debug, cropped, `offset=(${xOffset},${yOffset})-cropped`);
+      writeDebugImage(
+        debug,
+        croppedAndBinarized,
+        `offset=(${xOffset},${yOffset})-croppedAndBinarized`
+      );
+      writeDebugImage(
+        debug,
+        matchDiff,
+        `offset=(${xOffset},${yOffset})-matchDiff-${format.percent(matchScore, {
+          maximumFractionDigits: 2,
+        })}`
+      );
+
+      if (debug.enabled) {
+        const fillDiff = diff(outlinedOvalTemplate, croppedAndBinarized);
+        const fillScore = ratio(
+          fillDiff,
+          // darker image means more of the bubble is filled in
+          { color: PIXEL_BLACK }
+        );
+        writeDebugImage(
+          debug,
+          fillDiff,
+          `offset=(${xOffset},${yOffset})-fillDiff-${format.percent(fillScore, {
+            maximumFractionDigits: 2,
+          })}`
+        );
+      }
 
       if (matchScore > maximumMatchScore) {
         // it's better than the previous best match, so use it
@@ -150,7 +210,8 @@ export function interpretPageOvalMarks({
           ovalTemplate,
           ovalTopLeftPoint,
           geometry,
-          threshold
+          threshold,
+          makeGridPositionDebug(gridPosition)
         ),
       };
     }
