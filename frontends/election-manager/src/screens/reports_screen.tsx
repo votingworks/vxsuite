@@ -3,6 +3,7 @@ import pluralize from 'pluralize';
 
 import {
   assert,
+  canDistinguishPrecinctAndAbsenteeBallots,
   generateSemsFinalExportDefaultFilename,
   format,
 } from '@votingworks/utils';
@@ -132,8 +133,12 @@ export function ReportsScreen(): JSX.Element {
       <React.Fragment>
         <h2>Tally Report by Precinct</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-        <h2>Tally Report by Voting Method</h2>
-        <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+        {canDistinguishPrecinctAndAbsenteeBallots(election) && (
+          <React.Fragment>
+            <h2>Tally Report by Voting Method</h2>
+            <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+          </React.Fragment>
+        )}
         {partiesForPrimaries.length > 0 && (
           <React.Fragment>
             <h2>Tally Report by Party</h2>

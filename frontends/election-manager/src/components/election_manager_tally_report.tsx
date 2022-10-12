@@ -152,6 +152,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     <TallyReportSummary
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
+                      election={election}
                     />
                     <ContestTally
                       election={election}
@@ -184,6 +185,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     <TallyReportSummary
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
+                      election={election}
                     />
                     <ContestTally
                       election={election}
@@ -212,6 +214,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                     <TallyReportSummary
                       totalBallotCount={reportBallotCount}
                       ballotCountsByVotingMethod={ballotCountsByVotingMethod}
+                      election={election}
                     />
                     <ContestTally
                       election={election}
@@ -268,6 +271,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   <TallyReportSummary
                     totalBallotCount={reportBallotCount}
                     ballotCountsByVotingMethod={ballotCountsByVotingMethod}
+                    election={election}
                   />
                   <ContestTally
                     election={election}
