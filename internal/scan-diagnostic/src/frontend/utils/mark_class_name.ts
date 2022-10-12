@@ -1,19 +1,20 @@
-import { BallotTargetMark, MarkThresholds } from '@votingworks/types';
+import { float } from '@votingworks/image-utils';
+import { MarkThresholds } from '@votingworks/types';
 
 /**
  * Determines an appropriate class name for a ballot mark.
  */
 export function markClassName(
-  mark: BallotTargetMark,
+  score: float,
   markThresholds: MarkThresholds
 ): string {
-  return mark.score < markThresholds.marginal / 10
+  return score < markThresholds.marginal / 10
     ? 'no-mark'
-    : mark.score < markThresholds.marginal / 2
+    : score < markThresholds.marginal / 2
     ? 'minimal-mark'
-    : mark.score < markThresholds.marginal
+    : score < markThresholds.marginal
     ? 'submarginal-mark'
-    : mark.score < markThresholds.definite
+    : score < markThresholds.definite
     ? 'marginal-mark'
     : 'definite-mark';
 }

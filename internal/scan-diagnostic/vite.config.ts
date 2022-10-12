@@ -3,6 +3,7 @@ import { join, relative } from 'path';
 import { Alias, defineConfig } from 'vite';
 import { buildApp } from './src/backend/app';
 import { getWorkspacePackageInfo } from '../../script/src/validate-monorepo/pnpm';
+import { createWorkspace } from '@votingworks/scan';
 
 /**
  * Configures the Vite build.
@@ -12,18 +13,19 @@ export default defineConfig(async () => {
     join(__dirname, '../..')
   );
 
-  const scanWorkspace =
+  const scanWorkspace = createWorkspace(
     process.env['SCAN_WORKSPACE'] ||
-    join(__dirname, '../../services/scan/dev-workspace');
+      join(__dirname, '../../services/scan/dev-workspace')
+  );
 
-  const relativeScanWorkspace = relative(process.cwd(), scanWorkspace);
+  const relativeScanWorkspacePath = relative(process.cwd(), scanWorkspace.path);
 
   // eslint-disable-next-line no-console
   console.log(
     `${chalk.bold.yellow('scan-diagnostic')} @ ${chalk.underline(
-      relativeScanWorkspace.length < scanWorkspace.length
-        ? relativeScanWorkspace
-        : scanWorkspace
+      relativeScanWorkspacePath.length < scanWorkspace.path.length
+        ? relativeScanWorkspacePath
+        : scanWorkspace.path
     )}`
   );
 

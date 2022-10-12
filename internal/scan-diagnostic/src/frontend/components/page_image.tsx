@@ -129,24 +129,16 @@ export function PageImage({
   const geometry = getScannedBallotCardGeometry(BallotPaperSize.Letter);
 
   useEffect(() => {
-    async function loadPageImage() {
-      const response = await fetch(`/api/sheets/${sheetId}/images/${side}`);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const image = new Image();
-      image.src = url;
-      image.onload = () => {
-        URL.revokeObjectURL(url);
-        setImageData(
-          toImageData(image, {
-            maxWidth: geometry.canvasSize.width,
-            maxHeight: geometry.canvasSize.height,
-          })
-        );
-      };
-    }
-
-    void loadPageImage();
+    const image = new Image();
+    image.src = `/api/sheets/${sheetId}/images/${side}`;
+    image.onload = () => {
+      setImageData(
+        toImageData(image, {
+          maxWidth: geometry.canvasSize.width,
+          maxHeight: geometry.canvasSize.height,
+        })
+      );
+    };
   }, [geometry.canvasSize.height, geometry.canvasSize.width, sheetId, side]);
 
   let displayImageData: ImageData | undefined;
@@ -225,7 +217,7 @@ export function PageImage({
               key={markKey(mark)}
               className={[
                 'mark-score',
-                markClassName(mark, markThresholds),
+                markClassName(mark.score, markThresholds),
               ].join(' ')}
               style={boundsStyle(mark.bounds, scale)}
             >
