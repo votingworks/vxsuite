@@ -135,7 +135,7 @@ def enable_election_manager(election_definition: ElectionDefinition):
     )
 
 
-def enable_poll_worker(election_definition: ElectionDefinition):
+def enable_poll_worker(election_definition: ElectionDefinition, long_value: Optional[str] = None):
     set_mock(
         {
             "enabled": True,
@@ -145,7 +145,7 @@ def enable_poll_worker(election_definition: ElectionDefinition):
                     "h": election_definition.election_hash,
                 }
             ),
-            "longValue": None,
+            "longValue": long_value,
         }
     )
 
@@ -199,6 +199,7 @@ if command == "enable":
     card = True
     fixture_path: Optional[str] = None
     election_path: Optional[str] = None
+    poll_worker_long_value_path: Optional[str] = None
     card_type: Optional[str] = None
     precinct_id: Optional[str] = None
     ballot_style_id: Optional[str] = None
@@ -221,6 +222,10 @@ if command == "enable":
             i += 1
             election_path = sys.argv[i]
             card_type = "poll_worker"
+            if i + 1 < len(sys.argv) and os.path.isfile(sys.argv[i+1]):
+                i += 1
+                poll_worker_long_value_path = sys.argv[i]
+                print("found long value to write to poll worker card...")
         elif arg == "--system-administrator":
             card_type = "system_administrator"
         elif arg == "--voter":
@@ -256,7 +261,11 @@ if command == "enable":
         if card_type == "election_manager":
             enable_election_manager(election_definition)
         elif card_type == "poll_worker":
-            enable_poll_worker(election_definition)
+            poll_worker_long_value: Optional[str] = None
+            if poll_worker_long_value_path:
+                with open(poll_worker_long_value_path, "r") as poll_worker_long_value_file:
+                    poll_worker_long_value = poll_worker_long_value_file.read()
+            enable_poll_worker(election_definition, poll_worker_long_value)
         elif card_type == "voter":
             if not precinct_id:
                 fatal("--voter requires --precinct")
