@@ -257,7 +257,7 @@ export function WriteInsTranscriptionScreen({
               Previous
             </Button>
             <Text center>
-              {offset + 1} of {format.count(adjudications.length)}
+              {format.count(offset + 1)} of {format.count(adjudications.length)}
             </Text>
             <Button
               ref={nextButton}
