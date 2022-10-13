@@ -7,11 +7,12 @@ the VxSuite [Election Manager](../election-manager).
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the app like so:
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
+You can build and run the app as follows:
 
 ```sh
 # in frontends/precinct-scanner
+pnpm build # on initial setup only
 pnpm start
 ```
 
@@ -26,6 +27,23 @@ that folder. You'll need to run the application inside
 
 To use a mock scanner, follow the directions from in
 [`services/scan`](../../services/scan#Single-sheet-scanner).
+
+### Running Services Separately
+
+`pnpm build` and `pnpm start` will build and run, respectively, the app's
+dependent services. In the rare cases where you only want to run the app itself
+and spin up services separately:
+
+```sh
+# in frontends/precinct-scanner
+pnpm build:core # on initial setup only
+pnpm start:core
+```
+
+Then run the following:
+
+- [`services/scan`](../../services/admin), using `pnpm start:precinct-scanner`
+- [`services/smartcards`](../../services/smartcards)
 
 ## Testing
 

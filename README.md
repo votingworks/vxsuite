@@ -14,7 +14,8 @@ more information about VotingWorks.
 ## Development
 
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
-v16.14.2 and [pnpm](https://pnpm.js.org) v5 (or use `corepack` to automatically use the right package manager).
+v16.14.2 and [pnpm](https://pnpm.js.org) v5 (or use `corepack` to automatically
+use the right package manager).
 
 Most of the code is written in TypeScript. We follow the
 [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
@@ -98,10 +99,7 @@ Test that you can run the code
 
 ```sh
 # try out BMD:
-make -C services/smartcards build run &
-# ^ wait for this to settle, then…
 cd frontends/bmd
-pnpm install
 pnpm build
 pnpm start
 # if it worked, go to http://localhost:3000/ in your VM
@@ -273,8 +271,16 @@ help you contribute.
 ## Development Best Practices
 
 ### Feature Flags
-Feature flags are defined in the libs/utils subrepo [here](https://github.com/votingworks/vxsuite/blob/main/libs/utils/src/environment_flag.ts). 
-To configure which flags you are using you can set them in an `.env.local` file. This file can live either at the root of vxsuite or in the subrepo you want that flag to apply to. Flag values set in subrepo files will override those set at the root. `.env.local` file will also override a default `.env` file at either a subrepo or root level. To generate a `.env.local` file properly run the `pnpm configure-dev` command. If you are using VxDev you can run the `pnpm configure-vxdev-env` command BEFORE running the update code program. 
+
+Feature flags are defined in the libs/utils subrepo
+[here](https://github.com/votingworks/vxsuite/blob/main/libs/utils/src/environment_flag.ts).
+To configure which flags you are using you can set them in an `.env.local` file.
+This file can live either at the root of vxsuite or in the subrepo you want that
+flag to apply to. Flag values set in subrepo files will override those set at
+the root. `.env.local` file will also override a default `.env` file at either a
+subrepo or root level. To generate a `.env.local` file properly run the
+`pnpm configure-dev` command. If you are using VxDev you can run the
+`pnpm configure-vxdev-env` command BEFORE running the update code program.
 
 ### Use `zod` for validating/parsing JSON data
 
@@ -454,7 +460,6 @@ log in a single test file, add this above all the other code in the file:
 import { enable } from 'debug';
 enable('math:*'); // or whatever globs you want
 ```
-
 
 ## License
 

@@ -3,16 +3,17 @@
 This app is intended to be used on an offline computer by system administrators
 and election managers.
 
-Note: Election manager can refer to VxAdmin or a user role, depending on the
+Note: "Election Manager" can refer to VxAdmin or a user role, depending on the
 context.
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the app like so:
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
+You can build and run the app as follows:
 
 ```sh
 # in frontends/election-manager
+pnpm build # on initial setup only
 pnpm start
 ```
 
@@ -33,12 +34,24 @@ with `REACT_APP_VX_CONVERTER` set to the appropriate value:
 You may set this value in `.env.local` to make the value persistent on your
 machine.
 
-### Optional prerequisites
+### Running Services Separately
 
-- If you want to program smartcards, start
-  [`services/smartcards`](../../services/smartcards)
-- If you will need to convert SEMS files, start
-  [`services/converter-ms-sems`](../../services/converter-ms-sems)
+`pnpm build` and `pnpm start` will build and run, respectively, the app's
+dependent services. In the rare cases where you only want to run the app itself
+and spin up services separately:
+
+```sh
+# in frontends/election-manager
+pnpm build:core # on initial setup only
+pnpm start:core
+```
+
+Then run the following:
+
+- [`services/admin`](../../services/admin)
+- [`services/smartcards`](../../services/smartcards)
+- [`services/converter-ms-sems`](../../services/converter-ms-sems), if you need
+  to convert SEMS files
 
 ## Testing
 

@@ -10,6 +10,7 @@ then run the app like so:
 
 ```sh
 # in frontends/bsd
+pnpm build # on initial setup only
 pnpm start
 ```
 
@@ -24,6 +25,23 @@ intend to test hand-marked paper ballots (HMPBs).
 
 To display a batch of scanned ballots use the `MOCK_SCANNER_FILES` environment
 variable set as described in [`services/scan`](../../services/scan).
+
+### Running Services Separately
+
+`pnpm build` and `pnpm start` will build and run, respectively, the app's
+dependent services. In the rare cases where you only want to run the app itself
+and spin up services separately:
+
+```sh
+# in frontends/bsd
+pnpm build:core # on initial setup only
+pnpm start:core
+```
+
+Then run the following:
+
+- [`services/scan`](../../services/admin), using `pnpm start:bsd`
+- [`services/smartcards`](../../services/smartcards)
 
 ## Testing
 

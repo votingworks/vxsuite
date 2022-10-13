@@ -4,11 +4,18 @@ Marks and/or prints ballots for a voter.
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run BMD like so:
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
+If it's your first time running the app, you'll have to build it:
 
 ```sh
 # In frontends/bmd
+pnpm build
+```
+
+Then to run the app:
+
+```sh
+# in frontends/bmd
 # To run in mark-only mode (when there's a separate standalone printer)
 VX_APP_MODE=MarkOnly pnpm start
 
@@ -24,6 +31,20 @@ pnpm start
 ```
 
 The server will be available at http://localhost:3000/.
+
+### Running Services Separately
+
+`pnpm build` and `pnpm start` will build and run, respectively, the smartcard
+service that the app depends on. In the rare cases where you only want to run
+the app itself and spin up the smartcard service separately:
+
+```sh
+# in frontends/bmd
+pnpm build:core # on initial setup only
+pnpm start:core
+```
+
+Then, build and run [`services/smartcards`](../../services/smartcards).
 
 ## Testing
 
