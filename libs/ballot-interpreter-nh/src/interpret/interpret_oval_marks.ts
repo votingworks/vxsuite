@@ -120,6 +120,15 @@ export function interpretPageOvalMarks({
   const { grid } = layout;
   const threshold = otsu(imageData.data, getImageChannelCount(imageData));
 
+  if (
+    ovalTemplate.width !== geometry.ovalSize.width ||
+    ovalTemplate.height !== geometry.ovalSize.height
+  ) {
+    throw new Error(
+      `Oval template size (${ovalTemplate.width}x${ovalTemplate.height}) does not match expected size (${geometry.ovalSize.width}x${geometry.ovalSize.height})`
+    );
+  }
+
   return gridLayout.gridPositions.flatMap<InterpretedOvalMark>(
     (gridPosition) => {
       if (gridPosition.side !== layout.side) {
@@ -184,20 +193,20 @@ export function interpretOvalMarks({
     `frontImageChannels ${frontImageChannels} !== backImageChannels ${backImageChannels}`
   );
 
-  return [
-    ...interpretPageOvalMarks({
-      geometry,
-      ovalTemplate,
-      imageData: frontImageData,
-      layout: frontLayout,
-      gridLayout,
-    }),
-    ...interpretPageOvalMarks({
-      geometry,
-      ovalTemplate,
-      imageData: backImageData,
-      layout: backLayout,
-      gridLayout,
-    }),
-  ];
+  const frontMarks = interpretPageOvalMarks({
+    geometry,
+    ovalTemplate,
+    imageData: frontImageData,
+    layout: frontLayout,
+    gridLayout,
+  });
+  const backMarks = interpretPageOvalMarks({
+    geometry,
+    ovalTemplate,
+    imageData: backImageData,
+    layout: backLayout,
+    gridLayout,
+  });
+
+  return [...frontMarks, ...backMarks];
 }
