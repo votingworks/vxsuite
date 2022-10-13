@@ -5,6 +5,10 @@ import { dirSync, fileSync } from 'tmp';
 import { Store } from '../store';
 import { call, InterpretOutput } from './interpret_nh';
 
+if (process.env.CI) {
+  jest.setTimeout(20000);
+}
+
 test('configure', async () => {
   const dbPath = fileSync().name;
   await expect(call({ action: 'configure', dbPath })).resolves.not.toThrow();

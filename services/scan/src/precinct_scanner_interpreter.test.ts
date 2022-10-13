@@ -2,6 +2,10 @@ import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixt
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { createInterpreter } from './precinct_scanner_interpreter';
 
+if (process.env.CI) {
+  jest.setTimeout(20000);
+}
+
 const ballotImages = {
   overvoteBallot: [
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asFilePath(),
