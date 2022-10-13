@@ -1,8 +1,16 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Dipped } from '@votingworks/test-utils';
+import { Dipped, mockOf } from '@votingworks/test-utils';
+import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
 import React from 'react';
 import { UnlockMachineScreen } from './unlock_machine_screen';
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: jest.fn(),
+  };
+});
 
 test('Unlock machine screen submits passcode', async () => {
   const fakeAuth = Dipped.fakeCheckingPasscodeAuth();
@@ -54,8 +62,11 @@ test('If passcode is incorrect, error message is shown', () => {
 });
 
 test('If SKIP_PIN_ENTRY flag is on in development, submits correct PIN immediately', async () => {
-  process.env.NODE_ENV = 'development';
-  process.env.REACT_APP_VX_SKIP_PIN_ENTRY = 'TRUE';
+  mockOf(isFeatureFlagEnabled).mockImplementation(
+    (flag: EnvironmentFlagName) => {
+      return flag === EnvironmentFlagName.SKIP_PIN_ENTRY;
+    }
+  );
   const fakeAuth = Dipped.fakeCheckingPasscodeAuth();
   render(<UnlockMachineScreen auth={fakeAuth} />);
 
@@ -65,8 +76,4 @@ test('If SKIP_PIN_ENTRY flag is on in development, submits correct PIN immediate
       fakeAuth.user.passcode
     )
   );
-
-  // clean up env
-  process.env.NODE_ENV = 'test';
-  delete process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
 });
