@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "pnpm type-check && vite build",
+    "build": "pnpm -w build-dev -- bmd",
+    "build:core": "pnpm -w build-dev -- bmd --core-only",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.json'",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --browser chrome --reporter junit",

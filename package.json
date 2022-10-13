@@ -6,7 +6,8 @@
     "prepare": "husky install",
     "configure-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts",
     "configure-vxdev-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts --isVxDev -o /vx/config/.env.local",
-    "run-dev": "script/run-dev"
+    "run-dev": "script/run-dev",
+    "build-dev": "script/build-dev"
   },
   "lint-staged": {
     "package.json": "sort-package-json",

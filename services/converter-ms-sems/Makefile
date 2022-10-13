@@ -8,7 +8,7 @@ install-python: add-ppa
 install: install-python
 
 install-dependencies:
-	python3.9 -m pip install pipenv
+	python3.9 -m pip install pipenv --quiet
 	python3.9 -m pipenv install
 
 install-dev-dependencies:

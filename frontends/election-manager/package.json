@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "pnpm type-check && vite build",
+    "build": "pnpm -w build-dev -- election-manager",
+    "build:core": "pnpm -w build-dev -- election-manager --core-only",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts glob:src/stubs/glob.ts os:src/stubs/os.ts jsdom:src/stubs/jsdom.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",

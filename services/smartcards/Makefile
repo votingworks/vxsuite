@@ -11,7 +11,7 @@ install-smartcard:
 install: install-python install-smartcard
 
 build:
-	python3.9 -m pip install pipenv
+	python3.9 -m pip install pipenv --quiet
 	python3.9 -m pipenv install
 
 build-dev:
