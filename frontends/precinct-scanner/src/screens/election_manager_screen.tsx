@@ -158,11 +158,9 @@ export function ElectionManagerScreen({
             onChange={changeAppPrecinctSelection}
             large
           >
-            {!precinctSelectionValue && (
-              <option value="" disabled>
-                {SELECT_PRECINCT_TEXT}
-              </option>
-            )}
+            <option value="" disabled>
+              {SELECT_PRECINCT_TEXT}
+            </option>
             {election.precincts.length > 1 && (
               <option value={ALL_PRECINCTS_OPTION_VALUE}>
                 {ALL_PRECINCTS_NAME}
