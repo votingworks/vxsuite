@@ -31,6 +31,7 @@ import {
   Hardware,
   throwIllegalValue,
   usbstick,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
 import { Logger } from '@votingworks/logging';
@@ -277,12 +278,19 @@ function appReducer(state: State, action: AppAction): State {
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
       };
     }
-    case 'updateElectionDefinition':
+    case 'updateElectionDefinition': {
+      const { precincts } = action.electionDefinition.election;
+      let defaultPrecinct: Optional<PrecinctSelection>;
+      if (precincts.length === 1) {
+        defaultPrecinct = singlePrecinctSelectionFor(precincts[0].id);
+      }
       return {
         ...state,
         ...initialUserState,
         electionDefinition: action.electionDefinition,
+        appPrecinct: defaultPrecinct,
       };
+    }
     case 'startWritingLongValue':
       return {
         ...state,

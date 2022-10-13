@@ -101,9 +101,11 @@ export function AdminScreen({
                   <option value="" disabled>
                     Select a precinct for this device…
                   </option>
-                  <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                    {ALL_PRECINCTS_NAME}
-                  </option>
+                  {election.precincts.length > 1 && (
+                    <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                      {ALL_PRECINCTS_NAME}
+                    </option>
+                  )}
                   {[...election.precincts]
                     .sort((a, b) =>
                       a.name.localeCompare(b.name, undefined, {
