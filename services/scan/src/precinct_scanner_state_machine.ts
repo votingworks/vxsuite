@@ -379,7 +379,7 @@ function buildMachine({
           invoke: {
             src: reject,
             onDone: 'checking_completed',
-            onError: '#error_jammed',
+            onError: '#jammed',
           },
         },
         // After rejecting, before the plustek grabs the paper to hold it, it sends
@@ -390,7 +390,7 @@ function buildMachine({
           on: {
             SCANNER_NO_PAPER: { target: undefined },
             SCANNER_READY_TO_SCAN: onDoneState,
-            SCANNER_READY_TO_EJECT: '#error_jammed',
+            SCANNER_READY_TO_EJECT: '#jammed',
           },
           // But, if you pull the paper out right after rejecting, we go straight to
           // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
@@ -433,43 +433,6 @@ function buildMachine({
       },
     },
   };
-
-  function rejectingState(onDoneState: string): StateNodeConfig<
-    Context,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any,
-    Event,
-    BaseActionObject
-  > {
-    return {
-      initial: 'starting',
-      states: {
-        starting: {
-          entry: (context) => recordRejectedSheet(workspace.store, context),
-          invoke: {
-            src: reject,
-            onDone: 'checking_completed',
-            onError: '#jammed',
-          },
-        },
-        // After rejecting, before the plustek grabs the paper to hold it, it sends
-        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-        // wait for the READY_TO_SCAN.
-        checking_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: doNothing,
-            SCANNER_READY_TO_SCAN: onDoneState,
-            SCANNER_READY_TO_EJECT: '#jammed',
-          },
-          // But, if you pull the paper out right after rejecting, we go straight to
-          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-          // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#no_paper' },
-        },
-      },
-    };
-  }
 
   return createMachine<Context, Event>(
     {
