@@ -68,6 +68,7 @@ export function UnlockMachineScreen({
   useEffect(() => {
     if (isFeatureFlagEnabled(EnvironmentFlagName.SKIP_PIN_ENTRY)) {
       auth.checkPasscode(auth.user.passcode);
+      return;
     }
 
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
