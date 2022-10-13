@@ -18,6 +18,7 @@ import {
   HorizontalRule,
 } from '@votingworks/ui';
 import { assert, format } from '@votingworks/utils';
+import pluralize from 'pluralize';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
 import { useWriteInImageQuery } from '../hooks/use_write_in_images_query';
@@ -215,7 +216,10 @@ export function WriteInsTranscriptionScreen({
             <Text as="span">
               {isEmptyTranscriptionQueue
                 ? 'No further write-ins to transcribe for this contest.'
-                : `${transcriptionQueue} write-ins to transcribe.`}
+                : `${format.count(transcriptionQueue)} ${pluralize(
+                    'write-in',
+                    transcriptionQueue
+                  )} to transcribe.`}
             </Text>
             <Button small primary={isEmptyTranscriptionQueue} onPress={onClose}>
               Back to All Write-Ins
