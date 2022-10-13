@@ -52,10 +52,6 @@ select option {
   outline: rgb(77, 144, 254) dashed 0.25rem;
 }
 
-.hide-focus-outlines *:focus {
-  outline: none;
-}
-
 select:disabled {
   opacity: 1;
 }

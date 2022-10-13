@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import {
+  assert,
+  EnvironmentFlagName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { Screen } from './screen';
 import { Main } from './main';
@@ -20,6 +24,9 @@ const NumberPadWrapper = styled.div`
   > div {
     width: 400px;
   }
+  *:focus {
+    outline: none;
+  }
 `;
 
 const EnteredCode = styled.div`
@@ -36,9 +43,13 @@ type CheckingPassCodeAuth =
 
 interface Props {
   auth: CheckingPassCodeAuth;
+  grayBackground?: boolean;
 }
 
-export function UnlockMachineScreen({ auth }: Props): JSX.Element {
+export function UnlockMachineScreen({
+  auth,
+  grayBackground,
+}: Props): JSX.Element {
   assert(auth.status === 'checking_passcode');
 
   const [currentPasscode, setCurrentPasscode] = useState('');
@@ -55,6 +66,11 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   }, []);
 
   useEffect(() => {
+    if (isFeatureFlagEnabled(EnvironmentFlagName.SKIP_PIN_ENTRY)) {
+      auth.checkPasscode(auth.user.passcode);
+      return;
+    }
+
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
       auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
@@ -75,7 +91,7 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   }
 
   return (
-    <Screen white>
+    <Screen white={!grayBackground}>
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}

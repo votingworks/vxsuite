@@ -13,6 +13,8 @@ export enum EnvironmentFlagName {
   DISALLOW_CASTING_OVERVOTES = 'REACT_APP_VX_DISALLOW_CASTING_OVERVOTES',
   // Enables the React Query Devtools in development.
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
+  // Skips PIN entry during authentication
+  SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
 }
 
 export interface EnvironmentFlag {
@@ -37,6 +39,8 @@ export function getFlag(name: EnvironmentFlagName): string | undefined {
       return process.env.REACT_APP_VX_DISALLOW_CASTING_OVERVOTES;
     case EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS:
       return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
+    case EnvironmentFlagName.SKIP_PIN_ENTRY:
+      return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
     /* istanbul ignore next compile time check */
     default:
       throwIllegalValue(name);
@@ -76,6 +80,12 @@ export function getFlagDetails(name: EnvironmentFlagName): EnvironmentFlag {
         autoEnableInDevelopment: false,
       };
     case EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case EnvironmentFlagName.SKIP_PIN_ENTRY:
       return {
         name,
         allowInProduction: false,
