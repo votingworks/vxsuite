@@ -2,6 +2,7 @@ import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
 import { arbitraryImageData } from '../test/arbitraries';
+import { makeGrayscaleImageData } from '../test/utils';
 import { crop } from './crop';
 import { diff, PIXEL_BLACK, PIXEL_WHITE } from './diff';
 
@@ -154,15 +155,28 @@ test('comparing part of an image to all of another', () => {
           crop(base, bounds),
           crop(compare, bounds)
         );
-        return (
-          diffImage.width === diffImageByCropping.width &&
-          diffImage.height === diffImageByCropping.height &&
-          diffImage.data.length === diffImageByCropping.data.length &&
-          diffImage.data.every(
-            (pixel, i) => pixel === diffImageByCropping.data[i]
-          )
-        );
+        assertImagesEqual(diffImage, diffImageByCropping);
       }
+    )
+  );
+});
+
+test('grayscale compare image to itself', () => {
+  const imageData = makeGrayscaleImageData(
+    `
+      0123
+      4567
+      89ab
+      cdef
+    `,
+    1
+  );
+  assertImagesEqual(
+    diff(imageData, imageData),
+    createImageData(
+      new Uint8ClampedArray(imageData.data.length).fill(PIXEL_WHITE),
+      imageData.width,
+      imageData.height
     )
   );
 });

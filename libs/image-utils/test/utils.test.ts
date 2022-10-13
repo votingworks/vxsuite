@@ -1,4 +1,5 @@
 import { Rect } from '@votingworks/types';
+import { createImageData } from 'canvas';
 import * as fc from 'fast-check';
 import { crop } from '../src';
 import { arbitraryImageData } from './arbitraries';
@@ -6,6 +7,7 @@ import {
   assertBinaryImageDatasEqual,
   describeBinaryImageData,
   makeBinaryImageData,
+  makeGrayscaleImageData,
 } from './utils';
 
 test('describeBinaryImageData & makeBinaryImageData', () => {
@@ -19,6 +21,18 @@ test('describeBinaryImageData & makeBinaryImageData', () => {
       }
     )
   );
+});
+
+test('junk image descriptions', () => {
+  expect(() => makeBinaryImageData('')).toThrow();
+  expect(() => makeBinaryImageData(' ')).toThrow();
+  expect(() => makeGrayscaleImageData('')).toThrow();
+});
+
+test('invalid binary images', () => {
+  expect(() =>
+    describeBinaryImageData(createImageData(Uint8ClampedArray.of(127), 1, 1))
+  ).toThrow('Invalid pixel 127 at (0, 0)');
 });
 
 test('describeBinaryImageData & makeBinaryImageData with cropping', () => {

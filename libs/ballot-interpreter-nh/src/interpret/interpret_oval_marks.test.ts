@@ -66,27 +66,27 @@ test('interpretOvalMarks unmarked sheet', async () => {
   expect(markWithLowestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 664,
-        "maxY": 780,
-        "minX": 627,
-        "minY": 756,
-        "width": 38,
-        "x": 627,
-        "y": 756,
+        "height": 26,
+        "maxX": 668,
+        "maxY": 585,
+        "minX": 629,
+        "minY": 560,
+        "width": 40,
+        "x": 629,
+        "y": 560,
       },
       "gridPosition": Object {
         "column": 12,
-        "contestId": "Governor-061a401b",
-        "optionId": "Chris-Sununu-130124f7",
-        "row": 13,
+        "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+        "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
+        "row": 9,
         "side": "front",
         "type": "option",
       },
       "score": 0,
       "scoredOffset": Object {
-        "x": 2,
-        "y": 2,
+        "x": 0,
+        "y": 1,
       },
     }
   `);
@@ -95,27 +95,27 @@ test('interpretOvalMarks unmarked sheet', async () => {
   expect(markWithHighestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 629,
-        "maxY": 2241,
-        "minX": 592,
-        "minY": 2217,
-        "width": 38,
-        "x": 592,
-        "y": 2217,
+        "height": 26,
+        "maxX": 668,
+        "maxY": 585,
+        "minX": 629,
+        "minY": 560,
+        "width": 40,
+        "x": 629,
+        "y": 560,
       },
       "gridPosition": Object {
         "column": 12,
-        "contestId": "State-Representatives-7d3a8821",
-        "optionId": "Denise-Smith-0a6359c3",
-        "row": 43,
+        "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+        "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
+        "row": 9,
         "side": "front",
         "type": "option",
       },
-      "score": 0.023602484472049712,
+      "score": 0,
       "scoredOffset": Object {
         "x": 0,
-        "y": 2,
+        "y": 1,
       },
     }
   `);
@@ -173,27 +173,27 @@ test('interpretOvalMarks marked front', async () => {
   expect(markWithLowestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 660,
-        "maxY": 1763,
-        "minX": 623,
-        "minY": 1739,
-        "width": 38,
-        "x": 623,
-        "y": 1739,
+        "height": 26,
+        "maxX": 659,
+        "maxY": 2250,
+        "minX": 620,
+        "minY": 2225,
+        "width": 40,
+        "x": 620,
+        "y": 2225,
       },
       "gridPosition": Object {
         "column": 12,
         "contestId": "State-Representatives-7d3a8821",
-        "optionId": "Lynne-Ober-f704df17",
-        "row": 33,
+        "optionId": "Denise-Smith-0a6359c3",
+        "row": 43,
         "side": "front",
         "type": "option",
       },
-      "score": 0.039751552795031064,
+      "score": 0.025,
       "scoredOffset": Object {
-        "x": 3,
-        "y": 1,
+        "x": 1,
+        "y": 2,
       },
     }
   `);
@@ -202,27 +202,27 @@ test('interpretOvalMarks marked front', async () => {
   expect(markWithHighestScore).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
-        "maxX": 1627,
-        "maxY": 587,
-        "minX": 1590,
-        "minY": 563,
-        "width": 38,
-        "x": 1590,
-        "y": 563,
+        "height": 26,
+        "maxX": 662,
+        "maxY": 1226,
+        "minX": 623,
+        "minY": 1201,
+        "width": 40,
+        "x": 623,
+        "y": 1201,
       },
       "gridPosition": Object {
-        "column": 32,
-        "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-        "row": 9,
+        "column": 12,
+        "contestId": "Executive-Councilor-bb22557f",
+        "optionId": "Dave-Wheeler-de2242ee",
+        "row": 22,
         "side": "front",
-        "type": "write-in",
-        "writeInIndex": 0,
+        "type": "option",
       },
-      "score": 0.7726708074534161,
+      "score": 0.5375,
       "scoredOffset": Object {
-        "x": -3,
-        "y": -3,
+        "x": 3,
+        "y": 1,
       },
     }
   `);
@@ -281,13 +281,13 @@ test('interpretOvalMarks marked rotated front', async () => {
   ).toMatchInlineSnapshot(`
     Object {
       "bounds": Object {
-        "height": 25,
+        "height": 26,
         "maxX": 640,
-        "maxY": 577,
-        "minX": 603,
+        "maxY": 578,
+        "minX": 601,
         "minY": 553,
-        "width": 38,
-        "x": 603,
+        "width": 40,
+        "x": 601,
         "y": 553,
       },
       "gridPosition": Object {
@@ -298,10 +298,10 @@ test('interpretOvalMarks marked rotated front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.4397515527950311,
+      "score": 0.30865384615384617,
       "scoredOffset": Object {
-        "x": 1,
-        "y": 2,
+        "x": 0,
+        "y": 3,
       },
     }
   `);
