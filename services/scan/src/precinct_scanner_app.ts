@@ -125,7 +125,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
-  >('/precinct-scanner/config/election', (request, response) => {
+  >('/precinct-scanner/config/election', async (request, response) => {
     const { body } = request;
 
     if (!Buffer.isBuffer(body)) {
@@ -168,6 +168,7 @@ export async function buildPrecinctScannerApp(
       store.setPrecinctSelection(
         singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
       );
+      await updateInterpreterConfig(interpreter, workspace);
     }
     response.json({ status: 'ok' });
   });
@@ -420,6 +421,7 @@ export async function buildPrecinctScannerApp(
           );
         }
 
+        await updateInterpreterConfig(interpreter, workspace);
         response.json({ status: 'ok' });
       } catch (error) {
         assert(error instanceof Error);
