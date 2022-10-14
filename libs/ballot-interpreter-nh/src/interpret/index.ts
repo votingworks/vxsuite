@@ -31,8 +31,8 @@ import { interpretOvalMarks } from './interpret_oval_marks';
  * Default thresholds for interpreting marks on a ballot as votes.
  */
 export const DefaultMarkThresholds: MarkThresholds = {
-  definite: 0.12,
-  marginal: 0.1,
+  definite: 0.08,
+  marginal: 0.05,
 };
 
 /**
