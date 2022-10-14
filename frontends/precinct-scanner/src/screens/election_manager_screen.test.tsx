@@ -23,7 +23,6 @@ import { AppContext, AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
-  SELECT_PRECINCT_TEXT,
 } from './election_manager_screen';
 
 beforeEach(() => {
@@ -138,7 +137,6 @@ test('no All Precincts option if only one precinct', async () => {
   // Should have precinct name in both the dropdown and the footer
   expect(await screen.findAllByText('Precinct 1')).toHaveLength(2);
   expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
-  expect(screen.queryByText(SELECT_PRECINCT_TEXT)).not.toBeInTheDocument();
 });
 
 test('export from admin screen', () => {

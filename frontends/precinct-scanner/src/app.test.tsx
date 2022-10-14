@@ -324,7 +324,6 @@ test('election manager must set precinct', async () => {
   expect(
     fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
   ).toHaveLength(1);
-  expect(screen.queryByText(SELECT_PRECINCT_TEXT)).not.toBeInTheDocument();
   card.removeCard();
   await advanceTimersAndPromises(1);
 
