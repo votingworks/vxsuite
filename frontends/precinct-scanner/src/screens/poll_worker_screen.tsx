@@ -80,7 +80,7 @@ async function saveTallyToCard(
 }
 
 async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
-  const castVoteRecordsString = await scan.getExport();
+  const castVoteRecordsString = await scan.getExportWithoutImages();
   const lines = castVoteRecordsString.split('\n');
   const cvrs = lines.flatMap((line) =>
     line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []

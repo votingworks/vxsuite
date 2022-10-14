@@ -39,13 +39,27 @@ export type DownloadError =
   | { kind: DownloadErrorKind.OpenFailed; path: string; error: Error }
   | { kind: DownloadErrorKind.NoFileChosen };
 
+export interface DownloadOptions {
+  directory?: string;
+  filename?: string;
+  fetchOptions?: RequestInit;
+}
+
 async function kioskDownload(
   kiosk: KioskBrowser.Kiosk,
   url: string,
-  directory?: string
+  options: DownloadOptions
 ): Promise<Result<void, DownloadError>> {
+  const {
+    directory,
+    filename: filenameFromOptions,
+    fetchOptions = {},
+  } = options;
   const abortController = new AbortController();
-  const response = await fetch(url, { signal: abortController.signal });
+  const response = await fetch(url, {
+    ...fetchOptions,
+    signal: abortController.signal,
+  });
 
   if (response.status !== 200) {
     return err({ kind: DownloadErrorKind.FetchFailed, response });
@@ -53,7 +67,8 @@ async function kioskDownload(
 
   const contentDisposition = response.headers.get('content-disposition');
   const filename =
-    contentDisposition && readContentDispositionFilename(contentDisposition);
+    filenameFromOptions ??
+    (contentDisposition && readContentDispositionFilename(contentDisposition));
 
   if (!filename) {
     return err({ kind: DownloadErrorKind.FileMissing, response });
@@ -122,10 +137,10 @@ async function kioskDownload(
  */
 export async function download(
   url: string,
-  { into: directory }: { into?: string } = {}
+  options: DownloadOptions = {}
 ): Promise<Result<void, DownloadError>> {
   if (window.kiosk) {
-    return kioskDownload(window.kiosk, url, directory);
+    return kioskDownload(window.kiosk, url, options);
   }
 
   window.location.assign(url);

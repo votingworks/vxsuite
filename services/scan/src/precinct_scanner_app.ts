@@ -8,11 +8,16 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { assert, find, singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  assert,
+  find,
+  generateFilenameForScanningResults,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
-import * as streams from 'memory-streams';
+import makeDebug from 'debug';
 import multer from 'multer';
 import { z } from 'zod';
 import { backup } from './backup';
@@ -21,11 +26,18 @@ import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { Store } from './store';
 import { Workspace } from './util/workspace';
 
+const debug = makeDebug('scan:precinct-scanner:app');
+
 function sum(nums: number[]) {
   return nums.reduce((a, b) => a + b, 0);
 }
 
 type NoParams = never;
+
+function getBallotsCounted(store: Store): number {
+  const batches = store.batchStatus();
+  return sum(batches.map((batch) => batch.count));
+}
 
 /**
  * Loads ballot layouts from the {@link Store} to be used by the interpreter.
@@ -440,13 +452,24 @@ export async function buildPrecinctScannerApp(
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
-    (_request, response) => {
-      const outputStream = new streams.WritableStream();
-      store.exportCvrs(outputStream);
-      const cvrs = outputStream.toString();
+    (request, response) => {
+      const skipImages = request.body?.skipImages;
+      debug(`exporting CVRs ${skipImages ? 'without' : 'with'} inline images`);
+
+      const cvrFilename = generateFilenameForScanningResults(
+        // TODO: Move machine config provider to shared utilities and access
+        // actual machine config, with dev overrides, here instead
+        '0000',
+        getBallotsCounted(store),
+        store.getTestMode(),
+        new Date()
+      );
+
+      response
+        .header('Content-Type', 'text/plain; charset=utf-8')
+        .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
+      store.exportCvrs(response, { skipImages });
       store.setCvrsAsBackedUp();
-      response.set('Content-Type', 'text/plain; charset=utf-8');
-      response.send(cvrs);
     }
   );
 
@@ -507,8 +530,7 @@ export async function buildPrecinctScannerApp(
     '/precinct-scanner/scanner/status',
     (_request, response) => {
       const machineStatus = machine.status();
-      const batches = store.batchStatus();
-      const ballotsCounted = sum(batches.map((batch) => batch.count));
+      const ballotsCounted = getBallotsCounted(store);
       const canUnconfigure = store.getCanUnconfigure();
       response.json({
         ...machineStatus,

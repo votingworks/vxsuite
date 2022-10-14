@@ -85,10 +85,8 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
 
 test('render export modal when a usb drive is mounted as expected and allows custom export', async () => {
   const mockKiosk = fakeKiosk();
-  const fileWriter = fakeFileWriter();
   window.kiosk = mockKiosk;
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter);
-  mockKiosk.saveAs = saveAsFunction;
+  mockKiosk.saveAs = jest.fn().mockResolvedValue(fakeFileWriter());
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
@@ -122,7 +120,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   fireEvent.click(getByText('Custom'));
   await waitFor(() => getByText('CVRs Saved to USB Drive'));
   await waitFor(() => {
-    expect(saveAsFunction).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1);
   });
   expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
 
@@ -133,6 +131,9 @@ test('render export modal when a usb drive is mounted as expected and allows cus
 test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+  mockKiosk.writeFile.mockResolvedValue(
+    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
@@ -179,8 +180,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         0,
         10
       )}/TEST__machine_0003__5_ballots`
-    ),
-    expect.anything()
+    )
   );
   expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
 

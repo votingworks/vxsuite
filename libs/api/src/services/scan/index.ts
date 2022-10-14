@@ -16,6 +16,7 @@ import {
   MarkAdjudicationsSchema,
   MarkThresholds,
   MarkThresholdsSchema,
+  Optional,
   PrecinctSelection,
   PrecinctSelectionSchema,
 } from '@votingworks/types';
@@ -502,20 +503,22 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
   OkResponseSchema;
 
 /**
- * This is `never` because there is no request data.
- *
  * @url /scan/export
  * @method POST
  */
-export type ExportRequest = never;
+export type ExportRequest = Optional<{
+  skipImages: boolean;
+}>;
 
 /**
- * This is `never` because there is no request data.
- *
  * @url /scan/export
  * @method POST
  */
-export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z.never();
+export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z
+  .object({
+    skipImages: z.boolean(),
+  })
+  .optional();
 
 /**
  * @url /scan/export

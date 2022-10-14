@@ -36,10 +36,18 @@ import {
 import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
+import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.writeFile.mockResolvedValue(
+    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
+  window.kiosk = kiosk;
 });
 
 const getMachineConfigBody: MachineConfigResponse = {
@@ -127,9 +135,6 @@ test('expected tally reports are printed for a primary election with all precinc
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   fetchMock
@@ -191,9 +196,6 @@ test('expected tally reports for a primary election with all precincts with CVRs
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
 
@@ -542,9 +544,6 @@ test('expected tally reports for a primary election with a single precincts with
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
   fetchMock
@@ -805,9 +804,6 @@ test('expected tally reports for a general election with all precincts with CVRs
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
   fetchMock
@@ -1029,9 +1025,6 @@ test('expected tally reports for a general election with a single precincts with
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
   fetchMock

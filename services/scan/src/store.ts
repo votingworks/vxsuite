@@ -820,7 +820,10 @@ export class Store {
   /**
    * Exports all CVR JSON data to a stream.
    */
-  exportCvrs(writeStream: Writable): void {
+  exportCvrs(
+    writeStream: Writable,
+    options: { skipImages?: boolean } = {}
+  ): void {
     const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -876,7 +879,10 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION)) {
+      const includeImages =
+        isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
+        !options.skipImages;
+      if (includeImages) {
         if (
           frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'UninterpretedHmpbPage'
@@ -929,7 +935,7 @@ export class Store {
           },
         ],
         [frontImage, backImage],
-        isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
+        includeImages &&
           (frontInterpretation.type === 'InterpretedHmpbPage' ||
             frontInterpretation.type === 'UninterpretedHmpbPage') &&
           (backInterpretation.type === 'InterpretedHmpbPage' ||
@@ -946,6 +952,8 @@ export class Store {
         writeStream.write('\n');
       }
     }
+
+    writeStream.end();
   }
 
   addHmpbTemplate(

@@ -3,7 +3,7 @@ import { Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
 import makeDebug from 'debug';
 
-const debug = makeDebug('/precinct-scanner:api:scan');
+const debug = makeDebug('precinct-scanner:api:scan');
 
 export async function getStatus(): Promise<Scan.PrecinctScannerStatus> {
   return unsafeParse(
@@ -32,9 +32,14 @@ export async function calibrate(): Promise<boolean> {
   return result.status === 'ok';
 }
 
-export async function getExport(): Promise<string> {
+// Returns CVR file which does not include any write-in images
+export async function getExportWithoutImages(): Promise<string> {
   const response = await fetch('/precinct-scanner/export', {
     method: 'post',
+    body: JSON.stringify({ skipImages: true }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
   if (response.status !== 200) {
     debug('failed to get scan export: %o', response);

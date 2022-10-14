@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, Result } from '@votingworks/types';
 import {
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
@@ -6,9 +6,8 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import { join } from 'path';
-import fileDownload from 'js-file-download';
-import * as scan from '../api/scan';
 import { MachineConfig } from '../config/types';
+import { download, DownloadError, DownloadErrorKind } from './download';
 
 interface SaveCvrExportToUsbArgs {
   electionDefinition: ElectionDefinition;
@@ -29,16 +28,15 @@ export async function saveCvrExportToUsb({
   isTestMode,
   openFilePickerDialog,
 }: SaveCvrExportToUsbArgs): Promise<void> {
-  const cvrFileString = await scan.getExport();
-
+  // TODO: filename should be determined server-side
   const cvrFilename = generateFilenameForScanningResults(
     machineConfig.machineId,
     scannedBallotCount,
     isTestMode,
     new Date()
   );
-
-  if (window.kiosk) {
+  let result: Result<void, DownloadError>;
+  if (window.kiosk && !openFilePickerDialog) {
     const usbPath = await usbstick.getDevicePath();
     if (!usbPath) {
       throw new Error('could not save file; path to usb drive missing');
@@ -52,26 +50,40 @@ export async function saveCvrExportToUsb({
       SCANNER_RESULTS_FOLDER,
       electionFolderName
     );
-    const pathToFile = join(pathToFolder, cvrFilename);
-    if (openFilePickerDialog) {
-      const fileWriter = await window.kiosk.saveAs({
-        defaultPath: pathToFile,
-      });
-
-      if (!fileWriter) {
-        throw new Error('could not save; no file was chosen');
-      }
-
-      await fileWriter.write(cvrFileString);
-      await fileWriter.end();
-    } else {
-      await window.kiosk.makeDirectory(pathToFolder, {
-        recursive: true,
-      });
-      await window.kiosk.writeFile(pathToFile, cvrFileString);
-    }
+    result = await download('/precinct-scanner/export', {
+      directory: pathToFolder,
+      filename: cvrFilename,
+      fetchOptions: {
+        method: 'POST',
+      },
+    });
     await usbstick.doSync();
   } else {
-    fileDownload(cvrFileString, cvrFilename, 'application/x-jsonlines');
+    result = await download('/precinct-scanner/export', {
+      filename: cvrFilename,
+      fetchOptions: {
+        method: 'POST',
+      },
+    });
+  }
+  if (!result.isOk()) {
+    const error = result.err();
+    let errorMessage = '';
+    switch (error.kind) {
+      case DownloadErrorKind.FetchFailed:
+      case DownloadErrorKind.FileMissing:
+        errorMessage = `Unable to get CVR file: ${error.kind} (status=${error.response.statusText})`;
+        break;
+      case DownloadErrorKind.OpenFailed:
+        errorMessage = `Unable to write file to save location: ${error.path}`;
+        break;
+      case DownloadErrorKind.NoFileChosen:
+        errorMessage = 'Could not save; no file was chosen';
+        break;
+      default:
+        // nothing to do
+        break;
+    }
+    throw new Error(errorMessage);
   }
 }

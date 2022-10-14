@@ -78,6 +78,14 @@ test('download with kiosk-browser and no body', async () => {
   });
 });
 
+test('download with fetch options', async () => {
+  const kiosk = fakeKiosk();
+  window.kiosk = kiosk;
+
+  fetchMock.postOnce('/file.txt', {});
+  await download('/file.txt', { fetchOptions: { method: 'POST' } });
+});
+
 test('download with kiosk-browser and no content-disposition filename', async () => {
   const kiosk = fakeKiosk();
   window.kiosk = kiosk;
@@ -165,7 +173,7 @@ test('download with kiosk-browser with a target directory', async () => {
   kiosk.writeFile.mockResolvedValueOnce(
     fileWriter as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
-  const result = await download('/file.txt', { into: '/some/directory' });
+  const result = await download('/file.txt', { directory: '/some/directory' });
   result.unsafeUnwrap();
   expect(kiosk.makeDirectory).toHaveBeenCalledWith('/some/directory', {
     recursive: true,
@@ -184,7 +192,7 @@ test('download with kiosk-browser with a target directory and un-writable path',
   });
 
   kiosk.writeFile.mockRejectedValueOnce(new Error('EPERM'));
-  const result = await download('/file.txt', { into: '/some/directory' });
+  const result = await download('/file.txt', { directory: '/some/directory' });
   expect(result.err()).toEqual({
     kind: DownloadErrorKind.OpenFailed,
     path: '/some/directory/abc.txt',

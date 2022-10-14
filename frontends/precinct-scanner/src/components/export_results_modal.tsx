@@ -129,7 +129,12 @@ export function ExportResultsModal({
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading />} onOverlayClick={onClose} />;
+    return (
+      <Modal
+        content={<Loading>Saving CVRs</Loading>}
+        onOverlayClick={onClose}
+      />
+    );
   }
 
   if (currentState !== ModalState.INIT) {
