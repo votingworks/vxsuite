@@ -1194,14 +1194,14 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
   await authenticateWithSystemAdministratorCard(card);
   fireEvent.click(getByText('Ballots'));
   await screen.findByText(
-    'This election uses custom ballots not produced by VxAdmin.'
+    'VxAdmin does not produce ballots for this election.'
   );
   expect(queryByText('Save Ballot Package')).toBeNull();
   fireEvent.click(getByText('Lock Machine'));
 
   await authenticateWithElectionManagerCard(card, electionDefinition);
   await screen.findByText(
-    'This election uses custom ballots not produced by VxAdmin.'
+    'VxAdmin does not produce ballots for this election.'
   );
   getByText('Save Ballot Package');
 });

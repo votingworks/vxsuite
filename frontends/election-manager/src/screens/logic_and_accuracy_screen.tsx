@@ -19,10 +19,8 @@ export function LogicAndAccuracyScreen(): JSX.Element {
       <NavigationScreen>
         <Prose>
           <h1>L&A Testing Documents</h1>
-          <p>This election uses custom ballots not produced by VxAdmin.</p>
           <p>
-            Thus VxAdmin does not coordinate Logic and Accuracy testing for this
-            election.
+            VxAdmin does not produce ballots or L&A documents for this election.
           </p>
         </Prose>
       </NavigationScreen>

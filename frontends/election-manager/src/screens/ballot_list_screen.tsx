@@ -67,7 +67,7 @@ export function BallotListScreen(): JSX.Element {
         <Header>
           <Prose>
             <h1>Ballots</h1>
-            <p>This election uses custom ballots not produced by VxAdmin.</p>
+            <p>VxAdmin does not produce ballots for this election.</p>
             {isElectionManagerAuth(auth) ? (
               <React.Fragment>
                 <p>
