@@ -550,7 +550,7 @@ export class Importer {
   /**
    * Export the current CVRs to a string.
    */
-  doExport(): string {
+  async doExport(): Promise<string> {
     const election = this.workspace.store.getElectionDefinition();
 
     if (!election) {
@@ -558,7 +558,7 @@ export class Importer {
     }
 
     const outputStream = new streams.WritableStream();
-    this.workspace.store.exportCvrs(outputStream);
+    await this.workspace.store.exportCvrs(outputStream);
     return outputStream.toString();
   }
 

@@ -88,7 +88,7 @@ export class Backup {
     await this.addEntry('election.json', electionDefinition.electionData);
 
     const cvrStream = new WritableStream();
-    this.store.exportCvrs(cvrStream);
+    await this.store.exportCvrs(cvrStream);
     await this.addEntry('cvrs.jsonl', cvrStream.toBuffer());
 
     const dbBackupFile = fileSync();
