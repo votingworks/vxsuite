@@ -440,9 +440,9 @@ export async function buildPrecinctScannerApp(
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
-    (_request, response) => {
+    async (_request, response) => {
       const outputStream = new streams.WritableStream();
-      store.exportCvrs(outputStream);
+      await store.exportCvrs(outputStream);
       const cvrs = outputStream.toString();
       store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');

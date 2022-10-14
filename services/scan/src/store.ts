@@ -47,6 +47,8 @@ import { Writable } from 'stream';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
+import { loadImage } from 'canvas';
+import { toDataUrl, toImageData } from '@votingworks/image-utils';
 import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
@@ -820,7 +822,7 @@ export class Store {
   /**
    * Exports all CVR JSON data to a stream.
    */
-  exportCvrs(writeStream: Writable): void {
+  async exportCvrs(writeStream: Writable): Promise<void> {
     const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -883,16 +885,25 @@ export class Store {
         ) {
           const frontFilenames = this.getBallotFilenames(id, 'front');
           if (frontFilenames?.normalized) {
-            frontImage.normalized = fs.readFileSync(
-              frontFilenames.normalized,
-              'base64'
+            const image = await loadImage(frontFilenames.normalized);
+            const newImageData = toImageData(image, {
+              maxWidth: image.width * 0.5,
+              maxHeight: image.height * 0.5,
+            });
+            frontImage.normalized = toDataUrl(newImageData, 'image/jpeg').slice(
+              23
             );
           }
           const backFilenames = this.getBallotFilenames(id, 'back');
           if (backFilenames?.normalized) {
-            backImage.normalized = fs.readFileSync(
-              backFilenames.normalized,
-              'base64'
+            const image = await loadImage(backFilenames.normalized);
+            const newImageData = toImageData(image, {
+              maxWidth: image.width * 0.5,
+              maxHeight: image.height * 0.5,
+            });
+            // strip the "data:image/jpeg;base64,"
+            backImage.normalized = toDataUrl(newImageData, 'image/jpeg').slice(
+              23
             );
           }
         }

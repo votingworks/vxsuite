@@ -524,7 +524,7 @@ test('exportCvrs', async () => {
 
   // No CVRs, export should be empty
   let stream = new streams.WritableStream();
-  store.exportCvrs(stream);
+  await store.exportCvrs(stream);
   expect(stream.toString()).toEqual('');
 
   const metadata: BallotPageMetadata = {
@@ -592,7 +592,7 @@ test('exportCvrs', async () => {
   store.adjudicateSheet(sheetId, 'back', []);
 
   stream = new streams.WritableStream();
-  store.exportCvrs(stream);
+  await store.exportCvrs(stream);
   expect(stream.toString()).toEqual(
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
   );
@@ -618,7 +618,7 @@ test('exportCvrs', async () => {
   // Confirm that deleted batches are not included in exported CVRs
   stream = new streams.WritableStream();
   store.deleteBatch(batchId);
-  store.exportCvrs(stream);
+  await store.exportCvrs(stream);
   expect(stream.toString()).toEqual('');
 });
 
@@ -698,7 +698,7 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
   store.adjudicateSheet(sheetId, 'back', []);
 
   stream = new streams.WritableStream();
-  store.exportCvrs(stream);
+  await store.exportCvrs(stream);
   expect(stream.toString()).toEqual(
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
   );

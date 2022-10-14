@@ -441,8 +441,8 @@ export async function buildCentralScannerApp({
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/central-scanner/scan/export',
-    (_request, response) => {
-      const cvrs = importer.doExport();
+    async (_request, response) => {
+      const cvrs = await importer.doExport();
       store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');
       response.send(cvrs);
