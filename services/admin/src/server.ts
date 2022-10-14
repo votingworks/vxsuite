@@ -23,7 +23,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 type NoParams = never;
 
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
-const MAX_UPLOAD_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
 
 /**
  * Builds an express application.
