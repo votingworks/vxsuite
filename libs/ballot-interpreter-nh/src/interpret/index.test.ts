@@ -22,33 +22,46 @@ test('interpret marked', async () => {
           "ignoredReasonInfos": Array [
             Object {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "optionId": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
-              "optionIndex": 2,
-              "type": "MarginalMark",
-            },
-            Object {
-              "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "expected": 1,
               "optionIds": Array [
                 "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
+                "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
+                "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
                 "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
+                1,
+                2,
                 3,
               ],
               "type": "Overvote",
             },
             Object {
               "contestId": "Governor-061a401b",
-              "optionId": "Chris-Sununu-130124f7",
-              "optionIndex": 0,
+              "optionId": "Darryl-W-Perry-2f07c455",
+              "optionIndex": 2,
               "type": "MarginalMark",
             },
             Object {
               "contestId": "Governor-061a401b",
-              "optionId": "Dan-Feltes-3fadf798",
-              "optionIndex": 1,
+              "expected": 1,
+              "optionIds": Array [
+                "Chris-Sununu-130124f7",
+                "Dan-Feltes-3fadf798",
+                "write-in-0",
+              ],
+              "optionIndexes": Array [
+                0,
+                1,
+                3,
+              ],
+              "type": "Overvote",
+            },
+            Object {
+              "contestId": "United-States-Senator-d3f1c75b",
+              "optionId": "Justin-O-Donnell-ec71760c",
+              "optionIndex": 2,
               "type": "MarginalMark",
             },
             Object {
@@ -56,10 +69,12 @@ test('interpret marked', async () => {
               "expected": 1,
               "optionIds": Array [
                 "Corky-Messner-b6eb216d",
+                "Jeanne-Shaheen-6e19622d",
                 "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
+                1,
                 3,
               ],
               "type": "Overvote",
@@ -80,12 +95,51 @@ test('interpret marked', async () => {
               "type": "Overvote",
             },
             Object {
+              "contestId": "Executive-Councilor-bb22557f",
+              "expected": 1,
+              "optionIds": Array [
+                "Dave-Wheeler-de2242ee",
+                "write-in-0",
+              ],
+              "optionIndexes": Array [
+                0,
+                2,
+              ],
+              "type": "Overvote",
+            },
+            Object {
+              "contestId": "State-Senator-391381f8",
+              "optionId": "Sharon-M-Carson-0316308e",
+              "optionIndex": 0,
+              "type": "MarginalMark",
+            },
+            Object {
+              "contestId": "State-Senator-391381f8",
+              "optionId": "Nancy-Hendricks-d330559d",
+              "optionIndex": 1,
+              "type": "MarginalMark",
+            },
+            Object {
+              "contestId": "State-Representatives-7d3a8821",
+              "optionId": "Kimberly-Rice-faaed16a",
+              "optionIndex": 6,
+              "type": "MarginalMark",
+            },
+            Object {
+              "contestId": "State-Representatives-7d3a8821",
+              "optionId": "Brett-Gagnon-7a8c9838",
+              "optionIndex": 11,
+              "type": "MarginalMark",
+            },
+            Object {
               "contestId": "State-Representatives-7d3a8821",
               "expected": 11,
               "optionIds": Array [
                 "Russell-Ober-e433afea",
                 "Andrew-Prout-1cd243e0",
                 "Andrew-Renzullo-b0428370",
+                "Jordan-Ulery-28553627",
+                "Alicia-Lekas-271048d8",
                 "Beatriz-Jauregui-11b83653",
                 "Steven-Katsos-077584b8",
                 "Harold-Lynde-a54df7d7",
@@ -100,6 +154,7 @@ test('interpret marked', async () => {
                 "write-in-2",
                 "write-in-3",
                 "write-in-4",
+                "write-in-5",
                 "write-in-6",
                 "write-in-7",
                 "write-in-8",
@@ -110,6 +165,8 @@ test('interpret marked', async () => {
                 3,
                 4,
                 5,
+                8,
+                10,
                 13,
                 14,
                 15,
@@ -124,6 +181,7 @@ test('interpret marked', async () => {
                 24,
                 25,
                 26,
+                27,
                 28,
                 29,
                 30,
@@ -1554,7 +1612,7 @@ test('interpret marked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -3888,7 +3946,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -3906,8 +3964,27 @@ test('interpret marked', async () => {
                 "Republican-f0167ce7",
               ],
             },
+            Object {
+              "id": "write-in-0",
+              "isWriteIn": true,
+              "name": "Write-In #1",
+            },
           ],
           "Governor-061a401b": Array [
+            Object {
+              "id": "Chris-Sununu-130124f7",
+              "name": "Chris Sununu",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
+            },
+            Object {
+              "id": "Dan-Feltes-3fadf798",
+              "name": "Dan Feltes",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
+            },
             Object {
               "id": "write-in-0",
               "isWriteIn": true,
@@ -3920,6 +3997,20 @@ test('interpret marked', async () => {
               "name": "Donald J. Trump  and Michael R. Pence",
               "partyIds": Array [
                 "Republican-f0167ce7",
+              ],
+            },
+            Object {
+              "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
+              "name": "Joseph R. Biden  and Kamala D. Harris",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
+            },
+            Object {
+              "id": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
+              "name": "Jo Jorgensen  and Jeremy Cohen",
+              "partyIds": Array [
+                "OC-3a386d2b",
               ],
             },
             Object {
@@ -3967,6 +4058,20 @@ test('interpret marked', async () => {
             Object {
               "id": "Andrew-Renzullo-b0428370",
               "name": "Andrew Renzullo",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
+            },
+            Object {
+              "id": "Jordan-Ulery-28553627",
+              "name": "Jordan Ulery",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
+            },
+            Object {
+              "id": "Alicia-Lekas-271048d8",
+              "name": "Alicia Lekas",
               "partyIds": Array [
                 "Republican-f0167ce7",
               ],
@@ -4060,6 +4165,11 @@ test('interpret marked', async () => {
               "name": "Write-In #7",
             },
             Object {
+              "id": "write-in-5",
+              "isWriteIn": true,
+              "name": "Write-In #6",
+            },
+            Object {
               "id": "write-in-4",
               "isWriteIn": true,
               "name": "Write-In #5",
@@ -4098,6 +4208,13 @@ test('interpret marked', async () => {
               "name": "Corky Messner",
               "partyIds": Array [
                 "Republican-f0167ce7",
+              ],
+            },
+            Object {
+              "id": "Jeanne-Shaheen-6e19622d",
+              "name": "Jeanne Shaheen",
+              "partyIds": Array [
+                "Democratic-aea20adb",
               ],
             },
             Object {
@@ -4179,18 +4296,14 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Register-of-Probate-a4117da8",
-              "optionId": "Elizabeth-Ann-Moreau-aec07bb4",
-              "optionIndex": 0,
-              "type": "MarginalMark",
-            },
-            Object {
-              "contestId": "Register-of-Probate-a4117da8",
               "expected": 1,
               "optionIds": Array [
+                "Elizabeth-Ann-Moreau-aec07bb4",
                 "Elizabeth-Ropp-4035eed1",
                 "write-in-0",
               ],
               "optionIndexes": Array [
+                0,
                 1,
                 2,
               ],
@@ -4834,7 +4947,7 @@ test('interpret marked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -5698,7 +5811,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -5807,6 +5920,13 @@ test('interpret marked', async () => {
             },
           ],
           "Register-of-Probate-a4117da8": Array [
+            Object {
+              "id": "Elizabeth-Ann-Moreau-aec07bb4",
+              "name": "Elizabeth Ann Moreau",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
+            },
             Object {
               "id": "Elizabeth-Ropp-4035eed1",
               "name": "Elizabeth Ropp",
@@ -7340,7 +7460,7 @@ test('interpret unmarked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -9674,7 +9794,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -10358,7 +10478,7 @@ test('interpret unmarked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -11222,7 +11342,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "f3b3502d0faafae126dee57d83320e4515dad78824eebf99db22ee642f18f044",
+          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
