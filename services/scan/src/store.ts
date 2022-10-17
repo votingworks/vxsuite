@@ -17,6 +17,7 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
+  HmpbPageInterpretation,
   InlineBallotImage,
   Iso8601Timestamp,
   MarkAdjudication,
@@ -49,10 +50,14 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { loadImage } from 'canvas';
 import { toDataUrl, toImageData } from '@votingworks/image-utils';
-import { buildCastVoteRecord, cvrHasWriteIns, addBallotImagesToCvr } from './build_cast_vote_record';
+import {
+  buildCastVoteRecord,
+  cvrHasWriteIns,
+  addBallotImagesToCvr,
+} from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
-import { SheetOf } from './types';
+import { mapSheet, SheetOf } from './types';
 
 import { normalizeAndJoin } from './util/path';
 
@@ -81,25 +86,32 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 };
 
-
-async function loadImagePathShrinkBase64(path: string, factor: number): Promise<string> {
+async function loadImagePathShrinkBase64(
+  path: string,
+  factor: number
+): Promise<string> {
   const image = await loadImage(path);
   const newImageData = toImageData(image, {
     maxWidth: image.width * factor,
     maxHeight: image.height * factor,
   });
   // strip the "data:image/jpeg;base64,"
-  return toDataUrl(newImageData, 'image/jpeg').slice(
-    23
-  );
-
+  return toDataUrl(newImageData, 'image/jpeg').slice(23);
 }
 
-function isHmpb(frontInterpretation: PageInterpretation, backInterpretation: PageInterpretation) {
-  return (frontInterpretation.type === 'InterpretedHmpbPage' ||
-    frontInterpretation.type === 'UninterpretedHmpbPage') &&
-    (backInterpretation.type === 'InterpretedHmpbPage' ||
-      backInterpretation.type === 'UninterpretedHmpbPage');
+function isHmpbPage(
+  interpretation: PageInterpretation
+): interpretation is HmpbPageInterpretation {
+  return (
+    interpretation.type === 'InterpretedHmpbPage' ||
+    interpretation.type === 'UninterpretedHmpbPage'
+  );
+}
+
+function isHmpbSheet(
+  interpretations: SheetOf<PageInterpretation>
+): interpretations is SheetOf<HmpbPageInterpretation> {
+  return isHmpbPage(interpretations[0]) && isHmpbPage(interpretations[1]);
 }
 
 /**
@@ -893,6 +905,10 @@ export class Store {
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJson
       );
+      const interpretations: SheetOf<PageInterpretation> = [
+        frontInterpretation,
+        backInterpretation,
+      ];
       const frontAdjudications = frontAdjudicationJson
         ? safeParseJson(frontAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
@@ -905,13 +921,6 @@ export class Store {
       const includeImages =
         isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
         !options.skipImages;
-      if (includeImages) {
-        if (
-          frontInterpretation.type === 'InterpretedHmpbPage' ||
-          frontInterpretation.type === 'UninterpretedHmpbPage'
-        ) {
-        }
-      }
 
       const cvr = buildCastVoteRecord(
         id,
@@ -926,33 +935,28 @@ export class Store {
         [
           {
             interpretation: frontInterpretation,
-            contestIds:
-              frontInterpretation.type === 'InterpretedHmpbPage' ||
-                frontInterpretation.type === 'UninterpretedHmpbPage'
-                ? this.getContestIdsForMetadata(frontInterpretation.metadata)
-                : undefined,
+            contestIds: isHmpbPage(frontInterpretation)
+              ? this.getContestIdsForMetadata(frontInterpretation.metadata)
+              : undefined,
             markAdjudications: frontAdjudications,
           },
           {
             interpretation: backInterpretation,
-            contestIds:
-              backInterpretation.type === 'InterpretedHmpbPage' ||
-                backInterpretation.type === 'UninterpretedHmpbPage'
-                ? this.getContestIdsForMetadata(backInterpretation.metadata)
-                : undefined,
+            contestIds: isHmpbPage(backInterpretation)
+              ? this.getContestIdsForMetadata(backInterpretation.metadata)
+              : undefined,
             markAdjudications: backAdjudications,
           },
         ],
         includeImages &&
-          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
-          (frontInterpretation.type === 'InterpretedHmpbPage' ||
-            frontInterpretation.type === 'UninterpretedHmpbPage') &&
-          (backInterpretation.type === 'InterpretedHmpbPage' ||
-            backInterpretation.type === 'UninterpretedHmpbPage')
-          ? ([
-            this.getBallotPageLayoutForMetadata(frontInterpretation.metadata),
-            this.getBallotPageLayoutForMetadata(backInterpretation.metadata),
-          ] as SheetOf<BallotPageLayout>)
+          isHmpbSheet(interpretations)
+          ? mapSheet(
+            interpretations,
+            (interpretation) =>
+              this.getBallotPageLayoutForMetadata(
+                interpretation.metadata
+              ) as BallotPageLayout
+          )
           : undefined
       );
 
@@ -962,23 +966,37 @@ export class Store {
         let cvrMaybeWithBallotImages = cvr;
 
         // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
-        if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && isHmpb(frontInterpretation, backInterpretation)) {
-
-          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(electionDefinition.election, cvr);
+        if (
+          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
+          isHmpbSheet([frontInterpretation, backInterpretation])
+        ) {
+          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(
+            electionDefinition.election,
+            cvr
+          );
           if (frontHasWriteIns) {
             const frontFilenames = this.getBallotFilenames(id, 'front');
             if (frontFilenames) {
-              frontImage.normalized = await loadImagePathShrinkBase64(frontFilenames.normalized, 0.5);
+              frontImage.normalized = await loadImagePathShrinkBase64(
+                frontFilenames.normalized,
+                0.5
+              );
             }
           }
 
           if (backHasWriteIns) {
             const backFilenames = this.getBallotFilenames(id, 'back');
             if (backFilenames) {
-              backImage.normalized = await loadImagePathShrinkBase64(backFilenames.normalized, 0.5);
+              backImage.normalized = await loadImagePathShrinkBase64(
+                backFilenames.normalized,
+                0.5
+              );
             }
 
-            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [frontImage, backImage]);
+            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [
+              frontImage,
+              backImage,
+            ]);
           }
         }
 

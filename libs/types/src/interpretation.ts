@@ -143,6 +143,12 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
     UnreadablePageSchema,
   ]);
 
+export type HmpbPageInterpretation =
+  | InterpretedHmpbPage
+  | UninterpretedHmpbPage;
+export const HmpbPageInterpretationSchema: z.ZodSchema<HmpbPageInterpretation> =
+  z.union([InterpretedHmpbPageSchema, UninterpretedHmpbPageSchema]);
+
 export interface PageInterpretationWithFiles {
   originalFilename: string;
   normalizedFilename: string;
