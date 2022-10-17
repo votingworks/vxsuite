@@ -32,8 +32,8 @@ export function ScanErrorScreen({
       // Invalid ballot interpretations
       case 'invalid_test_mode':
         return isTestMode
-          ? 'Live ballot detected. Scanner is in test mode.'
-          : 'Test ballot detected. Scanner is in live mode.';
+          ? 'The scanner is in test mode and a live ballot was detected.'
+          : 'The scanner is in live mode and a test ballot was detected.';
       case 'invalid_election_hash':
         return 'The ballot does not match the election this scanner is configured for.';
       case 'invalid_precinct':
@@ -61,7 +61,7 @@ export function ScanErrorScreen({
     }
   })();
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild isLiveMode={!isTestMode} infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
@@ -105,7 +105,7 @@ export function InvalidElectionHashPreview(): JSX.Element {
 export function InvalidTestModeBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
+      isTestMode
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
@@ -116,7 +116,7 @@ export function InvalidTestModeBallotPreview(): JSX.Element {
 export function InvalidLiveModeBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode
+      isTestMode={false}
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
