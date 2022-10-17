@@ -17,6 +17,7 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
+  HmpbPageInterpretation,
   InlineBallotImage,
   Iso8601Timestamp,
   MarkAdjudication,
@@ -56,7 +57,7 @@ import {
 } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
-import { SheetOf } from './types';
+import { mapSheet, SheetOf } from './types';
 
 import { normalizeAndJoin } from './util/path';
 
@@ -98,16 +99,19 @@ async function loadImagePathShrinkBase64(
   return toDataUrl(newImageData, 'image/jpeg').slice(23);
 }
 
-function isHmpb(
-  frontInterpretation: PageInterpretation,
-  backInterpretation: PageInterpretation
-) {
+function isHmpbPage(
+  interpretation: PageInterpretation
+): interpretation is HmpbPageInterpretation {
   return (
-    (frontInterpretation.type === 'InterpretedHmpbPage' ||
-      frontInterpretation.type === 'UninterpretedHmpbPage') &&
-    (backInterpretation.type === 'InterpretedHmpbPage' ||
-      backInterpretation.type === 'UninterpretedHmpbPage')
+    interpretation.type === 'InterpretedHmpbPage' ||
+    interpretation.type === 'UninterpretedHmpbPage'
   );
+}
+
+function isHmpbSheet(
+  interpretations: SheetOf<PageInterpretation>
+): interpretations is SheetOf<HmpbPageInterpretation> {
+  return isHmpbPage(interpretations[0]) && isHmpbPage(interpretations[1]);
 }
 
 /**
@@ -898,6 +902,10 @@ export class Store {
       const backInterpretation: PageInterpretation = JSON.parse(
         backInterpretationJson
       );
+      const interpretations: SheetOf<PageInterpretation> = [
+        frontInterpretation,
+        backInterpretation,
+      ];
       const frontAdjudications = frontAdjudicationJson
         ? safeParseJson(frontAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
@@ -907,14 +915,6 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION)) {
-        if (
-          frontInterpretation.type === 'InterpretedHmpbPage' ||
-          frontInterpretation.type === 'UninterpretedHmpbPage'
-        ) {
-        }
-      }
-
       const cvr = buildCastVoteRecord(
         id,
         batchId,
@@ -928,32 +928,28 @@ export class Store {
         [
           {
             interpretation: frontInterpretation,
-            contestIds:
-              frontInterpretation.type === 'InterpretedHmpbPage' ||
-              frontInterpretation.type === 'UninterpretedHmpbPage'
-                ? this.getContestIdsForMetadata(frontInterpretation.metadata)
-                : undefined,
+            contestIds: isHmpbPage(frontInterpretation)
+              ? this.getContestIdsForMetadata(frontInterpretation.metadata)
+              : undefined,
             markAdjudications: frontAdjudications,
           },
           {
             interpretation: backInterpretation,
-            contestIds:
-              backInterpretation.type === 'InterpretedHmpbPage' ||
-              backInterpretation.type === 'UninterpretedHmpbPage'
-                ? this.getContestIdsForMetadata(backInterpretation.metadata)
-                : undefined,
+            contestIds: isHmpbPage(backInterpretation)
+              ? this.getContestIdsForMetadata(backInterpretation.metadata)
+              : undefined,
             markAdjudications: backAdjudications,
           },
         ],
         isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
-          (frontInterpretation.type === 'InterpretedHmpbPage' ||
-            frontInterpretation.type === 'UninterpretedHmpbPage') &&
-          (backInterpretation.type === 'InterpretedHmpbPage' ||
-            backInterpretation.type === 'UninterpretedHmpbPage')
-          ? ([
-              this.getBallotPageLayoutForMetadata(frontInterpretation.metadata),
-              this.getBallotPageLayoutForMetadata(backInterpretation.metadata),
-            ] as SheetOf<BallotPageLayout>)
+          isHmpbSheet(interpretations)
+          ? mapSheet(
+              interpretations,
+              (interpretation) =>
+                this.getBallotPageLayoutForMetadata(
+                  interpretation.metadata
+                ) as BallotPageLayout
+            )
           : undefined
       );
 
@@ -963,7 +959,7 @@ export class Store {
         // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
         if (
           isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
-          isHmpb(frontInterpretation, backInterpretation)
+          isHmpbSheet([frontInterpretation, backInterpretation])
         ) {
           const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(
             electionDefinition.election,
