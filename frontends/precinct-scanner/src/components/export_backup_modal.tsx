@@ -154,13 +154,13 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <Button onPress={onClose}>Cancel</Button>
             <UsbControllerButton
               small={false}
               primary
               usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
               usbDriveEject={() => usbDrive.eject(userRole)}
             />
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />
@@ -202,7 +202,6 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button onPress={onClose}>Cancel</Button>
               {!window.kiosk && (
                 <Button
                   data-testid="manual-export"
@@ -211,6 +210,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
                   Save
                 </Button>
               )}{' '}
+              <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
         />

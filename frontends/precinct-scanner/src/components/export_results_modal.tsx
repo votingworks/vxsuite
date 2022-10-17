@@ -113,7 +113,6 @@ export function ExportResultsModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <Button onPress={onClose}>Cancel</Button>
             <UsbControllerButton
               small={false}
               primary
@@ -122,6 +121,7 @@ export function ExportResultsModal({
               }
               usbDriveEject={() => usbDrive.eject(userRole)}
             />
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />
@@ -162,7 +162,6 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button onPress={onClose}>Cancel</Button>
               {!window.kiosk && (
                 <Button
                   data-testid="manual-export"
@@ -171,6 +170,7 @@ export function ExportResultsModal({
                   Save
                 </Button>
               )}{' '}
+              <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
         />
