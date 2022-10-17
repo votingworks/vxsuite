@@ -4,13 +4,13 @@ exports[`prints correct ballot with votes 1`] = `
 <div>
   <div
     aria-hidden="true"
-    class="sc-iCfLBT epQCjn"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
-      class="sc-pVTma YfIWc"
+      class="sc-iCfLBT cSkaik"
     >
       <div
-        class="sc-jRQAMF boeJiV ballot-header-content"
+        class="sc-hKwCoD gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -29,10 +29,10 @@ exports[`prints correct ballot with votes 1`] = `
         </p>
       </div>
       <div
-        class="sc-jrQzUz cMnZjX"
+        class="sc-furvIG cfpKDm"
       >
         <div
-          class="sc-gKckTs drvJRF"
+          class="sc-eCImvq gScWpb"
         >
           <svg
             height="128"
@@ -73,7 +73,7 @@ exports[`prints correct ballot with votes 1`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -83,25 +83,25 @@ exports[`prints correct ballot with votes 1`] = `
       </div>
     </div>
     <div
-      class="sc-kDThTU eoGbCP"
+      class="sc-pVTma NVkwn"
     >
       <div
-        class="sc-iqsfdx fILsYF"
+        class="sc-jrQzUz jgYCbw"
       >
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               President and Vice-President
             </h3>
             <p
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               <span
-                class="sc-dkPtyc dwpylT"
+                class="sc-bdvvaa hsgYyE"
               >
                 Joseph Barchi and Joseph Hallaren
               </span>
@@ -111,35 +111,35 @@ exports[`prints correct ballot with votes 1`] = `
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Representative, District 6
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Lieutenant Governor
             </h3>
             <p
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               <span
-                class="sc-dkPtyc dwpylT"
+                class="sc-bdvvaa hsgYyE"
               >
                 Chris Norberg
               </span>
@@ -149,80 +149,80 @@ exports[`prints correct ballot with votes 1`] = `
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Senator, District 31
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Assembly Member, District 54
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Registrar of Wills
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
             </h3>
             <p
-              class="sc-dkPtyc gDDfCv"
+              class="sc-bdvvaa kdHchw"
             >
               No
                
@@ -231,16 +231,16 @@ exports[`prints correct ballot with votes 1`] = `
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question B: Separation of Powers
             </h3>
             <p
-              class="sc-dkPtyc gDDfCv"
+              class="sc-bdvvaa kdHchw"
             >
               Yes
                
@@ -249,32 +249,32 @@ exports[`prints correct ballot with votes 1`] = `
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
@@ -290,13 +290,13 @@ exports[`prints correct ballot without votes 1`] = `
 <div>
   <div
     aria-hidden="true"
-    class="sc-iCfLBT epQCjn"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
-      class="sc-pVTma YfIWc"
+      class="sc-iCfLBT cSkaik"
     >
       <div
-        class="sc-jRQAMF boeJiV ballot-header-content"
+        class="sc-hKwCoD gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -315,10 +315,10 @@ exports[`prints correct ballot without votes 1`] = `
         </p>
       </div>
       <div
-        class="sc-jrQzUz cMnZjX"
+        class="sc-furvIG cfpKDm"
       >
         <div
-          class="sc-gKckTs drvJRF"
+          class="sc-eCImvq gScWpb"
         >
           <svg
             height="128"
@@ -359,7 +359,7 @@ exports[`prints correct ballot without votes 1`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -369,182 +369,182 @@ exports[`prints correct ballot without votes 1`] = `
       </div>
     </div>
     <div
-      class="sc-kDThTU eoGbCP"
+      class="sc-pVTma NVkwn"
     >
       <div
-        class="sc-iqsfdx fILsYF"
+        class="sc-jrQzUz jgYCbw"
       >
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               President and Vice-President
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Representative, District 6
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Lieutenant Governor
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Senator, District 31
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Assembly Member, District 54
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Registrar of Wills
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question B: Separation of Powers
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
@@ -560,10 +560,10 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
 <div>
   <div
     aria-hidden="true"
-    class="sc-iCfLBT epQCjn"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
-      class="sc-pVTma YfIWc"
+      class="sc-iCfLBT cSkaik"
     >
       <div
         class="seal"
@@ -734,7 +734,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
         </svg>
       </div>
       <div
-        class="sc-jRQAMF boeJiV ballot-header-content"
+        class="sc-hKwCoD gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -753,10 +753,10 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
         </p>
       </div>
       <div
-        class="sc-jrQzUz cMnZjX"
+        class="sc-furvIG cfpKDm"
       >
         <div
-          class="sc-gKckTs drvJRF"
+          class="sc-eCImvq gScWpb"
         >
           <svg
             height="128"
@@ -797,7 +797,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -807,182 +807,182 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
       </div>
     </div>
     <div
-      class="sc-kDThTU eoGbCP"
+      class="sc-pVTma NVkwn"
     >
       <div
-        class="sc-iqsfdx fILsYF"
+        class="sc-jrQzUz jgYCbw"
       >
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               President and Vice-President
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Representative, District 6
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Lieutenant Governor
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Senator, District 31
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Assembly Member, District 54
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Registrar of Wills
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question B: Separation of Powers
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
@@ -998,13 +998,13 @@ exports[`prints correct ballot without votes and no seal 1`] = `
 <div>
   <div
     aria-hidden="true"
-    class="sc-iCfLBT epQCjn"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
-      class="sc-pVTma YfIWc"
+      class="sc-iCfLBT cSkaik"
     >
       <div
-        class="sc-jRQAMF boeJiV ballot-header-content"
+        class="sc-hKwCoD gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -1023,10 +1023,10 @@ exports[`prints correct ballot without votes and no seal 1`] = `
         </p>
       </div>
       <div
-        class="sc-jrQzUz cMnZjX"
+        class="sc-furvIG cfpKDm"
       >
         <div
-          class="sc-gKckTs drvJRF"
+          class="sc-eCImvq gScWpb"
         >
           <svg
             height="128"
@@ -1067,7 +1067,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -1077,182 +1077,182 @@ exports[`prints correct ballot without votes and no seal 1`] = `
       </div>
     </div>
     <div
-      class="sc-kDThTU eoGbCP"
+      class="sc-pVTma NVkwn"
     >
       <div
-        class="sc-iqsfdx fILsYF"
+        class="sc-jrQzUz jgYCbw"
       >
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               President and Vice-President
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Representative, District 6
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Lieutenant Governor
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Senator, District 31
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Assembly Member, District 54
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Registrar of Wills
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Question B: Separation of Powers
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-crHlIS esgyjU"
+          class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-jRQAMF sc-egiSv crSiLx kigmeq"
+            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              class="sc-dkPtyc jqOGip"
+              class="sc-bdvvaa kCcYMa"
             >
               [no selection]
             </p>

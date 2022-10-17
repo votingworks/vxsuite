@@ -122,14 +122,14 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 
 <div>
   <main
-    class="sc-bYoCmx dkdPvV"
+    class="sc-ezbkgU jVInCL"
   >
     <div
       class="c0"
       id="contest-header"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-hKwCoD gmiWky"
         id="audiofocus"
       >
         <h1
@@ -165,10 +165,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           class="c4"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
-              class="sc-dkPtyc dknpMx"
+              class="sc-bdvvaa NLRzK"
             >
               <span>
                 Institute a garbage collection program that collects garbage on weekdays across the county.
@@ -193,11 +193,11 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
               aria-label=" Yes on Prop 1"
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               Yes
             </p>
@@ -211,11 +211,11 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
               aria-label=" No on Prop 1"
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               No
             </p>
@@ -397,14 +397,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 
 <div>
   <main
-    class="sc-bYoCmx dkdPvV"
+    class="sc-ezbkgU jVInCL"
   >
     <div
       class="c0"
       id="contest-header"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-hKwCoD gmiWky"
         id="audiofocus"
       >
         <h1
@@ -440,10 +440,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           class="c4"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
-              class="sc-dkPtyc dknpMx"
+              class="sc-bdvvaa NLRzK"
             >
               <span>
                 Institute a garbage collection program that collects garbage on weekdays across the county.
@@ -468,11 +468,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
               aria-label="Selected, Yes on Prop 1"
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               Yes
             </p>
@@ -486,11 +486,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <div
-            class="sc-jRQAMF boeJiV"
+            class="sc-hKwCoD gmiWky"
           >
             <p
               aria-label=" No on Prop 1"
-              class="sc-dkPtyc iuZdud"
+              class="sc-bdvvaa eSpfPW"
             >
               No
             </p>

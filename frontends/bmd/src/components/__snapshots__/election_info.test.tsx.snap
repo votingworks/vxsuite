@@ -211,7 +211,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
         </svg>
       </div>
       <div
-        class="sc-jRQAMF crSiLx"
+        class="sc-hKwCoD eDCLhO"
       >
         <h5
           aria-label=" General Election."
@@ -219,28 +219,28 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
            General Election
         </h5>
         <p
-          class="sc-dkPtyc dVpXhv"
+          class="sc-bdvvaa iybVtA"
         >
           November 3, 2020
           <br />
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="sc-dkPtyc eoUyDE"
+          class="sc-bdvvaa kKHwYn"
         >
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             Center Springfield
           </span>
@@ -463,7 +463,7 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
         </svg>
       </div>
       <div
-        class="sc-jRQAMF crSiLx"
+        class="sc-hKwCoD eDCLhO"
       >
         <h5
           aria-label=" General Election."
@@ -471,28 +471,28 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
            General Election
         </h5>
         <p
-          class="sc-dkPtyc dVpXhv"
+          class="sc-bdvvaa iybVtA"
         >
           November 3, 2020
           <br />
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="sc-dkPtyc eoUyDE"
+          class="sc-bdvvaa kKHwYn"
         >
           <span
-            class="sc-hKwCoD kKHUyA"
+            class="sc-gsDJrp fUIxJs"
           >
             Center Springfield
           </span>
@@ -692,7 +692,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       </svg>
     </div>
     <div
-      class="sc-jRQAMF fJXuaR"
+      class="sc-hKwCoD dOmxmu"
     >
       <h1
         aria-label=" General Election."
@@ -707,7 +707,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         State of Hamilton
       </p>
       <p
-        class="sc-dkPtyc dwpylT"
+        class="sc-bdvvaa hsgYyE"
       >
         Center Springfield
       </p>
@@ -904,7 +904,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       </svg>
     </div>
     <div
-      class="sc-jRQAMF fJXuaR"
+      class="sc-hKwCoD dOmxmu"
     >
       <h1
         aria-label=" General Election."
@@ -919,7 +919,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
         State of Hamilton
       </p>
       <p
-        class="sc-dkPtyc dwpylT"
+        class="sc-bdvvaa hsgYyE"
       >
         Center Springfield
       </p>

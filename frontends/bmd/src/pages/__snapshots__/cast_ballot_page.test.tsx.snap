@@ -38,13 +38,13 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-lbhJmS kAftiU"
+  class="sc-gSQGeZ jClVnD"
 >
   <main
-    class="sc-bYoCmx bRQcIB"
+    class="sc-ezbkgU jjwGyL"
   >
     <div
-      class="sc-jRQAMF bqXaZe"
+      class="sc-hKwCoD NKPqV"
       id="audiofocus"
     >
       <h1
@@ -93,7 +93,7 @@ exports[`renders CastBallotPage 1`] = `
       class="c2"
     >
       <button
-        class="sc-ksdxAp gfVRPE"
+        class="sc-egiSv dHUDgX"
         type="button"
       >
         Done

@@ -333,7 +333,7 @@ test('election manager must set precinct', async () => {
 
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
-  screen.getByText('Center Springfield');
+  screen.getByText('Center Springfield,');
 
   // Poll Worker card can be used to open polls now
   fetchMock.post('/precinct-scanner/export', {});
@@ -398,9 +398,9 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
-  await screen.findByText('All Precincts');
-  await screen.findByText(/Franklin County/);
-  await screen.findByText(/State of Hamilton/);
+  await screen.findByText('All Precincts,');
+  await screen.findByText('Franklin County,');
+  await screen.findByText('State of Hamilton');
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
@@ -443,7 +443,7 @@ test('election manager and poll worker configuration', async () => {
 
   // Verify polls were closed and the right precinct was set
   await screen.findByText('Polls Closed');
-  await screen.findByText('Center Springfield');
+  await screen.findByText('Center Springfield,');
 
   // Calibrate scanner with Election Manager card
   fetchMock.post('/precinct-scanner/scanner/calibrate', {
