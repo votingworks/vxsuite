@@ -947,9 +947,10 @@ export class Store {
           : undefined
       );
 
+      // TODO: We should be waiting for the writeStream to drain before
+      // writing more data to it
       if (cvr) {
-        writeStream.write(JSON.stringify(cvr));
-        writeStream.write('\n');
+        writeStream.write(`${JSON.stringify(cvr)}\n`);
       }
     }
 

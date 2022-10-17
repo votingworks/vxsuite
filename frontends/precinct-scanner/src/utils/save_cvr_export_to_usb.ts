@@ -36,36 +36,43 @@ export async function saveCvrExportToUsb({
     new Date()
   );
   let result: Result<void, DownloadError>;
-  if (window.kiosk && !openFilePickerDialog) {
-    const usbPath = await usbstick.getDevicePath();
-    if (!usbPath) {
-      throw new Error('could not save file; path to usb drive missing');
+  if (window.kiosk) {
+    if (!openFilePickerDialog) {
+      const usbPath = await usbstick.getDevicePath();
+      if (!usbPath) {
+        throw new Error('could not save file; path to usb drive missing');
+      }
+      const electionFolderName = generateElectionBasedSubfolderName(
+        electionDefinition.election,
+        electionDefinition.electionHash
+      );
+      const pathToFolder = join(
+        usbPath,
+        SCANNER_RESULTS_FOLDER,
+        electionFolderName
+      );
+      result = await download('/precinct-scanner/export', {
+        directory: pathToFolder,
+        filename: cvrFilename,
+        fetchOptions: {
+          method: 'POST',
+        },
+      });
+    } else {
+      result = await download('/precinct-scanner/export', {
+        filename: cvrFilename,
+        fetchOptions: {
+          method: 'POST',
+        },
+      });
     }
-    const electionFolderName = generateElectionBasedSubfolderName(
-      electionDefinition.election,
-      electionDefinition.electionHash
-    );
-    const pathToFolder = join(
-      usbPath,
-      SCANNER_RESULTS_FOLDER,
-      electionFolderName
-    );
-    result = await download('/precinct-scanner/export', {
-      directory: pathToFolder,
-      filename: cvrFilename,
-      fetchOptions: {
-        method: 'POST',
-      },
-    });
     await usbstick.doSync();
   } else {
-    result = await download('/precinct-scanner/export', {
-      filename: cvrFilename,
-      fetchOptions: {
-        method: 'POST',
-      },
-    });
+    // Downloading CVR files outside of kiosk-browser is not supported after
+    // https://github.com/votingworks/vxsuite/pull/2681. TODO: Support it
+    return;
   }
+
   if (!result.isOk()) {
     const error = result.err();
     let errorMessage = '';

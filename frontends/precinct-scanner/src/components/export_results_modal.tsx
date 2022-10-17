@@ -167,6 +167,7 @@ export function ExportResultsModal({
                 <Button
                   data-testid="manual-export"
                   onPress={() => exportResults(true)}
+                  disabled // Not currently supported
                 >
                   Save
                 </Button>

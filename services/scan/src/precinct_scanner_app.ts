@@ -20,6 +20,7 @@ import { readFile } from 'fs-extra';
 import makeDebug from 'debug';
 import multer from 'multer';
 import { z } from 'zod';
+import { PassThrough } from 'stream';
 import { backup } from './backup';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
@@ -459,7 +460,7 @@ export async function buildPrecinctScannerApp(
       const cvrFilename = generateFilenameForScanningResults(
         // TODO: Move machine config provider to shared utilities and access
         // actual machine config, with dev overrides, here instead
-        '0000',
+        'NO-ID',
         getBallotsCounted(store),
         store.getTestMode(),
         new Date()
@@ -468,7 +469,9 @@ export async function buildPrecinctScannerApp(
       response
         .header('Content-Type', 'text/plain; charset=utf-8')
         .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
-      store.exportCvrs(response, { skipImages });
+      const cvrStream = new PassThrough();
+      cvrStream.pipe(response);
+      store.exportCvrs(cvrStream, { skipImages });
       store.setCvrsAsBackedUp();
     }
   );
