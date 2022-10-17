@@ -60,10 +60,10 @@ declare namespace KioskBrowser {
   export type PrinterIppAttributes =
     | { state: 'unknown' } // We didn't get a response from the printer
     | {
-      state: 'idle' | 'processing' | 'stopped';
-      stateReasons: IppPrinterStateReason[];
-      markerInfos: IppMarkerInfo[];
-    };
+        state: 'idle' | 'processing' | 'stopped';
+        stateReasons: IppPrinterStateReason[];
+        markerInfos: IppMarkerInfo[];
+      };
 
   interface PrinterInfoBase {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
@@ -209,12 +209,6 @@ declare namespace KioskBrowser {
     mountUsbDrive(device: string): Promise<void>;
     unmountUsbDrive(device: string): Promise<void>;
     syncUsbDrive(mountPoint: string): Promise<void>;
-
-    /**
-     * Writes a file to a specified file path
-     */
-    writeFile(path: string): Promise<FileWriter>;
-    writeFile(path: string, content: Uint8Array | string): Promise<void>;
 
     /**
      * Creates a directory at the specified path.
