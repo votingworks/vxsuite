@@ -5,6 +5,7 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
+  restoreMocks: true,
   // This is here because jest finds `build/__mocks__`,
   // which we should probably make not be there by using smarter
   // tsconfig.json values.

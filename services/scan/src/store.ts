@@ -860,7 +860,7 @@ export class Store {
    */
   async exportCvrs(
     writeStream: Writable,
-    options: { skipImages?: boolean } = {}
+    options: { skipImages?: boolean; orderBySheetId?: boolean } = {}
   ): Promise<void> {
     const electionDefinition = this.getElectionDefinition();
 
@@ -884,6 +884,7 @@ export class Store {
         (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
         and sheets.deleted_at is null
         and batches.deleted_at is null
+      ${options.orderBySheetId ? 'order by sheets.id' : ''}
     `;
     for (const {
       id,
