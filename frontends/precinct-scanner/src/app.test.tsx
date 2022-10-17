@@ -1162,7 +1162,7 @@ test('replace ballot bag flow', async () => {
   // Insert a pollworker card to enter confirmation step
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting?');
+  await screen.findByText('Ballot Bag Replaced?');
 
   // Removing card at this point returns to initial screen
   card.removeCard();
@@ -1172,12 +1172,12 @@ test('replace ballot bag flow', async () => {
   // Can confirm with pollworker card
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting?');
-  userEvent.click(screen.getByText('Yes, Resume Voting'));
+  await screen.findByText('Ballot Bag Replaced?');
+  userEvent.click(screen.getByText('Yes, New Ballot Bag is Ready'));
 
   // Prompted to remove card
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting');
+  await screen.findByText('Remove card to resume voting.');
 
   // Removing card returns to voter screen
   card.removeCard();
@@ -1251,7 +1251,7 @@ test('uses storage for frontend state', async () => {
   );
   await screen.findByText('Ballot Bag Full');
   card.insertCard(pollWorkerCard);
-  userEvent.click(await screen.findByText('Yes, Resume Voting'));
+  userEvent.click(await screen.findByText('Yes, New Ballot Bag is Ready'));
   card.removeCard();
   await advanceTimersAndPromises(1);
   expect(await storage.get(stateStorageKey)).toMatchObject({
