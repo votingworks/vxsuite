@@ -49,7 +49,11 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { loadImage } from 'canvas';
 import { toDataUrl, toImageData } from '@votingworks/image-utils';
-import { buildCastVoteRecord, cvrHasWriteIns, addBallotImagesToCvr } from './build_cast_vote_record';
+import {
+  buildCastVoteRecord,
+  cvrHasWriteIns,
+  addBallotImagesToCvr,
+} from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
@@ -81,25 +85,29 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 };
 
-
-async function loadImagePathShrinkBase64(path: string, factor: number): Promise<string> {
+async function loadImagePathShrinkBase64(
+  path: string,
+  factor: number
+): Promise<string> {
   const image = await loadImage(path);
   const newImageData = toImageData(image, {
     maxWidth: image.width * factor,
     maxHeight: image.height * factor,
   });
   // strip the "data:image/jpeg;base64,"
-  return toDataUrl(newImageData, 'image/jpeg').slice(
-    23
-  );
-
+  return toDataUrl(newImageData, 'image/jpeg').slice(23);
 }
 
-function isHmpb(frontInterpretation: PageInterpretation, backInterpretation: PageInterpretation) {
-  return (frontInterpretation.type === 'InterpretedHmpbPage' ||
-    frontInterpretation.type === 'UninterpretedHmpbPage') &&
+function isHmpb(
+  frontInterpretation: PageInterpretation,
+  backInterpretation: PageInterpretation
+) {
+  return (
+    (frontInterpretation.type === 'InterpretedHmpbPage' ||
+      frontInterpretation.type === 'UninterpretedHmpbPage') &&
     (backInterpretation.type === 'InterpretedHmpbPage' ||
-      backInterpretation.type === 'UninterpretedHmpbPage');
+      backInterpretation.type === 'UninterpretedHmpbPage')
+  );
 }
 
 /**
@@ -107,7 +115,7 @@ function isHmpb(frontInterpretation: PageInterpretation, backInterpretation: Pag
  * interpreted by reading the sheets.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) { }
+  private constructor(private readonly client: DbClient) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -515,12 +523,12 @@ export class Store {
     try {
       const frontFinishedAdjudicationAt =
         front.interpretation.type === 'InterpretedHmpbPage' &&
-          !front.interpretation.adjudicationInfo.requiresAdjudication
+        !front.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
       const backFinishedAdjudicationAt =
         back.interpretation.type === 'InterpretedHmpbPage' &&
-          !back.interpretation.adjudicationInfo.requiresAdjudication
+        !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
       this.client.run(
@@ -637,12 +645,12 @@ export class Store {
       `
     ) as
       | {
-        id: string;
-        frontInterpretationJson: string;
-        backInterpretationJson: string;
-        frontFinishedAdjudicationAt: string | null;
-        backFinishedAdjudicationAt: string | null;
-      }
+          id: string;
+          frontInterpretationJson: string;
+          backInterpretationJson: string;
+          frontFinishedAdjudicationAt: string | null;
+          backFinishedAdjudicationAt: string | null;
+        }
       | undefined;
 
     // TODO: these URLs and others in this file probably don't belong
@@ -913,16 +921,16 @@ export class Store {
         batchLabel || '',
         (frontInterpretation.type === 'InterpretedBmdPage' &&
           frontInterpretation.ballotId) ||
-        (backInterpretation.type === 'InterpretedBmdPage' &&
-          backInterpretation.ballotId) ||
-        unsafeParse(BallotIdSchema, id),
+          (backInterpretation.type === 'InterpretedBmdPage' &&
+            backInterpretation.ballotId) ||
+          unsafeParse(BallotIdSchema, id),
         electionDefinition.election,
         [
           {
             interpretation: frontInterpretation,
             contestIds:
               frontInterpretation.type === 'InterpretedHmpbPage' ||
-                frontInterpretation.type === 'UninterpretedHmpbPage'
+              frontInterpretation.type === 'UninterpretedHmpbPage'
                 ? this.getContestIdsForMetadata(frontInterpretation.metadata)
                 : undefined,
             markAdjudications: frontAdjudications,
@@ -931,7 +939,7 @@ export class Store {
             interpretation: backInterpretation,
             contestIds:
               backInterpretation.type === 'InterpretedHmpbPage' ||
-                backInterpretation.type === 'UninterpretedHmpbPage'
+              backInterpretation.type === 'UninterpretedHmpbPage'
                 ? this.getContestIdsForMetadata(backInterpretation.metadata)
                 : undefined,
             markAdjudications: backAdjudications,
@@ -943,9 +951,9 @@ export class Store {
           (backInterpretation.type === 'InterpretedHmpbPage' ||
             backInterpretation.type === 'UninterpretedHmpbPage')
           ? ([
-            this.getBallotPageLayoutForMetadata(frontInterpretation.metadata),
-            this.getBallotPageLayoutForMetadata(backInterpretation.metadata),
-          ] as SheetOf<BallotPageLayout>)
+              this.getBallotPageLayoutForMetadata(frontInterpretation.metadata),
+              this.getBallotPageLayoutForMetadata(backInterpretation.metadata),
+            ] as SheetOf<BallotPageLayout>)
           : undefined
       );
 
@@ -953,23 +961,37 @@ export class Store {
         let cvrMaybeWithBallotImages = cvr;
 
         // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
-        if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && isHmpb(frontInterpretation, backInterpretation)) {
-
-          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(electionDefinition.election, cvr);
+        if (
+          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
+          isHmpb(frontInterpretation, backInterpretation)
+        ) {
+          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(
+            electionDefinition.election,
+            cvr
+          );
           if (frontHasWriteIns) {
             const frontFilenames = this.getBallotFilenames(id, 'front');
             if (frontFilenames) {
-              frontImage.normalized = await loadImagePathShrinkBase64(frontFilenames.normalized, 0.5);
+              frontImage.normalized = await loadImagePathShrinkBase64(
+                frontFilenames.normalized,
+                0.5
+              );
             }
           }
 
           if (backHasWriteIns) {
             const backFilenames = this.getBallotFilenames(id, 'back');
             if (backFilenames) {
-              backImage.normalized = await loadImagePathShrinkBase64(backFilenames.normalized, 0.5);
+              backImage.normalized = await loadImagePathShrinkBase64(
+                backFilenames.normalized,
+                0.5
+              );
             }
 
-            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [frontImage, backImage]);
+            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [
+              frontImage,
+              backImage,
+            ]);
           }
         }
 
