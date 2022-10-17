@@ -40,7 +40,7 @@ export function ScanErrorScreen({
         return 'The ballot does not match the precinct this scanner is configured for.';
       case 'unreadable':
       case 'unknown':
-        return 'There was a problem reading this ballot. Please scan again.';
+        return 'There was a problem scanning your ballot. Please scan it again.';
       // Precinct scanner errors
       case 'scanning_failed':
       case 'both_sides_have_paper':

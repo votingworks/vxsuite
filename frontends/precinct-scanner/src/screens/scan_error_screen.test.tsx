@@ -64,6 +64,6 @@ test('render correct unreadable ballot screen', async () => {
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
-    'There was a problem reading this ballot. Please scan again.'
+    'There was a problem scanning your ballot. Please scan it again.'
   );
 });
