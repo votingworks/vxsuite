@@ -36,31 +36,12 @@ export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
 /**
  * A cast vote record file's metadata.
  */
-export interface CastVoteRecordFileMetadata {
+export interface CastVoteRecordFileRecord {
   readonly id: Id;
   readonly electionId: Id;
   readonly filename: string;
   readonly sha256Hash: string;
   readonly createdAt: Iso8601Timestamp;
-}
-
-/**
- * Schema for {@link CastVoteRecordFileMetadata}.
- */
-export const CastVoteRecordFileMetadataSchema: z.ZodSchema<CastVoteRecordFileMetadata> =
-  z.object({
-    id: IdSchema,
-    electionId: IdSchema,
-    filename: z.string().nonempty(),
-    sha256Hash: z.string().nonempty(),
-    createdAt: Iso8601TimestampSchema,
-  });
-
-/**
- * A cast vote record file and associated DB metadata.
- */
-export interface CastVoteRecordFileRecord extends CastVoteRecordFileMetadata {
-  readonly data: string;
 }
 
 /**
@@ -71,7 +52,6 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     id: IdSchema,
     electionId: IdSchema,
     filename: z.string().nonempty(),
-    data: z.string(),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
   });

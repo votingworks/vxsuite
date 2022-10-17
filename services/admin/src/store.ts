@@ -16,11 +16,13 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
-import { sha256 } from 'js-sha256';
-import { join } from 'path';
+import * as fs from 'fs';
+import { basename, join } from 'path';
+import * as readline from 'readline';
 import { v4 as uuid } from 'uuid';
 import { Bindable, DbClient } from './db_client';
 import { getWriteInsFromCastVoteRecord } from './util/cvrs';
+import { sha256File } from './util/sha256_file';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -194,33 +196,35 @@ export class Store {
    * Call with `analyzeOnly` set to `true` to only analyze the file and not add
    * it to the database.
    */
-  addCastVoteRecordFile({
+  async addCastVoteRecordFile({
     electionId,
-    filename,
-    cvrFile,
+    filePath,
+    originalFilename,
     analyzeOnly,
   }: {
     electionId: Id;
-    filename: string;
-    cvrFile: string;
+    filePath: string;
+    originalFilename?: string;
     analyzeOnly?: boolean;
-  }): Result<
-    {
-      id: Id;
-      wasExistingFile: boolean;
-      newlyAdded: number;
-      alreadyPresent: number;
-    },
-    AddCastVoteRecordError
+  }): Promise<
+    Result<
+      {
+        id: Id;
+        wasExistingFile: boolean;
+        newlyAdded: number;
+        alreadyPresent: number;
+      },
+      AddCastVoteRecordError
+    >
   > {
     this.client.run('begin transaction');
     let inTransaction = true;
+    const sha256Hash = await sha256File(filePath);
 
     try {
       let id = uuid();
       let newlyAdded = 0;
       let alreadyPresent = 0;
-      const sha256Hash = sha256(cvrFile);
 
       const existing = this.client.one(
         `
@@ -248,24 +252,24 @@ export class Store {
       } else {
         this.client.run(
           `
-      insert into cvr_files (
-        id,
-        election_id,
-        filename,
-        data,
-        sha256_hash
-      ) values (
-        ?, ?, ?, ?, ?
-      )
-    `,
+            insert into cvr_files (
+              id,
+              election_id,
+              filename,
+              sha256_hash
+            ) values (
+              ?, ?, ?, ?
+            )
+          `,
           id,
           electionId,
-          filename,
-          cvrFile,
+          originalFilename ?? basename(filePath),
           sha256Hash
         );
 
-        for (const line of cvrFile.split('\n')) {
+        const lines = readline.createInterface(fs.createReadStream(filePath));
+
+        for await (const line of lines) {
           if (line.trim() === '') {
             continue;
           }
@@ -465,7 +469,7 @@ export class Store {
 
   getCastVoteRecordFileMetadata(
     cvrFileId: Id
-  ): Admin.CastVoteRecordFileMetadata | undefined {
+  ): Admin.CastVoteRecordFileRecord | undefined {
     const result = this.client.one(
       `
       select
@@ -506,7 +510,6 @@ export class Store {
         election_id as electionId,
         filename,
         sha256_hash as sha256Hash,
-        data,
         created_at as createdAt
       from cvr_files
       where id = ?
@@ -517,7 +520,6 @@ export class Store {
           electionId: Id;
           filename: string;
           sha256Hash: string;
-          data: string;
           createdAt: string;
         }
       | undefined;
@@ -531,7 +533,6 @@ export class Store {
       electionId: result.electionId,
       sha256Hash: result.sha256Hash,
       filename: result.filename,
-      data: result.data,
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
     };
   }
