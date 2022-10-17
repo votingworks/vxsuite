@@ -85,8 +85,8 @@ export function getWriteInOptionIdsForContestVote(
     const vote = votes[contest.id];
     return vote
       ? (vote as CandidateVote)
-          .filter(({ isWriteIn }) => isWriteIn)
-          .map(({ id }) => id)
+        .filter(({ isWriteIn }) => isWriteIn)
+        .map(({ id }) => id)
       : [];
   }
   if (contest.type === 'yesno') {
@@ -165,8 +165,7 @@ export function buildCastVoteRecordVotesEntries(
         }
       } else {
         throw new Error(
-          `multiple adjudications for contest=${option.contestId}, option=${
-            option.id
+          `multiple adjudications for contest=${option.contestId}, option=${option.id
           }: ${JSON.stringify(markAdjudicationsForThisOption)}`
         );
       }
@@ -225,7 +224,6 @@ function buildCastVoteRecordFromHmpbPage(
   [front, back]: SheetOf<
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
   >,
-  ballotImages?: SheetOf<InlineBallotImage>,
   ballotLayouts?: SheetOf<BallotPageLayout>
 ): CastVoteRecord {
   if (
@@ -239,7 +237,6 @@ function buildCastVoteRecordFromHmpbPage(
       batchLabel,
       election,
       [back, front],
-      ballotImages,
       ballotLayouts
     );
   }
@@ -266,17 +263,6 @@ function buildCastVoteRecordFromHmpbPage(
     ...frontVotesEntries,
     ...backVotesEntries,
   };
-  let hasWriteIns = false;
-  for (const contestId of Object.keys(votesEntries)) {
-    if (
-      votesEntries[contestId]?.find((vote: string) =>
-        vote.startsWith('write-in-')
-      )
-    ) {
-      hasWriteIns = true;
-      break;
-    }
-  }
 
   return {
     ...buildCastVoteRecordMetadataEntries(
@@ -290,9 +276,33 @@ function buildCastVoteRecordFromHmpbPage(
       back.interpretation.metadata.pageNumber,
     ],
     ...votesEntries,
-    _ballotImages: hasWriteIns ? ballotImages : undefined,
     _layouts: ballotLayouts,
   };
+}
+
+export function addBallotImagesToCvr(cvr: CastVoteRecord, ballotImages: SheetOf<InlineBallotImage>): CastVoteRecord {
+  return {
+    ...cvr,
+    _ballotImages: ballotImages,
+  }
+}
+
+
+// returns booleans for front and back --> for now can only do true,true or false,false
+export function cvrHasWriteIns(election: Election, cvr: CastVoteRecord): [boolean, boolean] {
+  const potentialWriteIns: string[] = election.contests.filter(c => c.type === 'candidate' && c.allowWriteIns).map(c => c.id);
+  for (const contestId of potentialWriteIns) {
+    const votes = cvr[contestId] as string[];
+    if (
+      votes?.find((vote: string) =>
+        vote.startsWith('write-in-')
+      )
+    ) {
+      return [true, true];
+    }
+  }
+
+  return [false, false];
 }
 
 export function buildCastVoteRecord(
@@ -302,7 +312,6 @@ export function buildCastVoteRecord(
   ballotId: BallotId,
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>,
-  ballotImages?: SheetOf<InlineBallotImage>,
   ballotLayouts?: SheetOf<BallotPageLayout>
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
@@ -327,7 +336,6 @@ export function buildCastVoteRecord(
       ballotId,
       election,
       [back, front],
-      ballotImages
     );
   }
 
@@ -354,7 +362,6 @@ export function buildCastVoteRecord(
       [front, back] as SheetOf<
         BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
       >,
-      ballotImages,
       ballotLayouts
     );
   }
