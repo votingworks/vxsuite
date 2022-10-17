@@ -49,7 +49,7 @@ import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { loadImage } from 'canvas';
 import { toDataUrl, toImageData } from '@votingworks/image-utils';
-import { buildCastVoteRecord } from './build_cast_vote_record';
+import { buildCastVoteRecord, cvrHasWriteIns, addBallotImagesToCvr } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
@@ -80,6 +80,27 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   marginal: 0.17,
   definite: 0.25,
 };
+
+
+async function loadImagePathShrinkBase64(path: string, factor: number): Promise<string> {
+  const image = await loadImage(path);
+  const newImageData = toImageData(image, {
+    maxWidth: image.width * factor,
+    maxHeight: image.height * factor,
+  });
+  // strip the "data:image/jpeg;base64,"
+  return toDataUrl(newImageData, 'image/jpeg').slice(
+    23
+  );
+
+}
+
+function isHmpb(frontInterpretation: PageInterpretation, backInterpretation: PageInterpretation) {
+  return (frontInterpretation.type === 'InterpretedHmpbPage' ||
+    frontInterpretation.type === 'UninterpretedHmpbPage') &&
+    (backInterpretation.type === 'InterpretedHmpbPage' ||
+      backInterpretation.type === 'UninterpretedHmpbPage');
+}
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
@@ -889,29 +910,6 @@ export class Store {
           frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'UninterpretedHmpbPage'
         ) {
-          const frontFilenames = this.getBallotFilenames(id, 'front');
-          if (frontFilenames?.normalized) {
-            const image = await loadImage(frontFilenames.normalized);
-            const newImageData = toImageData(image, {
-              maxWidth: image.width * 0.5,
-              maxHeight: image.height * 0.5,
-            });
-            frontImage.normalized = toDataUrl(newImageData, 'image/jpeg').slice(
-              23
-            );
-          }
-          const backFilenames = this.getBallotFilenames(id, 'back');
-          if (backFilenames?.normalized) {
-            const image = await loadImage(backFilenames.normalized);
-            const newImageData = toImageData(image, {
-              maxWidth: image.width * 0.5,
-              maxHeight: image.height * 0.5,
-            });
-            // strip the "data:image/jpeg;base64,"
-            backImage.normalized = toDataUrl(newImageData, 'image/jpeg').slice(
-              23
-            );
-          }
         }
       }
 
@@ -945,8 +943,8 @@ export class Store {
             markAdjudications: backAdjudications,
           },
         ],
-        [frontImage, backImage],
         includeImages &&
+          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
           (frontInterpretation.type === 'InterpretedHmpbPage' ||
             frontInterpretation.type === 'UninterpretedHmpbPage') &&
           (backInterpretation.type === 'InterpretedHmpbPage' ||
@@ -961,7 +959,31 @@ export class Store {
       // TODO: We should be waiting for the writeStream to drain before
       // writing more data to it
       if (cvr) {
-        writeStream.write(`${JSON.stringify(cvr)}\n`);
+        let cvrMaybeWithBallotImages = cvr;
+
+        // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
+        if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && isHmpb(frontInterpretation, backInterpretation)) {
+
+          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(electionDefinition.election, cvr);
+          if (frontHasWriteIns) {
+            const frontFilenames = this.getBallotFilenames(id, 'front');
+            if (frontFilenames) {
+              frontImage.normalized = await loadImagePathShrinkBase64(frontFilenames.normalized, 0.5);
+            }
+          }
+
+          if (backHasWriteIns) {
+            const backFilenames = this.getBallotFilenames(id, 'back');
+            if (backFilenames) {
+              backImage.normalized = await loadImagePathShrinkBase64(backFilenames.normalized, 0.5);
+            }
+
+            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [frontImage, backImage]);
+          }
+        }
+
+        writeStream.write(JSON.stringify(cvrMaybeWithBallotImages));
+        writeStream.write('\n');
       }
     }
 
