@@ -238,7 +238,6 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             },
           },
         ],
-        [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
       )
     ).toMatchInlineSnapshot(`
           Object {
@@ -343,7 +342,6 @@ test('generates a CVR from a completed HMPB page', () => {
           contestIds: ['initiative-65'],
         },
       ],
-      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -450,7 +448,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           contestIds: ['initiative-65'],
         },
       ],
-      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -565,7 +562,6 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           contestIds: ['initiative-65'],
         },
       ],
-      [{ normalized: 'front normalized' }, { normalized: 'back normalized' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -688,7 +684,6 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           contestIds: ['1', '2'],
         },
       ],
-      [{ normalized: 'front normalized' }, { normalized: 'back normalized' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -833,7 +828,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
           },
         },
       ],
-      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=3'
@@ -895,7 +889,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
           },
         },
       ],
-      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have the same ballot style, but got front=1 back=2'
@@ -1030,7 +1023,6 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           ],
         },
       ],
-      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
