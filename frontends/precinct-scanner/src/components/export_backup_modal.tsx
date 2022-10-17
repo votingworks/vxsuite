@@ -192,8 +192,9 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
                 Please insert a USB drive to save the backup.
                 <UsbImage
                   src="/assets/usb-drive.svg"
-                  onDoubleClick={() => exportBackup(true)}
                   alt="Insert USB Image"
+                  // hidden feature to save with file dialog by double-clicking
+                  onDoubleClick={() => exportBackup(true)}
                 />
               </p>
             </Prose>

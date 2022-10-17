@@ -84,7 +84,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
   }, [userRole, logger]);
   const defaultFilename = generateLogFilename('vx-logs', logFileType);
 
-  async function exportResults(openFileDialog: boolean) {
+  async function exportLogs(openFileDialog: boolean) {
     assert(window.kiosk);
     setCurrentState(ModalState.Saving);
 
@@ -236,7 +236,12 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage
+                  src="/assets/usb-drive.svg"
+                  alt="Insert USB Image"
+                  // hidden feature to save with file dialog by double-clicking
+                  onDoubleClick={() => exportLogs(true)}
+                />
                 Please insert a USB drive where you would like the save the log
                 file.
               </p>
@@ -248,7 +253,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
               {process.env.NODE_ENV === 'development' && (
                 <Button
                   data-testid="manual-export"
-                  onPress={() => exportResults(true)}
+                  onPress={() => exportLogs(true)}
                 >
                   Save
                 </Button>
@@ -282,10 +287,10 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportResults(false)}>
+              <Button primary onPress={() => exportLogs(false)}>
                 Save
               </Button>
-              <Button onPress={() => exportResults(true)}>Save As…</Button>
+              <Button onPress={() => exportLogs(true)}>Save As…</Button>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
             </React.Fragment>
           }

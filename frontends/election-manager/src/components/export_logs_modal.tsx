@@ -236,7 +236,12 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage
+                  src="/assets/usb-drive.svg"
+                  alt="Insert USB Image"
+                  // hidden feature to save with file dialog by double-clicking
+                  onDoubleClick={() => exportResults(true)}
+                />
                 Please insert a USB drive where you would like the save the log
                 file.
               </p>

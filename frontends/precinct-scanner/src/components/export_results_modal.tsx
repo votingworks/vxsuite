@@ -150,7 +150,12 @@ export function ExportResultsModal({
               <h1>No USB Drive Detected</h1>
               <p>
                 Please insert a USB drive in order to save CVRs.
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage
+                  src="/assets/usb-drive.svg"
+                  alt="Insert USB Image"
+                  // hidden feature to save with file dialog by double-clicking
+                  onDoubleClick={() => exportResults(true)}
+                />
               </p>
             </Prose>
           }
