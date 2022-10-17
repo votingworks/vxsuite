@@ -1017,3 +1017,87 @@ test('zero', () => {
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
 });
+
+test('exportCvrs called with orderBySheetId actually orders by sheet ID', async () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition);
+
+  const metadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+
+  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 2,
+      },
+      contests: [],
+    },
+  ]);
+
+  // Create CVRs, confirm that they are exported should work
+  const sheetIds = ['fake-uuid-zzz', 'fake-uuid-lll', 'fake-uuid-aaa'];
+  const batchId = store.addBatch();
+  for (const sheetId of sheetIds) {
+    const frontNormalizedFile = tmp.fileSync();
+    await writeFile(frontNormalizedFile.fd, 'front normalized');
+
+    const backNormalizedFile = tmp.fileSync();
+    await writeFile(backNormalizedFile.fd, 'back normalized');
+
+    store.addSheet(sheetId, batchId, [
+      {
+        originalFilename: `/tmp/front-page-${sheetId}.png`,
+        normalizedFilename: frontNormalizedFile.name,
+        interpretation: {
+          type: 'UninterpretedHmpbPage',
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+        },
+      },
+      {
+        originalFilename: `/tmp/back-page-${sheetId}.png`,
+        normalizedFilename: backNormalizedFile.name,
+        interpretation: {
+          type: 'UninterpretedHmpbPage',
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+        },
+      },
+    ]);
+    store.adjudicateSheet(sheetId, 'front', []);
+    store.adjudicateSheet(sheetId, 'back', []);
+  }
+
+  const stream = new streams.WritableStream();
+  await store.exportCvrs(stream, { orderBySheetId: true });
+  const exportedCvrs: CastVoteRecord[] = stream
+    .toString()
+    .split('\n')
+    .filter((line) => line) // filter out empty lines
+    .map((cvrString) => JSON.parse(cvrString));
+
+  const exportedCvrBallotIds = exportedCvrs.map((cvr) => cvr._ballotId);
+
+  expect(exportedCvrBallotIds).toStrictEqual([...sheetIds].sort());
+});
