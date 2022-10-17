@@ -783,13 +783,12 @@ export function convertElectionDefinitionHeader(
             i,
             question,
           ] of parsedConstitutionalQuestions.questions.entries()) {
+            const contestTitle = `Constitutional Amendment Question #${i + 1}`;
             contests.push({
               type: 'yesno',
               id: makeId(question.title),
-              section:
-                parsedConstitutionalQuestions.title ??
-                'Constitutional Amendments',
-              title: `Constitutional Amendment Question #${i + 1}`,
+              section: contestTitle,
+              title: contestTitle,
               description: question.title,
               districtId,
             });
