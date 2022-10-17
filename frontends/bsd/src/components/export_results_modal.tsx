@@ -233,6 +233,7 @@ export function ExportResultsModal({
                 <UsbImage
                   src="/assets/usb-drive.svg"
                   alt="Insert USB Image"
+                  // hidden feature to save with file dialog by double-clicking
                   onDoubleClick={() => exportResults(true)}
                 />
                 Please insert a USB drive in order to save CVRs.
