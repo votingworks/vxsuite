@@ -20,7 +20,6 @@ import { readFile } from 'fs-extra';
 import makeDebug from 'debug';
 import multer from 'multer';
 import { z } from 'zod';
-import { PassThrough } from 'stream';
 import { backup } from './backup';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
@@ -469,10 +468,8 @@ export async function buildPrecinctScannerApp(
       response
         .header('Content-Type', 'text/plain; charset=utf-8')
         .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
-      const cvrStream = new PassThrough();
-      cvrStream.pipe(response);
-      void store.exportCvrs(cvrStream, { skipImages, orderBySheetId: true });
-      cvrStream.on('end', () => {
+      void store.exportCvrs(response, { skipImages });
+      response.on('end', () => {
         store.setCvrsAsBackedUp();
       });
     }
