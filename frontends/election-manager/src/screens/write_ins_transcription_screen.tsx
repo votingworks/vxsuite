@@ -23,6 +23,8 @@ import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
 import { useWriteInImageQuery } from '../hooks/use_write_in_images_query';
 
+const IMAGE_SCALE = 0.5; // The images are downscaled by 50% in the export, this is to adjust for that.
+
 const BallotViews = styled.div`
   flex: 3;
   background: #455a64;
@@ -101,10 +103,10 @@ function WriteInImage({
       src={imageUrl}
       alt="write-in area"
       crop={{
-        x: bounds.x,
-        y: bounds.y - bounds.height * margin,
-        width: bounds.width,
-        height: bounds.height * (1 + 2 * margin),
+        x: bounds.x * IMAGE_SCALE,
+        y: IMAGE_SCALE * (bounds.y - bounds.height * margin),
+        width: bounds.width * IMAGE_SCALE,
+        height: bounds.height * IMAGE_SCALE * (1 + 2 * margin),
       }}
       style={{ width: width || '100%' }}
     />
