@@ -13,9 +13,9 @@ import {
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
+import * as fs from 'fs/promises';
 import multer from 'multer';
 import { ADMIN_WORKSPACE, PORT } from './globals';
-import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
 
 type NoParams = never;
@@ -26,10 +26,13 @@ const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
 /**
  * Builds an express application.
  */
-export function buildApp({ store }: { store: Store }): Application {
+export function buildApp({ workspace }: { workspace: Workspace }): Application {
+  const { store } = workspace;
   const app: Application = express();
   const upload = multer({
-    storage: multer.diskStorage({}),
+    storage: multer.diskStorage({
+      destination: workspace.uploadsPath,
+    }),
     limits: { fileSize: MAX_UPLOAD_FILE_SIZE },
   });
 
@@ -81,75 +84,81 @@ export function buildApp({ store }: { store: Store }): Application {
     '/admin/elections/:electionId/cvr-files',
     upload.fields([{ name: CVR_FILE_ATTACHMENT_NAME, maxCount: 1 }]),
     async (request, response) => {
-      const { electionId } = request.params;
       /* istanbul ignore next */
       const file = !Array.isArray(request.files)
         ? request.files?.[CVR_FILE_ATTACHMENT_NAME]?.[0]
         : undefined;
+      try {
+        const { electionId } = request.params;
 
-      if (!file) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'invalid-value',
-              message: `expected file field to be named "${CVR_FILE_ATTACHMENT_NAME}"`,
-            },
-          ],
+        if (!file) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: 'invalid-value',
+                message: `expected file field to be named "${CVR_FILE_ATTACHMENT_NAME}"`,
+              },
+            ],
+          });
+          return;
+        }
+
+        const parseQueryResult = safeParse(
+          Admin.PostCvrFileQueryParamsSchema,
+          request.query
+        );
+
+        if (parseQueryResult.isErr()) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: 'ValidationError',
+                message: parseQueryResult.err().message,
+              },
+            ],
+          });
+          return;
+        }
+
+        const { analyzeOnly } = parseQueryResult.ok();
+
+        const result = await store.addCastVoteRecordFile({
+          electionId,
+          filePath: file.path,
+          originalFilename: file.originalname,
+          analyzeOnly,
         });
-        return;
+
+        if (result.isErr()) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: result.err().kind,
+                message: JSON.stringify(result.err()),
+              },
+            ],
+          });
+          return;
+        }
+
+        const { id, wasExistingFile, newlyAdded, alreadyPresent } = result.ok();
+        const body: Admin.PostCvrFileResponse = {
+          status: 'ok',
+          id,
+          wasExistingFile,
+          newlyAdded,
+          alreadyPresent,
+        };
+
+        response.json(body);
+      } finally {
+        if (file) {
+          await fs.unlink(file.path);
+        }
       }
-
-      const parseQueryResult = safeParse(
-        Admin.PostCvrFileQueryParamsSchema,
-        request.query
-      );
-
-      if (parseQueryResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseQueryResult.err().message,
-            },
-          ],
-        });
-        return;
-      }
-
-      const { analyzeOnly } = parseQueryResult.ok();
-
-      const result = await store.addCastVoteRecordFile({
-        electionId,
-        filePath: file.path,
-        originalFilename: file.originalname,
-        analyzeOnly,
-      });
-
-      if (result.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: result.err().kind,
-              message: JSON.stringify(result.err()),
-            },
-          ],
-        });
-        return;
-      }
-
-      const { id, wasExistingFile, newlyAdded, alreadyPresent } = result.ok();
-      const body: Admin.PostCvrFileResponse = {
-        status: 'ok',
-        id,
-        wasExistingFile,
-        newlyAdded,
-        alreadyPresent,
-      };
-
-      response.json(body);
     }
   );
 
@@ -602,7 +611,7 @@ export async function start({
   }
 
   /* istanbul ignore next */
-  const resolvedApp = app ?? buildApp({ store: resolvedWorkspace.store });
+  const resolvedApp = app ?? buildApp({ workspace: resolvedWorkspace });
 
   resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {

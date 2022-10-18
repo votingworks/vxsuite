@@ -8,6 +8,7 @@ import { Store } from '../store';
 export interface Workspace {
   readonly path: string;
   readonly store: Store;
+  readonly uploadsPath: string;
 }
 
 /**
@@ -22,5 +23,6 @@ export function createWorkspace(root: string): Workspace {
   return {
     path: resolvedRoot,
     store: Store.fileStore(dbPath),
+    uploadsPath: join(resolvedRoot, 'uploads'),
   };
 }

@@ -20,7 +20,7 @@ let workspace: Workspace;
 beforeEach(() => {
   jest.restoreAllMocks();
   workspace = createWorkspace(dirSync().name);
-  app = buildApp({ store: workspace.store });
+  app = buildApp({ workspace });
 });
 
 test('starts with default logger and port', async () => {
