@@ -16,8 +16,8 @@ import { ALL_PRECINCTS_SELECTION, find, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
-import * as streams from 'memory-streams';
 import { join } from 'path';
+import { Writable } from 'stream';
 import { v4 as uuid } from 'uuid';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
@@ -550,16 +550,14 @@ export class Importer {
   /**
    * Export the current CVRs to a string.
    */
-  async doExport(): Promise<string> {
+  async doExport(writeStream: Writable): Promise<void> {
     const election = this.workspace.store.getElectionDefinition();
 
     if (!election) {
-      return '';
+      return;
     }
 
-    const outputStream = new streams.WritableStream();
-    await this.workspace.store.exportCvrs(outputStream);
-    return outputStream.toString();
+    await this.workspace.store.exportCvrs(writeStream);
   }
 
   /**

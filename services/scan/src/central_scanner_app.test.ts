@@ -365,8 +365,7 @@ test('POST /scan/scanBatch errors', async () => {
 });
 
 test('POST /scan/export', async () => {
-  importer.doExport.mockResolvedValue('');
-
+  importer.doExport.mockResolvedValue();
   await request(app)
     .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
