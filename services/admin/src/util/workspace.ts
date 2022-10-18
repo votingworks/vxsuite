@@ -1,4 +1,4 @@
-import { ensureDirSync } from 'fs-extra';
+import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { Store } from '../store';
 
@@ -9,6 +9,11 @@ export interface Workspace {
   readonly path: string;
   readonly store: Store;
   readonly uploadsPath: string;
+
+  /**
+   * Clears the uploads directory.
+   */
+  clearUploads(): void;
 }
 
 /**
@@ -17,12 +22,16 @@ export interface Workspace {
 export function createWorkspace(root: string): Workspace {
   const resolvedRoot = resolve(root);
   const dbPath = join(resolvedRoot, 'data.db');
+  const uploadsPath = join(resolvedRoot, 'uploads');
 
   ensureDirSync(resolvedRoot);
 
   return {
     path: resolvedRoot,
     store: Store.fileStore(dbPath),
-    uploadsPath: join(resolvedRoot, 'uploads'),
+    uploadsPath,
+    clearUploads() {
+      emptyDirSync(uploadsPath);
+    },
   };
 }

@@ -610,6 +610,9 @@ export async function start({
     resolvedWorkspace = createWorkspace(workspacePath);
   }
 
+  // clear any cached data
+  resolvedWorkspace.clearUploads();
+
   /* istanbul ignore next */
   const resolvedApp = app ?? buildApp({ workspace: resolvedWorkspace });
 
