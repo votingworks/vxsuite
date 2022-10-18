@@ -940,14 +940,20 @@ export class Store {
           {
             interpretation: frontInterpretation,
             contestIds: isHmpbPage(frontInterpretation)
-              ? this.getContestIdsForMetadata(frontInterpretation.metadata)
+              ? this.getContestIdsForMetadata(
+                  frontInterpretation.metadata,
+                  electionDefinition
+                )
               : undefined,
             markAdjudications: frontAdjudications,
           },
           {
             interpretation: backInterpretation,
             contestIds: isHmpbPage(backInterpretation)
-              ? this.getContestIdsForMetadata(backInterpretation.metadata)
+              ? this.getContestIdsForMetadata(
+                  backInterpretation.metadata,
+                  electionDefinition
+                )
               : undefined,
             markAdjudications: backAdjudications,
           },
@@ -957,7 +963,8 @@ export class Store {
               interpretations,
               (interpretation) =>
                 this.getBallotPageLayoutForMetadata(
-                  interpretation.metadata
+                  interpretation.metadata,
+                  electionDefinition
                 ) as BallotPageLayout
             )
           : undefined
@@ -1001,10 +1008,14 @@ export class Store {
           }
         }
 
-        // TODO: We should be waiting for the writeStream to drain before
-        // writing more data to it
-        writeStream.write(JSON.stringify(cvrMaybeWithBallotImages));
-        writeStream.write('\n');
+        const canWriteNext = writeStream.write(
+          `${JSON.stringify(cvrMaybeWithBallotImages)}\n`
+        );
+        if (!canWriteNext) {
+          await new Promise((resolve) => {
+            writeStream.once('drain', resolve);
+          });
+        }
       }
     }
 
@@ -1099,18 +1110,19 @@ export class Store {
   }
 
   getBallotPageLayoutForMetadata(
-    metadata: BallotPageMetadata
+    metadata: BallotPageMetadata,
+    electionDefinition?: ElectionDefinition
   ): BallotPageLayout | undefined {
-    return this.getBallotPageLayoutsForMetadata(metadata).find(
-      (layout) => layout.metadata.pageNumber === metadata.pageNumber
-    );
+    return this.getBallotPageLayoutsForMetadata(
+      metadata,
+      electionDefinition
+    ).find((layout) => layout.metadata.pageNumber === metadata.pageNumber);
   }
 
   getBallotPageLayoutsForMetadata(
-    metadata: BallotMetadata
+    metadata: BallotMetadata,
+    electionDefinition = this.getElectionDefinition()
   ): BallotPageLayout[] {
-    const electionDefinition = this.getElectionDefinition();
-
     // Handle timing mark ballots differently. We should have the layout from
     // the scan/interpret process, but since we don't right now we generate it
     // from what we expect the layout to be instead. This means there could be
@@ -1160,15 +1172,17 @@ export class Store {
   }
 
   getContestIdsForMetadata(
-    metadata: BallotPageMetadata
+    metadata: BallotPageMetadata,
+    electionDefinition = this.getElectionDefinition()
   ): Array<AnyContest['id']> {
-    const electionDefinition = this.getElectionDefinition();
-
     if (!electionDefinition) {
       throw new Error('no election configured');
     }
 
-    const layouts = this.getBallotPageLayoutsForMetadata(metadata);
+    const layouts = this.getBallotPageLayoutsForMetadata(
+      metadata,
+      electionDefinition
+    );
     let contestOffset = 0;
 
     for (const layout of layouts) {

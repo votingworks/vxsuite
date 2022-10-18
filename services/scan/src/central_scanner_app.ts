@@ -442,10 +442,10 @@ export async function buildCentralScannerApp({
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/central-scanner/scan/export',
     async (_request, response) => {
-      const cvrs = await importer.doExport();
+      response.type('text/plain; charset=utf-8');
+      await importer.doExport(response);
       store.setCvrsAsBackedUp();
-      response.set('Content-Type', 'text/plain; charset=utf-8');
-      response.send(cvrs);
+      response.end();
     }
   );
 
