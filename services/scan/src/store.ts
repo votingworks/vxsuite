@@ -119,7 +119,7 @@ function isHmpbSheet(
  * interpreted by reading the sheets.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) { }
+  private constructor(private readonly client: DbClient) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -527,12 +527,12 @@ export class Store {
     try {
       const frontFinishedAdjudicationAt =
         front.interpretation.type === 'InterpretedHmpbPage' &&
-          !front.interpretation.adjudicationInfo.requiresAdjudication
+        !front.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
       const backFinishedAdjudicationAt =
         back.interpretation.type === 'InterpretedHmpbPage' &&
-          !back.interpretation.adjudicationInfo.requiresAdjudication
+        !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
       this.client.run(
@@ -649,12 +649,12 @@ export class Store {
       `
     ) as
       | {
-        id: string;
-        frontInterpretationJson: string;
-        backInterpretationJson: string;
-        frontFinishedAdjudicationAt: string | null;
-        backFinishedAdjudicationAt: string | null;
-      }
+          id: string;
+          frontInterpretationJson: string;
+          backInterpretationJson: string;
+          frontFinishedAdjudicationAt: string | null;
+          backFinishedAdjudicationAt: string | null;
+        }
       | undefined;
 
     // TODO: these URLs and others in this file probably don't belong
@@ -928,9 +928,9 @@ export class Store {
         batchLabel || '',
         (frontInterpretation.type === 'InterpretedBmdPage' &&
           frontInterpretation.ballotId) ||
-        (backInterpretation.type === 'InterpretedBmdPage' &&
-          backInterpretation.ballotId) ||
-        unsafeParse(BallotIdSchema, id),
+          (backInterpretation.type === 'InterpretedBmdPage' &&
+            backInterpretation.ballotId) ||
+          unsafeParse(BallotIdSchema, id),
         electionDefinition.election,
         [
           {
@@ -948,26 +948,23 @@ export class Store {
             markAdjudications: backAdjudications,
           },
         ],
-        includeImages &&
-          isHmpbSheet(interpretations)
+        includeImages && isHmpbSheet(interpretations)
           ? mapSheet(
-            interpretations,
-            (interpretation) =>
-              this.getBallotPageLayoutForMetadata(
-                interpretation.metadata
-              ) as BallotPageLayout
-          )
+              interpretations,
+              (interpretation) =>
+                this.getBallotPageLayoutForMetadata(
+                  interpretation.metadata
+                ) as BallotPageLayout
+            )
           : undefined
       );
 
-      // TODO: We should be waiting for the writeStream to drain before
-      // writing more data to it
       if (cvr) {
         let cvrMaybeWithBallotImages = cvr;
 
         // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
         if (
-          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
+          includeImages &&
           isHmpbSheet([frontInterpretation, backInterpretation])
         ) {
           const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(
@@ -1000,6 +997,8 @@ export class Store {
           }
         }
 
+        // TODO: We should be waiting for the writeStream to drain before
+        // writing more data to it
         writeStream.write(JSON.stringify(cvrMaybeWithBallotImages));
         writeStream.write('\n');
       }

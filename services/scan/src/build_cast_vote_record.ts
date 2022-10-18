@@ -260,6 +260,7 @@ function buildCastVoteRecordFromHmpbPage(
       : {},
     back.markAdjudications
   );
+
   const votesEntries: Dictionary<string[]> = {
     ...frontVotesEntries,
     ...backVotesEntries,
