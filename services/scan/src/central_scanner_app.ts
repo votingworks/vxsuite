@@ -1,29 +1,30 @@
 import { Scan } from '@votingworks/api';
-import express, { Application } from 'express';
-import multer from 'multer';
-import { Buffer } from 'buffer';
 import {
-  safeParseElectionDefinition,
-  safeParse,
-  safeParseJson,
-  BallotPageLayoutSchema,
   BallotPageLayout,
+  BallotPageLayoutSchema,
+  safeParse,
+  safeParseElectionDefinition,
+  safeParseJson,
 } from '@votingworks/types';
 import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
+import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
+import * as fs from 'fs/promises';
+import multer from 'multer';
 import { z } from 'zod';
-import { Store } from './store';
-import { Importer } from './importer';
 import { backup } from './backup';
+import { Importer } from './importer';
+import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:central-scanner');
 
 type NoParams = never;
 
 export interface AppOptions {
-  store: Store;
   importer: Importer;
+  workspace: Workspace;
 }
 
 /**
@@ -31,11 +32,16 @@ export interface AppOptions {
  * lifting.
  */
 export async function buildCentralScannerApp({
-  store,
   importer,
+  workspace,
 }: AppOptions): Promise<Application> {
+  const { store } = workspace;
   const app: Application = express();
-  const upload = multer({ storage: multer.diskStorage({}) });
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: workspace.uploadsPath,
+    }),
+  });
 
   app.use(express.raw());
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
@@ -142,27 +148,35 @@ export async function buildCentralScannerApp({
         ? request.files?.['package']?.[0]
         : undefined;
 
-      if (!file) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'invalid-value',
-              message: 'expected file field to be named "package"',
-            },
-          ],
-        });
-        return;
+      try {
+        if (!file) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: 'invalid-value',
+                message: 'expected file field to be named "package"',
+              },
+            ],
+          });
+          return;
+        }
+
+        const pkg = await readBallotPackageFromBuffer(
+          await readFile(file.path)
+        );
+
+        importer.configure(pkg.electionDefinition);
+        for (const { pdf, layout } of pkg.ballots) {
+          await importer.addHmpbTemplates(pdf, layout);
+        }
+
+        response.json({ status: 'ok' });
+      } finally {
+        if (file) {
+          await fs.unlink(file.path);
+        }
       }
-
-      const pkg = await readBallotPackageFromBuffer(await readFile(file.path));
-
-      importer.configure(pkg.electionDefinition);
-      for (const { pdf, layout } of pkg.ballots) {
-        await importer.addHmpbTemplates(pdf, layout);
-      }
-
-      response.json({ status: 'ok' });
     }
   );
 
@@ -340,9 +354,9 @@ export async function buildCentralScannerApp({
         return;
       }
 
-      try {
-        const { ballots = [], metadatas = [], layouts = [] } = request.files;
+      const { ballots = [], metadatas = [], layouts = [] } = request.files;
 
+      try {
         if (ballots.length === 0) {
           response.status(400).json({
             status: 'error',
@@ -427,6 +441,10 @@ export async function buildCentralScannerApp({
             },
           ],
         });
+      } finally {
+        for (const file of [...ballots, ...metadatas, ...layouts]) {
+          await fs.unlink(file.path);
+        }
       }
     }
   );

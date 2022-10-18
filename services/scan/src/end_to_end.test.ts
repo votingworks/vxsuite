@@ -34,7 +34,7 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  app = await buildCentralScannerApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, workspace });
 });
 
 afterEach(async () => {

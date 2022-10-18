@@ -70,6 +70,9 @@ export async function start({
     resolvedWorkspace = createWorkspace(workspacePath);
   }
 
+  // clear any cached data
+  resolvedWorkspace.clearUploads();
+
   let resolvedApp: express.Application;
 
   if (machineType === 'precinct-scanner') {
@@ -109,7 +112,7 @@ export async function start({
       app ??
       (await buildCentralScannerApp({
         importer: resolvedImporter,
-        store: resolvedWorkspace.store,
+        workspace: resolvedWorkspace,
       }));
   }
 
