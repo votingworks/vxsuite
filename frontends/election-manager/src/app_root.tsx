@@ -187,10 +187,6 @@ export function AppRoot({
     [store]
   );
 
-  const clearCastVoteRecordFiles = useCallback(async () => {
-    await store.clearCastVoteRecordFiles();
-  }, [store]);
-
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
       await store.configure(electionJson);
@@ -271,7 +267,6 @@ export function AppRoot({
         printer,
         printBallotRef,
         addCastVoteRecordFile,
-        clearCastVoteRecordFiles,
         saveElection,
         resetElection,
         markResultsOfficial,

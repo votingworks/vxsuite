@@ -56,7 +56,6 @@ interface RenderInAppContextParams {
     transcribedValue: string
   ) => Promise<void>;
   addCastVoteRecordFile?: (file: File) => Promise<AddCastVoteRecordFileResult>;
-  clearCastVoteRecordFiles?: () => Promise<void>;
   saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
@@ -115,7 +114,6 @@ export function renderInAppContext(
     printer = new NullPrinter(),
     printBallotRef = undefined,
     addCastVoteRecordFile = jest.fn(),
-    clearCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     saveIsOfficialResults: markResultsOfficial = jest.fn(),
@@ -156,7 +154,6 @@ export function renderInAppContext(
         printer,
         printBallotRef,
         addCastVoteRecordFile,
-        clearCastVoteRecordFiles,
         saveElection,
         resetElection,
         markResultsOfficial,

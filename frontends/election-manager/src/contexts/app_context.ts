@@ -34,7 +34,6 @@ export interface AppContextInterface {
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
   addCastVoteRecordFile: (file: File) => Promise<AddCastVoteRecordFileResult>;
-  clearCastVoteRecordFiles: () => Promise<void>;
   saveElection: SaveElection;
   resetElection: ResetElection;
   markResultsOfficial: () => Promise<void>;
@@ -77,7 +76,6 @@ const appContext: AppContextInterface = {
     newlyAdded: 0,
     alreadyPresent: 0,
   }),
-  clearCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
   resetElection: async () => undefined,
   markResultsOfficial: async () => undefined,
