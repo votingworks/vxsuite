@@ -1,4 +1,5 @@
-import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
+import { EnvironmentFlagName } from './environment_flag';
+import { isFeatureFlagEnabled } from './features';
 
 /**
  * generatePin generates random numeric PINs of the specified length (default = 6).

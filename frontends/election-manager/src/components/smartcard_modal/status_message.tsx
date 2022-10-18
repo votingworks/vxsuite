@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Loading, Modal, Text } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/utils';
+import { hyphenatePin, throwIllegalValue } from '@votingworks/utils';
 import { User, UserRole } from '@votingworks/types';
 
-import { hyphenatePin } from './pins';
 import { userRoleToReadableString } from './user_roles';
 
 const TextLarge = styled(Text)`
