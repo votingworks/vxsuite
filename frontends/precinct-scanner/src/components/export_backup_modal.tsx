@@ -70,7 +70,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           electionFolderName
         );
         result = await download('/precinct-scanner/backup', {
-          into: pathToFolder,
+          directory: pathToFolder,
         });
       } else {
         result = await download('/precinct-scanner/backup');

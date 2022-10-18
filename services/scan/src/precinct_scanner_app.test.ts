@@ -1390,3 +1390,23 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
     error: 'paper_status_timed_out',
   });
 });
+
+describe('POST /precinct-scanner/export', () => {
+  test('passes skipImages parameter to exportCvrs', async () => {
+    const { app, workspace } = await createApp();
+    const spyExportCvrs = jest.spyOn(workspace.store, 'exportCvrs');
+
+    await configureApp(app);
+    await request(app)
+      .post('/precinct-scanner/export')
+      .set('Accept', 'application/json')
+      .set('Content-Type', 'application/json')
+      .send({ skipImages: true })
+      .expect(200);
+
+    expect(spyExportCvrs).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ skipImages: true })
+    );
+  });
+});

@@ -53,6 +53,7 @@ import {
 } from '../test/helpers/helpers';
 import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
 import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
+import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 
 jest.setTimeout(20000);
 
@@ -129,6 +130,9 @@ beforeEach(() => {
 
   kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.writeFile.mockResolvedValue(
+    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
   window.kiosk = kiosk;
 
   fetchMock.reset();
@@ -599,8 +603,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
         0,
         10
       )}/TEST__machine_0002__1_ballots`
-    ),
-    expect.anything()
+    )
   );
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(2);
 
@@ -645,8 +648,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
         0,
         10
       )}/TEST__machine_0002__1_ballots`
-    ),
-    expect.anything()
+    )
   );
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(3);
   fireEvent.click(await screen.findByText('Eject USB'));
@@ -1051,8 +1053,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
         0,
         10
       )}/TEST__machine_0002__1_ballots`
-    ),
-    expect.anything()
+    )
   );
   await advanceTimersAndPromises(1);
 

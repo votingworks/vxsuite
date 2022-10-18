@@ -1,7 +1,6 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
-import fileDownload from 'js-file-download';
 import MockDate from 'mockdate';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { MachineConfig } from '../config/types';
@@ -9,12 +8,27 @@ import { MachineConfig } from '../config/types';
 import { saveCvrExportToUsb } from './save_cvr_export_to_usb';
 
 MockDate.set('2020-10-31T00:00:00.000Z');
-jest.mock('js-file-download');
 
 const machineConfig: MachineConfig = {
   machineId: '0003',
   codeVersion: 'TEST',
 };
+
+let kiosk = fakeKiosk();
+
+beforeEach(() => {
+  kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.writeFile.mockResolvedValue(
+    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
+  kiosk.saveAs.mockResolvedValue(fakeFileWriter());
+  window.kiosk = kiosk;
+});
+
+afterEach(() => {
+  delete window.kiosk;
+});
 
 test('throws error when scan service errors', async () => {
   fetchMock.postOnce('/precinct-scanner/export', {
@@ -31,12 +45,12 @@ test('throws error when scan service errors', async () => {
       openFilePickerDialog: false,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"failed to generate scan export"`
+    `"Unable to get CVR file: FetchFailed (status=Internal Server Error)"`
   );
 });
 
 test('throws error when there is no usb mounted in kiosk mode', async () => {
-  window.kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([]);
   fetchMock.postOnce(
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
@@ -60,11 +74,6 @@ test('calls kiosk saveAs when opening file picker dialog', async () => {
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const fileWriter = fakeFileWriter();
-  mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
-  window.kiosk = mockKiosk;
   await saveCvrExportToUsb({
     electionDefinition:
       electionMinimalExhaustiveSampleFixtures.electionDefinition,
@@ -73,9 +82,8 @@ test('calls kiosk saveAs when opening file picker dialog', async () => {
     isTestMode: false,
     openFilePickerDialog: true,
   });
-  expect(window.kiosk.saveAs).toHaveBeenCalledWith({
-    defaultPath:
-      'fake mount point/cast-vote-records/sample-county_example-primary-election_0dabcacc5d/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
+  expect(kiosk.saveAs).toHaveBeenCalledWith({
+    defaultPath: 'machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
   });
 });
 
@@ -84,9 +92,7 @@ test('throws error when no file is chosen in file picker', async () => {
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = mockKiosk;
+  kiosk.saveAs.mockResolvedValue(undefined);
   await expect(
     saveCvrExportToUsb({
       electionDefinition:
@@ -97,7 +103,7 @@ test('throws error when no file is chosen in file picker', async () => {
       openFilePickerDialog: true,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"could not save; no file was chosen"`
+    `"Could not save; no file was chosen"`
   );
 });
 
@@ -106,9 +112,6 @@ test('saves file to default location when openFilePicker is false in kiosk mode'
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = mockKiosk;
   await saveCvrExportToUsb({
     electionDefinition:
       electionMinimalExhaustiveSampleFixtures.electionDefinition,
@@ -117,35 +120,13 @@ test('saves file to default location when openFilePicker is false in kiosk mode'
     isTestMode: false,
     openFilePickerDialog: false,
   });
-  expect(window.kiosk.makeDirectory).toHaveBeenCalledWith(
+  expect(kiosk.makeDirectory).toHaveBeenCalledWith(
     'fake mount point/cast-vote-records/sample-county_example-primary-election_0dabcacc5d',
     {
       recursive: true,
     }
   );
-  expect(window.kiosk.writeFile).toHaveBeenCalledWith(
-    'fake mount point/cast-vote-records/sample-county_example-primary-election_0dabcacc5d/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
-    electionMinimalExhaustiveSampleFixtures.cvrData
-  );
-});
-
-test('calls fileDownload when not in kiosk mode', async () => {
-  window.kiosk = undefined;
-  fetchMock.postOnce(
-    '/precinct-scanner/export',
-    electionMinimalExhaustiveSampleFixtures.cvrData
-  );
-  await saveCvrExportToUsb({
-    electionDefinition:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition,
-    machineConfig,
-    scannedBallotCount: 0,
-    isTestMode: false,
-    openFilePickerDialog: false,
-  });
-  expect(fileDownload).toHaveBeenCalledWith(
-    electionMinimalExhaustiveSampleFixtures.cvrData,
-    'machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
-    'application/x-jsonlines'
+  expect(kiosk.writeFile).toHaveBeenCalledWith(
+    'fake mount point/cast-vote-records/sample-county_example-primary-election_0dabcacc5d/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl'
   );
 });
