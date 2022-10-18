@@ -47,6 +47,7 @@ import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
 import { AddCastVoteRecordFileResult } from './lib/backends/types';
 import { ServicesContext } from './contexts/services_context';
+import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
 
 export interface Props {
   printer: Printer;
@@ -207,6 +208,9 @@ export function AppRoot({
     );
   }, [electionDefinition, store, fullElectionTally]);
 
+  const clearCastVoteRecordFilesMutation =
+    useClearCastVoteRecordFilesMutation();
+
   const resetFiles = useCallback(
     async (fileType: ResultsFileType) => {
       switch (fileType) {
@@ -216,7 +220,7 @@ export function AppRoot({
             fileType,
             disposition: 'success',
           });
-          await store.clearCastVoteRecordFiles();
+          await clearCastVoteRecordFilesMutation.mutateAsync();
           break;
         case ResultsFileType.SEMS: {
           await store.removeFullElectionExternalTally(
@@ -241,7 +245,7 @@ export function AppRoot({
           break;
         }
         case ResultsFileType.All:
-          await store.clearCastVoteRecordFiles();
+          await clearCastVoteRecordFilesMutation.mutateAsync();
           await store.clearFullElectionExternalTallies();
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all tally data.',
@@ -253,7 +257,7 @@ export function AppRoot({
           throwIllegalValue(fileType);
       }
     },
-    [currentUserRole, store, logger]
+    [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
   );
 
   return (

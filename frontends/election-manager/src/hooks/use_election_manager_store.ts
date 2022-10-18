@@ -73,11 +73,6 @@ export interface ElectionManagerStore {
   ): Promise<AddCastVoteRecordFileResult>;
 
   /**
-   * Resets all cast vote record files.
-   */
-  clearCastVoteRecordFiles(): Promise<void>;
-
-  /**
    * Updates the external tally for a given source.
    */
   updateFullElectionExternalTally(
@@ -260,28 +255,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
     [addCastVoteRecordFileMutation]
   );
 
-  const clearCastVoteRecordFilesMutation = useMutation(
-    async () => {
-      await backend.clearCastVoteRecordFiles();
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([cvrsStorageKey]);
-        void queryClient.invalidateQueries([isOfficialResultsKey]);
-        void queryClient.invalidateQueries(getWriteInImageQueryKey());
-        void queryClient.invalidateQueries(getWriteInsQueryKey());
-        void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
-        void queryClient.invalidateQueries(
-          getWriteInAdjudicationTableQueryKey()
-        );
-      },
-    }
-  );
-
-  const clearCastVoteRecordFiles = useCallback(async () => {
-    await clearCastVoteRecordFilesMutation.mutateAsync();
-  }, [clearCastVoteRecordFilesMutation]);
-
   const markResultsOfficialMutation = useMutation(
     async () => {
       await backend.markResultsOfficial();
@@ -400,7 +373,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
 
         addCastVoteRecordFile,
         addPrintedBallot,
-        clearCastVoteRecordFiles,
         clearFullElectionExternalTallies,
         configure,
         markResultsOfficial,
@@ -413,7 +385,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
       addCastVoteRecordFile,
       addPrintedBallot,
       castVoteRecordFiles,
-      clearCastVoteRecordFiles,
       clearFullElectionExternalTallies,
       configure,
       configuredAt,
