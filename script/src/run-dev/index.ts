@@ -168,7 +168,7 @@ export async function main(
             npmBinCommand({
               name: `${name}:run`,
               command:
-                'nodemon --watch build --delay 1 --exitcrash --exec node build/index.js',
+                'while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; nodemon --watch build --delay 1 --exitcrash --exec node build/index.js',
               prefixColor: 'cyan',
               cwd: serviceRoot,
               env: extraEnv,
