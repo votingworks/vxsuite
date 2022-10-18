@@ -77,6 +77,8 @@ export enum BackupKey {
   Cvrs = 'cvrs',
 }
 
+const CvrBallotImageScale = 0.5;
+
 const SchemaPath = join(__dirname, '../schema.sql');
 
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
@@ -95,8 +97,9 @@ async function loadImagePathShrinkBase64(
     maxWidth: image.width * factor,
     maxHeight: image.height * factor,
   });
-  // strip the "data:image/jpeg;base64,"
-  return toDataUrl(newImageData, 'image/jpeg').slice(23);
+  return toDataUrl(newImageData, 'image/jpeg').slice(
+    'data:image/jpeg;base64,'.length
+  );
 }
 
 function isHmpbPage(
@@ -976,7 +979,7 @@ export class Store {
             if (frontFilenames) {
               frontImage.normalized = await loadImagePathShrinkBase64(
                 frontFilenames.normalized,
-                0.5
+                CvrBallotImageScale
               );
             }
           }
@@ -986,7 +989,7 @@ export class Store {
             if (backFilenames) {
               backImage.normalized = await loadImagePathShrinkBase64(
                 backFilenames.normalized,
-                0.5
+                CvrBallotImageScale
               );
             }
 
