@@ -54,9 +54,11 @@ export async function interpret(
     markThresholds = electionDefinition.election.markThresholds ??
       DefaultMarkThresholds,
     adjudicationReasons = [],
+    isTestMode = false,
   }: {
     markThresholds?: MarkThresholds;
     adjudicationReasons?: readonly AdjudicationReason[];
+    isTestMode?: boolean;
   } = {}
 ): Promise<Result<[InterpretFileResult, InterpretFileResult], Error>> {
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
@@ -172,7 +174,7 @@ export async function interpret(
     ballotStyleId,
     ballotType: BallotType.Standard,
     electionHash: electionDefinition.electionHash,
-    isTestMode: false,
+    isTestMode,
     locales: { primary: 'unknown' },
     pageNumber: 1,
     precinctId,

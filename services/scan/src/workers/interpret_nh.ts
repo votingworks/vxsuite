@@ -31,17 +31,19 @@ export type InterpretOutput = Result<
 export type Output = InterpretOutput | void;
 
 let electionDefinition: ElectionDefinition | undefined;
+let isTestMode: boolean | undefined;
 
 export async function call(input: Input): Promise<Output> {
   switch (input.action) {
     case 'configure': {
       const store = Store.fileStore(input.dbPath);
       electionDefinition = store.getElectionDefinition();
+      isTestMode = store.getTestMode();
       return;
     }
 
     case 'interpret': {
-      if (!electionDefinition) {
+      if (!electionDefinition || isTestMode === undefined) {
         return err(
           new Error('cannot interpret ballot with no configured election')
         );
@@ -60,7 +62,7 @@ export async function call(input: Input): Promise<Output> {
       const result = await interpret(
         electionDefinition,
         [input.frontImagePath, input.backImagePath],
-        { adjudicationReasons }
+        { adjudicationReasons, isTestMode }
       );
 
       if (result.isErr()) {
