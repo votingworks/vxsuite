@@ -13,9 +13,7 @@ import {
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
-import { readFileSync } from 'fs';
 import multer from 'multer';
-import { basename } from 'path';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -82,7 +80,7 @@ export function buildApp({ store }: { store: Store }): Application {
   >(
     '/admin/elections/:electionId/cvr-files',
     upload.fields([{ name: CVR_FILE_ATTACHMENT_NAME, maxCount: 1 }]),
-    (request, response) => {
+    async (request, response) => {
       const { electionId } = request.params;
       /* istanbul ignore next */
       const file = !Array.isArray(request.files)
@@ -121,12 +119,11 @@ export function buildApp({ store }: { store: Store }): Application {
       }
 
       const { analyzeOnly } = parseQueryResult.ok();
-      const filename = basename(file.originalname);
-      const cvrFile = readFileSync(file.path, 'utf8');
-      const result = store.addCastVoteRecordFile({
+
+      const result = await store.addCastVoteRecordFile({
         electionId,
-        filename,
-        cvrFile,
+        filePath: file.path,
+        originalFilename: file.originalname,
         analyzeOnly,
       });
 

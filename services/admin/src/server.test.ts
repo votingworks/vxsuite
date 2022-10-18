@@ -167,7 +167,7 @@ test('POST /admin/elections/:electionId/cvr-files', async () => {
   expect(
     workspace.store.getCastVoteRecordFileMetadata(response.id)
   ).toMatchObject(
-    typedAs<Partial<Admin.CastVoteRecordFileMetadata>>({
+    typedAs<Partial<Admin.CastVoteRecordFileRecord>>({
       id: response.id,
       electionId,
       filename: 'cvrFile.json',

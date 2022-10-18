@@ -17,7 +17,7 @@ import {
   OkResponseSchema,
 } from '../../base';
 import {
-  CastVoteRecordFileMetadata,
+  CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   ElectionRecord,
   ElectionRecordSchema,
@@ -221,7 +221,7 @@ export const GetCvrFilesRequestSchema: z.ZodSchema<GetCvrFilesRequest> =
  * @url /admin/:electionId/cvr-files
  * @method GET
  */
-export type GetCvrFileResponse = CastVoteRecordFileMetadata[];
+export type GetCvrFileResponse = CastVoteRecordFileRecord[];
 
 /**
  * @url /admin/:electionId/cvr-files

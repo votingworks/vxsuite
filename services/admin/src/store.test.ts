@@ -4,7 +4,7 @@ import { CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { tmpNameSync } from 'tmp';
+import { fileSync, tmpNameSync } from 'tmp';
 import { AddCastVoteRecordError, Store } from './store';
 import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
@@ -46,16 +46,21 @@ test('assert election exists', () => {
   );
 });
 
-test('add a CVR file', () => {
+test('add a CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   expect(
-    store
-      .addCastVoteRecordFile({ electionId, filename: 'cvrs.jsonl', cvrFile })
-      .unsafeUnwrap()
+    (
+      await store.addCastVoteRecordFile({
+        electionId,
+        filePath: cvrFile,
+        originalFilename: 'cvrs.jsonl',
+      })
+    ).unsafeUnwrap()
   ).toEqual({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
@@ -63,36 +68,83 @@ test('add a CVR file', () => {
     alreadyPresent: 0,
   });
 
-  const writeInCount = cvrFile.split('\n').reduce((acc, line) => {
-    if (line.trim().length === 0) {
-      return acc;
-    }
+  const writeInCount = (await fs.readFile(cvrFile, 'utf-8'))
+    .split('\n')
+    .reduce((acc, line) => {
+      if (line.trim().length === 0) {
+        return acc;
+      }
 
-    const cvr = JSON.parse(line) as CastVoteRecord;
-    return acc + [...getWriteInsFromCastVoteRecord(cvr).values()].flat().length;
-  }, 0);
+      const cvr = JSON.parse(line) as CastVoteRecord;
+      return (
+        acc + [...getWriteInsFromCastVoteRecord(cvr).values()].flat().length
+      );
+    }, 0);
 
   expect(store.getWriteInRecords({ electionId })).toHaveLength(writeInCount);
 });
 
-test('add a duplicate CVR file', () => {
+test('add a CVR file with empty lines', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
-  const originalResult = store
-    .addCastVoteRecordFile({ electionId, filename: 'cvrs.jsonl', cvrFile })
-    .unsafeUnwrap();
+  const tmpfile = fileSync();
+  const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+  const cvrFile = tmpfile.name;
+
+  await fs.writeFile(cvrFile, cvrData.split('\n').join('\n\n'));
+
+  expect(
+    (
+      await store.addCastVoteRecordFile({
+        electionId,
+        filePath: cvrFile,
+        originalFilename: 'cvrs.jsonl',
+      })
+    ).unsafeUnwrap()
+  ).toEqual({
+    id: expect.stringMatching(/^[-0-9a-f]+$/),
+    wasExistingFile: false,
+    newlyAdded: 3000,
+    alreadyPresent: 0,
+  });
+
+  const writeInCount = (await fs.readFile(cvrFile, 'utf-8'))
+    .split('\n')
+    .reduce((acc, line) => {
+      if (line.trim().length === 0) {
+        return acc;
+      }
+
+      const cvr = JSON.parse(line) as CastVoteRecord;
+      return (
+        acc + [...getWriteInsFromCastVoteRecord(cvr).values()].flat().length
+      );
+    }, 0);
+
+  expect(store.getWriteInRecords({ electionId })).toHaveLength(writeInCount);
+});
+
+test('add a duplicate CVR file', async () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
+  const originalResult = (
+    await store.addCastVoteRecordFile({ electionId, filePath: cvrFile })
+  ).unsafeUnwrap();
   expect(originalResult).toEqual({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 3000,
     alreadyPresent: 0,
   });
-  const duplicateResult = store
-    .addCastVoteRecordFile({ electionId, filename: 'cvrs.jsonl', cvrFile })
-    .unsafeUnwrap();
+  const duplicateResult = (
+    await store.addCastVoteRecordFile({ electionId, filePath: cvrFile })
+  ).unsafeUnwrap();
   expect(duplicateResult).toEqual({
     id: originalResult.id,
     wasExistingFile: true,
@@ -101,21 +153,21 @@ test('add a duplicate CVR file', () => {
   });
 });
 
-test('analyze a CVR file', () => {
+test('analyze a CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   expect(
-    store
-      .addCastVoteRecordFile({
+    (
+      await store.addCastVoteRecordFile({
         electionId,
-        filename: 'cvrs.jsonl',
-        cvrFile,
+        filePath: cvrFile,
         analyzeOnly: true,
       })
-      .unsafeUnwrap()
+    ).unsafeUnwrap()
   ).toEqual({
     id: expect.any(String),
     wasExistingFile: false,
@@ -127,44 +179,47 @@ test('analyze a CVR file', () => {
   expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
-test('adding a CVR file if adding an entry fails', () => {
+test('adding a CVR file if adding an entry fails', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
 
   jest.spyOn(store, 'addCastVoteRecordFileEntry').mockImplementation(() => {
     throw new Error('oops');
   });
 
-  expect(() =>
-    store
-      .addCastVoteRecordFile({
+  await expect(async () =>
+    (
+      await store.addCastVoteRecordFile({
         electionId,
-        filename: 'cvrs.jsonl',
-        cvrFile,
+        filePath: cvrFile,
+        originalFilename: 'cvrs.jsonl',
       })
-      .unsafeUnwrap()
-  ).toThrowError('oops');
+    ).unsafeUnwrap()
+  ).rejects.toThrowError('oops');
 
   expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
-test('add a CVR file entry without a ballot ID', () => {
+test('add a CVR file entry without a ballot ID', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData.replaceAll(
-    '_ballotId',
-    '_notBallotId'
+  const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+  const tmpfile = fileSync();
+  await fs.writeFile(
+    tmpfile.name,
+    cvrData.replaceAll('_ballotId', '_notBallotId')
   );
 
-  const result = store.addCastVoteRecordFile({
+  const result = await store.addCastVoteRecordFile({
     electionId,
-    filename: 'cvrs.jsonl',
-    cvrFile,
+    originalFilename: 'cvrs.jsonl',
+    filePath: tmpfile.name,
   });
 
   expect(result.isErr()).toBe(true);
@@ -173,28 +228,29 @@ test('add a CVR file entry without a ballot ID', () => {
   );
 });
 
-test('get CVR file metadata', () => {
+test('get CVR file metadata', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
 
   expect(
     store.getCastVoteRecordFileMetadata('not a CVR file ID')
   ).toBeUndefined();
 
-  const { id } = store
-    .addCastVoteRecordFile({
+  const { id } = (
+    await store.addCastVoteRecordFile({
       electionId,
-      filename: 'cvrs.jsonl',
-      cvrFile,
+      originalFilename: 'cvrs.jsonl',
+      filePath: cvrFile,
     })
-    .unsafeUnwrap();
+  ).unsafeUnwrap();
 
   const cvrFileMetadata = store.getCastVoteRecordFileMetadata(id);
   expect(cvrFileMetadata).toEqual(
-    typedAs<Admin.CastVoteRecordFileMetadata>({
+    typedAs<Admin.CastVoteRecordFileRecord>({
       id,
       electionId,
       filename: 'cvrs.jsonl',
@@ -204,22 +260,23 @@ test('get CVR file metadata', () => {
   );
 });
 
-test('get CVR file', () => {
+test('get CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  const cvrFile = electionMinimalExhaustiveSampleFixtures.cvrData;
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
 
   expect(store.getCastVoteRecordFile('not a CVR file ID')).toBeUndefined();
 
-  const { id } = store
-    .addCastVoteRecordFile({
+  const { id } = (
+    await store.addCastVoteRecordFile({
       electionId,
-      filename: 'cvrs.jsonl',
-      cvrFile,
+      originalFilename: 'cvrs.jsonl',
+      filePath: cvrFile,
     })
-    .unsafeUnwrap();
+  ).unsafeUnwrap();
 
   const cvrFileMetadata = store.getCastVoteRecordFile(id);
   expect(cvrFileMetadata).toEqual(
@@ -227,31 +284,32 @@ test('get CVR file', () => {
       id,
       electionId,
       filename: 'cvrs.jsonl',
-      data: cvrFile,
       sha256Hash: expect.any(String),
       createdAt: expect.any(String),
     })
   );
 });
 
-test('get write-in adjudication records', () => {
+test('get write-in adjudication records', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
   const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+  const tmpfile = fileSync();
+  await fs.writeFile(
+    tmpfile.name,
+    cvrData.slice(0, cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1)
+  );
 
-  store
-    .addCastVoteRecordFile({
+  (
+    await store.addCastVoteRecordFile({
       electionId,
-      filename: 'cvrs.jsonl',
+      originalFilename: 'cvrs.jsonl',
       // add the first two CVRs, which do not have write-ins
-      cvrFile: cvrData.slice(
-        0,
-        cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1
-      ),
+      filePath: tmpfile.name,
     })
-    .unsafeUnwrap();
+  ).unsafeUnwrap();
 
   const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
   const writeInAdjudicationRecords = store.getWriteInRecords({
@@ -341,24 +399,27 @@ test('get write-in adjudication records', () => {
   ).toHaveLength(1);
 });
 
-test('write-in adjudication lifecycle', () => {
+test('write-in adjudication lifecycle', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
   const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+  const tmpfile = fileSync();
 
-  store
-    .addCastVoteRecordFile({
+  // add the first two CVRs, which do not have write-ins
+  await fs.writeFile(
+    tmpfile.name,
+    cvrData.slice(0, cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1)
+  );
+
+  (
+    await store.addCastVoteRecordFile({
       electionId,
-      filename: 'cvrs.jsonl',
-      // add the first two CVRs, which do not have write-ins
-      cvrFile: cvrData.slice(
-        0,
-        cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1
-      ),
+      originalFilename: 'cvrs.jsonl',
+      filePath: tmpfile.name,
     })
-    .unsafeUnwrap();
+  ).unsafeUnwrap();
 
   const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
   const writeInId = store.addWriteIn({
