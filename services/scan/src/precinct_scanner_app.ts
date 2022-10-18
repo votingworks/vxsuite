@@ -452,7 +452,7 @@ export async function buildPrecinctScannerApp(
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
-    async (request, response) => {
+    (request, response) => {
       const skipImages = request.body?.skipImages;
       debug(`exporting CVRs ${skipImages ? 'without' : 'with'} inline images`);
 
