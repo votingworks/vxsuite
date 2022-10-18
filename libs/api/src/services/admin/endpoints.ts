@@ -574,3 +574,35 @@ export type GetWriteInImageResponse = WriteInImageEntry[] | ErrorsResponse;
  */
 export const GetWriteInImageResponseSchema: z.ZodSchema<GetWriteInImageResponse> =
   z.array(WriteInImageEntrySchema);
+
+/**
+ * Schema for {@link GenerateCardPinRequest}.
+ */
+export const GenerateCardPinRequestSchema = z.never();
+
+/**
+ * @url /admin/pins/generate-card-pin
+ * @method POST
+ */
+export type GenerateCardPinRequest = z.TypeOf<
+  typeof GenerateCardPinRequestSchema
+>;
+
+/**
+ * Schema for {@link GenerateCardPinResponse}.
+ */
+export const GenerateCardPinResponseSchema = z.discriminatedUnion('status', [
+  z.object({
+    status: z.literal('ok'),
+    pin: z.string(),
+  }),
+  ErrorsResponseSchema,
+]);
+
+/**
+ * @url /admin/pins/generate-card-pin
+ * @method POST
+ */
+export type GenerateCardPinResponse = z.TypeOf<
+  typeof GenerateCardPinResponseSchema
+>;

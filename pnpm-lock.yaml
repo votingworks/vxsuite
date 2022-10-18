@@ -2763,6 +2763,8 @@ importers:
       '@votingworks/utils': link:../../libs/utils
       better-sqlite3: 7.5.3
       debug: 4.3.4
+      dotenv: 16.0.3
+      dotenv-expand: 9.0.0
       express: 4.18.0
       fs-extra: 10.1.0
       js-sha256: 0.9.0
@@ -2783,6 +2785,7 @@ importers:
       '@types/uuid': 8.3.4
       '@typescript-eslint/eslint-plugin': 5.37.0_12e0d3a13edabf2ba2a66fb9092035af
       '@typescript-eslint/parser': 5.37.0_eslint@8.23.1+typescript@4.6.3
+      '@votingworks/test-utils': link:../../libs/test-utils
       esbuild: 0.14.30
       esbuild-runner: 2.2.1_esbuild@0.14.30
       eslint: 8.23.1
@@ -2823,10 +2826,13 @@ importers:
       '@votingworks/api': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       better-sqlite3: ^7.5.3
       debug: ^4.3.4
+      dotenv: ^16.0.3
+      dotenv-expand: ^9.0.0
       esbuild: ^0.14.29
       esbuild-runner: ^2.2.1
       eslint: ^8.23.1
@@ -16475,6 +16481,12 @@ packages:
       node: '>=12'
     resolution:
       integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==
+  /dotenv/16.0.3:
+    dev: false
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
   /dotenv/8.2.0:
     engines:
       node: '>=8'

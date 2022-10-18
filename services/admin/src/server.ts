@@ -11,7 +11,7 @@ import {
   safeParse,
   safeParseNumber,
 } from '@votingworks/types';
-import { zip } from '@votingworks/utils';
+import { generatePin, zip } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
@@ -566,6 +566,20 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
         ],
       });
     }
+  });
+
+  app.post<
+    NoParams,
+    Admin.GenerateCardPinResponse,
+    Admin.GenerateCardPinRequest
+  >('/admin/pins/generate-card-pin', (_request, response) => {
+    // TODO(https://github.com/votingworks/vxsuite/issues/1926): Store generated PINs in DB and
+    // enforce uniqueness.
+    const pin = generatePin();
+    response.json({
+      status: 'ok',
+      pin,
+    });
   });
 
   return app;
