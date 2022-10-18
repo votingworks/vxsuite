@@ -42,7 +42,7 @@ import {
   PrecinctScannerInterpreter,
 } from './precinct_scanner_interpreter';
 
-jest.setTimeout(15_000);
+jest.setTimeout(20_000);
 
 function get(app: Application, path: string) {
   return request(app).get(path).accept('application/json').expect(200);
