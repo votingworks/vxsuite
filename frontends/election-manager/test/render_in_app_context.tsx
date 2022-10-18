@@ -29,7 +29,6 @@ import {
   ResetElection,
 } from '../src/config/types';
 import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
-import { AddCastVoteRecordFileResult } from '../src/lib/backends/types';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
@@ -55,7 +54,6 @@ interface RenderInAppContextParams {
     adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
-  addCastVoteRecordFile?: (file: File) => Promise<AddCastVoteRecordFileResult>;
   saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
@@ -113,7 +111,6 @@ export function renderInAppContext(
     isOfficialResults = false,
     printer = new NullPrinter(),
     printBallotRef = undefined,
-    addCastVoteRecordFile = jest.fn(),
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     saveIsOfficialResults: markResultsOfficial = jest.fn(),
@@ -153,7 +150,6 @@ export function renderInAppContext(
         isOfficialResults,
         printer,
         printBallotRef,
-        addCastVoteRecordFile,
         saveElection,
         resetElection,
         markResultsOfficial,

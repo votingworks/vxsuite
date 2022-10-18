@@ -45,7 +45,6 @@ import {
 } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
-import { AddCastVoteRecordFileResult } from './lib/backends/types';
 import { ServicesContext } from './contexts/services_context';
 import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
 
@@ -181,13 +180,6 @@ export function AppRoot({
     [store]
   );
 
-  const addCastVoteRecordFile = useCallback(
-    async (newCvrFile: File): Promise<AddCastVoteRecordFileResult> => {
-      return await store.addCastVoteRecordFile(newCvrFile);
-    },
-    [store]
-  );
-
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
       await store.configure(electionJson);
@@ -270,7 +262,6 @@ export function AppRoot({
         isOfficialResults: store.isOfficialResults,
         printer,
         printBallotRef,
-        addCastVoteRecordFile,
         saveElection,
         resetElection,
         markResultsOfficial,
