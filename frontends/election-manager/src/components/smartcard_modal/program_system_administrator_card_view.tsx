@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
+import { generatePin } from '@votingworks/utils';
 
-import { generatePin } from './pins';
 import {
   isSmartcardActionComplete,
   SmartcardActionStatus,

@@ -1,11 +1,11 @@
 import { mockOf } from '@votingworks/test-utils';
 
-import { isFeatureFlagEnabled } from '@votingworks/utils';
+import { isFeatureFlagEnabled } from './features';
 import { generatePin, hyphenatePin } from './pins';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('./features', (): typeof import('./features') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('./features'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

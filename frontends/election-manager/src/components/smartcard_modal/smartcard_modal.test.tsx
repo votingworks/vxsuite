@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types';
 import {
   assert,
+  generatePin,
   MemoryCard,
   MemoryHardware,
   throwIllegalValue,
@@ -28,15 +29,14 @@ import { screen, waitFor, within } from '@testing-library/react';
 
 import { App } from '../../app';
 import { authenticateWithSystemAdministratorCard } from '../../../test/util/authenticate';
-import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
 import { renderRootElement } from '../../../test/render_in_app_context';
 import { ElectionManagerStoreMemoryBackend } from '../../lib/backends';
 
-jest.mock('./pins', (): typeof import('./pins') => {
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
-    ...jest.requireActual('./pins'),
+    ...jest.requireActual('@votingworks/utils'),
     generatePin: jest.fn(),
   };
 });

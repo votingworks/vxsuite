@@ -1,12 +1,11 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert } from '@votingworks/utils';
+import { assert, generatePin } from '@votingworks/utils';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
-import { generatePin } from './pins';
 import {
   isSmartcardActionComplete,
   SmartcardActionStatus,

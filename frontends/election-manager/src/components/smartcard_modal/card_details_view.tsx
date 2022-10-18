@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, generatePin, throwIllegalValue } from '@votingworks/utils';
 import {
   Button,
   fontSizeTheme,
@@ -12,7 +12,6 @@ import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
-import { generatePin } from './pins';
 import {
   SmartcardAction,
   SmartcardActionStatus,
