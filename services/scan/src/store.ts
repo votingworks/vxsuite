@@ -1001,10 +1001,14 @@ export class Store {
           }
         }
 
-        // TODO: We should be waiting for the writeStream to drain before
-        // writing more data to it
-        writeStream.write(JSON.stringify(cvrMaybeWithBallotImages));
-        writeStream.write('\n');
+        const canWriteNext = writeStream.write(
+          `${JSON.stringify(cvrMaybeWithBallotImages)}\n`
+        );
+        if (!canWriteNext) {
+          await new Promise((resolve) => {
+            writeStream.once('drain', resolve);
+          });
+        }
       }
     }
 

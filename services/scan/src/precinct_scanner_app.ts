@@ -471,8 +471,10 @@ export async function buildPrecinctScannerApp(
         .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
       const cvrStream = new PassThrough();
       cvrStream.pipe(response);
-      await store.exportCvrs(cvrStream, { skipImages, orderBySheetId: true });
-      store.setCvrsAsBackedUp();
+      void store.exportCvrs(cvrStream, { skipImages, orderBySheetId: true });
+      cvrStream.on('end', () => {
+        store.setCvrsAsBackedUp();
+      });
     }
   );
 
