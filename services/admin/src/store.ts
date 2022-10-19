@@ -743,7 +743,7 @@ export class Store {
 
     const writeInRows = this.client.all(
       `
-        select
+        select distinct
           write_ins.id as id,
           write_ins.cvr_id as castVoteRecordId,
           write_ins.contest_id as contestId,

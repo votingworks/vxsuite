@@ -153,6 +153,43 @@ test('add a duplicate CVR file', async () => {
   });
 });
 
+test('partially duplicate CVR files', async () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  const partial1CvrFile =
+    electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asFilePath();
+  const partial2CvrFile =
+    electionMinimalExhaustiveSampleFixtures.partial2CvrFile.asFilePath();
+  const addPartial1Result = (
+    await store.addCastVoteRecordFile({ electionId, filePath: partial1CvrFile })
+  ).unsafeUnwrap();
+  expect(addPartial1Result).toEqual({
+    id: expect.stringMatching(/^[-0-9a-f]+$/),
+    wasExistingFile: false,
+    newlyAdded: 101,
+    alreadyPresent: 0,
+  });
+  const addPartial2Result = (
+    await store.addCastVoteRecordFile({ electionId, filePath: partial2CvrFile })
+  ).unsafeUnwrap();
+  expect(addPartial2Result).toEqual({
+    id: expect.stringMatching(/^[-0-9a-f]+$/),
+    wasExistingFile: false,
+    newlyAdded: 20,
+    alreadyPresent: 21,
+  });
+
+  const partial1WriteInCount = 42;
+  const partial2WriteInCount = 17;
+  const duplicatedWriteInCount = 6;
+
+  expect(store.getWriteInRecords({ electionId })).toHaveLength(
+    partial1WriteInCount + partial2WriteInCount - duplicatedWriteInCount
+  );
+});
+
 test('analyze a CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
