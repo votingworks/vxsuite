@@ -59,7 +59,7 @@ export function DefaultTestModePreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function NoPowerConnectedLivePreview(): JSX.Element {
+export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsClosedScreen
       isLiveMode

@@ -429,7 +429,7 @@ export function OvervotePreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteNoVotesPreview(): JSX.Element {
+export function UndervoteNoVotes1ContestPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -454,7 +454,30 @@ export function UndervoteNoVotesPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteBy1Preview(): JSX.Element {
+export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+
+  const contests = electionDefinition.election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+  assert(contests.length > 0);
+
+  return (
+    <ScanWarningScreen
+      adjudicationReasonInfo={contests.map((contest) => ({
+        type: AdjudicationReason.Undervote,
+        contestId: contest.id,
+        optionIds: [],
+        optionIndexes: [],
+        expected: contest.seats,
+      }))}
+    />
+  );
+}
+
+/* istanbul ignore next */
+export function Undervote1ContestPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -481,7 +504,7 @@ export function UndervoteBy1Preview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteManyPreview(): JSX.Element {
+export function UndervoteManyContestsPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 

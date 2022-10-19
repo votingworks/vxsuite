@@ -102,7 +102,7 @@ export function InvalidElectionHashPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function InvalidTestModeBallotPreview(): JSX.Element {
+export function InvalidBallotTestModePreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode
@@ -113,7 +113,7 @@ export function InvalidTestModeBallotPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function InvalidLiveModeBallotPreview(): JSX.Element {
+export function InvalidBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -157,7 +157,7 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
 }
 
 /* istanbul ignore next */
-export function BallotInFrontAfterReconnectPreview(): JSX.Element {
+export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -168,7 +168,7 @@ export function BallotInFrontAfterReconnectPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function BallotInBackAfterReconnectPreview(): JSX.Element {
+export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}

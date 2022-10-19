@@ -37,18 +37,18 @@ export function InsertBallotScreen({
 }
 
 /* istanbul ignore next */
-export function ZeroBallotsScannedTestPreview(): JSX.Element {
+export function ZeroBallotsScannedPreview(): JSX.Element {
   return (
     <InsertBallotScreen
-      isLiveMode={false}
       scannedBallotCount={0}
+      isLiveMode
       showNoChargerWarning={false}
     />
   );
 }
 
 /* istanbul ignore next */
-export function ManyBallotsScannedLivePreview(): JSX.Element {
+export function ManyBallotsScannedPreview(): JSX.Element {
   return (
     <InsertBallotScreen
       scannedBallotCount={1234}
@@ -59,7 +59,7 @@ export function ManyBallotsScannedLivePreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function NoPowerConnectedTestPreview(): JSX.Element {
+export function NoPowerConnectedTestModePreview(): JSX.Element {
   return (
     <InsertBallotScreen
       isLiveMode={false}
