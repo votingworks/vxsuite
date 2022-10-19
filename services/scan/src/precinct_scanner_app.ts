@@ -521,7 +521,7 @@ export async function buildPrecinctScannerApp(
       saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: 1000,
     })
       .on('error', (error: Error) => {
-        // debug('backup error: %s', error.stack);
+        debug('backup error: %s', error.stack);
         response.status(500).json({
           errors: [
             {
