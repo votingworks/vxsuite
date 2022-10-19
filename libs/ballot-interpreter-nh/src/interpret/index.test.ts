@@ -7,10 +7,11 @@ test('interpret marked', async () => {
     electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront.asFilePath();
   const backImagePath =
     electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack.asFilePath();
-  const interpretResult = await interpret(electionDefinition, [
-    frontImagePath,
-    backImagePath,
-  ]);
+  const interpretResult = await interpret(
+    electionDefinition,
+    [frontImagePath, backImagePath],
+    { isTestMode: false }
+  );
   expect(
     interpretResult.unsafeUnwrap().map(({ interpretation }) => interpretation)
   ).toMatchInlineSnapshot(`
@@ -5973,10 +5974,11 @@ test('interpret unmarked', async () => {
     electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedFront.asFilePath();
   const backImagePath =
     electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedBack.asFilePath();
-  const interpretResult = await interpret(electionDefinition, [
-    frontImagePath,
-    backImagePath,
-  ]);
+  const interpretResult = await interpret(
+    electionDefinition,
+    [frontImagePath, backImagePath],
+    { isTestMode: false }
+  );
   expect(
     interpretResult.unsafeUnwrap().map(({ interpretation }) => interpretation)
   ).toMatchInlineSnapshot(`
@@ -11363,10 +11365,11 @@ test('interpret marked 300dpi', async () => {
     electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront300dpi.asFilePath();
   const backImagePath =
     electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack300dpi.asFilePath();
-  const interpretResult = await interpret(electionDefinition, [
-    frontImagePath,
-    backImagePath,
-  ]);
+  const interpretResult = await interpret(
+    electionDefinition,
+    [frontImagePath, backImagePath],
+    { isTestMode: false }
+  );
 
   const interpretation = interpretResult.unsafeUnwrap();
   expect(

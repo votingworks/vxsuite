@@ -51,15 +51,15 @@ export async function interpret(
   electionDefinition: ElectionDefinition,
   sheet: readonly [string, string],
   {
+    isTestMode,
     markThresholds = electionDefinition.election.markThresholds ??
       DefaultMarkThresholds,
     adjudicationReasons = [],
-    isTestMode = false,
   }: {
+    isTestMode: boolean;
     markThresholds?: MarkThresholds;
     adjudicationReasons?: readonly AdjudicationReason[];
-    isTestMode?: boolean;
-  } = {}
+  }
 ): Promise<Result<[InterpretFileResult, InterpretFileResult], Error>> {
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 
