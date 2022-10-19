@@ -4,6 +4,7 @@ import {
   fireEvent,
   getByText as domGetByText,
   getByTestId as domGetByTestId,
+  screen,
 } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
@@ -20,7 +21,7 @@ import {
   eitherNeitherElectionDefinition,
 } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
-import { AddCastVoteRecordFileResult } from '../lib/backends';
+import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
@@ -76,14 +77,16 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+    });
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        addCastVoteRecordFile: addCvr,
         logger,
+        backend,
       }
     );
     await waitFor(() =>
@@ -95,7 +98,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    addCvr.mockResolvedValueOnce({
+    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
@@ -105,8 +108,8 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File([''], 'file.jsonl')] },
     });
-    await waitFor(() => getByText('0 new CVRs Loaded'));
-    expect(addCvr).toHaveBeenCalledTimes(1);
+    await screen.findByText('0 new CVRs Loaded');
+    expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'election_manager',
@@ -116,7 +119,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -138,15 +140,18 @@ describe('Screens display properly when USB is mounted', () => {
       .fn()
       .mockResolvedValue(fileEntries);
     const logger = fakeLogger();
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+    });
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        addCastVoteRecordFile: addCvr,
         logger,
+        backend,
       }
     );
-    await waitFor(() => getByText('Load CVR Files'));
+    await screen.findByText('Load CVR Files');
     getByText(
       /The following CVR files were automatically found on this USB drive./
     );
@@ -178,7 +183,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    addCvr.mockResolvedValueOnce({
+    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
@@ -186,7 +191,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(addCvr).toHaveBeenCalledTimes(1);
+      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       // We should not need to read the file another time since it was already read.
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
       getByText('0 new CVRs Loaded');
@@ -200,7 +205,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -225,15 +229,18 @@ describe('Screens display properly when USB is mounted', () => {
     window.kiosk!.readFile = jest
       .fn()
       .mockResolvedValueOnce('invalid-file-contents');
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+    });
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        addCastVoteRecordFile: addCvr,
         logger,
+        backend,
       }
     );
-    await waitFor(() => getByText('Load CVR Files'));
+    await screen.findByText('Load CVR Files');
     // If the files can not be parsed properly they are not automatically shown to load.
     getByText(
       /There were no new CVR files automatically found on this USB drive./
@@ -245,13 +252,15 @@ describe('Screens display properly when USB is mounted', () => {
     );
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
 
-    addCvr.mockRejectedValueOnce(new Error('test error'));
+    jest
+      .spyOn(backend, 'addCastVoteRecordFile')
+      .mockRejectedValueOnce(new Error('test error'));
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File(['invalid-file-contents'], 'file.jsonl')] },
     });
     getByText('Loading');
     await waitFor(() => {
-      expect(addCvr).toHaveBeenCalledTimes(1);
+      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       // There should be an error loading the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
@@ -265,7 +274,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to test mode when test files have been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -312,13 +320,17 @@ describe('Screens display properly when USB is mounted', () => {
       }
       return JSON.stringify(cvr);
     });
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+      castVoteRecordFiles: added,
+    });
     const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        addCastVoteRecordFile: addCvr,
         logger,
+        backend,
       }
     );
     await waitFor(() =>
@@ -356,7 +368,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    addCvr.mockResolvedValueOnce({
+    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
       wasExistingFile: true,
       newlyAdded: 0,
       alreadyPresent: 0,
@@ -364,7 +376,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[1], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(addCvr).toHaveBeenCalledTimes(1);
+      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       // There should be a message about loading a duplicate file displayed.
       getByText('Duplicate File');
       getByText(
@@ -380,7 +392,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to live mode when live files have been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -416,21 +427,25 @@ describe('Screens display properly when USB is mounted', () => {
       [new File([JSON.stringify(cvr)], 'randomname')],
       eitherNeitherElectionDefinition.election
     );
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+      castVoteRecordFiles: added,
+    });
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        addCastVoteRecordFile: addCvr,
+        backend,
       }
     );
-    await waitFor(() => getByText('Load Live Mode CVR Files'));
+    await screen.findByText('Load Live Mode CVR Files');
 
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
-    addCvr.mockResolvedValueOnce({
+    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
@@ -446,14 +461,13 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(addCvr).toHaveBeenCalledTimes(1);
+      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       getByText('0 new CVRs Loaded');
     });
   });
 
   test('Shows previously loaded files when all files have already been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -479,15 +493,19 @@ describe('Screens display properly when USB is mounted', () => {
       [new File([JSON.stringify(cvr)], LIVE_FILE1)],
       eitherNeitherElectionDefinition.election
     );
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition: eitherNeitherElectionDefinition,
+      castVoteRecordFiles: added,
+    });
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        addCastVoteRecordFile: addCvr,
+        backend,
       }
     );
-    await waitFor(() => getByText('Load Live Mode CVR Files'));
+    await screen.findByText('Load Live Mode CVR Files');
     getByText(
       /There were no new Live Mode CVR files automatically found on this USB drive./
     );

@@ -23,7 +23,6 @@ import {
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../lib/votecounting';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
-import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 
 export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles;
@@ -33,8 +32,6 @@ export interface AppContextInterface {
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
-  addCastVoteRecordFile: (file: File) => Promise<AddCastVoteRecordFileResult>;
-  clearCastVoteRecordFiles: () => Promise<void>;
   saveElection: SaveElection;
   resetElection: ResetElection;
   markResultsOfficial: () => Promise<void>;
@@ -72,12 +69,6 @@ const appContext: AppContextInterface = {
   isOfficialResults: false,
   printer: new NullPrinter(),
   printBallotRef: undefined,
-  addCastVoteRecordFile: async () => ({
-    wasExistingFile: false,
-    newlyAdded: 0,
-    alreadyPresent: 0,
-  }),
-  clearCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
   resetElection: async () => undefined,
   markResultsOfficial: async () => undefined,

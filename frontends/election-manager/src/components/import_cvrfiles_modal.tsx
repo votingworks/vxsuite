@@ -29,6 +29,7 @@ import {
 } from '../config/types';
 import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
+import { useAddCastVoteRecordFileMutation } from '../hooks/use_add_cast_vote_record_file_mutation';
 import { AddCastVoteRecordFileResult } from '../lib/backends';
 
 const { UsbDriveStatus } = usbstick;
@@ -72,12 +73,12 @@ function throwBadStatus(s: never): never {
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
-    addCastVoteRecordFile,
     castVoteRecordFiles,
     electionDefinition,
     auth,
     logger,
   } = useContext(AppContext);
+  const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
   const userRole = auth.user.role;
@@ -94,9 +95,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   ) {
     setCurrentState({ state: 'loading' });
     try {
-      const addCastVoteRecordFileResult = await addCastVoteRecordFile(
-        new File([fileData.fileContent], fileData.name)
-      );
+      const addCastVoteRecordFileResult =
+        await addCastVoteRecordFileMutation.mutateAsync(
+          new File([fileData.fileContent], fileData.name)
+        );
 
       if (addCastVoteRecordFileResult.wasExistingFile) {
         setCurrentState({
@@ -156,7 +158,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     setCurrentState({ state: 'loading' });
 
     try {
-      const addCastVoteRecordFileResult = await addCastVoteRecordFile(file);
+      const addCastVoteRecordFileResult =
+        await addCastVoteRecordFileMutation.mutateAsync(file);
 
       input.value = '';
 
