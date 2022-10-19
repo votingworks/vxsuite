@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import { createReadStream, existsSync } from 'fs-extra';
-import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
 import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { FULL_LOG_PATH } from '@votingworks/logging';
+import { PassThrough } from 'stream';
 import { Store } from './store';
 
 const debug = makeDebug('scan:backup');
@@ -85,24 +85,30 @@ export class Backup {
       throw new Error('cannot backup without election configuration');
     }
 
+    debug('adding election.json to backup...');
     await this.addEntry('election.json', electionDefinition.electionData);
+    debug('added election.json to backup');
 
-    const cvrStream = new WritableStream();
-    await this.store.exportCvrs(cvrStream);
-    await this.addEntry('cvrs.jsonl', cvrStream.toBuffer());
+    debug('adding CVRs to backup...');
+    const cvrStream = new PassThrough({ highWaterMark: 100000000 }); // 100MB
+    void this.store.exportCvrs(cvrStream);
+    await this.addEntry('cvrs.jsonl', cvrStream);
+    debug('added CVRs to backup');
 
+    debug('adding database files to backup...');
     const dbBackupFile = fileSync();
     this.store.backup(dbBackupFile.name);
     await this.rewriteFilePaths(dbBackupFile.name);
     await this.addFileEntry(dbBackupFile.name, 'ballots.db');
     await this.addEntry('ballots.db.digest', Store.getSchemaDigest());
     dbBackupFile.removeCallback();
+    debug('added database files to backup');
 
     const sheets = [];
     for (const sheet of this.store.getSheets()) {
       sheets.push(sheet);
     }
-
+    debug('adding ballot images to backup...');
     if (
       saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets !== undefined
     ) {
@@ -126,9 +132,12 @@ export class Backup {
         await this.addFileEntry(sheet.back.normalized);
       }
     }
+    debug('added ballot images to backup');
 
     if (existsSync(FULL_LOG_PATH)) {
+      debug('adding logs to backup...');
       await this.addFileEntry(FULL_LOG_PATH);
+      debug('added logs to backup...');
     }
 
     this.zip.finalize();
