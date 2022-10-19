@@ -240,7 +240,7 @@ export async function main(
   const interpretResult = await interpret(
     electionDefinition,
     [frontBallotPath, backBallotPath],
-    { markThresholds: options.markThresholds }
+    { isTestMode: true, markThresholds: options.markThresholds }
   );
 
   if (interpretResult.isErr()) {

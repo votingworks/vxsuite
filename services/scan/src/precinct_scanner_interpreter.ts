@@ -176,6 +176,7 @@ async function nhInterpret(
   const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
     config;
   const result = await interpretNh(electionDefinition, sheet, {
+    isTestMode: config.testMode,
     markThresholds: markThresholdOverrides,
     adjudicationReasons:
       electionDefinition.election.precinctScanAdjudicationReasons ?? [],

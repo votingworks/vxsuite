@@ -170,6 +170,7 @@ test('--mark-thresholds DEFINITE', async () => {
 
   // ensure the 10% threshold is applied
   expect(interpret).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
+    isTestMode: true,
     markThresholds: {
       definite: 0.1,
       marginal: 0.1,
@@ -221,6 +222,7 @@ test('--mark-thresholds MARGINAL,DEFINITE', async () => {
 
   // ensure the thresholds are applied
   expect(interpret).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
+    isTestMode: true,
     markThresholds: {
       definite: 0.1,
       marginal: 0.05,
