@@ -25,17 +25,11 @@ beforeEach(() => {
   app = buildApp({ workspace });
 });
 
-afterAll(() => {
-  jest.restoreAllMocks();
-});
+test('generate-card-pin returns randomly generated PIN', async () => {
+  mockOf(generatePin).mockReturnValueOnce('121212');
 
-describe('POST admin/pins/generate-card-pin', () => {
-  test('returns randomly generated PIN', async () => {
-    mockOf(generatePin).mockReturnValueOnce('121212');
-
-    await request(app).post(`/admin/pins/generate-card-pin`).expect(200, {
-      status: 'ok',
-      pin: '121212',
-    });
+  await request(app).post(`/admin/pins/generate-card-pin`).expect(200, {
+    status: 'ok',
+    pin: '121212',
   });
 });
