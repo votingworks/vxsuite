@@ -90,7 +90,7 @@ export class Backup {
     debug('added election.json to backup');
 
     debug('adding CVRs to backup...');
-    const cvrStream = new PassThrough({ highWaterMark: 100000000 }); // 100MB
+    const cvrStream = new PassThrough();
     void this.store.exportCvrs(cvrStream);
     await this.addEntry('cvrs.jsonl', cvrStream);
     debug('added CVRs to backup');
