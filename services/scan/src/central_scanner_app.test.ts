@@ -74,7 +74,7 @@ beforeEach(async () => {
       },
     ]
   );
-  app = await buildCentralScannerApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, workspace });
 });
 
 test('reloads configuration from the store', () => {

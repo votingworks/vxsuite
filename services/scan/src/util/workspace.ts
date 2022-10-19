@@ -19,6 +19,11 @@ export interface Workspace {
   readonly scannedImagesPath: string;
 
   /**
+   * The directory where files are uploaded.
+   */
+  readonly uploadsPath: string;
+
+  /**
    * The store associated with the workspace.
    */
   readonly store: Store;
@@ -33,12 +38,18 @@ export interface Workspace {
    * as deleting the workspace and recreating it.
    */
   reset(): void;
+
+  /**
+   * Clears the uploads directory.
+   */
+  clearUploads(): void;
 }
 
 export function createWorkspace(root: string): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const scannedImagesPath = join(ballotImagesPath, 'scanned-images');
+  const uploadsPath = join(resolvedRoot, 'uploads');
   ensureDirSync(ballotImagesPath);
   ensureDirSync(scannedImagesPath);
 
@@ -49,6 +60,7 @@ export function createWorkspace(root: string): Workspace {
     path: resolvedRoot,
     ballotImagesPath,
     scannedImagesPath,
+    uploadsPath,
     store,
     zero() {
       store.zero();
@@ -63,6 +75,9 @@ export function createWorkspace(root: string): Workspace {
       emptyDirSync(scannedImagesPath);
       ensureDirSync(ballotImagesPath);
       ensureDirSync(scannedImagesPath);
+    },
+    clearUploads() {
+      emptyDirSync(uploadsPath);
     },
   };
 }

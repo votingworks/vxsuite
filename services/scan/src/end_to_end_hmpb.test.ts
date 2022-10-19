@@ -52,7 +52,7 @@ beforeEach(async () => {
   workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  app = await buildCentralScannerApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, workspace });
 });
 
 afterEach(async () => {

@@ -15,9 +15,9 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import express, { Application } from 'express';
-import { readFile } from 'fs-extra';
 import makeDebug from 'debug';
+import express, { Application } from 'express';
+import * as fs from 'fs/promises';
 import multer from 'multer';
 import { z } from 'zod';
 import { backup } from './backup';
@@ -108,7 +108,11 @@ export async function buildPrecinctScannerApp(
   await updateInterpreterConfig(interpreter, workspace);
 
   const app: Application = express();
-  const upload = multer({ storage: multer.diskStorage({}) });
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: workspace.uploadsPath,
+    }),
+  });
 
   app.use(express.raw());
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
@@ -344,9 +348,9 @@ export async function buildPrecinctScannerApp(
         return;
       }
 
-      try {
-        const { ballots = [], metadatas = [], layouts = [] } = request.files;
+      const { ballots = [], metadatas = [], layouts = [] } = request.files;
 
+      try {
         if (ballots.length === 0) {
           response.status(400).json({
             status: 'error',
@@ -408,11 +412,11 @@ export async function buildPrecinctScannerApp(
           }
 
           const layout = safeParseJson(
-            await readFile(layoutFile.path, 'utf8'),
+            await fs.readFile(layoutFile.path, 'utf8'),
             z.array(BallotPageLayoutSchema)
           ).unsafeUnwrap();
 
-          const pdf = await readFile(ballotFile.path);
+          const pdf = await fs.readFile(ballotFile.path);
           const result: BallotPageLayoutWithImage[] = [];
 
           for await (const { page, pageNumber } of pdfToImages(pdf, {
@@ -446,6 +450,11 @@ export async function buildPrecinctScannerApp(
             },
           ],
         });
+      } finally {
+        // remove uploaded files
+        for (const file of [...ballots, ...metadatas, ...layouts]) {
+          await fs.unlink(file.path);
+        }
       }
     }
   );
