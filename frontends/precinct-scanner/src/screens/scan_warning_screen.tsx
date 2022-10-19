@@ -121,7 +121,7 @@ function OvervoteWarningScreen({
         <h1>Too Many Votes</h1>
         <Text>
           There are too many votes marked in the{' '}
-          {pluralize('contest', contestNames.length)} for:{' '}
+          {pluralize('contest', contestNames.length)}:{' '}
           {toSentence(contestNames)}.
         </Text>
         <ResponsiveButtonParagraph>
