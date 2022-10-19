@@ -261,8 +261,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
             </p>
           )}
           <p>
-            <LinkButton small to={routerPaths.tally}>
-              Back to Tally Index
+            <LinkButton small to={routerPaths.reports}>
+              Back to Reports
             </LinkButton>
           </p>
           {!isReportEmpty && (
