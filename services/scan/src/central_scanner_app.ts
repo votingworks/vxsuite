@@ -10,7 +10,6 @@ import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
-import { readFile } from 'fs-extra';
 import * as fs from 'fs/promises';
 import multer from 'multer';
 import { z } from 'zod';
@@ -163,7 +162,7 @@ export async function buildCentralScannerApp({
         }
 
         const pkg = await readBallotPackageFromBuffer(
-          await readFile(file.path)
+          await fs.readFile(file.path)
         );
 
         importer.configure(pkg.electionDefinition);
@@ -418,12 +417,12 @@ export async function buildCentralScannerApp({
           }
 
           const layout = safeParseJson(
-            await readFile(layoutFile.path, 'utf8'),
+            await fs.readFile(layoutFile.path, 'utf8'),
             z.array(BallotPageLayoutSchema)
           ).unsafeUnwrap();
 
           await importer.addHmpbTemplates(
-            await readFile(ballotFile.path),
+            await fs.readFile(ballotFile.path),
             layout
           );
         }
