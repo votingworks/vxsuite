@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies, import/no-import-module-exports
 import {
   fakePrintElementWhenReady,
   fakePrintElement,
@@ -6,8 +6,7 @@ import {
 
 const ui = jest.requireActual('@votingworks/ui');
 
-// eslint-disable-next-line vx/gts-no-default-exports
-export default {
+module.exports = {
   ...ui,
   printElement: fakePrintElement,
   printElementWhenReady: fakePrintElementWhenReady,
