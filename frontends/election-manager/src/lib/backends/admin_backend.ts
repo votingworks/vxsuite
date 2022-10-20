@@ -2,23 +2,187 @@ import {
   ContestId,
   ContestOptionId,
   ElectionDefinition,
+  ExternalTallySourceType,
+  FullElectionExternalTallies,
+  FullElectionExternalTally,
   Id,
   IdSchema,
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { assert, fetchJson, typedAs } from '@votingworks/utils';
+import { assert, fetchJson, Storage, typedAs } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
-import { LogEventId } from '@votingworks/logging';
-import { ElectionManagerStoreStorageBackend } from './storage_backend';
-import { AddCastVoteRecordFileResult } from './types';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { z } from 'zod';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from './types';
+import { PrintedBallot, PrintedBallotSchema } from '../../config/types';
+import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
+import {
+  convertExternalTalliesToStorageString,
+  convertStorageStringToExternalTallies,
+} from '../../utils/external_tallies';
 
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
+const cvrsStorageKey = 'cvrFiles';
+const isOfficialResultsKey = 'isOfficialResults';
+const printedBallotsStorageKey = 'printedBallots';
+const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
 /** @visibleForTesting */
 export const activeElectionIdStorageKey = 'activeElectionId';
 
-export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorageBackend {
+/**
+ * Backend for storing election data.
+ *
+ * Note that some of this is still using local storage, but that will be
+ * replaced with the `admin` service.
+ */
+export class ElectionManagerStoreAdminBackend
+  implements ElectionManagerStoreBackend
+{
+  private readonly storage: Storage;
+  private readonly logger: Logger;
+  private readonly currentUserRole: LoggingUserRole;
+
+  constructor({
+    storage,
+    logger,
+    currentUserRole,
+  }: {
+    storage: Storage;
+    logger: Logger;
+    currentUserRole?: LoggingUserRole;
+  }) {
+    this.storage = storage;
+    this.logger = logger;
+    this.currentUserRole = currentUserRole ?? 'unknown';
+  }
+
+  async loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {
+    const serializedCvrFiles = safeParse(
+      z.string().optional(),
+      await this.storage.get(cvrsStorageKey)
+    ).ok();
+
+    if (serializedCvrFiles) {
+      const cvrs = CastVoteRecordFiles.import(serializedCvrFiles);
+      await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
+        message:
+          'Cast vote records loaded into application from local storage.',
+        disposition: 'success',
+        numberOfCvrs: cvrs.fileList.length,
+      });
+      return cvrs;
+    }
+  }
+
+  async loadFullElectionExternalTallies(): Promise<
+    FullElectionExternalTallies | undefined
+  > {
+    const serializedExternalTallies = safeParse(
+      z.string().optional(),
+      await this.storage.get(externalVoteTalliesFileStorageKey)
+    ).ok();
+
+    if (serializedExternalTallies) {
+      const importedData = convertStorageStringToExternalTallies(
+        serializedExternalTallies
+      );
+      await this.logger.log(LogEventId.LoadFromStorage, 'system', {
+        message:
+          'External file format vote tally data automatically loaded into application from local storage.',
+        disposition: 'success',
+        importedTallyFileNames: importedData
+          .map((d) => d.inputSourceName)
+          .join(', '),
+      });
+      return new Map(importedData.map((d) => [d.source, d]));
+    }
+  }
+
+  async updateFullElectionExternalTally(
+    sourceType: ExternalTallySourceType,
+    newFullElectionExternalTally: FullElectionExternalTally
+  ): Promise<void> {
+    const newFullElectionExternalTallies = new Map(
+      await this.loadFullElectionExternalTallies()
+    );
+    newFullElectionExternalTallies.set(
+      sourceType,
+      newFullElectionExternalTally
+    );
+    await this.setStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
+      `Updated external tally from source: ${newFullElectionExternalTally.source}`
+    );
+  }
+
+  async removeFullElectionExternalTally(
+    sourceType: ExternalTallySourceType
+  ): Promise<void> {
+    const newFullElectionExternalTallies = new Map(
+      await this.loadFullElectionExternalTallies()
+    );
+    newFullElectionExternalTallies.delete(sourceType);
+    await this.setStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
+      `Removed external tally from source: ${sourceType}`
+    );
+  }
+
+  async clearFullElectionExternalTallies(): Promise<void> {
+    await this.removeStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      'Cleared all external tallies'
+    );
+  }
+
+  async loadPrintedBallots(): Promise<PrintedBallot[] | undefined> {
+    const parseResult = safeParse(
+      z.array(PrintedBallotSchema),
+      await this.storage.get(printedBallotsStorageKey)
+    );
+
+    if (parseResult.isErr()) {
+      await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
+        message: 'Failed to parse printed ballots from storage',
+        disposition: 'failure',
+        storageKey: printedBallotsStorageKey,
+        error: parseResult.err().message,
+      });
+      return;
+    }
+
+    const printedBallots = parseResult.ok();
+
+    await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
+      message: 'Printed ballots loaded from storage',
+      disposition: 'success',
+      storageKey: printedBallotsStorageKey,
+      totalCount: printedBallots.reduce(
+        (count, printedBallot) => count + printedBallot.numCopies,
+        0
+      ),
+    });
+
+    return printedBallots;
+  }
+
+  async addPrintedBallot(newPrintedBallot: PrintedBallot): Promise<void> {
+    const oldPrintedBallots = await this.loadPrintedBallots();
+    const newPrintedBallots = [...(oldPrintedBallots ?? []), newPrintedBallot];
+    await this.setStorageKeyAndLog(
+      printedBallotsStorageKey,
+      newPrintedBallots,
+      'Printed ballot information'
+    );
+  }
+
   private async loadActiveElectionId(): Promise<Id | undefined> {
     return safeParse(
       IdSchema,
@@ -26,7 +190,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     ).ok();
   }
 
-  override async loadCurrentElectionMetadata(): Promise<
+  async loadCurrentElectionMetadata(): Promise<
     Admin.ElectionRecord | undefined
   > {
     const activeElectionId = await this.loadActiveElectionId();
@@ -97,7 +261,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File
   ): Promise<AddCastVoteRecordFileResult> {
-    await super.addCastVoteRecordFile(newCastVoteRecordFile);
+    await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
 
     const activeElectionId = await this.loadActiveElectionId();
 
@@ -132,8 +296,32 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     };
   }
 
+  private async addCastVoteRecordFileToStorage(
+    newCastVoteRecordFile: File
+  ): Promise<void> {
+    const loadElectionResult = await this.loadCurrentElectionMetadata();
+
+    if (!loadElectionResult) {
+      throw new Error('Cannot add CVR files without an election definition.');
+    }
+
+    const loadCastVoteRecordFilesResult =
+      (await this.loadCastVoteRecordFiles()) ?? CastVoteRecordFiles.empty;
+
+    const newCastVoteRecordFiles = await loadCastVoteRecordFilesResult.add(
+      newCastVoteRecordFile,
+      loadElectionResult.electionDefinition.election
+    );
+
+    await this.setStorageKeyAndLog(
+      cvrsStorageKey,
+      newCastVoteRecordFiles.export(),
+      'Cast vote records'
+    );
+  }
+
   async clearCastVoteRecordFiles(): Promise<void> {
-    await super.clearCastVoteRecordFiles();
+    await this.clearCastVoteRecordFilesFromStorage();
 
     const activeElectionId = await this.loadActiveElectionId();
 
@@ -147,7 +335,15 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     });
   }
 
-  override async markResultsOfficial(): Promise<void> {
+  private async clearCastVoteRecordFilesFromStorage(): Promise<void> {
+    await this.removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
+    await this.removeStorageKeyAndLog(
+      isOfficialResultsKey,
+      'isOfficialResults flag'
+    );
+  }
+
+  async markResultsOfficial(): Promise<void> {
     const activeElectionId = await this.loadActiveElectionId();
 
     /* istanbul ignore next */
@@ -179,14 +375,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   async reset(): Promise<void> {
     const activeElectionId = await this.loadActiveElectionId();
 
-    if (activeElectionId) {
-      await this.removeStorageKeyAndLog(
-        activeElectionIdStorageKey,
-        'active election ID'
-      );
-    }
-
-    await super.reset();
+    await this.storage.clear();
 
     if (activeElectionId) {
       await fetchJson(`/admin/elections/${activeElectionId}`, {
@@ -239,7 +428,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     return response;
   }
 
-  override async transcribeWriteIn(
+  async transcribeWriteIn(
     writeInId: Id,
     transcribedValue: string
   ): Promise<void> {
@@ -263,7 +452,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
   }
 
-  override async loadWriteInAdjudications(options?: {
+  async loadWriteInAdjudications(options?: {
     contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
     const activeElectionId = await this.loadActiveElectionId();
@@ -327,7 +516,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     return response.id;
   }
 
-  override async updateWriteInAdjudication(
+  async updateWriteInAdjudication(
     writeInAdjudicationId: Id,
     adjudicatedValue: string,
     adjudicatedOptionId?: ContestOptionId
@@ -353,9 +542,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
   }
 
-  override async deleteWriteInAdjudication(
-    writeInAdjudicationId: Id
-  ): Promise<void> {
+  async deleteWriteInAdjudication(writeInAdjudicationId: Id): Promise<void> {
     const response = (await fetchJson(
       `/admin/write-in-adjudications/${writeInAdjudicationId}`,
       {
@@ -366,7 +553,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     assert(response.status === 'ok');
   }
 
-  override async getWriteInSummary(options?: {
+  async getWriteInSummary(options?: {
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]> {
@@ -414,5 +601,50 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
 
     return response.table;
+  }
+
+  private async setStorageKeyAndLog(
+    storageKey: string,
+    value: unknown,
+    logDescription: string
+  ): Promise<void> {
+    try {
+      await this.storage.set(storageKey, value);
+      await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {
+        message: `${logDescription} successfully saved to storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {
+        message: `Failed to save ${logDescription} to storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
+  }
+
+  private async removeStorageKeyAndLog(
+    storageKey: string,
+    logDescription: string
+  ): Promise<void> {
+    try {
+      await this.storage.remove(storageKey);
+      await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {
+        message: `${logDescription} successfully cleared in storage.`,
+        storageKey,
+        disposition: 'success',
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {
+        message: `Failed to clear ${logDescription} in storage.`,
+        storageKey,
+        error: error.message,
+        disposition: 'failure',
+      });
+    }
   }
 }

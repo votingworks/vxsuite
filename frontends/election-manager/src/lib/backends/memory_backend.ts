@@ -131,7 +131,7 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(this.castVoteRecordFiles);
   }
 
-  protected getWriteInsFromCastVoteRecords(
+  getWriteInsFromCastVoteRecords(
     castVoteRecordFile: CastVoteRecordFile
   ): Admin.WriteInRecord[] {
     const newWriteIns: Admin.WriteInRecord[] = [];
@@ -239,7 +239,7 @@ export class ElectionManagerStoreMemoryBackend
     this.printedBallots = [...(this.printedBallots ?? []), printedBallot];
   }
 
-  protected filterWriteIns(
+  filterWriteIns(
     writeIns: readonly Admin.WriteInRecord[],
     options?: {
       contestId?: ContestId;
