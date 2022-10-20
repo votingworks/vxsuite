@@ -14,6 +14,8 @@ import {
   makePollWorkerCard,
   getZeroCompressedTally,
   makeSystemAdministratorCard,
+  expectPrint,
+  fakePrinter,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -23,7 +25,6 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -410,8 +411,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   fireEvent.click(screen.getByText('Close Polls and Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
+  await expectPrint();
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
-  expect(printer.print).toHaveBeenCalledTimes(2);
   fireEvent.click(await screen.findByText('Continue'));
 
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);
