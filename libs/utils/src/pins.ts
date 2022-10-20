@@ -1,3 +1,4 @@
+import randomBytes from 'randombytes';
 import { EnvironmentFlagName } from './environment_flag';
 import { isFeatureFlagEnabled } from './features';
 
@@ -12,13 +13,14 @@ export function generatePin(length = 6): string {
     throw new Error('PIN length must be greater than 0');
   }
 
+  const bytes = randomBytes(length);
   let pin = '';
   for (let i = 0; i < length; i += 1) {
     const nextDigit = isFeatureFlagEnabled(
       EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN
     )
       ? 0
-      : Math.floor(Math.random() * 10);
+      : (bytes[i] as number) % 10;
     pin += `${nextDigit}`;
   }
   return pin;
