@@ -345,6 +345,11 @@ export function PollWorkerScreen({
     );
   }
 
+  const isPollsOpenForReport =
+    pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING
+      ? isPollsOpen
+      : !isPollsOpen;
+
   const printableReport = currentTally && (
     <PrintableContainer>
       <TallyReport>
@@ -362,7 +367,7 @@ export function PollWorkerScreen({
                 tally={tallyForReport}
                 precinctSelection={singlePrecinctSelectionFor(precinctId)}
                 partyId={partyId}
-                isPollsOpen={!isPollsOpen}
+                isPollsOpen={isPollsOpenForReport}
                 isLiveMode={isLiveMode}
                 currentTime={currentTime}
                 pollsToggledTime={pollsToggledTime || currentTime}
@@ -378,7 +383,7 @@ export function PollWorkerScreen({
               electionDefinition={electionDefinition}
               signingMachineId={machineConfig.machineId}
               compressedTally={currentCompressedTally}
-              isPollsOpen={!isPollsOpen}
+              isPollsOpen={isPollsOpenForReport}
               isLiveMode={isLiveMode}
               pollsToggledTime={pollsToggledTime || currentTime}
             />
