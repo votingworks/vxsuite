@@ -346,7 +346,9 @@ export function PollWorkerScreen({
   }
 
   const isPollsOpenForReport =
-    pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING
+    pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING ||
+    pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE ||
+    pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE
       ? isPollsOpen
       : !isPollsOpen;
 
