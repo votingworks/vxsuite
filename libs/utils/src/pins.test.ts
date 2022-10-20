@@ -1,4 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
+import fc from 'fast-check';
 
 import { isFeatureFlagEnabled } from './features';
 import { generatePin, hyphenatePin } from './pins';
@@ -17,11 +18,16 @@ beforeEach(() => {
 test('generatePin generates PINs', () => {
   const digitRegex = /^[0-9]+$/;
 
-  expect(generatePin().length).toEqual(6);
-  expect(generatePin().match(digitRegex)).toBeTruthy();
+  // check default length
+  expect(generatePin()).toHaveLength(6);
 
-  expect(generatePin(10).length).toEqual(10);
-  expect(generatePin(10).match(digitRegex)).toBeTruthy();
+  fc.assert(
+    fc.property(fc.integer(1, 100), (length) => {
+      const pin = generatePin(length);
+      expect(pin).toMatch(digitRegex);
+      expect(pin).toHaveLength(length);
+    })
+  );
 
   expect(() => generatePin(0)).toThrow('PIN length must be greater than 0');
   expect(() => generatePin(-1)).toThrow('PIN length must be greater than 0');
@@ -30,8 +36,13 @@ test('generatePin generates PINs', () => {
 test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
-  expect(generatePin()).toEqual('000000');
-  expect(generatePin(10)).toEqual('0000000000');
+  fc.assert(
+    fc.property(fc.integer(1, 100), (length) => {
+      const pin = generatePin(length);
+      expect(pin).toMatch(/^[0]+$/);
+      expect(pin).toHaveLength(length);
+    })
+  );
 });
 
 test('hyphenatePin hyphenates PINs', () => {
