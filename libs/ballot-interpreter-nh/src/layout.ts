@@ -309,10 +309,20 @@ export function generateBallotPageLayouts(
       });
     }
 
+    // ensure the layouts are returned in the contest-order defined by the election definition
+    const contestsInOrder: BallotPageContestLayout[] = election.contests
+      .map((electionContest) =>
+        contests.find((c) => c.contestId === electionContest.id)
+      )
+      .filter(
+        (contestLayout): contestLayout is BallotPageContestLayout =>
+          contestLayout !== undefined
+      );
+
     layouts.push({
       metadata: { ...metadata, pageNumber: i + 1 },
       pageSize: geometry.canvasSize,
-      contests,
+      contests: contestsInOrder,
     });
   }
 
