@@ -1,12 +1,12 @@
 import {
-  BallotLocales,
+  BallotLocale,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
 } from '@votingworks/types';
 import { KeyedMap } from './keyed_map';
 
 export type TemplateMapKey = [
-  locales: BallotLocales | undefined,
+  locales: BallotLocale | undefined,
   ballotStyleId: BallotPageMetadata['ballotStyleId'],
   precinctId: BallotPageMetadata['precinctId'],
   pageNumber: number

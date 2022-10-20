@@ -9,9 +9,10 @@ import { fromByteArray } from 'base64-js';
 import { Handler, Previewer, registerHandlers } from 'pagedjs';
 import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
+import { Admin } from '@votingworks/api';
 import {
   AnyContest,
-  BallotLocales,
+  BallotLocale,
   BallotType,
   Candidate,
   CandidateContest,
@@ -49,7 +50,6 @@ import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
-import { BallotMode } from '../config/types';
 import { isSuperBallotStyle } from '../utils/election';
 
 function hasVote(
@@ -126,7 +126,7 @@ function dualPhraseWithSlash(
 
 function dualLanguageComposer(
   t: TFunction,
-  locales: BallotLocales,
+  locales: BallotLocale,
   separator?: string
 ) {
   return (key: string, options: StringMap = {}) => {
@@ -151,18 +151,18 @@ function dualLanguageComposer(
   };
 }
 
-function ballotModeToBallotTitle(ballotMode: BallotMode): string {
+function ballotModeToBallotTitle(ballotMode: Admin.BallotMode): string {
   switch (ballotMode) {
-    case BallotMode.Draft: {
+    case Admin.BallotMode.Draft: {
       return 'DRAFT BALLOT';
     }
-    case BallotMode.Official: {
+    case Admin.BallotMode.Official: {
       return 'Official Ballot';
     }
-    case BallotMode.Sample: {
+    case Admin.BallotMode.Sample: {
       return 'SAMPLE BALLOT';
     }
-    case BallotMode.Test: {
+    case Admin.BallotMode.Test: {
       return 'TEST BALLOT';
     }
     /* istanbul ignore next: Compile-time check for completeness */
@@ -496,7 +496,7 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
 export interface CandidateContestChoicesProps {
   election: Election;
   contest: CandidateContest;
-  locales: BallotLocales;
+  locales: BallotLocale;
   vote?: CandidateVote;
   density?: number;
   targetMarkPosition?: BallotTargetMarkPosition;
@@ -566,10 +566,10 @@ export interface HandMarkedPaperBallotProps {
   ballotStyleId: BallotStyleId;
   election: Election;
   electionHash: string;
-  ballotMode?: BallotMode;
+  ballotMode?: Admin.BallotMode;
   isAbsentee?: boolean;
   precinctId: PrecinctId;
-  locales: BallotLocales;
+  locales: BallotLocale;
   ballotId?: BallotId;
   votes?: VotesDict;
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
@@ -580,7 +580,7 @@ export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   electionHash,
-  ballotMode = BallotMode.Official,
+  ballotMode = Admin.BallotMode.Official,
   isAbsentee = true,
   precinctId,
   locales,
@@ -829,7 +829,9 @@ export function HandMarkedPaperBallot({
               </div>
             </PageFooterRow>
           </PageFooterMain>
-          {[BallotMode.Draft, BallotMode.Sample].includes(ballotMode) ? (
+          {[Admin.BallotMode.Draft, Admin.BallotMode.Sample].includes(
+            ballotMode
+          ) ? (
             <PageFooterQrCodeOutline />
           ) : (
             <PageFooterQrCode
@@ -841,7 +843,7 @@ export function HandMarkedPaperBallot({
                   ballotStyleId,
                   precinctId,
                   locales,
-                  isTestMode: ballotMode === BallotMode.Test,
+                  isTestMode: ballotMode === Admin.BallotMode.Test,
                   ballotType: isAbsentee
                     ? BallotType.Absentee
                     : BallotType.Standard,
@@ -854,12 +856,12 @@ export function HandMarkedPaperBallot({
       </div>
 
       <div className="watermark">
-        {ballotMode === BallotMode.Draft && (
+        {ballotMode === Admin.BallotMode.Draft && (
           <Watermark>
             <div>DRAFT</div>
           </Watermark>
         )}
-        {ballotMode === BallotMode.Sample && (
+        {ballotMode === Admin.BallotMode.Sample && (
           <Watermark>
             <div>SAMPLE</div>
           </Watermark>

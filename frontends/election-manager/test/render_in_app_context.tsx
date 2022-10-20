@@ -22,7 +22,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
-  PrintedBallot,
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
@@ -57,8 +56,6 @@ interface RenderInAppContextParams {
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
   usbDriveEject?: () => Promise<void>;
-  addPrintedBallot?: (printedBallot: PrintedBallot) => void;
-  printedBallots?: PrintedBallot[];
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -115,8 +112,6 @@ export function renderInAppContext(
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
-    addPrintedBallot = jest.fn(),
-    printedBallots = [],
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
@@ -153,8 +148,6 @@ export function renderInAppContext(
         resetFiles,
         usbDriveStatus,
         usbDriveEject,
-        addPrintedBallot,
-        printedBallots,
         fullElectionTally,
         isTabulationRunning,
         setIsTabulationRunning,

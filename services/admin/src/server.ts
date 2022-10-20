@@ -607,6 +607,93 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   });
 
+  app.post<
+    { electionId: Id },
+    Admin.PostPrintedBallotResponse,
+    Admin.PostPrintedBallotRequest
+  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
+    const { electionId } = request.params;
+    const electionRecord = store.getElection(electionId);
+
+    if (!electionRecord) {
+      return response.status(404).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'not-found',
+            message: `No election found with id ${electionId}`,
+          },
+        ],
+      });
+    }
+
+    const parseBodyResult = safeParse(
+      Admin.PostPrintedBallotRequestSchema,
+      request.body
+    );
+
+    if (parseBodyResult.isErr()) {
+      return response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-value',
+            message: parseBodyResult.err().message,
+          },
+        ],
+      });
+    }
+
+    const id = store.addPrintedBallot(electionId, parseBodyResult.ok());
+
+    response.json({ status: 'ok', id });
+  });
+
+  app.get<
+    { electionId: Id },
+    Admin.GetPrintedBallotsResponse,
+    Admin.GetPrintedBallotsRequest
+  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
+    const { electionId } = request.params;
+    const electionRecord = store.getElection(electionId);
+
+    if (!electionRecord) {
+      return response.status(404).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'not-found',
+            message: `No election found with id ${electionId}`,
+          },
+        ],
+      });
+    }
+
+    const parseQueryResult = safeParse(
+      Admin.GetPrintedBallotsQueryParamsSchema,
+      request.query
+    );
+
+    if (parseQueryResult.isErr()) {
+      return response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-value',
+            message: parseQueryResult.err().message,
+          },
+        ],
+      });
+    }
+
+    const printedBallots = store.getPrintedBallots(
+      electionId,
+      parseQueryResult.ok()
+    );
+
+    response.json({ status: 'ok', printedBallots });
+  });
+
   return app;
 }
 

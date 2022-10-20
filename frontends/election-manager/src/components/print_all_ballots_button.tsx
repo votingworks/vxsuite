@@ -6,8 +6,10 @@ import React, {
   useEffect,
 } from 'react';
 import styled from 'styled-components';
-import { BallotLocales, getPrecinctById } from '@votingworks/types';
 
+import { Admin } from '@votingworks/api';
+import { LogEventId } from '@votingworks/logging';
+import { BallotLocale, getPrecinctById } from '@votingworks/types';
 import {
   assert,
   throwIllegalValue,
@@ -24,7 +26,6 @@ import {
   Loading,
   useLock,
 } from '@votingworks/ui';
-import { LogEventId } from '@votingworks/logging';
 import pluralize from 'pluralize';
 import {
   getBallotStylesData,
@@ -38,7 +39,6 @@ import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
 import { LinkButton } from './link_button';
 
 import {
-  BallotMode,
   ballotModeToReadableString,
   PrintableBallotType,
 } from '../config/types';
@@ -48,6 +48,7 @@ import { PrintableArea } from './printable_area';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { BallotCopiesInput } from './ballot_copies_input';
 import { PrintBallotButtonText } from './print_ballot_button_text';
+import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 
 export const PRINTER_WARMUP_TIME = 8300;
 export const TWO_SIDED_PRINT_TIME = 3300;
@@ -62,18 +63,13 @@ const CenteredOptions = styled.div`
 
 type ModalState = 'no-printer' | 'options' | 'printing';
 
-const defaultBallotLocales: BallotLocales = { primary: DEFAULT_LOCALE };
+const defaultBallotLocales: BallotLocale = { primary: DEFAULT_LOCALE };
 
 export function PrintAllBallotsButton(): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const {
-    electionDefinition,
-    auth,
-    logger,
-    hasPrinterAttached,
-    printer,
-    addPrintedBallot,
-  } = useContext(AppContext);
+  const { electionDefinition, auth, logger, hasPrinterAttached, printer } =
+    useContext(AppContext);
+  const addPrintedBallotMutation = useAddPrintedBallotMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
@@ -88,7 +84,9 @@ export function PrintAllBallotsButton(): JSX.Element {
   const [printFailed, setPrintFailed] = useState(false);
 
   const [ballotMode, setBallotMode] = useState(
-    isSystemAdministratorAuth(auth) ? BallotMode.Sample : BallotMode.Official
+    isSystemAdministratorAuth(auth)
+      ? Admin.BallotMode.Sample
+      : Admin.BallotMode.Official
   );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
@@ -141,21 +139,19 @@ export function PrintAllBallotsButton(): JSX.Element {
       precinctId,
     });
 
-    if (ballotMode === BallotMode.Official) {
-      const type = isAbsentee
-        ? PrintableBallotType.Absentee
-        : PrintableBallotType.Precinct;
-      addPrintedBallot({
-        ballotStyleId,
-        precinctId,
-        locales: defaultBallotLocales,
-        numCopies: ballotCopies,
-        printedAt: new Date().toISOString(),
-        type,
-      });
-    }
+    const ballotType = isAbsentee
+      ? PrintableBallotType.Absentee
+      : PrintableBallotType.Precinct;
+    void addPrintedBallotMutation.mutateAsync({
+      ballotStyleId,
+      precinctId,
+      locales: defaultBallotLocales,
+      numCopies: ballotCopies,
+      ballotType,
+      ballotMode,
+    });
   }, [
-    addPrintedBallot,
+    addPrintedBallotMutation,
     ballotCopies,
     ballotIndex,
     ballotMode,
@@ -282,7 +278,8 @@ export function PrintAllBallotsButton(): JSX.Element {
             primary
             onPress={() => startPrint()}
             warning={
-              isElectionManagerAuth(auth) && ballotMode !== BallotMode.Official
+              isElectionManagerAuth(auth) &&
+              ballotMode !== Admin.BallotMode.Official
             }
           >
             <PrintBallotButtonText

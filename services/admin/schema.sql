@@ -61,3 +61,18 @@ create table cvr_file_entries (
   foreign key (cvr_id) references cvrs(id)
     on delete cascade
 );
+
+create table printed_ballots (
+  id varchar(36) primary key,
+  election_id varchar(36) not null,
+  ballot_style_id text not null,
+  precinct_id text not null,
+  primary_locale text not null,
+  secondary_locale text,
+  ballot_type text not null,
+  ballot_mode text not null,
+  num_copies integer not null,
+  created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);

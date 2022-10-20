@@ -1,6 +1,7 @@
+import { Admin } from '@votingworks/api';
 import {
   AnyContest,
-  BallotLocales,
+  BallotLocale,
   Candidate,
   CandidateContest,
   Election,
@@ -18,7 +19,6 @@ import {
 import { assert, BallotStyleData, find } from '@votingworks/utils';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
-import { BallotMode } from '../config/types';
 
 import { sortBy } from './sort_by';
 
@@ -127,7 +127,7 @@ export function getLanguageByLocaleCode(localeCode: string): string {
   return LANGUAGES[localeCode.split('-')[0]] ?? localeCode;
 }
 
-export function getHumanBallotLanguageFormat(locales: BallotLocales): string {
+export function getHumanBallotLanguageFormat(locales: BallotLocale): string {
   return !locales.secondary
     ? getLanguageByLocaleCode(locales.primary)
     : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
@@ -150,8 +150,8 @@ export function getBallotPath({
   election: Election;
   electionHash: string;
   precinctId: PrecinctId;
-  locales: BallotLocales;
-  ballotMode: BallotMode;
+  locales: BallotLocale;
+  ballotMode: Admin.BallotMode;
   isAbsentee: boolean;
   variant?: string;
   extension?: string;
@@ -172,7 +172,7 @@ export function getBallotPath({
 
 export function getBallotArchiveFilename(
   electionHash: string,
-  ballotMode: BallotMode,
+  ballotMode: Admin.BallotMode,
   isAbsentee: boolean
 ): string {
   return `ballot-pdfs-election-${electionHash.slice(0, 10)}-${ballotMode}${

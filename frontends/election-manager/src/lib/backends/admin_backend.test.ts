@@ -7,7 +7,7 @@ import { fakeLogger } from '@votingworks/logging';
 import { MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import {
-  activeElectionIdStorageKey,
+  currentElectionIdStorageKey,
   ElectionManagerStoreAdminBackend,
 } from './admin_backend';
 
@@ -26,7 +26,7 @@ const getElectionsResponse: Admin.GetElectionsResponse = [
   },
 ];
 
-test('load election without an active election ID', async () => {
+test('load election without a current election ID', async () => {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
@@ -38,12 +38,12 @@ test('load election without an active election ID', async () => {
   await expect(backend.loadCurrentElectionMetadata()).resolves.toBeUndefined();
 });
 
-test('load election with an active election ID', async () => {
+test('load election with a current election ID', async () => {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(activeElectionIdStorageKey, 'test-election-2');
+  await storage.set(currentElectionIdStorageKey, 'test-election-2');
   fetchMock.reset().get('/admin/elections', {
     body: getElectionsResponse,
   });
@@ -63,7 +63,7 @@ test('load election HTTP error', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(activeElectionIdStorageKey, 'test-election-1');
+  await storage.set(currentElectionIdStorageKey, 'test-election-1');
   fetchMock.reset().get('/admin/elections', 500);
 
   await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();
@@ -74,7 +74,7 @@ test('load election invalid response', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(activeElectionIdStorageKey, 'test-election-1');
+  await storage.set(currentElectionIdStorageKey, 'test-election-1');
   fetchMock.reset().get('/admin/elections', [{ invalid: 'response' }]);
 
   await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();

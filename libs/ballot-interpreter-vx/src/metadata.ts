@@ -1,6 +1,6 @@
 import { decodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import {
-  BallotLocales,
+  BallotLocale,
   BallotPageMetadata,
   BallotType,
   ElectionDefinition,
@@ -27,7 +27,7 @@ export function decodeSearchParams(
 
   const primaryLocaleCode = searchParams.get('l1') ?? undefined;
   const secondaryLocaleCode = searchParams.get('l2') ?? undefined;
-  let locales: BallotLocales | undefined;
+  let locales: BallotLocale | undefined;
 
   if (primaryLocaleCode) {
     if (secondaryLocaleCode) {

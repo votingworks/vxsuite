@@ -1,3 +1,5 @@
+import { Admin } from '@votingworks/api';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   ContestId,
   ContestOptionId,
@@ -11,28 +13,24 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, fetchJson, Storage, typedAs } from '@votingworks/utils';
-import { Admin } from '@votingworks/api';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { z } from 'zod';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from './types';
-import { PrintedBallot, PrintedBallotSchema } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from '../../utils/external_tallies';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from './types';
 
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 const cvrsStorageKey = 'cvrFiles';
 const isOfficialResultsKey = 'isOfficialResults';
-const printedBallotsStorageKey = 'printedBallots';
 const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
 /** @visibleForTesting */
-export const activeElectionIdStorageKey = 'activeElectionId';
+export const currentElectionIdStorageKey = 'currentElectionId';
 
 /**
  * Backend for storing election data.
@@ -77,6 +75,16 @@ export class ElectionManagerStoreAdminBackend
       });
       return cvrs;
     }
+  }
+
+  private async loadCurrentElectionIdOrThrow(): Promise<Id> {
+    const electionId = await this.loadCurrentElectionId();
+
+    if (!electionId) {
+      throw new Error('Election definition must be configured first');
+    }
+
+    return electionId;
   }
 
   async loadFullElectionExternalTallies(): Promise<
@@ -142,60 +150,86 @@ export class ElectionManagerStoreAdminBackend
     );
   }
 
-  async loadPrintedBallots(): Promise<PrintedBallot[] | undefined> {
-    const parseResult = safeParse(
-      z.array(PrintedBallotSchema),
-      await this.storage.get(printedBallotsStorageKey)
+  async loadPrintedBallots({
+    ballotMode,
+  }: { ballotMode?: Admin.BallotMode } = {}): Promise<
+    Admin.PrintedBallotRecord[]
+  > {
+    const electionId = await this.loadCurrentElectionIdOrThrow();
+
+    const searchParams = new URLSearchParams();
+    if (ballotMode) {
+      searchParams.set('ballotMode', ballotMode);
+    }
+    const response = await fetchJson(
+      `/admin/elections/${electionId}/printed-ballots?${searchParams}`
     );
 
+    const parseResult = safeParse(
+      Admin.GetPrintedBallotsResponseSchema,
+      response
+    );
+
+    /* istanbul ignore next */
     if (parseResult.isErr()) {
-      await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
-        message: 'Failed to parse printed ballots from storage',
-        disposition: 'failure',
-        storageKey: printedBallotsStorageKey,
-        error: parseResult.err().message,
-      });
-      return;
+      throw parseResult.err();
     }
 
-    const printedBallots = parseResult.ok();
+    const body = parseResult.ok();
 
-    await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
-      message: 'Printed ballots loaded from storage',
-      disposition: 'success',
-      storageKey: printedBallotsStorageKey,
-      totalCount: printedBallots.reduce(
-        (count, printedBallot) => count + printedBallot.numCopies,
-        0
-      ),
-    });
+    if (body.status === 'error') {
+      throw new Error(body.errors.map((e) => e.message).join(', '));
+    }
 
-    return printedBallots;
+    return body.printedBallots;
   }
 
-  async addPrintedBallot(newPrintedBallot: PrintedBallot): Promise<void> {
-    const oldPrintedBallots = await this.loadPrintedBallots();
-    const newPrintedBallots = [...(oldPrintedBallots ?? []), newPrintedBallot];
-    await this.setStorageKeyAndLog(
-      printedBallotsStorageKey,
-      newPrintedBallots,
-      'Printed ballot information'
+  async addPrintedBallot(newPrintedBallot: Admin.PrintedBallot): Promise<Id> {
+    const electionId = await this.loadCurrentElectionIdOrThrow();
+
+    const response = await fetchJson(
+      `/admin/elections/${electionId}/printed-ballots`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPrintedBallot),
+      }
     );
+
+    const parseResult = safeParse(
+      Admin.PostPrintedBallotResponseSchema,
+      response
+    );
+
+    /* istanbul ignore next */
+    if (parseResult.isErr()) {
+      throw parseResult.err();
+    }
+
+    const body = parseResult.ok();
+
+    if (body.status === 'error') {
+      throw new Error(body.errors.map((e) => e.message).join(', '));
+    }
+
+    return body.id;
   }
 
-  private async loadActiveElectionId(): Promise<Id | undefined> {
+  private async loadCurrentElectionId(): Promise<Id | undefined> {
     return safeParse(
       IdSchema,
-      await this.storage.get(activeElectionIdStorageKey)
+      await this.storage.get(currentElectionIdStorageKey)
     ).ok();
   }
 
   async loadCurrentElectionMetadata(): Promise<
     Admin.ElectionRecord | undefined
   > {
-    const activeElectionId = await this.loadActiveElectionId();
+    const currentElectionId = await this.loadCurrentElectionId();
 
-    if (!activeElectionId) {
+    if (!currentElectionId) {
       return undefined;
     }
 
@@ -204,12 +238,13 @@ export class ElectionManagerStoreAdminBackend
       await fetchJson('/admin/elections')
     );
 
+    /* istanbul ignore next */
     if (parseResult.isErr()) {
       throw parseResult.err();
     }
 
     for (const election of parseResult.ok()) {
-      if (election.id === activeElectionId) {
+      if (election.id === currentElectionId) {
         return election;
       }
     }
@@ -218,6 +253,7 @@ export class ElectionManagerStoreAdminBackend
   async configure(newElectionData: string): Promise<ElectionDefinition> {
     const parseResult = safeParseElectionDefinition(newElectionData);
 
+    /* istanbul ignore next */
     if (parseResult.isErr()) {
       throw parseResult.err();
     }
@@ -253,7 +289,7 @@ export class ElectionManagerStoreAdminBackend
       );
     }
 
-    await this.storage.set(activeElectionIdStorageKey, parsedResponse.id);
+    await this.storage.set(currentElectionIdStorageKey, parsedResponse.id);
 
     return parsedElectionDefinition;
   }
@@ -263,18 +299,13 @@ export class ElectionManagerStoreAdminBackend
   ): Promise<AddCastVoteRecordFileResult> {
     await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
 
-    const activeElectionId = await this.loadActiveElectionId();
-
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const formData = new FormData();
     formData.append(CVR_FILE_ATTACHMENT_NAME, newCastVoteRecordFile);
 
     const addCastVoteRecordFileResponse = (await fetchJson(
-      `/admin/elections/${activeElectionId}/cvr-files`,
+      `/admin/elections/${currentElectionId}/cvr-files`,
       {
         method: 'POST',
         body: formData,
@@ -323,14 +354,9 @@ export class ElectionManagerStoreAdminBackend
   async clearCastVoteRecordFiles(): Promise<void> {
     await this.clearCastVoteRecordFilesFromStorage();
 
-    const activeElectionId = await this.loadActiveElectionId();
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
-
-    await fetchJson(`/admin/elections/${activeElectionId}/cvr-files`, {
+    await fetchJson(`/admin/elections/${currentElectionId}/cvr-files`, {
       method: 'DELETE',
     });
   }
@@ -344,14 +370,9 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async markResultsOfficial(): Promise<void> {
-    const activeElectionId = await this.loadActiveElectionId();
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
-
-    await fetchJson(`/admin/elections/${activeElectionId}`, {
+    await fetchJson(`/admin/elections/${currentElectionId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -373,12 +394,12 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async reset(): Promise<void> {
-    const activeElectionId = await this.loadActiveElectionId();
+    const currentElectionId = await this.loadCurrentElectionId();
 
     await this.storage.clear();
 
-    if (activeElectionId) {
-      await fetchJson(`/admin/elections/${activeElectionId}`, {
+    if (currentElectionId) {
+      await fetchJson(`/admin/elections/${currentElectionId}`, {
         method: 'DELETE',
       });
     }
@@ -388,12 +409,7 @@ export class ElectionManagerStoreAdminBackend
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]> {
-    const activeElectionId = await this.loadActiveElectionId();
-
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const query = new URLSearchParams();
     if (options?.contestId) {
@@ -404,7 +420,7 @@ export class ElectionManagerStoreAdminBackend
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${activeElectionId}/write-ins?${query}`
+      `/admin/elections/${currentElectionId}/write-ins?${query}`
     )) as Admin.GetWriteInsResponse;
 
     if (!Array.isArray(response)) {
@@ -455,12 +471,7 @@ export class ElectionManagerStoreAdminBackend
   async loadWriteInAdjudications(options?: {
     contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
-    const activeElectionId = await this.loadActiveElectionId();
-
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const query = new URLSearchParams();
     if (options?.contestId) {
@@ -468,7 +479,7 @@ export class ElectionManagerStoreAdminBackend
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${activeElectionId}/write-in-adjudications?${query}`
+      `/admin/elections/${currentElectionId}/write-in-adjudications?${query}`
     )) as Admin.GetWriteInAdjudicationsResponse;
 
     if (!Array.isArray(response)) {
@@ -484,15 +495,10 @@ export class ElectionManagerStoreAdminBackend
     adjudicatedValue: string,
     adjudicatedOptionId?: ContestOptionId
   ): Promise<Id> {
-    const activeElectionId = await this.loadActiveElectionId();
-
-    /* istanbul ignore next */
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const response = (await fetchJson(
-      `/admin/elections/${activeElectionId}/write-in-adjudications`,
+      `/admin/elections/${currentElectionId}/write-in-adjudications`,
       {
         method: 'POST',
         headers: {
@@ -557,11 +563,7 @@ export class ElectionManagerStoreAdminBackend
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]> {
-    const activeElectionId = await this.loadActiveElectionId();
-
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const query = new URLSearchParams();
     if (options?.contestId) {
@@ -573,7 +575,7 @@ export class ElectionManagerStoreAdminBackend
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${activeElectionId}/write-in-summary?${query}`
+      `/admin/elections/${currentElectionId}/write-in-summary?${query}`
     )) as Admin.GetWriteInSummaryResponse;
 
     if (!Array.isArray(response)) {
@@ -586,14 +588,10 @@ export class ElectionManagerStoreAdminBackend
   async getWriteInAdjudicationTable(
     contestId: string
   ): Promise<Admin.WriteInAdjudicationTable> {
-    const activeElectionId = await this.loadActiveElectionId();
-
-    if (!activeElectionId) {
-      throw new Error('no election configured');
-    }
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const response = (await fetchJson(
-      `/admin/elections/${activeElectionId}/contests/${contestId}/write-in-adjudication-table`
+      `/admin/elections/${currentElectionId}/contests/${contestId}/write-in-adjudication-table`
     )) as Admin.GetWriteInAdjudicationTableResponse;
 
     if (response.status === 'error') {

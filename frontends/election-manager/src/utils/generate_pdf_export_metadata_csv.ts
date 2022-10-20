@@ -1,5 +1,6 @@
+import { Admin } from '@votingworks/api';
 import {
-  BallotLocales,
+  BallotLocale,
   ElectionDefinition,
   getPrecinctById,
 } from '@votingworks/types';
@@ -8,7 +9,6 @@ import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,
 } from './election';
-import { BallotMode } from '../config/types';
 
 const headers = ['Filename', 'Precinct', 'Ballot Style'];
 
@@ -19,7 +19,7 @@ const headers = ['Filename', 'Precinct', 'Ballot Style'];
  * @param electionDefinition Contains the election schema and hash
  * @param ballotMode Identifies the export as for official, test, or sample ballots
  * @param isAbsentee Identifies the export as for absentee or precinct ballots
- * @param ballotLocales Identifies the export as for a given BallotLocales
+ * @param ballotLocales Identifies the export as for a given BallotLocale
  * @returns string file content for a CSV file with export metadata
  */
 export function generatePdfExportMetadataCsv({
@@ -29,9 +29,9 @@ export function generatePdfExportMetadataCsv({
   ballotLocales,
 }: {
   electionDefinition: ElectionDefinition;
-  ballotMode: BallotMode;
+  ballotMode: Admin.BallotMode;
   isAbsentee: boolean;
-  ballotLocales: BallotLocales;
+  ballotLocales: BallotLocale;
 }): string {
   const { election, electionHash } = electionDefinition;
   const ballotStyleList = sortBallotStyleDataByPrecinct(

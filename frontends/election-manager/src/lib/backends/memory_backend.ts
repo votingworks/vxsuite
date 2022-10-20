@@ -20,7 +20,7 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
-import { CastVoteRecordFile, PrintedBallot } from '../../config/types';
+import { CastVoteRecordFile } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import {
   AddCastVoteRecordFileResult,
@@ -43,9 +43,10 @@ interface MemoryWriteInRecord {
 export class ElectionManagerStoreMemoryBackend
   implements ElectionManagerStoreBackend
 {
+  private readonly electionId: Id;
   private electionDefinition?: ElectionDefinition;
   private configuredAt?: Iso8601Timestamp;
-  private printedBallots?: readonly PrintedBallot[];
+  private printedBallots: readonly Admin.PrintedBallotRecord[];
   private fullElectionExternalTallies: Map<
     ExternalTallySourceType,
     FullElectionExternalTally
@@ -56,22 +57,25 @@ export class ElectionManagerStoreMemoryBackend
   private writeInAdjudications: readonly Admin.WriteInAdjudicationRecord[];
 
   constructor({
+    electionId = 'memory-election-id',
     electionDefinition,
     configuredAt,
-    printedBallots,
+    printedBallots = [],
     fullElectionExternalTallies,
     castVoteRecordFiles,
     isOfficialResults,
     writeInAdjudications = [],
   }: {
+    electionId?: Id;
     electionDefinition?: ElectionDefinition;
     configuredAt?: Iso8601Timestamp;
-    printedBallots?: readonly PrintedBallot[];
+    printedBallots?: readonly Admin.PrintedBallotRecord[];
     fullElectionExternalTallies?: FullElectionExternalTallies;
     castVoteRecordFiles?: CastVoteRecordFiles;
     isOfficialResults?: boolean;
     writeInAdjudications?: readonly Admin.WriteInAdjudicationRecord[];
   } = {}) {
+    this.electionId = electionId;
     this.electionDefinition = electionDefinition;
     this.configuredAt =
       configuredAt ??
@@ -86,11 +90,17 @@ export class ElectionManagerStoreMemoryBackend
     this.writeInAdjudications = writeInAdjudications;
   }
 
+  private assertConfigured(): void {
+    if (!this.electionDefinition) {
+      throw new Error('Election definition must be configured first');
+    }
+  }
+
   async reset(): Promise<void> {
     await Promise.resolve();
     this.electionDefinition = undefined;
     this.configuredAt = undefined;
-    this.printedBallots = undefined;
+    this.printedBallots = [];
     this.fullElectionExternalTallies = new Map();
     this.castVoteRecordFiles = undefined;
     this.isOfficialResults = undefined;
@@ -230,13 +240,28 @@ export class ElectionManagerStoreMemoryBackend
     this.isOfficialResults = true;
   }
 
-  loadPrintedBallots(): Promise<PrintedBallot[] | undefined> {
-    return Promise.resolve(this.printedBallots?.slice());
+  async loadPrintedBallots({
+    ballotMode,
+  }: { ballotMode?: Admin.BallotMode } = {}): Promise<
+    Admin.PrintedBallotRecord[]
+  > {
+    await Promise.resolve();
+    this.assertConfigured();
+    return this.printedBallots.filter(
+      (printedBallot) => !ballotMode || printedBallot.ballotMode === ballotMode
+    );
   }
 
-  async addPrintedBallot(printedBallot: PrintedBallot): Promise<void> {
+  async addPrintedBallot(printedBallot: Admin.PrintedBallot): Promise<Id> {
     await Promise.resolve();
-    this.printedBallots = [...(this.printedBallots ?? []), printedBallot];
+    const printedBallotRecord: Admin.PrintedBallotRecord = {
+      ...printedBallot,
+      id: uuid(),
+      electionId: this.electionId,
+      createdAt: new Date().toISOString(),
+    };
+    this.printedBallots = [...this.printedBallots, printedBallotRecord];
+    return printedBallotRecord.id;
   }
 
   filterWriteIns(

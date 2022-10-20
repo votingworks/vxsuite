@@ -1,7 +1,13 @@
 import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  arbitraryBallotLocale,
+  arbitraryBallotStyleId,
+  arbitraryPrecinctId,
+} from '@votingworks/test-utils';
 import { CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
+import fc from 'fast-check';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
@@ -713,6 +719,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvr_files" => 1,
       "cvrs" => 2,
       "elections" => 1,
+      "printed_ballots" => 0,
       "write_in_adjudications" => 1,
       "write_ins" => 1,
     }
@@ -726,6 +733,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvr_files" => 0,
       "cvrs" => 0,
       "elections" => 1,
+      "printed_ballots" => 0,
       "write_in_adjudications" => 0,
       "write_ins" => 0,
     }
@@ -763,6 +771,65 @@ test('setElectionResultsOfficial', () => {
       typedAs<Partial<Admin.ElectionRecord>>({
         isOfficialResults: false,
       })
+    )
+  );
+});
+
+test('printed ballots', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  fc.assert(
+    fc.property(
+      fc.record({
+        ballotStyleId: arbitraryBallotStyleId(),
+        precinctId: arbitraryPrecinctId(),
+        ballotMode: fc.constantFrom(...Object.values(Admin.BallotMode)),
+        ballotType: fc.constantFrom<Admin.PrintableBallotType>(
+          'standard',
+          'absentee'
+        ),
+        locales: arbitraryBallotLocale(),
+        numCopies: fc.integer({ min: 1, max: 10 }),
+      }),
+      (printedBallot) => {
+        store.clearPrintedBallots(electionId);
+        const printedBallotId = store.addPrintedBallot(
+          electionId,
+          printedBallot
+        );
+
+        expect(store.getPrintedBallots(electionId)).toEqual(
+          typedAs<Admin.PrintedBallotRecord[]>([
+            {
+              id: printedBallotId,
+              electionId,
+              createdAt: expect.any(String),
+              ...printedBallot,
+            },
+          ])
+        );
+
+        expect(
+          store.getPrintedBallots(electionId, {
+            ballotMode:
+              printedBallot.ballotMode === Admin.BallotMode.Draft
+                ? Admin.BallotMode.Sample
+                : Admin.BallotMode.Draft,
+          })
+        ).toHaveLength(0);
+
+        expect(
+          store.getPrintedBallots(electionId, {
+            ballotMode: printedBallot.ballotMode,
+          })
+        ).toHaveLength(1);
+
+        store.clearPrintedBallots(electionId);
+        expect(store.getPrintedBallots(electionId)).toHaveLength(0);
+      }
     )
   );
 });
