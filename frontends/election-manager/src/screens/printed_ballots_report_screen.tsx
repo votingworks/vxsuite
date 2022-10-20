@@ -85,6 +85,14 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     zeroCounts
   );
 
+  const countsOrderedByPrecinct = Object.entries(counts)
+    .map(([precinctId, countByBallotStyle]) => {
+      const precinct = find(election.precincts, (p) => p.id === precinctId);
+      assert(countByBallotStyle);
+      return { precinct, countByBallotStyle };
+    })
+    .sort((a, b) => a.precinct.name.localeCompare(b.precinct.name));
+
   const countsByType: PrintCountsByType = printedBallots.reduce(
     (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => ({
       ...accumulatedCounts,
@@ -179,41 +187,36 @@ export function PrintedBallotsReportScreen(): JSX.Element {
             </TD>
             <TD as="th">Total Official Ballots Printed</TD>
           </tr>
-          {Object.keys(counts).flatMap((precinctId) => {
-            const precinct = find(
-              election.precincts,
-              (p) => p.id === precinctId
-            );
-            if (!precinct) {
-              return null;
-            }
-            return Object.keys(counts[precinctId] ?? {}).map(
-              (ballotStyleId) => (
+          {countsOrderedByPrecinct.flatMap(
+            ({ precinct, countByBallotStyle }) => {
+              return Object.keys(countByBallotStyle).map((ballotStyleId) => (
                 <tr
-                  key={`${precinctId}-${ballotStyleId}`}
-                  data-testid={`row-${precinctId}-${ballotStyleId}`}
+                  key={`${precinct.id}-${ballotStyleId}`}
+                  data-testid={`row-${precinct.id}-${ballotStyleId}`}
                 >
                   <TD nowrap>{precinct.name}</TD>
                   <TD>{ballotStyleId}</TD>
                   <TD>
-                    {
+                    {format.count(
                       countsByType[PrintableBallotType.Absentee]?.[
-                        precinctId
-                      ]?.[ballotStyleId]
-                    }
+                        precinct.id
+                      ]?.[ballotStyleId] ?? 0
+                    )}
                   </TD>
                   <TD>
-                    {
+                    {format.count(
                       countsByType[PrintableBallotType.Precinct]?.[
-                        precinctId
-                      ]?.[ballotStyleId]
-                    }
+                        precinct.id
+                      ]?.[ballotStyleId] ?? 0
+                    )}
                   </TD>
-                  <TD>{counts[precinctId]?.[ballotStyleId]}</TD>
+                  <TD>
+                    {format.count(countByBallotStyle[ballotStyleId] ?? 0)}
+                  </TD>
                 </tr>
-              )
-            );
-          })}
+              ));
+            }
+          )}
         </tbody>
       </Table>
     </Prose>
