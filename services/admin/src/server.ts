@@ -560,12 +560,14 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
       let currentLayoutOptionIdx = 0;
       let currentLayout = layouts[currentLayoutOptionIdx];
       while (currentLayout && contestIdx >= currentLayout.contests.length) {
+        // move to the next page, past the contests of the current page
+        contestIdx -= currentLayout.contests.length;
+
         currentLayoutOptionIdx += 1;
         currentLayout = layouts[currentLayoutOptionIdx];
         if (!currentLayout) {
           throw new Error('unexpected types');
         }
-        contestIdx -= currentLayout.contests.length;
       }
       currentLayout = layouts[currentLayoutOptionIdx];
       if (!currentLayout) {
