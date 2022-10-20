@@ -11,3 +11,4 @@ export * from './smartcards';
 export * from './smartcard_auth';
 export * from './zip';
 export * from './mock_of';
+export * from './expect_print';
