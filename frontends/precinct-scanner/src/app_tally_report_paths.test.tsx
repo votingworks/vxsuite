@@ -1,9 +1,12 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, fireEvent, screen, act, within } from '@testing-library/react';
+import { render, fireEvent, screen, within } from '@testing-library/react';
 import {
+  electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleWithReportingUrl,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+  electionSample2,
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
@@ -14,6 +17,7 @@ import {
   generateCvr,
   getZeroCompressedTally,
   fakeUsbDrive,
+  expectPrint,
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import {
@@ -24,7 +28,6 @@ import {
   MemoryStorage,
   singlePrecinctSelectionFor,
   TallySourceMachineType,
-  typedAs,
 } from '@votingworks/utils';
 import {
   CompressedTally,
@@ -33,22 +36,12 @@ import {
   err,
   VotingMethod,
 } from '@votingworks/types';
+
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
-
-beforeEach(() => {
-  jest.useFakeTimers();
-  fetchMock.reset();
-
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  kiosk.writeFile.mockResolvedValue(
-    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
-  );
-  window.kiosk = kiosk;
-});
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -81,12 +74,6 @@ const getPrecinctConfigPrecinct23ResponseBody: Scan.GetPrecinctSelectionConfigRe
 const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
   {
     status: 'ok',
-  };
-
-const getMarkThresholdOverridesConfigResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
-  {
-    status: 'ok',
-    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
   };
 
 const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
@@ -130,7 +117,27 @@ function expectContestResultsInReport(
   }
 }
 
-test('expected tally reports are printed for a primary election with all precinct', async () => {
+beforeEach(() => {
+  jest.useFakeTimers();
+  fetchMock.reset();
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    });
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.writeFile.mockResolvedValue(
+    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
+  );
+  window.kiosk = kiosk;
+});
+
+test('printing: polls open, All Precincts, primary election + check additional report', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -138,29 +145,18 @@ test('expected tally reports are printed for a primary election with all precinc
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigAllPrecinctsResponseBody,
     })
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 
-  // Insert a pollworker card
+  // Open the polls
   fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionMinimalExhaustiveSampleDefinition.electionHash
@@ -168,31 +164,191 @@ test('expected tally reports are printed for a primary election with all precinc
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
+  userEvent.click(screen.getByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
 
-  expect(
-    screen.queryAllByText('TEST Polls Opened Report for Precinct 1')
-  ).toHaveLength(election.parties.length);
-  expect(
-    screen.queryAllByText('TEST Polls Opened Report for Precinct 2')
-  ).toHaveLength(election.parties.length);
+  async function checkReport() {
+    await expectPrint((printedElement) => {
+      expect(
+        printedElement.queryAllByText('TEST Polls Opened Report for Precinct 1')
+      ).toHaveLength(election.parties.length);
+      expect(
+        printedElement.queryAllByText('TEST Polls Opened Report for Precinct 2')
+      ).toHaveLength(election.parties.length);
 
-  expect(
-    screen.queryAllByText('Mammal Party Example Primary Election:')
-  ).toHaveLength(election.precincts.length);
-  expect(
-    screen.queryAllByText('Fish Party Example Primary Election:')
-  ).toHaveLength(election.precincts.length);
+      expect(
+        printedElement.queryAllByText('Mammal Party Example Primary Election:')
+      ).toHaveLength(election.precincts.length);
+      expect(
+        printedElement.queryAllByText('Fish Party Example Primary Election:')
+      ).toHaveLength(election.precincts.length);
 
-  // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(0);
+      // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
+      expect(
+        printedElement.queryAllByText('Automatic Election Results Reporting')
+      ).toHaveLength(0);
+    });
+  }
+  await checkReport();
+
+  userEvent.click(screen.getByText('Print Additional Polls Opened Report'));
+  await screen.findByText('Printing Report…');
+  await advanceTimersAndPromises(4);
+  await screen.findByText('Polls are open.');
+  await checkReport();
 });
 
-test('expected tally reports for a primary election with all precincts with CVRs, and quickresults turned on', async () => {
+test('saving to card: polls open, All Precincts, primary election + test failed card write', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: false });
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionMinimalExhaustiveSampleDefinition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigAllPrecinctsResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Polls Closed');
+
+  // Open the polls
+  fetchMock.post('/precinct-scanner/export', {});
+  const pollWorkerCard = makePollWorkerCard(
+    electionMinimalExhaustiveSampleDefinition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to open the polls?');
+  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
+  // Mock the card reader not to return back whatever we save
+  jest
+    .spyOn(card, 'readLongObject')
+    .mockResolvedValue(err(new Error('bad read')));
+  userEvent.click(screen.getByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  const expectedCombinedTally: CompressedTally = [
+    [0, 0, 0, 0, 0, 0, 0], // best animal mammal
+    [0, 0, 0, 0, 0, 0], // best animal fish
+    [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
+    [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+    [0, 0, 0, 0, 0], // fishing ban yes no
+  ];
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
+    'precinct-1': [
+      [0, 0, 0, 0, 0, 0, 0], // best animal mammal
+      [0, 0, 0, 0, 0, 0], // best animal fish
+      [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
+      [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
+      [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // fishing ban yes no
+    ],
+    'precinct-2': [
+      [0, 0, 0, 0, 0, 0, 0], // best animal mammal
+      [0, 0, 0, 0, 0, 0], // best animal fish
+      [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
+      [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
+      [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // fishing ban yes no
+    ],
+  };
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
+    '0,__ALL_PRECINCTS': [0, 0],
+    '0,precinct-1': [0, 0],
+    '0,precinct-2': [0, 0],
+    '1,__ALL_PRECINCTS': [0, 0],
+    '1,precinct-1': [0, 0],
+    '1,precinct-2': [0, 0],
+  };
+  expect(writeLongObjectMock).toHaveBeenCalledTimes(2);
+  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 0,
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      tally: expectedCombinedTally,
+      talliesByPrecinct: expectedTalliesByPrecinct,
+      ballotCounts: expectedBallotCounts,
+      isPollsOpen: true,
+    })
+  );
+  // Expect the final call to have an empty tallies by precinct dictionary
+  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
+    2,
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 0,
+      machineId: '0002',
+      timeSaved: expect.anything(),
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      tally: expectedCombinedTally,
+      talliesByPrecinct: undefined,
+      ballotCounts: expectedBallotCounts,
+      isPollsOpen: true,
+    })
+  );
+});
+
+const PRIMARY_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
+  generateCvr(
+    electionMinimalExhaustiveSampleWithReportingUrl,
+    {
+      'best-animal-mammal': ['otter'],
+      'zoo-council-mammal': ['zebra', 'write-in'],
+      'new-zoo-either': ['yes'],
+      'new-zoo-pick': [],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionMinimalExhaustiveSampleWithReportingUrl,
+    {
+      'best-animal-mammal': ['otter', 'horse'],
+      'zoo-council-mammal': ['elephant'],
+      'new-zoo-either': ['yes'],
+      'new-zoo-pick': ['no'],
+    },
+    {
+      precinctId: 'precinct-2',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Absentee,
+    }
+  ),
+  generateCvr(
+    electionMinimalExhaustiveSampleWithReportingUrl,
+    {
+      'best-animal-fish': ['seahorse'],
+      'aquarium-council-fish': ['manta-ray', 'triggerfish'],
+      fishing: ['no'],
+    },
+    {
+      precinctId: 'precinct-2',
+      ballotStyleId: '2F',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+]);
+
+test('printing: polls closed, primary election, all precincts + quickresults on', async () => {
+  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
@@ -200,248 +356,245 @@ test('expected tally reports for a primary election with all precincts with CVRs
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
 
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleWithReportingUrlDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigAllPrecinctsResponseBody,
     })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', {
       body: { ...statusNoPaper, ballotsCounted: 3 },
-    })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
 
-  // Insert a pollworker card
-  fetchMock.post(
-    '/precinct-scanner/export',
-    generateFileContentFromCvrs([
-      generateCvr(
-        election,
-        {
-          'best-animal-mammal': ['otter'],
-          'zoo-council-mammal': ['zebra', 'write-in'],
-          'new-zoo-either': ['yes'],
-          'new-zoo-pick': [],
-        },
-        {
-          precinctId: 'precinct-1',
-          ballotStyleId: '1M',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          'best-animal-mammal': ['otter', 'horse'],
-          'zoo-council-mammal': ['elephant'],
-          'new-zoo-either': ['yes'],
-          'new-zoo-pick': ['no'],
-        },
-        {
-          precinctId: 'precinct-2',
-          ballotStyleId: '1M',
-          ballotType: VotingMethod.Absentee,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          'best-animal-fish': ['seahorse'],
-          'aquarium-council-fish': ['manta-ray', 'triggerfish'],
-          fishing: ['no'],
-        },
-        {
-          precinctId: 'precinct-2',
-          ballotStyleId: '2F',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-    ])
-  );
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', PRIMARY_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(
     electionMinimalExhaustiveSampleWithReportingUrlDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for Precinct 1')
-  ).toHaveLength(election.parties.length);
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for Precinct 2')
-  ).toHaveLength(election.parties.length);
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
+  await advanceTimersAndPromises(1);
+  await expectPrint((printedElement) => {
+    expect(
+      printedElement.queryAllByText('TEST Polls Closed Report for Precinct 1')
+    ).toHaveLength(election.parties.length);
+    expect(
+      printedElement.queryAllByText('TEST Polls Closed Report for Precinct 2')
+    ).toHaveLength(election.parties.length);
 
-  expect(
-    screen.queryAllByText('Mammal Party Example Primary Election:')
-  ).toHaveLength(election.precincts.length);
-  expect(
-    screen.queryAllByText('Fish Party Example Primary Election:')
-  ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.queryAllByText('Mammal Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.queryAllByText('Fish Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
 
-  // Check there there is a QR code page since we are closing polls
-  screen.getByText('Automatic Election Results Reporting');
+    // Check there there is a QR code page since we are closing polls
+    printedElement.getByText('Automatic Election Results Reporting');
 
-  // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  expectBallotCountsInReport(precinct1MammalReport, 1, 0, 1);
-  expect(
-    within(precinct1MammalReport).queryAllByTestId(
-      'results-table-best-animal-fish'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'best-animal-mammal',
-    1,
-    0,
-    0,
-    { horse: 0, otter: 1, fox: 0 }
-  );
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'zoo-council-mammal',
-    1,
-    1,
-    0,
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
-  );
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'new-zoo-either',
-    1,
-    0,
-    0,
-    { yes: 1, no: 0 }
-  );
-  expectContestResultsInReport(precinct1MammalReport, 'new-zoo-pick', 1, 1, 0, {
-    yes: 0,
-    no: 0,
+    // Check that the expected results are on the tally report for Precinct 1 Mammal Party
+    const precinct1MammalReport = printedElement.getByTestId(
+      'tally-report-0-precinct-1'
+    );
+    expectBallotCountsInReport(precinct1MammalReport, 1, 0, 1);
+    expect(
+      within(precinct1MammalReport).queryAllByTestId(
+        'results-table-best-animal-fish'
+      )
+    ).toHaveLength(0);
+    expectContestResultsInReport(
+      precinct1MammalReport,
+      'best-animal-mammal',
+      1,
+      0,
+      0,
+      { horse: 0, otter: 1, fox: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1MammalReport,
+      'zoo-council-mammal',
+      1,
+      1,
+      0,
+      { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
+    );
+    expectContestResultsInReport(
+      precinct1MammalReport,
+      'new-zoo-either',
+      1,
+      0,
+      0,
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1MammalReport,
+      'new-zoo-pick',
+      1,
+      1,
+      0,
+      {
+        yes: 0,
+        no: 0,
+      }
+    );
+    // Check that the expected results are on the tally report for Precinct 1 Fish Party
+    const precinct1FishReport = printedElement.getByTestId(
+      'tally-report-1-precinct-1'
+    );
+    expectBallotCountsInReport(precinct1FishReport, 0, 0, 0);
+    expect(
+      within(precinct1FishReport).queryAllByTestId(
+        'results-table-best-animal-mammal'
+      )
+    ).toHaveLength(0);
+    expectContestResultsInReport(
+      precinct1FishReport,
+      'best-animal-fish',
+      0,
+      0,
+      0,
+      { seahorse: 0, salmon: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1FishReport,
+      'aquarium-council-fish',
+      0,
+      0,
+      0,
+      {
+        'manta-ray': 0,
+        pufferfish: 0,
+        triggerfish: 0,
+        rockfish: 0,
+        'write-in': 0,
+      }
+    );
+    expectContestResultsInReport(precinct1FishReport, 'fishing', 0, 0, 0, {
+      yes: 0,
+      no: 0,
+    });
+    // Check that the expected results are on the tally report for Precinct 2 Mammal Party
+    const precinct2MammalReport = printedElement.getByTestId(
+      'tally-report-0-precinct-2'
+    );
+    expectBallotCountsInReport(precinct2MammalReport, 0, 1, 1);
+    expect(
+      within(precinct2MammalReport).queryAllByTestId(
+        'results-table-best-animal-fish'
+      )
+    ).toHaveLength(0);
+    expectContestResultsInReport(
+      precinct2MammalReport,
+      'best-animal-mammal',
+      1,
+      0,
+      1,
+      { horse: 0, otter: 0, fox: 0 }
+    );
+    expectContestResultsInReport(
+      precinct2MammalReport,
+      'zoo-council-mammal',
+      1,
+      2,
+      0,
+      { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
+    );
+    expectContestResultsInReport(
+      precinct2MammalReport,
+      'new-zoo-either',
+      1,
+      0,
+      0,
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct2MammalReport,
+      'new-zoo-pick',
+      1,
+      0,
+      0,
+      {
+        yes: 0,
+        no: 1,
+      }
+    );
+    // Check that the expected results are on the tally report for Precinct 2 Fish Party
+    const precinct2FishReport = printedElement.getByTestId(
+      'tally-report-1-precinct-2'
+    );
+    expectBallotCountsInReport(precinct2FishReport, 1, 0, 1);
+    expect(
+      within(precinct2FishReport).queryAllByTestId(
+        'results-table-best-animal-mammal'
+      )
+    ).toHaveLength(0);
+    expectContestResultsInReport(
+      precinct2FishReport,
+      'best-animal-fish',
+      1,
+      0,
+      0,
+      { seahorse: 1, salmon: 0 }
+    );
+    expectContestResultsInReport(
+      precinct2FishReport,
+      'aquarium-council-fish',
+      1,
+      0,
+      0,
+      {
+        'manta-ray': 1,
+        pufferfish: 0,
+        triggerfish: 1,
+        rockfish: 0,
+        'write-in': 0,
+      }
+    );
+    expectContestResultsInReport(precinct2FishReport, 'fishing', 1, 0, 0, {
+      yes: 0,
+      no: 1,
+    });
   });
-  // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReport = screen.getByTestId('tally-report-1-precinct-1');
-  expectBallotCountsInReport(precinct1FishReport, 0, 0, 0);
-  expect(
-    within(precinct1FishReport).queryAllByTestId(
-      'results-table-best-animal-mammal'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct1FishReport,
-    'best-animal-fish',
-    0,
-    0,
-    0,
-    { seahorse: 0, salmon: 0 }
-  );
-  expectContestResultsInReport(
-    precinct1FishReport,
-    'aquarium-council-fish',
-    0,
-    0,
-    0,
-    {
-      'manta-ray': 0,
-      pufferfish: 0,
-      triggerfish: 0,
-      rockfish: 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(precinct1FishReport, 'fishing', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
-  // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReport = screen.getByTestId('tally-report-0-precinct-2');
-  expectBallotCountsInReport(precinct2MammalReport, 0, 1, 1);
-  expect(
-    within(precinct2MammalReport).queryAllByTestId(
-      'results-table-best-animal-fish'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct2MammalReport,
-    'best-animal-mammal',
-    1,
-    0,
-    1,
-    { horse: 0, otter: 0, fox: 0 }
-  );
-  expectContestResultsInReport(
-    precinct2MammalReport,
-    'zoo-council-mammal',
-    1,
-    2,
-    0,
-    { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
-  );
-  expectContestResultsInReport(
-    precinct2MammalReport,
-    'new-zoo-either',
-    1,
-    0,
-    0,
-    { yes: 1, no: 0 }
-  );
-  expectContestResultsInReport(precinct2MammalReport, 'new-zoo-pick', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
-  // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReport = screen.getByTestId('tally-report-1-precinct-2');
-  expectBallotCountsInReport(precinct2FishReport, 1, 0, 1);
-  expect(
-    within(precinct2FishReport).queryAllByTestId(
-      'results-table-best-animal-mammal'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct2FishReport,
-    'best-animal-fish',
-    1,
-    0,
-    0,
-    { seahorse: 1, salmon: 0 }
-  );
-  expectContestResultsInReport(
-    precinct2FishReport,
-    'aquarium-council-fish',
-    1,
-    0,
-    0,
-    {
-      'manta-ray': 1,
-      pufferfish: 0,
-      triggerfish: 1,
-      rockfish: 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(precinct2FishReport, 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+});
 
-  // Save the tally to card and get the expected tallies
-  act(() => {
-    hardware.setPrinterConnected(false);
-  });
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+test('saving to card: polls closed, primary election, all precincts', async () => {
+  const card = new MemoryCard();
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigAllPrecinctsResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 3 },
+    });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', PRIMARY_ALL_PRECINCTS_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionMinimalExhaustiveSampleWithReportingUrlDefinition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to close the polls?');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -494,230 +647,224 @@ test('expected tally reports for a primary election with all precincts with CVRs
       isPollsOpen: false,
     })
   );
-
-  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
-  // Mock the card reader not to return back whatever we save
-  jest
-    .spyOn(card, 'readLongObject')
-    .mockResolvedValue(err(new Error('bad read')));
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText('Polls are open.');
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 3,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: expectedCombinedTally,
-      talliesByPrecinct: expectedTalliesByPrecinct,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
-  // Expect the final call to have an empty tallies by precinct dictionary
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    3,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 3,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: expectedCombinedTally,
-      talliesByPrecinct: undefined,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
 });
 
-test('expected tally reports for a primary election with a single precincts with CVRs', async () => {
+const PRIMARY_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
+  generateCvr(
+    electionMinimalExhaustiveSample,
+    {
+      'best-animal-mammal': ['otter'],
+      'zoo-council-mammal': ['zebra', 'write-in'],
+      'new-zoo-either': ['yes'],
+      'new-zoo-pick': [],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionMinimalExhaustiveSample,
+    {
+      'best-animal-mammal': ['otter', 'horse'],
+      'zoo-council-mammal': ['elephant'],
+      'new-zoo-either': ['yes'],
+      'new-zoo-pick': ['no'],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Absentee,
+    }
+  ),
+  generateCvr(
+    electionMinimalExhaustiveSample,
+    {
+      'best-animal-fish': ['seahorse'],
+      'aquarium-council-fish': ['manta-ray', 'triggerfish'],
+      fishing: ['no'],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '2F',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+]);
+
+test('printing: polls closed, primary election, single precinct + check additional report', async () => {
   const card = new MemoryCard();
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigPrecinct1ResponseBody,
     })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', {
       body: { ...statusNoPaper, ballotsCounted: 3 },
-    })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
 
-  // Insert a pollworker card
-  fetchMock.post(
-    '/precinct-scanner/export',
-    generateFileContentFromCvrs([
-      generateCvr(
-        election,
-        {
-          'best-animal-mammal': ['otter'],
-          'zoo-council-mammal': ['zebra', 'write-in'],
-          'new-zoo-either': ['yes'],
-          'new-zoo-pick': [],
-        },
-        {
-          precinctId: 'precinct-1',
-          ballotStyleId: '1M',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          'best-animal-mammal': ['otter', 'horse'],
-          'zoo-council-mammal': ['elephant'],
-          'new-zoo-either': ['yes'],
-          'new-zoo-pick': ['no'],
-        },
-        {
-          precinctId: 'precinct-1',
-          ballotStyleId: '1M',
-          ballotType: VotingMethod.Absentee,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          'best-animal-fish': ['seahorse'],
-          'aquarium-council-fish': ['manta-ray', 'triggerfish'],
-          fishing: ['no'],
-        },
-        {
-          precinctId: 'precinct-1',
-          ballotStyleId: '2F',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-    ])
-  );
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', PRIMARY_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(
     electionMinimalExhaustiveSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
+  async function checkReport() {
+    await expectPrint((printedElement) => {
+      expect(
+        printedElement.queryAllByText('TEST Polls Closed Report for Precinct 1')
+      ).toHaveLength(election.parties.length);
+      expect(
+        printedElement.queryAllByText('TEST Polls Closed Report for Precinct 2')
+      ).toHaveLength(0);
 
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for Precinct 1')
-  ).toHaveLength(election.parties.length);
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for Precinct 2')
-  ).toHaveLength(0);
+      printedElement.getByText('Mammal Party Example Primary Election:');
+      printedElement.getByText('Fish Party Example Primary Election:');
 
-  screen.getByText('Mammal Party Example Primary Election:');
-  screen.getByText('Fish Party Example Primary Election:');
+      // quickresults disabled by default
+      expect(
+        printedElement.queryAllByText('Automatic Election Results Reporting')
+      ).toHaveLength(0);
 
-  // quickresults disabled by default
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(0);
+      // Check that the expected results are on the tally report for Precinct 1 Mammal Party
+      const precinct1MammalReport = printedElement.getByTestId(
+        'tally-report-0-precinct-1'
+      );
+      expectBallotCountsInReport(precinct1MammalReport, 1, 1, 2);
+      expect(
+        within(precinct1MammalReport).queryAllByTestId(
+          'results-table-best-animal-fish'
+        )
+      ).toHaveLength(0);
+      expectContestResultsInReport(
+        precinct1MammalReport,
+        'best-animal-mammal',
+        2,
+        0,
+        1,
+        { horse: 0, otter: 1, fox: 0 }
+      );
+      expectContestResultsInReport(
+        precinct1MammalReport,
+        'zoo-council-mammal',
+        2,
+        3,
+        0,
+        { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
+      );
+      expectContestResultsInReport(
+        precinct1MammalReport,
+        'new-zoo-either',
+        2,
+        0,
+        0,
+        { yes: 2, no: 0 }
+      );
+      expectContestResultsInReport(
+        precinct1MammalReport,
+        'new-zoo-pick',
+        2,
+        1,
+        0,
+        {
+          yes: 0,
+          no: 1,
+        }
+      );
+      // Check that the expected results are on the tally report for Precinct 1 Fish Party
+      const precinct1FishReport = printedElement.getByTestId(
+        'tally-report-1-precinct-1'
+      );
+      expectBallotCountsInReport(precinct1FishReport, 1, 0, 1);
+      expect(
+        within(precinct1FishReport).queryAllByTestId(
+          'results-table-best-animal-mammal'
+        )
+      ).toHaveLength(0);
+      expectContestResultsInReport(
+        precinct1FishReport,
+        'best-animal-fish',
+        1,
+        0,
+        0,
+        { seahorse: 1, salmon: 0 }
+      );
+      expectContestResultsInReport(
+        precinct1FishReport,
+        'aquarium-council-fish',
+        1,
+        0,
+        0,
+        {
+          'manta-ray': 1,
+          pufferfish: 0,
+          triggerfish: 1,
+          rockfish: 0,
+          'write-in': 0,
+        }
+      );
+      expectContestResultsInReport(precinct1FishReport, 'fishing', 1, 0, 0, {
+        yes: 0,
+        no: 1,
+      });
+    });
+  }
+  await checkReport();
 
-  // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  expectBallotCountsInReport(precinct1MammalReport, 1, 1, 2);
-  expect(
-    within(precinct1MammalReport).queryAllByTestId(
-      'results-table-best-animal-fish'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'best-animal-mammal',
-    2,
-    0,
-    1,
-    { horse: 0, otter: 1, fox: 0 }
-  );
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'zoo-council-mammal',
-    2,
-    3,
-    0,
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
-  );
-  expectContestResultsInReport(
-    precinct1MammalReport,
-    'new-zoo-either',
-    2,
-    0,
-    0,
-    { yes: 2, no: 0 }
-  );
-  expectContestResultsInReport(precinct1MammalReport, 'new-zoo-pick', 2, 1, 0, {
-    yes: 0,
-    no: 1,
-  });
-  // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReport = screen.getByTestId('tally-report-1-precinct-1');
-  expectBallotCountsInReport(precinct1FishReport, 1, 0, 1);
-  expect(
-    within(precinct1FishReport).queryAllByTestId(
-      'results-table-best-animal-mammal'
-    )
-  ).toHaveLength(0);
-  expectContestResultsInReport(
-    precinct1FishReport,
-    'best-animal-fish',
-    1,
-    0,
-    0,
-    { seahorse: 1, salmon: 0 }
-  );
-  expectContestResultsInReport(
-    precinct1FishReport,
-    'aquarium-council-fish',
-    1,
-    0,
-    0,
-    {
-      'manta-ray': 1,
-      pufferfish: 0,
-      triggerfish: 1,
-      rockfish: 0,
-      'write-in': 0,
-    }
-  );
-  expectContestResultsInReport(precinct1FishReport, 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  userEvent.click(screen.getByText('Print Additional Polls Closed Report'));
+  await screen.findByText('Printing Report…');
+  await advanceTimersAndPromises(4);
+  await screen.findByText('Polls are closed.');
+  await checkReport();
+});
 
+test('saving to card: polls closed, primary election, single precinct', async () => {
+  const card = new MemoryCard();
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionMinimalExhaustiveSampleDefinition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct1ResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 3 },
+    });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', PRIMARY_SINGLE_PRECINCT_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionMinimalExhaustiveSampleDefinition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to close the polls?');
   // Save the tally to card and get the expected tallies
-  act(() => {
-    hardware.setPrinterConnected(false);
-  });
-  fireEvent.click(screen.getAllByText('No')[0]);
-  fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -753,193 +900,175 @@ test('expected tally reports for a primary election with a single precincts with
       isPollsOpen: false,
     })
   );
-
-  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
-  // Mock the card reader not to return back whatever we save
-  jest
-    .spyOn(card, 'readLongObject')
-    .mockResolvedValue(err(new Error('bad read')));
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(screen.getAllByText('No')[0]);
-  fireEvent.click(await screen.findByText('Open Polls for Precinct 1'));
-  await screen.findByText('Polls are open.');
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 3,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-      tally: expectedCombinedTally,
-      talliesByPrecinct: expectedTalliesByPrecinct,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
-  // Expect the final call to have an empty tallies by precinct dictionary
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    3,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 3,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-      tally: expectedCombinedTally,
-      talliesByPrecinct: undefined,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
 });
 
-test('expected tally reports for a general election with all precincts with CVRs', async () => {
+const GENERAL_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
+  generateCvr(
+    electionSample2,
+    {
+      president: ['jackie-chan'],
+      'prop-1': ['yes'],
+    },
+    {
+      precinctId: '23',
+      ballotStyleId: '12',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionSample2,
+    {
+      president: ['marie-curie'],
+      'prop-1': [],
+    },
+    {
+      precinctId: '21',
+      ballotStyleId: '12',
+      ballotType: VotingMethod.Absentee,
+    }
+  ),
+]);
+
+test('printing: polls closed, general election, all precincts', async () => {
   const card = new MemoryCard();
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const { election } = electionSample2Definition;
 
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/config/election', {
       body: electionSample2Definition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigAllPrecinctsResponseBody,
     })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', {
       body: { ...statusNoPaper, ballotsCounted: 2 },
-    })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
 
-  // Insert a pollworker card
-  fetchMock.post(
-    '/precinct-scanner/export',
-    generateFileContentFromCvrs([
-      generateCvr(
-        election,
-        {
-          president: ['jackie-chan'],
-          'prop-1': ['yes'],
-        },
-        {
-          precinctId: '23',
-          ballotStyleId: '12',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          president: ['marie-curie'],
-          'prop-1': [],
-        },
-        {
-          precinctId: '21',
-          ballotStyleId: '12',
-          ballotType: VotingMethod.Absentee,
-        }
-      ),
-    ])
-  );
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
+  userEvent.click(screen.getByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
 
-  screen.getByText('TEST Polls Closed Report for Center Springfield');
-  screen.getByText('TEST Polls Closed Report for North Springfield');
-  screen.getByText('TEST Polls Closed Report for South Springfield');
+  await expectPrint((printedElement) => {
+    printedElement.getByText('TEST Polls Closed Report for Center Springfield');
+    printedElement.getByText('TEST Polls Closed Report for North Springfield');
+    printedElement.getByText('TEST Polls Closed Report for South Springfield');
 
-  // quickresults is turned off by default
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(0);
+    // quickresults is turned off by default
+    expect(
+      printedElement.queryAllByText('Automatic Election Results Reporting')
+    ).toHaveLength(0);
 
-  // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReport = screen.getByTestId(
-    'tally-report-undefined-23'
+    // Check that the expected results are on the tally report for Center Springfield
+    const centerSpringfieldReport = printedElement.getByTestId(
+      'tally-report-undefined-23'
+    );
+    expectBallotCountsInReport(centerSpringfieldReport, 1, 0, 1);
+    expectContestResultsInReport(
+      centerSpringfieldReport,
+      'president',
+      1,
+      0,
+      0,
+      {
+        'marie-curie': 0,
+        'indiana-jones': 0,
+        'mona-lisa': 0,
+        'jackie-chan': 1,
+        'tim-allen': 0,
+        'write-in': 0,
+      }
+    );
+    expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 1, 0, 0, {
+      yes: 1,
+      no: 0,
+    });
+
+    // Check that the expected results are on the tally report for South Springfield
+    const southSpringfieldReport = printedElement.getByTestId(
+      'tally-report-undefined-20'
+    );
+    expectBallotCountsInReport(southSpringfieldReport, 0, 0, 0);
+    expectContestResultsInReport(southSpringfieldReport, 'president', 0, 0, 0, {
+      'marie-curie': 0,
+      'indiana-jones': 0,
+      'mona-lisa': 0,
+      'jackie-chan': 0,
+      'tim-allen': 0,
+      'write-in': 0,
+    });
+    expectContestResultsInReport(southSpringfieldReport, 'prop-1', 0, 0, 0, {
+      yes: 0,
+      no: 0,
+    });
+
+    // Check that the expected results are on the tally report for North Springfield
+    const northSpringfieldReport = printedElement.getByTestId(
+      'tally-report-undefined-21'
+    );
+    expectBallotCountsInReport(northSpringfieldReport, 0, 1, 1);
+    expectContestResultsInReport(northSpringfieldReport, 'president', 1, 0, 0, {
+      'marie-curie': 1,
+      'indiana-jones': 0,
+      'mona-lisa': 0,
+      'jackie-chan': 0,
+      'tim-allen': 0,
+      'write-in': 0,
+    });
+    expectContestResultsInReport(northSpringfieldReport, 'prop-1', 1, 1, 0, {
+      yes: 0,
+      no: 0,
+    });
+  });
+});
+
+test('saving to card: polls closed, general election, all precincts', async () => {
+  const card = new MemoryCard();
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const { election } = electionSample2Definition;
+
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigAllPrecinctsResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_ALL_PRECINCTS_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionSample2Definition.electionHash
   );
-  expectBallotCountsInReport(centerSpringfieldReport, 1, 0, 1);
-  expectContestResultsInReport(centerSpringfieldReport, 'president', 1, 0, 0, {
-    'marie-curie': 0,
-    'indiana-jones': 0,
-    'mona-lisa': 0,
-    'jackie-chan': 1,
-    'tim-allen': 0,
-    'write-in': 0,
-  });
-  expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 1, 0, 0, {
-    yes: 1,
-    no: 0,
-  });
-
-  // Check that the expected results are on the tally report for South Springfield
-  const southSpringfieldReport = screen.getByTestId(
-    'tally-report-undefined-20'
-  );
-  expectBallotCountsInReport(southSpringfieldReport, 0, 0, 0);
-  expectContestResultsInReport(southSpringfieldReport, 'president', 0, 0, 0, {
-    'marie-curie': 0,
-    'indiana-jones': 0,
-    'mona-lisa': 0,
-    'jackie-chan': 0,
-    'tim-allen': 0,
-    'write-in': 0,
-  });
-  expectContestResultsInReport(southSpringfieldReport, 'prop-1', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
-
-  // Check that the expected results are on the tally report for North Springfield
-  const northSpringfieldReport = screen.getByTestId(
-    'tally-report-undefined-21'
-  );
-  expectBallotCountsInReport(northSpringfieldReport, 0, 1, 1);
-  expectContestResultsInReport(northSpringfieldReport, 'president', 1, 0, 0, {
-    'marie-curie': 1,
-    'indiana-jones': 0,
-    'mona-lisa': 0,
-    'jackie-chan': 0,
-    'tim-allen': 0,
-    'write-in': 0,
-  });
-  expectContestResultsInReport(northSpringfieldReport, 'prop-1', 1, 1, 0, {
-    yes: 0,
-    no: 0,
-  });
-
-  // Save the tally to card and get the expected tallies
-  act(() => {
-    hardware.setPrinterConnected(false);
-  });
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to close the polls?');
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
+
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
   const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
@@ -976,160 +1105,147 @@ test('expected tally reports for a general election with all precincts with CVRs
       isPollsOpen: false,
     })
   );
-  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
-  // Mock the card reader not to return back whatever we save
-  jest
-    .spyOn(card, 'readLongObject')
-    .mockResolvedValue(err(new Error('bad read')));
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText('Polls are open.');
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 2,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: expectedCombinedTally,
-      talliesByPrecinct: expectedTalliesByPrecinct,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
-  // Expect the final call to have an empty tallies by precinct dictionary
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    3,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 2,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: expectedCombinedTally,
-      talliesByPrecinct: undefined,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
 });
 
-test('expected tally reports for a general election with a single precincts with CVRs', async () => {
+const GENERAL_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
+  generateCvr(
+    electionSample2,
+    {
+      president: ['jackie-chan'],
+      'prop-1': ['yes'],
+    },
+    {
+      precinctId: '23',
+      ballotStyleId: '12',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionSample2,
+    {
+      president: ['marie-curie'],
+      'prop-1': [],
+    },
+    {
+      precinctId: '23',
+      ballotStyleId: '12',
+      ballotType: VotingMethod.Absentee,
+    }
+  ),
+]);
+
+test('printing: polls closed, general election, single precinct', async () => {
   const card = new MemoryCard();
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
-  const { election } = electionSample2Definition;
 
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/config/election', {
       body: electionSample2Definition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigPrecinct23ResponseBody,
     })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', {
       body: { ...statusNoPaper, ballotsCounted: 2 },
-    })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
 
-  // Insert a pollworker card
-  fetchMock.post(
-    '/precinct-scanner/export',
-    generateFileContentFromCvrs([
-      generateCvr(
-        election,
-        {
-          president: ['jackie-chan'],
-          'prop-1': ['yes'],
-        },
-        {
-          precinctId: '23',
-          ballotStyleId: '12',
-          ballotType: VotingMethod.Precinct,
-        }
-      ),
-      generateCvr(
-        election,
-        {
-          president: ['marie-curie'],
-          'prop-1': [],
-        },
-        {
-          precinctId: '23',
-          ballotStyleId: '12',
-          ballotType: VotingMethod.Absentee,
-        }
-      ),
-    ])
-  );
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
-
-  screen.getByText('TEST Polls Closed Report for Center Springfield');
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for North Springfield')
-  ).toHaveLength(0);
-  expect(
-    screen.queryAllByText('TEST Polls Closed Report for South Springfield')
-  ).toHaveLength(0);
-
-  // quickresults turned off by default
-  expect(
-    screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(0);
-
-  // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReport = screen.getByTestId(
-    'tally-report-undefined-23'
-  );
-  expectBallotCountsInReport(centerSpringfieldReport, 1, 1, 2);
-  expectContestResultsInReport(centerSpringfieldReport, 'president', 2, 0, 0, {
-    'marie-curie': 1,
-    'indiana-jones': 0,
-    'mona-lisa': 0,
-    'jackie-chan': 1,
-    'tim-allen': 0,
-    'write-in': 0,
-  });
-  expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 2, 1, 0, {
-    yes: 1,
-    no: 0,
-  });
-
-  // Save the tally to card and get the expected tallies
-  act(() => {
-    hardware.setPrinterConnected(false);
-  });
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
 
+  await expectPrint((printedElement) => {
+    printedElement.getByText('TEST Polls Closed Report for Center Springfield');
+    expect(
+      printedElement.queryAllByText(
+        'TEST Polls Closed Report for North Springfield'
+      )
+    ).toHaveLength(0);
+    expect(
+      printedElement.queryAllByText(
+        'TEST Polls Closed Report for South Springfield'
+      )
+    ).toHaveLength(0);
+
+    // quickresults turned off by default
+    expect(
+      printedElement.queryAllByText('Automatic Election Results Reporting')
+    ).toHaveLength(0);
+
+    // Check that the expected results are on the tally report for Center Springfield
+    const centerSpringfieldReport = printedElement.getByTestId(
+      'tally-report-undefined-23'
+    );
+    expectBallotCountsInReport(centerSpringfieldReport, 1, 1, 2);
+    expectContestResultsInReport(
+      centerSpringfieldReport,
+      'president',
+      2,
+      0,
+      0,
+      {
+        'marie-curie': 1,
+        'indiana-jones': 0,
+        'mona-lisa': 0,
+        'jackie-chan': 1,
+        'tim-allen': 0,
+        'write-in': 0,
+      }
+    );
+    expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 2, 1, 0, {
+      yes: 1,
+      no: 0,
+    });
+  });
+});
+
+test('saving to card: polls closed, general election, single precinct', async () => {
+  const card = new MemoryCard();
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const { election } = electionSample2Definition;
+
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct23ResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionSample2Definition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to close the polls?');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
+
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
   const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
@@ -1154,47 +1270,6 @@ test('expected tally reports for a general election with a single precincts with
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       isPollsOpen: false,
-    })
-  );
-  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
-  // Mock the card reader not to return back whatever we save
-  jest
-    .spyOn(card, 'readLongObject')
-    .mockResolvedValue(err(new Error('bad read')));
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText('Polls are open.');
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 2,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: singlePrecinctSelectionFor('23'),
-      tally: expectedCombinedTally,
-      talliesByPrecinct: expectedTalliesByPrecinct,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
-    })
-  );
-  // Expect the final call to have an empty tallies by precinct dictionary
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    3,
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 2,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: singlePrecinctSelectionFor('23'),
-      tally: expectedCombinedTally,
-      talliesByPrecinct: undefined,
-      ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
     })
   );
 });

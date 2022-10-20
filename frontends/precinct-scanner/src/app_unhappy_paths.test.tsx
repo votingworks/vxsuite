@@ -13,6 +13,7 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import {
   advanceTimersAndPromises,
+  expectPrint,
   fakeKiosk,
   fakeUsbDrive,
   makeElectionManagerCard,
@@ -423,6 +424,7 @@ test('removing card during calibration', async () => {
     await screen.findByRole('button', { name: 'Yes, Open the Polls' })
   );
   await screen.findByText('Polls are open.');
+  await expectPrint();
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 

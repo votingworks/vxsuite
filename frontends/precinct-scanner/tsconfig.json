@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src", "test", "types"],
+  "include": ["src", "test", "types", "__mocks__"],
   "exclude": ["src/setupProxy.js"],
   "references": [
     { "path": "../../libs/api/tsconfig.build.json" },
