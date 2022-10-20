@@ -112,13 +112,15 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt
+        created_at as createdAt,
+        is_official_results as isOfficialResults
       from elections
       where deleted_at is null
     `) as Array<{
         id: Id;
         electionData: string;
         createdAt: string;
+        isOfficialResults: 0 | 1;
       }>
     ).map((r) => ({
       id: r.id,
@@ -126,6 +128,7 @@ export class Store {
         r.electionData
       ).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
+      isOfficialResults: r.isOfficialResults === 1,
     }));
   }
 
@@ -138,7 +141,8 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt
+        created_at as createdAt,
+        is_official_results as isOfficialResults
       from elections
       where deleted_at is null AND id = ?
     `,
@@ -148,6 +152,7 @@ export class Store {
           id: Id;
           electionData: string;
           createdAt: string;
+          isOfficialResults: 0 | 1;
         }
       | undefined;
     if (!result) {
@@ -159,6 +164,7 @@ export class Store {
         result.electionData
       ).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
+      isOfficialResults: result.isOfficialResults === 1,
     };
   }
 
@@ -1031,6 +1037,21 @@ export class Store {
             ).count,
           ] as const
       )
+    );
+  }
+
+  /**
+   * Sets whether the election with the given ID has had results marked official.
+   */
+  setElectionResultsOfficial(electionId: Id, isOfficialResults: boolean): void {
+    this.client.run(
+      `
+        update elections
+        set is_official_results = ?
+        where id = ?
+      `,
+      isOfficialResults ? 1 : 0,
+      electionId
     );
   }
 }

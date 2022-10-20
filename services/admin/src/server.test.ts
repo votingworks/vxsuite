@@ -715,3 +715,53 @@ test('GET /admin/elections/:electionId/write-in-adjudications bad query', async 
     .get(`/admin/elections/${electionId}/write-in-adjudications?bad=query`)
     .expect(400);
 });
+
+test('PATCH /admin/elections/:electionId isOfficialResults', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .patch(`/admin/elections/${electionId}`)
+    .send({ isOfficialResults: true })
+    .expect(200);
+
+  expect(workspace.store.getElection(electionId)).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: true,
+      })
+    )
+  );
+
+  await request(app)
+    .patch(`/admin/elections/${electionId}`)
+    .send({ isOfficialResults: false })
+    .expect(200);
+
+  expect(workspace.store.getElection(electionId)).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: false,
+      })
+    )
+  );
+});
+
+test('PATCH /admin/elections/:electionId bad request', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .patch(`/admin/elections/${electionId}`)
+    .send({ bad: 'request' })
+    .expect(400);
+});
+
+test('PATCH /admin/elections/:electionId bad election ID', async () => {
+  await request(app)
+    .patch(`/admin/elections/unknown-election-id`)
+    .send({})
+    .expect(404);
+});

@@ -1,6 +1,7 @@
 create table elections (
   id serial primary key,
   data text not null,
+  is_official_results boolean not null default false,
   created_at timestamp not null default current_timestamp,
   deleted_at timestamp
 );

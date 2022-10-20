@@ -9,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { assert, fetchJson, typedAs } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
+import { LogEventId } from '@votingworks/logging';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 import { AddCastVoteRecordFileResult } from './types';
 
@@ -25,8 +26,8 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     ).ok();
   }
 
-  async loadElectionDefinitionAndConfiguredAt(): Promise<
-    { electionDefinition: ElectionDefinition; configuredAt: string } | undefined
+  override async loadCurrentElectionMetadata(): Promise<
+    Admin.ElectionRecord | undefined
   > {
     const activeElectionId = await this.loadActiveElectionId();
 
@@ -45,10 +46,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
     for (const election of parseResult.ok()) {
       if (election.id === activeElectionId) {
-        return {
-          electionDefinition: election.electionDefinition,
-          configuredAt: election.createdAt,
-        };
+        return election;
       }
     }
   }
@@ -147,6 +145,35 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     await fetchJson(`/admin/elections/${activeElectionId}/cvr-files`, {
       method: 'DELETE',
     });
+  }
+
+  override async markResultsOfficial(): Promise<void> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    /* istanbul ignore next */
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    await fetchJson(`/admin/elections/${activeElectionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(
+        typedAs<Admin.PatchElectionRequest>({ isOfficialResults: true })
+      ),
+    });
+
+    await this.logger.log(
+      LogEventId.MarkedTallyResultsOfficial,
+      this.currentUserRole,
+      {
+        message:
+          'User has marked the tally results as official, no more Cvr files can be loaded.',
+        disposition: 'success',
+      }
+    );
   }
 
   async reset(): Promise<void> {

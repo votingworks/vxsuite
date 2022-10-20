@@ -68,6 +68,44 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
+  app.patch<NoParams, Admin.PatchElectionResponse, Admin.PatchElectionRequest>(
+    '/admin/elections/:electionId',
+    (request, response) => {
+      const parseResult = safeParse(
+        Admin.PatchElectionRequestSchema,
+        request.body
+      );
+
+      if (parseResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            { type: 'ValidationError', message: parseResult.err().message },
+          ],
+        });
+        return;
+      }
+
+      const { electionId } = request.params;
+      const { isOfficialResults } = parseResult.ok();
+
+      const election = store.getElection(electionId);
+      if (!election) {
+        response.status(404).json({
+          status: 'error',
+          errors: [{ type: 'NotFound', message: 'Election not found' }],
+        });
+        return;
+      }
+
+      if (typeof isOfficialResults === 'boolean') {
+        store.setElectionResultsOfficial(electionId, isOfficialResults);
+      }
+
+      response.json({ status: 'ok' });
+    }
+  );
+
   app.delete<{ electionId: Id }>(
     '/admin/elections/:electionId',
     (request, response) => {
@@ -169,6 +207,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
   >('/admin/elections/:electionId/cvr-files', (request, response) => {
     const { electionId } = request.params;
     store.deleteCastVoteRecordFiles(electionId);
+    store.setElectionResultsOfficial(electionId, false);
     response.json({ status: 'ok' });
   });
 

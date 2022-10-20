@@ -34,7 +34,6 @@ export interface AppContextInterface {
   printBallotRef?: RefObject<HTMLElement>;
   saveElection: SaveElection;
   resetElection: ResetElection;
-  markResultsOfficial: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
   usbDriveEject: (currentUserRole: LoggingUserRole) => Promise<void>;
@@ -71,7 +70,6 @@ const appContext: AppContextInterface = {
   printBallotRef: undefined,
   saveElection: async () => undefined,
   resetElection: async () => undefined,
-  markResultsOfficial: async () => undefined,
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: async () => undefined,

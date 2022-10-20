@@ -98,14 +98,16 @@ export class ElectionManagerStoreMemoryBackend
     this.writeInAdjudications = [];
   }
 
-  async loadElectionDefinitionAndConfiguredAt(): Promise<
-    { electionDefinition: ElectionDefinition; configuredAt: string } | undefined
+  async loadCurrentElectionMetadata(): Promise<
+    Admin.ElectionRecord | undefined
   > {
     await Promise.resolve();
     if (this.electionDefinition && this.configuredAt) {
       return {
+        id: 'memory-current-election',
         electionDefinition: this.electionDefinition,
-        configuredAt: this.configuredAt,
+        createdAt: this.configuredAt,
+        isOfficialResults: this.isOfficialResults ?? false,
       };
     }
   }
@@ -221,10 +223,6 @@ export class ElectionManagerStoreMemoryBackend
   async clearFullElectionExternalTallies(): Promise<void> {
     await Promise.resolve();
     this.fullElectionExternalTallies = new Map();
-  }
-
-  loadIsOfficialResults(): Promise<boolean | undefined> {
-    return Promise.resolve(this.isOfficialResults);
   }
 
   async markResultsOfficial(): Promise<void> {

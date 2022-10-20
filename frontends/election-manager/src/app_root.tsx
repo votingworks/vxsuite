@@ -47,6 +47,7 @@ import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
 import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
+import { useCurrentElectionMetadata } from './hooks/use_current_election_metadata';
 
 export interface Props {
   printer: Printer;
@@ -78,8 +79,9 @@ export function AppRoot({
   });
 
   const store = useElectionManagerStore();
+  const currentElection = useCurrentElectionMetadata();
 
-  const { electionDefinition } = store;
+  const electionDefinition = currentElection.data?.electionDefinition;
 
   const auth = useDippedSmartcardAuth({
     cardApi: card,
@@ -90,10 +92,6 @@ export function AppRoot({
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
   store.setCurrentUserRole(currentUserRole);
-
-  const markResultsOfficial = useCallback(async () => {
-    await store.markResultsOfficial();
-  }, [store]);
 
   // Recomputed as needed based on the cast vote record files. Uses `useMemo`
   // because it can be slow with a lot of CVRs.
@@ -257,14 +255,13 @@ export function AppRoot({
       value={{
         castVoteRecordFiles: store.castVoteRecordFiles,
         electionDefinition,
-        configuredAt: store.configuredAt,
+        configuredAt: currentElection.data?.createdAt,
         converter,
-        isOfficialResults: store.isOfficialResults,
+        isOfficialResults: currentElection.data?.isOfficialResults ?? false,
         printer,
         printBallotRef,
         saveElection,
         resetElection,
-        markResultsOfficial,
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,

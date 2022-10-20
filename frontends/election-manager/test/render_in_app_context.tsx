@@ -54,7 +54,6 @@ interface RenderInAppContextParams {
     adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
-  saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
   usbDriveEject?: () => Promise<void>;
@@ -113,7 +112,6 @@ export function renderInAppContext(
     printBallotRef = undefined,
     saveElection = jest.fn(),
     resetElection = jest.fn(),
-    saveIsOfficialResults: markResultsOfficial = jest.fn(),
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
@@ -152,7 +150,6 @@ export function renderInAppContext(
         printBallotRef,
         saveElection,
         resetElection,
-        markResultsOfficial,
         resetFiles,
         usbDriveStatus,
         usbDriveEject,

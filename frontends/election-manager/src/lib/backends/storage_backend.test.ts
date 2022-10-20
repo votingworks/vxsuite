@@ -1,5 +1,7 @@
+import { Admin } from '@votingworks/api';
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage, typedAs } from '@votingworks/utils';
 import { isOfficialResultsKey } from '../../hooks/use_election_manager_store';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 
@@ -12,10 +14,17 @@ test('marking results as official', async () => {
     logger,
   });
 
+  await backend.configure(electionWithMsEitherNeitherDefinition.electionData);
   expect(await storage.get(isOfficialResultsKey)).toBeUndefined();
   await backend.markResultsOfficial();
   expect(await storage.get(isOfficialResultsKey)).toBe(true);
-  expect(await backend.loadIsOfficialResults()).toBe(true);
+  expect(await backend.loadCurrentElectionMetadata()).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: true,
+      })
+    )
+  );
 });
 
 test('reset', async () => {

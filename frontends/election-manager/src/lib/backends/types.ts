@@ -7,7 +7,6 @@ import {
   FullElectionExternalTallies,
   FullElectionExternalTally,
   Id,
-  Iso8601Timestamp,
 } from '@votingworks/types';
 import { PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
@@ -27,10 +26,7 @@ export interface ElectionManagerStoreBackend {
   /**
    * Loads the existing election definition, if there is one.
    */
-  loadElectionDefinitionAndConfiguredAt(): Promise<
-    | { electionDefinition: ElectionDefinition; configuredAt: Iso8601Timestamp }
-    | undefined
-  >;
+  loadCurrentElectionMetadata(): Promise<Admin.ElectionRecord | undefined>;
 
   /**
    * Configures with a new election definition after resetting.
@@ -82,11 +78,6 @@ export interface ElectionManagerStoreBackend {
    * Clears all external tallies.
    */
   clearFullElectionExternalTallies(): Promise<void>;
-
-  /**
-   * Loads the existing setting for whether the results are official.
-   */
-  loadIsOfficialResults(): Promise<boolean | undefined>;
 
   /**
    * Marks the results as official. No more tallies can be added after this.

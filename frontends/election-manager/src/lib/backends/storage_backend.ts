@@ -114,18 +114,26 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     }
   }
 
-  async loadElectionDefinitionAndConfiguredAt(): Promise<
-    { electionDefinition: ElectionDefinition; configuredAt: string } | undefined
+  override async loadCurrentElectionMetadata(): Promise<
+    Admin.ElectionRecord | undefined
   > {
     const electionDefinition = await this.loadElectionDefinition();
     const configuredAt = await this.loadConfiguredAt();
+    const isOfficialResults = (await this.loadIsOfficialResults()) ?? false;
 
     if (electionDefinition && configuredAt) {
-      return { electionDefinition, configuredAt };
+      return {
+        id: 'storage-current-election',
+        electionDefinition,
+        createdAt: configuredAt,
+        isOfficialResults,
+      };
     }
   }
 
-  async configure(newElectionData: string): Promise<ElectionDefinition> {
+  override async configure(
+    newElectionData: string
+  ): Promise<ElectionDefinition> {
     await this.reset();
 
     const newElectionDefinition =
@@ -146,7 +154,9 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     return newElectionDefinition;
   }
 
-  async loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {
+  override async loadCastVoteRecordFiles(): Promise<
+    CastVoteRecordFiles | undefined
+  > {
     const serializedCvrFiles = safeParse(
       z.string().optional(),
       await this.storage.get(cvrsStorageKey)
@@ -164,11 +174,10 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     }
   }
 
-  async addCastVoteRecordFile(
+  override async addCastVoteRecordFile(
     newCastVoteRecordFile: File
   ): Promise<AddCastVoteRecordFileResult> {
-    const loadElectionResult =
-      await this.loadElectionDefinitionAndConfiguredAt();
+    const loadElectionResult = await this.loadCurrentElectionMetadata();
 
     if (!loadElectionResult) {
       throw new Error('Cannot add CVR files without an election definition.');
@@ -209,7 +218,7 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     };
   }
 
-  async clearCastVoteRecordFiles(): Promise<void> {
+  override async clearCastVoteRecordFiles(): Promise<void> {
     await this.removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
     await this.removeStorageKeyAndLog(
       isOfficialResultsKey,
@@ -217,7 +226,7 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     );
   }
 
-  async loadFullElectionExternalTallies(): Promise<
+  override async loadFullElectionExternalTallies(): Promise<
     FullElectionExternalTallies | undefined
   > {
     const serializedExternalTallies = safeParse(
@@ -241,7 +250,7 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     }
   }
 
-  async updateFullElectionExternalTally(
+  override async updateFullElectionExternalTally(
     sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void> {
@@ -259,7 +268,7 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     );
   }
 
-  async removeFullElectionExternalTally(
+  override async removeFullElectionExternalTally(
     sourceType: ExternalTallySourceType
   ): Promise<void> {
     const newFullElectionExternalTallies = new Map(
@@ -273,14 +282,14 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     );
   }
 
-  async clearFullElectionExternalTallies(): Promise<void> {
+  override async clearFullElectionExternalTallies(): Promise<void> {
     await this.removeStorageKeyAndLog(
       externalVoteTalliesFileStorageKey,
       'Cleared all external tallies'
     );
   }
 
-  async loadIsOfficialResults(): Promise<boolean | undefined> {
+  private async loadIsOfficialResults(): Promise<boolean | undefined> {
     const parseResult = safeParse(
       z.boolean(),
       await this.storage.get(isOfficialResultsKey)
@@ -308,15 +317,26 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
 
     return isOfficialResults;
   }
-  async markResultsOfficial(): Promise<void> {
+
+  override async markResultsOfficial(): Promise<void> {
     await this.setStorageKeyAndLog(
       isOfficialResultsKey,
       true,
       'isOfficialResults flag'
     );
+
+    await this.logger.log(
+      LogEventId.MarkedTallyResultsOfficial,
+      this.currentUserRole,
+      {
+        message:
+          'User has marked the tally results as official, no more Cvr files can be loaded.',
+        disposition: 'success',
+      }
+    );
   }
 
-  async loadPrintedBallots(): Promise<PrintedBallot[] | undefined> {
+  override async loadPrintedBallots(): Promise<PrintedBallot[] | undefined> {
     const parseResult = safeParse(
       z.array(PrintedBallotSchema),
       await this.storage.get(printedBallotsStorageKey)
@@ -347,7 +367,9 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     return printedBallots;
   }
 
-  async addPrintedBallot(newPrintedBallot: PrintedBallot): Promise<void> {
+  override async addPrintedBallot(
+    newPrintedBallot: PrintedBallot
+  ): Promise<void> {
     const oldPrintedBallots = await this.loadPrintedBallots();
     const newPrintedBallots = [...(oldPrintedBallots ?? []), newPrintedBallot];
     await this.setStorageKeyAndLog(

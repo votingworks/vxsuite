@@ -9,7 +9,6 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
-  Iso8601Timestamp,
 } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useContext, useMemo, useRef } from 'react';
@@ -17,6 +16,7 @@ import { PrintedBallot } from '../config/types';
 import { ServicesContext } from '../contexts/services_context';
 import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
@@ -29,19 +29,9 @@ export interface ElectionManagerStore {
   readonly electionDefinition?: ElectionDefinition;
 
   /**
-   * The time at which the election definition was configured.
-   */
-  readonly configuredAt?: Iso8601Timestamp;
-
-  /**
    * The current set of loaded cast vote record files.
    */
   readonly castVoteRecordFiles: CastVoteRecordFiles;
-
-  /**
-   * Whether the results have been marked as official.
-   */
-  readonly isOfficialResults: boolean;
 
   /**
    * Information about the ballots that have been printed.
@@ -93,11 +83,6 @@ export interface ElectionManagerStore {
   clearFullElectionExternalTallies(): Promise<void>;
 
   /**
-   * Marks the results as official. No more tallies can be added after this.
-   */
-  markResultsOfficial(): Promise<void>;
-
-  /**
    * Adds a new printed ballot to the list.
    */
   addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
@@ -108,9 +93,7 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-export const electionDefinitionStorageKey = 'electionDefinition';
 export const cvrsStorageKey = 'cvrFiles';
-export const isOfficialResultsKey = 'isOfficialResults';
 export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
@@ -131,42 +114,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
   );
   const printedBallots = getPrintedBallotsQuery.data;
 
-  const loadElectionDefinition = useCallback(async (): Promise<
-    ElectionDefinition | undefined
-  > => {
-    const electionRecord =
-      await backend.loadElectionDefinitionAndConfiguredAt();
-    return electionRecord?.electionDefinition;
-  }, [backend]);
-
-  const getElectionDefinitionQuery = useQuery<ElectionDefinition | null>(
-    [electionDefinitionStorageKey],
-    async () => {
-      // Return `null` if there is no election definition because `react-query`
-      // does not allow returning `undefined` for query results.
-      return (await loadElectionDefinition()) ?? null;
-    }
-  );
-  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
-
-  const loadConfiguredAt = useCallback(async (): Promise<
-    string | undefined
-  > => {
-    const electionRecord =
-      await backend.loadElectionDefinitionAndConfiguredAt();
-    return electionRecord?.configuredAt;
-  }, [backend]);
-
-  const getConfiguredAtQuery = useQuery<string | null>(
-    [configuredAtStorageKey],
-    async () => {
-      // Return `null` if there is no timestamp because `react-query` does not
-      // allow returning `undefined` for query results.
-      return (await loadConfiguredAt()) ?? null;
-    }
-  );
-  const configuredAt = getConfiguredAtQuery.data ?? undefined;
-
   const getCastVoteRecordFilesQuery = useQuery<CastVoteRecordFiles>(
     [cvrsStorageKey],
     async () => {
@@ -185,36 +132,26 @@ export function useElectionManagerStore(): ElectionManagerStore {
   );
   const fullElectionExternalTallies = getExternalElectionTalliesQuery.data;
 
-  const getIsOfficialResultsQuery = useQuery<boolean>(
-    [isOfficialResultsKey],
-    async () => {
-      return (await backend.loadIsOfficialResults()) ?? false;
-    }
-  );
-  const isOfficialResults = getIsOfficialResultsQuery.data;
-
   const reset = useCallback(async () => {
     await backend.reset();
-    if (electionDefinition) {
-      await logger.log(
-        LogEventId.ElectionUnconfigured,
-        currentUserRoleRef.current,
-        {
-          disposition: LogDispositionStandardTypes.Success,
-          previousElectionHash: electionDefinition.electionHash,
-        }
-      );
-    }
-    await queryClient.invalidateQueries([electionDefinitionStorageKey]);
+    await logger.log(
+      LogEventId.ElectionUnconfigured,
+      currentUserRoleRef.current,
+      {
+        disposition: LogDispositionStandardTypes.Success,
+      }
+    );
     await queryClient.invalidateQueries([cvrsStorageKey]);
     await queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
-    await queryClient.invalidateQueries([isOfficialResultsKey]);
     await queryClient.invalidateQueries([printedBallotsStorageKey]);
     await queryClient.invalidateQueries(getWriteInImageQueryKey());
     await queryClient.invalidateQueries(getWriteInsQueryKey());
     await queryClient.invalidateQueries(getWriteInSummaryQueryKey());
     await queryClient.invalidateQueries(getWriteInAdjudicationTableQueryKey());
-  }, [backend, electionDefinition, logger, queryClient]);
+    await queryClient.invalidateQueries(
+      getCurrentElectionMetadataResultsQueryKey()
+    );
+  }, [backend, logger, queryClient]);
 
   const configure = useCallback(
     async (newElectionData: string): Promise<ElectionDefinition> => {
@@ -228,7 +165,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
           newElectionHash: newElectionDefinition.electionHash,
         }
       );
-      await queryClient.invalidateQueries([electionDefinitionStorageKey]);
+      await queryClient.invalidateQueries(
+        getCurrentElectionMetadataResultsQueryKey()
+      );
       await queryClient.invalidateQueries([configuredAtStorageKey]);
       return newElectionDefinition;
     },
@@ -254,30 +193,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
     },
     [addCastVoteRecordFileMutation]
   );
-
-  const markResultsOfficialMutation = useMutation(
-    async () => {
-      await backend.markResultsOfficial();
-      await logger.log(
-        LogEventId.MarkedTallyResultsOfficial,
-        currentUserRoleRef.current,
-        {
-          message:
-            'User has marked the tally results as official, no more Cvr files can be loaded.',
-          disposition: 'success',
-        }
-      );
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([isOfficialResultsKey]);
-      },
-    }
-  );
-
-  const markResultsOfficial = useCallback(async () => {
-    await markResultsOfficialMutation.mutateAsync();
-  }, [markResultsOfficialMutation]);
 
   const addPrintedBallotMutation = useMutation(
     async (newPrintedBallot: PrintedBallot) => {
@@ -365,17 +280,13 @@ export function useElectionManagerStore(): ElectionManagerStore {
     () =>
       typedAs<ElectionManagerStore>({
         castVoteRecordFiles: castVoteRecordFiles ?? CastVoteRecordFiles.empty,
-        configuredAt,
-        electionDefinition,
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
-        isOfficialResults: isOfficialResults ?? false,
         printedBallots: printedBallots ?? [],
 
         addCastVoteRecordFile,
         addPrintedBallot,
         clearFullElectionExternalTallies,
         configure,
-        markResultsOfficial,
         reset,
         setCurrentUserRole,
         updateFullElectionExternalTally,
@@ -387,11 +298,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
       castVoteRecordFiles,
       clearFullElectionExternalTallies,
       configure,
-      configuredAt,
-      electionDefinition,
       fullElectionExternalTallies,
-      isOfficialResults,
-      markResultsOfficial,
       printedBallots,
       removeFullElectionExternalTally,
       reset,

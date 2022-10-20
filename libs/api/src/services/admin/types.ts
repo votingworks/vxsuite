@@ -22,6 +22,7 @@ export interface ElectionRecord {
   readonly id: Id;
   readonly electionDefinition: ElectionDefinition;
   readonly createdAt: Iso8601Timestamp;
+  readonly isOfficialResults: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
   id: IdSchema,
   electionDefinition: ElectionDefinitionSchema,
   createdAt: Iso8601TimestampSchema,
+  isOfficialResults: z.boolean(),
 });
 
 /**

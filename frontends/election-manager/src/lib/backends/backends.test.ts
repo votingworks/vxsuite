@@ -60,6 +60,7 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
           id,
           electionDefinition,
           createdAt: new Date().toISOString(),
+          isOfficialResults: false,
         },
         memoryBackend: new ElectionManagerStoreMemoryBackend({
           electionDefinition,
@@ -68,6 +69,29 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       return {
         body: typedAs<Admin.PostElectionResponse>({ status: 'ok', id }),
       };
+    })
+    .patch('glob:/admin/elections/*', (url, request) => {
+      const match = url.match(/^\/admin\/elections\/(.+)$/);
+      const electionId = match?.[1] as Id;
+      const dbEntry = electionId && db.get(electionId);
+
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      const body = safeParseJson(
+        request.body as string,
+        Admin.PatchElectionRequestSchema
+      ).unsafeUnwrap();
+
+      if (typeof body.isOfficialResults === 'boolean') {
+        dbEntry.electionRecord = {
+          ...dbEntry.electionRecord,
+          isOfficialResults: body.isOfficialResults,
+        };
+      }
+
+      return { body: typedAs<Admin.PatchElectionResponse>({ status: 'ok' }) };
     })
     .delete('glob:/admin/elections/*', (url) => {
       const match = url.match(/^\/admin\/elections\/(.+)$/);
@@ -246,11 +270,14 @@ describe.each([
     await backend.configure(
       electionFamousNames2021Fixtures.electionDefinition.electionData
     );
-    expect(await backend.loadElectionDefinitionAndConfiguredAt()).toStrictEqual(
-      {
-        electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-        configuredAt: expect.any(String),
-      }
+    expect(await backend.loadCurrentElectionMetadata()).toStrictEqual(
+      expect.objectContaining(
+        typedAs<Partial<Admin.ElectionRecord>>({
+          electionDefinition:
+            electionFamousNames2021Fixtures.electionDefinition,
+          createdAt: expect.any(String),
+        })
+      )
     );
   });
 
@@ -277,16 +304,15 @@ describe.each([
     );
     await backend.markResultsOfficial();
     await backend.reset();
-    expect(
-      await backend.loadElectionDefinitionAndConfiguredAt()
-    ).toBeUndefined();
-    expect(await backend.loadIsOfficialResults()).toBeUndefined();
+    expect(await backend.loadCurrentElectionMetadata()).toBeUndefined();
   });
 
   test('marking results as official', async () => {
     const backend = makeBackend();
+    await backend.configure(
+      electionFamousNames2021Fixtures.electionDefinition.electionData
+    );
     await backend.markResultsOfficial();
-    expect(await backend.loadIsOfficialResults()).toBe(true);
   });
 
   test('cast vote record files', async () => {

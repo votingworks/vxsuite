@@ -563,13 +563,6 @@ test('tabulating CVRs', async () => {
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.MarkedTallyResultsOfficial,
-      expect.any(String),
-      expect.anything()
-    );
-  });
 
   // Report title should be rendered 3 times - app, preview, and printed
   await waitFor(() => {
