@@ -12,6 +12,7 @@ build
 coverage
 .eslintcache
 junit.xml
+.jestcache
 
 # python
 *.pyc
