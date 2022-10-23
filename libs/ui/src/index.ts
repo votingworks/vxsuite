@@ -54,3 +54,4 @@ export { InvalidCardScreen } from './invalid_card_screen';
 export * from './unlock_machine_screen';
 export * from './system_administrator_screen_contents';
 export * from './unconfigure_machine_button';
+export * from './print_element';

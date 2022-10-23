@@ -7,10 +7,11 @@ module.exports = {
   ...shared,
   coverageThreshold: {
     global: {
-      statements: 52,
-      branches: 39,
-      functions: 54,
-      lines: 54,
+      statements: 70,
+      branches: 40,
+      functions: 55,
+      lines: 70,
     },
   },
+  testEnvironment: "jsdom"
 };
