@@ -9,7 +9,6 @@ import {
   MarkThresholds,
   ElectionDefinition,
   PrecinctSelection,
-  Printer,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -69,7 +68,6 @@ export interface Props {
   hardware: Hardware;
   card: Card;
   storage: Storage;
-  printer: Printer;
   machineConfig: Provider<MachineConfig>;
   logger: Logger;
 }
@@ -233,7 +231,6 @@ function appReducer(state: State, action: AppAction): State {
 export function AppRoot({
   hardware,
   card,
-  printer,
   storage,
   machineConfig: machineConfigProvider,
   logger,
@@ -561,7 +558,6 @@ export function AppRoot({
           scannedBallotCount={scannerStatus.ballotsCounted}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
-          printer={printer}
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
           usbDrive={usbDrive}

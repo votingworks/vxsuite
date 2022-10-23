@@ -5,14 +5,13 @@ import {
   Button,
   Prose,
   Loading,
-  PrecinctScannerTallyReport,
-  PrecinctScannerTallyQrCode,
-  PrintableContainer,
-  TallyReport,
   UsbDrive,
   isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   fontSizeTheme,
+  PrecinctScannerFullReport,
+  printElement,
+  getSignedQuickResultsReportingUrl,
 } from '@votingworks/ui';
 import {
   assert,
@@ -20,8 +19,8 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   EnvironmentFlagName,
-  filterTalliesByParams,
   getPrecinctSelectionName,
+  getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
   PrecinctScannerCardTally,
@@ -40,7 +39,6 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
-  Printer,
 } from '@votingworks/types';
 import {
   CenteredLargeProse,
@@ -96,7 +94,6 @@ interface Props {
   isPollsOpen: boolean;
   isLiveMode: boolean;
   togglePollsOpen: () => void;
-  printer: Printer;
   hasPrinterAttached: boolean;
   usbDrive: UsbDrive;
 }
@@ -107,7 +104,6 @@ export function PollWorkerScreen({
   togglePollsOpen,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
-  printer,
   usbDrive,
 }: Props): JSX.Element {
   const { electionDefinition, precinctSelection, machineConfig, auth } =
@@ -132,14 +128,6 @@ export function PollWorkerScreen({
     [election, currentTally]
   );
 
-  const precinctList = useMemo(
-    () =>
-      precinctSelection.kind === 'AllPrecincts'
-        ? election.precincts.map(({ id }) => id)
-        : [precinctSelection.precinctId],
-    [precinctSelection, election.precincts]
-  );
-
   const parties = useMemo(
     () => getPartyIdsInBallotStyles(election),
     [election]
@@ -154,20 +142,14 @@ export function PollWorkerScreen({
         [TallyCategory.Party, TallyCategory.Precinct]
       );
       // Get all tallies by precinct and party
-      const newSubTallies = new Map();
-      for (const partyId of parties) {
-        for (const precinctId of precinctList) {
-          const filteredTally = filterTalliesByParams(tally, election, {
-            precinctId,
-            partyId,
-          });
-          newSubTallies.set(
-            getTallyIdentifier(partyId, precinctId),
-            filteredTally
-          );
-        }
-      }
-      setCurrentSubTallies(newSubTallies);
+      assert(precinctSelection);
+      setCurrentSubTallies(
+        getSubTalliesByPartyAndPrecinct({
+          election,
+          tally,
+          precinctSelection,
+        })
+      );
       if (castVoteRecords.length !== scannedBallotCount) {
         debug(
           `Warning, ballots scanned count from status endpoint (${scannedBallotCount}) does not match number of CVRs (${castVoteRecords.length}) `
@@ -183,7 +165,7 @@ export function PollWorkerScreen({
       setCurrentTally(tally);
     }
     void calculateTally();
-  }, [election, scannedBallotCount, parties, precinctList]);
+  }, [election, scannedBallotCount, precinctSelection]);
 
   async function saveTally() {
     assert(currentTally);
@@ -271,22 +253,6 @@ export function PollWorkerScreen({
     }
   }
 
-  async function printTallyReport(copies: number) {
-    await printer.print({
-      sides: 'one-sided',
-      copies,
-    });
-  }
-
-  async function dispatchReport() {
-    setPollsToggledTime(currentTime);
-    if (hasPrinterAttached) {
-      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-    } else {
-      await saveTally();
-    }
-  }
-
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
     PollWorkerFlowState | undefined
   >(
@@ -296,6 +262,61 @@ export function PollWorkerScreen({
   );
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
+  }
+
+  async function printTallyReport(copies: number) {
+    if (!electionDefinition) return;
+    if (!precinctSelection) return;
+    if (!currentCompressedTally) return;
+    if (!currentSubTallies) return;
+
+    const isPollsOpenForReport =
+      pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING ||
+      pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE ||
+      pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE
+        ? isPollsOpen
+        : !isPollsOpen;
+
+    const precinctSelectionList =
+      precinctSelection.kind === 'SinglePrecinct'
+        ? [precinctSelection]
+        : election.precincts.map(({ id }) => singlePrecinctSelectionFor(id));
+
+    const signedQuickResultsReportingUrl =
+      await getSignedQuickResultsReportingUrl({
+        electionDefinition,
+        isLiveMode,
+        compressedTally: currentCompressedTally,
+        signingMachineId: machineConfig.machineId,
+      });
+
+    await printElement(
+      <PrecinctScannerFullReport
+        electionDefinition={electionDefinition}
+        precinctSelectionList={precinctSelectionList}
+        subTallies={currentSubTallies}
+        isPollsOpen={isPollsOpenForReport}
+        isLiveMode={isLiveMode}
+        pollsToggledTime={pollsToggledTime || currentTime}
+        currentTime={currentTime}
+        precinctScannerMachineId={machineConfig.machineId}
+        totalBallotsScanned={scannedBallotCount}
+        signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
+      />,
+      {
+        sides: 'one-sided',
+        copies,
+      }
+    );
+  }
+
+  async function dispatchReport() {
+    setPollsToggledTime(currentTime);
+    if (hasPrinterAttached) {
+      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
+    } else {
+      await saveTally();
+    }
   }
 
   async function openPolls() {
@@ -345,85 +366,30 @@ export function PollWorkerScreen({
     );
   }
 
-  const isPollsOpenForReport =
-    pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING ||
-    pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE ||
-    pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE
-      ? isPollsOpen
-      : !isPollsOpen;
-
-  const printableReport = currentTally && (
-    <PrintableContainer>
-      <TallyReport>
-        {precinctList.map((precinctId) =>
-          parties.map((partyId) => {
-            const tallyForReport = currentSubTallies.get(
-              getTallyIdentifier(partyId, precinctId)
-            );
-            assert(tallyForReport);
-            return (
-              <PrecinctScannerTallyReport
-                key={getTallyIdentifier(partyId, precinctId)}
-                data-testid={getTallyIdentifier(partyId, precinctId)}
-                electionDefinition={electionDefinition}
-                tally={tallyForReport}
-                precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                partyId={partyId}
-                isPollsOpen={isPollsOpenForReport}
-                isLiveMode={isLiveMode}
-                currentTime={currentTime}
-                pollsToggledTime={pollsToggledTime || currentTime}
-                precinctScannerMachineId={machineConfig.machineId}
-              />
-            );
-          })
-        )}
-        {electionDefinition.election.quickResultsReportingUrl &&
-          currentCompressedTally &&
-          scannedBallotCount > 0 && (
-            <PrecinctScannerTallyQrCode
-              electionDefinition={electionDefinition}
-              signingMachineId={machineConfig.machineId}
-              compressedTally={currentCompressedTally}
-              isPollsOpen={isPollsOpenForReport}
-              isLiveMode={isLiveMode}
-              pollsToggledTime={pollsToggledTime || currentTime}
-            />
-          )}
-      </TallyReport>
-    </PrintableContainer>
-  );
-
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
     return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <CenteredLargeProse>
-            <p>Do you want to open the polls?</p>
-            <p>
-              <Button primary onPress={openPolls}>
-                Yes, Open the Polls
-              </Button>{' '}
-              <Button onPress={showAllPollWorkerActions}>No</Button>
-            </p>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <p>Do you want to open the polls?</p>
+          <p>
+            <Button primary onPress={openPolls}>
+              Yes, Open the Polls
+            </Button>{' '}
+            <Button onPress={showAllPollWorkerActions}>No</Button>
+          </p>
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
     );
   }
 
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
     return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <IndeterminateProgressBar />
-          <CenteredLargeProse>
-            <h1>Opening Polls…</h1>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Opening Polls…</h1>
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
     );
   }
 
@@ -446,27 +412,23 @@ export function PollWorkerScreen({
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
-        {printableReport}
       </ScreenMainCenterChild>
     );
   }
 
   if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
     return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <CenteredLargeProse>
-            <p>Do you want to close the polls?</p>
-            <p>
-              <Button primary onPress={closePolls}>
-                Yes, Close the Polls
-              </Button>{' '}
-              <Button onPress={showAllPollWorkerActions}>No</Button>
-            </p>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <p>Do you want to close the polls?</p>
+          <p>
+            <Button primary onPress={closePolls}>
+              Yes, Close the Polls
+            </Button>{' '}
+            <Button onPress={showAllPollWorkerActions}>No</Button>
+          </p>
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
     );
   }
 
@@ -474,15 +436,12 @@ export function PollWorkerScreen({
     pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING
   ) {
     return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <IndeterminateProgressBar />
-          <CenteredLargeProse>
-            <h1>Closing Polls…</h1>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Closing Polls…</h1>
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
     );
   }
 
@@ -505,69 +464,62 @@ export function PollWorkerScreen({
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
-        {printableReport}
       </ScreenMainCenterChild>
     );
   }
 
   if (pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING) {
     return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <IndeterminateProgressBar />
-          <CenteredLargeProse>
-            <h1>Printing Report…</h1>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Printing Report…</h1>
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
     );
   }
   return (
-    <React.Fragment>
-      <ScreenMainCenterChild infoBarMode="pollworker">
-        <Prose textCenter>
-          <h1>Poll Worker Actions</h1>
+    <ScreenMainCenterChild infoBarMode="pollworker">
+      <Prose textCenter>
+        <h1>Poll Worker Actions</h1>
+        <p>
+          {isPollsOpen ? (
+            <Button primary large onPress={closePolls}>
+              Close Polls for {precinctName}
+            </Button>
+          ) : (
+            <Button primary large onPress={openPolls}>
+              Open Polls for {precinctName}
+            </Button>
+          )}
+        </p>
+        {!isPollsOpen && scannedBallotCount > 0 && (
           <p>
-            {isPollsOpen ? (
-              <Button primary large onPress={closePolls}>
-                Close Polls for {precinctName}
-              </Button>
-            ) : (
-              <Button primary large onPress={openPolls}>
-                Open Polls for {precinctName}
-              </Button>
-            )}
+            <Button onPress={() => setIsExportingResults(true)}>
+              Save Results to USB Drive
+            </Button>
           </p>
-          {!isPollsOpen && scannedBallotCount > 0 && (
-            <p>
-              <Button onPress={() => setIsExportingResults(true)}>
-                Save Results to USB Drive
-              </Button>
-            </p>
-          )}
-          {isFeatureFlagEnabled(EnvironmentFlagName.LIVECHECK) && (
-            <p>
-              <Button onPress={() => setIsShowingLiveCheck(true)}>
-                Live Check
-              </Button>
-            </p>
-          )}
-        </Prose>
-        <ScannedBallotCount count={scannedBallotCount} />
-        {isExportingResults && (
-          <ExportResultsModal
-            onClose={() => setIsExportingResults(false)}
-            usbDrive={usbDrive}
-            isTestMode={!isLiveMode}
-            scannedBallotCount={scannedBallotCount}
-          />
         )}
-        {isShowingLiveCheck && (
-          <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
+        {isFeatureFlagEnabled(EnvironmentFlagName.LIVECHECK) && (
+          <p>
+            <Button onPress={() => setIsShowingLiveCheck(true)}>
+              Live Check
+            </Button>
+          </p>
         )}
-      </ScreenMainCenterChild>
-      {printableReport}
-    </React.Fragment>
+      </Prose>
+      <ScannedBallotCount count={scannedBallotCount} />
+      {isExportingResults && (
+        <ExportResultsModal
+          onClose={() => setIsExportingResults(false)}
+          usbDrive={usbDrive}
+          isTestMode={!isLiveMode}
+          scannedBallotCount={scannedBallotCount}
+        />
+      )}
+      {isShowingLiveCheck && (
+        <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
+      )}
+    </ScreenMainCenterChild>
   );
 }

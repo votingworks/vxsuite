@@ -389,6 +389,7 @@ test('removing card during calibration', async () => {
   const logger = fakeLogger();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);

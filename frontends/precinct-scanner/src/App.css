@@ -63,10 +63,12 @@ body,
 }
 @media print {
   html,
-  body,
-  #root {
+  body {
     height: auto;
     overflow: visible;
+  }
+  #root {
+    display: none; /* Do not print anything displayed in the app */
   }
 }
 
@@ -86,8 +88,6 @@ html {
 }
 @media print {
   html {
-    background: #ffffff;
-
     /* Adjust printed ballot font-size */
     font-size: 16px !important; /* stylelint-disable-line declaration-no-important */
   }
@@ -101,19 +101,6 @@ html {
   overflow: hidden;
   clip: rect(1px, 1px, 1px, 1px);
   clip-path: polygon(0 0, 0 0, 0 0);
-}
-
-/* Utilities */
-.print-only {
-  display: none;
-}
-@media print {
-  .print-only {
-    display: block;
-  }
-  .no-print {
-    display: none;
-  }
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
