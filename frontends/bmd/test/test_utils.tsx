@@ -12,13 +12,11 @@ import {
 
 import userEvent from '@testing-library/user-event';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
-import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from '../src/config/globals';
 
 import {
   MachineConfig,
   MarkVoterCardFunction,
-  Printer,
   TextSizeSetting,
   MarkOnly,
 } from '../src/config/types';
@@ -41,7 +39,6 @@ export function render(
     isLiveMode = false,
     machineConfig = fakeMachineConfig({ appMode: MarkOnly }),
     precinctId,
-    printer = fakePrinter(),
     resetBallot = jest.fn(),
     setUserSettings = jest.fn(),
     updateTally = jest.fn(),
@@ -61,7 +58,6 @@ export function render(
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
     precinctId?: PrecinctId;
-    printer?: Printer;
     resetBallot?(): void;
     setUserSettings?(): void;
     updateTally?(): void;
@@ -84,7 +80,6 @@ export function render(
           markVoterCardVoided,
           markVoterCardPrinted,
           precinctId,
-          printer,
           resetBallot,
           setUserSettings,
           updateTally,

@@ -14,6 +14,7 @@ import {
   makePollWorkerCard,
   getZeroCompressedTally,
   makeSystemAdministratorCard,
+  expectPrint,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -23,7 +24,6 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -62,7 +62,6 @@ it('MarkAndPrint end-to-end flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     appMode: MarkAndPrint,
@@ -75,7 +74,6 @@ it('MarkAndPrint end-to-end flow', async () => {
       card={card}
       hardware={hardware}
       machineConfig={machineConfig}
-      printer={printer}
       storage={storage}
       reload={reload}
       logger={logger}
@@ -328,9 +326,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
   screen.getByText('Printing Official Ballot');
-
-  // Trigger seal image loaded
-  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
+  await expectPrint();
 
   // Mark card used and then read card again
   await advanceTimersAndPromises();
@@ -345,9 +341,6 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   screen.getByText('3. Return the card to a poll worker.');
-
-  // Check that ballots printed count is correct
-  expect(printer.print).toHaveBeenCalledTimes(1);
 
   // Remove card
   card.removeCard();
@@ -411,7 +404,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
-  expect(printer.print).toHaveBeenCalledTimes(2);
+  await expectPrint();
   fireEvent.click(await screen.findByText('Continue'));
 
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);

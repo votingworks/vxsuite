@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
-import { makeVoterCard } from '@votingworks/test-utils';
+import { expectPrint, makeVoterCard } from '@votingworks/test-utils';
 
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
@@ -47,13 +47,15 @@ test('Renders Ballot with EitherNeither: blank', async () => {
         '420B': [],
       }
     ),
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
-  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
-    '[no selection]'
-  );
+  await expectPrint((printedElement) => {
+    const getByTextWithMarkup = withMarkup(printedElement.getByText);
+    const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+      '[no selection]'
+    );
+  });
 });
 
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
@@ -75,16 +77,18 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
         '420B': [],
       }
     ),
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
-  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
-    `• ${measure420Contest.eitherOption.label}`
-  );
-  expect(
-    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-  ).toBe('• [no selection]');
+  await expectPrint((printedElement) => {
+    const getByTextWithMarkup = withMarkup(printedElement.getByText);
+    const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+      `• ${measure420Contest.eitherOption.label}`
+    );
+    expect(
+      contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+    ).toBe('• [no selection]');
+  });
 });
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
@@ -106,16 +110,18 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
         '420B': ['yes'],
       }
     ),
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
-  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
-    `• ${measure420Contest.neitherOption.label}`
-  );
-  expect(
-    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-  ).toBe(`• ${measure420Contest.firstOption.label}`);
+  await expectPrint((printedElement) => {
+    const getByTextWithMarkup = withMarkup(printedElement.getByText);
+    const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+      `• ${measure420Contest.neitherOption.label}`
+    );
+    expect(
+      contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+    ).toBe(`• ${measure420Contest.firstOption.label}`);
+  });
 });
 
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
@@ -137,16 +143,18 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
         '420B': ['no'],
       }
     ),
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
-  const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
-    '• [no selection]'
-  );
-  expect(
-    contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-  ).toBe(`• ${measure420Contest.secondOption.label}`);
+  await expectPrint((printedElement) => {
+    const getByTextWithMarkup = withMarkup(printedElement.getByText);
+    const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+      '• [no selection]'
+    );
+    expect(
+      contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
+    ).toBe(`• ${measure420Contest.secondOption.label}`);
+  });
 });
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {

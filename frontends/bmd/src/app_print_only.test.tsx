@@ -10,11 +10,11 @@ import {
   makeElectionManagerCard,
   makeVoterCard,
   makePollWorkerCard,
+  expectPrint,
 } from '@votingworks/test-utils';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { fakePrinter } from '@votingworks/test-utils';
 import { App } from './app';
 
 import {
@@ -46,7 +46,6 @@ test('PrintOnly flow', async () => {
   const card = new MemoryCard();
   const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
-  const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
@@ -55,7 +54,6 @@ test('PrintOnly flow', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      printer={printer}
       machineConfig={machineConfig}
       reload={jest.fn()}
     />
@@ -235,11 +233,11 @@ test('PrintOnly flow', async () => {
   // Show Printing Ballot screen
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
+  await expectPrint();
 
   // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
   screen.getByText('Verify and Scan Your Official Ballot');
-  expect(printer.print).toHaveBeenCalledTimes(1);
 
   // Remove card
   card.removeCard();
@@ -271,11 +269,11 @@ test('PrintOnly flow', async () => {
   // Show Printing Ballot screen
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
+  await expectPrint();
 
   // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
   screen.getByText('Verify and Scan Your Official Ballot');
-  expect(printer.print).toHaveBeenCalledTimes(2);
 
   // Remove card
   card.removeCard();
@@ -304,11 +302,11 @@ test('PrintOnly flow', async () => {
   // Show Printing Ballot screen
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
+  await expectPrint();
 
   // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
   screen.getByText('Verify and Scan Your Official Ballot');
-  expect(printer.print).toHaveBeenCalledTimes(3);
 
   // Remove card
   card.removeCard();
@@ -335,13 +333,15 @@ test('PrintOnly flow', async () => {
   // Show Printing Ballot screen
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
-
-  expect(getAllByTextWithMarkup('[no selection]')).toHaveLength(20);
+  await expectPrint((printedElement) => {
+    expect(
+      withMarkup(printedElement.getAllByText)('[no selection]')
+    ).toHaveLength(20);
+  });
 
   // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
   screen.getByText('Verify and Scan Your Official Ballot');
-  expect(printer.print).toHaveBeenCalledTimes(4);
 
   // Remove card
   card.removeCard();
@@ -388,7 +388,6 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   const card = new MemoryCard();
   const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
-  const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
@@ -397,7 +396,6 @@ test('PrintOnly retains app mode when unconfigured', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      printer={printer}
       machineConfig={machineConfig}
       reload={jest.fn()}
     />
@@ -491,7 +489,6 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   );
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const card = new MemoryCard();
-  const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
@@ -500,7 +497,6 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      printer={printer}
       machineConfig={machineConfig}
       reload={jest.fn()}
     />

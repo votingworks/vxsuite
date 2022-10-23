@@ -1,5 +1,4 @@
 import { createContext } from 'react';
-import { NullPrinter } from '@votingworks/utils';
 import * as GLOBALS from '../config/globals';
 
 import {
@@ -17,7 +16,6 @@ const ballot: BallotContextInterface = {
   markVoterCardVoided: async () => false,
   // eslint-disable-next-line @typescript-eslint/require-await
   markVoterCardPrinted: async () => false,
-  printer: new NullPrinter(),
   resetBallot: () => undefined,
   setUserSettings: () => undefined,
   updateTally: () => undefined,

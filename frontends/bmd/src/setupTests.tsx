@@ -5,8 +5,22 @@ import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'util';
 import { configure } from '@testing-library/react';
+import {
+  expectAllPrintsAsserted,
+  fakePrintElement,
+  fakePrintElementWhenReady,
+} from '@votingworks/test-utils';
 
 configure({ asyncUtilTimeout: 5_000 });
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  const original = jest.requireActual('@votingworks/ui');
+  return {
+    ...original,
+    printElementWhenReady: fakePrintElementWhenReady,
+    printElement: fakePrintElement,
+  };
+});
 
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM
@@ -50,6 +64,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  expectAllPrintsAsserted();
   fetchMock.restore();
 });
 
