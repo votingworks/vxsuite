@@ -310,14 +310,11 @@ export function generateBallotPageLayouts(
     }
 
     // ensure the layouts are returned in the contest-order defined by the election definition
-    const contestsInOrder: BallotPageContestLayout[] = election.contests
-      .map((electionContest) =>
-        contests.find((c) => c.contestId === electionContest.id)
-      )
-      .filter(
-        (contestLayout): contestLayout is BallotPageContestLayout =>
-          contestLayout !== undefined
-      );
+    const contestsInOrder = [...contests].sort(
+      (a, b) =>
+        election.contests.findIndex(({ id }) => id === a.contestId) -
+        election.contests.findIndex(({ id }) => id === b.contestId)
+    );
 
     layouts.push({
       metadata: { ...metadata, pageNumber: i + 1 },
