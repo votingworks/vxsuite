@@ -166,11 +166,13 @@
       "yesno"
     ],
     "search.exclude": {
+      "**/.jestcache": true,
       "**/build": true,
       "**/coverage": true
     },
     "files.exclude": {
       "**/*.tsbuildinfo": true,
+      "**/.jestcache": true,
       "**/build": true,
       "**/coverage": true
     },
