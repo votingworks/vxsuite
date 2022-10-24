@@ -4,7 +4,12 @@ import randomBytes from 'randombytes';
 import { Buffer } from 'buffer';
 
 import { isFeatureFlagEnabled } from './features';
-import { generatePin, hyphenatePin, MIN_PIN_LENGTH } from './pins';
+import {
+  generatePin,
+  hyphenatePin,
+  MAX_PIN_LENGTH,
+  MIN_PIN_LENGTH,
+} from './pins';
 
 jest.mock('./features', (): typeof import('./features') => {
   return {
@@ -40,13 +45,14 @@ test('generatePin generates PINs of specified length', () => {
 test('generatePin throws on invalid PIN length', () => {
   expect(() => generatePin(0)).toThrow(/PIN length must be greater than \d/);
   expect(() => generatePin(-1)).toThrow(/PIN length must be greater than \d/);
+  expect(() => generatePin(50)).toThrow(/PIN length must be less than \d/);
 });
 
 test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   fc.assert(
-    fc.property(fc.integer(1, 100), (length) => {
+    fc.property(fc.integer(MIN_PIN_LENGTH, MAX_PIN_LENGTH), (length) => {
       const pin = generatePin(length);
       expect(pin).toMatch(/^[0]+$/);
       expect(pin).toHaveLength(length);

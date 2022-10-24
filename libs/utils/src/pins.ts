@@ -5,6 +5,9 @@ import { isFeatureFlagEnabled } from './features';
 /** See VVSG 2.0 - 11.3.2-B – Password complexity */
 export const MIN_PIN_LENGTH = 6;
 
+/** Maximum reasonable PIN length for user memorization. */
+export const MAX_PIN_LENGTH = 16;
+
 /** Minimum number of unique digits required in a non-weak PIN. */
 const MIN_UNIQUE_DIGITS = 3;
 
@@ -46,6 +49,10 @@ function newRandomPin(length: number): string {
     throw new Error(`PIN length must be greater than ${MIN_PIN_LENGTH}`);
   }
 
+  if (length > MAX_PIN_LENGTH) {
+    throw new Error(`PIN length must be less than ${MAX_PIN_LENGTH}`);
+  }
+
   const bytes = randomBytes(length);
   let pin = '';
   for (let i = 0; i < length; i += 1) {
@@ -55,7 +62,8 @@ function newRandomPin(length: number): string {
   return pin;
 }
 
-function isWeakPin(pin: string): boolean {
+/** Returns true if the given PIN contains common/easily guessed patterns. */
+export function isWeakPin(pin: string): boolean {
   // Not enough digit variety:
   if (new Set(pin).size < MIN_UNIQUE_DIGITS) {
     return true;
