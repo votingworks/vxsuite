@@ -93,6 +93,20 @@ describe('printElement', () => {
 
     await printPromise;
   });
+
+  test('if print fails, bubbles up error and cleans up', async () => {
+    const printError = new Error();
+    printer.print.mockRejectedValueOnce(printError);
+
+    expect.assertions(2);
+    try {
+      await printElement(simpleElement, fakeOptions);
+    } catch (e) {
+      expect(e).toBe(printError);
+    }
+
+    expect(screen.queryByTestId('print-root')).not.toBeInTheDocument();
+  });
 });
 
 function SleeperElement({ afterSleep }: { afterSleep: () => void }) {
