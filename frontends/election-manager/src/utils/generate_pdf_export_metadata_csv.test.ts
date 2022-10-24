@@ -1,14 +1,14 @@
+import { Admin } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { generatePdfExportMetadataCsv } from './generate_pdf_export_metadata_csv';
 
-import { BallotMode } from '../config/types';
 import { DEFAULT_LOCALE } from '../config/globals';
 
 describe('generatePdfExportMetadataCsv', () => {
   it('generates an accurate metadata csv', () => {
     const actualMetadataCsv = generatePdfExportMetadataCsv({
       electionDefinition: electionSampleDefinition,
-      ballotMode: BallotMode.Official,
+      ballotMode: Admin.BallotMode.Official,
       isAbsentee: false,
       ballotLocales: { primary: DEFAULT_LOCALE },
     });
@@ -25,7 +25,7 @@ election-748dc61ad3-precinct-south-springfield-id-20-style-7C-English-live.pdf,S
   it('includes test filenames if the ballot mode is test', () => {
     const metadataCsv = generatePdfExportMetadataCsv({
       electionDefinition: electionSampleDefinition,
-      ballotMode: BallotMode.Test,
+      ballotMode: Admin.BallotMode.Test,
       isAbsentee: false,
       ballotLocales: { primary: DEFAULT_LOCALE },
     });
@@ -37,7 +37,7 @@ election-748dc61ad3-precinct-south-springfield-id-20-style-7C-English-live.pdf,S
   it('includes absentee filenames if ballots are absentee', () => {
     const metadataCsv = generatePdfExportMetadataCsv({
       electionDefinition: electionSampleDefinition,
-      ballotMode: BallotMode.Official,
+      ballotMode: Admin.BallotMode.Official,
       isAbsentee: true,
       ballotLocales: { primary: DEFAULT_LOCALE },
     });

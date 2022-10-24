@@ -1,5 +1,5 @@
 import {
-  BallotLocales,
+  BallotLocale,
   BallotMark,
   BallotTargetMark,
   MarkAdjudications,
@@ -56,7 +56,7 @@ export interface BallotPageQrcode {
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
-  locales: BallotLocales;
+  locales: BallotLocale;
   isLiveMode: boolean;
 }
 

@@ -1,3 +1,4 @@
+import { Admin } from '@votingworks/api';
 import { electionSample } from '@votingworks/fixtures';
 import {
   BallotStyle,
@@ -10,7 +11,6 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import arrayUnique from 'array-unique';
-import { BallotMode } from '../config/types';
 import {
   getBallotPath,
   generateOvervoteBallot,
@@ -28,7 +28,7 @@ test('getBallotPath allows digits in file names', () => {
       ballotStyleId: '77',
       precinctId: '21',
       locales: { primary: 'en-US' },
-      ballotMode: BallotMode.Official,
+      ballotMode: Admin.BallotMode.Official,
       isAbsentee: true,
     })
   ).toEqual(

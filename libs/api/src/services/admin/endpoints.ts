@@ -17,10 +17,16 @@ import {
   OkResponseSchema,
 } from '../../base';
 import {
+  BallotMode,
+  BallotModeSchema,
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   ElectionRecord,
   ElectionRecordSchema,
+  PrintedBallot,
+  PrintedBallotRecord,
+  PrintedBallotRecordSchema,
+  PrintedBallotSchema,
   WriteInAdjudicationRecord,
   WriteInAdjudicationRecordSchema,
   WriteInAdjudicationStatus,
@@ -607,3 +613,81 @@ export type GetWriteInImageResponse = WriteInImageEntry[] | ErrorsResponse;
  */
 export const GetWriteInImageResponseSchema: z.ZodSchema<GetWriteInImageResponse> =
   z.array(WriteInImageEntrySchema);
+
+/**
+ * @url /admin/elections/:electionId/printed-ballots
+ * @method POST
+ */
+export type PostPrintedBallotRequest = PrintedBallot;
+
+/**
+ * Schema for {@link PostPrintedBallotRequest}.
+ */
+export const PostPrintedBallotRequestSchema = PrintedBallotSchema;
+
+/**
+ * @url /admin/elections/:electionId/printed-ballots
+ * @method POST
+ */
+export type PostPrintedBallotResponse = OkResponse<{ id: Id }> | ErrorsResponse;
+
+/**
+ * Schema for {@link PostPrintedBallotResponse}.
+ */
+export const PostPrintedBallotResponseSchema: z.ZodSchema<PostPrintedBallotResponse> =
+  z.union([
+    z.object({
+      status: z.literal('ok'),
+      id: IdSchema,
+    }),
+    ErrorsResponseSchema,
+  ]);
+
+/**
+ * @url /admin/elections/:electionId/printed-ballots
+ * @method GET
+ */
+export interface GetPrintedBallotsQueryParams {
+  readonly ballotMode?: BallotMode;
+}
+
+/**
+ * Schema for {@link GetPrintedBallotsQueryParams}.
+ */
+export const GetPrintedBallotsQueryParamsSchema: z.ZodSchema<GetPrintedBallotsQueryParams> =
+  z.object({ ballotMode: BallotModeSchema.optional() }).strict();
+
+/**
+ * @url /admin/elections/:electionId/printed-ballots
+ * @method GET
+ */
+export type GetPrintedBallotsRequest = never;
+
+/**
+ * Schema for {@link GetPrintedBallotsRequest}.
+ */
+export const GetPrintedBallotsRequestSchema: z.ZodSchema<GetPrintedBallotsRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/printed-ballots
+ * @method GET
+ */
+export type GetPrintedBallotsResponse =
+  | {
+      status: 'ok';
+      printedBallots: PrintedBallotRecord[];
+    }
+  | ErrorsResponse;
+
+/**
+ * Schema for {@link GetPrintedBallotsResponse}.
+ */
+export const GetPrintedBallotsResponseSchema: z.ZodSchema<GetPrintedBallotsResponse> =
+  z.union([
+    z.object({
+      status: z.literal('ok'),
+      printedBallots: z.array(PrintedBallotRecordSchema),
+    }),
+    ErrorsResponseSchema,
+  ]);

@@ -1,16 +1,12 @@
+import { Admin } from '@votingworks/api';
 import {
-  BallotIdSchema,
-  BallotLocales,
-  BallotLocaleSchema,
   BallotStyleId,
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
-  Iso8601TimestampSchema,
   MachineId,
   Optional,
   PrecinctId,
-  PrecinctIdSchema,
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
@@ -45,29 +41,20 @@ export const PrintableBallotTypeSchema = z.union([
   z.literal('standard'),
 ]);
 
-export enum BallotMode {
-  /** Real ballots to be used and scanned during an election */
-  Official = 'live',
-  /** Test ballots to be used and scanned during pre-election testing / L&A */
-  Test = 'test',
-  /** Sample ballots to be provided to voters ahead of an election */
-  Sample = 'sample',
-  /** Draft ballots to verify that an election definition has been properly configured */
-  Draft = 'draft',
-}
-
-export function ballotModeToReadableString(ballotMode: BallotMode): string {
+export function ballotModeToReadableString(
+  ballotMode: Admin.BallotMode
+): string {
   switch (ballotMode) {
-    case BallotMode.Draft: {
+    case Admin.BallotMode.Draft: {
       return 'Draft';
     }
-    case BallotMode.Official: {
+    case Admin.BallotMode.Official: {
       return 'Official';
     }
-    case BallotMode.Sample: {
+    case Admin.BallotMode.Sample: {
       return 'Sample';
     }
-    case BallotMode.Test: {
+    case Admin.BallotMode.Test: {
       return 'Test';
     }
     /* istanbul ignore next: Compile-time check for completeness */
@@ -76,24 +63,6 @@ export function ballotModeToReadableString(ballotMode: BallotMode): string {
     }
   }
 }
-
-export interface PrintedBallot {
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  locales: BallotLocales;
-  numCopies: number;
-  printedAt: Iso8601Timestamp;
-  type: PrintableBallotType;
-}
-
-export const PrintedBallotSchema = z.object({
-  ballotStyleId: BallotIdSchema,
-  precinctId: PrecinctIdSchema,
-  locales: BallotLocaleSchema,
-  numCopies: z.number().int().nonnegative(),
-  printedAt: Iso8601TimestampSchema,
-  type: PrintableBallotTypeSchema,
-});
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {
   sides: KioskBrowser.PrintSides;

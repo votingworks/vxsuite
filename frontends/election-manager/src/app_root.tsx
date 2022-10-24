@@ -36,7 +36,6 @@ import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
-  PrintedBallot,
   ResultsFileType,
   MachineConfig,
   ConverterClientType,
@@ -119,13 +118,6 @@ export function AppRoot({
 
   const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
-
-  const addPrintedBallot = useCallback(
-    async (printedBallot: PrintedBallot) => {
-      await store.addPrintedBallot(printedBallot);
-    },
-    [store]
-  );
 
   const saveTranscribedValue = useCallback(
     async (adjudicationId: string, transcribedValue: string) => {
@@ -265,8 +257,6 @@ export function AppRoot({
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,
-        printedBallots: store.printedBallots,
-        addPrintedBallot,
         fullElectionTally,
         fullElectionExternalTallies: store.fullElectionExternalTallies,
         updateExternalTally,

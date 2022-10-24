@@ -1,5 +1,5 @@
 import {
-  BallotLocales,
+  BallotLocale,
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotStyleId,
@@ -39,7 +39,7 @@ export interface BallotStyleData {
 export interface BallotConfig extends BallotStyleData {
   filename: string;
   layoutFilename: string;
-  locales: BallotLocales;
+  locales: BallotLocale;
   isLiveMode: boolean;
   isAbsentee: boolean;
 }

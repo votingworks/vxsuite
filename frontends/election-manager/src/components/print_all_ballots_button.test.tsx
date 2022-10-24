@@ -5,6 +5,7 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import React from 'react';
+import { Admin } from '@votingworks/api';
 import {
   fakeKiosk,
   fakePrinter,
@@ -87,12 +88,15 @@ test('modal allows editing print options', async () => {
 test('print sequence proceeds as expected', async () => {
   const printer = fakePrinter();
   const logger = fakeLogger();
-  const addPrintedBallot = jest.fn();
+  const backend = new ElectionManagerStoreMemoryBackend();
+  await backend.configure(
+    electionMinimalExhaustiveSampleDefinition.electionData
+  );
   renderInAppContext(<PrintAllBallotsButton />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     printer,
     logger,
-    addPrintedBallot,
+    backend,
   });
 
   userEvent.click(screen.getByText('Print All'));
@@ -131,11 +135,14 @@ test('print sequence proceeds as expected', async () => {
         disposition: 'success',
       })
     );
-    expect(addPrintedBallot).toHaveBeenCalledTimes(i + 1);
-    expect(addPrintedBallot).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        numCopies: 1,
-      })
+    const printedBallots = await backend.loadPrintedBallots();
+    expect(printedBallots).toHaveLength(i + 1);
+    expect(printedBallots[printedBallots.length - 1]).toEqual(
+      expect.objectContaining(
+        typedAs<Partial<Admin.PrintedBallotRecord>>({
+          numCopies: 1,
+        })
+      )
     );
     jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   }

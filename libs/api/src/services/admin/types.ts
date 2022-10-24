@@ -1,4 +1,8 @@
 import {
+  BallotLocale,
+  BallotLocaleSchema,
+  BallotStyleId,
+  BallotStyleIdSchema,
   CastVoteRecord,
   ContestId,
   ContestIdSchema,
@@ -10,6 +14,8 @@ import {
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
+  PrecinctId,
+  PrecinctIdSchema,
   Rect,
   RectSchema,
 } from '@votingworks/types';
@@ -488,3 +494,94 @@ export interface CastVoteRecordData {
   readonly optionId: ContestOptionId;
   readonly electionId: Id;
 }
+
+/**
+ * Convenience enum for the printable ballot types.
+ */
+export const PrintableBallotType = {
+  Absentee: 'absentee',
+  Precinct: 'standard',
+} as const;
+
+/**
+ * Printable ballot types.
+ */
+export type PrintableBallotType =
+  typeof PrintableBallotType[keyof typeof PrintableBallotType];
+
+/**
+ * Schema for {@link PrintableBallotType}.
+ */
+export const PrintableBallotTypeSchema = z.union([
+  z.literal('absentee'),
+  z.literal('standard'),
+]);
+
+/**
+ * Ballot mode.
+ */
+export enum BallotMode {
+  /** Real ballots to be used and scanned during an election */
+  Official = 'live',
+  /** Test ballots to be used and scanned during pre-election testing / L&A */
+  Test = 'test',
+  /** Sample ballots to be provided to voters ahead of an election */
+  Sample = 'sample',
+  /** Draft ballots to verify that an election definition has been properly configured */
+  Draft = 'draft',
+}
+
+/**
+ * Schema for {@link BallotMode}.
+ */
+export const BallotModeSchema = z.nativeEnum(BallotMode);
+
+/**
+ * Information about printed ballots.
+ */
+export interface PrintedBallot {
+  readonly ballotStyleId: BallotStyleId;
+  readonly precinctId: PrecinctId;
+  readonly locales: BallotLocale;
+  readonly ballotType: PrintableBallotType;
+  readonly ballotMode: BallotMode;
+  readonly numCopies: number;
+}
+
+/**
+ * Schema for {@link PrintedBallot}.
+ */
+export const PrintedBallotSchema: z.ZodSchema<PrintedBallot> = z.object({
+  ballotStyleId: BallotStyleIdSchema,
+  precinctId: PrecinctIdSchema,
+  locales: BallotLocaleSchema,
+  ballotType: PrintableBallotTypeSchema,
+  ballotMode: BallotModeSchema,
+  numCopies: z.number().int().nonnegative(),
+});
+
+/**
+ * Database record for a printed ballot.
+ */
+export interface PrintedBallotRecord extends PrintedBallot {
+  readonly id: Id;
+  readonly electionId: Id;
+  readonly createdAt: Iso8601Timestamp;
+}
+
+/**
+ * Schema for {@link PrintedBallotRecord}.
+ */
+export const PrintedBallotRecordSchema: z.ZodSchema<PrintedBallotRecord> = z
+  .object({
+    id: IdSchema,
+    electionId: IdSchema,
+    ballotStyleId: BallotStyleIdSchema,
+    precinctId: PrecinctIdSchema,
+    locales: BallotLocaleSchema,
+    ballotType: PrintableBallotTypeSchema,
+    ballotMode: BallotModeSchema,
+    numCopies: z.number().int().min(1),
+    createdAt: Iso8601TimestampSchema,
+  })
+  .strict();

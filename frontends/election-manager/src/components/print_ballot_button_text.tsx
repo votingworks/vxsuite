@@ -1,17 +1,14 @@
 import React from 'react';
-import {
-  BallotLocales,
-  Election,
-  getElectionLocales,
-} from '@votingworks/types';
+import { Admin } from '@votingworks/api';
+import { BallotLocale, Election, getElectionLocales } from '@votingworks/types';
 import pluralize from 'pluralize';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { BallotMode, ballotModeToReadableString } from '../config/types';
+import { ballotModeToReadableString } from '../config/types';
 import { getHumanBallotLanguageFormat } from '../utils/election';
 
 interface Props {
   ballotCopies: number;
-  ballotMode: BallotMode;
+  ballotMode: Admin.BallotMode;
   isAbsentee: boolean;
   election: Election;
   localeCode?: string;
@@ -24,7 +21,7 @@ export function PrintBallotButtonText({
   election,
   localeCode,
 }: Props): JSX.Element {
-  const locales: BallotLocales = {
+  const locales: BallotLocale = {
     primary: DEFAULT_LOCALE,
     secondary: localeCode,
   };

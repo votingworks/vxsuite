@@ -1,4 +1,5 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
+import { Admin } from '@votingworks/api';
 import {
   BallotPaperSize,
   Election,
@@ -35,7 +36,6 @@ import {
   getBallotLayoutPageSize,
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
-import { BallotMode } from '../config/types';
 import { PrinterNotConnectedModal } from '../components/printer_not_connected_modal';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
@@ -164,7 +164,7 @@ function HandMarkedPaperBallots({
           ballotStyleId={ballot.ballotStyleId}
           election={election}
           electionHash={electionHash}
-          ballotMode={BallotMode.Test}
+          ballotMode={Admin.BallotMode.Test}
           isAbsentee={false}
           precinctId={ballot.precinctId}
           locales={{ primary: 'en-US' }}

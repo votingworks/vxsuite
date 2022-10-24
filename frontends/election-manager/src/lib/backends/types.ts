@@ -8,7 +8,6 @@ import {
   FullElectionExternalTally,
   Id,
 } from '@votingworks/types';
-import { PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 
 export interface AddCastVoteRecordFileResult {
@@ -87,12 +86,14 @@ export interface ElectionManagerStoreBackend {
   /**
    * Loads the existing printed ballots.
    */
-  loadPrintedBallots(): Promise<PrintedBallot[] | undefined>;
+  loadPrintedBallots(options?: {
+    ballotMode?: Admin.BallotMode;
+  }): Promise<Admin.PrintedBallotRecord[]>;
 
   /**
    * Adds a new printed ballot to the list.
    */
-  addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
+  addPrintedBallot(printedBallot: Admin.PrintedBallot): Promise<Id>;
 
   /**
    * Loads all write-in records filtered appropriately.

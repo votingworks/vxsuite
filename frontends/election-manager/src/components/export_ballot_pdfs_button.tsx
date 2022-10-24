@@ -2,8 +2,9 @@ import { Buffer } from 'buffer';
 import React, { useCallback, useContext, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { join } from 'path';
-import { BallotLocales } from '@votingworks/types';
+import { BallotLocale } from '@votingworks/types';
 
+import { Admin } from '@votingworks/api';
 import {
   assert,
   usbstick,
@@ -32,7 +33,6 @@ import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
-import { BallotMode } from '../config/types';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 import { BallotTypeToggle } from './ballot_type_toggle';
 import { BallotModeToggle } from './ballot_mode_toggle';
@@ -58,7 +58,7 @@ type ModalState =
   | 'Done'
   | 'Error';
 
-const defaultBallotLocales: BallotLocales = { primary: DEFAULT_LOCALE };
+const defaultBallotLocales: BallotLocale = { primary: DEFAULT_LOCALE };
 
 export function ExportBallotPdfsButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, usbDriveEject, auth, logger } =
@@ -72,7 +72,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   const [modalState, setModalState] = useState<ModalState>('BeforeExport');
   const [modalError, setModalError] = useState<Error>();
   const [archive, setArchive] = useState(new DownloadableArchive());
-  const [ballotMode, setBallotMode] = useState(BallotMode.Official);
+  const [ballotMode, setBallotMode] = useState(Admin.BallotMode.Official);
   const [isAbsentee, setIsAbsentee] = useState(false);
   const [ballotIndex, setBallotIndex] = useState(0);
 

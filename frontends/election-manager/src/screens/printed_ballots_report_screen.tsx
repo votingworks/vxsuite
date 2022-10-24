@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 
+import { Admin } from '@votingworks/api';
 import { Dictionary } from '@votingworks/types';
 import { assert, format, find } from '@votingworks/utils';
 import {
@@ -19,17 +20,20 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 
 import { PrintButton } from '../components/print_button';
-
 import { NavigationScreen } from '../components/navigation_screen';
-
 import { LinkButton } from '../components/link_button';
+import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
 export function PrintedBallotsReportScreen(): JSX.Element {
-  const { electionDefinition, printedBallots, configuredAt, logger, auth } =
+  const { electionDefinition, configuredAt, logger, auth } =
     useContext(AppContext);
+  const printedBallotsQuery = usePrintedBallotsQuery({
+    ballotMode: Admin.BallotMode.Official,
+  });
+  const printedBallots = printedBallotsQuery.data ?? [];
   assert(electionDefinition && typeof configuredAt === 'string');
   assert(isElectionManagerAuth(auth)); // TODO auth check permissions for printing printed ballot report
   const userRole = auth.user.role;
@@ -41,11 +45,11 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   );
 
   const totalAbsenteeBallotsPrinted = printedBallots
-    .filter((ballot) => ballot.type === PrintableBallotType.Absentee)
+    .filter((ballot) => ballot.ballotType === PrintableBallotType.Absentee)
     .reduce((count, ballot) => count + ballot.numCopies, 0);
 
   const totalPrecinctBallotsPrinted = printedBallots
-    .filter((ballot) => ballot.type === PrintableBallotType.Precinct)
+    .filter((ballot) => ballot.ballotType === PrintableBallotType.Precinct)
     .reduce((count, ballot) => count + ballot.numCopies, 0);
 
   const zeroCounts = election.precincts.reduce<PrintCounts>(
@@ -94,15 +98,18 @@ export function PrintedBallotsReportScreen(): JSX.Element {
     .sort((a, b) => a.precinct.name.localeCompare(b.precinct.name));
 
   const countsByType: PrintCountsByType = printedBallots.reduce(
-    (accumulatedCounts, { precinctId, ballotStyleId, numCopies, type }) => ({
+    (
+      accumulatedCounts,
+      { precinctId, ballotStyleId, numCopies, ballotType }
+    ) => ({
       ...accumulatedCounts,
-      [type]: {
-        ...(accumulatedCounts[type] ?? {}),
+      [ballotType]: {
+        ...(accumulatedCounts[ballotType] ?? {}),
         [precinctId]: {
-          ...(accumulatedCounts[type]?.[precinctId] ?? {}),
+          ...(accumulatedCounts[ballotType]?.[precinctId] ?? {}),
           [ballotStyleId]:
-            (accumulatedCounts[type]?.[precinctId]?.[ballotStyleId] ?? 0) +
-            numCopies,
+            (accumulatedCounts[ballotType]?.[precinctId]?.[ballotStyleId] ??
+              0) + numCopies,
         },
       },
     }),

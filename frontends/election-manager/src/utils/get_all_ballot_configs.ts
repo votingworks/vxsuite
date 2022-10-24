@@ -1,7 +1,7 @@
-import { BallotLocales, Election } from '@votingworks/types';
+import { Admin } from '@votingworks/api';
+import { BallotLocale, Election } from '@votingworks/types';
 import { BallotConfig } from '@votingworks/utils';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { BallotMode } from '../config/types';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
 export function getAllBallotConfigs(
@@ -10,7 +10,7 @@ export function getAllBallotConfigs(
   localeCodes: readonly string[]
 ): BallotConfig[] {
   const ballotStyles = getBallotStylesDataByStyle(election);
-  const allLocaleConfigs = localeCodes.map<BallotLocales>((localeCode) => ({
+  const allLocaleConfigs = localeCodes.map<BallotLocale>((localeCode) => ({
     primary: DEFAULT_LOCALE,
     secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
   }));
@@ -30,7 +30,9 @@ export function getAllBallotConfigs(
             election,
             electionHash,
             locales,
-            ballotMode: isLiveMode ? BallotMode.Official : BallotMode.Test,
+            ballotMode: isLiveMode
+              ? Admin.BallotMode.Official
+              : Admin.BallotMode.Test,
             isAbsentee,
           }),
           layoutFilename: getBallotPath({
@@ -38,7 +40,9 @@ export function getAllBallotConfigs(
             election,
             electionHash,
             locales,
-            ballotMode: isLiveMode ? BallotMode.Official : BallotMode.Test,
+            ballotMode: isLiveMode
+              ? Admin.BallotMode.Official
+              : Admin.BallotMode.Test,
             isAbsentee,
             variant: 'layout',
             extension: '.json',

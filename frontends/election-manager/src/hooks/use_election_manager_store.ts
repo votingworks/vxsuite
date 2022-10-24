@@ -12,11 +12,11 @@ import {
 } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useContext, useMemo, useRef } from 'react';
-import { PrintedBallot } from '../config/types';
 import { ServicesContext } from '../contexts/services_context';
 import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
+import { getPrintedBallotsQueryKey } from './use_printed_ballots_query';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
@@ -32,11 +32,6 @@ export interface ElectionManagerStore {
    * The current set of loaded cast vote record files.
    */
   readonly castVoteRecordFiles: CastVoteRecordFiles;
-
-  /**
-   * Information about the ballots that have been printed.
-   */
-  readonly printedBallots: readonly PrintedBallot[];
 
   /**
    * Tallies from external sources, e.g. SEMS or manually entered tallies.
@@ -83,18 +78,12 @@ export interface ElectionManagerStore {
   clearFullElectionExternalTallies(): Promise<void>;
 
   /**
-   * Adds a new printed ballot to the list.
-   */
-  addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
-
-  /**
    * Sets the current user's role, i.e. the person taking action.
    */
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
 export const cvrsStorageKey = 'cvrFiles';
-export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
@@ -105,14 +94,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
   const { backend, logger } = useContext(ServicesContext);
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
-
-  const getPrintedBallotsQuery = useQuery<PrintedBallot[]>(
-    [printedBallotsStorageKey],
-    async () => {
-      return (await backend.loadPrintedBallots()) ?? [];
-    }
-  );
-  const printedBallots = getPrintedBallotsQuery.data;
 
   const getCastVoteRecordFilesQuery = useQuery<CastVoteRecordFiles>(
     [cvrsStorageKey],
@@ -143,7 +124,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
     );
     await queryClient.invalidateQueries([cvrsStorageKey]);
     await queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
-    await queryClient.invalidateQueries([printedBallotsStorageKey]);
+    await queryClient.invalidateQueries(getPrintedBallotsQueryKey());
     await queryClient.invalidateQueries(getWriteInImageQueryKey());
     await queryClient.invalidateQueries(getWriteInsQueryKey());
     await queryClient.invalidateQueries(getWriteInSummaryQueryKey());
@@ -192,24 +173,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
       );
     },
     [addCastVoteRecordFileMutation]
-  );
-
-  const addPrintedBallotMutation = useMutation(
-    async (newPrintedBallot: PrintedBallot) => {
-      await backend.addPrintedBallot(newPrintedBallot);
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([printedBallotsStorageKey]);
-      },
-    }
-  );
-
-  const addPrintedBallot = useCallback(
-    async (newPrintedBallot: PrintedBallot) => {
-      await addPrintedBallotMutation.mutateAsync(newPrintedBallot);
-    },
-    [addPrintedBallotMutation]
   );
 
   const updateFullElectionExternalTallyMutation = useMutation(
@@ -281,10 +244,8 @@ export function useElectionManagerStore(): ElectionManagerStore {
       typedAs<ElectionManagerStore>({
         castVoteRecordFiles: castVoteRecordFiles ?? CastVoteRecordFiles.empty,
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
-        printedBallots: printedBallots ?? [],
 
         addCastVoteRecordFile,
-        addPrintedBallot,
         clearFullElectionExternalTallies,
         configure,
         reset,
@@ -294,12 +255,10 @@ export function useElectionManagerStore(): ElectionManagerStore {
       }),
     [
       addCastVoteRecordFile,
-      addPrintedBallot,
       castVoteRecordFiles,
       clearFullElectionExternalTallies,
       configure,
       fullElectionExternalTallies,
-      printedBallots,
       removeFullElectionExternalTally,
       reset,
       setCurrentUserRole,

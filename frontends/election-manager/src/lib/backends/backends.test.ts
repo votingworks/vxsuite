@@ -14,7 +14,6 @@ import {
 } from '@votingworks/types';
 import { MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
-import { PrintedBallot } from '../../config/types';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
@@ -49,25 +48,29 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       ),
     }))
     .post('/admin/elections', (url, request) => {
-      const id = `test-election-${nextElectionIndex}`;
+      const electionId = `test-election-${nextElectionIndex}`;
       nextElectionIndex += 1;
       const electionDefinition = safeParseJson(
         request.body as string,
         Admin.PostElectionRequestSchema
       ).unsafeUnwrap();
-      db.set(id, {
+      db.set(electionId, {
         electionRecord: {
-          id,
+          id: electionId,
           electionDefinition,
           createdAt: new Date().toISOString(),
           isOfficialResults: false,
         },
         memoryBackend: new ElectionManagerStoreMemoryBackend({
+          electionId,
           electionDefinition,
         }),
       });
       return {
-        body: typedAs<Admin.PostElectionResponse>({ status: 'ok', id }),
+        body: typedAs<Admin.PostElectionResponse>({
+          status: 'ok',
+          id: electionId,
+        }),
       };
     })
     .patch('glob:/admin/elections/*', (url, request) => {
@@ -166,6 +169,35 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
 
       return { status: 404 };
     })
+    .get('glob:/admin/elections/*/write-in-adjudications\\?*', async (url) => {
+      const match = url.match(
+        /^\/admin\/elections\/(.+)\/write-in-adjudications(\?.*)?$/
+      );
+      const electionId = match?.[1] as Id;
+      const query = new URLSearchParams(match?.[2] ?? '');
+      const dbEntry = electionId && db.get(electionId);
+
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      const parseQueryResult = safeParse(
+        Admin.GetWriteInAdjudicationsQueryParamsSchema,
+        { contestId: query.get('contestId') ?? undefined }
+      );
+
+      if (parseQueryResult.isErr()) {
+        return { status: 400 };
+      }
+
+      return {
+        body: typedAs<Admin.GetWriteInAdjudicationsResponse>(
+          await dbEntry.memoryBackend.loadWriteInAdjudications(
+            parseQueryResult.ok()
+          )
+        ),
+      };
+    })
     .post(
       'glob:/admin/elections/*/write-in-adjudications',
       async (url, request) => {
@@ -253,6 +285,55 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       }
 
       return { status: 404 };
+    })
+    .get('glob:/admin/elections/*/printed-ballots\\?*', async (url) => {
+      const match = url.match(
+        /^\/admin\/elections\/(.+)\/printed-ballots(\?.*)?$/
+      );
+      const electionId = match?.[1] as Id;
+      const dbEntry = db.get(electionId);
+      const query = new URLSearchParams(match?.[2] ?? '');
+
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      const parseQueryResult = safeParse(
+        Admin.GetPrintedBallotsQueryParamsSchema,
+        { ballotMode: query.get('ballotMode') ?? undefined }
+      );
+
+      if (parseQueryResult.isErr()) {
+        return { status: 400 };
+      }
+
+      return {
+        body: typedAs<Admin.GetPrintedBallotsResponse>({
+          status: 'ok',
+          printedBallots: await dbEntry.memoryBackend.loadPrintedBallots(
+            parseQueryResult.ok()
+          ),
+        }),
+      };
+    })
+    .post('glob:/admin/elections/*/printed-ballots', async (url, request) => {
+      const match = url.match(/^\/admin\/elections\/(.+)\/printed-ballots$/);
+      const electionId = match?.[1] as Id;
+      const dbEntry = db.get(electionId);
+
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      const body = safeParseJson(
+        request.body as string,
+        Admin.PostPrintedBallotRequestSchema
+      ).unsafeUnwrap();
+      const id = await dbEntry.memoryBackend.addPrintedBallot(body);
+
+      return {
+        body: typedAs<Admin.PostPrintedBallotResponse>({ status: 'ok', id }),
+      };
     });
 
   return new ElectionManagerStoreAdminBackend({
@@ -283,18 +364,36 @@ describe.each([
 
   test('add printed ballot', async () => {
     const backend = makeBackend();
-    const printedBallot: PrintedBallot = {
-      type: 'standard',
+
+    await expect(backend.loadPrintedBallots()).rejects.toThrowError(
+      'Election definition must be configured first'
+    );
+
+    await backend.configure(
+      electionFamousNames2021Fixtures.electionDefinition.electionData
+    );
+    const printedBallot: Admin.PrintedBallot = {
+      ballotType: 'standard',
+      ballotMode: Admin.BallotMode.Sample,
       ballotStyleId: '1',
       precinctId: '1',
       locales: { primary: 'en_US' },
       numCopies: 1,
-      printedAt: new Date().toISOString(),
     };
 
-    expect(await backend.loadPrintedBallots()).toBeUndefined();
+    expect(await backend.loadPrintedBallots()).toEqual([]);
     await backend.addPrintedBallot(printedBallot);
-    expect(await backend.loadPrintedBallots()).toStrictEqual([printedBallot]);
+    expect(await backend.loadPrintedBallots()).toStrictEqual([
+      {
+        id: expect.any(String),
+        electionId: expect.any(String),
+        ...printedBallot,
+        createdAt: expect.any(String),
+      },
+    ]);
+    expect(
+      await backend.loadPrintedBallots({ ballotMode: Admin.BallotMode.Draft })
+    ).toStrictEqual([]);
   });
 
   test('reset', async () => {
@@ -418,6 +517,21 @@ describe.each([
       'Mickey Mouse',
       'Richard Mouse'
     );
+
+    expect(await backend.loadWriteInAdjudications()).toEqual(
+      typedAs<Admin.GetWriteInAdjudicationsResponse>([
+        {
+          id: expect.any(String),
+          contestId: transcribedWriteIn.contestId,
+          transcribedValue: 'Mickey Mouse',
+          adjudicatedValue: 'Richard Mouse',
+        },
+      ])
+    );
+
+    expect(
+      await backend.loadWriteInAdjudications({ contestId: 'not-a-contest-id' })
+    ).toEqual(typedAs<Admin.GetWriteInAdjudicationsResponse>([]));
 
     const [adjudicatedWriteIn] = (await backend.loadWriteIns({
       status: 'adjudicated',

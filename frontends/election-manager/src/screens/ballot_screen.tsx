@@ -9,7 +9,7 @@ import React, {
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  BallotLocales,
+  BallotLocale,
   getBallotStyle,
   getContests,
   getPrecinctById,
@@ -27,11 +27,8 @@ import {
   Monospace,
   Prose,
 } from '@votingworks/ui';
-import {
-  BallotMode,
-  BallotScreenProps,
-  PrintableBallotType,
-} from '../config/types';
+import { Admin } from '@votingworks/api';
+import { BallotScreenProps, PrintableBallotType } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
 import { PrintButton } from '../components/print_button';
@@ -52,6 +49,7 @@ import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
 import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
+import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -88,14 +86,15 @@ export function BallotScreen(): JSX.Element {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const { addPrintedBallot, electionDefinition, printBallotRef, logger, auth } =
+  const { electionDefinition, printBallotRef, logger, auth } =
     useContext(AppContext);
+  const addPrintedBallotMutation = useAddPrintedBallotMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
-  const locales = useMemo<BallotLocales>(
+  const locales = useMemo<BallotLocale>(
     () => ({
       primary: DEFAULT_LOCALE,
       secondary: currentLocaleCode,
@@ -120,7 +119,9 @@ export function BallotScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
   const [ballotMode, setBallotMode] = useState(
-    isSystemAdministratorAuth(auth) ? BallotMode.Sample : BallotMode.Official
+    isSystemAdministratorAuth(auth)
+      ? Admin.BallotMode.Sample
+      : Admin.BallotMode.Official
   );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
@@ -149,28 +150,26 @@ export function BallotScreen(): JSX.Element {
 
   function afterPrint(numCopies: number) {
     // TODO(auth) check permissions for viewing ballots
-    const type = isAbsentee
+    const ballotType = isAbsentee
       ? PrintableBallotType.Absentee
       : PrintableBallotType.Precinct;
-    if (ballotMode === BallotMode.Official) {
-      addPrintedBallot({
-        ballotStyleId,
-        precinctId,
-        locales,
-        numCopies,
-        printedAt: new Date().toISOString(),
-        type,
-      });
-    }
-    void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `${numCopies} ${ballotMode} ${type} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
-      disposition: 'success',
+    void addPrintedBallotMutation.mutateAsync({
+      ballotStyleId,
+      precinctId,
+      locales,
+      numCopies,
+      ballotType,
       ballotMode,
+    });
+    void logger.log(LogEventId.BallotPrinted, userRole, {
+      message: `${numCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
+      disposition: 'success',
       ballotStyleId,
       precinctId,
       locales: getHumanBallotLanguageFormat(locales),
+      ballotType,
+      ballotMode,
       numCopies,
-      type,
     });
   }
 
@@ -272,7 +271,7 @@ export function BallotScreen(): JSX.Element {
               afterPrintError={afterPrintError}
               copies={ballotCopies}
               sides="two-sided-long-edge"
-              warning={ballotMode !== BallotMode.Official}
+              warning={ballotMode !== Admin.BallotMode.Official}
             >
               <PrintBallotButtonText
                 ballotCopies={ballotCopies}

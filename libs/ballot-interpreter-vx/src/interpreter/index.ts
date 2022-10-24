@@ -9,7 +9,7 @@ import {
 import {
   BallotCandidateTargetMark,
   BallotIdSchema,
-  BallotLocales,
+  BallotLocale,
   BallotMark,
   BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,
@@ -92,7 +92,7 @@ type TemplateKey = Pick<
 export class Interpreter {
   private readonly templates = new KeyedMap<
     [
-      BallotLocales | undefined,
+      BallotLocale | undefined,
       BallotPageMetadata['ballotStyleId'],
       BallotPageMetadata['precinctId'],
       number

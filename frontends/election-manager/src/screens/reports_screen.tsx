@@ -16,6 +16,7 @@ import {
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
+import { Admin } from '@votingworks/api';
 import { AppContext } from '../contexts/app_context';
 import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 
@@ -28,6 +29,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
+import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -41,11 +43,14 @@ export function ReportsScreen(): JSX.Element {
     generateExportableTallies,
     fullElectionTally,
     fullElectionExternalTallies,
-    printedBallots,
     configuredAt,
     logger,
     auth,
   } = useContext(AppContext);
+  const printedBallotsQuery = usePrintedBallotsQuery({
+    ballotMode: Admin.BallotMode.Official,
+  });
+  const printedBallots = printedBallotsQuery.data ?? [];
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition && typeof configuredAt === 'string');
