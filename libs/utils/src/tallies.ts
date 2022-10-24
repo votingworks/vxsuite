@@ -55,7 +55,7 @@ export function getSubTalliesByPartyAndPrecinct({
     ? precinctSelection.kind === 'AllPrecincts'
       ? election.precincts.map(({ id }) => id)
       : [precinctSelection.precinctId]
-    : [undefined];
+    : [undefined]; // an undefined precinct id represents "All Precincts" in getTallyIdentifier
 
   for (const partyId of getPartyIdsInBallotStyles(election)) {
     for (const precinctId of precinctIdList) {
