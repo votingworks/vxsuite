@@ -7,7 +7,6 @@ import { getPrinter } from '@votingworks/utils';
 
 const PrintStyles = styled.div`
   display: none;
-  background: #ffffff;
   @media print {
     display: block;
   }

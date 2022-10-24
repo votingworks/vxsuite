@@ -91,6 +91,8 @@ html {
 }
 @media print {
   html {
+    background: #ffffff;
+
     /* Adjust printed report font-size */
     font-size: 16px !important; /* stylelint-disable-line declaration-no-important */
   }

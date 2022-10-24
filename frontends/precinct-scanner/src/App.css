@@ -88,6 +88,8 @@ html {
 }
 @media print {
   html {
+    background: #ffffff;
+
     /* Adjust printed ballot font-size */
     font-size: 16px !important; /* stylelint-disable-line declaration-no-important */
   }
