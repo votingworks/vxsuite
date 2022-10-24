@@ -265,10 +265,10 @@ export function PollWorkerScreen({
   }
 
   async function printTallyReport(copies: number) {
-    if (!electionDefinition) return;
-    if (!precinctSelection) return;
-    if (!currentCompressedTally) return;
-    if (!currentSubTallies) return;
+    assert(electionDefinition);
+    assert(precinctSelection);
+    assert(currentCompressedTally);
+    assert(currentSubTallies);
 
     const isPollsOpenForReport =
       pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING ||
