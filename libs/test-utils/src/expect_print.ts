@@ -1,4 +1,4 @@
-import { render, RenderResult } from '@testing-library/react';
+import { render, RenderResult, waitFor } from '@testing-library/react';
 import {
   ElementWithCallback,
   Optional,
@@ -111,13 +111,13 @@ export function resetExpectPrint(): void {
 export async function expectPrint(
   inspect?: InspectPrintFunction
 ): Promise<void> {
-  await advancePromises();
-
-  if (!lastPrintedElement && !lastPrintedElementWithCallback) {
-    throw new ExpectPrintError(
-      'There have either been no prints or all prints have already been asserted against.'
-    );
-  }
+  await waitFor(() => {
+    if (!lastPrintedElement && !lastPrintedElementWithCallback) {
+      throw new ExpectPrintError(
+        'There have either been no prints or all prints have already been asserted against.'
+      );
+    }
+  });
 
   if (inspect) {
     if (lastPrintedElement) {
