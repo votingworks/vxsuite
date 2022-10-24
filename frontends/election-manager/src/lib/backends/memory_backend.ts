@@ -98,14 +98,16 @@ export class ElectionManagerStoreMemoryBackend
     this.writeInAdjudications = [];
   }
 
-  async loadElectionDefinitionAndConfiguredAt(): Promise<
-    { electionDefinition: ElectionDefinition; configuredAt: string } | undefined
+  async loadCurrentElectionMetadata(): Promise<
+    Admin.ElectionRecord | undefined
   > {
     await Promise.resolve();
     if (this.electionDefinition && this.configuredAt) {
       return {
+        id: 'memory-current-election',
         electionDefinition: this.electionDefinition,
-        configuredAt: this.configuredAt,
+        createdAt: this.configuredAt,
+        isOfficialResults: this.isOfficialResults ?? false,
       };
     }
   }
@@ -129,7 +131,7 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(this.castVoteRecordFiles);
   }
 
-  protected getWriteInsFromCastVoteRecords(
+  getWriteInsFromCastVoteRecords(
     castVoteRecordFile: CastVoteRecordFile
   ): Admin.WriteInRecord[] {
     const newWriteIns: Admin.WriteInRecord[] = [];
@@ -223,10 +225,6 @@ export class ElectionManagerStoreMemoryBackend
     this.fullElectionExternalTallies = new Map();
   }
 
-  loadIsOfficialResults(): Promise<boolean | undefined> {
-    return Promise.resolve(this.isOfficialResults);
-  }
-
   async markResultsOfficial(): Promise<void> {
     await Promise.resolve();
     this.isOfficialResults = true;
@@ -241,7 +239,7 @@ export class ElectionManagerStoreMemoryBackend
     this.printedBallots = [...(this.printedBallots ?? []), printedBallot];
   }
 
-  protected filterWriteIns(
+  filterWriteIns(
     writeIns: readonly Admin.WriteInRecord[],
     options?: {
       contestId?: ContestId;

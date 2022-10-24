@@ -16,11 +16,13 @@ const getElectionsResponse: Admin.GetElectionsResponse = [
     id: 'test-election-1',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     createdAt: '2021-01-01T00:00:00.000Z',
+    isOfficialResults: false,
   },
   {
     id: 'test-election-2',
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     createdAt: '2022-01-01T00:00:00.000Z',
+    isOfficialResults: false,
   },
 ];
 
@@ -33,9 +35,7 @@ test('load election without an active election ID', async () => {
     body: getElectionsResponse,
   });
 
-  await expect(
-    backend.loadElectionDefinitionAndConfiguredAt()
-  ).resolves.toBeUndefined();
+  await expect(backend.loadCurrentElectionMetadata()).resolves.toBeUndefined();
 });
 
 test('load election with an active election ID', async () => {
@@ -48,12 +48,14 @@ test('load election with an active election ID', async () => {
     body: getElectionsResponse,
   });
 
-  await expect(
-    backend.loadElectionDefinitionAndConfiguredAt()
-  ).resolves.toStrictEqual({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-    configuredAt: '2022-01-01T00:00:00.000Z',
-  });
+  await expect(backend.loadCurrentElectionMetadata()).resolves.toStrictEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        electionDefinition: electionMinimalExhaustiveSampleDefinition,
+        createdAt: '2022-01-01T00:00:00.000Z',
+      })
+    )
+  );
 });
 
 test('load election HTTP error', async () => {
@@ -64,9 +66,7 @@ test('load election HTTP error', async () => {
   await storage.set(activeElectionIdStorageKey, 'test-election-1');
   fetchMock.reset().get('/admin/elections', 500);
 
-  await expect(
-    backend.loadElectionDefinitionAndConfiguredAt()
-  ).rejects.toThrowError();
+  await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();
 });
 
 test('load election invalid response', async () => {
@@ -77,9 +77,7 @@ test('load election invalid response', async () => {
   await storage.set(activeElectionIdStorageKey, 'test-election-1');
   fetchMock.reset().get('/admin/elections', [{ invalid: 'response' }]);
 
-  await expect(
-    backend.loadElectionDefinitionAndConfiguredAt()
-  ).rejects.toThrowError();
+  await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();
 });
 
 test('configure with invalid election definition', async () => {

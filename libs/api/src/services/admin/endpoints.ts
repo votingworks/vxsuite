@@ -91,6 +91,39 @@ export const PostElectionResponseSchema = z.union([
 
 /**
  * @url /admin/elections
+ * @method PATCH
+ */
+export interface PatchElectionRequest {
+  isOfficialResults?: boolean;
+}
+
+/**
+ * @url /admin/elections
+ * @method PATCH
+ */
+export const PatchElectionRequestSchema: z.ZodSchema<PatchElectionRequest> = z
+  .object({
+    isOfficialResults: z.boolean().optional(),
+  })
+  .strict();
+
+/**
+ * @url /admin/elections
+ * @method PATCH
+ */
+export type PatchElectionResponse = ErrorsResponse | OkResponse;
+
+/**
+ * @url /admin/elections
+ * @method PATCH
+ */
+export const PatchElectionResponseSchema = z.union([
+  ErrorsResponseSchema,
+  OkResponseSchema,
+]);
+
+/**
+ * @url /admin/elections
  * @method DELETE
  */
 export type DeleteElectionRequest = never;

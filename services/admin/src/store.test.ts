@@ -731,3 +731,38 @@ test('write-in adjudication lifecycle', async () => {
     }
   `);
 });
+
+test('setElectionResultsOfficial', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  expect(store.getElection(electionId)).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: false,
+      })
+    )
+  );
+
+  store.setElectionResultsOfficial(electionId, true);
+
+  expect(store.getElection(electionId)).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: true,
+      })
+    )
+  );
+
+  store.setElectionResultsOfficial(electionId, false);
+
+  expect(store.getElection(electionId)).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<Admin.ElectionRecord>>({
+        isOfficialResults: false,
+      })
+    )
+  );
+});

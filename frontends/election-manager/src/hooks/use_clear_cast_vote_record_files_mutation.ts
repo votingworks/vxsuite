@@ -5,10 +5,8 @@ import {
 } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
-import {
-  cvrsStorageKey,
-  isOfficialResultsKey,
-} from './use_election_manager_store';
+import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
+import { cvrsStorageKey } from './use_election_manager_store';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
@@ -38,12 +36,14 @@ export function useClearCastVoteRecordFilesMutation(): UseClearCastVoteRecordFil
     {
       onSuccess() {
         void queryClient.invalidateQueries([cvrsStorageKey]);
-        void queryClient.invalidateQueries([isOfficialResultsKey]);
         void queryClient.invalidateQueries(getWriteInImageQueryKey());
         void queryClient.invalidateQueries(getWriteInsQueryKey());
         void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
         void queryClient.invalidateQueries(
           getWriteInAdjudicationTableQueryKey()
+        );
+        void queryClient.invalidateQueries(
+          getCurrentElectionMetadataResultsQueryKey()
         );
       },
     }

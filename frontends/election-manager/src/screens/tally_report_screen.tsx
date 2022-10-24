@@ -33,6 +33,7 @@ import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
+import { useMarkResultsOfficialMutation } from '../hooks/use_mark_results_official_mutation';
 import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
@@ -66,13 +67,13 @@ export function TallyReportScreen(): JSX.Element {
     castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
-    markResultsOfficial,
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
     auth,
     logger,
   } = useContext(AppContext);
+  const markResultsOfficialMutation = useMarkResultsOfficialMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
@@ -202,7 +203,7 @@ export function TallyReportScreen(): JSX.Element {
   }
   async function markOfficial() {
     setIsMarkOfficialModalOpen(false);
-    await markResultsOfficial();
+    await markResultsOfficialMutation.mutateAsync();
   }
 
   if (isTabulationRunning) {
