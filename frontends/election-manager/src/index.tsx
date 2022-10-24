@@ -35,7 +35,11 @@ ReactDom.render(
       </ServicesContext.Provider>
       {isFeatureFlagEnabled(
         EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS
-      ) && <ReactQueryDevtools initialIsOpen={false} position="top-left" />}
+      ) && (
+        <div className="no-print">
+          <ReactQueryDevtools initialIsOpen={false} position="top-left" />
+        </div>
+      )}
     </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root')
