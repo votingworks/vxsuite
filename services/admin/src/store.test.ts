@@ -303,36 +303,6 @@ test('get CVR file metadata', async () => {
   );
 });
 
-test('get CVR file', async () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  const cvrFile =
-    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
-
-  expect(store.getCastVoteRecordFile('not a CVR file ID')).toBeUndefined();
-
-  const { id } = (
-    await store.addCastVoteRecordFile({
-      electionId,
-      originalFilename: 'cvrs.jsonl',
-      filePath: cvrFile,
-    })
-  ).unsafeUnwrap();
-
-  const cvrFileMetadata = store.getCastVoteRecordFile(id);
-  expect(cvrFileMetadata).toEqual(
-    typedAs<Admin.CastVoteRecordFileRecord>({
-      id,
-      electionId,
-      filename: 'cvrs.jsonl',
-      sha256Hash: expect.any(String),
-      createdAt: expect.any(String),
-    })
-  );
-});
-
 test('get write-in adjudication records', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(

@@ -511,40 +511,6 @@ export class Store {
     };
   }
 
-  getCastVoteRecordFile(id: Id): Admin.CastVoteRecordFileRecord | undefined {
-    const result = this.client.one(
-      `
-      select
-        election_id as electionId,
-        filename,
-        sha256_hash as sha256Hash,
-        created_at as createdAt
-      from cvr_files
-      where id = ?
-    `,
-      id
-    ) as
-      | {
-          electionId: Id;
-          filename: string;
-          sha256Hash: string;
-          createdAt: string;
-        }
-      | undefined;
-
-    if (!result) {
-      return undefined;
-    }
-
-    return {
-      id,
-      electionId: result.electionId,
-      sha256Hash: result.sha256Hash,
-      filename: result.filename,
-      createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-    };
-  }
-
   /**
    * Gets all CVR entries for an election.
    */
