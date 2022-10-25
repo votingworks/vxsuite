@@ -128,7 +128,6 @@ export async function expectPrint(
   }
 
   resetExpectPrint();
-  await advancePromises();
 }
 
 /**
