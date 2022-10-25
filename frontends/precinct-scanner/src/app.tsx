@@ -8,7 +8,6 @@ import {
   KioskStorage,
   LocalStorage,
   getHardware,
-  getPrinter,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { AppRoot, Props as AppRootProps } from './app_root';
@@ -17,7 +16,6 @@ import { machineConfigProvider } from './utils/machine_config';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
-  printer?: AppRootProps['printer'];
   card?: AppRootProps['card'];
   machineConfig?: AppRootProps['machineConfig'];
   storage?: AppRootProps['storage'];
@@ -28,7 +26,6 @@ export function App({
   hardware = getHardware(),
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
-  printer = getPrinter(),
   machineConfig = machineConfigProvider,
   logger = new Logger(LogSource.VxPrecinctScanFrontend, window.kiosk),
 }: Props): JSX.Element {
@@ -37,7 +34,6 @@ export function App({
       <AppRoot
         card={card}
         hardware={hardware}
-        printer={printer}
         machineConfig={machineConfig}
         storage={storage}
         logger={logger}

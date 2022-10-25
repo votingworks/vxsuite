@@ -9,7 +9,6 @@ import {
   KioskStorage,
   LocalStorage,
   getHardware,
-  getPrinter,
   isAccessibleController,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -34,7 +33,6 @@ export interface Props {
   hardware?: AppRootProps['hardware'];
   card?: AppRootProps['card'];
   storage?: AppRootProps['storage'];
-  printer?: AppRootProps['printer'];
   machineConfig?: AppRootProps['machineConfig'];
   screenReader?: ScreenReader;
   reload?: VoidFunction;
@@ -50,7 +48,6 @@ export function App({
 
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
-  printer = getPrinter(),
   hardware = getHardware(),
   machineConfig = machineConfigProvider,
   reload = () => window.location.reload(),
@@ -129,7 +126,6 @@ export function App({
       >
         <AppRoot
           card={card}
-          printer={printer}
           hardware={hardware}
           storage={storage}
           machineConfig={machineConfig}

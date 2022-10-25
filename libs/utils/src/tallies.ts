@@ -2,8 +2,15 @@ import {
   ContestOptionTally,
   ContestTally,
   Dictionary,
+  Election,
+  FullElectionTally,
+  getPartyIdsInBallotStyles,
+  PrecinctSelection,
+  Tally,
 } from '@votingworks/types';
 import { assert } from './assert';
+import { getTallyIdentifier } from './compressed_tallies';
+import { filterTalliesByParams } from './votes';
 
 export function combineContestTallies(
   firstTally: ContestTally,
@@ -32,4 +39,32 @@ export function combineContestTallies(
       ballots: firstTally.metadata.ballots + secondTally.metadata.ballots,
     },
   };
+}
+
+export function getSubTalliesByPartyAndPrecinct({
+  election,
+  tally,
+  precinctSelection,
+}: {
+  election: Election;
+  tally: FullElectionTally;
+  precinctSelection?: PrecinctSelection;
+}): Map<string, Tally> {
+  const newSubTallies = new Map();
+  const precinctIdList = precinctSelection
+    ? precinctSelection.kind === 'AllPrecincts'
+      ? election.precincts.map(({ id }) => id)
+      : [precinctSelection.precinctId]
+    : [undefined]; // an undefined precinct id represents "All Precincts" in getTallyIdentifier
+
+  for (const partyId of getPartyIdsInBallotStyles(election)) {
+    for (const precinctId of precinctIdList) {
+      const filteredTally = filterTalliesByParams(tally, election, {
+        precinctId,
+        partyId,
+      });
+      newSubTallies.set(getTallyIdentifier(partyId, precinctId), filteredTally);
+    }
+  }
+  return newSubTallies;
 }

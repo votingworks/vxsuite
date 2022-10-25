@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { electionSample } from '@votingworks/fixtures';
-import { makeVoterCard } from '@votingworks/test-utils';
+import { expectPrint, makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import { fakePrinter } from '@votingworks/test-utils';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
@@ -37,7 +30,6 @@ it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard();
-  const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
@@ -51,7 +43,6 @@ it('Single Seat Contest with Write In', async () => {
     <App
       card={card}
       hardware={hardware}
-      printer={printer}
       storage={storage}
       machineConfig={machineConfig}
       reload={jest.fn()}
@@ -154,13 +145,9 @@ it('Single Seat Contest with Write In', async () => {
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
   advanceTimers();
-  expect(screen.getByText('Official Ballot')).toBeTruthy();
-  expect(screen.getByText('(write-in)')).toBeTruthy();
   screen.getByText('Printing Official Ballot');
-
-  // Trigger seal image loaded
-  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
-
-  // Printer has new job
-  await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(1));
+  await expectPrint((printedElement) => {
+    expect(printedElement.getByText('Official Ballot')).toBeTruthy();
+    expect(printedElement.getByText('(write-in)')).toBeTruthy();
+  });
 });

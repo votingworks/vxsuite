@@ -101,7 +101,6 @@ export interface BallotContextInterface {
   markVoterCardPrinted: MarkVoterCardFunction;
   markVoterCardVoided: MarkVoterCardFunction;
   precinctId?: PrecinctId;
-  printer: Printer;
   resetBallot: (instructions?: PostVotingInstructions) => void;
   setUserSettings: SetUserSettings;
   updateTally: () => void;
@@ -130,9 +129,6 @@ export interface MsEitherNeitherContestResultInterface {
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {
   sides: KioskBrowser.PrintSides;
-}
-export interface Printer {
-  print(options: PrintOptions): Promise<void>;
 }
 
 // User Interface

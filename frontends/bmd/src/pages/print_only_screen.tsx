@@ -11,13 +11,15 @@ import {
   BmdPaperBallot,
   Loading,
   Main,
+  printElement,
   Prose,
   Screen,
   TestMode,
   Text,
 } from '@votingworks/ui';
 
-import { MarkVoterCardFunction, Printer } from '../config/types';
+import { assert } from '@votingworks/utils';
+import { MarkVoterCardFunction } from '../config/types';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;
@@ -39,7 +41,6 @@ interface Props {
   isVoterCardPresent: boolean;
   markVoterCardPrinted: MarkVoterCardFunction;
   precinctId?: PrecinctId;
-  printer: Printer;
   useEffectToggleLargeDisplay: () => void;
   showNoChargerAttachedWarning: boolean;
   updateTally: () => void;
@@ -56,7 +57,6 @@ export function PrintOnlyScreen({
   isVoterCardPresent,
   markVoterCardPrinted,
   precinctId,
-  printer,
   useEffectToggleLargeDisplay,
   showNoChargerAttachedWarning,
   updateTally,
@@ -70,8 +70,8 @@ export function PrintOnlyScreen({
 
   const isReadyToPrint =
     election &&
-    ballotStyleId &&
-    precinctId &&
+    !!ballotStyleId &&
+    !!precinctId &&
     isVoterCardPresent &&
     !isCardVotesEmpty &&
     !isPrinted;
@@ -80,16 +80,35 @@ export function PrintOnlyScreen({
   useEffect(useEffectToggleLargeDisplay, []);
 
   const printBallot = useCallback(async () => {
+    assert(isReadyToPrint);
     const isUsed = await markVoterCardPrinted();
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print({ sides: 'one-sided' });
+      await printElement(
+        <BmdPaperBallot
+          ballotStyleId={ballotStyleId}
+          electionDefinition={electionDefinition}
+          isLiveMode={isLiveMode}
+          precinctId={precinctId}
+          votes={votes}
+        />,
+        { sides: 'one-sided' }
+      );
       updateTally();
       printerTimer.current = window.setTimeout(() => {
         updateIsPrinted(true);
       }, printingMessageTimeoutSeconds * 1000);
     }
-  }, [markVoterCardPrinted, printer, updateTally]);
+  }, [
+    ballotStyleId,
+    electionDefinition,
+    isLiveMode,
+    isReadyToPrint,
+    markVoterCardPrinted,
+    precinctId,
+    updateTally,
+    votes,
+  ]);
 
   useEffect(() => {
     if (isReadyToPrint && okToPrint) {
@@ -183,29 +202,18 @@ export function PrintOnlyScreen({
   }
 
   return (
-    <React.Fragment>
-      <Screen white>
-        {!isVoterCardPresent && !isLiveMode && <TestMode />}
-        <Main centerChild style={{ position: 'relative' }}>
-          {renderContent()}
-          {!isVoterCardPresent && (
-            <TopLeftContent>
-              <small>
-                Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-              </small>
-            </TopLeftContent>
-          )}
-        </Main>
-      </Screen>
-      {isReadyToPrint && (
-        <BmdPaperBallot
-          ballotStyleId={ballotStyleId}
-          electionDefinition={electionDefinition}
-          isLiveMode={isLiveMode}
-          precinctId={precinctId}
-          votes={votes}
-        />
-      )}
-    </React.Fragment>
+    <Screen white>
+      {!isVoterCardPresent && !isLiveMode && <TestMode />}
+      <Main centerChild style={{ position: 'relative' }}>
+        {renderContent()}
+        {!isVoterCardPresent && (
+          <TopLeftContent>
+            <small>
+              Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+            </small>
+          </TopLeftContent>
+        )}
+      </Main>
+    </Screen>
   );
 }

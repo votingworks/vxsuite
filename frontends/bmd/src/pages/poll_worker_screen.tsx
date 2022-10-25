@@ -18,16 +18,15 @@ import {
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   Devices,
   fontSizeTheme,
+  getSignedQuickResultsReportingUrl,
   HorizontalRule,
   Loading,
   Main,
   Modal,
-  PrecinctScannerTallyQrCode,
-  PrecinctScannerTallyReport,
-  PrintableContainer,
+  PrecinctScannerFullReport,
+  printElement,
   Prose,
   Screen,
-  TallyReport,
   Text,
 } from '@votingworks/ui';
 
@@ -46,7 +45,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/utils';
 
-import { MachineConfig, Printer, ScreenReader } from '../config/types';
+import { MachineConfig, ScreenReader } from '../config/types';
 
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
@@ -116,7 +115,6 @@ function PrecinctScannerTallyReportModal({
   electionDefinition,
   precinctScannerTally,
   pollworkerAuth,
-  printer,
   machineConfig,
   isPollsOpen,
   togglePollsOpen,
@@ -125,7 +123,6 @@ function PrecinctScannerTallyReportModal({
   electionDefinition: ElectionDefinition;
   precinctScannerTally: PrecinctScannerCardTally;
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
-  printer: Printer;
   machineConfig: MachineConfig;
   isPollsOpen: boolean;
   togglePollsOpen: VoidFunction;
@@ -152,14 +149,42 @@ function PrecinctScannerTallyReportModal({
     }
   }
 
+  const currentTime = Date.now();
+
+  async function printReport(copies: number) {
+    const signedQuickResultsReportingUrl =
+      await getSignedQuickResultsReportingUrl({
+        electionDefinition,
+        isLiveMode: precinctScannerTally.isLiveMode,
+        compressedTally: precinctScannerTallyInformation.overallTally,
+        signingMachineId: machineConfig.machineId,
+      });
+
+    await printElement(
+      <PrecinctScannerFullReport
+        electionDefinition={electionDefinition}
+        precinctSelectionList={precinctScannerTallyInformation.precinctList}
+        subTallies={precinctScannerTallyInformation.subTallies}
+        isPollsOpen={precinctScannerTally.isPollsOpen}
+        isLiveMode={precinctScannerTally.isLiveMode}
+        currentTime={currentTime}
+        pollsToggledTime={precinctScannerTally.timePollsToggled}
+        totalBallotsScanned={precinctScannerTally.totalBallotsScanned}
+        precinctScannerMachineId={precinctScannerTally.machineId}
+        signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
+      />,
+      {
+        sides: 'one-sided',
+        copies,
+      }
+    );
+    await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  }
+
   async function togglePollsAndPrintReports() {
     setModalState('printing');
     try {
-      await printer.print({
-        sides: 'one-sided',
-        copies: DEFAULT_NUMBER_POLL_REPORT_COPIES,
-      });
-      await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+      await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
       await pollworkerAuth.card.clearStoredData();
       togglePollsToMatchReport();
     } finally {
@@ -170,16 +195,11 @@ function PrecinctScannerTallyReportModal({
   async function printAdditionalReport() {
     setModalState('printing');
     try {
-      await printer.print({
-        sides: 'one-sided',
-      });
-      await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+      await printReport(1);
     } finally {
       setModalState('reprint');
     }
   }
-
-  const currentTime = Date.now();
 
   assert(precinctScannerTallyInformation);
 
@@ -269,59 +289,15 @@ function PrecinctScannerTallyReportModal({
   }
 
   return (
-    <React.Fragment>
-      <Modal
-        // This modal is torn down in some way which react-modal doesn't expect
-        // and as a result, can leave the app hidden from the accessibility
-        // tree. We set this prop to false to disable hiding the app.
-        // https://github.com/votingworks/vxsuite/issues/2618
-        ariaHideApp={false}
-        content={modalContent}
-        actions={modalActions}
-      />
-      <PrintableContainer>
-        <TallyReport>
-          {precinctScannerTallyInformation.precinctList.map((precinctSel) =>
-            parties.map((partyId) => {
-              const precinctIdIfDefined =
-                precinctSel.kind === 'SinglePrecinct'
-                  ? precinctSel.precinctId
-                  : undefined;
-              const tallyForReport =
-                precinctScannerTallyInformation.subTallies.get(
-                  getTallyIdentifier(partyId, precinctIdIfDefined)
-                );
-              assert(tallyForReport);
-              return (
-                <PrecinctScannerTallyReport
-                  key={getTallyIdentifier(partyId, precinctIdIfDefined)}
-                  electionDefinition={electionDefinition}
-                  tally={tallyForReport}
-                  precinctSelection={precinctSel}
-                  partyId={partyId}
-                  isPollsOpen={precinctScannerTally.isPollsOpen}
-                  isLiveMode={precinctScannerTally.isLiveMode}
-                  pollsToggledTime={precinctScannerTally.timePollsToggled}
-                  currentTime={currentTime}
-                  precinctScannerMachineId={precinctScannerTally.machineId}
-                />
-              );
-            })
-          )}
-          {electionDefinition.election.quickResultsReportingUrl &&
-            precinctScannerTally.totalBallotsScanned > 0 && (
-              <PrecinctScannerTallyQrCode
-                electionDefinition={electionDefinition}
-                signingMachineId={machineConfig.machineId}
-                compressedTally={precinctScannerTallyInformation.overallTally}
-                isPollsOpen={precinctScannerTally.isPollsOpen}
-                isLiveMode={precinctScannerTally.isLiveMode}
-                pollsToggledTime={precinctScannerTally.timePollsToggled}
-              />
-            )}
-        </TallyReport>
-      </PrintableContainer>
-    </React.Fragment>
+    <Modal
+      // This modal is torn down in some way which react-modal doesn't expect
+      // and as a result, can leave the app hidden from the accessibility
+      // tree. We set this prop to false to disable hiding the app.
+      // https://github.com/votingworks/vxsuite/issues/2618
+      ariaHideApp={false}
+      content={modalContent}
+      actions={modalActions}
+    />
   );
 }
 
@@ -345,7 +321,6 @@ export interface PollworkerScreenProps {
   hardware: Hardware;
   devices: Devices;
   screenReader: ScreenReader;
-  printer: Printer;
   togglePollsOpen: () => void;
   reload: () => void;
 }
@@ -364,7 +339,6 @@ export function PollWorkerScreen({
   hardware,
   devices,
   screenReader,
-  printer,
   togglePollsOpen,
   hasVotes,
   reload,
@@ -725,7 +699,6 @@ export function PollWorkerScreen({
           precinctScannerTally={precinctScannerTally}
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}
-          printer={printer}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
           onClose={() => setPrecinctScannerTally(undefined)}

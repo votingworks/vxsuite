@@ -4,8 +4,8 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import {
   makeElectionManagerCard,
   makePollWorkerCard,
+  expectPrint,
 } from '@votingworks/test-utils';
-import { fakePrinter } from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -41,7 +41,6 @@ test('Cardless Voting Flow', async () => {
   const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     appMode: MarkAndPrint,
@@ -51,7 +50,6 @@ test('Cardless Voting Flow', async () => {
       card={card}
       hardware={hardware}
       machineConfig={machineConfig}
-      printer={printer}
       storage={storage}
       reload={jest.fn()}
     />
@@ -182,9 +180,7 @@ test('Cardless Voting Flow', async () => {
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
   screen.getByText('Printing Official Ballot');
-
-  // Trigger seal image loaded
-  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
+  await expectPrint();
 
   // Reset ballot
   await advanceTimersAndPromises();
@@ -211,7 +207,6 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const card = new MemoryCard();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     appMode: MarkAndPrint,
@@ -226,7 +221,6 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
     <App
       card={card}
       hardware={hardware}
-      printer={printer}
       storage={storage}
       machineConfig={machineConfig}
       reload={jest.fn()}
@@ -266,9 +260,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
   screen.getByText('Printing Official Ballot');
-
-  // Trigger seal image loaded
-  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
+  await expectPrint();
 
   // Reset ballot
   await advanceTimersAndPromises();
@@ -296,7 +288,6 @@ test('poll worker must select a precinct first', async () => {
   const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     appMode: MarkAndPrint,
@@ -306,7 +297,6 @@ test('poll worker must select a precinct first', async () => {
       card={card}
       hardware={hardware}
       machineConfig={machineConfig}
-      printer={printer}
       storage={storage}
       reload={jest.fn()}
     />
@@ -446,9 +436,7 @@ test('poll worker must select a precinct first', async () => {
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
   screen.getByText('Printing Official Ballot');
-
-  // Trigger seal image loaded
-  fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
+  await expectPrint();
 
   // Reset ballot
   await advanceTimersAndPromises();

@@ -4,13 +4,31 @@ import '@testing-library/jest-dom/extend-expect';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { configure } from '@testing-library/react';
+import {
+  expectAllPrintsAsserted,
+  fakePrintElement,
+  fakePrintElementWhenReady,
+} from '@votingworks/test-utils';
 
 configure({ asyncUtilTimeout: 5_000 });
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  const original = jest.requireActual('@votingworks/ui');
+  return {
+    ...original,
+    printElementWhenReady: fakePrintElementWhenReady,
+    printElement: fakePrintElement,
+  };
+});
 
 beforeEach(() => {
   jestFetchMock.enableMocks();
   fetchMock.reset();
   fetchMock.mock();
+});
+
+afterEach(() => {
+  expectAllPrintsAsserted();
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;

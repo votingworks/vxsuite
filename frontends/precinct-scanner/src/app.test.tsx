@@ -27,7 +27,7 @@ import {
   makeElectionManagerCard,
   makeSystemAdministratorCard,
   getZeroCompressedTally,
-  fakePrinter,
+  expectPrint,
 } from '@votingworks/test-utils';
 import { join } from 'path';
 import {
@@ -890,15 +890,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
-  const printFn = jest.fn();
-  render(
-    <App
-      card={card}
-      hardware={hardware}
-      storage={storage}
-      printer={fakePrinter({ print: printFn })}
-    />
-  );
+  render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
@@ -909,12 +901,12 @@ test('with printer: poll worker can open and close polls without scanning any ba
   await screen.findByText('Do you want to open the polls?');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Open the Polls' }));
   await screen.findByText('Polls are open.');
-  expect(printFn).toHaveBeenCalledTimes(1);
+  await expectPrint();
   userEvent.click(
     screen.getByRole('button', { name: 'Print Additional Polls Opened Report' })
   );
   await screen.findByText('Printing Report…');
-  expect(printFn).toHaveBeenCalledTimes(2);
+  await expectPrint();
   await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are open.');
   screen.getByRole('button', { name: 'Print Additional Polls Opened Report' });
@@ -928,12 +920,12 @@ test('with printer: poll worker can open and close polls without scanning any ba
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Close the Polls' }));
   await screen.findByText('Polls are closed.');
-  expect(printFn).toHaveBeenCalledTimes(3);
+  await expectPrint();
   userEvent.click(
     screen.getByRole('button', { name: 'Print Additional Polls Closed Report' })
   );
   await screen.findByText('Printing Report…');
-  expect(printFn).toHaveBeenCalledTimes(4);
+  await expectPrint();
   await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are closed.');
   screen.getByRole('button', { name: 'Print Additional Polls Closed Report' });

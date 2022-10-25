@@ -8,7 +8,6 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
-  NullPrinter,
   usbstick,
 } from '@votingworks/utils';
 import MockDate from 'mockdate';
@@ -65,7 +64,6 @@ function renderScreen({
         togglePollsOpen={jest.fn()}
         isLiveMode
         hasPrinterAttached={false}
-        printer={new NullPrinter()}
         usbDrive={{
           status: usbstick.UsbDriveStatus.absent,
           eject: jest.fn(),

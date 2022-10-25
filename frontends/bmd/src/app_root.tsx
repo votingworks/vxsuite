@@ -59,7 +59,6 @@ import {
   MarkOnly,
   MachineConfig,
   PostVotingInstructions,
-  Printer,
 } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
@@ -121,7 +120,6 @@ export interface Props {
   card: Card;
   hardware: Hardware;
   machineConfig: Provider<MachineConfig>;
-  printer: Printer;
   storage: Storage;
   screenReader: ScreenReader;
   reload: VoidFunction;
@@ -319,7 +317,6 @@ export function AppRoot({
   card,
   hardware,
   machineConfig: machineConfigProvider,
-  printer,
   screenReader,
   storage,
   reload,
@@ -826,7 +823,6 @@ export function AppRoot({
           hardware={hardware}
           devices={devices}
           screenReader={screenReader}
-          printer={printer}
           togglePollsOpen={togglePollsOpen}
           hasVotes={!!votes}
           reload={reload}
@@ -891,7 +887,6 @@ export function AppRoot({
             isVoterCardPresent={isVoterAuth(auth)}
             markVoterCardPrinted={markVoterCardPrinted}
             precinctId={precinctId}
-            printer={printer}
             useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
             showNoChargerAttachedWarning={!computer.batteryIsCharging}
             updateTally={updateTally}
@@ -915,7 +910,6 @@ export function AppRoot({
                 isLiveMode,
                 markVoterCardPrinted,
                 markVoterCardVoided,
-                printer,
                 resetBallot,
                 setUserSettings,
                 updateVote,

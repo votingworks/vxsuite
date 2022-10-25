@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   BmdPaperBallot,
   Main,
+  printElement,
   ProgressEllipsis,
   Prose,
   Screen,
@@ -29,7 +30,6 @@ export function PrintPage(): JSX.Element {
     isLiveMode,
     markVoterCardPrinted,
     precinctId,
-    printer,
     resetBallot,
     updateTally,
     votes,
@@ -55,33 +55,37 @@ export function PrintPage(): JSX.Element {
     const isUsed = await markVoterCardPrinted();
     /* istanbul ignore else */
     if (isUsed) {
-      await printer.print({ sides: 'one-sided' });
+      await printElement(
+        <BmdPaperBallot
+          ballotStyleId={ballotStyleId}
+          electionDefinition={electionDefinition}
+          isLiveMode={isLiveMode}
+          precinctId={precinctId}
+          votes={votes}
+        />,
+        { sides: 'one-sided' }
+      );
       updateTally();
       printerTimer.current = window.setTimeout(() => {
         resetBallot(isCardlessVoter ? 'cardless' : 'card');
       }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
     }
   }, [
-    isCardlessVoter,
-    markVoterCardPrinted,
-    printer,
     printLock,
-    resetBallot,
+    markVoterCardPrinted,
+    ballotStyleId,
+    electionDefinition,
+    isLiveMode,
+    precinctId,
+    votes,
     updateTally,
+    resetBallot,
+    isCardlessVoter,
   ]);
 
   useEffect(() => {
-    const printedBallotSealImage = document
-      .getElementById('printedBallotSealContainer')
-      ?.getElementsByTagName('img')[0]; // for proper type: HTMLImageElement
-    if (!printedBallotSealImage || printedBallotSealImage.complete) {
-      void printBallot();
-    } else {
-      printedBallotSealImage.addEventListener('load', () => {
-        void printBallot();
-      });
-    }
-  }, [printBallot, votes]);
+    void printBallot();
+  }, [printBallot]);
 
   // Make sure we clean up any pending timeout on unmount
   useEffect(() => {
@@ -91,32 +95,23 @@ export function PrintPage(): JSX.Element {
   }, []);
 
   return (
-    <React.Fragment>
-      <Screen white>
-        <Main centerChild>
-          <Prose textCenter id="audiofocus">
-            <p>
-              <Graphic
-                src="/images/printing-ballot.svg"
-                alt="Printing Ballot"
-                aria-hidden
-              />
-            </p>
-            <h1>
-              <ProgressEllipsis aria-label="Printing your official ballot.">
-                Printing Official Ballot
-              </ProgressEllipsis>
-            </h1>
-          </Prose>
-        </Main>
-      </Screen>
-      <BmdPaperBallot
-        ballotStyleId={ballotStyleId}
-        electionDefinition={electionDefinition}
-        isLiveMode={isLiveMode}
-        precinctId={precinctId}
-        votes={votes}
-      />
-    </React.Fragment>
+    <Screen white>
+      <Main centerChild>
+        <Prose textCenter id="audiofocus">
+          <p>
+            <Graphic
+              src="/images/printing-ballot.svg"
+              alt="Printing Ballot"
+              aria-hidden
+            />
+          </p>
+          <h1>
+            <ProgressEllipsis aria-label="Printing your official ballot.">
+              Printing Official Ballot
+            </ProgressEllipsis>
+          </h1>
+        </Prose>
+      </Main>
+    </Screen>
   );
 }

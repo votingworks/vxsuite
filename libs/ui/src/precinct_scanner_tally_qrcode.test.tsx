@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import {
   electionSample,
   electionSampleDefinition,
@@ -12,11 +12,13 @@ import {
 import {
   calculateTallyForCastVoteRecords,
   compressTally,
-  deferred,
 } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 
-import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
+import {
+  getSignedQuickResultsReportingUrl,
+  PrecinctScannerTallyQrCode,
+} from './precinct_scanner_tally_qrcode';
 
 afterEach(() => {
   window.kiosk = undefined;
@@ -36,208 +38,104 @@ const cvr: CastVoteRecord = {
   'county-commissioners': ['argent'],
 };
 
-test('renders WITHOUT results reporting when there are CVRs but polls are open', () => {
-  const mockKiosk = fakeKiosk();
-  mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
-  window.kiosk = mockKiosk;
+describe('getSignedQuickResultsReportingUrl', () => {
+  test('correctly formats signed url in live mode', async () => {
+    const mockKiosk = fakeKiosk();
+    mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
+    window.kiosk = mockKiosk;
 
-  const tally = calculateTallyForCastVoteRecords(
-    electionSample,
-    new Set([cvr])
-  );
-  const compressedTally = compressTally(electionSample, tally);
+    const tally = calculateTallyForCastVoteRecords(
+      electionSample,
+      new Set([cvr])
+    );
+    const compressedTally = compressTally(electionSample, tally);
+    await getSignedQuickResultsReportingUrl({
+      electionDefinition: electionSampleDefinition,
+      isLiveMode: true,
+      compressedTally,
+      signingMachineId: 'DEMO-0000',
+    });
 
-  render(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen
-      isLiveMode
-      compressedTally={compressedTally}
-      signingMachineId="0001"
-    />
-  );
-
-  expect(screen.queryByText('Automatic Election Results Reporting')).toBeNull();
-});
-
-test('renders with results reporting when there are CVRs and polls are closed', async () => {
-  const mockKiosk = fakeKiosk();
-  mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
-  window.kiosk = mockKiosk;
-
-  const tally = calculateTallyForCastVoteRecords(
-    electionSample,
-    new Set([cvr])
-  );
-  const compressedTally = compressTally(electionSample, tally);
-
-  render(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen={false}
-      isLiveMode
-      compressedTally={compressedTally}
-      signingMachineId="DEMO-0000"
-    />
-  );
-
-  const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.');
-  expect(payloadComponents).toEqual([
-    electionSampleDefinition.electionHash,
-    'DEMO-0000',
-    '1', // live election
-    expect.any(String),
-    expect.any(String),
-  ]);
-
-  await waitFor(() =>
-    expect(
-      screen.queryByText('Automatic Election Results Reporting')
-    ).toBeInTheDocument()
-  );
-});
-
-test('renders with results reporting when there are CVRs and polls are closed in testing mode', async () => {
-  const mockKiosk = fakeKiosk();
-  mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
-  window.kiosk = mockKiosk;
-
-  const testCvr: CastVoteRecord = {
-    ...cvr,
-    _testBallot: true,
-  };
-  const tally = calculateTallyForCastVoteRecords(
-    electionSample,
-    new Set([testCvr])
-  );
-  const compressedTally = compressTally(electionSample, tally);
-
-  render(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen={false}
-      isLiveMode={false}
-      compressedTally={compressedTally}
-      signingMachineId="DEMO-0000"
-    />
-  );
-
-  const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.');
-  expect(payloadComponents).toEqual([
-    electionSampleDefinition.electionHash,
-    'DEMO-0000',
-    '0', // live election
-    expect.any(String),
-    expect.any(String),
-  ]);
-
-  await waitFor(() =>
-    expect(
-      screen.queryByText('Automatic Election Results Reporting')
-    ).toBeInTheDocument()
-  );
-});
-
-test('renders with unsigned results reporting when there is no kiosk', async () => {
-  window.kiosk = undefined;
-  const tally = calculateTallyForCastVoteRecords(
-    electionSample,
-    new Set([cvr])
-  );
-  const compressedTally = compressTally(electionSample, tally);
-
-  render(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen={false}
-      isLiveMode
-      compressedTally={compressedTally}
-      signingMachineId="DEMO-0000"
-    />
-  );
-
-  await waitFor(() =>
-    expect(
-      screen.queryByText('Automatic Election Results Reporting')
-    ).toBeInTheDocument()
-  );
-});
-
-test('renders the correct signature on re-renders', async () => {
-  jest.useFakeTimers().setSystemTime(time);
-
-  const mockKiosk = fakeKiosk();
-  const firstSignDeferred = deferred<string>();
-  const secondSignDeferred = deferred<string>();
-
-  mockOf(mockKiosk.sign)
-    .mockReturnValueOnce(firstSignDeferred.promise)
-    .mockReturnValueOnce(secondSignDeferred.promise);
-  window.kiosk = mockKiosk;
-
-  const tally = calculateTallyForCastVoteRecords(
-    electionSample,
-    new Set([cvr])
-  );
-  const compressedTally = compressTally(electionSample, tally);
-
-  const { rerender } = render(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen={false}
-      isLiveMode
-      compressedTally={compressedTally}
-      signingMachineId="DEMO-0000"
-    />
-  );
-
-  // trigger a re-render with a new signature
-  rerender(
-    <PrecinctScannerTallyQrCode
-      pollsToggledTime={time}
-      electionDefinition={electionSampleDefinition}
-      isPollsOpen={false}
-      isLiveMode={false} // change from live to test
-      compressedTally={compressedTally}
-      signingMachineId="DEMO-0000"
-    />
-  );
-
-  // ensure we've got both `sign` calls
-  expect(mockKiosk.sign).toHaveBeenCalledTimes(2);
-
-  expect(mockKiosk.sign).toHaveBeenNthCalledWith(
-    1,
-    expect.objectContaining({
-      payload: expect.stringContaining(`DEMO-0000.1`),
-    })
-  );
-  expect(mockKiosk.sign).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      payload: expect.stringContaining(`DEMO-0000.0`),
-    })
-  );
-
-  // resolve the calls out of order
-  act(() => {
-    secondSignDeferred.resolve('SECONDFAKESIGNATURE');
-    firstSignDeferred.resolve('FIRSTFAKESIGNATURE');
+    const payloadComponents =
+      mockKiosk.sign.mock.calls[0][0].payload.split('.');
+    expect(payloadComponents).toEqual([
+      electionSampleDefinition.electionHash,
+      'DEMO-0000',
+      '1', // live mode
+      expect.any(String),
+      expect.any(String),
+    ]);
   });
 
-  await waitFor(() => {
-    expect(
-      screen.queryByText('Automatic Election Results Reporting')
-    ).toBeInTheDocument();
+  test('correctly formats signed url in test mode', async () => {
+    const mockKiosk = fakeKiosk();
+    mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
+    window.kiosk = mockKiosk;
+
+    const tally = calculateTallyForCastVoteRecords(
+      electionSample,
+      new Set([cvr])
+    );
+    const compressedTally = compressTally(electionSample, tally);
+    await getSignedQuickResultsReportingUrl({
+      electionDefinition: electionSampleDefinition,
+      isLiveMode: false,
+      compressedTally,
+      signingMachineId: 'DEMO-0000',
+    });
+
+    const payloadComponents =
+      mockKiosk.sign.mock.calls[0][0].payload.split('.');
+    expect(payloadComponents).toEqual([
+      electionSampleDefinition.electionHash,
+      'DEMO-0000',
+      '0', // test mode
+      expect.any(String),
+      expect.any(String),
+    ]);
   });
 
-  // ensure the we're correctly using the second signature and not the first,
-  // despite the fact that the first one was resolved later
-  const { value } = screen.getByTestId('qrcode').dataset;
-  expect(value).toContain('SECONDFAKESIGNATURE');
+  test('gives URL without signed component if no kiosk', async () => {
+    const tally = calculateTallyForCastVoteRecords(
+      electionSample,
+      new Set([cvr])
+    );
+    const compressedTally = compressTally(electionSample, tally);
+    const signed = await getSignedQuickResultsReportingUrl({
+      electionDefinition: electionSampleDefinition,
+      isLiveMode: false,
+      compressedTally,
+      signingMachineId: 'DEMO-0000',
+    });
+    expect(signed.endsWith('&s=')).toEqual(true);
+  });
+});
+
+describe('PrecinctScannerTallyQrCode', () => {
+  test('with polls closed', () => {
+    render(
+      <PrecinctScannerTallyQrCode
+        pollsToggledTime={time}
+        election={electionSample}
+        isPollsOpen={false}
+        signedQuickResultsReportingUrl=""
+      />
+    );
+    screen.getByText(/Polls Closed/);
+    screen.getByText('Automatic Election Results Reporting');
+  });
+
+  // We currently don't use the page with polls opened but here for coverage
+  test('with polls open', () => {
+    render(
+      <PrecinctScannerTallyQrCode
+        pollsToggledTime={time}
+        election={electionSample}
+        isPollsOpen
+        signedQuickResultsReportingUrl=""
+      />
+    );
+    screen.getByText(/Polls Opened/);
+    screen.getByText('Automatic Election Results Reporting');
+  });
 });

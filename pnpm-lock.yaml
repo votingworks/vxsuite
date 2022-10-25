@@ -2531,6 +2531,7 @@ importers:
       '@types/node': 16.11.29
       '@types/pluralize': 0.0.29
       '@types/react': 17.0.39
+      '@types/react-dom': 18.0.6
       '@types/styled-components': 5.1.9
       '@types/testing-library__jest-dom': 5.14.3
       '@typescript-eslint/eslint-plugin': 5.37.0_12e0d3a13edabf2ba2a66fb9092035af
@@ -2585,6 +2586,7 @@ importers:
       '@types/node': 16.11.29
       '@types/pluralize': ^0.0.29
       '@types/react': 17.0.39
+      '@types/react-dom': ^18.0.6
       '@types/react-modal': ^3.13.1
       '@types/react-router-dom': ^5.1.7
       '@types/styled-components': ^5.1.9
@@ -11577,6 +11579,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-wIvGxLfgpVDSAMH5utdL9Ngm5Owu0VsGmldro3ORLXV8CShrL8awVj06NuEXFQ5xyaYfdca7Sgbk/50Ri1GdPg==
+  /@types/react-dom/18.0.6:
+    dependencies:
+      '@types/react': 17.0.39
+    dev: true
+    resolution:
+      integrity: sha512-/5OFZgfIPSwy+YuIBP/FgJnQnsxhZhjjrnxudMddeblOouIodEQ75X14Rr4wGSG/bknL+Omy9iWlLo1u/9GzAA==
   /@types/react-gamepad/1.0.0:
     dependencies:
       '@types/react': 17.0.0
@@ -19244,7 +19252,7 @@ packages:
       integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==
   /eslint-plugin-jest/26.1.5_6beafd71cd5442bc06341fe494bbeb75:
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.37.0_0ca6a58f7ca50b82f29db32dd0c2d5d9
+      '@typescript-eslint/eslint-plugin': 5.37.0_12e0d3a13edabf2ba2a66fb9092035af
       '@typescript-eslint/utils': 5.22.0_eslint@8.23.1+typescript@4.6.3
       eslint: 8.23.1
       jest: 27.3.1

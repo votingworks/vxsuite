@@ -12,9 +12,13 @@ export function advanceTimers(seconds = 0): void {
   });
 }
 
-export async function advanceTimersAndPromises(seconds = 0): Promise<void> {
-  advanceTimers(seconds);
+export async function advancePromises(): Promise<void> {
   await waitFor(() => {
     // Wait for promises.
   });
+}
+
+export async function advanceTimersAndPromises(seconds = 0): Promise<void> {
+  advanceTimers(seconds);
+  await advancePromises();
 }

@@ -2,6 +2,7 @@ import { electionSample } from '@votingworks/fixtures';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { expectPrintToMatchSnapshot } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
 import { PrintPage } from './print_page';
 import {
@@ -22,17 +23,18 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-it('renders PrintPage without votes', () => {
-  const { container } = render(<Route path="/print" component={PrintPage} />, {
+it('prints correct ballot without votes', async () => {
+  render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  expect(container.firstChild).toMatchSnapshot();
+  await expectPrintToMatchSnapshot();
 });
 
-it('renders PrintPage with votes', () => {
-  const { container } = render(<Route path="/print" component={PrintPage} />, {
+it('prints correct ballot with votes', async () => {
+  render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
@@ -51,28 +53,31 @@ it('renders PrintPage with votes', () => {
         'lieutenant-governor': 'norberg',
       }
     ),
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  expect(container.childNodes[1]).toMatchSnapshot();
+  await expectPrintToMatchSnapshot();
 });
 
-it('renders PrintPage without votes and inline seal', () => {
+it('prints correct ballot without votes and inline seal', async () => {
   const electionDefinition = electionSampleWithSealDefinition;
-  const { container } = render(<Route path="/print" component={PrintPage} />, {
+  render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
     precinctId: '21',
     route: '/print',
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  expect(container.childNodes[1]).toMatchSnapshot();
+  await expectPrintToMatchSnapshot();
 });
 
-it('renders PrintPage without votes and no seal', () => {
+it('prints correct ballot without votes and no seal', async () => {
   const electionDefinition = electionSampleNoSealDefinition;
-  const { container } = render(<Route path="/print" component={PrintPage} />, {
+  render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
     precinctId: '21',
     route: '/print',
+    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
-  expect(container.childNodes[1]).toMatchSnapshot();
+  await expectPrintToMatchSnapshot();
 });
