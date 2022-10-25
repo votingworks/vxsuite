@@ -45,14 +45,6 @@ const SEQUENTIAL_DIGIT_SUBSTRINGS: string[] = ((): string[] => {
 })();
 
 function newRandomPin(length: number): string {
-  if (length < MIN_PIN_LENGTH) {
-    throw new Error(`PIN length must be greater than ${MIN_PIN_LENGTH}`);
-  }
-
-  if (length > MAX_PIN_LENGTH) {
-    throw new Error(`PIN length must be less than ${MAX_PIN_LENGTH}`);
-  }
-
   const bytes = randomBytes(length);
   let pin = '';
   for (let i = 0; i < length; i += 1) {
@@ -93,6 +85,18 @@ function isWeakPin(pin: string): boolean {
  * zeros.
  */
 export function generatePin(length = MIN_PIN_LENGTH): string {
+  if (length < MIN_PIN_LENGTH) {
+    throw new Error(
+      `PIN length must be greater than or equal to ${MIN_PIN_LENGTH}`
+    );
+  }
+
+  if (length > MAX_PIN_LENGTH) {
+    throw new Error(
+      `PIN length must be less than or equal to ${MAX_PIN_LENGTH}`
+    );
+  }
+
   if (isFeatureFlagEnabled(EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN)) {
     return '0'.repeat(length);
   }

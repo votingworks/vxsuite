@@ -71,9 +71,15 @@ test('generatePin generates PINs of specified length', () => {
 });
 
 test('generatePin throws on invalid PIN length', () => {
-  expect(() => generatePin(0)).toThrow(/PIN length must be greater than \d/);
-  expect(() => generatePin(-1)).toThrow(/PIN length must be greater than \d/);
-  expect(() => generatePin(50)).toThrow(/PIN length must be less than \d/);
+  expect(() => generatePin(0)).toThrow(
+    /PIN length must be greater than or equal to \d/
+  );
+  expect(() => generatePin(-1)).toThrow(
+    /PIN length must be greater than or equal to \d/
+  );
+  expect(() => generatePin(50)).toThrow(
+    /PIN length must be less than or equal to \d/
+  );
 });
 
 test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
