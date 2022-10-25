@@ -4,7 +4,6 @@ import {
   Optional,
   PrintOptions,
 } from '@votingworks/types';
-import { advancePromises } from './advance_timers';
 import { assert } from './assert';
 
 export class ExpectPrintError extends Error {}
@@ -73,9 +72,6 @@ async function inspectPrintedWhenReadyElement(
     assert(lastPrintedElementWithCallback);
     renderResult = render(lastPrintedElementWithCallback(resolve));
   });
-  // We have to advance promises here to allow effects to run before
-  // running assertions against the rendered element.
-  await advancePromises();
   await renderedPromise;
   assert(renderResult);
   inspect(renderResult, lastPrintOptions);
