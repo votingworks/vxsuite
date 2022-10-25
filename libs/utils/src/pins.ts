@@ -63,7 +63,7 @@ function newRandomPin(length: number): string {
 }
 
 /** Returns true if the given PIN contains common/easily guessed patterns. */
-export function isWeakPin(pin: string): boolean {
+function isWeakPin(pin: string): boolean {
   // Not enough digit variety:
   if (new Set(pin).size < MIN_UNIQUE_DIGITS) {
     return true;

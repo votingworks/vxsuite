@@ -20,6 +20,34 @@ jest.mock('./features', (): typeof import('./features') => {
 
 jest.mock('randombytes', (): typeof import('randombytes') => jest.fn());
 
+const WEAK_PIN_EXAMPLES: string[] = [
+  '000000',
+  '111111',
+  '222222',
+  '333333',
+  '444444',
+  '555555',
+  '666666',
+  '777777',
+  '888888',
+  '999999',
+  '122227',
+  '588881',
+  '129999',
+  '123456',
+  '654321',
+  '012345',
+  '543210',
+  '456789',
+  '987654',
+  '121212',
+  '363636',
+  '555000',
+  '883333',
+  '188188',
+  '200200',
+];
+
 function setMockRandomBytesResultOnce(pin: string) {
   const pinAsByteArray = Buffer.from(
     pin.split('').map((char) => Number.parseInt(char, 10))
@@ -60,43 +88,24 @@ test('generatePIN generates PINs with all zeros when all-zero smartcard PIN gene
   );
 });
 
-test('generatePin returns first non-weak random PINs', () => {
+test('generatePin returns first non-weak random PIN', () => {
   const nonWeakPin = '551028';
 
   setMockRandomBytesResultOnce(nonWeakPin);
-  setMockRandomBytesResultOnce('555555');
-  setMockRandomBytesResultOnce('123456');
+  for (const weakPin of WEAK_PIN_EXAMPLES) {
+    setMockRandomBytesResultOnce(weakPin);
+  }
 
   expect(generatePin()).toBe(nonWeakPin);
   expect(mockOf(randomBytes)).toBeCalledTimes(1);
 });
 
-test('generatePin skips PINs with repeating digits', () => {
+test('generatePin skips weak PINs', () => {
   const nonWeakPin = '223344';
 
-  setMockRandomBytesResultOnce('555555');
-  setMockRandomBytesResultOnce('122227');
-  setMockRandomBytesResultOnce(nonWeakPin);
-
-  expect(generatePin()).toBe(nonWeakPin);
-});
-
-test('generatePin skips PINs with long strings of sequential digits', () => {
-  const nonWeakPin = '123789';
-
-  setMockRandomBytesResultOnce('123456');
-  setMockRandomBytesResultOnce('654321');
-  setMockRandomBytesResultOnce(nonWeakPin);
-
-  expect(generatePin()).toBe(nonWeakPin);
-});
-
-test('generatePin skips PINs with not enough digit variety', () => {
-  const nonWeakPin = '204060';
-
-  setMockRandomBytesResultOnce('121212');
-  setMockRandomBytesResultOnce('363636');
-  setMockRandomBytesResultOnce('188188');
+  for (const weakPin of WEAK_PIN_EXAMPLES) {
+    setMockRandomBytesResultOnce(weakPin);
+  }
   setMockRandomBytesResultOnce(nonWeakPin);
 
   expect(generatePin()).toBe(nonWeakPin);
