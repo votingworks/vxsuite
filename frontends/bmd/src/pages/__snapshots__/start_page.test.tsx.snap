@@ -127,13 +127,13 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-lbhJmS lhMYID"
+  class="sc-gSQGeZ eQwUdU"
 >
   <main
-    class="sc-bYoCmx bRQcIB"
+    class="sc-ezbkgU jjwGyL"
   >
     <div
-      class="sc-jRQAMF fJXuaR"
+      class="sc-hKwCoD dOmxmu"
     >
       <h1
         aria-label="Democratic Primary Election."
@@ -167,7 +167,7 @@ exports[`renders StartPage 1`] = `
       class="c1"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-hKwCoD gmiWky"
       >
         <div
           class="c2"
@@ -177,7 +177,7 @@ exports[`renders StartPage 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-ksdxAp goVher"
+            class="sc-egiSv desLmk"
             id="next"
             role="option"
             type="button"
@@ -207,11 +207,11 @@ exports[`renders StartPage 1`] = `
               class="c8"
             >
               <span
-                class="sc-hBURRC gIPuLO"
+                class="sc-bqiQRQ cIYZEW"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="0"
                   type="button"
                   value="0"
@@ -219,7 +219,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp iaAkxY"
+                  class="sc-egiSv dGzrLr"
                   data-size="1"
                   type="button"
                   value="1"
@@ -227,7 +227,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="2"
                   type="button"
                   value="2"
@@ -258,7 +258,7 @@ exports[`renders StartPage 1`] = `
             />
           </div>
           <div
-            class="sc-jRQAMF crSiLx"
+            class="sc-hKwCoD eDCLhO"
           >
             <h5
               aria-label="Democratic Primary Election."
@@ -266,35 +266,35 @@ exports[`renders StartPage 1`] = `
               Democratic Primary Election
             </h5>
             <p
-              class="sc-dkPtyc dVpXhv"
+              class="sc-bdvvaa iybVtA"
             >
               November 3, 2020
               <br />
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="sc-dkPtyc eoUyDE"
+              class="sc-bdvvaa kKHwYn"
             >
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 ballot style 
                 12D
@@ -431,13 +431,13 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-lbhJmS lhMYID"
+  class="sc-gSQGeZ eQwUdU"
 >
   <main
-    class="sc-bYoCmx bRQcIB"
+    class="sc-ezbkgU jjwGyL"
   >
     <div
-      class="sc-jRQAMF fJXuaR"
+      class="sc-hKwCoD dOmxmu"
     >
       <h1
         aria-label=" General Election."
@@ -471,7 +471,7 @@ exports[`renders StartPage with inline SVG 1`] = `
       class="c1"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-hKwCoD gmiWky"
       >
         <div
           class="c2"
@@ -481,7 +481,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-ksdxAp goVher"
+            class="sc-egiSv desLmk"
             id="next"
             role="option"
             type="button"
@@ -511,11 +511,11 @@ exports[`renders StartPage with inline SVG 1`] = `
               class="c8"
             >
               <span
-                class="sc-hBURRC gIPuLO"
+                class="sc-bqiQRQ cIYZEW"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="0"
                   type="button"
                   value="0"
@@ -523,7 +523,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp iaAkxY"
+                  class="sc-egiSv dGzrLr"
                   data-size="1"
                   type="button"
                   value="1"
@@ -531,7 +531,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="2"
                   type="button"
                   value="2"
@@ -720,7 +720,7 @@ exports[`renders StartPage with inline SVG 1`] = `
             </svg>
           </div>
           <div
-            class="sc-jRQAMF crSiLx"
+            class="sc-hKwCoD eDCLhO"
           >
             <h5
               aria-label=" General Election."
@@ -728,35 +728,35 @@ exports[`renders StartPage with inline SVG 1`] = `
                General Election
             </h5>
             <p
-              class="sc-dkPtyc dVpXhv"
+              class="sc-bdvvaa iybVtA"
             >
               November 3, 2020
               <br />
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="sc-dkPtyc eoUyDE"
+              class="sc-bdvvaa kKHwYn"
             >
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 ballot style 
                 12
@@ -893,13 +893,13 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-lbhJmS lhMYID"
+  class="sc-gSQGeZ eQwUdU"
 >
   <main
-    class="sc-bYoCmx bRQcIB"
+    class="sc-ezbkgU jjwGyL"
   >
     <div
-      class="sc-jRQAMF fJXuaR"
+      class="sc-hKwCoD dOmxmu"
     >
       <h1
         aria-label=" General Election."
@@ -933,7 +933,7 @@ exports[`renders StartPage with no seal 1`] = `
       class="c1"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-hKwCoD gmiWky"
       >
         <div
           class="c2"
@@ -943,7 +943,7 @@ exports[`renders StartPage with no seal 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-ksdxAp goVher"
+            class="sc-egiSv desLmk"
             id="next"
             role="option"
             type="button"
@@ -973,11 +973,11 @@ exports[`renders StartPage with no seal 1`] = `
               class="c8"
             >
               <span
-                class="sc-hBURRC gIPuLO"
+                class="sc-bqiQRQ cIYZEW"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="0"
                   type="button"
                   value="0"
@@ -985,7 +985,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp iaAkxY"
+                  class="sc-egiSv dGzrLr"
                   data-size="1"
                   type="button"
                   value="1"
@@ -993,7 +993,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-ksdxAp cHnWTy"
+                  class="sc-egiSv feoAXt"
                   data-size="2"
                   type="button"
                   value="2"
@@ -1018,7 +1018,7 @@ exports[`renders StartPage with no seal 1`] = `
             class="c11"
           />
           <div
-            class="sc-jRQAMF crSiLx"
+            class="sc-hKwCoD eDCLhO"
           >
             <h5
               aria-label=" General Election."
@@ -1026,35 +1026,35 @@ exports[`renders StartPage with no seal 1`] = `
                General Election
             </h5>
             <p
-              class="sc-dkPtyc dVpXhv"
+              class="sc-bdvvaa iybVtA"
             >
               November 3, 2020
               <br />
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="sc-dkPtyc eoUyDE"
+              class="sc-bdvvaa kKHwYn"
             >
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="sc-hKwCoD kKHUyA"
+                class="sc-gsDJrp fUIxJs"
               >
                 ballot style 
                 12

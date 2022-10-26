@@ -3,14 +3,14 @@
 exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
 <div>
   <div
-    class="sc-eCImvq dHkUPT"
+    class="sc-eCImvq gZAahg"
+    data-testid="electionInfoBar"
   >
     <div
       class="sc-bdvvaa fLugxj"
+      style="flex: 1;"
     >
-      <strong
-        class="sc-dkPtyc gbBfTJ"
-      >
+      <strong>
         General Election
       </strong>
        —
@@ -18,7 +18,7 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
       <span
         class="sc-dkPtyc gbBfTJ"
       >
-        Tuesday, November 3, 2020
+        Nov 3, 2020
       </span>
       <div
         class="sc-gsDJrp hIGrZm"
@@ -27,23 +27,23 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
           class="sc-dkPtyc gbBfTJ"
         >
           All Precincts
+          ,
         </span>
-         
-        —
          
         <span
           class="sc-dkPtyc gbBfTJ"
         >
           Franklin County
           ,
-           
+        </span>
+         
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
           State of Hamilton
         </span>
       </div>
     </div>
-    <div
-      class="sc-jRQAMF kSgACi"
-    />
     <div
       class="sc-bdvvaa iOQknX"
     >
@@ -63,14 +63,14 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
 exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
 <div>
   <div
-    class="sc-eCImvq dHkUPT"
+    class="sc-eCImvq gZAahg"
+    data-testid="electionInfoBar"
   >
     <div
       class="sc-bdvvaa fLugxj"
+      style="flex: 1;"
     >
-      <strong
-        class="sc-dkPtyc gbBfTJ"
-      >
+      <strong>
         General Election
       </strong>
        —
@@ -78,7 +78,7 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
       <span
         class="sc-dkPtyc gbBfTJ"
       >
-        Tuesday, November 3, 2020
+        Nov 3, 2020
       </span>
       <div
         class="sc-gsDJrp hIGrZm"
@@ -88,19 +88,20 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
         >
           Franklin County
           ,
-           
+        </span>
+         
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
           State of Hamilton
         </span>
       </div>
     </div>
     <div
-      class="sc-jRQAMF kSgACi"
-    />
-    <div
       class="sc-bdvvaa iOQknX"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="sc-gsDJrp iwrhML"
       >
         Software Version
       </div>
@@ -112,7 +113,7 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
       class="sc-bdvvaa iOQknX"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="sc-gsDJrp iwrhML"
       >
         Machine ID
       </div>
@@ -139,14 +140,14 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
 exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
 <div>
   <div
-    class="sc-eCImvq dHkUPT"
+    class="sc-eCImvq gZAahg"
+    data-testid="electionInfoBar"
   >
     <div
       class="sc-bdvvaa fLugxj"
+      style="flex: 1;"
     >
-      <strong
-        class="sc-dkPtyc gbBfTJ"
-      >
+      <strong>
         General Election
       </strong>
        —
@@ -154,7 +155,7 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       <span
         class="sc-dkPtyc gbBfTJ"
       >
-        Tuesday, November 3, 2020
+        Nov 3, 2020
       </span>
       <div
         class="sc-gsDJrp hIGrZm"
@@ -163,28 +164,28 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
           class="sc-dkPtyc gbBfTJ"
         >
           Center Springfield
+          ,
         </span>
-         
-        —
          
         <span
           class="sc-dkPtyc gbBfTJ"
         >
           Franklin County
           ,
-           
+        </span>
+         
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
           State of Hamilton
         </span>
       </div>
     </div>
     <div
-      class="sc-jRQAMF kSgACi"
-    />
-    <div
       class="sc-bdvvaa iOQknX"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="sc-gsDJrp iwrhML"
       >
         Software Version
       </div>
@@ -196,7 +197,7 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       class="sc-bdvvaa iOQknX"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="sc-gsDJrp iwrhML"
       >
         Machine ID
       </div>

@@ -32,10 +32,12 @@ export function ReplaceBallotBagScreen({
           <CenteredLargeProse>
             <h1>Ballot Bag Full</h1>
             <p>
-              A poll worker must replace the full ballot bag with an empty
+              A poll worker must replace the full ballot bag with a new empty
               ballot bag.
             </p>
-            <p>Insert a poll worker card after the ballot bag is replaced.</p>
+            <Text small italic>
+              Insert a poll worker card to continue.
+            </Text>
           </CenteredLargeProse>
         </React.Fragment>
       );
@@ -44,15 +46,17 @@ export function ReplaceBallotBagScreen({
     if (!confirmed && pollWorkerAuthenticated) {
       return (
         <CenteredLargeProse>
-          <h1>Ready to Resume Voting?</h1>
-          <p>Has the full ballot bag been replaced with an empty ballot bag?</p>
+          <h1>Ballot Bag Replaced?</h1>
+          <p>
+            Has the full ballot bag been replaced with a new empty ballot bag?
+          </p>
           <p>
             <Button primary onPress={() => setConfirmed(true)}>
-              Yes, Resume Voting
+              Yes, New Ballot Bag is Ready
             </Button>
           </p>
           <Text small italic>
-            Remove card if you’re not ready to resume voting.
+            Remove card to go back.
           </Text>
         </CenteredLargeProse>
       );
@@ -60,8 +64,10 @@ export function ReplaceBallotBagScreen({
 
     return (
       <CenteredLargeProse>
-        <h1>Ready to Resume Voting</h1>
-        <p>Remove the Poll Worker Card to continue.</p>
+        <h1>Resume Voting</h1>
+        <Text small italic>
+          Remove card to resume voting.
+        </Text>
       </CenteredLargeProse>
     );
   })();

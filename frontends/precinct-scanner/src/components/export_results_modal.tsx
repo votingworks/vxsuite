@@ -167,16 +167,17 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button onPress={onClose}>Cancel</Button>
               {!window.kiosk && (
                 <Button
                   data-testid="manual-export"
                   onPress={() => exportResults(true)}
                   disabled // Not currently supported
+                  primary
                 >
                   Save
                 </Button>
-              )}{' '}
+              )}
+              <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
         />

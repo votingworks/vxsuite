@@ -249,17 +249,17 @@ exports[`Renders ContestPage 1`] = `
 
 <div>
   <div
-    class="sc-lbhJmS lhMYID"
+    class="sc-gSQGeZ eQwUdU"
   >
     <main
-      class="sc-bYoCmx dkdPvV"
+      class="sc-ezbkgU jVInCL"
     >
       <div
         class="c0"
         id="contest-header"
       >
         <div
-          class="sc-jRQAMF boeJiV"
+          class="sc-hKwCoD gmiWky"
           id="audiofocus"
         >
           <h1
@@ -274,7 +274,7 @@ exports[`Renders ContestPage 1`] = `
           </h1>
           <p>
             <span
-              class="sc-dkPtyc dknpMx"
+              class="sc-bdvvaa NLRzK"
             >
               Vote for 
               1
@@ -310,10 +310,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Joseph Barchi and Joseph Hallaren
@@ -332,10 +332,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Adam Cramer and Greg Vuocolo
@@ -354,10 +354,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Daniel Court and Amy Blumhardt
@@ -376,10 +376,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Alvin Boone and James Lian
@@ -398,10 +398,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Ashley Hildebrand-McDougall and James Garritty
@@ -420,10 +420,10 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <div
-                  class="sc-jRQAMF boeJiV"
+                  class="sc-hKwCoD gmiWky"
                 >
                   <p
-                    class="sc-dkPtyc iuZdud"
+                    class="sc-bdvvaa eSpfPW"
                   >
                     <strong>
                       Martin Patterson and Clay Lariviere
@@ -445,10 +445,10 @@ exports[`Renders ContestPage 1`] = `
         class="c8"
       >
         <div
-          class="sc-jRQAMF boeJiV"
+          class="sc-hKwCoD gmiWky"
         >
           <p
-            class="sc-dkPtyc cTHmKe"
+            class="sc-bdvvaa cFJatN"
           >
             This is the 
             <strong>
@@ -461,7 +461,7 @@ exports[`Renders ContestPage 1`] = `
           </p>
           <p>
             <button
-              class="sc-ksdxAp kHIrtN"
+              class="sc-egiSv iFSayO"
               id="next"
               role="option"
               type="button"
@@ -475,7 +475,7 @@ exports[`Renders ContestPage 1`] = `
           </p>
           <p>
             <button
-              class="sc-ksdxAp cHnWTy"
+              class="sc-egiSv feoAXt"
               id="previous"
               role="option"
               type="button"
@@ -509,11 +509,11 @@ exports[`Renders ContestPage 1`] = `
                 class="c15"
               >
                 <span
-                  class="sc-hBURRC gIPuLO"
+                  class="sc-bqiQRQ cIYZEW"
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="sc-ksdxAp cHnWTy"
+                    class="sc-egiSv feoAXt"
                     data-size="0"
                     type="button"
                     value="0"
@@ -521,7 +521,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-ksdxAp iaAkxY"
+                    class="sc-egiSv dGzrLr"
                     data-size="1"
                     type="button"
                     value="1"
@@ -529,7 +529,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-ksdxAp cHnWTy"
+                    class="sc-egiSv feoAXt"
                     data-size="2"
                     type="button"
                     value="2"
@@ -554,7 +554,7 @@ exports[`Renders ContestPage 1`] = `
               class="c18"
             />
             <div
-              class="sc-jRQAMF crSiLx"
+              class="sc-hKwCoD eDCLhO"
             >
               <h5
                 aria-label=" General Election."
@@ -562,35 +562,35 @@ exports[`Renders ContestPage 1`] = `
                  General Election
               </h5>
               <p
-                class="sc-dkPtyc dVpXhv"
+                class="sc-bdvvaa iybVtA"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="sc-hKwCoD kKHUyA"
+                  class="sc-gsDJrp fUIxJs"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="sc-hKwCoD kKHUyA"
+                  class="sc-gsDJrp fUIxJs"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="sc-dkPtyc eoUyDE"
+                class="sc-bdvvaa kKHwYn"
               >
                 <span
-                  class="sc-hKwCoD kKHUyA"
+                  class="sc-gsDJrp fUIxJs"
                 >
                   Center Springfield
                   , 
                 </span>
                  
                 <span
-                  class="sc-hKwCoD kKHUyA"
+                  class="sc-gsDJrp fUIxJs"
                 >
                   ballot style 
                   12

@@ -49,3 +49,11 @@ export function localeWeekdayAndDate(time?: number | Date): string {
     year: 'numeric',
   }).format(time);
 }
+
+export function localeDate(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(time);
+}

@@ -11,7 +11,9 @@ test('render correct test ballot error screen when we are in test mode', async (
     />
   );
   await screen.findByText('Ballot Not Counted');
-  await screen.findByText('Live ballot detected. Scanner is in test mode.');
+  await screen.findByText(
+    'The scanner is in test mode and a live ballot was detected.'
+  );
 });
 
 test('render correct test ballot error screen when we are in live mode', async () => {
@@ -23,7 +25,9 @@ test('render correct test ballot error screen when we are in live mode', async (
     />
   );
   await screen.findByText('Ballot Not Counted');
-  await screen.findByText('Test ballot detected. Scanner is in live mode.');
+  await screen.findByText(
+    'The scanner is in live mode and a test ballot was detected.'
+  );
 });
 
 test('render correct invalid precinct screen', async () => {
@@ -60,6 +64,6 @@ test('render correct unreadable ballot screen', async () => {
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
-    'There was a problem reading this ballot. Please scan again.'
+    'There was a problem scanning your ballot. Please scan it again.'
   );
 });

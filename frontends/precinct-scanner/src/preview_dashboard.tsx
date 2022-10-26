@@ -4,12 +4,23 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { Select } from '@votingworks/ui';
+import { Prose, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import React, { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from './contexts/app_context';
+
+const PreviewColumns = styled.div`
+  columns: 2;
+  @media (orientation: landscape) {
+    columns: 3;
+  }
+  & > div {
+    margin-bottom: 2rem;
+    break-inside: avoid;
+  }
+`;
 
 export interface PreviewableModule {
   [key: string]: unknown;
@@ -149,12 +160,12 @@ export function PreviewDashboard({
       <BrowserRouter>
         <Route path="/preview" exact>
           <h1>Previews</h1>
-          <div style={{ columns: '3' }}>
+          <PreviewColumns>
             {previewables.map(({ componentName, previews }) => {
               return (
-                <div key={componentName} style={{ breakInside: 'avoid' }}>
-                  <h4 style={{ marginBottom: '2px' }}>{componentName}</h4>
-                  <ul style={{ marginTop: '0' }}>
+                <Prose key={componentName}>
+                  <h4>{componentName}</h4>
+                  <ul>
                     {previews.map((preview) => (
                       <li key={preview.previewName}>
                         <Link to={getPreviewUrl(preview)}>
@@ -163,10 +174,10 @@ export function PreviewDashboard({
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Prose>
               );
             })}
-          </div>
+          </PreviewColumns>
           <ConfigBox>
             <Select
               value={electionDefinition.electionHash}

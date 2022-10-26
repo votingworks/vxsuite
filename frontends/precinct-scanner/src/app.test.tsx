@@ -333,7 +333,7 @@ test('election manager must set precinct', async () => {
 
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
-  screen.getByText('Center Springfield');
+  screen.getByText('Center Springfield,');
 
   // Poll Worker card can be used to open polls now
   fetchMock.post('/precinct-scanner/export', {});
@@ -398,9 +398,9 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
-  await screen.findByText('All Precincts');
-  await screen.findByText(/Franklin County/);
-  await screen.findByText(/State of Hamilton/);
+  await screen.findByText('All Precincts,');
+  await screen.findByText('Franklin County,');
+  await screen.findByText('State of Hamilton');
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
@@ -443,7 +443,7 @@ test('election manager and poll worker configuration', async () => {
 
   // Verify polls were closed and the right precinct was set
   await screen.findByText('Polls Closed');
-  await screen.findByText('Center Springfield');
+  await screen.findByText('Center Springfield,');
 
   // Calibrate scanner with Election Manager card
   fetchMock.post('/precinct-scanner/scanner/calibrate', {
@@ -1162,7 +1162,7 @@ test('replace ballot bag flow', async () => {
   // Insert a pollworker card to enter confirmation step
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting?');
+  await screen.findByText('Ballot Bag Replaced?');
 
   // Removing card at this point returns to initial screen
   card.removeCard();
@@ -1172,12 +1172,12 @@ test('replace ballot bag flow', async () => {
   // Can confirm with pollworker card
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting?');
-  userEvent.click(screen.getByText('Yes, Resume Voting'));
+  await screen.findByText('Ballot Bag Replaced?');
+  userEvent.click(screen.getByText('Yes, New Ballot Bag is Ready'));
 
   // Prompted to remove card
   await advanceTimersAndPromises(1);
-  await screen.findByText('Ready to Resume Voting');
+  await screen.findByText('Remove card to resume voting.');
 
   // Removing card returns to voter screen
   card.removeCard();
@@ -1251,7 +1251,7 @@ test('uses storage for frontend state', async () => {
   );
   await screen.findByText('Ballot Bag Full');
   card.insertCard(pollWorkerCard);
-  userEvent.click(await screen.findByText('Yes, Resume Voting'));
+  userEvent.click(await screen.findByText('Yes, New Ballot Bag is Ready'));
   card.removeCard();
   await advanceTimersAndPromises(1);
   expect(await storage.get(stateStorageKey)).toMatchObject({

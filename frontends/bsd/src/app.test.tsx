@@ -386,7 +386,8 @@ test('configuring election from usb ballot package works end to end', async () =
   getByText('No ballots have been scanned.');
 
   getByText('General Election');
-  getByText(/Franklin County, State of Hamilton/);
+  getByText(/Franklin County,/);
+  getByText(/State of Hamilton/);
   screen.getByText(hasTextAcrossElements('Machine ID0001'));
 
   // Unconfigure Machine

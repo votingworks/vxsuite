@@ -2,10 +2,24 @@ import React from 'react';
 
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import { format, getPrecinctSelectionName } from '@votingworks/utils';
+import styled from 'styled-components';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import { contrastTheme, Theme } from './themes';
-import { Bar, BarSpacer } from './bar';
+
+interface BarProps {
+  theme?: Theme;
+}
+
+const Bar = styled.div<BarProps>`
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  background: ${({ theme: { background } }) => background};
+  padding: 0.5rem 0.75rem;
+  color: ${({ theme: { color } }) => color};
+  gap: 1rem;
+`;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
@@ -23,7 +37,7 @@ export function ElectionInfoBar({
   machineId,
   precinctSelection,
 }: Props): JSX.Element {
-  const electionDate = format.localeWeekdayAndDate(
+  const electionDate = format.localeDate(
     new Date(electionDefinition.election.date)
   );
 
@@ -31,9 +45,9 @@ export function ElectionInfoBar({
   const theme: Theme = { ...(contrastTheme.dark ?? {}) };
 
   return (
-    <Bar theme={theme}>
-      <Prose maxWidth={false} compact>
-        <NoWrap as="strong">{electionDefinition.election.title}</NoWrap> —{' '}
+    <Bar theme={theme} data-testid="electionInfoBar">
+      <Prose maxWidth={false} compact style={{ flex: 1 }}>
+        <strong>{electionDefinition.election.title}</strong> —{' '}
         <NoWrap>{electionDate}</NoWrap>
         <Text as="div" small>
           {precinctSelection && (
@@ -43,27 +57,24 @@ export function ElectionInfoBar({
                   electionDefinition.election.precincts,
                   precinctSelection
                 )}
+                ,
               </NoWrap>{' '}
-              —{' '}
             </React.Fragment>
           )}
-          <NoWrap>
-            {electionDefinition.election.county.name},{' '}
-            {electionDefinition.election.state}
-          </NoWrap>
+          <NoWrap>{electionDefinition.election.county.name},</NoWrap>{' '}
+          <NoWrap>{electionDefinition.election.state}</NoWrap>
         </Text>
       </Prose>
-      <BarSpacer />
       {mode !== 'voter' && (
         <React.Fragment>
           <Prose maxWidth={false} compact textRight>
-            <Text as="div" small>
+            <Text as="div" small noWrap>
               Software Version
             </Text>
             <strong>{codeVersion}</strong>
           </Prose>
           <Prose maxWidth={false} compact textRight>
-            <Text as="div" small>
+            <Text as="div" small noWrap>
               Machine ID
             </Text>
             <strong>{machineId}</strong>

@@ -32,15 +32,15 @@ export function ScanErrorScreen({
       // Invalid ballot interpretations
       case 'invalid_test_mode':
         return isTestMode
-          ? 'Live ballot detected. Scanner is in test mode.'
-          : 'Test ballot detected. Scanner is in live mode.';
+          ? 'The scanner is in test mode and a live ballot was detected.'
+          : 'The scanner is in live mode and a test ballot was detected.';
       case 'invalid_election_hash':
         return 'The ballot does not match the election this scanner is configured for.';
       case 'invalid_precinct':
         return 'The ballot does not match the precinct this scanner is configured for.';
       case 'unreadable':
       case 'unknown':
-        return 'There was a problem reading this ballot. Please scan again.';
+        return 'There was a problem scanning your ballot. Please scan it again.';
       // Precinct scanner errors
       case 'scanning_failed':
       case 'both_sides_have_paper':
@@ -61,7 +61,7 @@ export function ScanErrorScreen({
     }
   })();
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild isLiveMode={!isTestMode} infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
@@ -102,10 +102,10 @@ export function InvalidElectionHashPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function InvalidTestModeBallotPreview(): JSX.Element {
+export function InvalidBallotTestModePreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
+      isTestMode
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
@@ -113,10 +113,10 @@ export function InvalidTestModeBallotPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function InvalidLiveModeBallotPreview(): JSX.Element {
+export function InvalidBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode
+      isTestMode={false}
       error="invalid_test_mode"
       scannedBallotCount={42}
     />
@@ -157,7 +157,7 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
 }
 
 /* istanbul ignore next */
-export function BallotInFrontAfterReconnectPreview(): JSX.Element {
+export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
@@ -168,7 +168,7 @@ export function BallotInFrontAfterReconnectPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function BallotInBackAfterReconnectPreview(): JSX.Element {
+export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}

@@ -134,8 +134,9 @@ test('no All Precincts option if only one precinct', async () => {
     },
   });
 
-  // Should have precinct name in both the dropdown and the footer
-  expect(await screen.findAllByText('Precinct 1')).toHaveLength(2);
+  // Should have precinct name in both the select and the footer
+  within(await screen.findByTestId('selectPrecinct')).getByText('Precinct 1');
+  within(await screen.findByTestId('electionInfoBar')).getByText('Precinct 1,');
   expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
 });
 

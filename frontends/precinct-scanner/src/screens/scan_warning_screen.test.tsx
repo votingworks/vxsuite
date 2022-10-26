@@ -62,7 +62,7 @@ test('overvote', () => {
   screen.getByRole('heading', { name: 'Too Many Votes' });
   screen.getByText(
     new RegExp(
-      `There are too many votes marked in the contest for: ${contest.title}.`
+      `There are too many votes marked in the contest: ${contest.title}.`
     )
   );
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
@@ -103,7 +103,7 @@ test('overvote when casting overvotes is disallowed', () => {
   screen.getByRole('heading', { name: 'Too Many Votes' });
   screen.getByText(
     new RegExp(
-      `There are too many votes marked in the contest for: ${contest.title}.`
+      `There are too many votes marked in the contest: ${contest.title}.`
     )
   );
   expect(
@@ -156,7 +156,9 @@ test('undervote no votes', () => {
   });
 
   screen.getByRole('heading', { name: 'Review Your Ballot' });
-  screen.getByText(new RegExp(`No votes detected for: ${contest.title}.`));
+  screen.getByText(
+    new RegExp(`No votes detected in contest: ${contest.title}.`)
+  );
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   const confirmButton = screen.getByRole('button', {
     name: 'Yes, Cast Ballot As Is',
@@ -191,7 +193,7 @@ test('undervote by 1', () => {
   screen.getByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(
-      `You may vote for more candidates in the contests for: ${contest.title}.`
+      `You may vote for more candidates in the contest: ${contest.title}.`
     )
   );
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
@@ -222,7 +224,7 @@ test('multiple undervotes', () => {
   screen.getByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(
-      `You may vote for more candidates in the contests for: ${contests[0].title} and ${contests[1].title}.`
+      `You may vote for more candidates in the contests: ${contests[0].title} and ${contests[1].title}.`
     )
   );
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));

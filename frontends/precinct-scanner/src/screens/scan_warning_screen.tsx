@@ -25,6 +25,7 @@ import {
   EnvironmentFlagName,
 } from '@votingworks/utils';
 import pluralize from 'pluralize';
+import styled from 'styled-components';
 import * as scanner from '../api/scan';
 
 import { ExclamationTriangle } from '../components/graphics';
@@ -36,6 +37,20 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { useSound } from '../hooks/use_sound';
+
+const ResponsiveButtonParagraph = styled.p`
+  @media (orientation: portrait) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    & > button {
+      flex: 1 auto;
+      padding-right: 0.25em;
+      padding-left: 0.25em;
+    }
+  }
+`;
 
 interface ConfirmModalProps {
   content?: React.ReactNode;
@@ -106,10 +121,10 @@ function OvervoteWarningScreen({
         <h1>Too Many Votes</h1>
         <Text>
           There are too many votes marked in the{' '}
-          {pluralize('contest', contestNames.length)} for:{' '}
+          {pluralize('contest', contestNames.length)}:{' '}
           {toSentence(contestNames)}.
         </Text>
-        <p>
+        <ResponsiveButtonParagraph>
           <Button primary onPress={scanner.returnBallot}>
             Return Ballot
           </Button>
@@ -122,7 +137,7 @@ function OvervoteWarningScreen({
               </Button>
             </React.Fragment>
           )}
-        </p>
+        </ResponsiveButtonParagraph>
         <Text italic small>
           Ask a poll worker if you need help.
         </Text>
@@ -190,22 +205,24 @@ function UndervoteWarningScreen({
         <h1>Review Your Ballot</h1>
         {blankContestNames.length > 0 && (
           <p>
-            No votes detected for:{' '}
+            No votes detected in{' '}
+            {pluralize('contest', blankContestNames.length)}:{' '}
             {toSentence(truncateContestNames(blankContestNames))}.
           </p>
         )}
         {partiallyVotedContestNames.length > 0 && (
           <p>
-            You may vote for more candidates in the contests for:{' '}
+            You may vote for more candidates in the{' '}
+            {pluralize('contest', partiallyVotedContestNames.length)}:{' '}
             {toSentence(truncateContestNames(partiallyVotedContestNames))}.
           </p>
         )}
-        <p>
+        <ResponsiveButtonParagraph>
           <Button onPress={scanner.returnBallot}>Return Ballot</Button> or{' '}
           <Button primary onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
-        </p>
+        </ResponsiveButtonParagraph>
         <Text italic small>
           Your votes will count, even if you leave some blank.
           <br />
@@ -258,7 +275,7 @@ function BlankBallotWarningScreen(): JSX.Element {
       <CenteredLargeProse>
         <h1>Review Your Ballot</h1>
         <p>No votes were found when scanning this ballot.</p>
-        <p>
+        <ResponsiveButtonParagraph>
           <Button primary onPress={scanner.returnBallot}>
             Return Ballot
           </Button>{' '}
@@ -266,7 +283,7 @@ function BlankBallotWarningScreen(): JSX.Element {
           <Button onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
-        </p>
+        </ResponsiveButtonParagraph>
         <Text small italic>
           Your votes will count, even if you leave some blank.
           <br />
@@ -297,7 +314,7 @@ function OtherReasonWarningScreen(): JSX.Element {
       <CenteredLargeProse>
         <h1>Scanning Failed</h1>
         <p>There was a problem scanning this ballot.</p>
-        <p>
+        <ResponsiveButtonParagraph>
           <Button primary onPress={scanner.returnBallot}>
             Return Ballot
           </Button>{' '}
@@ -305,7 +322,7 @@ function OtherReasonWarningScreen(): JSX.Element {
           <Button onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
-        </p>
+        </ResponsiveButtonParagraph>
         <Text small italic>
           Ask a poll worker if you need help.
         </Text>
@@ -412,7 +429,7 @@ export function OvervotePreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteNoVotesPreview(): JSX.Element {
+export function UndervoteNoVotes1ContestPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -437,7 +454,30 @@ export function UndervoteNoVotesPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteBy1Preview(): JSX.Element {
+export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+
+  const contests = electionDefinition.election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+  assert(contests.length > 0);
+
+  return (
+    <ScanWarningScreen
+      adjudicationReasonInfo={contests.map((contest) => ({
+        type: AdjudicationReason.Undervote,
+        contestId: contest.id,
+        optionIds: [],
+        optionIndexes: [],
+        expected: contest.seats,
+      }))}
+    />
+  );
+}
+
+/* istanbul ignore next */
+export function Undervote1ContestPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
@@ -464,7 +504,7 @@ export function UndervoteBy1Preview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteManyPreview(): JSX.Element {
+export function UndervoteManyContestsPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 

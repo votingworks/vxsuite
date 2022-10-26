@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Text } from '@votingworks/ui';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -12,7 +13,9 @@ export function InvalidCardScreen(): JSX.Element {
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Invalid Card</h1>
-        <p>Remove the card to continue.</p>
+        <Text small italic>
+          Remove the card to continue.
+        </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
