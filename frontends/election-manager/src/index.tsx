@@ -30,7 +30,7 @@ const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 ReactDom.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ServicesContext.Provider value={{ backend, logger }}>
+      <ServicesContext.Provider value={{ backend, logger, storage }}>
         <App />
       </ServicesContext.Provider>
       {isFeatureFlagEnabled(

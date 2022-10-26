@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
-import { typedAs } from '@votingworks/utils';
+import { MemoryStorage, typedAs } from '@votingworks/utils';
 import React from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
@@ -24,7 +24,9 @@ test('write-in adjudication end-to-end', async () => {
 
   function wrapper({ children }: { children: React.ReactNode }) {
     return (
-      <ServicesContext.Provider value={{ backend, logger }}>
+      <ServicesContext.Provider
+        value={{ backend, logger, storage: new MemoryStorage() }}
+      >
         <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>

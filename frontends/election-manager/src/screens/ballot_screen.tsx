@@ -26,8 +26,10 @@ import {
   isSystemAdministratorAuth,
   Monospace,
   Prose,
+  useStoredState,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
+import { z } from 'zod';
 import { BallotScreenProps, PrintableBallotType } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
@@ -50,6 +52,7 @@ import { BallotModeToggle } from '../components/ballot_mode_toggle';
 import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
+import { ServicesContext } from '../contexts/services_context';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -88,6 +91,7 @@ export function BallotScreen(): JSX.Element {
   } = useParams<BallotScreenProps>();
   const { electionDefinition, printBallotRef, logger, auth } =
     useContext(AppContext);
+  const { storage } = useContext(ServicesContext);
   const addPrintedBallotMutation = useAddPrintedBallotMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
@@ -118,12 +122,21 @@ export function BallotScreen(): JSX.Element {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
-  const [ballotMode, setBallotMode] = useState(
+  const storageKeyPrefix = auth.user.role;
+  const [ballotMode, setBallotMode] = useStoredState(
+    storage,
+    `${storageKeyPrefix}:BallotModeToggle:ballotMode`,
+    Admin.BallotModeSchema,
     isSystemAdministratorAuth(auth)
       ? Admin.BallotMode.Sample
       : Admin.BallotMode.Official
   );
-  const [isAbsentee, setIsAbsentee] = useState(true);
+  const [isAbsentee, setIsAbsentee] = useStoredState(
+    storage,
+    `${storageKeyPrefix}:BallotTypeToggle:isAbsentee`,
+    z.boolean(),
+    true
+  );
   const [ballotCopies, setBallotCopies] = useState(1);
 
   function changeLocale(localeCode: string) {
