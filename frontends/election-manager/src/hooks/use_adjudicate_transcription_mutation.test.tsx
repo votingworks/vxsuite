@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { typedAs } from '@votingworks/utils';
+import { MemoryStorage, typedAs } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { ServicesContext } from '../contexts/services_context';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
@@ -39,7 +39,9 @@ test('useAdjudicateTranscriptionMutation', async () => {
   // set up & trigger mutation
   function wrapper({ children }: { children: React.ReactNode }) {
     return (
-      <ServicesContext.Provider value={{ backend, logger }}>
+      <ServicesContext.Provider
+        value={{ backend, logger, storage: new MemoryStorage() }}
+      >
         <QueryClientProvider client={new QueryClient()}>
           {children}
         </QueryClientProvider>

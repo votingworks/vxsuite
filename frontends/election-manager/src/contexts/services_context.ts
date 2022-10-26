@@ -1,4 +1,5 @@
 import { Logger, LogSource } from '@votingworks/logging';
+import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createContext } from 'react';
 import {
   ElectionManagerStoreBackend,
@@ -11,6 +12,7 @@ import {
 export interface ServicesContextInterface {
   readonly backend: ElectionManagerStoreBackend;
   readonly logger: Logger;
+  readonly storage: Storage;
 }
 
 /**
@@ -19,4 +21,5 @@ export interface ServicesContextInterface {
 export const ServicesContext = createContext<ServicesContextInterface>({
   backend: new ElectionManagerStoreMemoryBackend(),
   logger: new Logger(LogSource.VxAdminFrontend),
+  storage: new MemoryStorage(),
 });

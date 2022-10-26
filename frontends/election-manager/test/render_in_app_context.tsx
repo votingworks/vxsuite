@@ -14,7 +14,12 @@ import {
   Printer,
   VotingMethod,
 } from '@votingworks/types';
-import { usbstick, NullPrinter } from '@votingworks/utils';
+import {
+  usbstick,
+  NullPrinter,
+  MemoryStorage,
+  Storage,
+} from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
@@ -80,15 +85,17 @@ export function renderRootElement(
   {
     backend = new ElectionManagerStoreMemoryBackend(),
     logger = fakeLogger(),
+    storage = new MemoryStorage(),
     queryClient = new QueryClient(),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;
+    storage?: Storage;
     queryClient?: QueryClient;
   } = {}
 ): RenderResult {
   return testRender(
-    <ServicesContext.Provider value={{ backend, logger }}>
+    <ServicesContext.Provider value={{ backend, logger, storage }}>
       <QueryClientProvider client={queryClient}>
         {component}
       </QueryClientProvider>
