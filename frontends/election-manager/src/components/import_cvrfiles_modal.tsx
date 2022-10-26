@@ -90,78 +90,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   >([]);
   const { election, electionHash } = electionDefinition;
 
-  async function importSelectedFile(
-    fileData: CastVoteRecordFilePreprocessedData
-  ) {
-    setCurrentState({ state: 'loading' });
-    try {
-      const addCastVoteRecordFileResult =
-        await addCastVoteRecordFileMutation.mutateAsync(
-          new File([fileData.fileContent], fileData.name)
-        );
-
-      if (addCastVoteRecordFileResult.wasExistingFile) {
-        setCurrentState({
-          state: 'duplicate',
-          result: addCastVoteRecordFileResult,
-        });
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message:
-            'CVR file was not loaded as it is a duplicated of a previously loaded file.',
-          disposition: 'failure',
-          filename: fileData.name,
-          result: 'File not loaded, error shown to user.',
-        });
-      } else {
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: 'CVR file successfully loaded.',
-          disposition: 'success',
-          filename: fileData.name,
-          numberOfBallotsImported: addCastVoteRecordFileResult.newlyAdded,
-          duplicateBallotsIgnored: addCastVoteRecordFileResult.alreadyPresent,
-        });
-        setCurrentState({
-          state: 'success',
-          result: addCastVoteRecordFileResult,
-        });
-      }
-    } catch (error) {
-      assert(error instanceof Error);
-      setCurrentState({
-        state: 'error',
-        error,
-        filename: fileData.name,
-      });
-      await logger.log(LogEventId.CvrLoaded, userRole, {
-        message: `Failed to load CVR file: ${error.message}`,
-        disposition: 'failure',
-        filename: fileData.name,
-        error: error.message,
-        result: 'File not loaded, error shown to user.',
-      });
-    }
-  }
-
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
-    event
-  ) => {
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0];
-
-    if (!file) {
-      onClose();
-      return;
-    }
-
+  async function importCvrFile(file: File) {
     const filename = file.name;
     setCurrentState({ state: 'loading' });
 
     try {
       const addCastVoteRecordFileResult =
         await addCastVoteRecordFileMutation.mutateAsync(file);
-
-      input.value = '';
 
       if (addCastVoteRecordFileResult.wasExistingFile) {
         setCurrentState({
@@ -199,6 +134,27 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         result: 'File not loaded, error shown to user.',
       });
     }
+  }
+
+  async function importSelectedFile(
+    fileData: CastVoteRecordFilePreprocessedData
+  ) {
+    await importCvrFile(new File([fileData.fileContent], fileData.name));
+  }
+
+  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
+    event
+  ) => {
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
+    const file = files[0];
+
+    if (!file) {
+      onClose();
+      return;
+    }
+
+    await importCvrFile(file);
   };
 
   async function fetchFilenames() {
