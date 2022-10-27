@@ -1413,3 +1413,142 @@ test('saving to card: polls unpaused', async () => {
     })
   );
 });
+
+test('printing: polls closed from paused, general election, single precinct', async () => {
+  mockPollsState('polls_paused');
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct23ResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    });
+  const { card, renderApp } = buildApp(true);
+  renderApp();
+  await screen.findByText('Polls Paused');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionSample2Definition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  userEvent.click(screen.getByText('No'));
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(
+    await screen.findByText('Close Polls for Center Springfield')
+  );
+  await screen.findByText('Polls are closed.');
+
+  await expectPrint((printedElement) => {
+    printedElement.getByText('TEST Polls Closed Report for Center Springfield');
+    expect(
+      printedElement.queryAllByText(
+        'TEST Polls Closed Report for North Springfield'
+      )
+    ).toHaveLength(0);
+    expect(
+      printedElement.queryAllByText(
+        'TEST Polls Closed Report for South Springfield'
+      )
+    ).toHaveLength(0);
+
+    // quickresults turned off by default
+    expect(
+      printedElement.queryAllByText('Automatic Election Results Reporting')
+    ).toHaveLength(0);
+
+    // Check that the expected results are on the tally report for Center Springfield
+    const centerSpringfieldReport = printedElement.getByTestId(
+      'tally-report-undefined-23'
+    );
+    expectBallotCountsInReport(centerSpringfieldReport, 1, 1, 2);
+    expectContestResultsInReport(
+      centerSpringfieldReport,
+      'president',
+      2,
+      0,
+      0,
+      {
+        'marie-curie': 1,
+        'indiana-jones': 0,
+        'mona-lisa': 0,
+        'jackie-chan': 1,
+        'tim-allen': 0,
+        'write-in': 0,
+      }
+    );
+    expectContestResultsInReport(centerSpringfieldReport, 'prop-1', 2, 1, 0, {
+      yes: 1,
+      no: 0,
+    });
+  });
+});
+
+test('saving to card: polls closed from paused, general election, single precinct', async () => {
+  mockPollsState('polls_paused');
+  const { election } = electionSample2Definition;
+
+  fetchMock
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct23ResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    });
+  const { card, renderApp } = buildApp();
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  renderApp();
+  await screen.findByText('Polls Paused');
+
+  // Close the polls
+  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  const pollWorkerCard = makePollWorkerCard(
+    electionSample2Definition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  userEvent.click(screen.getByText('No'));
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(
+    await screen.findByText('Close Polls for Center Springfield')
+  );
+  await screen.findByText('Polls are closed.');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  const expectedCombinedTally = election.contests.map(() => expect.anything());
+  expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
+  const index102 = election.contests.findIndex((c) => c.id === 'prop-1');
+  expectedCombinedTally[index102] = [1, 0, 2, 1, 0]; // measure 102
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
+    '23': expectedCombinedTally,
+  };
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
+    'undefined,__ALL_PRECINCTS': [1, 1],
+    'undefined,23': [1, 1],
+  };
+  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
+  expect(writeLongObjectMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 2,
+      machineId: '0002',
+      timePollsToggled: expect.anything(),
+      timeSaved: expect.anything(),
+      precinctSelection: singlePrecinctSelectionFor('23'),
+      tally: expectedCombinedTally,
+      talliesByPrecinct: expectedTalliesByPrecinct,
+      ballotCounts: expectedBallotCounts,
+      isPollsOpen: false,
+    })
+  );
+});

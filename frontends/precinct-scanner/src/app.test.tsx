@@ -386,6 +386,9 @@ test('election manager and poll worker configuration', async () => {
   mockPollsState('polls_closed_initial');
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '20');
   userEvent.click(screen.getByText('Confirm'));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
   card.removeCard();
   await screen.findByText('Polls Closed');
   await screen.findByText('South Springfield,');
