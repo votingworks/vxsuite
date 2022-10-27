@@ -1,4 +1,4 @@
-import { OkResponse, Scan } from '@votingworks/api';
+import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -274,8 +274,55 @@ export async function buildPrecinctScannerApp(
       });
       return;
     }
+
+    if (getBallotsCounted(store) > 0) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'ballots-cast',
+            message:
+              'cannot change the precinct selection if ballots have been cast',
+          },
+        ],
+      });
+      return;
+    }
+
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
+    store.setPollsState('polls_closed_initial');
     await updateInterpreterConfig(interpreter, workspace);
+    response.json({ status: 'ok' });
+  });
+
+  app.get<NoParams, Scan.GetPollsStateConfigResponse>(
+    '/precinct-scanner/config/polls',
+    (_request, response) => {
+      const pollsState = store.getPollsState();
+      response.json({ status: 'ok', pollsState });
+    }
+  );
+
+  app.put<
+    NoParams,
+    Scan.PutPollsStateConfigResponse,
+    Scan.PutPollsStateConfigRequest
+  >('/precinct-scanner/config/polls', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PutPollsStateConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    store.setPollsState(bodyParseResult.ok().pollsState);
     response.json({ status: 'ok' });
   });
 
@@ -551,9 +598,21 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.post<NoParams, OkResponse>(
+  app.post<NoParams, OkResponse | ErrorsResponse>(
     '/precinct-scanner/scanner/scan',
     (_request, response) => {
+      if (store.getPollsState() !== 'polls_open') {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'polls-closed',
+              message: 'cannot scan ballots while polls are closed',
+            },
+          ],
+        });
+        return;
+      }
       machine.scan();
       response.json({ status: 'ok' });
     }

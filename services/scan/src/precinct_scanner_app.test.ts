@@ -8,6 +8,7 @@ import {
   CastVoteRecord,
   err,
   ok,
+  PollsState,
   PrecinctId,
   Result,
 } from '@votingworks/types';
@@ -126,11 +127,17 @@ function postTemplate(
     .expect(200, { status: 'ok' });
 }
 
-async function setAppPrecinct(app: Application, precinctId?: PrecinctId) {
-  await put(app, '/precinct-scanner/config/precinct', {
+function setAppPrecinct(app: Application, precinctId?: PrecinctId) {
+  return put(app, '/precinct-scanner/config/precinct', {
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(precinctId)
       : ALL_PRECINCTS_SELECTION,
+  });
+}
+
+function setPollsState(app: Application, pollsState: PollsState) {
+  return put(app, '/precinct-scanner/config/polls', {
+    pollsState,
   });
 }
 
@@ -324,7 +331,12 @@ function mockInterpretation(
 
 async function configureApp(
   app: Application,
-  { addTemplates } = { addTemplates: false }
+  {
+    addTemplates = false,
+    precinctId,
+  }: { addTemplates?: boolean; precinctId?: PrecinctId } = {
+    addTemplates: false,
+  }
 ) {
   const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
     electionFamousNames2021Fixtures.ballotPackage.asBuffer()
@@ -340,8 +352,9 @@ async function configureApp(
       await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
     }
   }
-  await setAppPrecinct(app);
+  await setAppPrecinct(app, precinctId);
   await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
+  await setPollsState(app, 'polls_open');
 }
 
 test("setting the election also sets precinct if there's only one", async () => {
@@ -555,9 +568,8 @@ test('invalid ballot rejected', async () => {
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
-  await setAppPrecinct(app, '22');
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -586,10 +598,8 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
-
+  await configureApp(app, { precinctId: '23' });
   // Configure for the proper precinct and verify the ballot scans
-  await setAppPrecinct(app, '23');
 
   const validInterpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
@@ -608,9 +618,8 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
 
 test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  await configureApp(app, { addTemplates: true, precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
-  await setAppPrecinct(app, '22');
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -639,10 +648,8 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
-
+  await configureApp(app, { addTemplates: true, precinctId: '21' });
   // Configure for the proper precinct and verify the ballot scans
-  await setAppPrecinct(app, '21');
 
   const validInterpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
@@ -1408,5 +1415,43 @@ describe('POST /precinct-scanner/export', () => {
       expect.anything(),
       expect.objectContaining({ skipImages: true })
     );
+  });
+});
+
+describe('PUT /precinct-scanner/config/precinct', () => {
+  test('will return error status if ballots have been cast', async () => {
+    const { app, mockPlustek } = await createApp();
+    await configureApp(app);
+
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+    await waitForStatus(app, { state: 'ready_to_scan' });
+
+    const interpretation: Scan.SheetInterpretation = {
+      type: 'ValidSheet',
+    };
+
+    await post(app, '/precinct-scanner/scanner/scan');
+    await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+    await post(app, '/precinct-scanner/scanner/accept');
+    await waitForStatus(app, {
+      state: 'accepted',
+      interpretation,
+      ballotsCounted: 1,
+    });
+
+    await request(app)
+      .put('/precinct-scanner/config/precinct')
+      .set('Content-Type', 'application/json')
+      .send({ precinctSelection: singlePrecinctSelectionFor('whatever') })
+      .expect(400);
+  });
+
+  test('will reset polls to closed', async () => {
+    const { app, workspace } = await createApp();
+    await configureApp(app);
+
+    workspace.store.setPollsState('polls_open');
+    await setAppPrecinct(app, '21');
+    expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
   });
 });

@@ -1,24 +1,15 @@
-import React from 'react';
 import fetchMock from 'fetch-mock';
 import { promises as fs } from 'fs';
 import { Scan } from '@votingworks/api';
 import {
   ALL_PRECINCTS_SELECTION,
   TallySourceMachineType,
-  MemoryCard,
-  MemoryHardware,
-  MemoryStorage,
   typedAs,
   readBallotPackageFromFilePointer,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
-import {
-  render,
-  waitFor,
-  fireEvent,
-  screen,
-  within,
-} from '@testing-library/react';
+import { LogEventId } from '@votingworks/logging';
+import { waitFor, screen, within } from '@testing-library/react';
 import {
   fakeKiosk,
   fakeUsbDrive,
@@ -26,7 +17,6 @@ import {
   makePollWorkerCard,
   makeElectionManagerCard,
   makeSystemAdministratorCard,
-  getZeroCompressedTally,
   expectPrint,
 } from '@votingworks/test-utils';
 import { join } from 'path';
@@ -39,7 +29,6 @@ import { AdjudicationReason } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
-import { App } from './app';
 
 import { stateStorageKey } from './app_root';
 import {
@@ -54,6 +43,15 @@ import {
 import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
 import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
+import {
+  mockPrecinctState,
+  mockPrecinctStateChange,
+} from '../test/helpers/mock_precinct_state';
+import { buildApp } from '../test/helpers/build_app';
+import {
+  mockPollsState,
+  mockPollsStateChange,
+} from '../test/helpers/mock_polls_state';
 
 jest.setTimeout(20000);
 
@@ -94,19 +92,11 @@ const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetPrecinctSelectionConfig
     precinctSelection: ALL_PRECINCTS_SELECTION,
   };
 
-const getPrecinctConfigNoPrecinctResponseBody: Scan.GetPrecinctSelectionConfigResponse =
-  {
-    status: 'ok',
-  };
-
 const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
   {
     status: 'ok',
   };
 
-let card: MemoryCard;
-let storage: MemoryStorage;
-let hardware: MemoryHardware;
 let kiosk = fakeKiosk();
 
 const pollWorkerCard = makePollWorkerCard(
@@ -120,13 +110,6 @@ const electionManagerCard = makeElectionManagerCard(
 
 beforeEach(() => {
   jest.useFakeTimers();
-
-  card = new MemoryCard();
-  storage = new MemoryStorage();
-  hardware = MemoryHardware.build({
-    connectCardReader: true,
-    connectPrecinctScanner: true,
-  });
 
   kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
@@ -149,39 +132,36 @@ beforeEach(() => {
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
+    .get('/precinct-scanner/config/polls', {
+      body: { status: 'ok', pollsState: 'polls_closed_initial' },
     });
 });
 
 test('shows setup card reader screen when there is no card reader', async () => {
+  const { hardware, renderApp } = buildApp();
   hardware.setCardReaderConnected(false);
   fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
-  render(<App storage={storage} hardware={hardware} card={card} />);
+  renderApp();
   await screen.findByText('Card Reader Not Detected');
 });
 
-test('initializes app with stored state', async () => {
-  const logger = fakeLogger();
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+test('shows insert USB Drive screen when there is no card reader', async () => {
   kiosk.getUsbDrives.mockResolvedValue([]);
-  fetchMock
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    });
-  render(
-    <App card={card} hardware={hardware} storage={storage} logger={logger} />
-  );
-  await advanceTimersAndPromises(1);
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  buildApp().renderApp();
   await screen.findByText('No USB Drive Detected');
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(1);
+});
 
-  // Insert a pollworker card
-  fetchMock.post('/precinct-scanner/export', {});
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+test('initializes app with stored state', async () => {
+  const { storage, card, renderApp } = buildApp();
+  await storage.set(stateStorageKey, { isSoundMuted: true });
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  renderApp();
+
+  card.insertCard(electionManagerCard);
+  await authenticateElectionManagerCard();
+  await screen.findByText('Unmute Sounds');
 });
 
 test('app can load and configure from a usb stick', async () => {
@@ -191,7 +171,7 @@ test('app can load and configure from a usb stick', async () => {
       overwriteRoutes: true,
     })
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
-  render(<App storage={storage} card={card} hardware={hardware} />);
+  buildApp().renderApp();
   await screen.findByText('Loading Configuration…');
   await advanceTimersAndPromises(1);
   await screen.findByText('VxScan is Not Configured');
@@ -258,10 +238,6 @@ test('app can load and configure from a usb stick', async () => {
   readBallotPackageFromFilePointerMock.mockResolvedValue(ballotPackage);
 
   fetchMock
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    })
     .patchOnce('/precinct-scanner/config/election', {
       body: typedAs<Scan.PatchElectionConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -297,25 +273,14 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('election manager must set precinct', async () => {
-  fetchMock
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .get(
-      '/precinct-scanner/config/precinct',
-      {
-        body: getPrecinctConfigNoPrecinctResponseBody,
-      },
-      { overwriteRoutes: true }
-    )
-    .putOnce('/precinct-scanner/config/precinct', {
-      body: { status: 'ok' },
-    });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
+  mockPrecinctState(undefined);
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  const { card, renderApp } = buildApp();
+  renderApp();
   await screen.findByText('No Precinct Selected');
 
   // Poll Worker card does nothing
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('No Precinct Selected');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -324,13 +289,9 @@ test('election manager must set precinct', async () => {
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   screen.getByText(SELECT_PRECINCT_TEXT);
+  mockPrecinctStateChange(singlePrecinctSelectionFor('23'));
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
-  expect(
-    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
-  ).toHaveLength(1);
   card.removeCard();
-  await advanceTimersAndPromises(1);
-
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
   screen.getByText('Center Springfield,');
@@ -338,169 +299,148 @@ test('election manager must set precinct', async () => {
   // Poll Worker card can be used to open polls now
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
 });
 
 test('election manager and poll worker configuration', async () => {
-  const logger = fakeLogger();
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  const { card, renderApp, logger } = buildApp();
   fetchMock
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
-  render(
-    <App card={card} hardware={hardware} storage={storage} logger={logger} />
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('No USB Drive Detected');
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(1);
+  renderApp();
   await screen.findByText('Polls Closed');
 
-  // Insert a pollworker card
-  fetchMock.post('/precinct-scanner/export', {});
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
-
-  // Basic auth logging check
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthLogin,
-    'poll_worker',
-    expect.objectContaining({ disposition: 'success' })
-  );
-
-  // Open Polls
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText(
-    'Insert poll worker card into VxMark to print the report.'
-  );
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 0,
-      machineId: '0002',
-      timeSaved: expect.anything(),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: getZeroCompressedTally(electionSampleDefinition.election),
-    })
-  );
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
-
-  // Remove poll worker card to see Insert Ballot Screen
-  card.removeCard();
-  await screen.findByText('Insert Your Ballot Below');
-  await screen.findByText('Scan one ballot sheet at a time.');
-  await screen.findByText('General Election');
-  await screen.findByText('All Precincts,');
-  await screen.findByText('Franklin County,');
-  await screen.findByText('State of Hamilton');
-  await screen.findByText('Election ID');
-  await screen.findByText('748dc61ad3');
-
-  // Change mode with Election Manager card
-  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateElectionManagerCard();
-  fireEvent.click(await screen.findByText('Live Election Mode'));
-  await screen.findByText('Loading');
-  await advanceTimersAndPromises(1);
-  expect(
-    fetchMock.calls('/precinct-scanner/config/testMode', { method: 'PATCH' })
-  ).toHaveLength(1);
-
-  // Remove Card and check polls were reset to closed.
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Polls Closed');
-
-  // Open Polls again
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText(
-    'Insert poll worker card into VxMark to print the report.'
-  );
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-
-  // Change precinct with Election Manager card
-  fetchMock.putOnce('/precinct-scanner/config/precinct', {
-    body: { status: 'ok' },
-  });
-  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateElectionManagerCard();
-  fireEvent.change(await screen.findByTestId('selectPrecinct'), {
-    target: { value: '23' },
-  });
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-
-  // Verify polls were closed and the right precinct was set
-  await screen.findByText('Polls Closed');
-  await screen.findByText('Center Springfield,');
-
-  // Calibrate scanner with Election Manager card
+  // Calibrate scanner as Election Manager
   fetchMock.post('/precinct-scanner/scanner/calibrate', {
     body: { status: 'ok' },
   });
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
-  fireEvent.click(await screen.findByText('Calibrate Scanner'));
+  userEvent.click(await screen.findByText('Calibrate Scanner'));
   await screen.findByText('Waiting for Paper');
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('Waiting for Paper')).toBeNull();
-  fireEvent.click(await screen.findByText('Calibrate Scanner'));
-  fetchMock.getOnce(
-    '/precinct-scanner/scanner/status',
-    { body: statusReadyToScan },
-    { overwriteRoutes: true }
-  );
+  userEvent.click(await screen.findByText('Calibrate Scanner'));
+  fetchMock
+    .getOnce(
+      '/precinct-scanner/scanner/status',
+      { body: statusReadyToScan },
+      { overwriteRoutes: true }
+    )
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   await advanceTimersAndPromises();
-  fireEvent.click(await screen.findByText('Calibrate'));
+  userEvent.click(await screen.findByText('Calibrate'));
   expect(fetchMock.calls('/precinct-scanner/scanner/calibrate')).toHaveLength(
     1
   );
   await advanceTimersAndPromises();
   await screen.findByText('Calibration succeeded!');
-  fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+  // Change mode as Election Manager
+  userEvent.click(await screen.findByText('Live Election Mode'));
+  await screen.findByText('Loading');
+  await advanceTimersAndPromises(1);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'election_manager',
+    expect.objectContaining({ disposition: 'success' })
+  );
+  expect(
+    fetchMock.calls('/precinct-scanner/config/testMode', { method: 'PATCH' })
+  ).toHaveLength(1);
+
+  // Change precinct as Election Manager
+  mockPrecinctStateChange(singlePrecinctSelectionFor('23'));
+  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  // Open the polls
+  fetchMock.post('/precinct-scanner/export', {});
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'poll_worker',
+    expect.objectContaining({ disposition: 'success' })
+  );
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  // Change precinct as Election Manager with polls open
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
+  await authenticateElectionManagerCard();
+  userEvent.click(screen.getByText('Change Precinct'));
+  screen.getByText(/WARNING/);
+  mockPrecinctStateChange(singlePrecinctSelectionFor('20'));
+  mockPollsState('polls_closed_initial');
+  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '20');
+  userEvent.click(screen.getByText('Confirm'));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+  card.removeCard();
+  await screen.findByText('Polls Closed');
+  await screen.findByText('South Springfield,');
+
+  // Open the polls again
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(2);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'poll_worker',
+    expect.objectContaining({ disposition: 'success' })
+  );
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await advanceTimersAndPromises(1);
 
   // Remove card and insert election manager card to unconfigure
   fetchMock
     .get(
       '/precinct-scanner/scanner/status',
-      { body: { ...statusNoPaper, canUnconfigure: true } },
+      { body: { ...statusNoPaper, canUnconfigure: true, ballotsCounted: 1 } },
       { overwriteRoutes: true }
     )
     .delete('./precinct-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
     });
-  card.removeCard();
-  await advanceTimersAndPromises(1);
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
-  fireEvent.click(
+  // Confirm we can't unconfigure just by changing precinct
+  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );
   await screen.findByText(
     'Do you want to remove all election information and data from this machine?'
   );
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(
     screen.queryByText(
       'Do you want to remove all election information and data from this machine?'
     )
   ).toBeNull();
-  fireEvent.click(
+  userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );
-  fireEvent.click(await screen.findByText('Yes, Delete All'));
+  userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
   await waitFor(() =>
     expect(
@@ -513,25 +453,28 @@ test('election manager and poll worker configuration', async () => {
 });
 
 test('voter can cast a ballot that scans successfully ', async () => {
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const { card, renderApp } = buildApp();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  fetchMock.getOnce('/precinct-scanner/scanner/status', {
+  mockPollsState('polls_open');
+  fetchMock.get('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
+  renderApp();
   await screen.findByText('Insert Your Ballot Below');
-  await screen.findByText('Scan one ballot sheet at a time.');
-  await screen.findByText('General Election');
-  await screen.findByText(/Franklin County/);
-  await screen.findByText(/State of Hamilton/);
-  await screen.findByText('Election ID');
-  await screen.findByText('748dc61ad3');
-
+  screen.getByText('Scan one ballot sheet at a time.');
+  screen.getByText('General Election');
+  screen.getByText(/Franklin County/);
+  screen.getByText(/State of Hamilton/);
+  screen.getByText('Election ID');
+  screen.getByText('748dc61ad3');
   fetchMock
-    .getOnce('/precinct-scanner/scanner/status', {
-      body: scannerStatus({ state: 'ready_to_scan' }),
-    })
+    .getOnce(
+      '/precinct-scanner/scanner/status',
+      {
+        body: scannerStatus({ state: 'ready_to_scan' }),
+      },
+      { overwriteRoutes: true }
+    )
     .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
@@ -558,7 +501,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Scan one ballot sheet at a time.');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
   expect(fetchMock.done()).toBe(true);
-
   // Insert a pollworker card
   fetchMock.post('/precinct-scanner/export', {
     _precinctId: '23',
@@ -569,12 +511,13 @@ test('voter can cast a ballot that scans successfully ', async () => {
     'county-registrar-of-wills': ['write-in'],
     'judicial-robert-demergue': ['yes'],
   });
+
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
 
   // Close Polls
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
@@ -624,21 +567,21 @@ test('voter can cast a ballot that scans successfully ', async () => {
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   await screen.findByText('Election Manager Settings');
-  fireEvent.click(await screen.findByText('Save CVRs'));
+  userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
-  fireEvent.click(await screen.findByText('Save CVRs'));
+  userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   // Insert usb drive
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   await advanceTimersAndPromises(2);
-  fireEvent.click(await screen.findByText('Save CVRs'));
+  userEvent.click(await screen.findByText('Save CVRs'));
 
   expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
-  fireEvent.click(await screen.findByText('Save'));
+  userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
   expect(kiosk.writeFile).toHaveBeenCalledTimes(2);
   expect(kiosk.writeFile).toHaveBeenNthCalledWith(
@@ -651,17 +594,17 @@ test('voter can cast a ballot that scans successfully ', async () => {
     )
   );
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(3);
-  fireEvent.click(await screen.findByText('Eject USB'));
+  userEvent.click(await screen.findByText('Eject USB'));
   expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+  mockPollsState('polls_open');
   fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
-  render(<App storage={storage} card={card} hardware={hardware} />);
+  buildApp().renderApp();
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
@@ -704,9 +647,9 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
 
-  fireEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   await screen.findByText('Are you sure?');
-  fireEvent.click(
+  userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
 
@@ -719,11 +662,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 });
 
 test('voter can cast a rejected ballot', async () => {
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+  mockPollsState('polls_open');
   fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
-  render(<App storage={storage} card={card} hardware={hardware} />);
+  buildApp().renderApp();
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
@@ -768,11 +711,11 @@ test('voter can cast a rejected ballot', async () => {
 });
 
 test('voter can cast another ballot while the success screen is showing', async () => {
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+  mockPollsState('polls_open');
   fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
   });
-  render(<App storage={storage} card={card} hardware={hardware} />);
+  buildApp().renderApp();
   await screen.findByText('Your ballot was counted!');
   await screen.findByText('General Election');
   await screen.findByText(/Franklin County/);
@@ -820,18 +763,18 @@ test('scanning is not triggered when polls closed or cards present', async () =>
     })
     // Mock the scan endpoint just so we can check that we don't hit it
     .post('/precinct-scanner/scanner/scan', { status: 500 });
-
-  render(<App storage={storage} card={card} hardware={hardware} />);
+  const { card, renderApp } = buildApp();
+  renderApp();
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
   // We should see 15 ballots were scanned
-  fireEvent.click(screen.getAllByText('No')[0]);
+  userEvent.click(screen.getAllByText('No')[0]);
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
   // Open Polls
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText('Polls are open.');
 
   // Once we remove the poll worker card, scanning should start
@@ -847,22 +790,17 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 });
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
-  fetchMock
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  const { card, renderApp } = buildApp();
+  renderApp();
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
 
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -871,9 +809,9 @@ test('no printer: poll worker can open and close polls without scanning any ball
 
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -883,22 +821,16 @@ test('no printer: poll worker can open and close polls without scanning any ball
 });
 
 test('with printer: poll worker can open and close polls without scanning any ballots', async () => {
-  hardware.setPrinterConnected(true);
-  fetchMock
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  const { card, renderApp } = buildApp(true);
+  renderApp();
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
 
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
+  mockPollsStateChange('polls_open');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Open the Polls' }));
   await screen.findByText('Polls are open.');
   await expectPrint();
@@ -916,8 +848,8 @@ test('with printer: poll worker can open and close polls without scanning any ba
 
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
+  mockPollsStateChange('polls_closed_final');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Close the Polls' }));
   await screen.findByText('Polls are closed.');
   await expectPrint();
@@ -935,23 +867,18 @@ test('with printer: poll worker can open and close polls without scanning any ba
 });
 
 test('no printer: open polls, scan ballot, close polls, save results', async () => {
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  const { card, renderApp } = buildApp();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  fetchMock
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
-    .patchOnce('/precinct-scanner/config/testMode', {
-      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
-      status: 200,
-    });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
+  renderApp();
   await screen.findByText('Polls Closed');
   fetchMock.post('/precinct-scanner/export', {});
 
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -1008,10 +935,9 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
     { overwriteRoutes: true }
   );
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
   await screen.findByText(
@@ -1053,13 +979,69 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   await screen.findByText('Polls Closed');
 });
 
+test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  const { card, renderApp } = buildApp();
+  renderApp();
+  await screen.findByText('Polls Closed');
+  fetchMock.post('/precinct-scanner/export', {});
+
+  // Open Polls
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Pause Polls Flow
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to close the polls?');
+  userEvent.click(await screen.findByText('No'));
+  mockPollsStateChange('polls_paused');
+  userEvent.click(await screen.findByText('Pause Polls for All Precincts'));
+  await screen.findByText('Pausing Polls…');
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await screen.findByText('Polls Paused');
+
+  // Unpause Polls Flow
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to open the polls?');
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close Polls Flow
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to close the polls?');
+  mockPollsStateChange('polls_closed_final');
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Closing Polls…');
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
+  card.removeCard();
+  await screen.findByText('Polls Closed');
+});
+
 test('system administrator can log in and unconfigure machine', async () => {
   fetchMock
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .delete('/precinct-scanner/config/election?ignoreBackupRequirement=true', {
       body: deleteElectionConfigResponseBody,
     });
-  render(<App card={card} storage={storage} hardware={hardware} />);
+  const { card, renderApp } = buildApp();
+  renderApp();
 
   card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
@@ -1097,16 +1079,53 @@ test('system administrator allowed to log in on unconfigured machine', async () 
     )
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
 
-  render(<App card={card} storage={storage} hardware={hardware} />);
+  const { card, renderApp } = buildApp();
+  renderApp();
 
   card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
 });
 
+test('system administrator can reset polls to paused', async () => {
+  mockPollsState('polls_closed_final');
+  fetchMock
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .delete('/precinct-scanner/config/election?ignoreBackupRequirement=true', {
+      body: deleteElectionConfigResponseBody,
+    });
+  const { card, renderApp } = buildApp();
+  renderApp();
+  await screen.findByText('Polls Closed');
+
+  card.insertCard(makeSystemAdministratorCard());
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
+
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Reset Polls to Paused' })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  mockPollsStateChange('polls_paused');
+  userEvent.click(
+    await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  card.removeCard();
+  await screen.findByText('Polls Paused');
+});
+
 test('election manager cannot auth onto machine with different election hash', async () => {
   fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
 
-  render(<App card={card} storage={storage} hardware={hardware} />);
+  const { card, renderApp } = buildApp();
+  renderApp();
 
   card.insertCard(
     makeElectionManagerCard(electionSample2Definition.electionHash)
@@ -1115,11 +1134,12 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('replace ballot bag flow', async () => {
-  await storage.set(stateStorageKey, { isPollsOpen: true });
+  mockPollsState('polls_open');
   fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  const { card, renderApp } = buildApp();
+  renderApp();
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1208,8 +1228,9 @@ test('replace ballot bag flow', async () => {
 });
 
 test('uses storage for frontend state', async () => {
+  mockPollsState('polls_open');
+  const { card, storage, renderApp } = buildApp();
   await storage.set(stateStorageKey, {
-    isPollsOpen: true,
     isSoundMuted: true,
     ballotCountWhenBallotBagLastReplaced: BALLOT_BAG_CAPACITY,
   });
@@ -1219,10 +1240,7 @@ test('uses storage for frontend state', async () => {
       ballotsCounted: BALLOT_BAG_CAPACITY,
     }),
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
-
-  // Confirm polls status and ballot bag status loaded from storage
+  renderApp();
   await screen.findByText('Insert Your Ballot Below');
 
   // Confirm muted status loaded from storage
@@ -1256,16 +1274,5 @@ test('uses storage for frontend state', async () => {
   await advanceTimersAndPromises(1);
   expect(await storage.get(stateStorageKey)).toMatchObject({
     ballotCountWhenBallotBagLastReplaced: BALLOT_BAG_CAPACITY * 2,
-  });
-
-  // Confirm polls status is saved to storage
-  fetchMock.post('/precinct-scanner/export', {});
-  card.insertCard(pollWorkerCard);
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-  expect(await storage.get(stateStorageKey)).toMatchObject({
-    isPollsOpen: false,
   });
 });

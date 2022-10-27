@@ -8,12 +8,15 @@ import { Prose } from './prose';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
+import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
   logger: Logger;
   primaryText: React.ReactNode;
   unconfigureMachine: () => Promise<void>;
+  showResetPollsToPausedButton?: boolean;
+  resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
   usbDriveStatus: usbstick.UsbDriveStatus;
 }
@@ -27,6 +30,8 @@ export function SystemAdministratorScreenContents({
   logger,
   primaryText,
   unconfigureMachine,
+  showResetPollsToPausedButton,
+  resetPollsToPaused,
   isMachineConfigured,
   usbDriveStatus,
 }: Props): JSX.Element {
@@ -36,6 +41,14 @@ export function SystemAdministratorScreenContents({
         <p>{primaryText}</p>
         {displayRemoveCardToLeavePrompt && (
           <p>Remove the System Administrator card to leave this screen.</p>
+        )}
+        {showResetPollsToPausedButton && (
+          <p>
+            <ResetPollsToPausedButton
+              resetPollsToPaused={resetPollsToPaused}
+              logger={logger}
+            />
+          </p>
         )}
         <p>
           <RebootFromUsbButton

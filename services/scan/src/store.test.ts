@@ -101,6 +101,15 @@ test('get current mark thresholds falls back to election definition defaults', (
   });
 });
 
+test('get/set polls state', () => {
+  const store = Store.memoryStore();
+
+  expect(store.getPollsState()).toEqual('polls_closed_initial');
+
+  store.setPollsState('polls_open');
+  expect(store.getPollsState()).toEqual('polls_open');
+});
+
 test('HMPB template handling', () => {
   const store = Store.memoryStore();
   const metadata: BallotMetadata = {

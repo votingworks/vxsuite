@@ -1,22 +1,18 @@
-import { act, screen, render, fireEvent } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import {
-  advanceTimersAndPromises,
-  Inserted,
-  mockOf,
-} from '@votingworks/test-utils';
+import { fakeKiosk, Inserted, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
-  usbstick,
 } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import fetchMock from 'fetch-mock';
-import { AppContext } from '../contexts/app_context';
-import { PollWorkerScreen } from './poll_worker_screen';
+import userEvent from '@testing-library/user-event';
+import { AppContext, AppContextInterface } from '../contexts/app_context';
+import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -29,25 +25,22 @@ MockDate.set('2020-10-31T00:00:00.000Z');
 
 beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
-  jest.useFakeTimers();
   window.location.href = '/';
   fetchMock.post('/precinct-scanner/export', {});
+  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
   window.kiosk = undefined;
-  jest.useRealTimers();
 });
 
 function renderScreen({
-  scannedBallotCount = 0,
-  isPollsOpen = false,
-  auth = Inserted.fakePollWorkerAuth(),
+  appContextProps = {},
+  pollWorkerScreenProps = {},
 }: {
-  scannedBallotCount?: number;
-  isPollsOpen?: boolean;
-  auth?: InsertedSmartcardAuth.PollWorkerLoggedIn;
-}): void {
+  appContextProps?: Partial<AppContextInterface>;
+  pollWorkerScreenProps?: Partial<PollWorkerScreenProps>;
+} = {}): void {
   render(
     <AppContext.Provider
       value={{
@@ -55,121 +48,192 @@ function renderScreen({
         precinctSelection: ALL_PRECINCTS_SELECTION,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         isSoundMuted: false,
-        auth,
+        auth: Inserted.fakePollWorkerAuth(),
+        ...appContextProps,
       }}
     >
       <PollWorkerScreen
-        scannedBallotCount={scannedBallotCount}
-        isPollsOpen={isPollsOpen}
-        togglePollsOpen={jest.fn()}
+        scannedBallotCount={0}
+        pollsState="polls_closed_initial"
+        updatePollsState={jest.fn()}
         isLiveMode
         hasPrinterAttached={false}
-        usbDrive={{
-          status: usbstick.UsbDriveStatus.absent,
-          eject: jest.fn(),
-        }}
+        {...pollWorkerScreenProps}
       />
     </AppContext.Provider>
   );
 }
 
-describe('shows Export Results button only when polls are closed and more than 0 ballots have been cast', () => {
-  const exportButtonText = 'Save Results to USB Drive';
-
-  test('no ballots and polls closed should not show button', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
-        scannedBallotCount: 0,
-        isPollsOpen: false,
-      });
-      jest.advanceTimersByTime(2000);
-    });
-    fireEvent.click(screen.getAllByText('No')[0]);
-
-    expect(screen.queryByText(exportButtonText)).toBeNull();
-  });
-
-  test('no ballots and polls open should not show button', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
-        scannedBallotCount: 0,
-        isPollsOpen: true,
-      });
-    });
-    fireEvent.click(screen.getAllByText('No')[0]);
-    expect(screen.queryByText(exportButtonText)).toBeNull();
-  });
-
-  test('five ballots and polls open should not show button', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
-        scannedBallotCount: 5,
-        isPollsOpen: true,
-      });
-      jest.advanceTimersByTime(2000);
-    });
-    fireEvent.click(screen.getAllByText('No')[0]);
-
-    expect(screen.queryByText(exportButtonText)).toBeNull();
-  });
-
-  test('five ballots and polls closed should show button', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
-        scannedBallotCount: 5,
-        isPollsOpen: false,
-      });
-      jest.advanceTimersByTime(2000);
-    });
-    fireEvent.click(screen.getAllByText('No')[0]);
-    await advanceTimersAndPromises(1);
-    await advanceTimersAndPromises(1);
-    await screen.findByText('Save Results to USB Drive');
-
-    expect(screen.queryByText(exportButtonText)).toBeTruthy();
-  });
-});
+function readableFakePollWorkerAuth(): InsertedSmartcardAuth.PollWorkerLoggedIn {
+  const auth = Inserted.fakePollWorkerAuth();
+  return {
+    ...auth,
+    card: {
+      ...auth.card,
+      readStoredObject: jest.fn().mockResolvedValue({
+        ok: () => '',
+      }),
+    },
+  };
+}
 
 describe('shows Livecheck button only when enabled', () => {
   test('enable livecheck', async () => {
     mocked(isFeatureFlagEnabled).mockReturnValue(true);
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
+    renderScreen({
+      pollWorkerScreenProps: {
         scannedBallotCount: 5,
-        isPollsOpen: true,
-      });
-      jest.advanceTimersByTime(2000);
+        pollsState: 'polls_open',
+      },
     });
 
-    fireEvent.click(screen.queryAllByText('No')[0]);
+    userEvent.click(await screen.findByText('No'));
     expect(screen.queryByText('Live Check')).toBeTruthy();
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      fireEvent.click(screen.getByText('Live Check'));
-    });
-    screen.getByText('Done');
+    userEvent.click(screen.getByText('Live Check'));
+    await screen.findByText('Done');
   });
 
   test('disable livecheck', async () => {
     mocked(isFeatureFlagEnabled).mockReturnValue(false);
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    await act(async () => {
-      renderScreen({
+    renderScreen({
+      pollWorkerScreenProps: {
         scannedBallotCount: 5,
-        isPollsOpen: true,
-      });
-      jest.advanceTimersByTime(2000);
+        pollsState: 'polls_open',
+      },
     });
 
-    fireEvent.click(screen.queryAllByText('No')[0]);
+    userEvent.click(await screen.findByText('No'));
     expect(screen.queryByText('Live Check')).toBeFalsy();
   });
+});
+
+describe('transitions from polls closed', () => {
+  let updatePollsState = jest.fn();
+  beforeEach(async () => {
+    updatePollsState = jest.fn();
+    renderScreen({
+      pollWorkerScreenProps: {
+        scannedBallotCount: 0,
+        pollsState: 'polls_closed_initial',
+        updatePollsState,
+      },
+      appContextProps: {
+        auth: readableFakePollWorkerAuth(),
+      },
+    });
+    await screen.findByText('Do you want to open the polls?');
+  });
+
+  test('open polls happy path', async () => {
+    userEvent.click(screen.getByText('Yes, Open the Polls'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls are open.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+  });
+
+  test('open polls from landing screen', async () => {
+    userEvent.click(screen.getByText('No'));
+    userEvent.click(await screen.findByText('Open Polls for All Precincts'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls are open.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+  });
+});
+
+describe('transitions from polls open', () => {
+  let updatePollsState = jest.fn();
+  beforeEach(async () => {
+    updatePollsState = jest.fn();
+    renderScreen({
+      pollWorkerScreenProps: {
+        scannedBallotCount: 0,
+        pollsState: 'polls_open',
+        updatePollsState,
+      },
+      appContextProps: {
+        auth: readableFakePollWorkerAuth(),
+      },
+    });
+    await screen.findByText('Do you want to close the polls?');
+  });
+
+  test('close polls happy path', async () => {
+    userEvent.click(screen.getByText('Yes, Close the Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls are closed.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+  });
+
+  test('close polls from landing screen', async () => {
+    userEvent.click(screen.getByText('No'));
+    userEvent.click(await screen.findByText('Close Polls for All Precincts'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls are closed.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+  });
+
+  test('pause polls', async () => {
+    userEvent.click(screen.getByText('No'));
+    userEvent.click(await screen.findByText('Pause Polls for All Precincts'));
+    await screen.findByText('Pausing Polls…');
+    await screen.findByText('Polls are paused.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_paused');
+  });
+});
+
+describe('transitions from polls paused', () => {
+  let updatePollsState = jest.fn();
+  beforeEach(async () => {
+    updatePollsState = jest.fn();
+    renderScreen({
+      pollWorkerScreenProps: {
+        scannedBallotCount: 0,
+        pollsState: 'polls_paused',
+        updatePollsState,
+      },
+      appContextProps: {
+        auth: readableFakePollWorkerAuth(),
+      },
+    });
+    await screen.findByText('Do you want to open the polls?');
+  });
+
+  test('open polls happy path', async () => {
+    userEvent.click(screen.getByText('Yes, Open the Polls'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls are open.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+  });
+
+  test('open polls from landing screen', async () => {
+    userEvent.click(screen.getByText('No'));
+    userEvent.click(await screen.findByText('Open Polls for All Precincts'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls are open.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+  });
+
+  test('close polls from landing screen', async () => {
+    userEvent.click(screen.getByText('No'));
+    userEvent.click(await screen.findByText('Close Polls for All Precincts'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls are closed.');
+    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+  });
+});
+
+test('no transitions from polls closed final', async () => {
+  renderScreen({
+    pollWorkerScreenProps: {
+      scannedBallotCount: 0,
+      pollsState: 'polls_closed_final',
+    },
+  });
+  await screen.findByText(
+    'Voting is complete and the polls cannot be re-opened.'
+  );
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });

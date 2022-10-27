@@ -4,6 +4,7 @@ import {
   MarkThresholds,
   safeParseJson,
   PrecinctSelection,
+  PollsState,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
@@ -163,6 +164,23 @@ export async function setPrecinctSelection(
       precinctSelection,
     }
   );
+}
+
+export async function getPollsState(): Promise<PollsState> {
+  return safeParseJson(
+    await (
+      await fetch('/precinct-scanner/config/polls', {
+        headers: { Accept: 'application/json' },
+      })
+    ).text(),
+    Scan.GetPollsStateConfigResponseSchema
+  ).unsafeUnwrap().pollsState;
+}
+
+export async function setPollsState(pollsState: PollsState): Promise<void> {
+  await put<Scan.PutPollsStateConfigRequest>('/precinct-scanner/config/polls', {
+    pollsState,
+  });
 }
 
 export interface AddTemplatesEvents extends EventEmitter {

@@ -6,17 +6,14 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Scan } from '@votingworks/api';
 import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import {
-  ALL_PRECINCTS_NAME,
-  singlePrecinctSelectionFor,
-  usbstick,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { AppContext, AppContextInterface } from '../contexts/app_context';
@@ -64,6 +61,7 @@ function renderScreen({
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
+        pollsState="polls_closed_initial"
         updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
@@ -108,7 +106,7 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('setting the precinct', async () => {
+test('option to set precinct if more than one', async () => {
   const updatePrecinctSelection = jest.fn();
   renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
 
@@ -116,16 +114,14 @@ test('setting the precinct', async () => {
   const selectPrecinct = await screen.findByTestId('selectPrecinct');
 
   // set precinct
-  fireEvent.change(selectPrecinct, {
-    target: { value: electionSampleDefinition.election.precincts[0].id },
-  });
+  userEvent.selectOptions(selectPrecinct, precinct.id);
   expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
     1,
     expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
   );
 });
 
-test('no All Precincts option if only one precinct', async () => {
+test('no option to change precinct if there is only one precinct', async () => {
   renderScreen({
     appContextProps: {
       electionDefinition:
@@ -134,10 +130,8 @@ test('no All Precincts option if only one precinct', async () => {
     },
   });
 
-  // Should have precinct name in both the select and the footer
-  within(await screen.findByTestId('selectPrecinct')).getByText('Precinct 1');
-  within(await screen.findByTestId('electionInfoBar')).getByText('Precinct 1,');
-  expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
+  await screen.findByText('Election Manager Settings');
+  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
 });
 
 test('export from admin screen', () => {

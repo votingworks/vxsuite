@@ -27,6 +27,8 @@ import {
   Optional,
   PageInterpretation,
   PageInterpretationWithFiles,
+  PollsState as PollsStateType,
+  PollsStateSchema,
   PrecinctSelection as PrecinctSelectionType,
   PrecinctSelectionSchema,
   safeParseJson,
@@ -70,6 +72,7 @@ export enum ConfigKey {
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
   PrecinctSelection = 'precinctSelection',
+  PollsState = 'pollsState',
 }
 
 export enum BackupKey {
@@ -329,6 +332,24 @@ export class Store {
    */
   setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
     this.setConfig(ConfigKey.PrecinctSelection, precinctSelection);
+  }
+
+  /**
+   * Gets the current polls state (open, paused, closed initial, or closed final)
+   */
+  getPollsState(): PollsStateType {
+    return this.getConfig(
+      ConfigKey.PollsState,
+      'polls_closed_initial',
+      PollsStateSchema
+    );
+  }
+
+  /**
+   * Sets the current polls state
+   */
+  setPollsState(pollsState: PollsStateType): void {
+    this.setConfig(ConfigKey.PollsState, pollsState);
   }
 
   /**
@@ -604,6 +625,7 @@ export class Store {
     this.client.run('delete from batches');
     // reset autoincrementing key on "batches" table
     this.client.run("delete from sqlite_sequence where name = 'batches'");
+    this.setConfig(ConfigKey.PollsState, 'polls_closed_initial');
   }
 
   getBallotFilenames(

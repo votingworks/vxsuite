@@ -102,6 +102,7 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  ResetPollsToPaused = 'reset-polls-to-paused',
   // VxScan service state machine logs
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
@@ -729,6 +730,16 @@ const RebootMachine: LogDetails = {
   documentationMessage: 'User has triggered a reboot of the machine.',
 };
 
+const ResetPollsToPaused: LogDetails = {
+  eventId: LogEventId.ResetPollsToPaused,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has reset the polls from closed to paused.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
 const ScannerEvent: LogDetails = {
   eventId: LogEventId.ScannerEvent,
   eventType: LogEventType.ApplicationAction,
@@ -905,6 +916,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrepareBootFromUsbComplete;
     case LogEventId.RebootMachine:
       return RebootMachine;
+    case LogEventId.ResetPollsToPaused:
+      return ResetPollsToPaused;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
