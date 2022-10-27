@@ -32,3 +32,18 @@ export function getPrecinctSelectionName(
 
   return find(precincts, (p) => p.id === precinctSelection.precinctId).name;
 }
+
+export function areEqualPrecinctSelections(
+  precinctSelectionOne: PrecinctSelection,
+  precinctSelectionTwo: PrecinctSelection
+): boolean {
+  if (precinctSelectionOne.kind === 'AllPrecincts') {
+    return precinctSelectionTwo.kind === 'AllPrecincts';
+  }
+
+  if (precinctSelectionTwo.kind === 'AllPrecincts') {
+    return false;
+  }
+
+  return precinctSelectionOne.precinctId === precinctSelectionTwo.precinctId;
+}

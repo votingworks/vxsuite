@@ -9,6 +9,7 @@ export * from './geometry';
 export * from './image';
 export * from './interpretation';
 export * from './numeric';
+export * from './polls';
 export * from './precinct_selection';
 export * from './printing';
 export * from './result';
