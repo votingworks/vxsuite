@@ -143,3 +143,36 @@ test('Quit button does nothing when kiosk is undefined', () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Quit' }));
 });
+
+test('Reset Polls to Paused button not rendered if not specified', () => {
+  render(
+    <SystemAdministratorScreenContents
+      logger={fakeLogger()}
+      primaryText="Primary Text"
+      unconfigureMachine={jest.fn()}
+      resetPollsToPaused={jest.fn()}
+      isMachineConfigured
+      usbDriveStatus={usbstick.UsbDriveStatus.mounted}
+    />
+  );
+
+  expect(
+    screen.queryByRole('button', { name: 'Reset Polls to Paused' })
+  ).not.toBeInTheDocument();
+});
+
+test('Reset Polls to Paused rendered if callback and flag specified', () => {
+  render(
+    <SystemAdministratorScreenContents
+      logger={fakeLogger()}
+      primaryText="Primary Text"
+      unconfigureMachine={jest.fn()}
+      isMachineConfigured
+      showResetPollsToPausedButton
+      resetPollsToPaused={jest.fn()}
+      usbDriveStatus={usbstick.UsbDriveStatus.mounted}
+    />
+  );
+
+  screen.getByRole('button', { name: 'Reset Polls to Paused' });
+});
