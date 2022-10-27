@@ -9,9 +9,7 @@ import {
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
-  areEqualPrecinctSelections,
   assert,
-  assertDefined,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -149,13 +147,7 @@ export function ChangePrecinctButton({
               <Button
                 danger
                 onPress={confirmPrecinctChange}
-                disabled={
-                  !unconfirmedPrecinctSelection ||
-                  areEqualPrecinctSelections(
-                    assertDefined(appPrecinctSelection),
-                    unconfirmedPrecinctSelection
-                  )
-                }
+                disabled={!unconfirmedPrecinctSelection}
               >
                 Confirm
               </Button>
