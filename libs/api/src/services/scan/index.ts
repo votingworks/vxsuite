@@ -17,6 +17,8 @@ import {
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
+  PollsState,
+  PollsStateSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
 } from '@votingworks/types';
@@ -273,6 +275,54 @@ export type DeletePrecinctSelectionConfigResponse = OkResponse;
  * @method DELETE
  */
 export const DeletePrecinctSelectionConfigResponseSchema = OkResponseSchema;
+
+/**
+ * @url /config/polls
+ * @method GET
+ */
+export type GetPollsStateConfigResponse = OkResponse<{
+  pollsState: PollsState;
+}>;
+
+/**
+ * @url /config/polls
+ * @method GET
+ */
+export const GetPollsStateConfigResponseSchema: z.ZodSchema<GetPollsStateConfigResponse> =
+  z.object({
+    status: z.literal('ok'),
+    pollsState: PollsStateSchema,
+  });
+
+/**
+ * @url /config/polls
+ * @method PUT
+ */
+export interface PutPollsStateConfigRequest {
+  pollsState: PollsState;
+}
+
+/**
+ * @url /config/polls
+ * @method PUT
+ */
+export const PutPollsStateConfigRequestSchema: z.ZodSchema<PutPollsStateConfigRequest> =
+  z.object({
+    pollsState: PollsStateSchema,
+  });
+
+/**
+ * @url /config/polls
+ * @method PUT
+ */
+export type PutPollsStateConfigResponse = OkResponse | ErrorsResponse;
+
+/**
+ * @url /config/polls
+ * @method PUT
+ */
+export const PutPollsStateConfigResponseSchema: z.ZodSchema<PutPollsStateConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/markThresholdOverrides
