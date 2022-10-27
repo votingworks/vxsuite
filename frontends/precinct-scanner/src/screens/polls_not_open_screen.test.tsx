@@ -5,14 +5,14 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import {
-  PollsClosedScreen,
-  PollsClosedScreenProps,
-} from './polls_closed_screen';
+  PollsNotOpenScreen,
+  PollsNotOpenScreenProps,
+} from './polls_not_open_screen';
 
 const TEST_BALLOT_COUNT = 50;
 const MACHINE_ID = '0003';
 
-function renderScreen(props: Partial<PollsClosedScreenProps> = {}) {
+function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
   render(
     <AppContext.Provider
       value={{
@@ -27,9 +27,10 @@ function renderScreen(props: Partial<PollsClosedScreenProps> = {}) {
         isSoundMuted: false,
       }}
     >
-      <PollsClosedScreen
+      <PollsNotOpenScreen
         showNoChargerWarning={false}
         isLiveMode
+        pollsState="polls_closed_initial"
         scannedBallotCount={TEST_BALLOT_COUNT}
         {...props}
       />
@@ -37,10 +38,26 @@ function renderScreen(props: Partial<PollsClosedScreenProps> = {}) {
   );
 }
 
-describe('PollsClosedScreen', () => {
-  test('shows "Polls Closed"', async () => {
+describe('PollsNotOpenScreen', () => {
+  test('shows correct state on initial polls closed', async () => {
     renderScreen();
     await screen.findByText('Polls Closed');
+    screen.getByText('Insert a poll worker card to open polls.');
+  });
+
+  test('shows correct state on polls paused', async () => {
+    renderScreen({ pollsState: 'polls_paused' });
+    await screen.findByText('Polls Paused');
+    screen.getByText('Insert a poll worker card to open polls.');
+  });
+
+  test('shows correct state on final polls closed', async () => {
+    renderScreen({ pollsState: 'polls_closed_final' });
+    await screen.findByText('Polls Closed');
+    screen.getByText('Voting is complete.');
+    expect(
+      screen.queryByText('Insert a poll worker card to open polls.')
+    ).not.toBeInTheDocument();
   });
 
   test('shows "No Power Detected" when called for', async () => {

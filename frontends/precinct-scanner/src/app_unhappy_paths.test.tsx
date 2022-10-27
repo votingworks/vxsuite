@@ -1,16 +1,8 @@
-import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { fakeLogger } from '@votingworks/logging';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
@@ -21,23 +13,20 @@ import {
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
-import {
-  ALL_PRECINCTS_SELECTION,
-  MemoryCard,
-  MemoryStorage,
-  MemoryHardware,
-  deferred,
-} from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, deferred } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
-import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
-import { stateStorageKey } from './app_root';
+import {
+  mockPollsState,
+  mockPollsStateChange,
+} from '../test/helpers/mock_polls_state';
+import { buildApp } from '../test/helpers/build_app';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -69,6 +58,7 @@ const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
+  mockPollsState('polls_closed_initial');
 });
 
 test('when services/scan does not respond shows loading screen', async () => {
@@ -77,9 +67,7 @@ test('when services/scan does not respond shows loading screen', async () => {
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/precinct-scanner/scanner/status', { status: 404 });
 
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  buildApp().renderApp();
   await screen.findByText('Loading Configuration…');
 });
 
@@ -101,28 +89,26 @@ test('services/scan fails to unconfigure', async () => {
     .get('/precinct-scanner/scanner/status', statusNoPaper)
     .deleteOnce('/precinct-scanner/config/election', { status: 404 });
 
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  const { renderApp, card } = buildApp();
+  renderApp();
   const electionManagerCard = makeElectionManagerCard(
     electionSampleDefinition.electionHash,
     '123456'
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Enter the card security code to unlock.');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
   await screen.findByText('Election Manager Settings');
 
-  fireEvent.click(
+  userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );
-  fireEvent.click(await screen.findByText('Yes, Delete All'));
+  userEvent.click(await screen.findByText('Yes, Delete All'));
 
   await screen.findByText('Loading');
 });
@@ -145,45 +131,37 @@ test('Show invalid card screen when unsupported cards are given', async () => {
     .deleteOnce('/precinct-scanner/config/election', { status: 404 })
     .get('/precinct-scanner/scanner/status', statusNoPaper);
 
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  const { renderApp, card } = buildApp();
+  renderApp();
   await screen.findByText('Polls Closed');
   const voterCard = makeVoterCard(electionSampleDefinition.election);
   card.insertCard(voterCard);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 
   // Insert an invalid card
   card.insertCard(JSON.stringify({ t: 'something' }));
-  await advanceTimersAndPromises(2);
   await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 
   // Insert a voter card which is invalid
   card.insertCard(JSON.stringify({ t: 'voter' }));
-  await advanceTimersAndPromises(2);
   await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 
   const pollWorkerCardWrongElection = makePollWorkerCard(
     electionWithMsEitherNeitherDefinition.electionHash
   );
   card.insertCard(pollWorkerCardWrongElection);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Invalid Card');
 });
 
@@ -205,24 +183,19 @@ test('show card backwards screen when card connection error occurs', async () =>
     .deleteOnce('/precinct-scanner/config/election', { status: 404 })
     .get('/precinct-scanner/scanner/status', statusNoPaper);
 
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  const { renderApp, card } = buildApp();
+  renderApp();
   await screen.findByText('Polls Closed');
   card.insertCard(undefined, undefined, 'error');
-  await advanceTimersAndPromises(1);
   await screen.findByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   card.removeCard();
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 });
 
 test('shows internal wiring message when there is no plustek scanner, but tablet is plugged in', async () => {
-  const card = new MemoryCard();
-  const storage = new MemoryStorage();
-  const hardware = MemoryHardware.buildStandard();
+  const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(false);
   fetchMock
@@ -243,15 +216,13 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
       ...statusNoPaper,
       state: 'disconnected',
     });
-  render(<App card={card} storage={storage} hardware={hardware} />);
+  renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   screen.getByText('Please ask a poll worker for help.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
-  const card = new MemoryCard();
-  const storage = new MemoryStorage();
-  const hardware = MemoryHardware.buildStandard();
+  const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(true);
   fetchMock
@@ -272,7 +243,7 @@ test('shows power cable message when there is no plustek scanner and tablet is n
       ...statusNoPaper,
       state: 'disconnected',
     });
-  render(<App card={card} storage={storage} hardware={hardware} />);
+  renderApp();
   await screen.findByRole('heading', { name: 'No Power Detected' });
   screen.getByText('Please ask a poll worker to plug in the power cord.');
 
@@ -283,7 +254,6 @@ test('shows power cable message when there is no plustek scanner and tablet is n
   );
   act(() => hardware.setPrecinctScannerConnected(true));
   await screen.findByRole('heading', { name: 'Polls Closed' });
-  await advanceTimersAndPromises(1);
   await waitFor(() =>
     expect(fetchMock.lastUrl()).toEqual('/precinct-scanner/scanner/status')
   );
@@ -291,10 +261,8 @@ test('shows power cable message when there is no plustek scanner and tablet is n
 });
 
 test('shows instructions to restart when the plustek crashed', async () => {
-  const card = new MemoryCard();
-  const storage = new MemoryStorage();
-  await storage.set(stateStorageKey, { isPollsOpen: true });
-  const hardware = MemoryHardware.buildStandard();
+  mockPollsState('polls_open');
+  const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
@@ -314,20 +282,16 @@ test('shows instructions to restart when the plustek crashed', async () => {
       ...statusNoPaper,
       state: 'unrecoverable_error',
     });
-  render(<App card={card} storage={storage} hardware={hardware} />);
-
+  renderApp();
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
   screen.getByText('Ask a poll worker to restart the scanner.');
   expect(fetchMock.done()).toBe(true);
 });
 
 test('App shows warning message to connect to power when disconnected', async () => {
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
+  const { renderApp, hardware, card } = buildApp();
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
-  hardware.setPrinterConnected(false);
-  const storage = new MemoryStorage();
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
@@ -346,9 +310,8 @@ test('App shows warning message to connect to power when disconnected', async ()
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderApp();
   fetchMock.post('/precinct-scanner/export', {});
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(
@@ -358,8 +321,9 @@ test('App shows warning message to connect to power when disconnected', async ()
   act(() => {
     hardware.setBatteryDischarging(false);
   });
-  await advanceTimersAndPromises(3);
+
   await screen.findByText('Polls Closed');
+  await advanceTimersAndPromises(3);
   expect(screen.queryByText('No Power Detected.')).toBeNull();
 
   // Open Polls
@@ -367,13 +331,12 @@ test('App shows warning message to connect to power when disconnected', async ()
     electionSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  mockPollsStateChange('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
   // Remove pollworker card
   card.removeCard();
-  await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
@@ -381,16 +344,11 @@ test('App shows warning message to connect to power when disconnected', async ()
   act(() => {
     hardware.setBatteryDischarging(true);
   });
-  await advanceTimersAndPromises(3);
   await screen.findByText('No Power Detected.');
 });
 
 test('removing card during calibration', async () => {
-  const logger = fakeLogger();
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  hardware.setPrinterConnected(false);
-  const storage = new MemoryStorage();
+  const { renderApp, card } = buildApp();
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
@@ -410,19 +368,17 @@ test('removing card during calibration', async () => {
     })
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .post('/precinct-scanner/export', {});
-  render(
-    <App card={card} hardware={hardware} storage={storage} logger={logger} />
-  );
+  renderApp();
 
   // Open Polls
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
   userEvent.click(
     await screen.findByRole('button', { name: 'Yes, Open the Polls' })
   );
+  mockPollsStateChange('polls_open');
   await screen.findByText('Polls are open.');
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');

@@ -6,6 +6,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Scan } from '@votingworks/api';
 import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -64,6 +65,7 @@ function renderScreen({
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
+        pollsState="polls_closed_initial"
         updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
@@ -108,36 +110,77 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('setting the precinct', async () => {
-  const updatePrecinctSelection = jest.fn();
-  renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
+describe('setting the precinct', () => {
+  test('can set with dropdown if polls have not been opened', async () => {
+    const updatePrecinctSelection = jest.fn();
+    renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
 
-  const precinct = electionSampleDefinition.election.precincts[0];
-  const selectPrecinct = await screen.findByTestId('selectPrecinct');
+    const precinct = electionSampleDefinition.election.precincts[0];
+    const selectPrecinct = await screen.findByTestId('selectPrecinct');
 
-  // set precinct
-  fireEvent.change(selectPrecinct, {
-    target: { value: electionSampleDefinition.election.precincts[0].id },
-  });
-  expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
-    1,
-    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
-  );
-});
-
-test('no All Precincts option if only one precinct', async () => {
-  renderScreen({
-    appContextProps: {
-      electionDefinition:
-        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-    },
+    // set precinct
+    userEvent.selectOptions(selectPrecinct, precinct.id);
+    expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
+    );
   });
 
-  // Should have precinct name in both the select and the footer
-  within(await screen.findByTestId('selectPrecinct')).getByText('Precinct 1');
-  within(await screen.findByTestId('electionInfoBar')).getByText('Precinct 1,');
-  expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
+  test('All Precincts not an option in dropdown if only one precinct', async () => {
+    renderScreen({
+      appContextProps: {
+        electionDefinition:
+          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+        precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+      },
+    });
+
+    await screen.findByText('Precinct 1');
+    expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
+  });
+
+  test('shows Change Precinct button instead of polls open and no ballots cast', () => {
+    renderScreen({
+      appContextProps: {
+        precinctSelection: singlePrecinctSelectionFor('23'),
+      },
+      electionManagerScreenProps: {
+        pollsState: 'polls_open',
+      },
+    });
+    screen.getByRole('button', { name: 'Change Precinct' });
+    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  });
+
+  test('shows disabled Change Precinct button if ballots have been cast', () => {
+    renderScreen({
+      appContextProps: {
+        precinctSelection: singlePrecinctSelectionFor('23'),
+      },
+      electionManagerScreenProps: {
+        pollsState: 'polls_open',
+        scannerStatus: {
+          ...scannerStatus,
+          ballotsCounted: 1,
+        },
+      },
+    });
+    expect(screen.queryByText('Change Precinct')).toBeDisabled();
+    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  });
+
+  test('no options to change if polls are closed and final', () => {
+    renderScreen({
+      appContextProps: {
+        precinctSelection: singlePrecinctSelectionFor('23'),
+      },
+      electionManagerScreenProps: {
+        pollsState: 'polls_closed_final',
+      },
+    });
+    expect(screen.queryByText('Change Precinct')).toBeDisabled();
+    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  });
 });
 
 test('export from admin screen', () => {

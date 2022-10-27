@@ -4,11 +4,11 @@ import makeDebug from 'debug';
 
 import {
   Card,
-  OptionalElectionDefinition,
   Provider,
   MarkThresholds,
   ElectionDefinition,
   PrecinctSelection,
+  PollsState,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -41,7 +41,7 @@ import * as scanner from './api/scan';
 import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
-import { PollsClosedScreen } from './screens/polls_closed_screen';
+import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { InsertBallotScreen } from './screens/insert_ballot_screen';
 import { ScanErrorScreen } from './screens/scan_error_screen';
@@ -79,12 +79,12 @@ interface HardwareState {
 interface ScannerConfigState {
   electionDefinition?: ElectionDefinition;
   precinctSelection?: PrecinctSelection;
+  pollsState: PollsState;
   currentMarkThresholds?: MarkThresholds;
   isTestMode: boolean;
 }
 
 interface StoredFrontendState {
-  isPollsOpen: boolean;
   ballotCountWhenBallotBagLastReplaced: number;
   isSoundMuted: boolean;
 }
@@ -111,10 +111,10 @@ const initialScannerConfigState: Readonly<ScannerConfigState> = {
   isTestMode: false,
   currentMarkThresholds: undefined,
   precinctSelection: undefined,
+  pollsState: 'polls_closed_initial',
 };
 
 const initialStoredFrontendState: Readonly<StoredFrontendState> = {
-  isPollsOpen: false,
   ballotCountWhenBallotBagLastReplaced: 0,
   isSoundMuted: false,
 };
@@ -139,16 +139,12 @@ type AppAction =
     }
   | { type: 'resetPollsToClosed' }
   | {
-      type: 'updateElectionDefinition';
-      electionDefinition: OptionalElectionDefinition;
-    }
-  | {
       type: 'refreshConfigFromScanner';
       scannerConfig: ScannerConfigState;
     }
   | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
-  | { type: 'togglePollsOpen' }
+  | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'toggleIsSoundMuted' }
   | { type: 'ballotBagReplaced'; currentBallotCount: number }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
@@ -171,17 +167,10 @@ function appReducer(state: State, action: AppAction): State {
         ...action.storedFrontendState,
         initializedFromStorage: true,
       };
-    case 'updateElectionDefinition':
-      return {
-        ...state,
-        electionDefinition: action.electionDefinition,
-        isPollsOpen: false,
-        ballotCountWhenBallotBagLastReplaced: 0,
-      };
     case 'resetPollsToClosed':
       return {
         ...state,
-        isPollsOpen: false,
+        pollsState: 'polls_closed_initial',
         ballotCountWhenBallotBagLastReplaced: 0,
       };
     case 'refreshConfigFromScanner': {
@@ -195,17 +184,16 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         precinctSelection: action.precinctSelection,
-        isPollsOpen: false,
       };
     case 'updateMarkThresholds':
       return {
         ...state,
         currentMarkThresholds: action.markThresholds,
       };
-    case 'togglePollsOpen':
+    case 'updatePollsState':
       return {
         ...state,
-        isPollsOpen: !state.isPollsOpen,
+        pollsState: action.pollsState,
       };
     case 'toggleIsSoundMuted':
       return {
@@ -242,7 +230,7 @@ export function AppRoot({
     isTestMode,
     precinctSelection,
     currentMarkThresholds,
-    isPollsOpen,
+    pollsState,
     initializedFromStorage,
     machineConfig,
     isSoundMuted,
@@ -282,6 +270,7 @@ export function AppRoot({
     const newPrecinctSelection = await makeCancelable(
       config.getPrecinctSelection()
     );
+    const newPollsState = await makeCancelable(config.getPollsState());
     const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
 
     const scannerConfig: ScannerConfigState = {
@@ -289,6 +278,7 @@ export function AppRoot({
       isTestMode: newIsTestMode,
       currentMarkThresholds: newMarkThresholds,
       precinctSelection: newPrecinctSelection,
+      pollsState: newPollsState,
     };
 
     dispatchAppState({
@@ -346,7 +336,6 @@ export function AppRoot({
         // We use an explicit type here to remind ourselves to store any
         // new fields we add to StoredFrontendState.
         const frontendStateToStore: StoredFrontendState = {
-          isPollsOpen,
           ballotCountWhenBallotBagLastReplaced,
           isSoundMuted,
         };
@@ -357,15 +346,19 @@ export function AppRoot({
     void storeAppState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    isPollsOpen,
     ballotCountWhenBallotBagLastReplaced,
     initializedFromStorage,
     isSoundMuted,
   ]);
 
-  const togglePollsOpen = useCallback(() => {
-    dispatchAppState({ type: 'togglePollsOpen' });
+  const updatePollsState = useCallback(async (newPollsState: PollsState) => {
+    dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
+    await config.setPollsState(newPollsState);
   }, []);
+
+  const resetPollsToClosed = useCallback(async () => {
+    await updatePollsState('polls_paused');
+  }, [updatePollsState]);
 
   const toggleTestMode = useCallback(async () => {
     await config.setTestMode(!isTestMode);
@@ -398,6 +391,7 @@ export function AppRoot({
       precinctSelection: newPrecinctSelection,
     });
     await config.setPrecinctSelection(newPrecinctSelection);
+    await refreshConfig();
   }
 
   async function updateMarkThresholds(markThresholds?: MarkThresholds) {
@@ -418,7 +412,12 @@ export function AppRoot({
   const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
   useEffect(() => {
     async function automaticallyScanAndAcceptBallots() {
-      if (!(isPollsOpen && voterMode && !needsToReplaceBallotBag)) return;
+      if (
+        !(pollsState === 'polls_open' && voterMode && !needsToReplaceBallotBag)
+      ) {
+        return;
+      }
+
       if (scannerStatus?.state === 'ready_to_scan') {
         await scanner.scanBallot();
       } else if (scannerStatus?.state === 'ready_to_accept') {
@@ -458,6 +457,10 @@ export function AppRoot({
           }
           unconfigureMachine={() =>
             unconfigureServer({ ignoreBackupRequirement: true })
+          }
+          showResetPollsToPausedButton
+          resetPollsToPaused={
+            pollsState === 'polls_closed_final' ? resetPollsToClosed : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={usbDriveDisplayStatus}
@@ -511,6 +514,7 @@ export function AppRoot({
           updatePrecinctSelection={updatePrecinctSelection}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
+          pollsState={pollsState}
           toggleLiveMode={toggleTestMode}
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
@@ -556,11 +560,10 @@ export function AppRoot({
       >
         <PollWorkerScreen
           scannedBallotCount={scannerStatus.ballotsCounted}
-          isPollsOpen={isPollsOpen}
-          togglePollsOpen={togglePollsOpen}
+          pollsState={pollsState}
+          updatePollsState={updatePollsState}
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
-          usbDrive={usbDrive}
         />
       </AppContext.Provider>
     );
@@ -573,7 +576,7 @@ export function AppRoot({
   // When no card is inserted, we're in "voter" mode
   assert(auth.status === 'logged_out' && auth.reason === 'no_card');
 
-  if (!isPollsOpen) {
+  if (pollsState !== 'polls_open') {
     return (
       <AppContext.Provider
         value={{
@@ -585,8 +588,9 @@ export function AppRoot({
           isSoundMuted,
         }}
       >
-        <PollsClosedScreen
+        <PollsNotOpenScreen
           isLiveMode={!isTestMode}
+          pollsState={pollsState}
           showNoChargerWarning={!computer.batteryIsCharging}
           scannedBallotCount={scannerStatus.ballotsCounted}
         />

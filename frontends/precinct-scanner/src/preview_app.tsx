@@ -14,7 +14,7 @@ import * as ElectionManagerScreen from './screens/election_manager_screen';
 import * as InsertBallotScreen from './screens/insert_ballot_screen';
 import * as InvalidCardScreen from './screens/invalid_card_screen';
 import * as LoadingConfigurationScreen from './screens/loading_configuration_screen';
-import * as PollsClosedScreen from './screens/polls_closed_screen';
+import * as PollsNotOpenScreen from './screens/polls_not_open_screen';
 import * as PollWorkerScreen from './screens/poll_worker_screen';
 import * as ScanErrorScreen from './screens/scan_error_screen';
 import * as ScanProcessingScreen from './screens/scan_processing_screen';
@@ -42,7 +42,7 @@ export function PreviewApp(): JSX.Element {
         InsertBallotScreen,
         InvalidCardScreen,
         LoadingConfigurationScreen,
-        PollsClosedScreen,
+        PollsNotOpenScreen,
         PollWorkerScreen,
         ScanErrorScreen,
         ScanProcessingScreen,

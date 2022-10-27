@@ -5,7 +5,6 @@ import {
   Button,
   Prose,
   Loading,
-  UsbDrive,
   isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   fontSizeTheme,
@@ -28,6 +27,9 @@ import {
   singlePrecinctSelectionFor,
   sleep,
   TallySourceMachineType,
+  throwIllegalValue,
+  getPollsTransitionDestinationState,
+  getPollsReportTitle,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -39,13 +41,15 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
+  PollsState,
+  PollsTransition,
+  Optional,
 } from '@votingworks/types';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
 
-import { ExportResultsModal } from '../components/export_results_modal';
 import { LiveCheckModal } from '../components/live_check_modal';
 
 import { AppContext } from '../contexts/app_context';
@@ -56,14 +60,24 @@ import * as scan from '../api/scan';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
-enum PollWorkerFlowState {
-  OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
-  OPEN_POLLS_FLOW__PROCESSING = 'open polls flow: processing',
-  OPEN_POLLS_FLOW__COMPLETE = 'open polls flow: complete',
-  CLOSE_POLLS_FLOW__CONFIRM = 'close polls flow: confirm',
-  CLOSE_POLLS_FLOW__PROCESSING = 'close polls flow: processing',
-  CLOSE_POLLS_FLOW__COMPLETE = 'close polls flow: complete',
-  EITHER_FLOW__REPRINTING = 'either polls flow: reprinting',
+type PollWorkerFlowState =
+  | 'open_polls_prompt'
+  | 'close_polls_prompt'
+  | 'polls_transition_processing'
+  | 'polls_transition_complete'
+  | 'reprinting_report';
+
+// TODO: Remove this. This is a temporary conversion of the new type for
+// polls reports (open, close, pause, unpause) to the old way (boolean).
+// Using while the reports themselves have not been updated yet.
+function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
+  switch (pollsTransition) {
+    case 'open_polls':
+    case 'unpause_polls':
+      return true;
+    default:
+      return false;
+  }
 }
 
 async function saveTallyToCard(
@@ -89,23 +103,21 @@ async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 
-interface Props {
+export interface PollWorkerScreenProps {
   scannedBallotCount: number;
-  isPollsOpen: boolean;
+  pollsState: PollsState;
+  updatePollsState: (newPollsState: PollsState) => void;
   isLiveMode: boolean;
-  togglePollsOpen: () => void;
   hasPrinterAttached: boolean;
-  usbDrive: UsbDrive;
 }
 
 export function PollWorkerScreen({
   scannedBallotCount,
-  isPollsOpen,
-  togglePollsOpen,
+  pollsState,
+  updatePollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
-  usbDrive,
-}: Props): JSX.Element {
+}: PollWorkerScreenProps): JSX.Element {
   const { electionDefinition, precinctSelection, machineConfig, auth } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -115,13 +127,29 @@ export function PollWorkerScreen({
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());
-  const [isExportingResults, setIsExportingResults] = useState(false);
   const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
-  const [pollsToggledTime, setPollsToggledTime] = useState<number>();
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
-  const currentTime = Date.now();
+  function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
+    switch (pollsState) {
+      case 'polls_closed_initial':
+      case 'polls_paused':
+        return 'open_polls_prompt';
+      case 'polls_open':
+        return 'close_polls_prompt';
+      default:
+        return undefined;
+    }
+  }
+
+  const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
+    Optional<PollWorkerFlowState>
+  >(initialPollWorkerFlowState());
+  const [currentPollsTransition, setCurrentPollsTransition] =
+    useState<PollsTransition>();
+  const [currentPollsTransitionTime, setCurrentPollsTransitionTime] =
+    useState<number>();
 
   const currentCompressedTally = useMemo(
     () => currentTally && compressTally(election, currentTally.overallTally),
@@ -167,7 +195,10 @@ export function PollWorkerScreen({
     void calculateTally();
   }, [election, scannedBallotCount, precinctSelection]);
 
-  async function saveTally() {
+  async function saveTally(
+    pollsTransition: PollsTransition,
+    timePollsTransitioned: number
+  ) {
     assert(currentTally);
     let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
     // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
@@ -228,10 +259,10 @@ export function PollWorkerScreen({
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: scannedBallotCount,
       isLiveMode,
-      isPollsOpen: !isPollsOpen, // When we are saving we are about to either open or close polls and want the state to reflect what it will be after that is complete.
+      isPollsOpen: pollsTransitionToPollsOpen(pollsTransition),
       machineId: machineConfig.machineId,
-      timeSaved: currentTime,
-      timePollsToggled: currentTime,
+      timeSaved: Date.now(),
+      timePollsToggled: timePollsTransitioned,
       precinctSelection,
       ballotCounts: ballotCountBreakdowns,
       talliesByPrecinct: compressedTalliesByPrecinct,
@@ -253,29 +284,19 @@ export function PollWorkerScreen({
     }
   }
 
-  const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
-    PollWorkerFlowState | undefined
-  >(
-    isPollsOpen
-      ? PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM
-      : PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM
-  );
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
 
-  async function printTallyReport(copies: number) {
+  async function printTallyReport(
+    pollsTransition: PollsTransition,
+    timePollsTransitioned: number,
+    copies: number
+  ) {
     assert(electionDefinition);
     assert(precinctSelection);
     assert(currentCompressedTally);
     assert(currentSubTallies);
-
-    const isPollsOpenForReport =
-      pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING ||
-      pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE ||
-      pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE
-        ? isPollsOpen
-        : !isPollsOpen;
 
     const precinctSelectionList =
       precinctSelection.kind === 'SinglePrecinct'
@@ -295,10 +316,10 @@ export function PollWorkerScreen({
         electionDefinition={electionDefinition}
         precinctSelectionList={precinctSelectionList}
         subTallies={currentSubTallies}
-        isPollsOpen={isPollsOpenForReport}
+        isPollsOpen={pollsTransitionToPollsOpen(pollsTransition)}
         isLiveMode={isLiveMode}
-        pollsToggledTime={pollsToggledTime || currentTime}
-        currentTime={currentTime}
+        pollsToggledTime={timePollsTransitioned}
+        currentTime={Date.now()}
         precinctScannerMachineId={machineConfig.machineId}
         totalBallotsScanned={scannedBallotCount}
         signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
@@ -310,45 +331,72 @@ export function PollWorkerScreen({
     );
   }
 
-  async function dispatchReport() {
-    setPollsToggledTime(currentTime);
+  async function dispatchReport(
+    pollsTransition: PollsTransition,
+    timePollsTransitioned: number
+  ) {
     if (hasPrinterAttached) {
-      await printTallyReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
+      await printTallyReport(
+        pollsTransition,
+        timePollsTransitioned,
+        DEFAULT_NUMBER_POLL_REPORT_COPIES
+      );
     } else {
-      await saveTally();
+      await saveTally(pollsTransition, timePollsTransitioned);
     }
   }
 
-  async function openPolls() {
-    setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
-    await dispatchReport();
-    togglePollsOpen();
-    setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE);
-  }
-
-  async function closePolls() {
+  async function exportCvrs(): Promise<void> {
     assert(electionDefinition);
-    setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
-    await dispatchReport();
-    if (scannedBallotCount > 0) {
-      await saveCvrExportToUsb({
-        electionDefinition,
-        machineConfig,
-        scannedBallotCount,
-        isTestMode: !isLiveMode,
-        openFilePickerDialog: false,
-      });
+    await saveCvrExportToUsb({
+      electionDefinition,
+      machineConfig,
+      scannedBallotCount,
+      isTestMode: !isLiveMode,
+      openFilePickerDialog: false,
+    });
+  }
+
+  async function transitionPolls(pollsTransition: PollsTransition) {
+    const timePollsTransitioned = Date.now();
+    setCurrentPollsTransition(pollsTransition);
+    setPollWorkerFlowState('polls_transition_processing');
+    await dispatchReport(pollsTransition, timePollsTransitioned);
+    if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
+      await exportCvrs();
     }
-    togglePollsOpen();
-    setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
+    setCurrentPollsTransitionTime(timePollsTransitioned);
+    updatePollsState(getPollsTransitionDestinationState(pollsTransition));
+    setPollWorkerFlowState('polls_transition_complete');
+  }
+
+  function openPolls() {
+    return transitionPolls('open_polls');
+  }
+
+  function closePolls() {
+    return transitionPolls('close_polls');
+  }
+
+  function pausePolls() {
+    return transitionPolls('pause_polls');
+  }
+
+  function unpausePolls() {
+    return transitionPolls('unpause_polls');
   }
 
   async function reprintReport() {
-    const initialFlowState = pollWorkerFlowState;
-    setPollWorkerFlowState(PollWorkerFlowState.EITHER_FLOW__REPRINTING);
-    await printTallyReport(1);
+    assert(typeof currentPollsTransition === 'string');
+    assert(typeof currentPollsTransitionTime === 'number');
+    setPollWorkerFlowState('reprinting_report');
+    await printTallyReport(
+      currentPollsTransition,
+      currentPollsTransitionTime,
+      1
+    );
     await sleep(REPRINT_REPORT_TIMEOUT_SECONDS * 1000);
-    setPollWorkerFlowState(initialFlowState);
+    setPollWorkerFlowState('polls_transition_complete');
   }
 
   const precinctName = getPrecinctSelectionName(
@@ -366,13 +414,18 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
+  if (pollWorkerFlowState === 'open_polls_prompt') {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <p>Do you want to open the polls?</p>
           <p>
-            <Button primary onPress={openPolls}>
+            <Button
+              primary
+              onPress={
+                pollsState === 'polls_closed_initial' ? openPolls : unpausePolls
+              }
+            >
               Yes, Open the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
@@ -382,41 +435,7 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
-    return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>Opening Polls…</h1>
-        </CenteredLargeProse>
-      </ScreenMainCenterChild>
-    );
-  }
-
-  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE) {
-    return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
-        <CenteredLargeProse>
-          <h1>Polls are open.</h1>
-          {hasPrinterAttached ? (
-            <Prose theme={fontSizeTheme.medium}>
-              <Button onPress={reprintReport}>
-                Print Additional Polls Opened Report
-              </Button>
-              <p>
-                Remove the poll worker card if you have printed all necessary
-                reports.
-              </p>
-            </Prose>
-          ) : (
-            <p>Insert poll worker card into VxMark to print the report.</p>
-          )}
-        </CenteredLargeProse>
-      </ScreenMainCenterChild>
-    );
-  }
-
-  if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
+  if (pollWorkerFlowState === 'close_polls_prompt') {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
@@ -432,28 +451,60 @@ export function PollWorkerScreen({
     );
   }
 
-  if (
-    pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING
-  ) {
+  if (pollWorkerFlowState === 'polls_transition_processing') {
+    assert(typeof currentPollsTransition === 'string');
+    const pollsTransitionProcessingText = (() => {
+      switch (currentPollsTransition) {
+        case 'close_polls':
+          return 'Closing Polls…';
+        case 'open_polls':
+          return 'Opening Polls…';
+        case 'pause_polls':
+          return 'Pausing Polls…';
+        case 'unpause_polls':
+          return 'Opening Polls…';
+        /* istanbul ignore next - compile-time check for completeness */
+        default:
+          throwIllegalValue(currentPollsTransition);
+      }
+    })();
+
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <IndeterminateProgressBar />
         <CenteredLargeProse>
-          <h1>Closing Polls…</h1>
+          <h1>{pollsTransitionProcessingText}</h1>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE) {
+  if (pollWorkerFlowState === 'polls_transition_complete') {
+    assert(typeof currentPollsTransition === 'string');
+    const pollsTransitionCompleteText = (() => {
+      switch (currentPollsTransition) {
+        case 'close_polls':
+          return 'Polls are closed.';
+        case 'open_polls':
+          return 'Polls are open.';
+        case 'unpause_polls':
+          return 'Polls are open.';
+        case 'pause_polls':
+          return 'Polls are paused.';
+        /* istanbul ignore next - compile-time check for completeness */
+        default:
+          throwIllegalValue(currentPollsTransition);
+      }
+    })();
+
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <h1>Polls are closed.</h1>
+          <h1>{pollsTransitionCompleteText}</h1>
           {hasPrinterAttached ? (
             <Prose theme={fontSizeTheme.medium}>
               <Button onPress={reprintReport}>
-                Print Additional Polls Closed Report
+                Print Additional {getPollsReportTitle(currentPollsTransition)}
               </Button>
               <p>
                 Remove the poll worker card if you have printed all necessary
@@ -468,7 +519,7 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.EITHER_FLOW__REPRINTING) {
+  if (pollWorkerFlowState === 'reprinting_report') {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <IndeterminateProgressBar />
@@ -478,28 +529,65 @@ export function PollWorkerScreen({
       </ScreenMainCenterChild>
     );
   }
+
+  const pollsTransitionActions = (() => {
+    switch (pollsState) {
+      case 'polls_closed_initial':
+        return (
+          <React.Fragment>
+            <p>The polls have not been opened.</p>
+            <p>
+              <Button primary large onPress={openPolls}>
+                Open Polls for {precinctName}
+              </Button>
+            </p>
+          </React.Fragment>
+        );
+      case 'polls_open':
+        return (
+          <React.Fragment>
+            <p>The polls are currently open.</p>
+            <p>
+              <Button primary large onPress={closePolls}>
+                Close Polls for {precinctName}
+              </Button>
+            </p>
+            <p>
+              <Button large onPress={pausePolls}>
+                Pause Polls for {precinctName}
+              </Button>
+            </p>
+          </React.Fragment>
+        );
+      case 'polls_paused':
+        return (
+          <React.Fragment>
+            <p>The polls are currently paused.</p>
+            <p>
+              <Button primary large onPress={unpausePolls}>
+                Open Polls for {precinctName}
+              </Button>
+            </p>
+            <p>
+              <Button large onPress={closePolls}>
+                Close Polls for {precinctName}
+              </Button>
+            </p>
+          </React.Fragment>
+        );
+      case 'polls_closed_final':
+        return <p>Voting is complete and the polls cannot be re-opened.</p>;
+      /* istanbul ignore next - compile-time check for completeness */
+      default:
+        throwIllegalValue(pollsState);
+    }
+  })();
+
   return (
     <ScreenMainCenterChild infoBarMode="pollworker">
       <Prose textCenter>
         <h1>Poll Worker Actions</h1>
-        <p>
-          {isPollsOpen ? (
-            <Button primary large onPress={closePolls}>
-              Close Polls for {precinctName}
-            </Button>
-          ) : (
-            <Button primary large onPress={openPolls}>
-              Open Polls for {precinctName}
-            </Button>
-          )}
-        </p>
-        {!isPollsOpen && scannedBallotCount > 0 && (
-          <p>
-            <Button onPress={() => setIsExportingResults(true)}>
-              Save Results to USB Drive
-            </Button>
-          </p>
-        )}
+        {pollsTransitionActions}
         {isFeatureFlagEnabled(EnvironmentFlagName.LIVECHECK) && (
           <p>
             <Button onPress={() => setIsShowingLiveCheck(true)}>
@@ -509,14 +597,6 @@ export function PollWorkerScreen({
         )}
       </Prose>
       <ScannedBallotCount count={scannedBallotCount} />
-      {isExportingResults && (
-        <ExportResultsModal
-          onClose={() => setIsExportingResults(false)}
-          usbDrive={usbDrive}
-          isTestMode={!isLiveMode}
-          scannedBallotCount={scannedBallotCount}
-        />
-      )}
       {isShowingLiveCheck && (
         <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
       )}

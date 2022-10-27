@@ -3,6 +3,7 @@ import {
   SelectChangeEventFunction,
   ok,
   PrecinctSelection,
+  PollsState,
 } from '@votingworks/types';
 import {
   Button,
@@ -32,13 +33,17 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
+import {
+  ALL_PRECINCTS_OPTION_VALUE,
+  ChangePrecinctButton,
+} from '../components/change_precinct_button';
 
-export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
 export interface ElectionManagerScreenProps {
   scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
+  pollsState: PollsState;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   toggleLiveMode(): Promise<void>;
@@ -50,6 +55,7 @@ export interface ElectionManagerScreenProps {
 export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
+  pollsState,
   updatePrecinctSelection,
   toggleLiveMode,
   toggleIsSoundMuted,
@@ -109,15 +115,16 @@ export function ElectionManagerScreen({
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
-  const changeAppPrecinctSelection: SelectChangeEventFunction = async (
+  const handlePrecinctSelectionChange: SelectChangeEventFunction = async (
     event
   ) => {
     const { value } = event.currentTarget;
-    await updatePrecinctSelection(
+    const newPrecinctSelection =
       value === ALL_PRECINCTS_OPTION_VALUE
         ? ALL_PRECINCTS_SELECTION
-        : singlePrecinctSelectionFor(value)
-    );
+        : singlePrecinctSelectionFor(value);
+
+    await updatePrecinctSelection(newPrecinctSelection);
   };
 
   async function handleTogglingLiveMode() {
@@ -149,36 +156,53 @@ export function ElectionManagerScreen({
     <ScreenMainCenterChild infoBarMode="admin">
       <Prose textCenter>
         <h1>Election Manager Settings</h1>
-        <p>
-          <Select
-            id="selectPrecinct"
-            data-testid="selectPrecinct"
-            value={precinctSelectionValue}
-            onBlur={changeAppPrecinctSelection}
-            onChange={changeAppPrecinctSelection}
-            large
-          >
-            <option value="" disabled>
-              {SELECT_PRECINCT_TEXT}
-            </option>
-            {election.precincts.length > 1 && (
-              <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                {ALL_PRECINCTS_NAME}
+        {pollsState === 'polls_closed_initial' ? (
+          <p>
+            <Select
+              id="selectPrecinct"
+              data-testid="selectPrecinct"
+              value={precinctSelectionValue}
+              onBlur={handlePrecinctSelectionChange}
+              onChange={handlePrecinctSelectionChange}
+              disabled={scannerStatus.ballotsCounted > 0}
+              large
+            >
+              <option value="" disabled>
+                {SELECT_PRECINCT_TEXT}
               </option>
-            )}
-            {[...election.precincts]
-              .sort((a, b) =>
-                a.name.localeCompare(b.name, undefined, {
-                  ignorePunctuation: true,
-                })
-              )
-              .map((precinct) => (
-                <option key={precinct.id} value={precinct.id}>
-                  {precinct.name}
+              {election.precincts.length > 1 && (
+                <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                  {ALL_PRECINCTS_NAME}
                 </option>
-              ))}
-          </Select>
-        </p>
+              )}
+              {[...election.precincts]
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, undefined, {
+                    ignorePunctuation: true,
+                  })
+                )
+                .map((precinct) => (
+                  <option key={precinct.id} value={precinct.id}>
+                    {precinct.name}
+                  </option>
+                ))}
+            </Select>
+          </p>
+        ) : (
+          precinctSelection && (
+            <p>
+              <ChangePrecinctButton
+                initialPrecinctSelection={precinctSelection}
+                updatePrecinctSelection={updatePrecinctSelection}
+                election={election}
+                disabled={
+                  scannerStatus.ballotsCounted > 0 ||
+                  pollsState === 'polls_closed_final'
+                }
+              />
+            </p>
+          )
+        )}
         <p>
           <SegmentedButton>
             <Button
@@ -371,6 +395,7 @@ export function DefaultPreview(): JSX.Element {
           canUnconfigure: true,
         }}
         isTestMode={isTestMode}
+        pollsState="polls_closed_initial"
         // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
         toggleIsSoundMuted={() => setIsSoundMuted((prev) => !prev)}
