@@ -13,7 +13,6 @@ import {
 import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
-import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
 import { getPrintedBallotsQueryKey } from './use_printed_ballots_query';
@@ -49,13 +48,6 @@ export interface ElectionManagerStore {
    * @param newElectionData election definition as JSON string
    */
   configure(newElectionData: string): Promise<ElectionDefinition>;
-
-  /**
-   * Adds a new cast vote record file.
-   */
-  addCastVoteRecordFile(
-    newCastVoteRecordFile: File
-  ): Promise<AddCastVoteRecordFileResult>;
 
   /**
    * Updates the external tally for a given source.
@@ -155,26 +147,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
     [backend, logger, queryClient, reset]
   );
 
-  const addCastVoteRecordFileMutation = useMutation(
-    async (newCastVoteRecordFile: File) => {
-      return await backend.addCastVoteRecordFile(newCastVoteRecordFile);
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([cvrsStorageKey]);
-      },
-    }
-  );
-
-  const addCastVoteRecordFile = useCallback(
-    async (newCastVoteRecordFile: File) => {
-      return await addCastVoteRecordFileMutation.mutateAsync(
-        newCastVoteRecordFile
-      );
-    },
-    [addCastVoteRecordFileMutation]
-  );
-
   const updateFullElectionExternalTallyMutation = useMutation(
     async (newFullElectionExternalTally: FullElectionExternalTally) => {
       await backend.updateFullElectionExternalTally(
@@ -245,7 +217,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
         castVoteRecordFiles: castVoteRecordFiles ?? CastVoteRecordFiles.empty,
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
 
-        addCastVoteRecordFile,
         clearFullElectionExternalTallies,
         configure,
         reset,
@@ -254,7 +225,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
         removeFullElectionExternalTally,
       }),
     [
-      addCastVoteRecordFile,
       castVoteRecordFiles,
       clearFullElectionExternalTallies,
       configure,
