@@ -356,7 +356,7 @@ export function AppRoot({
     await config.setPollsState(newPollsState);
   }, []);
 
-  const resetPollsToClosed = useCallback(async () => {
+  const resetPollsToPaused = useCallback(async () => {
     await updatePollsState('polls_paused');
   }, [updatePollsState]);
 
@@ -460,7 +460,7 @@ export function AppRoot({
           }
           showResetPollsToPausedButton
           resetPollsToPaused={
-            pollsState === 'polls_closed_final' ? resetPollsToClosed : undefined
+            pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={usbDriveDisplayStatus}
