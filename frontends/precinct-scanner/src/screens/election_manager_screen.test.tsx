@@ -13,11 +13,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import {
-  ALL_PRECINCTS_NAME,
-  singlePrecinctSelectionFor,
-  usbstick,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { AppContext, AppContextInterface } from '../contexts/app_context';
@@ -110,77 +106,32 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-describe('setting the precinct', () => {
-  test('can set with dropdown if polls have not been opened', async () => {
-    const updatePrecinctSelection = jest.fn();
-    renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
+test('option to set precinct if more than one', async () => {
+  const updatePrecinctSelection = jest.fn();
+  renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
 
-    const precinct = electionSampleDefinition.election.precincts[0];
-    const selectPrecinct = await screen.findByTestId('selectPrecinct');
+  const precinct = electionSampleDefinition.election.precincts[0];
+  const selectPrecinct = await screen.findByTestId('selectPrecinct');
 
-    // set precinct
-    userEvent.selectOptions(selectPrecinct, precinct.id);
-    expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
-    );
+  // set precinct
+  userEvent.selectOptions(selectPrecinct, precinct.id);
+  expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
+  );
+});
+
+test('no option to change precinct if there is only one precinct', async () => {
+  renderScreen({
+    appContextProps: {
+      electionDefinition:
+        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    },
   });
 
-  test('All Precincts not an option in dropdown if only one precinct', async () => {
-    renderScreen({
-      appContextProps: {
-        electionDefinition:
-          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-        precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-      },
-    });
-
-    await screen.findByText('Precinct 1');
-    expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
-  });
-
-  test('shows Change Precinct button instead of polls open and no ballots cast', () => {
-    renderScreen({
-      appContextProps: {
-        precinctSelection: singlePrecinctSelectionFor('23'),
-      },
-      electionManagerScreenProps: {
-        pollsState: 'polls_open',
-      },
-    });
-    screen.getByRole('button', { name: 'Change Precinct' });
-    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
-  });
-
-  test('shows disabled Change Precinct button if ballots have been cast', () => {
-    renderScreen({
-      appContextProps: {
-        precinctSelection: singlePrecinctSelectionFor('23'),
-      },
-      electionManagerScreenProps: {
-        pollsState: 'polls_open',
-        scannerStatus: {
-          ...scannerStatus,
-          ballotsCounted: 1,
-        },
-      },
-    });
-    expect(screen.queryByText('Change Precinct')).toBeDisabled();
-    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
-  });
-
-  test('no options to change if polls are closed and final', () => {
-    renderScreen({
-      appContextProps: {
-        precinctSelection: singlePrecinctSelectionFor('23'),
-      },
-      electionManagerScreenProps: {
-        pollsState: 'polls_closed_final',
-      },
-    });
-    expect(screen.queryByText('Change Precinct')).toBeDisabled();
-    expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
-  });
+  await screen.findByText('Election Manager Settings');
+  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
 });
 
 test('export from admin screen', () => {

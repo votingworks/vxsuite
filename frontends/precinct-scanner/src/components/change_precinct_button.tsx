@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Modal, Prose, Select } from '@votingworks/ui';
 import {
   Election,
+  PollsState,
   PrecinctSelection,
   SelectChangeEventFunction,
 } from '@votingworks/types';
@@ -9,41 +10,48 @@ import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   areEqualPrecinctSelections,
+  assert,
+  assertDefined,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
+export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
 
 export interface ChangePrecinctButtonProps {
-  initialPrecinctSelection: PrecinctSelection;
+  appPrecinctSelection?: PrecinctSelection;
   updatePrecinctSelection: (
     precinctSelection: PrecinctSelection
   ) => Promise<void>;
   election: Election;
-  disabled?: boolean;
+  ballotsCast: boolean;
+  pollsState: PollsState;
 }
 
 export function ChangePrecinctButton({
-  initialPrecinctSelection,
+  appPrecinctSelection,
   updatePrecinctSelection,
   election,
-  disabled,
+  ballotsCast,
+  pollsState,
 }: ChangePrecinctButtonProps): JSX.Element {
-  const [isModalShowing, setIsModalShowing] = useState(false);
-  const [pendingPrecinctSelection, setPendingPrecinctSelection] = useState(
-    initialPrecinctSelection
-  );
+  const requireConfirmation = pollsState !== 'polls_closed_initial';
+  const disableChange = ballotsCast || pollsState === 'polls_closed_final';
+  const [isConfirmationModalShowing, setIsConfirmationModalShowing] =
+    useState(false);
+  const [unconfirmedPrecinctSelection, setUnconfirmedPrecinctSelection] =
+    useState<PrecinctSelection>();
 
   function openModal() {
-    setIsModalShowing(true);
+    setIsConfirmationModalShowing(true);
   }
 
   function closeModal() {
-    setIsModalShowing(false);
-    setPendingPrecinctSelection(initialPrecinctSelection);
+    setIsConfirmationModalShowing(false);
+    setUnconfirmedPrecinctSelection(undefined);
   }
 
-  const handlePendingPrecinctSelectionChange: SelectChangeEventFunction = (
+  const handlePrecinctSelectionChange: SelectChangeEventFunction = async (
     event
   ) => {
     const { value } = event.currentTarget;
@@ -52,25 +60,77 @@ export function ChangePrecinctButton({
         ? ALL_PRECINCTS_SELECTION
         : singlePrecinctSelectionFor(value);
 
-    setPendingPrecinctSelection(newPrecinctSelection);
+    if (requireConfirmation) {
+      setUnconfirmedPrecinctSelection(newPrecinctSelection);
+    } else {
+      await updatePrecinctSelection(newPrecinctSelection);
+    }
   };
 
   async function confirmPrecinctChange() {
-    await updatePrecinctSelection(pendingPrecinctSelection);
+    assert(unconfirmedPrecinctSelection);
+    await updatePrecinctSelection(unconfirmedPrecinctSelection);
     closeModal();
   }
 
-  const pendingPrecinctSelectionValue =
-    pendingPrecinctSelection.kind === 'AllPrecincts'
-      ? ALL_PRECINCTS_OPTION_VALUE
-      : pendingPrecinctSelection.precinctId;
+  const dropdownPrecinctSelection =
+    unconfirmedPrecinctSelection || appPrecinctSelection;
 
-  return (
+  const dropdownCurrentValue = dropdownPrecinctSelection
+    ? dropdownPrecinctSelection.kind === 'AllPrecincts'
+      ? ALL_PRECINCTS_OPTION_VALUE
+      : dropdownPrecinctSelection.precinctId
+    : '';
+
+  const precinctSelectDropdown = (
+    <Select
+      id="selectPrecinct"
+      data-testid="selectPrecinct"
+      value={dropdownCurrentValue}
+      onBlur={handlePrecinctSelectionChange}
+      onChange={handlePrecinctSelectionChange}
+      large
+    >
+      {!requireConfirmation && (
+        <option value="" disabled>
+          {SELECT_PRECINCT_TEXT}
+        </option>
+      )}
+      <option
+        value={ALL_PRECINCTS_OPTION_VALUE}
+        disabled={appPrecinctSelection?.kind === 'AllPrecincts'}
+      >
+        {ALL_PRECINCTS_NAME}
+      </option>
+      {[...election.precincts]
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, {
+            ignorePunctuation: true,
+          })
+        )
+        .map((precinct) => (
+          <option
+            key={precinct.id}
+            value={precinct.id}
+            disabled={
+              appPrecinctSelection?.kind === 'SinglePrecinct' &&
+              appPrecinctSelection.precinctId === precinct.id
+            }
+          >
+            {precinct.name}
+          </option>
+        ))}
+    </Select>
+  );
+
+  return pollsState === 'polls_closed_initial' ? (
+    precinctSelectDropdown
+  ) : (
     <React.Fragment>
-      <Button onPress={openModal} large disabled={disabled}>
+      <Button onPress={openModal} large disabled={disableChange}>
         Change Precinct
       </Button>
-      {isModalShowing && (
+      {isConfirmationModalShowing && (
         <Modal
           content={
             <Prose>
@@ -81,32 +141,7 @@ export function ChangePrecinctButton({
                 polls must be reopened. Please select a precinct and confirm
                 below.
               </p>
-              <Prose textCenter>
-                <Select
-                  id="selectPrecinct"
-                  data-testid="selectPrecinct"
-                  value={pendingPrecinctSelectionValue}
-                  onBlur={handlePendingPrecinctSelectionChange}
-                  onChange={handlePendingPrecinctSelectionChange}
-                >
-                  {election.precincts.length > 1 && (
-                    <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                      {ALL_PRECINCTS_NAME}
-                    </option>
-                  )}
-                  {[...election.precincts]
-                    .sort((a, b) =>
-                      a.name.localeCompare(b.name, undefined, {
-                        ignorePunctuation: true,
-                      })
-                    )
-                    .map((precinct) => (
-                      <option key={precinct.id} value={precinct.id}>
-                        {precinct.name}
-                      </option>
-                    ))}
-                </Select>
-              </Prose>
+              <Prose textCenter>{precinctSelectDropdown}</Prose>
             </Prose>
           }
           actions={
@@ -114,10 +149,13 @@ export function ChangePrecinctButton({
               <Button
                 danger
                 onPress={confirmPrecinctChange}
-                disabled={areEqualPrecinctSelections(
-                  initialPrecinctSelection,
-                  pendingPrecinctSelection
-                )}
+                disabled={
+                  !unconfirmedPrecinctSelection ||
+                  areEqualPrecinctSelections(
+                    assertDefined(appPrecinctSelection),
+                    unconfirmedPrecinctSelection
+                  )
+                }
               >
                 Confirm
               </Button>
