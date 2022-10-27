@@ -10,9 +10,9 @@ import { join, sep } from 'path';
 /**
  * Data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json encoded as base64.
  *
- * SHA-256 hash of file data: 91fb12409b9a6fac9cc8949231b356931e4438fb91ad623553344379b28b62b7
+ * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
-const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJpc1BvbGxzT3BlbiI6IGZhbHNlLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc2MjkzNzksCiAgInRpbWVQb2xsc1RvZ2dsZWQiOiAxNjY1NjE3NjI5Mzc5LAogICJwcmVjaW5jdFNlbGVjdGlvbiI6IHsKICAgICJraW5kIjogIlNpbmdsZVByZWNpbmN0IiwKICAgICJwcmVjaW5jdElkIjogInByZWNpbmN0LTEiCiAgfSwKICAiYmFsbG90Q291bnRzIjogewogICAgIjAscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIxLHByZWNpbmN0LTEiOiBbMCwgMF0sCiAgICAiMCxfX0FMTF9QUkVDSU5DVFMiOiBbMCwgMF0sCiAgICAiMSxfX0FMTF9QUkVDSU5DVFMiOiBbMCwgMF0KICB9LAogICJ0YWxsaWVzQnlQcmVjaW5jdCI6IHsKICAgICJwcmVjaW5jdC0xIjogWwogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDBdCiAgICBdCiAgfSwKICAidGFsbHkiOiBbCiAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICBbMCwgMCwgMCwgMCwgMCwgMF0sCiAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICBbMCwgMCwgMCwgMCwgMF0KICBdCn0K';
+const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAiY2xvc2VfcG9sbHMiLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc2MjkzNzksCiAgInRpbWVQb2xsc1RyYW5zaXRpb25lZCI6IDE2NjU2MTc2MjkzNzksCiAgInByZWNpbmN0U2VsZWN0aW9uIjogewogICAgImtpbmQiOiAiU2luZ2xlUHJlY2luY3QiLAogICAgInByZWNpbmN0SWQiOiAicHJlY2luY3QtMSIKICB9LAogICJiYWxsb3RDb3VudHMiOiB7CiAgICAiMCxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjEscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIwLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXSwKICAgICIxLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXQogIH0sCiAgInRhbGxpZXNCeVByZWNpbmN0IjogewogICAgInByZWNpbmN0LTEiOiBbCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMF0KICAgIF0KICB9LAogICJ0YWxseSI6IFsKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwXQogIF0KfQo=';
 
 /**
  * MIME type of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
@@ -22,7 +22,7 @@ export const mimeType = 'application/json';
 /**
  * Path to a file containing this file's contents.
  *
- * SHA-256 hash of file data: 91fb12409b9a6fac9cc8949231b356931e4438fb91ad623553344379b28b62b7
+ * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
@@ -34,7 +34,7 @@ export function asFilePath(): string {
 /**
  * Convert to a `data:` URL of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json, suitable for embedding in HTML.
  *
- * SHA-256 hash of file data: 91fb12409b9a6fac9cc8949231b356931e4438fb91ad623553344379b28b62b7
+ * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
@@ -43,7 +43,7 @@ export function asDataUrl(): string {
 /**
  * Raw data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  *
- * SHA-256 hash of file data: 91fb12409b9a6fac9cc8949231b356931e4438fb91ad623553344379b28b62b7
+ * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asBuffer(): Buffer {
   return Buffer.from(resourceDataBase64, 'base64');
@@ -52,7 +52,7 @@ export function asBuffer(): Buffer {
 /**
  * Text content of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  *
- * SHA-256 hash of file data: 91fb12409b9a6fac9cc8949231b356931e4438fb91ad623553344379b28b62b7
+ * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asText(): string {
   return asBuffer().toString('utf-8');
