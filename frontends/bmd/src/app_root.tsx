@@ -795,6 +795,8 @@ export function AppRoot({
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         screenReader={screenReader}
+        pollsState={pollsState}
+        logger={logger}
       />
     );
   }
