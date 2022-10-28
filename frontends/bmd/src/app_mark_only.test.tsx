@@ -204,7 +204,7 @@ it('MarkOnly flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Poll Worker card to open.');
+  screen.getByText('Voting is complete.');
 
   // ---------------
 

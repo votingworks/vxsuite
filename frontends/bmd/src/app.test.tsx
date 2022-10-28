@@ -138,7 +138,7 @@ it('uses window.location.reload by default', async () => {
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     appPrecinct: ALL_PRECINCTS_SELECTION,
-    isPollsOpen: false,
+    pollsState: 'polls_closed_initial',
   });
 
   render(

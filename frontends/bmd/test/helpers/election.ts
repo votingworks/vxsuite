@@ -80,7 +80,7 @@ export async function setStateInStorage(
     appPrecinct: singlePrecinctSelectionFor(defaultPrecinctId),
     ballotsPrintedCount: 0,
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     ...state,
   };
   await storage.set(stateStorageKey, storedState);

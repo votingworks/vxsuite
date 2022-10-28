@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PollsState,
+  PrecinctSelection,
+} from '@votingworks/types';
 import { Main, Screen, Prose, TestMode, Text } from '@votingworks/ui';
 
+import { throwIllegalValue } from '@votingworks/utils';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { MachineConfig } from '../config/types';
@@ -19,7 +24,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
   showNoChargerAttachedWarning: boolean;
   isLiveMode: boolean;
-  isPollsOpen: boolean;
+  pollsState: PollsState;
   showNoAccessibleControllerWarning: boolean;
   machineConfig: MachineConfig;
 }
@@ -29,11 +34,42 @@ export function InsertCardScreen({
   electionDefinition,
   showNoChargerAttachedWarning,
   isLiveMode,
-  isPollsOpen,
+  pollsState,
   showNoAccessibleControllerWarning,
   machineConfig,
 }: Props): JSX.Element {
   useEffect(triggerAudioFocus, []);
+
+  const mainText = (() => {
+    switch (pollsState) {
+      case 'polls_closed_initial':
+        return (
+          <React.Fragment>
+            <h1>Polls Closed</h1>
+            <p>Insert Poll Worker card to open.</p>
+          </React.Fragment>
+        );
+      case 'polls_open':
+        return <h1>Insert Card</h1>;
+      case 'polls_paused':
+        return (
+          <React.Fragment>
+            <h1>Polls Paused</h1>
+            <p>Insert Poll Worker card to open.</p>
+          </React.Fragment>
+        );
+      case 'polls_closed_final':
+        return (
+          <React.Fragment>
+            <h1>Polls Closed</h1>
+            <p>Voting is complete.</p>
+          </React.Fragment>
+        );
+      default:
+        throwIllegalValue(pollsState);
+    }
+  })();
+
   return (
     <Screen navRight white>
       <Main centerChild>
@@ -52,14 +88,7 @@ export function InsertCardScreen({
               alt="Insert Card Diagram"
             />
           </p>
-          {isPollsOpen ? (
-            <h1>Insert Card</h1>
-          ) : (
-            <React.Fragment>
-              <h1>Polls Closed</h1>
-              <p>Insert Poll Worker card to open.</p>
-            </React.Fragment>
-          )}
+          {mainText}
           {showNoAccessibleControllerWarning && (
             <Text muted small>
               Voting with an accessible controller is not currently available.

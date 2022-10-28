@@ -373,7 +373,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Poll Worker card to open.');
+  screen.getByText('Voting is complete.');
 
   // Insert pollworker card with precinct scanner tally
   card.insertCard(
@@ -383,14 +383,14 @@ it('MarkAndPrint end-to-end flow', async () => {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),
-      timePollsToggled: new Date('2020-10-31').getTime(),
+      timePollsTransitioned: new Date('2020-10-31').getTime(),
       precinctSelection: {
         kind: 'SinglePrecinct',
         precinctId: '23',
       },
       totalBallotsScanned: 10,
       isLiveMode: true,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
       ballotCounts: {
         'undefined--ALL_PRECINCTS': [5, 5],
         'undefined--23': [5, 5],

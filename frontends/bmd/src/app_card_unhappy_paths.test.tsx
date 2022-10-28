@@ -201,7 +201,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, {
-    isPollsOpen: false,
+    pollsState: 'polls_closed_initial',
   });
 
   render(

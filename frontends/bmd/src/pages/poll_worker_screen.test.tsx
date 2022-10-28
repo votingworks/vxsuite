@@ -97,13 +97,13 @@ function renderScreen(
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode={false}
-      isPollsOpen
+      pollsState="polls_open"
       ballotsPrintedCount={0}
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       hardware={MemoryHardware.buildStandard()}
       devices={fakeDevices()}
       screenReader={new AriaScreenReader(fakeTts())}
-      togglePollsOpen={jest.fn()}
+      updatePollsState={jest.fn()}
       reload={jest.fn()}
       {...props}
     />
@@ -216,10 +216,10 @@ test('precinct scanner report populated as expected with all precinct data for g
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
   const pollworkerAuth = fakePollworkerAuth(
@@ -230,7 +230,7 @@ test('precinct scanner report populated as expected with all precinct data for g
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -289,10 +289,10 @@ test('precinct scanner report with quickresults reporting turned on', async () =
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
   const pollworkerAuth = fakePollworkerAuth(
@@ -304,7 +304,7 @@ test('precinct scanner report with quickresults reporting turned on', async () =
     {
       pollworkerAuth,
       isLiveMode: true,
-      isPollsOpen: true,
+      pollsState: 'polls_open',
       machineConfig: fakeMachineConfig({
         appMode: PrintOnly,
         machineId: '314',
@@ -339,10 +339,10 @@ test('precinct scanner report populated as expected with single precinct data fo
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [20, 5],
       'undefined,23': [20, 5],
@@ -356,7 +356,7 @@ test('precinct scanner report populated as expected with single precinct data fo
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -438,10 +438,10 @@ test('precinct scanner report populated as expected with all precinct specific d
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [20, 5],
       'undefined,23': [10, 0],
@@ -457,7 +457,7 @@ test('precinct scanner report populated as expected with all precinct specific d
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -658,10 +658,10 @@ test('precinct scanner report populated as expected with all precinct specific d
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
       '0,precinct-1': [1, 0],
@@ -678,7 +678,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     electionDefinition,
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -921,10 +921,10 @@ test('precinct scanner report populated as expected with all precinct combined d
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
       '0,precinct-1': [1, 0],
@@ -941,7 +941,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     electionDefinition,
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -1095,10 +1095,10 @@ test('precinct scanner report populated as expected with a single precinct for p
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
       '0,precinct-1': [1, 1],
@@ -1113,7 +1113,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     electionDefinition,
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
@@ -1237,16 +1237,16 @@ test('navigates to System Diagnostics screen', () => {
 });
 
 test('shows instructions to open/close polls on VxScan if no tally report on card', () => {
-  const togglePollsOpen = jest.fn();
+  const updatePollsState = jest.fn();
   renderScreen({
-    isPollsOpen: false,
-    togglePollsOpen,
+    pollsState: 'polls_closed_initial',
+    updatePollsState,
   });
 
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
 
   // Should show the modal and not open/close polls
-  expect(togglePollsOpen).not.toHaveBeenCalled();
+  expect(updatePollsState).not.toHaveBeenCalled();
   screen.getByText('No Polls Opened Report on Card');
 
   // Clicking Cancel closes the modal
@@ -1256,11 +1256,11 @@ test('shows instructions to open/close polls on VxScan if no tally report on car
   // Clicking Open VxMark Now should open/close polls anyway
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
-  expect(togglePollsOpen).toHaveBeenCalled();
+  expect(updatePollsState).toHaveBeenCalled();
 });
 
 test('printing polls opened report clears card and opens the polls', async () => {
-  const togglePollsOpen = jest.fn();
+  const updatePollsState = jest.fn();
 
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
@@ -1268,10 +1268,10 @@ test('printing polls opened report clears card and opens the polls', async () =>
     totalBallotsScanned: 0,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: true,
+    pollsTransition: 'open_polls',
     ballotCounts: {},
   };
   const pollworkerAuth = fakePollworkerAuth(
@@ -1281,8 +1281,8 @@ test('printing polls opened report clears card and opens the polls', async () =>
 
   renderScreen({
     pollworkerAuth,
-    isPollsOpen: false,
-    togglePollsOpen,
+    pollsState: 'polls_closed_initial',
+    updatePollsState,
   });
 
   // confirm we start with polls closed
@@ -1303,7 +1303,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
   await screen.findByText('Polls Opened Report Printed');
 
   // check that polls were opened
-  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+  expect(updatePollsState).toHaveBeenCalledTimes(1);
 
   // check that card was cleared
   expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
@@ -1326,7 +1326,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
 });
 
 test('printing polls closed report clears card and closes the polls', async () => {
-  const togglePollsOpen = jest.fn();
+  const updatePollsState = jest.fn();
 
   const existingTally = getZeroCompressedTally(electionSampleWithSeal);
   // add tallies to the president contest
@@ -1342,10 +1342,10 @@ test('printing polls closed report clears card and closes the polls', async () =
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    timePollsToggled: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
-    isPollsOpen: false,
+    pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
   const pollworkerAuth = fakePollworkerAuth(
@@ -1355,8 +1355,8 @@ test('printing polls closed report clears card and closes the polls', async () =
 
   renderScreen({
     pollworkerAuth,
-    isPollsOpen: true,
-    togglePollsOpen,
+    pollsState: 'polls_open',
+    updatePollsState,
   });
 
   // confirm we start with polls open
@@ -1377,7 +1377,7 @@ test('printing polls closed report clears card and closes the polls', async () =
   await screen.findByText('Polls Closed Report Printed');
 
   // check that polls were closed
-  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+  expect(updatePollsState).toHaveBeenCalledTimes(1);
 
   // check that the card was cleared
   await waitFor(() => {
@@ -1403,7 +1403,7 @@ test('printing polls closed report clears card and closes the polls', async () =
 
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
-    isPollsOpen: true,
+    pollsState: 'polls_open',
     machineConfig: fakeMachineConfig({ appMode: MarkAndPrint }),
   });
 

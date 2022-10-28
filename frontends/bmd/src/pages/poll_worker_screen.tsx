@@ -11,6 +11,8 @@ import {
   PrecinctId,
   Tally,
   PrecinctSelection,
+  PollsState,
+  PollsTransition,
 } from '@votingworks/types';
 import {
   Button,
@@ -43,6 +45,7 @@ import {
   singlePrecinctSelectionFor,
   sleep,
   throwIllegalValue,
+  getPollsTransitionDestinationState,
 } from '@votingworks/utils';
 
 import { MachineConfig, ScreenReader } from '../config/types';
@@ -53,6 +56,19 @@ import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
+
+// TODO: Remove this. This is a temporary conversion of the new type for
+// polls reports (open, close, pause, unpause) to the old way (boolean).
+// Using while the reports themselves have not been updated yet.
+function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
+  switch (pollsTransition) {
+    case 'open_polls':
+    case 'unpause_polls':
+      return true;
+    default:
+      return false;
+  }
+}
 
 function parsePrecinctScannerTally(
   precinctScannerTally: PrecinctScannerCardTally,
@@ -116,16 +132,16 @@ function PrecinctScannerTallyReportModal({
   precinctScannerTally,
   pollworkerAuth,
   machineConfig,
-  isPollsOpen,
-  togglePollsOpen,
+  pollsState,
+  updatePollsState,
   onClose,
 }: {
   electionDefinition: ElectionDefinition;
   precinctScannerTally: PrecinctScannerCardTally;
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   machineConfig: MachineConfig;
-  isPollsOpen: boolean;
-  togglePollsOpen: VoidFunction;
+  pollsState: PollsState;
+  updatePollsState: (pollsState: PollsState) => void;
   onClose: VoidFunction;
 }) {
   const [modalState, setModalState] =
@@ -140,12 +156,15 @@ function PrecinctScannerTallyReportModal({
       parties
     );
 
-  function togglePollsToMatchReport() {
+  function updatePollsToMatchReport() {
     if (
       precinctScannerTally &&
-      precinctScannerTally.isPollsOpen !== isPollsOpen
+      pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) !==
+        (pollsState === 'polls_open')
     ) {
-      togglePollsOpen();
+      updatePollsState(
+        getPollsTransitionDestinationState(precinctScannerTally.pollsTransition)
+      );
     }
   }
 
@@ -165,10 +184,12 @@ function PrecinctScannerTallyReportModal({
         electionDefinition={electionDefinition}
         precinctSelectionList={precinctScannerTallyInformation.precinctList}
         subTallies={precinctScannerTallyInformation.subTallies}
-        isPollsOpen={precinctScannerTally.isPollsOpen}
+        isPollsOpen={pollsTransitionToPollsOpen(
+          precinctScannerTally.pollsTransition
+        )}
         isLiveMode={precinctScannerTally.isLiveMode}
         currentTime={currentTime}
-        pollsToggledTime={precinctScannerTally.timePollsToggled}
+        pollsToggledTime={precinctScannerTally.timePollsTransitioned}
         totalBallotsScanned={precinctScannerTally.totalBallotsScanned}
         precinctScannerMachineId={precinctScannerTally.machineId}
         signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
@@ -181,12 +202,12 @@ function PrecinctScannerTallyReportModal({
     await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
 
-  async function togglePollsAndPrintReports() {
+  async function updatePollsAndPrintReports() {
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
       await pollworkerAuth.card.clearStoredData();
-      togglePollsToMatchReport();
+      updatePollsToMatchReport();
     } finally {
       setModalState('reprint');
     }
@@ -210,7 +231,7 @@ function PrecinctScannerTallyReportModal({
     case 'initial':
       modalContent = (
         <Prose id="modalaudiofocus">
-          {precinctScannerTally.isPollsOpen ? (
+          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) ? (
             <React.Fragment>
               <h1>Polls Opened Report on Card</h1>
               <p>
@@ -232,8 +253,8 @@ function PrecinctScannerTallyReportModal({
         </Prose>
       );
       modalActions = (
-        <Button primary onPress={togglePollsAndPrintReports}>
-          {precinctScannerTally.isPollsOpen
+        <Button primary onPress={updatePollsAndPrintReports}>
+          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition)
             ? 'Open Polls and Print Report'
             : 'Close Polls and Print Report'}
         </Button>
@@ -243,7 +264,7 @@ function PrecinctScannerTallyReportModal({
       modalContent = (
         <Prose textCenter id="modalaudiofocus">
           <Loading>
-            {precinctScannerTally.isPollsOpen
+            {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition)
               ? 'Printing polls opened report'
               : 'Printing polls closed report'}
           </Loading>
@@ -253,7 +274,7 @@ function PrecinctScannerTallyReportModal({
     case 'reprint':
       modalContent = (
         <Prose id="modalaudiofocus">
-          {precinctScannerTally.isPollsOpen ? (
+          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) ? (
             <React.Fragment>
               <h1>Polls Opened Report Printed</h1>
               <p>
@@ -315,13 +336,13 @@ export interface PollworkerScreenProps {
   enableLiveMode: () => void;
   hasVotes: boolean;
   isLiveMode: boolean;
-  isPollsOpen: boolean;
+  pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
   hardware: Hardware;
   devices: Devices;
   screenReader: ScreenReader;
-  togglePollsOpen: () => void;
+  updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
 }
 
@@ -333,13 +354,13 @@ export function PollWorkerScreen({
   electionDefinition,
   enableLiveMode,
   isLiveMode,
-  isPollsOpen,
+  pollsState,
   ballotsPrintedCount,
   machineConfig,
   hardware,
   devices,
   screenReader,
-  togglePollsOpen,
+  updatePollsState,
   hasVotes,
   reload,
 }: PollworkerScreenProps): JSX.Element {
@@ -408,7 +429,8 @@ export function PollWorkerScreen({
   const isMarkAndPrintMode =
     machineConfig.appMode.isPrint && machineConfig.appMode.isMark;
 
-  const canSelectBallotStyle = isMarkAndPrintMode && isPollsOpen;
+  const canSelectBallotStyle =
+    isMarkAndPrintMode && pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
     useState(false);
 
@@ -516,7 +538,8 @@ export function PollWorkerScreen({
         <Main padded>
           <Prose theme={fontSizeTheme.medium} compact>
             <p>
-              <strong>Polls:</strong> {isPollsOpen ? 'Open' : 'Closed'}
+              <strong>Polls:</strong>{' '}
+              {pollsState === 'polls_open' ? 'Open' : 'Closed'}
             </p>
             <p>
               <strong>Mode:</strong> {isLiveMode ? 'Live Election' : 'Testing'}
@@ -578,7 +601,7 @@ export function PollWorkerScreen({
             <Prose>
               <p>
                 <Button onPress={() => setIsShowingVxScanPollsOpenModal(true)}>
-                  {isPollsOpen
+                  {pollsState === 'polls_open'
                     ? `Close Polls for ${precinctName}`
                     : `Open Polls for ${precinctName}`}
                 </Button>
@@ -614,7 +637,7 @@ export function PollWorkerScreen({
             centerContent
             content={
               <Prose textCenter id="modalaudiofocus">
-                {isPollsOpen ? (
+                {pollsState === 'polls_open' ? (
                   <React.Fragment>
                     <h1>No Polls Closed Report on Card</h1>
                     <p>
@@ -641,14 +664,25 @@ export function PollWorkerScreen({
                 >
                   Cancel
                 </Button>
-                <Button
-                  onPress={() => {
-                    togglePollsOpen();
-                    setIsShowingVxScanPollsOpenModal(false);
-                  }}
-                >
-                  {isPollsOpen ? 'Close VxMark Now' : 'Open VxMark Now'}
-                </Button>
+                {pollsState === 'polls_closed_initial' ? (
+                  <Button
+                    onPress={() => {
+                      updatePollsState('polls_open');
+                      setIsShowingVxScanPollsOpenModal(false);
+                    }}
+                  >
+                    Open VxMark Now
+                  </Button>
+                ) : (
+                  <Button
+                    onPress={() => {
+                      updatePollsState('polls_closed_final');
+                      setIsShowingVxScanPollsOpenModal(false);
+                    }}
+                  >
+                    Close VxMark Now
+                  </Button>
+                )}
               </React.Fragment>
             }
           />
@@ -699,8 +733,8 @@ export function PollWorkerScreen({
           precinctScannerTally={precinctScannerTally}
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}
-          isPollsOpen={isPollsOpen}
-          togglePollsOpen={togglePollsOpen}
+          pollsState={pollsState}
+          updatePollsState={updatePollsState}
           onClose={() => setPrecinctScannerTally(undefined)}
         />
       )}
