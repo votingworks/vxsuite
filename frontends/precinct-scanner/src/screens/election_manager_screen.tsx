@@ -14,6 +14,7 @@ import {
   SetClockButton,
   UsbDrive,
   isElectionManagerAuth,
+  ChangePrecinctButton,
 } from '@votingworks/ui';
 import { assert, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
@@ -25,7 +26,6 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
-import { ChangePrecinctButton } from '../components/change_precinct_button';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 

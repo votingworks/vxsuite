@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose, Select } from '@votingworks/ui';
 import {
   Election,
   PollsState,
@@ -12,6 +11,10 @@ import {
   assert,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { Select } from './select';
+import { Button } from './button';
+import { Modal } from './modal';
+import { Prose } from './prose';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
