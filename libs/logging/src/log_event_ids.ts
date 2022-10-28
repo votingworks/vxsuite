@@ -103,6 +103,7 @@ export enum LogEventId {
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
   ResetPollsToPaused = 'reset-polls-to-paused',
+  PrecinctConfigurationChanged = 'precinct-configuration-changed',
   // VxScan service state machine logs
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
@@ -740,6 +741,16 @@ const ResetPollsToPaused: LogDetails = {
   ],
 };
 
+const PrecinctConfigurationChanged: LogDetails = {
+  eventId: LogEventId.PrecinctConfigurationChanged,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has changed the precinct setting.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
 const ScannerEvent: LogDetails = {
   eventId: LogEventId.ScannerEvent,
   eventType: LogEventType.ApplicationAction,
@@ -918,6 +929,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return RebootMachine;
     case LogEventId.ResetPollsToPaused:
       return ResetPollsToPaused;
+    case LogEventId.PrecinctConfigurationChanged:
+      return PrecinctConfigurationChanged;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:

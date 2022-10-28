@@ -338,6 +338,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### precinct-configuration-changed
+**Type:** [user-action](#user-action)  
+**Description:** User has changed the precinct setting.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)  
 **Description:** Precinct scanner state machine received an event.  
