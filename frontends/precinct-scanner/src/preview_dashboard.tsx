@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 
+import { Logger, LogSource } from '@votingworks/logging';
 import {
   ElectionDefinition,
   safeParseElectionDefinition,
@@ -155,6 +156,7 @@ export function PreviewDashboard({
         electionDefinition,
         auth: { status: 'logged_out', reason: 'no_card' },
         isSoundMuted: false,
+        logger: new Logger(LogSource.VxPrecinctScanFrontend),
       }}
     >
       <BrowserRouter>

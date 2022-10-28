@@ -1,3 +1,4 @@
+import { Logger, LogSource } from '@votingworks/logging';
 import {
   ElectionDefinition,
   InsertedSmartcardAuth,
@@ -14,6 +15,7 @@ export interface AppContextInterface {
   currentMarkThresholds?: MarkThresholds;
   auth: InsertedSmartcardAuth.Auth;
   isSoundMuted: boolean;
+  logger: Logger;
 }
 
 const appContext: AppContextInterface = {
@@ -26,6 +28,7 @@ const appContext: AppContextInterface = {
     codeVersion: '',
   },
   auth: { status: 'logged_out', reason: 'no_card' },
+  logger: new Logger(LogSource.VxPrecinctScanFrontend),
 };
 
 export const AppContext = createContext(appContext);

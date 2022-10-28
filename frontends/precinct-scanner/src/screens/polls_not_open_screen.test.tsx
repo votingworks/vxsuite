@@ -1,40 +1,25 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { Inserted } from '@votingworks/test-utils';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { AppContext } from '../contexts/app_context';
 import {
   PollsNotOpenScreen,
   PollsNotOpenScreenProps,
 } from './polls_not_open_screen';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
 const TEST_BALLOT_COUNT = 50;
 const MACHINE_ID = '0003';
 
 function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        precinctSelection: singlePrecinctSelectionFor('23'),
-        currentMarkThresholds: { definite: 0.12, marginal: 0.12 },
-        machineConfig: {
-          machineId: MACHINE_ID,
-          codeVersion: 'TEST',
-        },
-        auth: Inserted.fakeLoggedOutAuth(),
-        isSoundMuted: false,
-      }}
-    >
-      <PollsNotOpenScreen
-        showNoChargerWarning={false}
-        isLiveMode
-        pollsState="polls_closed_initial"
-        scannedBallotCount={TEST_BALLOT_COUNT}
-        {...props}
-      />
-    </AppContext.Provider>
+  renderInAppContext(
+    <PollsNotOpenScreen
+      showNoChargerWarning={false}
+      isLiveMode
+      pollsState="polls_closed_initial"
+      scannedBallotCount={TEST_BALLOT_COUNT}
+      {...props}
+    />,
+    { precinctSelection: singlePrecinctSelectionFor('23') }
   );
 }
 

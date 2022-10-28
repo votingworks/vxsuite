@@ -356,6 +356,16 @@ test('election manager and poll worker configuration', async () => {
   // Change precinct as Election Manager
   mockPrecinctStateChange(singlePrecinctSelectionFor('23'));
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  await waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining('Center Springfield'),
+      })
+    );
+  });
   card.removeCard();
   await advanceTimersAndPromises(1);
 
@@ -388,6 +398,16 @@ test('election manager and poll worker configuration', async () => {
   userEvent.click(screen.getByText('Confirm'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+  await waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining('South Springfield'),
+      })
+    );
   });
   card.removeCard();
   await screen.findByText('Polls Closed');
@@ -424,7 +444,7 @@ test('election manager and poll worker configuration', async () => {
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   // Confirm we can't unconfigure just by changing precinct
-  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  expect(await screen.findByTestId('selectPrecinct')).toBeDisabled();
   userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );

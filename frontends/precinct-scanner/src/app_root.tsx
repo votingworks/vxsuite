@@ -511,6 +511,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <ElectionManagerScreen
@@ -559,6 +560,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <PollWorkerScreen
@@ -589,6 +591,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <PollsNotOpenScreen
@@ -684,6 +687,7 @@ export function AppRoot({
         machineConfig,
         auth,
         isSoundMuted,
+        logger,
       }}
     >
       {voterScreen}

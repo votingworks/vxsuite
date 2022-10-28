@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
@@ -10,9 +10,9 @@ import {
 } from '@votingworks/utils';
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { Inserted, mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
-import { AppContext } from '../contexts/app_context';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -22,21 +22,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 function renderScreen(props: Props) {
-  return render(
-    <AppContext.Provider
-      value={{
-        machineConfig: {
-          codeVersion: 'test',
-          machineId: '000',
-        },
-        electionDefinition: electionSampleDefinition,
-        auth: Inserted.fakeLoggedOutAuth(),
-        isSoundMuted: false,
-      }}
-    >
-      <ScanWarningScreen {...props} />
-    </AppContext.Provider>
-  );
+  return renderInAppContext(<ScanWarningScreen {...props} />);
 }
 
 test('overvote', () => {

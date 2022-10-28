@@ -1,11 +1,13 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { Logger, LogSource } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 
 import { err, ok } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { mocked } from 'ts-jest/utils';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { MachineConfig } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 import { download, DownloadErrorKind } from '../utils/download';
@@ -26,20 +28,12 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
-    const { unmount } = render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          machineConfig,
-          isSoundMuted: false,
-          auth,
-        }}
-      >
-        <ExportBackupModal
-          onClose={closeFn}
-          usbDrive={{ status, eject: jest.fn() }}
-        />
-      </AppContext.Provider>
+    const { unmount } = renderInAppContext(
+      <ExportBackupModal
+        onClose={closeFn}
+        usbDrive={{ status, eject: jest.fn() }}
+      />,
+      { auth }
     );
     screen.getByText('Loading');
     unmount();
@@ -55,20 +49,12 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
-    const { unmount } = render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          machineConfig,
-          isSoundMuted: false,
-          auth,
-        }}
-      >
-        <ExportBackupModal
-          onClose={closeFn}
-          usbDrive={{ status, eject: jest.fn() }}
-        />
-      </AppContext.Provider>
+    const { unmount } = renderInAppContext(
+      <ExportBackupModal
+        onClose={closeFn}
+        usbDrive={{ status, eject: jest.fn() }}
+      />,
+      { auth }
     );
     screen.getByText('No USB Drive Detected');
     screen.getByText('Please insert a USB drive to save the backup.');
@@ -88,20 +74,12 @@ test('render export modal when a USB drive is mounted as expected and allows cus
   mocked(download).mockResolvedValueOnce(ok());
 
   const closeFn = jest.fn();
-  const { rerender } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig,
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
+  const { rerender } = renderInAppContext(
+    <ExportBackupModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+    />,
+    { auth }
   );
   screen.getByText('Save Backup');
   screen.getByText(
@@ -122,6 +100,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
         machineConfig,
         isSoundMuted: false,
         auth,
+        logger: new Logger(LogSource.VxPrecinctScanFrontend),
       }}
     >
       <ExportBackupModal
@@ -141,20 +120,12 @@ test('render export modal when a USB drive is mounted as expected and allows aut
 
   const closeFn = jest.fn();
   const ejectFn = jest.fn();
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig,
-        auth,
-      }}
-    >
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
-      />
-    </AppContext.Provider>
+  renderInAppContext(
+    <ExportBackupModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
+    />,
+    { auth }
   );
   screen.getByText('Save Backup');
 
@@ -177,20 +148,12 @@ test('handles no USB drives', async () => {
   window.kiosk = mockKiosk;
 
   const closeFn = jest.fn();
-  const { getByText } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig,
-        auth,
-      }}
-    >
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
+  const { getByText } = renderInAppContext(
+    <ExportBackupModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+    />,
+    { auth }
   );
   getByText('Save Backup');
 
@@ -208,20 +171,12 @@ test('shows a specific error for file writer failure', async () => {
   window.kiosk = mockKiosk;
 
   const closeFn = jest.fn();
-  const { getByText } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig,
-        auth,
-        isSoundMuted: false,
-      }}
-    >
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
+  const { getByText } = renderInAppContext(
+    <ExportBackupModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+    />,
+    { auth }
   );
   getByText('Save Backup');
 
@@ -246,20 +201,12 @@ test('shows a specific error for fetch failure', async () => {
   window.kiosk = mockKiosk;
 
   const closeFn = jest.fn();
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig,
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-      />
-    </AppContext.Provider>
+  renderInAppContext(
+    <ExportBackupModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+    />,
+    { auth }
   );
   screen.getByText('Save Backup');
 

@@ -19,6 +19,7 @@ import {
 import { assert, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import { Scan } from '@votingworks/api';
+import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -58,6 +59,7 @@ export function ElectionManagerScreen({
     currentMarkThresholds,
     auth,
     isSoundMuted,
+    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -132,8 +134,15 @@ export function ElectionManagerScreen({
             appPrecinctSelection={precinctSelection}
             updatePrecinctSelection={updatePrecinctSelection}
             election={election}
-            pollsState={pollsState}
-            ballotsCast={scannerStatus.ballotsCounted > 0}
+            mode={
+              pollsState === 'polls_closed_initial'
+                ? 'default'
+                : pollsState !== 'polls_closed_final' &&
+                  scannerStatus.ballotsCounted === 0
+                ? 'confirmation_required'
+                : 'disabled'
+            }
+            logger={logger}
           />
         )}
         <p>
@@ -319,6 +328,7 @@ export function DefaultPreview(): JSX.Element {
             clearStoredData: () => Promise.resolve(ok()),
           },
         },
+        logger: new Logger(LogSource.VxPrecinctScanFrontend),
       }}
     >
       <ElectionManagerScreen

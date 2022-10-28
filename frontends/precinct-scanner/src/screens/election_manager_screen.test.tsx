@@ -1,7 +1,7 @@
 import {
   act,
   fireEvent,
-  render,
+  RenderResult,
   screen,
   waitFor,
   within,
@@ -16,7 +16,8 @@ import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import { AppContext, AppContextInterface } from '../contexts/app_context';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
@@ -33,8 +34,6 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-const auth = Inserted.fakeElectionManagerAuth();
-
 const scannerStatus: Scan.PrecinctScannerStatus = {
   state: 'no_paper',
   ballotsCounted: 0,
@@ -47,30 +46,25 @@ function renderScreen({
 }: {
   appContextProps?: Partial<AppContextInterface>;
   electionManagerScreenProps?: Partial<ElectionManagerScreenProps>;
-} = {}): void {
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        auth,
-        ...appContextProps,
-      }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={scannerStatus}
-        isTestMode={false}
-        pollsState="polls_closed_initial"
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
-        toggleIsSoundMuted={jest.fn()}
-        {...electionManagerScreenProps}
-      />
-    </AppContext.Provider>
+} = {}): RenderResult {
+  const electionManagerScreenAppContextProps: Partial<AppContextInterface> = {
+    auth: Inserted.fakeElectionManagerAuth(),
+    ...appContextProps,
+  };
+  return renderInAppContext(
+    <ElectionManagerScreen
+      scannerStatus={scannerStatus}
+      isTestMode={false}
+      pollsState="polls_closed_initial"
+      updatePrecinctSelection={jest.fn()}
+      toggleLiveMode={jest.fn()}
+      setMarkThresholdOverrides={jest.fn()}
+      unconfigure={jest.fn()}
+      usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
+      toggleIsSoundMuted={jest.fn()}
+      {...electionManagerScreenProps}
+    />,
+    electionManagerScreenAppContextProps
   );
 }
 

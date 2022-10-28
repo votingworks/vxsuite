@@ -2,14 +2,14 @@ import React from 'react';
 
 import MockDate from 'mockdate';
 
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 
 import { LiveCheckModal } from './live_check_modal';
-import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
 const auth = Inserted.fakePollWorkerAuth();
@@ -22,17 +22,9 @@ test('renders livecheck screen', async () => {
   mockKiosk.sign.mockResolvedValueOnce('fakesignature');
 
   const closeFn = jest.fn();
-  const { getByText, unmount } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition,
-        machineConfig,
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <LiveCheckModal onClose={closeFn} />
-    </AppContext.Provider>
+  const { getByText, unmount } = renderInAppContext(
+    <LiveCheckModal onClose={closeFn} />,
+    { auth }
   );
 
   await waitFor(() => {

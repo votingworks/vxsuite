@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import {
   electionSampleDefinition as electionDefinition,
   electionSampleDefinition,
@@ -9,10 +9,12 @@ import { usbstick } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
+import { Logger, LogSource } from '@votingworks/logging';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -24,22 +26,14 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
-    const { getByText, unmount } = render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          machineConfig,
-          isSoundMuted: false,
-          auth,
-        }}
-      >
-        <ExportResultsModal
-          onClose={closeFn}
-          usbDrive={{ status, eject: jest.fn() }}
-          scannedBallotCount={5}
-          isTestMode
-        />
-      </AppContext.Provider>
+    const { getByText, unmount } = renderInAppContext(
+      <ExportResultsModal
+        onClose={closeFn}
+        usbDrive={{ status, eject: jest.fn() }}
+        scannedBallotCount={5}
+        isTestMode
+      />,
+      { auth }
     );
     getByText('Loading');
     unmount();
@@ -55,22 +49,14 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
-    const { getByText, unmount, getByAltText } = render(
-      <AppContext.Provider
-        value={{
-          electionDefinition: electionSampleDefinition,
-          isSoundMuted: false,
-          machineConfig,
-          auth,
-        }}
-      >
-        <ExportResultsModal
-          onClose={closeFn}
-          usbDrive={{ status, eject: jest.fn() }}
-          scannedBallotCount={5}
-          isTestMode
-        />
-      </AppContext.Provider>
+    const { getByText, unmount, getByAltText } = renderInAppContext(
+      <ExportResultsModal
+        onClose={closeFn}
+        usbDrive={{ status, eject: jest.fn() }}
+        scannedBallotCount={5}
+        isTestMode
+      />,
+      { auth }
     );
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
@@ -94,22 +80,14 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   });
 
   const closeFn = jest.fn();
-  const { getByText, getByAltText } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig,
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-        scannedBallotCount={5}
-        isTestMode
-      />
-    </AppContext.Provider>
+  const { getByText, getByAltText } = renderInAppContext(
+    <ExportResultsModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+      scannedBallotCount={5}
+      isTestMode
+    />,
+    { auth }
   );
   getByText('Save CVRs');
   getByText(
@@ -142,22 +120,14 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   const closeFn = jest.fn();
   const ejectFn = jest.fn();
-  const { getByText, rerender } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig,
-        auth,
-      }}
-    >
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
-        scannedBallotCount={5}
-        isTestMode
-      />
-    </AppContext.Provider>
+  const { getByText, rerender } = renderInAppContext(
+    <ExportResultsModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
+      scannedBallotCount={5}
+      isTestMode
+    />,
+    { auth }
   );
   getByText('Save CVRs');
 
@@ -196,6 +166,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         isSoundMuted: false,
         machineConfig,
         auth,
+        logger: new Logger(LogSource.VxPrecinctScanFrontend),
       }}
     >
       <ExportResultsModal
@@ -219,22 +190,14 @@ test('render export modal with errors when appropriate', async () => {
   });
 
   const closeFn = jest.fn();
-  const { getByText } = render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        machineConfig,
-        isSoundMuted: false,
-        auth,
-      }}
-    >
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-        scannedBallotCount={5}
-        isTestMode
-      />
-    </AppContext.Provider>
+  const { getByText } = renderInAppContext(
+    <ExportResultsModal
+      onClose={closeFn}
+      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+      scannedBallotCount={5}
+      isTestMode
+    />,
+    { auth }
   );
   getByText('Save CVRs');
 
