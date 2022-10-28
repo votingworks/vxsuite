@@ -12,8 +12,9 @@ f = open(sys.argv[1], "rb")
 election_bytes = f.read()
 f.close()
 
+# Poll worker cards use long values to store precinct scanner tally reports.
+# Script takes optional second argument of a file path to a .json card tally.
 long_value = None
-
 if len(sys.argv) > 2:
     f = open(sys.argv[2], "rb")
     long_value = f.read()

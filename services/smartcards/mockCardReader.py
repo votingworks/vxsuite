@@ -34,7 +34,7 @@ def usage(file=sys.stdout, code=0):
         file=file,
     )
     print("%s enable --election-manager DEFINITION" % argv0, file=file)
-    print("%s enable --poll-worker DEFINITION" % argv0, file=file)
+    print("%s enable --poll-worker DEFINITION OPTIONAL_LONG_VALUE" % argv0, file=file)
     print(
         "%s enable --voter DEFINITION --precinct PRECINCT_ID --ballot-style BALLOT_STYLE_ID"
         % argv0,
