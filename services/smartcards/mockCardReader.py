@@ -48,6 +48,12 @@ def usage(file=sys.stdout, code=0):
     )
     print("%s enable --fixture DIR" % argv0, file=file)
     print("", file=file)
+    print(
+        "# enable mock reader with a given card and emulate removal right after, i.e. --no-card",
+        file=file,
+    )
+    print("%s enable CARD_ARGUMENTS --dip" % argv0, file=file)
+    print("", file=file)
     print("# disable mock reader / use the real card reader", file=file)
     print("%s disable" % argv0, file=file)
     exit(code)
