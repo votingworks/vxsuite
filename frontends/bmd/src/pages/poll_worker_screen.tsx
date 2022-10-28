@@ -46,6 +46,9 @@ import {
   sleep,
   throwIllegalValue,
   getPollsTransitionDestinationState,
+  getPollsStateName,
+  getPollsReportTitle,
+  getPollsTransitionAction,
 } from '@votingworks/utils';
 
 import { MachineConfig, ScreenReader } from '../config/types';
@@ -322,6 +325,63 @@ function PrecinctScannerTallyReportModal({
   );
 }
 
+function UpdatePollsDirectlyButton({
+  pollsTransition,
+  updatePollsState,
+  precinctName,
+}: {
+  pollsTransition: PollsTransition;
+  updatePollsState: (pollsState: PollsState) => void;
+  precinctName: string;
+}): JSX.Element {
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+
+  function closeModal() {
+    setIsConfirmationModalOpen(false);
+  }
+
+  function confirmUpdate() {
+    updatePollsState(getPollsTransitionDestinationState(pollsTransition));
+    closeModal();
+  }
+
+  const action = getPollsTransitionAction(pollsTransition);
+  const reportTitle = getPollsReportTitle(pollsTransition);
+
+  return (
+    <React.Fragment>
+      <p>
+        <Button onPress={() => setIsConfirmationModalOpen(true)}>
+          {action} Polls for {precinctName}
+        </Button>
+      </p>
+      {isConfirmationModalOpen && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter id="modalaudiofocus">
+              <h1>No {reportTitle} on Card</h1>
+              <p>
+                {action} polls on VxScan to save the {reportTitle.toLowerCase()}{' '}
+                before closing polls on VxMark.
+              </p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button primary onPress={closeModal}>
+                Cancel
+              </Button>
+              <Button onPress={confirmUpdate}>{action} VxMark Now</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={closeModal}
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 export interface PollworkerScreenProps {
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
@@ -376,8 +436,6 @@ export function PollWorkerScreen({
     useState<PrecinctId | undefined>(
       appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
     );
-  const [isShowingVxScanPollsOpenModal, setIsShowingVxScanPollsOpenModal] =
-    useState(false);
 
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
     ? election.ballotStyles.filter((bs) =>
@@ -538,8 +596,7 @@ export function PollWorkerScreen({
         <Main padded>
           <Prose theme={fontSizeTheme.medium} compact>
             <p>
-              <strong>Polls:</strong>{' '}
-              {pollsState === 'polls_open' ? 'Open' : 'Closed'}
+              <strong>Polls:</strong> {getPollsStateName(pollsState)}
             </p>
             <p>
               <strong>Mode:</strong> {isLiveMode ? 'Live Election' : 'Testing'}
@@ -599,13 +656,35 @@ export function PollWorkerScreen({
             </Prose>
           ) : (
             <Prose>
-              <p>
-                <Button onPress={() => setIsShowingVxScanPollsOpenModal(true)}>
-                  {pollsState === 'polls_open'
-                    ? `Close Polls for ${precinctName}`
-                    : `Open Polls for ${precinctName}`}
-                </Button>
-              </p>
+              {pollsState === 'polls_closed_initial' && (
+                <UpdatePollsDirectlyButton
+                  pollsTransition="open_polls"
+                  precinctName={precinctName}
+                  updatePollsState={updatePollsState}
+                />
+              )}
+              {pollsState === 'polls_paused' && (
+                <UpdatePollsDirectlyButton
+                  pollsTransition="unpause_polls"
+                  precinctName={precinctName}
+                  updatePollsState={updatePollsState}
+                />
+              )}
+              {(pollsState === 'polls_open' ||
+                pollsState === 'polls_paused') && (
+                <UpdatePollsDirectlyButton
+                  pollsTransition="close_polls"
+                  precinctName={precinctName}
+                  updatePollsState={updatePollsState}
+                />
+              )}
+              {pollsState === 'polls_open' && (
+                <UpdatePollsDirectlyButton
+                  pollsTransition="pause_polls"
+                  precinctName={precinctName}
+                  updatePollsState={updatePollsState}
+                />
+              )}
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
                 System Diagnostics
               </Button>
@@ -632,61 +711,6 @@ export function PollWorkerScreen({
             <Text center>{ballotsPrintedCount}</Text>
           </Prose>
         </Sidebar>
-        {isShowingVxScanPollsOpenModal && (
-          <Modal
-            centerContent
-            content={
-              <Prose textCenter id="modalaudiofocus">
-                {pollsState === 'polls_open' ? (
-                  <React.Fragment>
-                    <h1>No Polls Closed Report on Card</h1>
-                    <p>
-                      Close polls on VxScan to save the polls closed report
-                      before closing polls on VxMark.
-                    </p>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <h1>No Polls Opened Report on Card</h1>
-                    <p>
-                      Open polls on VxScan to save the polls opened report
-                      before opening polls on VxMark.
-                    </p>
-                  </React.Fragment>
-                )}
-              </Prose>
-            }
-            actions={
-              <React.Fragment>
-                <Button
-                  primary
-                  onPress={() => setIsShowingVxScanPollsOpenModal(false)}
-                >
-                  Cancel
-                </Button>
-                {pollsState === 'polls_closed_initial' ? (
-                  <Button
-                    onPress={() => {
-                      updatePollsState('polls_open');
-                      setIsShowingVxScanPollsOpenModal(false);
-                    }}
-                  >
-                    Open VxMark Now
-                  </Button>
-                ) : (
-                  <Button
-                    onPress={() => {
-                      updatePollsState('polls_closed_final');
-                      setIsShowingVxScanPollsOpenModal(false);
-                    }}
-                  >
-                    Close VxMark Now
-                  </Button>
-                )}
-              </React.Fragment>
-            }
-          />
-        )}
         {isConfirmingEnableLiveMode && (
           <Modal
             centerContent
