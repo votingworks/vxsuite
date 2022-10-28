@@ -10,6 +10,7 @@ test('component flow', async () => {
   render(
     <ResetPollsToPausedButton
       logger={logger}
+      resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={resetPollsToPaused}
     />
   );
@@ -55,7 +56,12 @@ test('component flow', async () => {
 
 test('is disabled without callback', () => {
   const logger = fakeLogger();
-  render(<ResetPollsToPausedButton logger={logger} />);
+  render(
+    <ResetPollsToPausedButton
+      resetPollsToPausedText="Reset Polls to Paused Text"
+      logger={logger}
+    />
+  );
 
   // Initially should just contain the button
   expect(

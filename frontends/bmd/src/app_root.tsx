@@ -33,6 +33,7 @@ import {
   throwIllegalValue,
   usbstick,
   singlePrecinctSelectionFor,
+  makeAsync,
 } from '@votingworks/utils';
 
 import { Logger } from '@votingworks/logging';
@@ -501,6 +502,10 @@ export function AppRoot({
     dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
   }, []);
 
+  const resetPollsToPaused = useCallback(() => {
+    dispatchAppState({ type: 'updatePollsState', pollsState: 'polls_paused' });
+  }, []);
+
   const updateTally = useCallback(() => {
     dispatchAppState({ type: 'updateTally' });
   }, []);
@@ -751,6 +756,11 @@ export function AppRoot({
         logger={logger}
         unconfigureMachine={unconfigure}
         isMachineConfigured={Boolean(optionalElectionDefinition)}
+        resetPollsToPaused={
+          pollsState === 'polls_closed_final'
+            ? makeAsync(resetPollsToPaused)
+            : undefined
+        }
         usbDriveStatus={displayUsbStatus}
       />
     );

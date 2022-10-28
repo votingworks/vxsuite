@@ -6,11 +6,13 @@ import { Modal } from './modal';
 import { Prose } from './prose';
 
 interface Props {
+  resetPollsToPausedText: string;
   resetPollsToPaused?: () => Promise<void>;
   logger: Logger;
 }
 
 export function ResetPollsToPausedButton({
+  resetPollsToPausedText,
   resetPollsToPaused,
   logger,
 }: Props): JSX.Element {
@@ -44,11 +46,7 @@ export function ResetPollsToPausedButton({
           content={
             <Prose>
               <h1>Reset Polls to Paused</h1>
-              <p>
-                The polls are closed and voting is complete. After resetting the
-                polls to paused, it will be possible to re-open the polls and
-                resume voting. All current cast vote records will be preserved.
-              </p>
+              <p>{resetPollsToPausedText}</p>
             </Prose>
           }
           onOverlayClick={hideModal}

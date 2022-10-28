@@ -15,7 +15,7 @@ interface Props {
   logger: Logger;
   primaryText: React.ReactNode;
   unconfigureMachine: () => Promise<void>;
-  showResetPollsToPausedButton?: boolean;
+  resetPollsToPausedText?: string;
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
   usbDriveStatus: usbstick.UsbDriveStatus;
@@ -30,7 +30,7 @@ export function SystemAdministratorScreenContents({
   logger,
   primaryText,
   unconfigureMachine,
-  showResetPollsToPausedButton,
+  resetPollsToPausedText,
   resetPollsToPaused,
   isMachineConfigured,
   usbDriveStatus,
@@ -42,9 +42,10 @@ export function SystemAdministratorScreenContents({
         {displayRemoveCardToLeavePrompt && (
           <p>Remove the System Administrator card to leave this screen.</p>
         )}
-        {showResetPollsToPausedButton && (
+        {resetPollsToPausedText && (
           <p>
             <ResetPollsToPausedButton
+              resetPollsToPausedText={resetPollsToPausedText}
               resetPollsToPaused={resetPollsToPaused}
               logger={logger}
             />
