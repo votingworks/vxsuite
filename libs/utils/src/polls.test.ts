@@ -3,6 +3,7 @@ import {
   getPollsStateName,
   getPollsTransitionAction,
   getPollsTransitionDestinationState,
+  isValidPollsStateChange,
 } from './polls';
 
 test('getPollsTransitionDestinationState', () => {
@@ -39,4 +40,56 @@ test('getPollsStateName', () => {
   expect(getPollsStateName('polls_paused')).toEqual('Paused');
   expect(getPollsStateName('polls_closed_initial')).toEqual('Closed');
   expect(getPollsStateName('polls_closed_final')).toEqual('Closed');
+});
+
+test('isValidPollsStateChange', () => {
+  // from polls closed initial
+  expect(
+    isValidPollsStateChange('polls_closed_initial', 'polls_closed_initial')
+  ).toEqual(false);
+  expect(isValidPollsStateChange('polls_closed_initial', 'polls_open')).toEqual(
+    true
+  );
+  expect(
+    isValidPollsStateChange('polls_closed_initial', 'polls_paused')
+  ).toEqual(true);
+  expect(
+    isValidPollsStateChange('polls_closed_initial', 'polls_closed_final')
+  ).toEqual(true);
+
+  // from polls open
+  expect(isValidPollsStateChange('polls_open', 'polls_closed_initial')).toEqual(
+    false
+  );
+  expect(isValidPollsStateChange('polls_open', 'polls_open')).toEqual(false);
+  expect(isValidPollsStateChange('polls_open', 'polls_paused')).toEqual(true);
+  expect(isValidPollsStateChange('polls_open', 'polls_closed_final')).toEqual(
+    true
+  );
+
+  // from polls paused
+  expect(
+    isValidPollsStateChange('polls_paused', 'polls_closed_initial')
+  ).toEqual(false);
+  expect(isValidPollsStateChange('polls_paused', 'polls_open')).toEqual(true);
+  expect(isValidPollsStateChange('polls_paused', 'polls_paused')).toEqual(
+    false
+  );
+  expect(isValidPollsStateChange('polls_paused', 'polls_closed_final')).toEqual(
+    true
+  );
+
+  // from polls closed final
+  expect(
+    isValidPollsStateChange('polls_closed_final', 'polls_closed_initial')
+  ).toEqual(false);
+  expect(isValidPollsStateChange('polls_closed_final', 'polls_open')).toEqual(
+    false
+  );
+  expect(isValidPollsStateChange('polls_closed_final', 'polls_paused')).toEqual(
+    false
+  );
+  expect(
+    isValidPollsStateChange('polls_closed_final', 'polls_closed_final')
+  ).toEqual(false);
 });

@@ -6,7 +6,6 @@ import {
   Election,
   ElectionDefinition,
   getPartyIdsInBallotStyles,
-  PartyId,
   InsertedSmartcardAuth,
   PrecinctId,
   Tally,
@@ -49,6 +48,7 @@ import {
   getPollsStateName,
   getPollsReportTitle,
   getPollsTransitionAction,
+  isValidPollsStateChange,
 } from '@votingworks/utils';
 
 import { MachineConfig, ScreenReader } from '../config/types';
@@ -75,13 +75,13 @@ function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
 
 function parsePrecinctScannerTally(
   precinctScannerTally: PrecinctScannerCardTally,
-  election: Election,
-  parties: Array<PartyId | undefined>
+  election: Election
 ) {
   assert(
     precinctScannerTally.tallyMachineType ===
       TallySourceMachineType.PRECINCT_SCANNER
   );
+  const parties = getPartyIdsInBallotStyles(election);
   const newSubTallies = new Map<string, Tally>();
   const precinctList = [];
   // Read the tally for each precinct and each party
@@ -150,27 +150,18 @@ function PrecinctScannerTallyReportModal({
   const [modalState, setModalState] =
     useState<PrecinctScannerTallyReportModalState>('initial');
 
-  const parties = getPartyIdsInBallotStyles(electionDefinition.election);
   const precinctScannerTallyInformation =
     precinctScannerTally &&
     parsePrecinctScannerTally(
       precinctScannerTally,
-      electionDefinition.election,
-      parties
+      electionDefinition.election
     );
-
-  function updatePollsToMatchReport() {
-    if (
-      precinctScannerTally &&
-      pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) !==
-        (pollsState === 'polls_open')
-    ) {
-      updatePollsState(
-        getPollsTransitionDestinationState(precinctScannerTally.pollsTransition)
-      );
-    }
-  }
-
+  const precinctScannerPollsState = getPollsTransitionDestinationState(
+    precinctScannerTally.pollsTransition
+  );
+  const [willUpdatePollsToMatchScanner] = useState(
+    isValidPollsStateChange(pollsState, precinctScannerPollsState)
+  );
   const currentTime = Date.now();
 
   async function printReport(copies: number) {
@@ -205,12 +196,14 @@ function PrecinctScannerTallyReportModal({
     await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
 
-  async function updatePollsAndPrintReports() {
+  async function printReports() {
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
       await pollworkerAuth.card.clearStoredData();
-      updatePollsToMatchReport();
+      if (willUpdatePollsToMatchScanner) {
+        updatePollsState(precinctScannerPollsState);
+      }
     } finally {
       setModalState('reprint');
     }
@@ -230,69 +223,62 @@ function PrecinctScannerTallyReportModal({
   let modalContent: React.ReactNode = null;
   let modalActions: React.ReactNode = null;
 
+  const reportTitle = getPollsReportTitle(precinctScannerTally.pollsTransition);
+  const pollsAction = getPollsTransitionAction(
+    precinctScannerTally.pollsTransition
+  );
+  const newPollsStateName = getPollsStateName(precinctScannerPollsState);
+
   switch (modalState) {
     case 'initial':
       modalContent = (
         <Prose id="modalaudiofocus">
-          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) ? (
-            <React.Fragment>
-              <h1>Polls Opened Report on Card</h1>
-              <p>
-                This poll worker card contains a polls opened report. After
-                printing, the report will be cleared from the card and the polls
-                will be opened on VxMark.
-              </p>
-            </React.Fragment>
+          <h1>{reportTitle} on Card</h1>
+          {willUpdatePollsToMatchScanner ? (
+            <p>
+              This poll worker card contains a {reportTitle.toLowerCase()}.
+              After printing, the report will be cleared from the card and the
+              polls will be {newPollsStateName.toLowerCase()} on VxMark.
+            </p>
           ) : (
-            <React.Fragment>
-              <h1>Polls Closed Report on Card</h1>
-              <p>
-                This poll worker card contains a polls closed report. After
-                printing, the report will be cleared from the card and the polls
-                will be closed on VxMark.
-              </p>
-            </React.Fragment>
+            <p>
+              This poll worker card contains a {reportTitle.toLowerCase()}.
+              After printing, the report will be cleared from the card.
+            </p>
           )}
         </Prose>
       );
-      modalActions = (
-        <Button primary onPress={updatePollsAndPrintReports}>
-          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition)
-            ? 'Open Polls and Print Report'
-            : 'Close Polls and Print Report'}
+      modalActions = willUpdatePollsToMatchScanner ? (
+        <Button primary onPress={printReports}>
+          {pollsAction} Polls and Print Report
+        </Button>
+      ) : (
+        <Button primary onPress={printReports}>
+          Print Report
         </Button>
       );
       break;
     case 'printing':
       modalContent = (
         <Prose textCenter id="modalaudiofocus">
-          <Loading>
-            {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition)
-              ? 'Printing polls opened report'
-              : 'Printing polls closed report'}
-          </Loading>
+          <Loading>{`Printing ${reportTitle.toLowerCase()}`}</Loading>
         </Prose>
       );
       break;
     case 'reprint':
       modalContent = (
         <Prose id="modalaudiofocus">
-          {pollsTransitionToPollsOpen(precinctScannerTally.pollsTransition) ? (
-            <React.Fragment>
-              <h1>Polls Opened Report Printed</h1>
-              <p>
-                The polls are now open. If needed, you may print additional
-                copies of the polls opened report.
-              </p>
-            </React.Fragment>
+          <h1>{reportTitle} Printed</h1>
+          {willUpdatePollsToMatchScanner ? (
+            <p>
+              The polls are now {newPollsStateName.toLowerCase()}. If needed,
+              you may print additional copies of the polls opened report.
+            </p>
           ) : (
-            <React.Fragment>
-              <h1>Polls Closed Report Printed</h1>
-              <p>
-                The polls are now closed. If needed, you may print additional
-                copies of the polls closed report.
-              </p>
-            </React.Fragment>
+            <p>
+              If needed, you may print additional copies of the polls opened
+              report.
+            </p>
           )}
         </Prose>
       );

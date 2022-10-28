@@ -62,3 +62,15 @@ export function getPollsStateName(state: PollsState): string {
       throwIllegalValue(state);
   }
 }
+
+// Used to determine, on VxMark, whether the polls state should be updated to
+// match the polls state on a precinct scanner card tally.
+export function isValidPollsStateChange(
+  prevState: PollsState,
+  newState: PollsState
+): boolean {
+  if (prevState === newState) return false; // no change an invalid change
+  if (prevState === 'polls_closed_final') return false; // cannot change if voting complete
+  if (newState === 'polls_closed_initial') return false; // cannot revert to initial closed
+  return true;
+}
