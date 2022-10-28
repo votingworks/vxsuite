@@ -34,7 +34,8 @@ def usage(file=sys.stdout, code=0):
         file=file,
     )
     print("%s enable --election-manager DEFINITION" % argv0, file=file)
-    print("%s enable --poll-worker DEFINITION" % argv0, file=file)
+    print("%s enable --poll-worker DEFINITION OPTIONAL_LONG_VALUE" %
+          argv0, file=file)
     print(
         "%s enable --voter DEFINITION --precinct PRECINCT_ID --ballot-style BALLOT_STYLE_ID"
         % argv0,
@@ -47,6 +48,12 @@ def usage(file=sys.stdout, code=0):
         file=file,
     )
     print("%s enable --fixture DIR" % argv0, file=file)
+    print("", file=file)
+    print(
+        "# enable mock reader with a given card and emulate removal right after, i.e. --no-card",
+        file=file,
+    )
+    print("%s enable CARD_ARGUMENTS --dip" % argv0, file=file)
     print("", file=file)
     print("# disable mock reader / use the real card reader", file=file)
     print("%s disable" % argv0, file=file)
@@ -62,7 +69,7 @@ def set_mock(request_data):
 
 
 def enable_no_card():
-    set_mock({"enabled": True, "hasCard": card})
+    set_mock({"enabled": True, "hasCard": False})
 
 
 def enable_fixture(fixture_path: str):
@@ -135,7 +142,7 @@ def enable_election_manager(election_definition: ElectionDefinition):
     )
 
 
-def enable_poll_worker(election_definition: ElectionDefinition):
+def enable_poll_worker(election_definition: ElectionDefinition, long_value: Optional[str] = None):
     set_mock(
         {
             "enabled": True,
@@ -145,7 +152,7 @@ def enable_poll_worker(election_definition: ElectionDefinition):
                     "h": election_definition.election_hash,
                 }
             ),
-            "longValue": None,
+            "longValue": long_value,
         }
     )
 
@@ -199,16 +206,18 @@ if command == "enable":
     card = True
     fixture_path: Optional[str] = None
     election_path: Optional[str] = None
+    poll_worker_long_value_path: Optional[str] = None
     card_type: Optional[str] = None
     precinct_id: Optional[str] = None
     ballot_style_id: Optional[str] = None
+    dip = False
 
     i = 2
     while i < len(sys.argv):
         arg = sys.argv[i]
 
-        if arg == "--card" or arg == "--no-card":
-            card = arg == "--card"
+        if arg == "--no-card":
+            card = False
         elif arg == "--fixture":
             i += 1
             fixture_path = sys.argv[i]
@@ -220,6 +229,10 @@ if command == "enable":
             i += 1
             election_path = sys.argv[i]
             card_type = "poll_worker"
+            if i + 1 < len(sys.argv) and os.path.isfile(sys.argv[i+1]):
+                i += 1
+                poll_worker_long_value_path = sys.argv[i]
+                print("found long value to write to poll worker card...")
         elif arg == "--system-administrator":
             card_type = "system_administrator"
         elif arg == "--voter":
@@ -232,6 +245,8 @@ if command == "enable":
         elif arg == "--ballot-style":
             i += 1
             ballot_style_id = sys.argv[i]
+        elif arg == "--dip":
+            dip = True
         else:
             fatal("unexpected option: %s" % arg)
 
@@ -253,7 +268,11 @@ if command == "enable":
         if card_type == "election_manager":
             enable_election_manager(election_definition)
         elif card_type == "poll_worker":
-            enable_poll_worker(election_definition)
+            poll_worker_long_value: Optional[str] = None
+            if poll_worker_long_value_path:
+                with open(poll_worker_long_value_path, "r") as poll_worker_long_value_file:
+                    poll_worker_long_value = poll_worker_long_value_file.read()
+            enable_poll_worker(election_definition, poll_worker_long_value)
         elif card_type == "voter":
             if not precinct_id:
                 fatal("--voter requires --precinct")
@@ -263,7 +282,11 @@ if command == "enable":
             enable_voter(election_definition, precinct_id, ballot_style_id)
     elif card_type == "system_administrator":
         enable_system_administrator()
-    else:
+    elif not card:
+        enable_no_card()
+
+    if dip:
+        time.sleep(0.1)
         enable_no_card()
 
 elif command == "disable":
