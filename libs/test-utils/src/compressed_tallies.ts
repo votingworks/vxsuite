@@ -15,7 +15,10 @@ export function getZeroCompressedTally(election: Election): CompressedTally {
       return [0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
     if (contest.type === 'candidate') {
-      return [0, 0, 0, 0, ...contest.candidates.map(() => 0)];
+      if (contest.allowWriteIns) {
+        return [0, 0, 0, 0, ...contest.candidates.map(() => 0)];
+      }
+      return [0, 0, 0, ...contest.candidates.map(() => 0)];
     }
     /* istanbul ignore next - compile time check for completeness */
     throwIllegalValue(contest);

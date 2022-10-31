@@ -361,7 +361,6 @@ test('PrintOnly flow', async () => {
   // Close Polls
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
   fireEvent.click(screen.getByText('Close VxMark Now'));
-  screen.getByText('Open Polls for Center Springfield');
 
   // Remove card
   card.removeCard();

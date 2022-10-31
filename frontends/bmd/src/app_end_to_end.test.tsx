@@ -368,7 +368,6 @@ it('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('View Other Actions'));
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
   fireEvent.click(screen.getByText('Close VxMark Now'));
-  screen.getByText('Open Polls for Center Springfield');
 
   // Remove card
   card.removeCard();
@@ -400,7 +399,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Close Polls and Print Report'));
+  fireEvent.click(screen.getByText('Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
