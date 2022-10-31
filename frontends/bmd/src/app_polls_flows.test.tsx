@@ -35,6 +35,7 @@ import {
   MsEitherNeitherContestCompressedTally,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
+import { LogEventId } from '@votingworks/logging';
 import {
   setElectionInStorage,
   setStateInStorage,
@@ -126,7 +127,7 @@ function checkPollsOpenedReport(printedElement: RenderResult) {
 }
 
 test('full polls flow with tally reports - general, single precinct', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage, logger } = buildApp();
   jest.spyOn(card, 'writeLongUint8Array');
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
@@ -164,17 +165,43 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await expectPrint(checkPollsOpenedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   await screen.findByText('Polls Opened Report Printed');
+  screen.getByText(
+    'The polls are now open. If needed, you may print additional copies of the polls opened report.'
+  );
   expect(card.writeLongUint8Array).toHaveBeenCalledTimes(1);
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
-  ); // Card cleared
+  ); // Card clearing
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsOpened,
+    'poll_worker',
+    expect.anything()
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPrinted,
+    'poll_worker',
+    expect.objectContaining({
+      message:
+        'Printed 2 copies of a polls opened report for Center Springfield exported from scanner 001.',
+    })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportClearedFromCard,
+    'poll_worker',
+    expect.anything()
+  );
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   await screen.findByText('Polls Opened Report Printed');
-  screen.getByText(
-    'The polls are now open. If needed, you may print additional copies of the polls opened report.'
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPrinted,
+    'poll_worker',
+    expect.objectContaining({
+      message:
+        'Printed 1 copies of a polls opened report for Center Springfield exported from scanner 001.',
+    })
   );
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
@@ -220,6 +247,24 @@ test('full polls flow with tally reports - general, single precinct', async () =
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
   ); // Card cleared
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsPaused,
+    'poll_worker',
+    expect.anything()
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPrinted,
+    'poll_worker',
+    expect.objectContaining({
+      message:
+        'Printed 2 copies of a polls paused report for Center Springfield exported from scanner 001.',
+    })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportClearedFromCard,
+    'poll_worker',
+    expect.anything()
+  );
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls paused report');
   await expectPrint(checkPollsPausedReport);
@@ -269,6 +314,24 @@ test('full polls flow with tally reports - general, single precinct', async () =
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
   ); // Card cleared
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsUnpaused,
+    'poll_worker',
+    expect.anything()
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPrinted,
+    'poll_worker',
+    expect.objectContaining({
+      message:
+        'Printed 2 copies of a polls opened report for Center Springfield exported from scanner 001.',
+    })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportClearedFromCard,
+    'poll_worker',
+    expect.anything()
+  );
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsUnpausedReport);
@@ -347,6 +410,24 @@ test('full polls flow with tally reports - general, single precinct', async () =
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
   ); // Card cleared
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsClosed,
+    'poll_worker',
+    expect.anything()
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPrinted,
+    'poll_worker',
+    expect.objectContaining({
+      message:
+        'Printed 2 copies of a polls closed report for Center Springfield exported from scanner 001.',
+    })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportClearedFromCard,
+    'poll_worker',
+    expect.anything()
+  );
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls closed report');
   await expectPrint(checkPollsClosedReport);
@@ -1126,7 +1207,7 @@ test('tally report: will print but not update polls state appropriate', async ()
 });
 
 test('full polls flow without tally reports', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage, logger } = buildApp();
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
@@ -1145,6 +1226,11 @@ test('full polls flow without tally reports', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
   await screen.findByText('Insert Card');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsOpened,
+    'poll_worker',
+    expect.anything()
+  );
 
   // Pause Polls
   card.insertCard(pollWorkerCard);
@@ -1156,6 +1242,11 @@ test('full polls flow without tally reports', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   card.removeCard();
   await screen.findByText('Polls Paused');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsPaused,
+    'poll_worker',
+    expect.anything()
+  );
 
   // Unpause Polls
   card.insertCard(pollWorkerCard);
@@ -1166,6 +1257,11 @@ test('full polls flow without tally reports', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
   await screen.findByText('Insert Card');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsUnpaused,
+    'poll_worker',
+    expect.anything()
+  );
 
   // Close Polls
   card.insertCard(pollWorkerCard);
@@ -1178,6 +1274,11 @@ test('full polls flow without tally reports', async () => {
   card.removeCard();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsClosed,
+    'poll_worker',
+    expect.anything()
+  );
 });
 
 test('can close from paused wtihout tally report', async () => {

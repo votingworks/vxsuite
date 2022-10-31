@@ -21,6 +21,7 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
+import { Logger, LogSource } from '@votingworks/logging';
 import { MarkOnly, MarkAndPrint } from '../config/types';
 
 import { render } from '../../test/test_utils';
@@ -78,6 +79,7 @@ function renderScreen(
       screenReader={new AriaScreenReader(fakeTts())}
       updatePollsState={jest.fn()}
       reload={jest.fn()}
+      logger={new Logger(LogSource.VxBallotMarkingDeviceFrontend)}
       {...props}
     />
   );

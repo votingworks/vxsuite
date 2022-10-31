@@ -36,7 +36,7 @@ import {
   makeAsync,
 } from '@votingworks/utils';
 
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 
 import {
   isElectionManagerAuth,
@@ -498,9 +498,35 @@ export function AppRoot({
     dispatchAppState({ type: 'toggleLiveMode' });
   }, []);
 
-  const updatePollsState = useCallback((newPollsState: PollsState) => {
-    dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
-  }, []);
+  const updatePollsState = useCallback(
+    async (newPollsState: PollsState) => {
+      assert(newPollsState !== 'polls_closed_initial');
+      const logEvent = (() => {
+        switch (newPollsState) {
+          case 'polls_closed_final':
+            return LogEventId.PollsClosed;
+          case 'polls_paused':
+            return LogEventId.PollsPaused;
+          case 'polls_open':
+            if (pollsState === 'polls_closed_initial') {
+              return LogEventId.PollsOpened;
+            }
+            return LogEventId.PollsUnpaused;
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(newPollsState);
+        }
+      })();
+
+      dispatchAppState({
+        type: 'updatePollsState',
+        pollsState: newPollsState,
+      });
+
+      await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
+    },
+    [logger, pollsState]
+  );
 
   const resetPollsToPaused = useCallback(() => {
     dispatchAppState({ type: 'updatePollsState', pollsState: 'polls_paused' });
@@ -839,6 +865,7 @@ export function AppRoot({
           updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
+          logger={logger}
         />
       );
     }

@@ -51,6 +51,7 @@ import {
   isValidPollsStateChange,
 } from '@votingworks/utils';
 
+import { LogEventId, Logger } from '@votingworks/logging';
 import { MachineConfig, ScreenReader } from '../config/types';
 
 import { Sidebar, SidebarProps } from '../components/sidebar';
@@ -138,6 +139,7 @@ function PrecinctScannerTallyReportModal({
   pollsState,
   updatePollsState,
   onClose,
+  logger,
 }: {
   electionDefinition: ElectionDefinition;
   precinctScannerTally: PrecinctScannerCardTally;
@@ -146,6 +148,7 @@ function PrecinctScannerTallyReportModal({
   pollsState: PollsState;
   updatePollsState: (pollsState: PollsState) => void;
   onClose: VoidFunction;
+  logger: Logger;
 }) {
   const [modalState, setModalState] =
     useState<PrecinctScannerTallyReportModalState>('initial');
@@ -193,6 +196,22 @@ function PrecinctScannerTallyReportModal({
         copies,
       }
     );
+    const reportTitle = getPollsReportTitle(
+      precinctScannerTally.pollsTransition
+    ).toLowerCase();
+    const reportPrecinctName = getPrecinctSelectionName(
+      electionDefinition.election.precincts,
+      precinctScannerTally.precinctSelection
+    );
+    await logger.log(LogEventId.TallyReportPrinted, 'poll_worker', {
+      disposition: 'success',
+      message: `Printed ${copies} copies of a ${reportTitle} for ${reportPrecinctName} exported from scanner ${precinctScannerTally.machineId}.`,
+      scannerPollsTransition: precinctScannerTally.pollsTransition,
+      timePollsTransitionedOnScanner:
+        precinctScannerTally.timePollsTransitioned,
+      timeReportSavedToCard: precinctScannerTally.timeSaved,
+      totalBallotsScanned: precinctScannerTally.totalBallotsScanned,
+    });
     await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
 
@@ -201,6 +220,9 @@ function PrecinctScannerTallyReportModal({
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
       await pollworkerAuth.card.clearStoredData();
+      await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
+        disposition: 'success',
+      });
       if (willUpdatePollsToMatchScanner) {
         updatePollsState(precinctScannerPollsState);
       }
@@ -390,6 +412,7 @@ export interface PollworkerScreenProps {
   screenReader: ScreenReader;
   updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
+  logger: Logger;
 }
 
 export function PollWorkerScreen({
@@ -409,6 +432,7 @@ export function PollWorkerScreen({
   updatePollsState,
   hasVotes,
   reload,
+  logger,
 }: PollworkerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
@@ -746,6 +770,7 @@ export function PollWorkerScreen({
           pollsState={pollsState}
           updatePollsState={updatePollsState}
           onClose={() => setPrecinctScannerTally(undefined)}
+          logger={logger}
         />
       )}
     </React.Fragment>
