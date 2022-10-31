@@ -196,7 +196,7 @@ function PrecinctScannerTallyReportModal({
     await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
 
-  async function printReports() {
+  async function printReportsAndUpdatePolls() {
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
@@ -249,11 +249,11 @@ function PrecinctScannerTallyReportModal({
         </Prose>
       );
       modalActions = willUpdatePollsToMatchScanner ? (
-        <Button primary onPress={printReports}>
+        <Button primary onPress={printReportsAndUpdatePolls}>
           {pollsAction} Polls and Print Report
         </Button>
       ) : (
-        <Button primary onPress={printReports}>
+        <Button primary onPress={printReportsAndUpdatePolls}>
           Print Report
         </Button>
       );
