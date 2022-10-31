@@ -24,7 +24,7 @@ import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { VersionsData } from '../components/versions_data';
 
-interface Props {
+export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition?: ElectionDefinition;
@@ -52,7 +52,7 @@ export function AdminScreen({
   screenReader,
   pollsState,
   logger,
-}: Props): JSX.Element {
+}: AdminScreenProps): JSX.Element {
   const election = electionDefinition?.election;
 
   const [isFetchingElection, setIsFetchingElection] = useState(false);
@@ -74,18 +74,24 @@ export function AdminScreen({
         <Prose>
           {election && (
             <React.Fragment>
-              <h1>
-                <label htmlFor="selectPrecinct">Precinct</label>
-              </h1>
-              <ChangePrecinctButton
-                appPrecinctSelection={appPrecinct}
-                updatePrecinctSelection={makeAsync(updateAppPrecinct)}
-                election={election}
-                mode={
-                  pollsState !== 'polls_closed_final' ? 'default' : 'disabled'
-                }
-                logger={logger}
-              />
+              {election.precincts.length > 1 && (
+                <React.Fragment>
+                  <h1>
+                    <label htmlFor="selectPrecinct">Precinct</label>
+                  </h1>
+                  <ChangePrecinctButton
+                    appPrecinctSelection={appPrecinct}
+                    updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                    election={election}
+                    mode={
+                      pollsState === 'polls_closed_final'
+                        ? 'disabled'
+                        : 'default'
+                    }
+                    logger={logger}
+                  />
+                </React.Fragment>
+              )}
               <h1>Testing Mode</h1>
               <p>
                 <SegmentedButton>
