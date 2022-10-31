@@ -21,6 +21,7 @@ import {
   BallotModeSchema,
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
+  CvrFileMode,
   ElectionRecord,
   ElectionRecordSchema,
   PrintedBallot,
@@ -244,30 +245,61 @@ export const DeleteCvrFileResponseSchema: z.ZodSchema<DeleteCvrFileResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * @url /admin/:electionId/cvr-files
+ * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
 export type GetCvrFilesRequest = never;
 
 /**
- * @url /admin/:electionId/cvr-files
+ * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
 export const GetCvrFilesRequestSchema: z.ZodSchema<GetCvrFilesRequest> =
   z.never();
 
 /**
- * @url /admin/:electionId/cvr-files
+ * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
 export type GetCvrFileResponse = CastVoteRecordFileRecord[];
 
 /**
- * @url /admin/:electionId/cvr-files
+ * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
 export const GetCvrFileResponseSchema: z.ZodSchema<GetCvrFileResponse> =
   z.array(CastVoteRecordFileRecordSchema);
+
+/**
+ * @url /admin/elections/:electionId/cvr-file-mode
+ * @method GET
+ */
+export type GetCvrFileModeRequest = never;
+
+/**
+ * @url /admin/elections/:electionId/cvr-file-mode
+ * @method GET
+ */
+export const GetCvrFileModeRequestSchema: z.ZodSchema<GetCvrFileModeRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/cvr-file-mode
+ * @method GET
+ */
+export type GetCvrFileModeResponse =
+  | OkResponse<{ cvrFileMode: CvrFileMode }>
+  | ErrorsResponse;
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method GET
+ */
+export const GetCvrFileModeResponseSchema: z.ZodSchema<GetCvrFileModeResponse> =
+  z.object({
+    status: z.literal('ok'),
+    cvrFileMode: z.nativeEnum(CvrFileMode),
+  });
 
 /**
  * @url /admin/elections/:electionId/write-ins

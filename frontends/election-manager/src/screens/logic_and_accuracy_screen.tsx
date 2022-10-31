@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Admin } from '@votingworks/api';
 import { LinkButton, Prose } from '@votingworks/ui';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -6,10 +7,12 @@ import { routerPaths } from '../router_paths';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
+import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
-  const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
-  const isLiveMode = castVoteRecordFiles?.fileMode === 'live';
+  const { electionDefinition } = useContext(AppContext);
+
+  const isLiveMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Official;
 
   if (
     electionDefinition &&

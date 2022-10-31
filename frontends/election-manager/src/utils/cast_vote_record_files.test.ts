@@ -85,7 +85,6 @@ test('can add multiple CVR files by creating a new instance', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 });
 
 test('can handle duplicate CVR records gracefully', async () => {
@@ -143,7 +142,6 @@ test('can handle duplicate CVR records gracefully', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 });
 
 test('can preprocess files to give information about expected duplicates', async () => {
@@ -185,7 +183,6 @@ test('can preprocess files to give information about expected duplicates', async
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 
   window.kiosk = fakeKiosk();
   window.kiosk.readFile = jest
@@ -293,7 +290,6 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('test');
 });
 
 test('does not mutate the original when adding a new instance', async () => {

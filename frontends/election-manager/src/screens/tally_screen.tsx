@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
 
+import { Admin } from '@votingworks/api';
 import { assert, format, find } from '@votingworks/utils';
 import {
   Button,
@@ -24,6 +25,7 @@ import { FileInputButton } from '../components/file_input_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
 import { ImportExternalResultsModal } from '../components/import_external_results_modal';
+import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 
 export function TallyScreen(): JSX.Element {
   const {
@@ -93,11 +95,11 @@ export function TallyScreen(): JSX.Element {
     }
   }
 
-  const fileMode = castVoteRecordFiles?.fileMode;
+  const fileMode = useCvrFileModeQuery().data;
   const fileModeText =
-    fileMode === 'test'
+    fileMode === Admin.CvrFileMode.Test
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before loading live ballot results.'
-      : fileMode === 'live'
+      : fileMode === Admin.CvrFileMode.Official
       ? 'Currently tallying live ballots.'
       : '';
 

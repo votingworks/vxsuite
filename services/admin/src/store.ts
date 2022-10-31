@@ -282,6 +282,8 @@ export class Store {
             continue;
           }
 
+          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking against
+          // attempts to mix "live" and "test" CVRs for the same election.
           const result = this.addCastVoteRecordFileEntry(electionId, id, line);
 
           if (result.isErr()) {
@@ -439,6 +441,34 @@ export class Store {
     }
 
     return ok({ id, isNew: !existing });
+  }
+
+  /**
+   * Returns the current CVR file mode for the current election.
+   */
+  getCurrentCvrFileModeForElection(electionId: Id): Admin.CvrFileMode {
+    const sampleCvr = this.client.one(
+      `
+        select
+          data
+        from cvrs
+        where
+          election_id = ?
+      `,
+      electionId
+    ) as { data: string } | undefined;
+
+    if (!sampleCvr) {
+      return Admin.CvrFileMode.Unlocked;
+    }
+
+    const parsedCvr = safeParseJson(
+      sampleCvr.data
+    ).unsafeUnwrap() as CastVoteRecord;
+
+    return parsedCvr._testBallot
+      ? Admin.CvrFileMode.Test
+      : Admin.CvrFileMode.Official;
   }
 
   /**

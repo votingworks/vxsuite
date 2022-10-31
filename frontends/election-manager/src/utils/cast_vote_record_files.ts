@@ -4,7 +4,6 @@ import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
 import {
   CastVoteRecordFile,
-  CastVoteRecordFileMode,
   CastVoteRecordFilePreprocessedData,
 } from '../config/types';
 import { readFileAsync } from '../lib/read_file_async';
@@ -190,7 +189,6 @@ export class CastVoteRecordFiles {
   ): Promise<CastVoteRecordFilePreprocessedData[]> {
     const results: CastVoteRecordFilePreprocessedData[] = [];
     for (const file of files) {
-      const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
       try {
         const importedFile = [...this.files].find((f) => f.name === file.name);
         if (importedFile) {
@@ -200,19 +198,19 @@ export class CastVoteRecordFiles {
             importedCvrCount: importedFile.importedCvrCount,
             scannerIds: importedFile.scannerIds,
             exportTimestamp: importedFile.exportTimestamp,
-            isTestModeResults: this.fileMode === 'test',
+            isTestModeResults: importedFile.allCastVoteRecords[0]._testBallot,
             fileContent: '',
             name: file.name,
           });
         } else {
           assert(window.kiosk);
           const fileContent = await window.kiosk.readFile(file.path, 'utf-8');
+          const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
           const parsedFile = this.parseFromFileContent(
             fileContent,
             file.name,
             parsedFileInfo?.timestamp || new Date(file.mtime),
             parsedFileInfo?.machineId || '',
-            parsedFileInfo?.isTestModeResults ?? false,
             election
           );
           results.push(parsedFile);
@@ -225,23 +223,6 @@ export class CastVoteRecordFiles {
     }
 
     return results;
-  }
-
-  /**
-   *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
-   * `fileData` to those contained by this `CastVoteRecordFiles` instance.
-   */
-  addFromFileData(
-    fileData: CastVoteRecordFilePreprocessedData,
-    election: Election
-  ): CastVoteRecordFiles {
-    assert(window.kiosk);
-    return this.addFromFileContent(
-      fileData.fileContent,
-      fileData.name,
-      fileData.exportTimestamp,
-      election
-    );
   }
 
   /**
@@ -276,7 +257,6 @@ export class CastVoteRecordFiles {
     fileName: string,
     exportTimestamp: Date,
     scannerId: string,
-    fallbackTestMode: boolean,
     election: Election
   ): CastVoteRecordFilePreprocessedData {
     const fileCastVoteRecords: CastVoteRecord[] = [];
@@ -313,8 +293,7 @@ export class CastVoteRecordFiles {
       importedCvrCount: duplicateCount,
       scannerIds: scannerIds.length > 0 ? scannerIds : [scannerId],
       exportTimestamp,
-      isTestModeResults:
-        testBallotSeen || liveBallotSeen ? testBallotSeen : fallbackTestMode,
+      isTestModeResults: testBallotSeen,
       fileContent,
       fileImported: false,
     };
@@ -440,20 +419,6 @@ export class CastVoteRecordFiles {
    */
   get castVoteRecords(): IterableIterator<CastVoteRecord> {
     return this.deduplicatedCastVoteRecords.values();
-  }
-
-  /**
-   * Gets the file mode for the set of CVR files.
-   */
-  get fileMode(): CastVoteRecordFileMode | undefined {
-    let liveSeen = false;
-    for (const cvr of this.deduplicatedCastVoteRecords.values()) {
-      if (cvr._testBallot) {
-        return 'test';
-      }
-      liveSeen = true;
-    }
-    return liveSeen ? 'live' : undefined;
   }
 
   /**
