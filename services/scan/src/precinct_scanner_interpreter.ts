@@ -14,7 +14,6 @@ import {
   PrecinctSelection,
   Result,
 } from '@votingworks/types';
-import { readFile } from 'fs/promises';
 import { Scan } from '@votingworks/api';
 import * as qrcodeWorker from './workers/qrcode';
 import { Interpreter as VxInterpreter } from './interpreter';
@@ -256,10 +255,8 @@ async function vxInterpret(
       ballotImagePath,
       detectQrcodeResult,
     ]): Promise<PageInterpretationWithFiles> => {
-      const ballotImageFile = await readFile(ballotImagePath);
       const result = await vxInterpreter.interpretFile({
         ballotImagePath,
-        ballotImageFile,
         detectQrcodeResult,
       });
 

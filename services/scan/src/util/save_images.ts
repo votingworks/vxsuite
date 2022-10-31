@@ -1,6 +1,6 @@
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
-import { basename, extname, join } from 'path';
+import { basename, join, parse } from 'path';
 import { writeImageData } from './images';
 
 const debug = makeDebug('scan:importer');
@@ -58,7 +58,8 @@ export async function saveSheetImages(
   ballotImagePath: string,
   normalizedImage?: ImageData
 ): Promise<SaveImagesResult> {
-  const ext = extname(ballotImagePath);
+  const parts = parse(ballotImagePath);
+  const ext = parts.ext === '.png' ? '.png' : '.jpg';
   const originalImagePath = join(
     ballotImagesPath,
     `${basename(ballotImagePath, ext)}-${sheetId}-original${ext}`
