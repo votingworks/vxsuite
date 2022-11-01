@@ -63,6 +63,24 @@ export function getPollsStateName(state: PollsState): string {
   }
 }
 
+export function getPollTransitionsFromState(
+  state: PollsState
+): PollsTransition[] {
+  switch (state) {
+    case 'polls_open':
+      return ['close_polls', 'pause_polls'];
+    case 'polls_paused':
+      return ['open_polls', 'close_polls'];
+    case 'polls_closed_initial':
+      return ['open_polls'];
+    case 'polls_closed_final':
+      return [];
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(state);
+  }
+}
+
 // Used to determine, on VxMark, whether the polls state should be updated to
 // match the polls state on a precinct scanner card tally.
 export function isValidPollsStateChange(

@@ -3,6 +3,7 @@ import {
   getPollsStateName,
   getPollsTransitionAction,
   getPollsTransitionDestinationState,
+  getPollTransitionsFromState,
   isValidPollsStateChange,
 } from './polls';
 
@@ -92,4 +93,19 @@ test('isValidPollsStateChange', () => {
   expect(
     isValidPollsStateChange('polls_closed_final', 'polls_closed_final')
   ).toEqual(false);
+});
+
+test('getPollTransitionsFromState', () => {
+  expect(getPollTransitionsFromState('polls_open')).toMatchObject([
+    'close_polls',
+    'pause_polls',
+  ]);
+  expect(getPollTransitionsFromState('polls_paused')).toMatchObject([
+    'open_polls',
+    'close_polls',
+  ]);
+  expect(getPollTransitionsFromState('polls_closed_initial')).toMatchObject([
+    'open_polls',
+  ]);
+  expect(getPollTransitionsFromState('polls_closed_final')).toMatchObject([]);
 });

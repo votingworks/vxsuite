@@ -49,6 +49,7 @@ import {
   getPollsReportTitle,
   getPollsTransitionAction,
   isValidPollsStateChange,
+  getPollTransitionsFromState,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -666,34 +667,17 @@ export function PollWorkerScreen({
             </Prose>
           ) : (
             <Prose>
-              {pollsState === 'polls_closed_initial' && (
-                <UpdatePollsDirectlyButton
-                  pollsTransition="open_polls"
-                  precinctName={precinctName}
-                  updatePollsState={updatePollsState}
-                />
-              )}
-              {pollsState === 'polls_paused' && (
-                <UpdatePollsDirectlyButton
-                  pollsTransition="unpause_polls"
-                  precinctName={precinctName}
-                  updatePollsState={updatePollsState}
-                />
-              )}
-              {(pollsState === 'polls_open' ||
-                pollsState === 'polls_paused') && (
-                <UpdatePollsDirectlyButton
-                  pollsTransition="close_polls"
-                  precinctName={precinctName}
-                  updatePollsState={updatePollsState}
-                />
-              )}
-              {pollsState === 'polls_open' && (
-                <UpdatePollsDirectlyButton
-                  pollsTransition="pause_polls"
-                  precinctName={precinctName}
-                  updatePollsState={updatePollsState}
-                />
+              {getPollTransitionsFromState(pollsState).map(
+                (pollsTransition) => {
+                  return (
+                    <UpdatePollsDirectlyButton
+                      key={`${pollsTransition}-directly-button`}
+                      pollsTransition={pollsTransition}
+                      precinctName={precinctName}
+                      updatePollsState={updatePollsState}
+                    />
+                  );
+                }
               )}
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
                 System Diagnostics
