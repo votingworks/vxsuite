@@ -1264,9 +1264,7 @@ test('TODO printing: polls paused', async () => {
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   mockPollsStateChange('polls_paused');
-  userEvent.click(
-    await screen.findByText('Pause Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Pause Polls'));
   await screen.findByText('Polls are paused.');
 
   await expectPrint((printedElement) => {
@@ -1301,9 +1299,7 @@ test('saving to card: polls paused', async () => {
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_paused');
-  userEvent.click(
-    await screen.findByText('Pause Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Pause Polls'));
   await screen.findByText('Polls are paused.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -1439,9 +1435,7 @@ test('printing: polls closed from paused, general election, single precinct', as
   await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
-  userEvent.click(
-    await screen.findByText('Close Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
 
   await expectPrint((printedElement) => {
@@ -1517,9 +1511,7 @@ test('saving to card: polls closed from paused, general election, single precinc
   await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
-  userEvent.click(
-    await screen.findByText('Close Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);

@@ -18,7 +18,6 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   EnvironmentFlagName,
-  getPrecinctSelectionName,
   getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
@@ -400,11 +399,6 @@ export function PollWorkerScreen({
     setPollWorkerFlowState('polls_transition_complete');
   }
 
-  const precinctName = getPrecinctSelectionName(
-    electionDefinition.election.precincts,
-    precinctSelection
-  );
-
   if (!currentTally) {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
@@ -539,7 +533,7 @@ export function PollWorkerScreen({
             <p>The polls have not been opened.</p>
             <p>
               <Button primary large onPress={openPolls}>
-                Open Polls for {precinctName}
+                Open Polls
               </Button>
             </p>
           </React.Fragment>
@@ -550,12 +544,12 @@ export function PollWorkerScreen({
             <p>The polls are currently open.</p>
             <p>
               <Button primary large onPress={closePolls}>
-                Close Polls for {precinctName}
+                Close Polls
               </Button>
             </p>
             <p>
               <Button large onPress={pausePolls}>
-                Pause Polls for {precinctName}
+                Pause Polls
               </Button>
             </p>
           </React.Fragment>
@@ -566,12 +560,12 @@ export function PollWorkerScreen({
             <p>The polls are currently paused.</p>
             <p>
               <Button primary large onPress={unpausePolls}>
-                Reopen Polls for {precinctName}
+                Reopen Polls
               </Button>
             </p>
             <p>
               <Button large onPress={closePolls}>
-                Close Polls for {precinctName}
+                Close Polls
               </Button>
             </p>
           </React.Fragment>

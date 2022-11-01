@@ -131,7 +131,7 @@ describe('transitions from polls closed', () => {
 
   test('open polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Open Polls for All Precincts'));
+    userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
@@ -164,7 +164,7 @@ describe('transitions from polls open', () => {
 
   test('close polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Close Polls for All Precincts'));
+    userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
@@ -172,7 +172,7 @@ describe('transitions from polls open', () => {
 
   test('pause polls', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Pause Polls for All Precincts'));
+    userEvent.click(await screen.findByText('Pause Polls'));
     await screen.findByText('Pausing Polls…');
     await screen.findByText('Polls are paused.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_paused');
@@ -205,7 +205,7 @@ describe('transitions from polls paused', () => {
 
   test('open polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Reopen Polls for All Precincts'));
+    userEvent.click(await screen.findByText('Reopen Polls'));
     await screen.findByText('Reopening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
@@ -213,7 +213,7 @@ describe('transitions from polls paused', () => {
 
   test('close polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Close Polls for All Precincts'));
+    userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
