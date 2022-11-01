@@ -21,14 +21,11 @@ import {
   BallotPageMetadata,
   BallotType,
   ElectionDefinition,
-  err,
   getContestsFromIds,
   InterpretedBmdPage,
   MarkThresholds,
-  ok,
   PageInterpretation,
   PrecinctSelection,
-  Result,
 } from '@votingworks/types';
 import {
   adjudicationReasonDescription,
@@ -36,6 +33,7 @@ import {
   ballotAdjudicationReasons,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { ImageData } from 'canvas';
 import makeDebug from 'debug';
 import { BallotPageQrcode, SheetOf } from './types';
 import { loadImageData } from './util/images';
@@ -47,42 +45,12 @@ const debug = makeDebug('scan:interpreter');
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string;
-  readonly ballotImageFile: Buffer;
   readonly detectQrcodeResult: qrcodeWorker.Output;
 }
 
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
   normalizedImage?: ImageData;
-}
-
-interface BallotImageData {
-  file: Buffer;
-  image: ImageData;
-  qrcode: BallotPageQrcode;
-}
-
-export async function getBallotImageData(
-  file: Buffer,
-  filename: string,
-  detectQrcodeResult: qrcodeWorker.NonBlankPageOutput
-): Promise<Result<BallotImageData, PageInterpretation>> {
-  const { data, width, height } = await loadImageData(file);
-  const image: ImageData = {
-    data: Uint8ClampedArray.from(data),
-    width,
-    height,
-  };
-
-  if (detectQrcodeResult.qrcode) {
-    return ok({ file, image, qrcode: detectQrcodeResult.qrcode });
-  }
-
-  debug('no QR code found in %s', filename);
-  return err({
-    type: 'UnreadablePage',
-    reason: 'No QR code found',
-  });
 }
 
 /**
@@ -232,7 +200,6 @@ export class Interpreter {
 
   async interpretFile({
     ballotImagePath,
-    ballotImageFile,
     detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
     const timer = time(`interpretFile: ${ballotImagePath}`);
@@ -241,21 +208,20 @@ export class Interpreter {
       return { interpretation: { type: 'BlankPage' } };
     }
 
-    const result = await getBallotImageData(
-      ballotImageFile,
-      ballotImagePath,
-      detectQrcodeResult
-    );
-
-    if (result.isErr()) {
-      timer.end();
-      return { interpretation: result.err() };
+    if (!detectQrcodeResult.qrcode) {
+      return {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'No QR code found',
+        },
+      };
     }
 
-    const ballotImageData = result.ok();
+    const ballotImageData = await loadImageData(ballotImagePath);
+
     if (!this.skipElectionHashCheck) {
       const actualElectionHash =
-        decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found';
+        decodeElectionHash(detectQrcodeResult.qrcode.data) ?? 'not found';
       const expectedElectionHash = this.electionDefinition.electionHash.slice(
         0,
         ELECTION_HASH_LENGTH
@@ -277,7 +243,7 @@ export class Interpreter {
       }
     }
 
-    const bmdResult = this.interpretBMDFile(ballotImageData);
+    const bmdResult = this.interpretBMDFile(detectQrcodeResult.qrcode);
 
     if (bmdResult) {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
@@ -312,7 +278,8 @@ export class Interpreter {
     try {
       const hmpbResult = await this.interpretHMPBFile(
         ballotImagePath,
-        ballotImageData
+        ballotImageData,
+        detectQrcodeResult.qrcode
       );
 
       if (hmpbResult) {
@@ -343,11 +310,11 @@ export class Interpreter {
     try {
       debug(
         'assuming ballot is a HMPB that could not be interpreted (QR data: %s)',
-        new TextDecoder().decode(ballotImageData.qrcode.data)
+        new TextDecoder().decode(detectQrcodeResult.qrcode.data)
       );
       const metadata = metadataFromBytes(
         this.electionDefinition,
-        Buffer.from(ballotImageData.qrcode.data)
+        Buffer.from(detectQrcodeResult.qrcode.data)
       );
 
       if (metadata.isTestMode !== this.testMode) {
@@ -384,9 +351,9 @@ export class Interpreter {
     }
   }
 
-  private interpretBMDFile({
-    qrcode,
-  }: BallotImageData): InterpretFileResult | undefined {
+  private interpretBMDFile(
+    qrcode: BallotPageQrcode
+  ): InterpretFileResult | undefined {
     if (!detectRawBytesBmdBallot(qrcode.data)) {
       return;
     }
@@ -414,7 +381,8 @@ export class Interpreter {
 
   private async interpretHMPBFile(
     ballotImagePath: string,
-    { image, qrcode }: BallotImageData
+    image: ImageData,
+    qrcode: BallotPageQrcode
   ): Promise<InterpretFileResult | undefined> {
     const hmpbInterpreter = this.getHmpbInterpreter();
     const { ballot, marks, mappedBallot, metadata } =

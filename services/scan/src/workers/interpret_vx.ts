@@ -2,7 +2,6 @@ import { pdfToImages } from '@votingworks/image-utils';
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { readFile } from 'fs-extra';
 import { ScannerLocation, SCANNER_LOCATION } from '../globals';
 import { Interpreter } from '../interpreter';
 import { Store } from '../store';
@@ -99,7 +98,6 @@ export async function interpret(
 
   const result = await interpreter.interpretFile({
     ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult,
   });
   debug(

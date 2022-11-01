@@ -54,7 +54,6 @@ test('extracts votes encoded in a QR code', async () => {
           [],
       }).interpretFile({
         ballotImagePath,
-        ballotImageFile: await readFile(ballotImagePath),
         detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation
@@ -129,7 +128,6 @@ test('properly detects test ballot in live mode', async () => {
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
     ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
   });
 
@@ -159,7 +157,6 @@ test('properly detects bmd ballot with wrong precinct', async () => {
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
     ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
   });
 
@@ -189,7 +186,6 @@ test('properly detects bmd ballot with correct precinct', async () => {
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
     ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
   });
 
@@ -207,7 +203,6 @@ test('detects a blank page', async () => {
     adjudicationReasons: [],
   }).interpretFile({
     ballotImagePath,
-    ballotImageFile: await readFile(ballotImagePath),
     detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
   });
 
@@ -240,7 +235,6 @@ test('interprets marks on a HMPB', async () => {
   const { votes } = (
     await interpreter.interpretFile({
       ballotImagePath,
-      ballotImageFile: await readFile(ballotImagePath),
       detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
     })
   ).interpretation as InterpretedHmpbPage;
@@ -303,7 +297,6 @@ test('interprets marks on an upside-down HMPB', async () => {
     (
       await interpreter.interpretFile({
         ballotImagePath,
-        ballotImageFile: await readFile(ballotImagePath),
         detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation as InterpretedHmpbPage
@@ -350,7 +343,6 @@ test('interprets marks in ballots', async () => {
         (
           await interpreter.interpretFile({
             ballotImagePath,
-            ballotImageFile: await readFile(ballotImagePath),
             detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
           })
         ).interpretation as InterpretedHmpbPage
@@ -402,7 +394,6 @@ test('interprets marks in ballots', async () => {
         (
           await interpreter.interpretFile({
             ballotImagePath,
-            ballotImageFile: await readFile(ballotImagePath),
             detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
           })
         ).interpretation as InterpretedHmpbPage
@@ -454,7 +445,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     (
       await interpreter.interpretFile({
         ballotImagePath,
-        ballotImageFile: await readFile(ballotImagePath),
         detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation as UninterpretedHmpbPage
