@@ -23,7 +23,6 @@ import {
   isFeatureFlagEnabled,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
-  singlePrecinctSelectionFor,
   sleep,
   TallySourceMachineType,
   throwIllegalValue,
@@ -66,19 +65,6 @@ type PollWorkerFlowState =
   | 'polls_transition_processing'
   | 'polls_transition_complete'
   | 'reprinting_report';
-
-// TODO: Remove this. This is a temporary conversion of the new type for
-// polls reports (open, close, pause, unpause) to the old way (boolean).
-// Using while the reports themselves have not been updated yet.
-function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
-  switch (pollsTransition) {
-    case 'open_polls':
-    case 'unpause_polls':
-      return true;
-    default:
-      return false;
-  }
-}
 
 async function saveTallyToCard(
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
@@ -298,11 +284,6 @@ export function PollWorkerScreen({
     assert(currentCompressedTally);
     assert(currentSubTallies);
 
-    const precinctSelectionList =
-      precinctSelection.kind === 'SinglePrecinct'
-        ? [precinctSelection]
-        : election.precincts.map(({ id }) => singlePrecinctSelectionFor(id));
-
     const signedQuickResultsReportingUrl =
       await getSignedQuickResultsReportingUrl({
         electionDefinition,
@@ -314,11 +295,12 @@ export function PollWorkerScreen({
     await printElement(
       <PrecinctScannerFullReport
         electionDefinition={electionDefinition}
-        precinctSelectionList={precinctSelectionList}
+        precinctSelection={precinctSelection}
         subTallies={currentSubTallies}
-        isPollsOpen={pollsTransitionToPollsOpen(pollsTransition)}
+        hasPrecinctSubTallies
+        pollsTransition={pollsTransition}
         isLiveMode={isLiveMode}
-        pollsToggledTime={timePollsTransitioned}
+        pollsTransitionedTime={timePollsTransitioned}
         currentTime={Date.now()}
         precinctScannerMachineId={machineConfig.machineId}
         totalBallotsScanned={scannedBallotCount}

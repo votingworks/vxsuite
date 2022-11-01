@@ -41,7 +41,6 @@ import {
   Hardware,
   PrecinctScannerCardTallySchema,
   PrecinctScannerCardTally,
-  singlePrecinctSelectionFor,
   sleep,
   throwIllegalValue,
   getPollsTransitionDestinationState,
@@ -62,19 +61,6 @@ import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
-// TODO: Remove this. This is a temporary conversion of the new type for
-// polls reports (open, close, pause, unpause) to the old way (boolean).
-// Using while the reports themselves have not been updated yet.
-function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
-  switch (pollsTransition) {
-    case 'open_polls':
-    case 'unpause_polls':
-      return true;
-    default:
-      return false;
-  }
-}
-
 function parsePrecinctScannerTally(
   precinctScannerTally: PrecinctScannerCardTally,
   election: Election
@@ -85,14 +71,12 @@ function parsePrecinctScannerTally(
   );
   const parties = getPartyIdsInBallotStyles(election);
   const newSubTallies = new Map<string, Tally>();
-  const precinctList = [];
   // Read the tally for each precinct and each party
   if (precinctScannerTally.talliesByPrecinct) {
     for (const [precinctId, compressedTally] of Object.entries(
       precinctScannerTally.talliesByPrecinct
     )) {
       assert(compressedTally);
-      precinctList.push(singlePrecinctSelectionFor(precinctId));
       // partyId may be undefined in the case of a ballot style without a party in the election
       for (const partyId of parties) {
         const key = getTallyIdentifier(partyId, precinctId);
@@ -121,12 +105,10 @@ function parsePrecinctScannerTally(
       );
       newSubTallies.set(key, tally);
     }
-    precinctList.push(precinctScannerTally.precinctSelection);
   }
   return {
     overallTally: precinctScannerTally.tally,
     subTallies: newSubTallies,
-    precinctList,
   };
 }
 
@@ -180,14 +162,13 @@ function PrecinctScannerTallyReportModal({
     await printElement(
       <PrecinctScannerFullReport
         electionDefinition={electionDefinition}
-        precinctSelectionList={precinctScannerTallyInformation.precinctList}
+        precinctSelection={precinctScannerTally.precinctSelection}
         subTallies={precinctScannerTallyInformation.subTallies}
-        isPollsOpen={pollsTransitionToPollsOpen(
-          precinctScannerTally.pollsTransition
-        )}
+        hasPrecinctSubTallies={Boolean(precinctScannerTally.talliesByPrecinct)}
+        pollsTransition={precinctScannerTally.pollsTransition}
         isLiveMode={precinctScannerTally.isLiveMode}
         currentTime={currentTime}
-        pollsToggledTime={precinctScannerTally.timePollsTransitioned}
+        pollsTransitionedTime={precinctScannerTally.timePollsTransitioned}
         totalBallotsScanned={precinctScannerTally.totalBallotsScanned}
         precinctScannerMachineId={precinctScannerTally.machineId}
         signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}

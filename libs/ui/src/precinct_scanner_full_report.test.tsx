@@ -14,7 +14,7 @@ import {
 } from '@votingworks/utils';
 import { PrecinctScannerFullReport } from './precinct_scanner_full_report';
 
-test('renders report for each party in primary, single precinct', () => {
+test('polls closed: tally reports for each party in primary, single precinct', () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   const tally: FullElectionTally = {
@@ -29,11 +29,11 @@ test('renders report for each party in primary, single precinct', () => {
   render(
     <PrecinctScannerFullReport
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelectionList={[precinctSelection]}
+      precinctSelection={precinctSelection}
       subTallies={subTallies}
-      isPollsOpen={false}
+      pollsTransition="close_polls"
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qr code page
@@ -51,7 +51,7 @@ test('renders report for each party in primary, single precinct', () => {
   ).not.toBeInTheDocument();
 });
 
-test('renders report for each precinct when there is data for all precincts', () => {
+test('polls closed: tally reports for each precinct when there is data for all precincts', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { election } = electionDefinition;
   const tally: FullElectionTally = {
@@ -66,13 +66,12 @@ test('renders report for each precinct when there is data for all precincts', ()
   render(
     <PrecinctScannerFullReport
       electionDefinition={electionDefinition}
-      precinctSelectionList={election.precincts.map((precinct) =>
-        singlePrecinctSelectionFor(precinct.id)
-      )}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      hasPrecinctSubTallies
       subTallies={subTallies}
-      isPollsOpen={false}
+      pollsTransition="close_polls"
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0}
@@ -89,7 +88,7 @@ test('renders report for each precinct when there is data for all precincts', ()
   ).not.toBeInTheDocument();
 });
 
-test('renders report for "All Precincts" when there is only data for all precincts', () => {
+test('polls closed: tally report for "All Precincts" when there is only data for all precincts', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { election } = electionDefinition;
   const tally: FullElectionTally = {
@@ -103,11 +102,12 @@ test('renders report for "All Precincts" when there is only data for all precinc
   render(
     <PrecinctScannerFullReport
       electionDefinition={electionDefinition}
-      precinctSelectionList={[ALL_PRECINCTS_SELECTION]}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      hasPrecinctSubTallies={false}
       subTallies={subTallies}
-      isPollsOpen={false}
+      pollsTransition="close_polls"
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0}
@@ -121,7 +121,41 @@ test('renders report for "All Precincts" when there is only data for all precinc
   ).not.toBeInTheDocument();
 });
 
-test('renders quick results page under right conditions', () => {
+test('polls paused: includes ballot count page only', () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { election } = electionDefinition;
+  const tally: FullElectionTally = {
+    overallTally: getEmptyTally(),
+    resultsByCategory: new Map(),
+  };
+  const subTallies = getSubTalliesByPartyAndPrecinct({
+    election,
+    tally,
+  });
+  render(
+    <PrecinctScannerFullReport
+      electionDefinition={electionDefinition}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
+      hasPrecinctSubTallies={false}
+      subTallies={subTallies}
+      pollsTransition="pause_polls"
+      isLiveMode
+      pollsTransitionedTime={new Date().getTime()}
+      currentTime={new Date().getTime()}
+      precinctScannerMachineId="SC-01-000"
+      totalBallotsScanned={0}
+      signedQuickResultsReportingUrl="https://voting.works"
+    />
+  );
+
+  screen.getByText('Official Polls Paused Report for All Precincts');
+  screen.getByText('Ballots Scanned Count');
+  expect(
+    screen.queryByText('Automatic Election Results Reporting')
+  ).not.toBeInTheDocument();
+});
+
+test('includes quick results page under right conditions', () => {
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   const tally: FullElectionTally = {
@@ -137,11 +171,11 @@ test('renders quick results page under right conditions', () => {
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
-      precinctSelectionList={[ALL_PRECINCTS_SELECTION]}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       subTallies={subTallies}
-      isPollsOpen={false} // to trigger qrcode
+      pollsTransition="close_polls" // to trigger qrcode
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qrcode
@@ -152,7 +186,7 @@ test('renders quick results page under right conditions', () => {
   screen.getByText('Automatic Election Results Reporting');
 });
 
-test('does not render quick results if ballot count is 0', () => {
+test('does not include quick results page if ballot count is 0', () => {
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   const tally: FullElectionTally = {
@@ -165,11 +199,11 @@ test('does not render quick results if ballot count is 0', () => {
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
-      precinctSelectionList={[ALL_PRECINCTS_SELECTION]}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       subTallies={subTallies}
-      isPollsOpen={false} // to trigger qrcode
+      pollsTransition="close_polls" // to trigger qrcode
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0} // to disable qrcode
@@ -182,7 +216,7 @@ test('does not render quick results if ballot count is 0', () => {
   ).not.toBeInTheDocument();
 });
 
-test('does not render quick results if polls are open', () => {
+test('does not include quick results page if polls are being opened', () => {
   const { election } =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   const tally: FullElectionTally = {
@@ -198,11 +232,11 @@ test('does not render quick results if polls are open', () => {
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
-      precinctSelectionList={[ALL_PRECINCTS_SELECTION]}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       subTallies={subTallies}
-      isPollsOpen // to disable qrcode
+      pollsTransition="open_polls" // to disable qrcode
       isLiveMode
-      pollsToggledTime={new Date().getTime()}
+      pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qrcode

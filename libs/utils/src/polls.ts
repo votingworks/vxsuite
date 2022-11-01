@@ -94,3 +94,20 @@ export function isValidPollsStateChange(
   if (newState === 'polls_closed_initial') return false; // cannot revert to initial closed
   return true;
 }
+export function getPollsTransitionActionPastTense(
+  transition: PollsTransition
+): string {
+  switch (transition) {
+    case 'close_polls':
+      return 'Closed';
+    case 'open_polls':
+      return 'Opened';
+    case 'unpause_polls':
+      return 'Reopened';
+    case 'pause_polls':
+      return 'Paused';
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(transition);
+  }
+}

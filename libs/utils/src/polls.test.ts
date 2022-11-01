@@ -2,6 +2,7 @@ import {
   getPollsReportTitle,
   getPollsStateName,
   getPollsTransitionAction,
+  getPollsTransitionActionPastTense,
   getPollsTransitionDestinationState,
   getPollTransitionsFromState,
   isValidPollsStateChange,
@@ -108,4 +109,13 @@ test('getPollTransitionsFromState', () => {
     'open_polls',
   ]);
   expect(getPollTransitionsFromState('polls_closed_final')).toMatchObject([]);
+});
+
+test('getPollsTransitionActionPastTense', () => {
+  expect(getPollsTransitionActionPastTense('close_polls')).toEqual('Closed');
+  expect(getPollsTransitionActionPastTense('open_polls')).toEqual('Opened');
+  expect(getPollsTransitionActionPastTense('unpause_polls')).toEqual(
+    'Reopened'
+  );
+  expect(getPollsTransitionActionPastTense('pause_polls')).toEqual('Paused');
 });

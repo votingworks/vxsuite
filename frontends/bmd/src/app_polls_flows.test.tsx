@@ -209,13 +209,14 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Insert Card');
 
   // Pausing Polls
+  const pollsPausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
   const pollsPausedCardTallyReport: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 3,
     machineId: '001',
-    timeSaved: new Date('2020-10-31').getTime(),
-    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    timeSaved: pollsPausedTime,
+    timePollsTransitioned: pollsPausedTime,
     precinctSelection,
     isLiveMode: false,
     pollsTransition: 'pause_polls',
@@ -232,13 +233,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Pause Polls and Print Report'));
   await screen.findByText('Printing polls paused report');
   function checkPollsPausedReport(printedElement: RenderResult) {
-    const generalReport = printedElement.getByTestId(
-      'tally-report-undefined-23'
+    // Check heading
+    printedElement.getByText('TEST Polls Paused Report for Center Springfield');
+    printedElement.getByText('Polls Paused:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count3'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusPaused'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls PausedMon, Oct 31, 2022, 4:23 PM')
     );
-    within(generalReport).getByText(
-      'TEST Polls Closed Report for Center Springfield'
-    );
-    // TODO: Check contents of this report
   }
   await expectPrint(checkPollsPausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
@@ -276,13 +279,14 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Polls Paused');
 
   // Unpausing Polls
+  const pollsUnpausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
   const pollsUnpausedCardTallyReport: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 3,
     machineId: '001',
-    timeSaved: new Date('2020-10-31').getTime(),
-    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    timeSaved: pollsUnpausedTime,
+    timePollsTransitioned: pollsUnpausedTime,
     precinctSelection,
     isLiveMode: false,
     pollsTransition: 'unpause_polls',
@@ -299,13 +303,17 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Reopen Polls and Print Report'));
   await screen.findByText('Printing polls reopened report');
   function checkPollsUnpausedReport(printedElement: RenderResult) {
-    const generalReport = printedElement.getByTestId(
-      'tally-report-undefined-23'
+    // Check heading
+    printedElement.getByText(
+      'TEST Polls Reopened Report for Center Springfield'
     );
-    within(generalReport).getByText(
-      'TEST Polls Opened Report for Center Springfield'
+    printedElement.getByText('Polls Reopened:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count3'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusOpen'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls ReopenedMon, Oct 31, 2022, 4:23 PM')
     );
-    // TODO: Write testing once report is distinct
   }
   await expectPrint(checkPollsUnpausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
@@ -540,7 +548,7 @@ test('tally report: as expected with all precinct specific data for general elec
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     pollsTransition: 'close_polls',
     ballotCounts: {
