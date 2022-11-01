@@ -21,14 +21,11 @@ import {
   BallotPageMetadata,
   BallotType,
   ElectionDefinition,
-  err,
   getContestsFromIds,
   InterpretedBmdPage,
   MarkThresholds,
-  ok,
   PageInterpretation,
   PrecinctSelection,
-  Result,
 } from '@votingworks/types';
 import {
   adjudicationReasonDescription,
@@ -54,28 +51,6 @@ export interface InterpretFileParams {
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
   normalizedImage?: ImageData;
-}
-
-interface BallotImageData {
-  image: ImageData;
-  qrcode: BallotPageQrcode;
-}
-
-export async function getBallotImageData(
-  filename: string,
-  detectQrcodeResult: qrcodeWorker.NonBlankPageOutput
-): Promise<Result<BallotImageData, PageInterpretation>> {
-  const image = await loadImageData(filename);
-
-  if (detectQrcodeResult.qrcode) {
-    return ok({ image, qrcode: detectQrcodeResult.qrcode });
-  }
-
-  debug('no QR code found in %s', filename);
-  return err({
-    type: 'UnreadablePage',
-    reason: 'No QR code found',
-  });
 }
 
 /**
