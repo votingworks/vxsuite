@@ -337,11 +337,9 @@ function PrecinctScannerTallyReportModal({
 function UpdatePollsDirectlyButton({
   pollsTransition,
   updatePollsState,
-  precinctName,
 }: {
   pollsTransition: PollsTransition;
   updatePollsState: (pollsState: PollsState) => void;
-  precinctName: string;
 }): JSX.Element {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
@@ -360,7 +358,7 @@ function UpdatePollsDirectlyButton({
   return (
     <React.Fragment>
       <Button onPress={() => setIsConfirmationModalOpen(true)}>
-        {action} Polls for {precinctName}
+        {action} Polls
       </Button>
       {isConfirmationModalOpen && (
         <Modal
@@ -436,10 +434,6 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
-  const precinctName = getPrecinctSelectionName(
-    election.precincts,
-    appPrecinct
-  );
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -675,7 +669,6 @@ export function PollWorkerScreen({
                         {index > 0 && ' or '}
                         <UpdatePollsDirectlyButton
                           pollsTransition={pollsTransition}
-                          precinctName={precinctName}
                           updatePollsState={updatePollsState}
                         />
                       </React.Fragment>

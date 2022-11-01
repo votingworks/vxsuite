@@ -86,7 +86,7 @@ beforeEach(() => {
 
   // Open polls
   insertCard(POLL_WORKER_CARD_DATA);
-  cy.contains('Open Polls for All Precincts').click();
+  cy.contains('Open Polls').click();
   cy.contains('Open VxMark Now').click();
 
   // Activate ballot

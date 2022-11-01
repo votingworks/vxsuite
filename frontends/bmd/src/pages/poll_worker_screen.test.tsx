@@ -143,7 +143,7 @@ test('requires confirmation to open polls if no report on card', () => {
     updatePollsState,
   });
 
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
 
   // Should show the modal and not open/close polls
   expect(updatePollsState).not.toHaveBeenCalled();
@@ -151,10 +151,10 @@ test('requires confirmation to open polls if no report on card', () => {
 
   // Clicking Cancel closes the modal
   fireEvent.click(screen.getByText('Cancel'));
-  screen.getByText('Open Polls for Center Springfield');
+  screen.getByText('Open Polls');
 
   // Clicking Open VxMark Now should open/close polls anyway
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
   expect(updatePollsState).toHaveBeenCalled();
 });

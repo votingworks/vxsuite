@@ -111,9 +111,9 @@ test('PrintOnly flow', async () => {
   // Open Polls in Testing Mode with Poll Worker Card
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
-  screen.getByText('Close Polls for Center Springfield');
+  screen.getByText('Close Polls');
 
   // Remove card
   card.removeCard();
@@ -146,9 +146,9 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
 
   // Open Polls with Poll Worker Card
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
-  screen.getByText('Close Polls for Center Springfield');
+  screen.getByText('Close Polls');
 
   // Remove card
   card.removeCard();
@@ -356,10 +356,10 @@ test('PrintOnly flow', async () => {
   // Pollworker Closes Polls
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  screen.getByText('Close Polls for Center Springfield');
+  screen.getByText('Close Polls');
 
   // Close Polls
-  fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Close Polls'));
   fireEvent.click(screen.getByText('Close VxMark Now'));
 
   // Remove card
@@ -432,9 +432,9 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   async function openPolls(): Promise<void> {
     card.insertCard(pollWorkerCard);
     await advanceTimersAndPromises();
-    fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+    fireEvent.click(screen.getByText('Open Polls'));
     fireEvent.click(screen.getByText('Open VxMark Now'));
-    screen.getByText('Close Polls for Center Springfield');
+    screen.getByText('Close Polls');
 
     // Remove card
     card.removeCard();

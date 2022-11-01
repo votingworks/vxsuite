@@ -1220,7 +1220,7 @@ test('full polls flow without tally reports', async () => {
   // Open Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('No Polls Opened Report on Card');
   userEvent.click(screen.getByText('Open VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
@@ -1236,7 +1236,7 @@ test('full polls flow without tally reports', async () => {
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View Other Actions'));
-  userEvent.click(screen.getByText('Pause Polls for Center Springfield'));
+  userEvent.click(screen.getByText('Pause Polls'));
   await screen.findByText('No Polls Paused Report on Card');
   userEvent.click(screen.getByText('Pause VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
@@ -1251,7 +1251,7 @@ test('full polls flow without tally reports', async () => {
   // Unpause Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('No Polls Opened Report on Card');
   userEvent.click(screen.getByText('Open VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
@@ -1267,7 +1267,7 @@ test('full polls flow without tally reports', async () => {
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View Other Actions'));
-  userEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  userEvent.click(screen.getByText('Close Polls'));
   await screen.findByText('No Polls Closed Report on Card');
   userEvent.click(screen.getByText('Close VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
@@ -1295,7 +1295,7 @@ test('can close from paused without tally report', async () => {
   // Close Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  userEvent.click(screen.getByText('Close Polls'));
   await screen.findByText('No Polls Closed Report on Card');
   userEvent.click(screen.getByText('Close VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));

@@ -160,14 +160,14 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
   screen.getByText('Select Ballot Style');
   // Force refresh
   userEvent.click(screen.getByText('View Other Actions'));
   fireEvent.click(screen.getByText('Reset Accessible Controller'));
   expect(reload).toHaveBeenCalledTimes(1);
-  await screen.findByText('Close Polls for Center Springfield');
+  await screen.findByText('Close Polls');
 
   // Remove card
   card.removeCard();
@@ -366,7 +366,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('View Other Actions'));
-  fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Close Polls'));
   fireEvent.click(screen.getByText('Close VxMark Now'));
 
   // Remove card
