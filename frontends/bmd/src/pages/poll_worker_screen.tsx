@@ -359,11 +359,9 @@ function UpdatePollsDirectlyButton({
 
   return (
     <React.Fragment>
-      <p>
-        <Button onPress={() => setIsConfirmationModalOpen(true)}>
-          {action} Polls for {precinctName}
-        </Button>
-      </p>
+      <Button onPress={() => setIsConfirmationModalOpen(true)}>
+        {action} Polls for {precinctName}
+      </Button>
       {isConfirmationModalOpen && (
         <Modal
           centerContent
@@ -667,18 +665,24 @@ export function PollWorkerScreen({
             </Prose>
           ) : (
             <Prose>
-              {getPollTransitionsFromState(pollsState).map(
-                (pollsTransition) => {
-                  return (
-                    <UpdatePollsDirectlyButton
-                      key={`${pollsTransition}-directly-button`}
-                      pollsTransition={pollsTransition}
-                      precinctName={precinctName}
-                      updatePollsState={updatePollsState}
-                    />
-                  );
-                }
-              )}
+              <p>
+                {getPollTransitionsFromState(pollsState).map(
+                  (pollsTransition, index) => {
+                    return (
+                      <React.Fragment
+                        key={`${pollsTransition}-directly-button`}
+                      >
+                        {index > 0 && ' or '}
+                        <UpdatePollsDirectlyButton
+                          pollsTransition={pollsTransition}
+                          precinctName={precinctName}
+                          updatePollsState={updatePollsState}
+                        />
+                      </React.Fragment>
+                    );
+                  }
+                )}
+              </p>
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
                 System Diagnostics
               </Button>
