@@ -537,7 +537,7 @@ export enum BallotMode {
 export enum CvrFileMode {
   /** Only working with real CVR files generated during an official election. */
   Official = 'live',
-  /** Only working with rest CVR files used during pre-election testing/L&A. */
+  /** Only working with test CVR files used during pre-election testing/L&A. */
   Test = 'test',
   /** No CVR files imported yet - file mode is not currently locked. */
   Unlocked = 'unlocked',

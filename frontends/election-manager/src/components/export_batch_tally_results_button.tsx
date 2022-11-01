@@ -10,7 +10,7 @@ import { AppContext } from '../contexts/app_context';
 import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
 import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 
-export function ExportBatchTallyResultsButton(): JSX.Element | null {
+export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { fullElectionTally, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
