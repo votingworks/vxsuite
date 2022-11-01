@@ -1281,7 +1281,7 @@ test('full polls flow without tally reports', async () => {
   );
 });
 
-test('can close from paused wtihout tally report', async () => {
+test('can close from paused without tally report', async () => {
   const { renderApp, card, storage } = buildApp();
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
