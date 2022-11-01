@@ -3,6 +3,8 @@ import {
   CompressedTallySchema,
   Dictionary,
   MachineId,
+  PollsTransition,
+  PollsTransitionSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
 } from '@votingworks/types';
@@ -22,10 +24,10 @@ export interface PrecinctScannerCardTally {
   readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER;
   readonly machineId: string;
   readonly timeSaved: number;
-  readonly timePollsToggled: number;
+  readonly timePollsTransitioned: number;
   readonly totalBallotsScanned: number;
   readonly isLiveMode: boolean;
-  readonly isPollsOpen: boolean;
+  readonly pollsTransition: PollsTransition;
   readonly ballotCounts: Dictionary<BallotCountDetails>;
   readonly precinctSelection: PrecinctSelection;
   readonly talliesByPrecinct?: Dictionary<CompressedTally>;
@@ -37,10 +39,10 @@ export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTall
     tally: CompressedTallySchema,
     machineId: MachineId,
     timeSaved: z.number(),
-    timePollsToggled: z.number(),
+    timePollsTransitioned: z.number(),
     totalBallotsScanned: z.number(),
     isLiveMode: z.boolean(),
-    isPollsOpen: z.boolean(),
+    pollsTransition: PollsTransitionSchema,
     precinctSelection: PrecinctSelectionSchema,
     talliesByPrecinct: z.object({}).catchall(CompressedTallySchema).optional(),
     ballotCounts: z.object({}).catchall(z.tuple([z.number(), z.number()])),

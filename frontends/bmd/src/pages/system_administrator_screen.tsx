@@ -4,10 +4,14 @@ import { Logger } from '@votingworks/logging';
 import { Screen, SystemAdministratorScreenContents } from '@votingworks/ui';
 import { usbstick } from '@votingworks/utils';
 
+const resetPollsToPausedText =
+  'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
+
 interface Props {
   logger: Logger;
   unconfigureMachine: () => Promise<void>;
   isMachineConfigured: boolean;
+  resetPollsToPaused?: () => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
 }
 
@@ -18,6 +22,7 @@ export function SystemAdministratorScreen({
   logger,
   unconfigureMachine,
   isMachineConfigured,
+  resetPollsToPaused,
   usbDriveStatus,
 }: Props): JSX.Element {
   return (
@@ -25,6 +30,8 @@ export function SystemAdministratorScreen({
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt
         logger={logger}
+        resetPollsToPausedText={resetPollsToPausedText}
+        resetPollsToPaused={resetPollsToPaused}
         primaryText={
           <React.Fragment>
             To adjust settings for the current election,

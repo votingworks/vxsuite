@@ -150,7 +150,6 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
       logger={fakeLogger()}
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
-      resetPollsToPaused={jest.fn()}
       isMachineConfigured
       usbDriveStatus={usbstick.UsbDriveStatus.mounted}
     />
@@ -168,7 +167,7 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
       isMachineConfigured
-      showResetPollsToPausedButton
+      resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={jest.fn()}
       usbDriveStatus={usbstick.UsbDriveStatus.mounted}
     />

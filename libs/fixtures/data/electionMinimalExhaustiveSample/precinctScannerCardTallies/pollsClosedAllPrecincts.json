@@ -2,10 +2,10 @@
   "tallyMachineType": "precinct_scanner",
   "totalBallotsScanned": 0,
   "isLiveMode": false,
-  "isPollsOpen": false,
+  "pollsTransition": "close_polls",
   "machineId": "0000",
   "timeSaved": 1665616069769,
-  "timePollsToggled": 1665616069769,
+  "timePollsTransitioned": 1665616069769,
   "precinctSelection": {
     "kind": "AllPrecincts"
   },

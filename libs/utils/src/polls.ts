@@ -6,11 +6,10 @@ export function getPollsTransitionDestinationState(
 ): PollsState {
   switch (transition) {
     case 'open_polls':
+    case 'unpause_polls':
       return 'polls_open';
     case 'pause_polls':
       return 'polls_paused';
-    case 'unpause_polls':
-      return 'polls_open';
     case 'close_polls':
       return 'polls_closed_final';
     /* istanbul ignore next - compile time check for completeness */
@@ -19,18 +18,77 @@ export function getPollsTransitionDestinationState(
   }
 }
 
-export function getPollsReportTitle(transition: PollsTransition): string {
+export function getPollsTransitionAction(transition: PollsTransition): string {
   switch (transition) {
-    case 'close_polls':
-      return 'Polls Closed Report';
     case 'open_polls':
-      return 'Polls Opened Report';
     case 'unpause_polls':
-      return 'Polls Opened Report';
+      return 'Open';
     case 'pause_polls':
-      return 'Polls Paused Report';
+      return 'Pause';
+    case 'close_polls':
+      return 'Close';
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(transition);
   }
+}
+
+export function getPollsReportTitle(transition: PollsTransition): string {
+  switch (transition) {
+    case 'open_polls':
+    case 'unpause_polls':
+      return 'Polls Opened Report';
+    case 'pause_polls':
+      return 'Polls Paused Report';
+    case 'close_polls':
+      return 'Polls Closed Report';
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(transition);
+  }
+}
+
+export function getPollsStateName(state: PollsState): string {
+  switch (state) {
+    case 'polls_open':
+      return 'Open';
+    case 'polls_paused':
+      return 'Paused';
+    case 'polls_closed_initial':
+    case 'polls_closed_final':
+      return 'Closed';
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(state);
+  }
+}
+
+export function getPollTransitionsFromState(
+  state: PollsState
+): PollsTransition[] {
+  switch (state) {
+    case 'polls_open':
+      return ['close_polls', 'pause_polls'];
+    case 'polls_paused':
+      return ['open_polls', 'close_polls'];
+    case 'polls_closed_initial':
+      return ['open_polls'];
+    case 'polls_closed_final':
+      return [];
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(state);
+  }
+}
+
+// Used to determine, on VxMark, whether the polls state should be updated to
+// match the polls state on a precinct scanner card tally.
+export function isValidPollsStateChange(
+  prevState: PollsState,
+  newState: PollsState
+): boolean {
+  if (prevState === newState) return false; // no change an invalid change
+  if (prevState === 'polls_closed_final') return false; // cannot change if voting complete
+  if (newState === 'polls_closed_initial') return false; // cannot revert to initial closed
+  return true;
 }

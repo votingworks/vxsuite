@@ -334,9 +334,33 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has triggered a reboot of the machine.  
 **Machines:** All
+### polls-opened
+**Type:** [user-action](#user-action)  
+**Description:** User has opened the polls.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### polls-paused
+**Type:** [user-action](#user-action)  
+**Description:** User has paused the polls.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### polls-unpaused
+**Type:** [user-action](#user-action)  
+**Description:** User has unpaused the polls.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### polls-closed
+**Type:** [user-action](#user-action)  
+**Description:** User has closed the polls.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
 ### reset-polls-to-paused
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
+**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### tally-report-cleared-from-card
+**Type:** [application-action](#application-action)  
+**Description:** The tally report has been cleared from the poll worker card.  
+**Machines:** vx-ballot-marking-device-frontend
+### precinct-configuration-changed
+**Type:** [user-action](#user-action)  
+**Description:** User has changed the precinct setting.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)  

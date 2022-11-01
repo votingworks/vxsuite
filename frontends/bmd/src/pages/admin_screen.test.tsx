@@ -2,19 +2,23 @@ import React from 'react';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import MockDate from 'mockdate';
 
-import { asElectionDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+} from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { fakeLogger } from '@votingworks/logging';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/smartcards';
 
-import { AdminScreen } from './admin_screen';
-import { PrintOnly, MarkOnly } from '../config/types';
+import { AdminScreen, AdminScreenProps } from './admin_screen';
+import { PrintOnly, MarkAndPrint } from '../config/types';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
   AriaScreenReader,
@@ -33,8 +37,8 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-test('renders AdminScreen for PrintOnly', () => {
-  render(
+function renderScreen(props: Partial<AdminScreenProps> = {}) {
+  return render(
     <AdminScreen
       appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
       ballotsPrintedCount={0}
@@ -45,12 +49,24 @@ test('renders AdminScreen for PrintOnly', () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        codeVersion: '', // Override default
+        appMode: MarkAndPrint,
+        codeVersion: 'test', // Override default
       })}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      pollsState="polls_open"
+      logger={fakeLogger()}
+      {...props}
     />
   );
+}
+
+test('renders AdminScreen for PrintOnly', () => {
+  renderScreen({
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      codeVersion: '', // Override default
+    }),
+  });
 
   // Configure with Election Manager Card
   advanceTimers();
@@ -66,23 +82,7 @@ test('renders AdminScreen for PrintOnly', () => {
 });
 
 test('renders date and time settings modal', async () => {
-  render(
-    <AdminScreen
-      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
-      ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
-      fetchElection={jest.fn()}
-      isLiveMode={false}
-      updateAppPrecinct={jest.fn()}
-      toggleLiveMode={jest.fn()}
-      unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig({
-        appMode: MarkOnly,
-        codeVersion: 'test',
-      })}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-    />
-  );
+  renderScreen();
 
   // Configure with Election Manager Card
   advanceTimers();
@@ -117,21 +117,9 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('select All Precincts', () => {
+test('can switch the precinct', () => {
   const updateAppPrecinct = jest.fn();
-  render(
-    <AdminScreen
-      ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
-      fetchElection={jest.fn()}
-      isLiveMode
-      updateAppPrecinct={updateAppPrecinct}
-      toggleLiveMode={jest.fn()}
-      unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-    />
-  );
+  renderScreen({ updateAppPrecinct });
 
   const precinctSelect = screen.getByLabelText('Precinct');
   const allPrecinctsOption =
@@ -142,46 +130,20 @@ test('select All Precincts', () => {
   expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
 });
 
-test('blur precinct selector without a selection', () => {
-  const updateAppPrecinct = jest.fn();
-  render(
-    <AdminScreen
-      ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
-      fetchElection={jest.fn()}
-      isLiveMode
-      updateAppPrecinct={updateAppPrecinct}
-      toggleLiveMode={jest.fn()}
-      unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-    />
-  );
+test('precinct change disabled if polls closed', () => {
+  renderScreen({ pollsState: 'polls_closed_final' });
 
   const precinctSelect = screen.getByLabelText('Precinct');
-  fireEvent.blur(precinctSelect);
-  expect(updateAppPrecinct).not.toHaveBeenCalled();
+  expect(precinctSelect).toBeDisabled();
 });
 
-test('render All Precincts', () => {
-  const updateAppPrecinct = jest.fn();
-  render(
-    <AdminScreen
-      appPrecinct={ALL_PRECINCTS_SELECTION}
-      ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
-      fetchElection={jest.fn()}
-      isLiveMode
-      updateAppPrecinct={updateAppPrecinct}
-      toggleLiveMode={jest.fn()}
-      unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-    />
-  );
+test('precinct selection disabled if single precinct election', async () => {
+  renderScreen({
+    electionDefinition: electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
+  });
 
-  const precinctSelect = screen.getByLabelText<HTMLSelectElement>('Precinct');
-  expect(precinctSelect.selectedOptions[0].textContent).toEqual(
-    'All Precincts'
-  );
+  await screen.findByText('Election Manager Actions');
+  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  screen.getByText(/the precinct cannot be changed/);
 });

@@ -1,27 +1,29 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   ALL_PRECINCTS_OPTION_VALUE,
   ChangePrecinctButton,
   SELECT_PRECINCT_TEXT,
 } from './change_precinct_button';
 
-test('polls closed initial: set precinct initially', async () => {
+test('default mode: set precinct from unset', async () => {
   const updatePrecinctSelection = jest.fn();
+  const logger = fakeLogger();
 
   render(
     <ChangePrecinctButton
       appPrecinctSelection={undefined}
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionMinimalExhaustiveSample}
-      ballotsCast={false}
-      pollsState="polls_closed_initial"
+      mode="default"
+      logger={logger}
     />
   );
 
@@ -32,12 +34,27 @@ test('polls closed initial: set precinct initially', async () => {
     screen.getByRole('option', { name: SELECT_PRECINCT_TEXT })
   ).toBeDisabled();
 
+  // Try interacting with dropdown without making any selection
+  userEvent.click(dropdown);
+  fireEvent.blur(dropdown);
+  expect(updatePrecinctSelection).not.toHaveBeenCalled();
+
   // Updates app state
   userEvent.selectOptions(dropdown, 'precinct-1');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-1'))
   );
+  await waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining('Precinct 1'),
+      })
+    );
+  });
 
   // Prompt is still disabled
   expect(
@@ -45,16 +62,17 @@ test('polls closed initial: set precinct initially', async () => {
   ).toBeDisabled();
 });
 
-test('polls closed initial: switch precinct', async () => {
+test('default mode: switch precinct', async () => {
   const updatePrecinctSelection = jest.fn();
+  const logger = fakeLogger();
 
   render(
     <ChangePrecinctButton
       appPrecinctSelection={ALL_PRECINCTS_SELECTION}
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionMinimalExhaustiveSample}
-      ballotsCast={false}
-      pollsState="polls_closed_initial"
+      mode="default"
+      logger={logger}
     />
   );
 
@@ -68,18 +86,30 @@ test('polls closed initial: switch precinct', async () => {
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-2'))
   );
+
+  await waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining('Precinct 2'),
+      })
+    );
+  });
 });
 
-test('polls open, no ballots: selection behind confirmation', async () => {
+test('confirmation required mode', async () => {
   const updatePrecinctSelection = jest.fn();
+  const logger = fakeLogger();
 
   render(
     <ChangePrecinctButton
       appPrecinctSelection={singlePrecinctSelectionFor('precinct-1')}
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionMinimalExhaustiveSample}
-      ballotsCast={false}
-      pollsState="polls_open"
+      mode="confirmation_required"
+      logger={logger}
     />
   );
 
@@ -125,32 +155,30 @@ test('polls open, no ballots: selection behind confirmation', async () => {
       kind: 'AllPrecincts',
     })
   );
+
+  await waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining('All Precincts'),
+      })
+    );
+  });
+  expect(logger.log).toHaveBeenCalledTimes(1);
 });
 
-test('disabled if ballots cast', () => {
+test('disabled mode', () => {
   render(
     <ChangePrecinctButton
       appPrecinctSelection={undefined}
       updatePrecinctSelection={jest.fn()}
       election={electionMinimalExhaustiveSample}
-      ballotsCast
-      pollsState="polls_open"
+      mode="disabled"
+      logger={fakeLogger()}
     />
   );
 
-  expect(screen.getByText('Change Precinct')).toBeDisabled();
-});
-
-test('disabled if polls closed final', () => {
-  render(
-    <ChangePrecinctButton
-      appPrecinctSelection={undefined}
-      updatePrecinctSelection={jest.fn()}
-      election={electionMinimalExhaustiveSample}
-      ballotsCast={false}
-      pollsState="polls_closed_final"
-    />
-  );
-
-  expect(screen.getByText('Change Precinct')).toBeDisabled();
+  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
 });

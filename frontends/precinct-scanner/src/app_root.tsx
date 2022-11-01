@@ -442,6 +442,9 @@ export function AppRoot({
     return <UnlockMachineScreen auth={auth} />;
   }
 
+  const resetPollsToPausedText =
+    'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved.';
+
   if (isSystemAdministratorAuth(auth)) {
     return (
       <ScreenMainCenterChild infoBar>
@@ -458,7 +461,7 @@ export function AppRoot({
           unconfigureMachine={() =>
             unconfigureServer({ ignoreBackupRequirement: true })
           }
-          showResetPollsToPausedButton
+          resetPollsToPausedText={resetPollsToPausedText}
           resetPollsToPaused={
             pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
           }
@@ -508,6 +511,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <ElectionManagerScreen
@@ -556,6 +560,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <PollWorkerScreen
@@ -586,6 +591,7 @@ export function AppRoot({
           machineConfig,
           auth,
           isSoundMuted,
+          logger,
         }}
       >
         <PollsNotOpenScreen
@@ -681,6 +687,7 @@ export function AppRoot({
         machineConfig,
         auth,
         isSoundMuted,
+        logger,
       }}
     >
       {voterScreen}

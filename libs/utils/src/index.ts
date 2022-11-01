@@ -20,6 +20,7 @@ export * from './in_groups_of';
 export * from './iterators';
 export * from './Hardware';
 export * from './hmpb';
+export * from './make_async';
 export * from './polls';
 export * from './precinct_selection';
 export * from './Printer';

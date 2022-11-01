@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  ALL_PRECINCTS_NAME,
-  MemoryCard,
-  MemoryHardware,
-  MemoryStorage,
-} from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { makeElectionManagerCard } from '@votingworks/test-utils';
 import { screen } from '@testing-library/react';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
@@ -48,8 +43,9 @@ test('loading election with a single precinct automatically sets precinct', asyn
   await enterPin();
   userEvent.click(await screen.findByText('Load Election Definition'));
   await screen.findByText('10edbc8d2c');
-  // Should not have All Precincts option available
-  expect(screen.queryByText(ALL_PRECINCTS_NAME)).not.toBeInTheDocument();
+  // Should not be able to select a precinct
+  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  screen.getByText(/the precinct cannot be changed/);
   card.removeCard();
   await screen.findByText('Precinct 1');
 });

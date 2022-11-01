@@ -160,14 +160,14 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open VxMark Now'));
   screen.getByText('Select Ballot Style');
   // Force refresh
   userEvent.click(screen.getByText('View Other Actions'));
   fireEvent.click(screen.getByText('Reset Accessible Controller'));
   expect(reload).toHaveBeenCalledTimes(1);
-  await screen.findByText('Close Polls for Center Springfield');
+  await screen.findByText('Close Polls');
 
   // Remove card
   card.removeCard();
@@ -366,14 +366,13 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('View Other Actions'));
-  fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Close Polls'));
   fireEvent.click(screen.getByText('Close VxMark Now'));
-  screen.getByText('Open Polls for Center Springfield');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Poll Worker card to open.');
+  screen.getByText('Voting is complete.');
 
   // Insert pollworker card with precinct scanner tally
   card.insertCard(
@@ -383,14 +382,14 @@ it('MarkAndPrint end-to-end flow', async () => {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),
-      timePollsToggled: new Date('2020-10-31').getTime(),
+      timePollsTransitioned: new Date('2020-10-31').getTime(),
       precinctSelection: {
         kind: 'SinglePrecinct',
         precinctId: '23',
       },
       totalBallotsScanned: 10,
       isLiveMode: true,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
       ballotCounts: {
         'undefined--ALL_PRECINCTS': [5, 5],
         'undefined--23': [5, 5],
@@ -400,7 +399,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Close Polls and Print Report'));
+  fireEvent.click(screen.getByText('Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);

@@ -269,13 +269,13 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
+      pollsTransition: 'open_polls',
     })
   );
   // Expect the final call to have an empty tallies by precinct dictionary
@@ -286,13 +286,13 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
+      pollsTransition: 'open_polls',
     })
   );
 });
@@ -624,13 +624,13 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
     })
   );
 });
@@ -870,13 +870,13 @@ test('saving to card: polls closed, primary election, single precinct', async ()
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('precinct-1'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
     })
   );
 });
@@ -1068,13 +1068,13 @@ test('saving to card: polls closed, general election, all precincts', async () =
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
     })
   );
 });
@@ -1228,13 +1228,13 @@ test('saving to card: polls closed, general election, single precinct', async ()
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
     })
   );
 });
@@ -1319,13 +1319,13 @@ test('saving to card: polls paused', async () => {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       tally: expect.anything(),
       talliesByPrecinct: expect.anything(),
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'pause_polls',
     })
   );
 });
@@ -1403,13 +1403,13 @@ test('saving to card: polls unpaused', async () => {
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       tally: expect.anything(),
       talliesByPrecinct: expect.anything(),
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: true,
+      pollsTransition: 'unpause_polls',
     })
   );
 });
@@ -1542,13 +1542,13 @@ test('saving to card: polls closed from paused, general election, single precinc
       tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
-      timePollsToggled: expect.anything(),
+      timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
-      isPollsOpen: false,
+      pollsTransition: 'close_polls',
     })
   );
 });

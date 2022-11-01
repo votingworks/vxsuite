@@ -102,7 +102,14 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  // Precinct Machine (VxMark + VxScan) State
+  PollsOpened = 'polls-opened',
+  PollsPaused = 'polls-paused',
+  PollsUnpaused = 'polls-unpaused',
+  PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
+  TallyReportClearedFromCard = 'tally-report-cleared-from-card',
+  PrecinctConfigurationChanged = 'precinct-configuration-changed',
   // VxScan service state machine logs
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
@@ -730,10 +737,68 @@ const RebootMachine: LogDetails = {
   documentationMessage: 'User has triggered a reboot of the machine.',
 };
 
+const PollsOpened: LogDetails = {
+  eventId: LogEventId.PollsOpened,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has opened the polls.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
+const PollsPaused: LogDetails = {
+  eventId: LogEventId.PollsPaused,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has paused the polls.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
+const PollsUnpaused: LogDetails = {
+  eventId: LogEventId.PollsUnpaused,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has unpaused the polls.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
+const PollsClosed: LogDetails = {
+  eventId: LogEventId.PollsClosed,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has closed the polls.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
 const ResetPollsToPaused: LogDetails = {
   eventId: LogEventId.ResetPollsToPaused,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has reset the polls from closed to paused.',
+  restrictInDocumentationToApps: [
+    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxPrecinctScanFrontend,
+  ],
+};
+
+const TallyReportClearedFromCard: LogDetails = {
+  eventId: LogEventId.TallyReportClearedFromCard,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'The tally report has been cleared from the poll worker card.',
+  restrictInDocumentationToApps: [LogSource.VxBallotMarkingDeviceFrontend],
+};
+
+const PrecinctConfigurationChanged: LogDetails = {
+  eventId: LogEventId.PrecinctConfigurationChanged,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has changed the precinct setting.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
     LogSource.VxPrecinctScanFrontend,
@@ -916,8 +981,20 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrepareBootFromUsbComplete;
     case LogEventId.RebootMachine:
       return RebootMachine;
+    case LogEventId.PollsOpened:
+      return PollsOpened;
+    case LogEventId.PollsPaused:
+      return PollsPaused;
+    case LogEventId.PollsUnpaused:
+      return PollsUnpaused;
+    case LogEventId.PollsClosed:
+      return PollsClosed;
     case LogEventId.ResetPollsToPaused:
       return ResetPollsToPaused;
+    case LogEventId.TallyReportClearedFromCard:
+      return TallyReportClearedFromCard;
+    case LogEventId.PrecinctConfigurationChanged:
+      return PrecinctConfigurationChanged;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:

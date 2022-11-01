@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
-  ALL_PRECINCTS_NAME,
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+  ElectionDefinition,
+  PollsState,
+  PrecinctSelection,
+} from '@votingworks/types';
+import { makeAsync } from '@votingworks/utils';
 import {
   Button,
+  ChangePrecinctButton,
   CurrentDateAndTime,
   Main,
   Prose,
@@ -16,18 +17,14 @@ import {
   SetClockButton,
   Text,
 } from '@votingworks/ui';
-import {
-  MachineConfig,
-  ScreenReader,
-  SelectChangeEventFunction,
-} from '../config/types';
+import { Logger } from '@votingworks/logging';
+import { MachineConfig, ScreenReader } from '../config/types';
 
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
-import { Select } from '../components/select';
 import { VersionsData } from '../components/versions_data';
 
-interface Props {
+export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition?: ElectionDefinition;
@@ -38,9 +35,9 @@ interface Props {
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
+  pollsState: PollsState;
+  logger: Logger;
 }
-
-const ALL_PRECINCTS_OPTION_VALUE = '_ALL';
 
 export function AdminScreen({
   appPrecinct,
@@ -53,17 +50,10 @@ export function AdminScreen({
   unconfigure,
   machineConfig,
   screenReader,
-}: Props): JSX.Element {
+  pollsState,
+  logger,
+}: AdminScreenProps): JSX.Element {
   const election = electionDefinition?.election;
-  const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
-    const precinctId = event.currentTarget.value;
-
-    if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
-      updateAppPrecinct(ALL_PRECINCTS_SELECTION);
-    } else if (precinctId) {
-      updateAppPrecinct(singlePrecinctSelectionFor(precinctId));
-    }
-  };
 
   const [isFetchingElection, setIsFetchingElection] = useState(false);
   function loadElection() {
@@ -87,38 +77,26 @@ export function AdminScreen({
               <h1>
                 <label htmlFor="selectPrecinct">Precinct</label>
               </h1>
-              <p>
-                <Select
-                  id="selectPrecinct"
-                  value={
-                    appPrecinct?.kind === 'AllPrecincts'
-                      ? ALL_PRECINCTS_OPTION_VALUE
-                      : appPrecinct?.precinctId ?? ''
-                  }
-                  onBlur={changeAppPrecinctId}
-                  onChange={changeAppPrecinctId}
-                >
-                  <option value="" disabled>
-                    Select a precinct for this device…
-                  </option>
-                  {election.precincts.length > 1 && (
-                    <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                      {ALL_PRECINCTS_NAME}
-                    </option>
-                  )}
-                  {[...election.precincts]
-                    .sort((a, b) =>
-                      a.name.localeCompare(b.name, undefined, {
-                        ignorePunctuation: true,
-                      })
-                    )
-                    .map((precinct) => (
-                      <option key={precinct.id} value={precinct.id}>
-                        {precinct.name}
-                      </option>
-                    ))}
-                </Select>
-              </p>
+              <ChangePrecinctButton
+                appPrecinctSelection={appPrecinct}
+                updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                election={election}
+                mode={
+                  pollsState === 'polls_closed_final' ||
+                  election.precincts.length === 1
+                    ? 'disabled'
+                    : 'default'
+                }
+                logger={logger}
+              />
+              {election.precincts.length === 1 && (
+                <p>
+                  <em>
+                    There is only one precinct in this election, so the precinct
+                    cannot be changed.
+                  </em>
+                </p>
+              )}
               <h1>Testing Mode</h1>
               <p>
                 <SegmentedButton>

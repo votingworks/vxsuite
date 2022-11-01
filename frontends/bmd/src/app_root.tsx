@@ -16,6 +16,7 @@ import {
   PrecinctId,
   BallotStyleId,
   PrecinctSelection,
+  PollsState,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
@@ -32,9 +33,10 @@ import {
   throwIllegalValue,
   usbstick,
   singlePrecinctSelectionFor,
+  makeAsync,
 } from '@votingworks/utils';
 
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 
 import {
   isElectionManagerAuth,
@@ -97,7 +99,7 @@ interface SharedState {
   ballotsPrintedCount: number;
   electionDefinition: OptionalElectionDefinition;
   isLiveMode: boolean;
-  isPollsOpen: boolean;
+  pollsState: PollsState;
 }
 
 interface OtherState {
@@ -145,7 +147,7 @@ const initialSharedState: Readonly<SharedState> = {
   ballotsPrintedCount: 0,
   electionDefinition: undefined,
   isLiveMode: false,
-  isPollsOpen: false,
+  pollsState: 'polls_closed_initial',
 };
 
 const initialOtherState: Readonly<OtherState> = {
@@ -180,7 +182,7 @@ type AppAction =
   | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
-  | { type: 'togglePollsOpen' }
+  | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'updateTally' }
   | { type: 'updateElectionDefinition'; electionDefinition: ElectionDefinition }
   | { type: 'startWritingLongValue' }
@@ -256,19 +258,19 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         ...resetTally,
         isLiveMode: true,
-        isPollsOpen: initialAppState.isPollsOpen,
+        pollsState: initialAppState.pollsState,
       };
     case 'toggleLiveMode':
       return {
         ...state,
         ...resetTally,
         isLiveMode: !state.isLiveMode,
-        isPollsOpen: initialAppState.isPollsOpen,
+        pollsState: initialAppState.pollsState,
       };
-    case 'togglePollsOpen':
+    case 'updatePollsState':
       return {
         ...state,
-        isPollsOpen: !state.isPollsOpen,
+        pollsState: action.pollsState,
       };
     case 'updateTally': {
       return {
@@ -329,7 +331,7 @@ export function AppRoot({
     ballotsPrintedCount,
     electionDefinition: optionalElectionDefinition,
     isLiveMode,
-    isPollsOpen,
+    pollsState,
     initializedFromStorage,
     machineConfig,
     showPostVotingInstructions,
@@ -439,7 +441,7 @@ export function AppRoot({
     return () => {
       clearTimeout(PostVotingInstructionsTimeout.current);
     };
-    /* We don't include hidePostVotingInstructions because it is updatedi
+    /* We don't include hidePostVotingInstructions because it is updated
      * frequently due to its dependency on auth, which causes this effect to
      * run/cleanup,clearing the timeout.
      */
@@ -496,8 +498,38 @@ export function AppRoot({
     dispatchAppState({ type: 'toggleLiveMode' });
   }, []);
 
-  const togglePollsOpen = useCallback(() => {
-    dispatchAppState({ type: 'togglePollsOpen' });
+  const updatePollsState = useCallback(
+    async (newPollsState: PollsState) => {
+      assert(newPollsState !== 'polls_closed_initial');
+      const logEvent = (() => {
+        switch (newPollsState) {
+          case 'polls_closed_final':
+            return LogEventId.PollsClosed;
+          case 'polls_paused':
+            return LogEventId.PollsPaused;
+          case 'polls_open':
+            if (pollsState === 'polls_closed_initial') {
+              return LogEventId.PollsOpened;
+            }
+            return LogEventId.PollsUnpaused;
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(newPollsState);
+        }
+      })();
+
+      dispatchAppState({
+        type: 'updatePollsState',
+        pollsState: newPollsState,
+      });
+
+      await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
+    },
+    [logger, pollsState]
+  );
+
+  const resetPollsToPaused = useCallback(() => {
+    dispatchAppState({ type: 'updatePollsState', pollsState: 'polls_paused' });
   }, []);
 
   const updateTally = useCallback(() => {
@@ -681,7 +713,7 @@ export function AppRoot({
         ballotsPrintedCount:
           storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
-        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
+        pollsState: storedPollsState = initialAppState.pollsState,
       } = storedAppState;
       dispatchAppState({
         type: 'initializeAppState',
@@ -690,7 +722,7 @@ export function AppRoot({
           ballotsPrintedCount: storedBallotsPrintedCount,
           electionDefinition: storedElectionDefinition,
           isLiveMode: storedIsLiveMode,
-          isPollsOpen: storedIsPollsOpen,
+          pollsState: storedPollsState,
         },
       });
     }
@@ -705,7 +737,7 @@ export function AppRoot({
           appPrecinct,
           ballotsPrintedCount,
           isLiveMode,
-          isPollsOpen,
+          pollsState,
         });
       }
     }
@@ -715,7 +747,7 @@ export function AppRoot({
     appPrecinct,
     ballotsPrintedCount,
     isLiveMode,
-    isPollsOpen,
+    pollsState,
     storage,
     initializedFromStorage,
   ]);
@@ -750,6 +782,11 @@ export function AppRoot({
         logger={logger}
         unconfigureMachine={unconfigure}
         isMachineConfigured={Boolean(optionalElectionDefinition)}
+        resetPollsToPaused={
+          pollsState === 'polls_closed_final'
+            ? makeAsync(resetPollsToPaused)
+            : undefined
+        }
         usbDriveStatus={displayUsbStatus}
       />
     );
@@ -784,6 +821,8 @@ export function AppRoot({
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         screenReader={screenReader}
+        pollsState={pollsState}
+        logger={logger}
       />
     );
   }
@@ -817,20 +856,21 @@ export function AppRoot({
           electionDefinition={optionalElectionDefinition}
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
+          pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hardware={hardware}
           devices={devices}
           screenReader={screenReader}
-          togglePollsOpen={togglePollsOpen}
+          updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
+          logger={logger}
         />
       );
     }
     if (
-      isPollsOpen &&
+      pollsState === 'polls_open' &&
       auth.status === 'logged_out' &&
       (auth.reason === 'voter_card_expired' ||
         auth.reason === 'voter_card_voided')
@@ -842,7 +882,7 @@ export function AppRoot({
       );
     }
     if (
-      isPollsOpen &&
+      pollsState === 'polls_open' &&
       showPostVotingInstructions &&
       appMode.isMark &&
       appMode.isPrint
@@ -855,7 +895,7 @@ export function AppRoot({
       );
     }
     if (
-      isPollsOpen &&
+      pollsState === 'polls_open' &&
       auth.status === 'logged_out' &&
       auth.reason === 'voter_card_printed'
     ) {
@@ -865,7 +905,7 @@ export function AppRoot({
         />
       );
     }
-    if (isPollsOpen) {
+    if (pollsState === 'polls_open') {
       if (
         auth.status === 'logged_out' &&
         auth.reason === 'voter_wrong_precinct'
@@ -938,7 +978,7 @@ export function AppRoot({
           }
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={isLiveMode}
-          isPollsOpen={isPollsOpen}
+          pollsState={pollsState}
           machineConfig={machineConfig}
         />
       </IdleTimer>

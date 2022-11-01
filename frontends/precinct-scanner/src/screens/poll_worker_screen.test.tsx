@@ -1,5 +1,4 @@
-import { screen, render } from '@testing-library/react';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { screen, RenderResult } from '@testing-library/react';
 import { fakeKiosk, Inserted, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -11,8 +10,9 @@ import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import { AppContext, AppContextInterface } from '../contexts/app_context';
+import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -40,27 +40,22 @@ function renderScreen({
 }: {
   appContextProps?: Partial<AppContextInterface>;
   pollWorkerScreenProps?: Partial<PollWorkerScreenProps>;
-} = {}): void {
-  render(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        isSoundMuted: false,
-        auth: Inserted.fakePollWorkerAuth(),
-        ...appContextProps,
-      }}
-    >
-      <PollWorkerScreen
-        scannedBallotCount={0}
-        pollsState="polls_closed_initial"
-        updatePollsState={jest.fn()}
-        isLiveMode
-        hasPrinterAttached={false}
-        {...pollWorkerScreenProps}
-      />
-    </AppContext.Provider>
+} = {}): RenderResult {
+  const pollWorkerScreenAppContextProps: Partial<AppContextInterface> = {
+    auth: Inserted.fakePollWorkerAuth(),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    ...appContextProps,
+  };
+  return renderInAppContext(
+    <PollWorkerScreen
+      scannedBallotCount={0}
+      pollsState="polls_closed_initial"
+      updatePollsState={jest.fn()}
+      isLiveMode
+      hasPrinterAttached={false}
+      {...pollWorkerScreenProps}
+    />,
+    pollWorkerScreenAppContextProps
   );
 }
 

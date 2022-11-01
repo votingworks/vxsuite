@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose, Select } from '@votingworks/ui';
 import {
   Election,
-  PollsState,
   PrecinctSelection,
   SelectChangeEventFunction,
 } from '@votingworks/types';
@@ -10,11 +8,22 @@ import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   assert,
+  getPrecinctSelectionName,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { LogEventId, Logger } from '@votingworks/logging';
+import { Select } from './select';
+import { Button } from './button';
+import { Modal } from './modal';
+import { Prose } from './prose';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
+
+export type ChangePrecinctMode =
+  | 'default'
+  | 'confirmation_required'
+  | 'disabled';
 
 export interface ChangePrecinctButtonProps {
   appPrecinctSelection?: PrecinctSelection;
@@ -22,19 +31,17 @@ export interface ChangePrecinctButtonProps {
     precinctSelection: PrecinctSelection
   ) => Promise<void>;
   election: Election;
-  ballotsCast: boolean;
-  pollsState: PollsState;
+  mode: ChangePrecinctMode;
+  logger: Logger;
 }
 
 export function ChangePrecinctButton({
   appPrecinctSelection,
   updatePrecinctSelection,
   election,
-  ballotsCast,
-  pollsState,
+  mode,
+  logger,
 }: ChangePrecinctButtonProps): JSX.Element {
-  const requireConfirmation = pollsState !== 'polls_closed_initial';
-  const disableChange = ballotsCast || pollsState === 'polls_closed_final';
   const [isConfirmationModalShowing, setIsConfirmationModalShowing] =
     useState(false);
   const [unconfirmedPrecinctSelection, setUnconfirmedPrecinctSelection] =
@@ -49,25 +56,44 @@ export function ChangePrecinctButton({
     setUnconfirmedPrecinctSelection(undefined);
   }
 
+  async function updatePrecinctSelectionAndLog(
+    newPrecinctSelection: PrecinctSelection
+  ) {
+    await updatePrecinctSelection(newPrecinctSelection);
+    await logger.log(
+      LogEventId.PrecinctConfigurationChanged,
+      'election_manager',
+      {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          election.precincts,
+          newPrecinctSelection
+        )}`,
+      }
+    );
+  }
+
   const handlePrecinctSelectionChange: SelectChangeEventFunction = async (
     event
   ) => {
     const { value } = event.currentTarget;
+    if (!value) return; // in case of blur on placeholder option
+
     const newPrecinctSelection =
       value === ALL_PRECINCTS_OPTION_VALUE
         ? ALL_PRECINCTS_SELECTION
         : singlePrecinctSelectionFor(value);
 
-    if (requireConfirmation) {
+    if (mode === 'confirmation_required') {
       setUnconfirmedPrecinctSelection(newPrecinctSelection);
     } else {
-      await updatePrecinctSelection(newPrecinctSelection);
+      await updatePrecinctSelectionAndLog(newPrecinctSelection);
     }
   };
 
   async function confirmPrecinctChange() {
     assert(unconfirmedPrecinctSelection);
-    await updatePrecinctSelection(unconfirmedPrecinctSelection);
+    await updatePrecinctSelectionAndLog(unconfirmedPrecinctSelection);
     closeModal();
   }
 
@@ -88,8 +114,9 @@ export function ChangePrecinctButton({
       onBlur={handlePrecinctSelectionChange}
       onChange={handlePrecinctSelectionChange}
       large
+      disabled={mode === 'disabled'}
     >
-      {!requireConfirmation && (
+      {mode === 'default' && (
         <option value="" disabled>
           {SELECT_PRECINCT_TEXT}
         </option>
@@ -121,11 +148,11 @@ export function ChangePrecinctButton({
     </Select>
   );
 
-  return pollsState === 'polls_closed_initial' ? (
+  return mode === 'default' || mode === 'disabled' ? (
     precinctSelectDropdown
   ) : (
     <React.Fragment>
-      <Button onPress={openModal} large disabled={disableChange}>
+      <Button onPress={openModal} large>
         Change Precinct
       </Button>
       {isConfirmationModalShowing && (
