@@ -293,11 +293,11 @@ test('full polls flow with tally reports - general, single precinct', async () =
   };
 
   card.insertCard(pollWorkerCard, JSON.stringify(pollsUnpausedCardTallyReport));
-  await screen.findByText('Polls Opened Report on Card');
-  screen.getByText(/contains a polls opened report/);
+  await screen.findByText('Polls Reopened Report on Card');
+  screen.getByText(/contains a polls reopened report/);
   screen.getByText(/the polls will be open on VxMark/);
-  userEvent.click(screen.getByText('Open Polls and Print Report'));
-  await screen.findByText('Printing polls opened report');
+  userEvent.click(screen.getByText('Reopen Polls and Print Report'));
+  await screen.findByText('Printing polls reopened report');
   function checkPollsUnpausedReport(printedElement: RenderResult) {
     const generalReport = printedElement.getByTestId(
       'tally-report-undefined-23'
@@ -309,7 +309,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   }
   await expectPrint(checkPollsUnpausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-  await screen.findByText('Polls Opened Report Printed');
+  await screen.findByText('Polls Reopened Report Printed');
   expect(card.writeLongUint8Array).toHaveBeenCalledTimes(3);
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
@@ -324,7 +324,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     'poll_worker',
     expect.objectContaining({
       message:
-        'Printed 2 copies of a polls opened report for Center Springfield exported from scanner 001.',
+        'Printed 2 copies of a polls reopened report for Center Springfield exported from scanner 001.',
     })
   );
   expect(logger.log).toHaveBeenCalledWith(
@@ -333,10 +333,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
     expect.anything()
   );
   userEvent.click(screen.getByText('Print Additional Report'));
-  await screen.findByText('Printing polls opened report');
+  await screen.findByText('Printing polls reopened report');
   await expectPrint(checkPollsUnpausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-  await screen.findByText('Polls Opened Report Printed');
+  await screen.findByText('Polls Reopened Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
@@ -1251,9 +1251,9 @@ test('full polls flow without tally reports', async () => {
   // Unpause Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Open Polls'));
-  await screen.findByText('No Polls Opened Report on Card');
-  userEvent.click(screen.getByText('Open VxMark Now'));
+  userEvent.click(screen.getByText('Reopen Polls'));
+  await screen.findByText('No Polls Reopened Report on Card');
+  userEvent.click(screen.getByText('Reopen VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
   await screen.findByText('Insert Card');

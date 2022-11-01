@@ -193,20 +193,20 @@ describe('transitions from polls paused', () => {
         auth: readableFakePollWorkerAuth(),
       },
     });
-    await screen.findByText('Do you want to open the polls?');
+    await screen.findByText('Do you want to reopen the polls?');
   });
 
   test('open polls happy path', async () => {
-    userEvent.click(screen.getByText('Yes, Open the Polls'));
-    await screen.findByText('Opening Polls…');
+    userEvent.click(screen.getByText('Yes, Reopen the Polls'));
+    await screen.findByText('Reopening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
   });
 
   test('open polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Open Polls for All Precincts'));
-    await screen.findByText('Opening Polls…');
+    userEvent.click(await screen.findByText('Reopen Polls for All Precincts'));
+    await screen.findByText('Reopening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
   });
@@ -228,7 +228,7 @@ test('no transitions from polls closed final', async () => {
     },
   });
   await screen.findByText(
-    'Voting is complete and the polls cannot be re-opened.'
+    'Voting is complete and the polls cannot be reopened.'
   );
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });

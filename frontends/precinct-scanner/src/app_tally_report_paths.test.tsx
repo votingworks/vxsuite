@@ -1352,8 +1352,8 @@ test('TODO printing: polls unpaused', async () => {
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Do you want to reopen the polls?');
+  userEvent.click(await screen.findByText('Yes, Reopen the Polls'));
   mockPollsStateChange('polls_open');
   await screen.findByText('Polls are open.');
 
@@ -1385,8 +1385,8 @@ test('saving to card: polls unpaused', async () => {
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
-  userEvent.click(screen.getByText('Yes, Open the Polls'));
+  await screen.findByText('Do you want to reopen the polls?');
+  userEvent.click(screen.getByText('Yes, Reopen the Polls'));
   mockPollsStateChange('polls_open');
   await screen.findByText('Polls are open.');
   card.removeCard();
@@ -1436,7 +1436,7 @@ test('printing: polls closed from paused, general election, single precinct', as
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
   userEvent.click(
@@ -1514,7 +1514,7 @@ test('saving to card: polls closed from paused, general election, single precinc
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
   userEvent.click(

@@ -1032,9 +1032,9 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
   // Unpause Polls Flow
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   mockPollsStateChange('polls_open');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  userEvent.click(await screen.findByText('Yes, Reopen the Polls'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );

@@ -30,6 +30,7 @@ import {
   throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
+  getPollsTransitionAction,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -415,18 +416,18 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerFlowState === 'open_polls_prompt') {
+    const pollsTransition: PollsTransition =
+      pollsState === 'polls_closed_initial' ? 'open_polls' : 'unpause_polls';
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <p>Do you want to open the polls?</p>
           <p>
-            <Button
-              primary
-              onPress={
-                pollsState === 'polls_closed_initial' ? openPolls : unpausePolls
-              }
-            >
-              Yes, Open the Polls
+            Do you want to{' '}
+            {getPollsTransitionAction(pollsTransition).toLowerCase()} the polls?
+          </p>
+          <p>
+            <Button primary onPress={() => transitionPolls(pollsTransition)}>
+              Yes, {getPollsTransitionAction(pollsTransition)} the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
           </p>
@@ -462,7 +463,7 @@ export function PollWorkerScreen({
         case 'pause_polls':
           return 'Pausing Polls…';
         case 'unpause_polls':
-          return 'Opening Polls…';
+          return 'Reopening Polls…';
         /* istanbul ignore next - compile-time check for completeness */
         default:
           throwIllegalValue(currentPollsTransition);
@@ -565,7 +566,7 @@ export function PollWorkerScreen({
             <p>The polls are currently paused.</p>
             <p>
               <Button primary large onPress={unpausePolls}>
-                Open Polls for {precinctName}
+                Reopen Polls for {precinctName}
               </Button>
             </p>
             <p>
@@ -576,7 +577,7 @@ export function PollWorkerScreen({
           </React.Fragment>
         );
       case 'polls_closed_final':
-        return <p>Voting is complete and the polls cannot be re-opened.</p>;
+        return <p>Voting is complete and the polls cannot be reopened.</p>;
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(pollsState);

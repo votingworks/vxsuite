@@ -21,8 +21,9 @@ export function getPollsTransitionDestinationState(
 export function getPollsTransitionAction(transition: PollsTransition): string {
   switch (transition) {
     case 'open_polls':
-    case 'unpause_polls':
       return 'Open';
+    case 'unpause_polls':
+      return 'Reopen';
     case 'pause_polls':
       return 'Pause';
     case 'close_polls':
@@ -36,8 +37,9 @@ export function getPollsTransitionAction(transition: PollsTransition): string {
 export function getPollsReportTitle(transition: PollsTransition): string {
   switch (transition) {
     case 'open_polls':
-    case 'unpause_polls':
       return 'Polls Opened Report';
+    case 'unpause_polls':
+      return 'Polls Reopened Report';
     case 'pause_polls':
       return 'Polls Paused Report';
     case 'close_polls':
@@ -70,7 +72,7 @@ export function getPollTransitionsFromState(
     case 'polls_open':
       return ['close_polls', 'pause_polls'];
     case 'polls_paused':
-      return ['open_polls', 'close_polls'];
+      return ['unpause_polls', 'close_polls'];
     case 'polls_closed_initial':
       return ['open_polls'];
     case 'polls_closed_final':
