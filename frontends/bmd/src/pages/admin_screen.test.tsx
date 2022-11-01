@@ -137,13 +137,13 @@ test('precinct change disabled if polls closed', () => {
   expect(precinctSelect).toBeDisabled();
 });
 
-test('no precinct section if single precinct election', async () => {
+test('precinct selection disabled if single precinct election', async () => {
   renderScreen({
     electionDefinition: electionMinimalExhaustiveSampleSinglePrecinctDefinition,
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 
   await screen.findByText('Election Manager Actions');
-  expect(screen.queryByLabelText('Precinct')).toBeFalsy();
-  expect(screen.queryByTestId('selectPrecinct')).toBeFalsy();
+  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  screen.getByText(/the precinct cannot be changed/);
 });

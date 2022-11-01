@@ -43,8 +43,9 @@ test('loading election with a single precinct automatically sets precinct', asyn
   await enterPin();
   userEvent.click(await screen.findByText('Load Election Definition'));
   await screen.findByText('10edbc8d2c');
-  // Should not have All Precincts option available
-  expect(screen.queryByLabelText('Precinct')).not.toBeInTheDocument();
+  // Should not be able to select a precinct
+  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  screen.getByText(/the precinct cannot be changed/);
   card.removeCard();
   await screen.findByText('Precinct 1');
 });

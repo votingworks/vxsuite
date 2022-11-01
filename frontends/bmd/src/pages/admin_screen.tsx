@@ -74,23 +74,28 @@ export function AdminScreen({
         <Prose>
           {election && (
             <React.Fragment>
-              {election.precincts.length > 1 && (
-                <React.Fragment>
-                  <h1>
-                    <label htmlFor="selectPrecinct">Precinct</label>
-                  </h1>
-                  <ChangePrecinctButton
-                    appPrecinctSelection={appPrecinct}
-                    updatePrecinctSelection={makeAsync(updateAppPrecinct)}
-                    election={election}
-                    mode={
-                      pollsState === 'polls_closed_final'
-                        ? 'disabled'
-                        : 'default'
-                    }
-                    logger={logger}
-                  />
-                </React.Fragment>
+              <h1>
+                <label htmlFor="selectPrecinct">Precinct</label>
+              </h1>
+              <ChangePrecinctButton
+                appPrecinctSelection={appPrecinct}
+                updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                election={election}
+                mode={
+                  pollsState === 'polls_closed_final' ||
+                  election.precincts.length === 1
+                    ? 'disabled'
+                    : 'default'
+                }
+                logger={logger}
+              />
+              {election.precincts.length === 1 && (
+                <p>
+                  <em>
+                    There is only one precinct in this election, so the precinct
+                    cannot be changed.
+                  </em>
+                </p>
               )}
               <h1>Testing Mode</h1>
               <p>
