@@ -18,7 +18,6 @@ interface Props {
 /**
  * Screen when a system administrator card is inserted
  */
-
 export function SystemAdministratorScreen({
   logger,
   unconfigureMachine,
