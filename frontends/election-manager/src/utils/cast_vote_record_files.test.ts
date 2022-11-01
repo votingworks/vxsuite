@@ -245,6 +245,60 @@ test('can preprocess files to give information about expected duplicates', async
   ]);
 });
 
+test('parseAllFromFileSystemEntries handles empty files', async () => {
+  const { empty } = CastVoteRecordFiles;
+
+  const added = await empty.addAll(
+    [new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() })],
+    electionSample
+  );
+
+  expect([...added.castVoteRecords]).toEqual([]);
+  expect(added.duplicateFiles).toEqual([]);
+  expect(added.fileList).toEqual([
+    {
+      name: 'cvrs.txt',
+      duplicatedCvrCount: 0,
+      importedCvrCount: 0,
+      precinctIds: [],
+      scannerIds: [],
+      allCastVoteRecords: [],
+      exportTimestamp: TEST_DATE,
+    },
+  ]);
+  expect(added.lastError).toBeUndefined();
+
+  window.kiosk = fakeKiosk();
+  window.kiosk.readFile = jest.fn();
+  expect(
+    await added.parseAllFromFileSystemEntries(
+      [
+        {
+          name: 'cvrs.txt',
+          path: 'this/is/a/path',
+          type: 1,
+          size: 0,
+          mtime: TEST_DATE,
+          atime: new Date(),
+          ctime: new Date(),
+        },
+      ],
+      electionSample
+    )
+  ).toEqual([
+    {
+      name: 'cvrs.txt',
+      newCvrCount: 0,
+      importedCvrCount: 0,
+      scannerIds: [],
+      exportTimestamp: TEST_DATE,
+      isTestModeResults: false,
+      fileImported: true,
+      fileContent: '',
+    },
+  ]);
+});
+
 test('test ballot cvrs change the file mode appropriately', async () => {
   const { empty } = CastVoteRecordFiles;
   const cvr: CastVoteRecord = {

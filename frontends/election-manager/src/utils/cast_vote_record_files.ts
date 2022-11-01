@@ -198,7 +198,8 @@ export class CastVoteRecordFiles {
             importedCvrCount: importedFile.importedCvrCount,
             scannerIds: importedFile.scannerIds,
             exportTimestamp: importedFile.exportTimestamp,
-            isTestModeResults: importedFile.allCastVoteRecords[0]._testBallot,
+            isTestModeResults:
+              !!importedFile.allCastVoteRecords[0]?._testBallot,
             fileContent: '',
             name: file.name,
           });
