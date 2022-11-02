@@ -558,6 +558,8 @@ export class Store {
         !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
+      const finishedAdjudicationAt =
+        frontFinishedAdjudicationAt && backFinishedAdjudicationAt;
       this.client.run(
         `insert into sheets (
             id,
@@ -570,9 +572,10 @@ export class Store {
             back_interpretation_json,
             requires_adjudication,
             front_finished_adjudication_at,
-            back_finished_adjudication_at
+            back_finished_adjudication_at,
+            finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
@@ -586,7 +589,8 @@ export class Store {
           ? 1
           : 0,
         frontFinishedAdjudicationAt ?? null,
-        backFinishedAdjudicationAt ?? null
+        backFinishedAdjudicationAt ?? null,
+        finishedAdjudicationAt ?? null
       );
     } catch (error) {
       debug(
@@ -662,11 +666,12 @@ export class Store {
         front_interpretation_json as frontInterpretationJson,
         back_interpretation_json as backInterpretationJson,
         front_finished_adjudication_at as frontFinishedAdjudicationAt,
-        back_finished_adjudication_at as backFinishedAdjudicationAt
+        back_finished_adjudication_at as backFinishedAdjudicationAt,
+        finished_adjudication_at as finishedAdjudicationAt
       from sheets
       where
         requires_adjudication = 1 and
-        (front_finished_adjudication_at is null or back_finished_adjudication_at is null) and
+        (front_finished_adjudication_at is null or back_finished_adjudication_at is null or finished_adjudication_at is null) and
         deleted_at is null
       order by created_at asc
       limit 1
@@ -777,6 +782,45 @@ export class Store {
       sheetId
     );
 
+    const {
+      frontFinishedAdjudicationAt,
+      backFinishedAdjudicationAt,
+      finishedAdjudicationAt,
+    } =
+      (this.client.one(
+        `
+      select
+        front_finished_adjudication_at as frontFinishedAdjudicationAt,
+        back_finished_adjudication_at as backFinishedAdjudicationAt,
+        finished_adjudication_at as finishedAdjudicationAt
+      from sheets
+      where id = ?
+      `,
+        sheetId
+      ) as
+        | {
+            frontFinishedAdjudicationAt: string | null;
+            backFinishedAdjudicationAt: string | null;
+            finishedAdjudicationAt: string | null;
+          }
+        | undefined) ?? {};
+
+    if (
+      frontFinishedAdjudicationAt &&
+      backFinishedAdjudicationAt &&
+      !finishedAdjudicationAt
+    ) {
+      this.client.run(
+        `
+        update sheets
+        set finished_adjudication_at = ?
+        where id = ?
+        `,
+        new Date().toISOString(),
+        sheetId
+      );
+    }
+
     return true;
   }
 
@@ -864,14 +908,14 @@ export class Store {
         where
           requires_adjudication = 1
           and deleted_at is null
-          and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
+          and (front_finished_adjudication_at is null or back_finished_adjudication_at is null or finished_adjudication_at is null)
       `) as { remaining: number };
     const { adjudicated } = this.client.one(`
         select count(*) as adjudicated
         from sheets
         where
           requires_adjudication = 1
-          and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
+          and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null and finished_adjudication_at is not null)
       `) as { adjudicated: number };
     return { adjudicated, remaining };
   }
@@ -902,7 +946,7 @@ export class Store {
       on sheets.batch_id = batches.id
       where
         (requires_adjudication = 0 or
-        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
+        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null and finished_adjudication_at is not null))
         and sheets.deleted_at is null
         and batches.deleted_at is null
       ${options.orderBySheetId ? 'order by sheets.id' : ''}

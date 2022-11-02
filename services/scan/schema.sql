@@ -35,6 +35,7 @@ create table sheets (
   -- When adjudication is finished, these values are updated to now.
   front_finished_adjudication_at datetime,
   back_finished_adjudication_at datetime,
+  finished_adjudication_at datetime,
 
   created_at datetime default current_timestamp not null,
   deleted_at datetime,
