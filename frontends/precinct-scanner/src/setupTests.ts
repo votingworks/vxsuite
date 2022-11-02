@@ -5,7 +5,7 @@ import { TextDecoder, TextEncoder } from 'util';
 
 import { configure } from '@testing-library/react';
 import {
-  expectAllPrintsAsserted,
+  expectTestToEndWithAllPrintsAsserted,
   fakePrintElement,
   fakePrintElementWhenReady,
 } from '@votingworks/test-utils';
@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expectAllPrintsAsserted();
+  expectTestToEndWithAllPrintsAsserted();
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
