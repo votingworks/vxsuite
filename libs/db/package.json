@@ -1,0 +1,52 @@
+{
+  "name": "@votingworks/db",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Database utils for VxSuite",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0",
+  "packageManager": "pnpm@5.18.10",
+  "dependencies": {
+    "@votingworks/utils": "workspace:*",
+    "better-sqlite3": "^7.5.3",
+    "debug": "^4.3.4"
+  },
+  "devDependencies": {
+    "@jest/types": "^28.1.3",
+    "@types/better-sqlite3": "^7.5.0",
+    "@types/debug": "^4.1.7",
+    "@types/jest": "^28.1.5",
+    "@types/node": "^18.0.3",
+    "@types/tmp": "^0.2.3",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vx": "workspace:*",
+    "fast-check": "2.18.0",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^28.1.3",
+    "jest-junit": "^14.0.1",
+    "jest-watch-typeahead": "0.6.4",
+    "prettier": "^2.7.1",
+    "tmp": "^0.2.1",
+    "ts-jest": "^28.0.5",
+    "typescript": "4.6.3"
+  }
+}

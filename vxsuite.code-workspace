@@ -69,6 +69,10 @@
       "path": "libs/cvr-fixture-generator"
     },
     {
+      "name": "libs/db",
+      "path": "libs/db"
+    },
+    {
       "name": "libs/image-utils",
       "path": "libs/image-utils"
     },

@@ -3,6 +3,7 @@
 //
 
 import { Admin } from '@votingworks/api';
+import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotStyleId,
   CastVoteRecord,
@@ -22,7 +23,6 @@ import * as fs from 'fs';
 import { basename, join } from 'path';
 import * as readline from 'readline';
 import { v4 as uuid } from 'uuid';
-import { Bindable, DbClient } from './db_client';
 import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 import { sha256File } from './util/sha256_file';
 
