@@ -1,4 +1,9 @@
-import { render, RenderResult, waitFor } from '@testing-library/react';
+import {
+  prettyDOM,
+  render,
+  RenderResult,
+  waitFor,
+} from '@testing-library/react';
 import {
   ElementWithCallback,
   Optional,
@@ -17,15 +22,31 @@ let lastPrintedElement: Optional<JSX.Element>;
 let lastPrintedElementWithCallback: Optional<ElementWithCallback>;
 let lastPrintOptions: Optional<PrintOptions>;
 
+/**
+ * Clears the state of this module i.e. data about what was last printed.
+ * Use only for testing the module itself.
+ */
+export function resetExpectPrint(): void {
+  lastPrintedElement = undefined;
+  lastPrintedElementWithCallback = undefined;
+  lastPrintOptions = undefined;
+}
+
+function expectAllPrintsAsserted(message: string) {
+  if (lastPrintedElement || lastPrintedElementWithCallback) {
+    resetExpectPrint();
+    throw new ExpectPrintError(message);
+  }
+}
+
 export function fakePrintElement(
   element: JSX.Element,
   printOptions: PrintOptions
 ): Promise<void> {
-  if (lastPrintedElement || lastPrintedElementWithCallback) {
-    throw new ExpectPrintError(
-      'You have not made any assertions against the last print before printing another within a test.'
-    );
-  }
+  expectAllPrintsAsserted(
+    'You have not made any assertions against the last print before another print within a test.'
+  );
+
   lastPrintedElement = element;
   lastPrintOptions = printOptions;
   return Promise.resolve();
@@ -35,14 +56,42 @@ export function fakePrintElementWhenReady(
   elementWithCallback: ElementWithCallback,
   printOptions: PrintOptions
 ): Promise<void> {
-  if (lastPrintedElement || lastPrintedElementWithCallback) {
-    throw new ExpectPrintError(
-      'You have not made any assertions against the last print before printing another within a test.'
-    );
-  }
+  expectAllPrintsAsserted(
+    'You have not made any assertions against the last print before another print within a test.'
+  );
+
   lastPrintedElementWithCallback = elementWithCallback;
   lastPrintOptions = printOptions;
   return Promise.resolve();
+}
+
+/**
+ * Asserts that there are no elements which were mock printed and have not been
+ * tested. Should run after tests to confirm there were no unexpected prints.
+ */
+export function expectTestToEndWithAllPrintsAsserted(): void {
+  expectAllPrintsAsserted(
+    'Test ended with prints that were not asserted against.'
+  );
+}
+
+/**
+ * Applies an inspection function (containing jest assertions) to a render
+ * result and, on error, edits the messages to be more useful on test failure
+ */
+function inspectRenderResult(
+  inspect: InspectPrintFunction,
+  renderResult: RenderResult
+) {
+  try {
+    inspect(renderResult, lastPrintOptions);
+  } catch (error) {
+    assert(error instanceof Error);
+    const errorMessageMinusDom = error.message.split('\n')[0];
+    const renderResultDom = prettyDOM(renderResult.container);
+    error.message = `${errorMessageMinusDom}\n\n${renderResultDom}`;
+    throw error;
+  }
 }
 
 /**
@@ -54,7 +103,7 @@ export function fakePrintElementWhenReady(
 function inspectPrintedElement(inspect: InspectPrintFunction): void {
   assert(lastPrintedElement);
   const renderResult = render(lastPrintedElement);
-  inspect(renderResult, lastPrintOptions);
+  inspectRenderResult(inspect, renderResult);
   renderResult.unmount();
 }
 
@@ -74,26 +123,8 @@ async function inspectPrintedWhenReadyElement(
   });
   await renderedPromise;
   assert(renderResult);
-  inspect(renderResult, lastPrintOptions);
+  inspectRenderResult(inspect, renderResult);
   renderResult.unmount();
-}
-
-/**
- * Asserts that there are no elements which were mock printed and have not been
- * tested. Should run after tests to confirm there were no unexpected prints.
- */
-export function expectAllPrintsAsserted(): void {
-  if (lastPrintedElement || lastPrintedElementWithCallback) {
-    throw new ExpectPrintError(
-      `This test ended with prints that were not asserted against.`
-    );
-  }
-}
-
-export function resetExpectPrint(): void {
-  lastPrintedElement = undefined;
-  lastPrintedElementWithCallback = undefined;
-  lastPrintOptions = undefined;
 }
 
 /**
@@ -115,15 +146,17 @@ export async function expectPrint(
     }
   });
 
-  if (inspect) {
-    if (lastPrintedElement) {
-      inspectPrintedElement(inspect);
-    } else {
-      await inspectPrintedWhenReadyElement(inspect);
+  try {
+    if (inspect) {
+      if (lastPrintedElement) {
+        inspectPrintedElement(inspect);
+      } else {
+        await inspectPrintedWhenReadyElement(inspect);
+      }
     }
+  } finally {
+    resetExpectPrint();
   }
-
-  resetExpectPrint();
 }
 
 /**

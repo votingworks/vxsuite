@@ -1,7 +1,8 @@
+import { render, screen } from '@testing-library/react';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import React from 'react';
 import {
-  expectAllPrintsAsserted,
+  expectTestToEndWithAllPrintsAsserted,
   expectPrint,
   ExpectPrintError,
   fakePrintElement,
@@ -60,19 +61,27 @@ test('fakePrintElement functions throw errors on un-asserted elements', async ()
   }
 });
 
-describe('expectAllPrintsAsserted', () => {
+describe('expectTestToEndWithAllPrintsAsserted', () => {
   test('does not throw if no unasserted prints', () => {
-    expect(expectAllPrintsAsserted).not.toThrow(ExpectPrintError);
+    expect(expectTestToEndWithAllPrintsAsserted).not.toThrow(ExpectPrintError);
   });
 
   test('does throw if element printed', async () => {
     await fakePrintElement(simpleElement, fakeOptions);
-    expect(expectAllPrintsAsserted).toThrow(ExpectPrintError);
+    expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
   });
 
   test('does throw if element with callback printed', async () => {
     await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
-    expect(expectAllPrintsAsserted).toThrow(ExpectPrintError);
+    expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
+  });
+
+  test('cleans up expectPrint state', async () => {
+    await fakePrintElement(simpleElement, fakeOptions);
+    expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
+
+    // Printing another element should not throw an error
+    await fakePrintElement(simpleElement, fakeOptions);
   });
 });
 
@@ -107,7 +116,7 @@ describe('expectPrint', () => {
       expect(printedElement.getByText('4')).toBeTruthy();
     });
 
-    expectAllPrintsAsserted();
+    expectTestToEndWithAllPrintsAsserted();
   });
 
   test('can expect prints without inspection', async () => {
@@ -117,7 +126,7 @@ describe('expectPrint', () => {
     await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
     await expectPrint();
 
-    expectAllPrintsAsserted();
+    expectTestToEndWithAllPrintsAsserted();
   });
 
   test('can access printOptions', async () => {
@@ -126,5 +135,33 @@ describe('expectPrint', () => {
     await expectPrint((_printedElement, printOptions) => {
       expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
     });
+  });
+
+  test('error messages do not include full DOM', async () => {
+    expect.assertions(1);
+    render(getElement('screen'));
+    screen.getByText('screen');
+    await fakePrintElement(simpleElement, { sides: 'two-sided-long-edge' });
+    try {
+      await expectPrint((printedElement) => {
+        printedElement.getByText('not in doc');
+      });
+    } catch (error) {
+      expect((error as Error).message).not.toContain('screen');
+    }
+  });
+
+  test('cleans up expectPrint state after error', async () => {
+    await fakePrintElement(simpleElement, fakeOptions);
+    try {
+      await expectPrint((printedElement) => {
+        printedElement.getByText('not in doc');
+      });
+    } catch (error) {
+      // do nothing
+    }
+
+    // Printing another element should not throw an error
+    await fakePrintElement(simpleElement, fakeOptions);
   });
 });
