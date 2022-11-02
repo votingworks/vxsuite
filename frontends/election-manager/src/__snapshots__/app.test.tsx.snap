@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -289,10 +289,10 @@ exports[`L&A (logic and accuracy) flow 1`] = `
     </div>
   </div>
   <div
-    class="sc-cidCJl hCTfNs print-only"
+    class="sc-iAKVOt KcewZ print-only"
   >
     <section
-      class="sc-hiCivh guLsaS"
+      class="sc-jcFkyM bRAhCP"
     >
       <img
         alt="VotingWorks logo"
@@ -328,10 +328,10 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </p>
       </div>
       <div
-        class="sc-cCcYRi dioafu"
+        class="sc-iUKrWq eTeJBo"
       >
         <div
-          class="sc-jObXwK EgfXu"
+          class="sc-cTApHj dITwEN"
         >
           <h3>
             Ballots by Voting Method
@@ -1480,7 +1480,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -2949,7 +2949,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -3355,7 +3355,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-hiCivh guLsaS"
+  class="sc-jcFkyM bRAhCP"
   data-testid="election-full-tally-report"
 >
   <img
@@ -3389,10 +3389,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-cCcYRi dioafu"
+    class="sc-iUKrWq eTeJBo"
   >
     <div
-      class="sc-jObXwK EgfXu"
+      class="sc-cTApHj dITwEN"
     >
       <h3>
         Ballots by Voting Method
@@ -4555,7 +4555,7 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-hiCivh guLsaS"
+  class="sc-jcFkyM bRAhCP"
   data-testid="election-full-tally-report"
 >
   <img
@@ -4589,10 +4589,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-cCcYRi dioafu"
+    class="sc-iUKrWq eTeJBo"
   >
     <div
-      class="sc-jObXwK EgfXu"
+      class="sc-cTApHj dITwEN"
     >
       <h3>
         Ballots by Voting Method
