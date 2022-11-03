@@ -3,7 +3,7 @@
 exports[`calls out live ballot sheets in test mode 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"
@@ -165,7 +165,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
 exports[`calls out test ballot sheets in live mode 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"
@@ -327,7 +327,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
 exports[`says the ballot sheet is blank if it is 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"
@@ -496,7 +496,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
 exports[`says the ballot sheet is overvoted if it is 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"
@@ -665,7 +665,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
 exports[`says the ballot sheet is undervoted if it is 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"
@@ -834,7 +834,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
 exports[`says the sheet is unreadable if it is 1`] = `
 <div>
   <div
-    class="sc-gSQGeZ fxZDPY"
+    class="sc-cNKpQo ecBuSt"
   >
     <div
       class="sc-eCssSg jAJyXG"

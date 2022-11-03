@@ -17,6 +17,7 @@ import {
   getZeroCompressedTally,
   fakeUsbDrive,
   expectPrint,
+  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import {
@@ -34,6 +35,7 @@ import {
 } from '@votingworks/types';
 
 import userEvent from '@testing-library/user-event';
+import MockDate from 'mockdate';
 import { MachineConfigResponse } from './config/types';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import {
@@ -1239,7 +1241,8 @@ test('saving to card: polls closed, general election, single precinct', async ()
   );
 });
 
-test('TODO printing: polls paused', async () => {
+test('printing: polls paused', async () => {
+  MockDate.set('2022-10-31T16:23:00.000Z');
   mockPollsState('polls_open');
   fetchMock
     .get('/precinct-scanner/config/election', {
@@ -1264,14 +1267,19 @@ test('TODO printing: polls paused', async () => {
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   mockPollsStateChange('polls_paused');
-  userEvent.click(
-    await screen.findByText('Pause Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Pause Polls'));
   await screen.findByText('Polls are paused.');
 
   await expectPrint((printedElement) => {
-    printedElement.getByText('TEST Polls Closed Report for Center Springfield');
-    // TODO: Write testing once polls paused reports are designed vxsuite#2686
+    // Check heading
+    printedElement.getByText('TEST Polls Paused Report for Center Springfield');
+    printedElement.getByText('Polls Paused:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count2'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusPaused'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls PausedMon, Oct 31, 2022, 4:23 PM')
+    );
   });
 });
 
@@ -1301,9 +1309,7 @@ test('saving to card: polls paused', async () => {
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_paused');
-  userEvent.click(
-    await screen.findByText('Pause Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Pause Polls'));
   await screen.findByText('Polls are paused.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -1330,7 +1336,8 @@ test('saving to card: polls paused', async () => {
   );
 });
 
-test('TODO printing: polls unpaused', async () => {
+test('printing: polls unpaused', async () => {
+  MockDate.set('2022-10-31T16:23:00.000Z');
   mockPollsState('polls_paused');
   fetchMock
     .get('/precinct-scanner/config/election', {
@@ -1352,14 +1359,23 @@ test('TODO printing: polls unpaused', async () => {
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Do you want to reopen the polls?');
+  userEvent.click(await screen.findByText('Yes, Reopen the Polls'));
   mockPollsStateChange('polls_open');
   await screen.findByText('Polls are open.');
 
   await expectPrint((printedElement) => {
-    printedElement.getByText('TEST Polls Opened Report for Center Springfield');
-    // TODO: Write testing once polls paused reports are designed vxsuite#2686
+    // Check heading
+    printedElement.getByText(
+      'TEST Polls Reopened Report for Center Springfield'
+    );
+    printedElement.getByText('Polls Reopened:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count2'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusOpen'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls ReopenedMon, Oct 31, 2022, 4:23 PM')
+    );
   });
 });
 
@@ -1385,8 +1401,8 @@ test('saving to card: polls unpaused', async () => {
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
-  userEvent.click(screen.getByText('Yes, Open the Polls'));
+  await screen.findByText('Do you want to reopen the polls?');
+  userEvent.click(screen.getByText('Yes, Reopen the Polls'));
   mockPollsStateChange('polls_open');
   await screen.findByText('Polls are open.');
   card.removeCard();
@@ -1436,12 +1452,10 @@ test('printing: polls closed from paused, general election, single precinct', as
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
-  userEvent.click(
-    await screen.findByText('Close Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
 
   await expectPrint((printedElement) => {
@@ -1514,12 +1528,10 @@ test('saving to card: polls closed from paused, general election, single precinc
     electionSample2Definition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   userEvent.click(screen.getByText('No'));
   mockPollsStateChange('polls_closed_final');
-  userEvent.click(
-    await screen.findByText('Close Polls for Center Springfield')
-  );
+  userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);

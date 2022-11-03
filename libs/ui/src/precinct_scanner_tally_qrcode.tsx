@@ -48,19 +48,16 @@ const QrCodeWrapper = styled.div`
 `;
 
 export interface PrecinctScannerTallyQrCodeProps {
-  pollsToggledTime: number;
+  pollsTransitionedTime: number;
   election: Election;
-  isPollsOpen: boolean;
   signedQuickResultsReportingUrl: string;
 }
 
 export function PrecinctScannerTallyQrCode({
-  pollsToggledTime,
+  pollsTransitionedTime,
   election,
-  isPollsOpen,
   signedQuickResultsReportingUrl,
 }: PrecinctScannerTallyQrCodeProps): JSX.Element {
-  const pollsAction = isPollsOpen ? 'Opened' : 'Closed';
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
 
   return (
@@ -73,8 +70,8 @@ export function PrecinctScannerTallyQrCode({
           {electionDate}, {election.county.name}, {election.state}
           <br />
           <Text small as="span">
-            Polls {pollsAction} and report created on{' '}
-            {formatFullDateTimeZone(DateTime.fromMillis(pollsToggledTime))}
+            Polls closed and report created on{' '}
+            {formatFullDateTimeZone(DateTime.fromMillis(pollsTransitionedTime))}
           </Text>
         </p>
         <p>

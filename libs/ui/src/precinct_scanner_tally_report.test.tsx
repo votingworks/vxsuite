@@ -23,7 +23,7 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-const pollsToggledTime = new Date(2021, 8, 19, 11, 5).getTime();
+const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 const cvr: CastVoteRecord = {
   _precinctId: electionSample.precincts[0].id,
@@ -44,12 +44,12 @@ test('renders as expected for all precincts in a general election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      pollsToggledTime={pollsToggledTime}
+      pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
-      isPollsOpen={false}
+      pollsTransition="close_polls"
       isLiveMode
       tally={tally}
     />
@@ -97,14 +97,14 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      pollsToggledTime={pollsToggledTime}
+      pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionSampleDefinition}
       precinctSelection={singlePrecinctSelectionFor(
         electionSample.precincts[0].id
       )}
-      isPollsOpen
+      pollsTransition="open_polls"
       isLiveMode={false}
       tally={tally}
     />
@@ -169,12 +169,12 @@ test('renders as expected for all precincts in a primary election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      pollsToggledTime={pollsToggledTime}
+      pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
-      isPollsOpen
+      pollsTransition="open_polls"
       isLiveMode
       tally={tally}
       partyId={party0}
@@ -256,12 +256,12 @@ test('renders as expected for a single precincts in a primary election', () => {
   );
   render(
     <PrecinctScannerTallyReport
-      pollsToggledTime={pollsToggledTime}
+      pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
-      isPollsOpen={false}
+      pollsTransition="close_polls"
       isLiveMode
       tally={tally}
       partyId={party1}

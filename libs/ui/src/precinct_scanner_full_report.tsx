@@ -1,21 +1,28 @@
 import {
   ElectionDefinition,
   getPartyIdsInBallotStyles,
+  PollsTransition,
   PrecinctSelection,
   Tally,
 } from '@votingworks/types';
-import { assert, getTallyIdentifier } from '@votingworks/utils';
+import {
+  assert,
+  getTallyIdentifier,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import React from 'react';
+import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 
 export interface PrecinctScannerFullReportProps {
   electionDefinition: ElectionDefinition;
-  precinctSelectionList: PrecinctSelection[];
+  precinctSelection: PrecinctSelection;
+  hasPrecinctSubTallies?: boolean;
   subTallies: ReadonlyMap<string, Tally>;
-  isPollsOpen: boolean;
+  pollsTransition: PollsTransition;
   isLiveMode: boolean;
-  pollsToggledTime: number;
+  pollsTransitionedTime: number;
   currentTime: number;
   precinctScannerMachineId: string;
   signedQuickResultsReportingUrl: string;
@@ -24,30 +31,56 @@ export interface PrecinctScannerFullReportProps {
 
 export function PrecinctScannerFullReport({
   electionDefinition,
-  precinctSelectionList,
+  precinctSelection,
+  hasPrecinctSubTallies,
   subTallies,
-  isPollsOpen,
+  pollsTransition,
   isLiveMode,
-  pollsToggledTime,
+  pollsTransitionedTime,
   currentTime,
   precinctScannerMachineId,
   signedQuickResultsReportingUrl,
   totalBallotsScanned,
 }: PrecinctScannerFullReportProps): JSX.Element {
+  const showTallies =
+    pollsTransition === 'open_polls' || pollsTransition === 'close_polls';
+
+  if (!showTallies) {
+    return (
+      <PrecinctScannerBallotCountReport
+        electionDefinition={electionDefinition}
+        precinctSelection={precinctSelection}
+        pollsTransition={pollsTransition}
+        totalBallotsScanned={totalBallotsScanned}
+        isLiveMode={isLiveMode}
+        pollsTransitionedTime={pollsTransitionedTime}
+        currentTime={currentTime}
+        precinctScannerMachineId={precinctScannerMachineId}
+      />
+    );
+  }
+
   const parties = getPartyIdsInBallotStyles(electionDefinition.election);
   const showQuickResults =
     electionDefinition.election.quickResultsReportingUrl &&
     totalBallotsScanned > 0 &&
-    !isPollsOpen;
+    pollsTransition === 'close_polls';
+
+  const precinctSelectionList: PrecinctSelection[] =
+    precinctSelection.kind === 'AllPrecincts' && hasPrecinctSubTallies
+      ? electionDefinition.election.precincts.map(({ id }) =>
+          singlePrecinctSelectionFor(id)
+        )
+      : [precinctSelection];
 
   return (
     <React.Fragment>
-      {precinctSelectionList.map((precinctSelection) =>
+      {precinctSelectionList.map((tallyReportPrecinctSelection) =>
         parties.map((partyId) => {
           const tallyIdentifier = getTallyIdentifier(
             partyId,
-            precinctSelection.kind === 'SinglePrecinct'
-              ? precinctSelection.precinctId
+            tallyReportPrecinctSelection.kind === 'SinglePrecinct'
+              ? tallyReportPrecinctSelection.precinctId
               : undefined
           );
           const tallyForReport = subTallies.get(tallyIdentifier);
@@ -57,11 +90,11 @@ export function PrecinctScannerFullReport({
               key={tallyIdentifier}
               electionDefinition={electionDefinition}
               tally={tallyForReport}
-              precinctSelection={precinctSelection}
+              precinctSelection={tallyReportPrecinctSelection}
               partyId={partyId}
-              isPollsOpen={isPollsOpen}
+              pollsTransition={pollsTransition}
               isLiveMode={isLiveMode}
-              pollsToggledTime={pollsToggledTime}
+              pollsTransitionedTime={pollsTransitionedTime}
               currentTime={currentTime}
               precinctScannerMachineId={precinctScannerMachineId}
             />
@@ -70,9 +103,8 @@ export function PrecinctScannerFullReport({
       )}
       {showQuickResults && (
         <PrecinctScannerTallyQrCode
-          pollsToggledTime={pollsToggledTime}
+          pollsTransitionedTime={pollsTransitionedTime}
           election={electionDefinition.election}
-          isPollsOpen={isPollsOpen}
           signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
         />
       )}

@@ -794,7 +794,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
   // Open Polls
   mockPollsStateChange('polls_open');
-  userEvent.click(await screen.findByText('Open Polls for All Precincts'));
+  userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls are open.');
 
   // Once we remove the poll worker card, scanning should start
@@ -1022,7 +1022,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   mockPollsStateChange('polls_paused');
-  userEvent.click(await screen.findByText('Pause Polls for All Precincts'));
+  userEvent.click(await screen.findByText('Pause Polls'));
   await screen.findByText('Pausing Polls…');
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -1032,9 +1032,9 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
   // Unpause Polls Flow
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Do you want to reopen the polls?');
   mockPollsStateChange('polls_open');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  userEvent.click(await screen.findByText('Yes, Reopen the Polls'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );

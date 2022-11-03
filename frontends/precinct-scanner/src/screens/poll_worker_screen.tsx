@@ -18,18 +18,17 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   EnvironmentFlagName,
-  getPrecinctSelectionName,
   getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
-  singlePrecinctSelectionFor,
   sleep,
   TallySourceMachineType,
   throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
+  getPollsTransitionAction,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -66,19 +65,6 @@ type PollWorkerFlowState =
   | 'polls_transition_processing'
   | 'polls_transition_complete'
   | 'reprinting_report';
-
-// TODO: Remove this. This is a temporary conversion of the new type for
-// polls reports (open, close, pause, unpause) to the old way (boolean).
-// Using while the reports themselves have not been updated yet.
-function pollsTransitionToPollsOpen(pollsTransition: PollsTransition): boolean {
-  switch (pollsTransition) {
-    case 'open_polls':
-    case 'unpause_polls':
-      return true;
-    default:
-      return false;
-  }
-}
 
 async function saveTallyToCard(
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
@@ -298,11 +284,6 @@ export function PollWorkerScreen({
     assert(currentCompressedTally);
     assert(currentSubTallies);
 
-    const precinctSelectionList =
-      precinctSelection.kind === 'SinglePrecinct'
-        ? [precinctSelection]
-        : election.precincts.map(({ id }) => singlePrecinctSelectionFor(id));
-
     const signedQuickResultsReportingUrl =
       await getSignedQuickResultsReportingUrl({
         electionDefinition,
@@ -314,11 +295,12 @@ export function PollWorkerScreen({
     await printElement(
       <PrecinctScannerFullReport
         electionDefinition={electionDefinition}
-        precinctSelectionList={precinctSelectionList}
+        precinctSelection={precinctSelection}
         subTallies={currentSubTallies}
-        isPollsOpen={pollsTransitionToPollsOpen(pollsTransition)}
+        hasPrecinctSubTallies
+        pollsTransition={pollsTransition}
         isLiveMode={isLiveMode}
-        pollsToggledTime={timePollsTransitioned}
+        pollsTransitionedTime={timePollsTransitioned}
         currentTime={Date.now()}
         precinctScannerMachineId={machineConfig.machineId}
         totalBallotsScanned={scannedBallotCount}
@@ -399,11 +381,6 @@ export function PollWorkerScreen({
     setPollWorkerFlowState('polls_transition_complete');
   }
 
-  const precinctName = getPrecinctSelectionName(
-    electionDefinition.election.precincts,
-    precinctSelection
-  );
-
   if (!currentTally) {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
@@ -415,18 +392,18 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerFlowState === 'open_polls_prompt') {
+    const pollsTransition: PollsTransition =
+      pollsState === 'polls_closed_initial' ? 'open_polls' : 'unpause_polls';
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <p>Do you want to open the polls?</p>
           <p>
-            <Button
-              primary
-              onPress={
-                pollsState === 'polls_closed_initial' ? openPolls : unpausePolls
-              }
-            >
-              Yes, Open the Polls
+            Do you want to{' '}
+            {getPollsTransitionAction(pollsTransition).toLowerCase()} the polls?
+          </p>
+          <p>
+            <Button primary onPress={() => transitionPolls(pollsTransition)}>
+              Yes, {getPollsTransitionAction(pollsTransition)} the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
           </p>
@@ -462,7 +439,7 @@ export function PollWorkerScreen({
         case 'pause_polls':
           return 'Pausing Polls…';
         case 'unpause_polls':
-          return 'Opening Polls…';
+          return 'Reopening Polls…';
         /* istanbul ignore next - compile-time check for completeness */
         default:
           throwIllegalValue(currentPollsTransition);
@@ -538,7 +515,7 @@ export function PollWorkerScreen({
             <p>The polls have not been opened.</p>
             <p>
               <Button primary large onPress={openPolls}>
-                Open Polls for {precinctName}
+                Open Polls
               </Button>
             </p>
           </React.Fragment>
@@ -549,12 +526,12 @@ export function PollWorkerScreen({
             <p>The polls are currently open.</p>
             <p>
               <Button primary large onPress={closePolls}>
-                Close Polls for {precinctName}
+                Close Polls
               </Button>
             </p>
             <p>
               <Button large onPress={pausePolls}>
-                Pause Polls for {precinctName}
+                Pause Polls
               </Button>
             </p>
           </React.Fragment>
@@ -565,18 +542,18 @@ export function PollWorkerScreen({
             <p>The polls are currently paused.</p>
             <p>
               <Button primary large onPress={unpausePolls}>
-                Open Polls for {precinctName}
+                Reopen Polls
               </Button>
             </p>
             <p>
               <Button large onPress={closePolls}>
-                Close Polls for {precinctName}
+                Close Polls
               </Button>
             </p>
           </React.Fragment>
         );
       case 'polls_closed_final':
-        return <p>Voting is complete and the polls cannot be re-opened.</p>;
+        return <p>Voting is complete and the polls cannot be reopened.</p>;
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(pollsState);

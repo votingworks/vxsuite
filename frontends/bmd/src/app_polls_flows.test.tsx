@@ -209,13 +209,14 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Insert Card');
 
   // Pausing Polls
+  const pollsPausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
   const pollsPausedCardTallyReport: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 3,
     machineId: '001',
-    timeSaved: new Date('2020-10-31').getTime(),
-    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    timeSaved: pollsPausedTime,
+    timePollsTransitioned: pollsPausedTime,
     precinctSelection,
     isLiveMode: false,
     pollsTransition: 'pause_polls',
@@ -232,13 +233,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Pause Polls and Print Report'));
   await screen.findByText('Printing polls paused report');
   function checkPollsPausedReport(printedElement: RenderResult) {
-    const generalReport = printedElement.getByTestId(
-      'tally-report-undefined-23'
+    // Check heading
+    printedElement.getByText('TEST Polls Paused Report for Center Springfield');
+    printedElement.getByText('Polls Paused:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count3'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusPaused'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls PausedMon, Oct 31, 2022, 4:23 PM')
     );
-    within(generalReport).getByText(
-      'TEST Polls Closed Report for Center Springfield'
-    );
-    // TODO: Check contents of this report
   }
   await expectPrint(checkPollsPausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
@@ -276,13 +279,14 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Polls Paused');
 
   // Unpausing Polls
+  const pollsUnpausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
   const pollsUnpausedCardTallyReport: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 3,
     machineId: '001',
-    timeSaved: new Date('2020-10-31').getTime(),
-    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    timeSaved: pollsUnpausedTime,
+    timePollsTransitioned: pollsUnpausedTime,
     precinctSelection,
     isLiveMode: false,
     pollsTransition: 'unpause_polls',
@@ -293,23 +297,27 @@ test('full polls flow with tally reports - general, single precinct', async () =
   };
 
   card.insertCard(pollWorkerCard, JSON.stringify(pollsUnpausedCardTallyReport));
-  await screen.findByText('Polls Opened Report on Card');
-  screen.getByText(/contains a polls opened report/);
+  await screen.findByText('Polls Reopened Report on Card');
+  screen.getByText(/contains a polls reopened report/);
   screen.getByText(/the polls will be open on VxMark/);
-  userEvent.click(screen.getByText('Open Polls and Print Report'));
-  await screen.findByText('Printing polls opened report');
+  userEvent.click(screen.getByText('Reopen Polls and Print Report'));
+  await screen.findByText('Printing polls reopened report');
   function checkPollsUnpausedReport(printedElement: RenderResult) {
-    const generalReport = printedElement.getByTestId(
-      'tally-report-undefined-23'
+    // Check heading
+    printedElement.getByText(
+      'TEST Polls Reopened Report for Center Springfield'
     );
-    within(generalReport).getByText(
-      'TEST Polls Opened Report for Center Springfield'
+    printedElement.getByText('Polls Reopened:');
+    // Check contents
+    printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count3'));
+    printedElement.getByText(hasTextAcrossElements('Polls StatusOpen'));
+    printedElement.getByText(
+      hasTextAcrossElements('Time Polls ReopenedMon, Oct 31, 2022, 4:23 PM')
     );
-    // TODO: Write testing once report is distinct
   }
   await expectPrint(checkPollsUnpausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-  await screen.findByText('Polls Opened Report Printed');
+  await screen.findByText('Polls Reopened Report Printed');
   expect(card.writeLongUint8Array).toHaveBeenCalledTimes(3);
   expect(card.writeLongUint8Array).toHaveBeenCalledWith(
     expect.objectContaining([])
@@ -324,7 +332,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     'poll_worker',
     expect.objectContaining({
       message:
-        'Printed 2 copies of a polls opened report for Center Springfield exported from scanner 001.',
+        'Printed 2 copies of a polls reopened report for Center Springfield exported from scanner 001.',
     })
   );
   expect(logger.log).toHaveBeenCalledWith(
@@ -333,10 +341,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
     expect.anything()
   );
   userEvent.click(screen.getByText('Print Additional Report'));
-  await screen.findByText('Printing polls opened report');
+  await screen.findByText('Printing polls reopened report');
   await expectPrint(checkPollsUnpausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-  await screen.findByText('Polls Opened Report Printed');
+  await screen.findByText('Polls Reopened Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
@@ -540,7 +548,7 @@ test('tally report: as expected with all precinct specific data for general elec
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     pollsTransition: 'close_polls',
     ballotCounts: {
@@ -1251,9 +1259,9 @@ test('full polls flow without tally reports', async () => {
   // Unpause Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Open Polls'));
-  await screen.findByText('No Polls Opened Report on Card');
-  userEvent.click(screen.getByText('Open VxMark Now'));
+  userEvent.click(screen.getByText('Reopen Polls'));
+  await screen.findByText('No Polls Reopened Report on Card');
+  userEvent.click(screen.getByText('Reopen VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   card.removeCard();
   await screen.findByText('Insert Card');

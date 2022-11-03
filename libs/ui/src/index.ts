@@ -27,7 +27,6 @@ export * from './logo_mark';
 export * from './main';
 export * from './modal';
 export * from './number_pad';
-export * from './precinct_scanner_polls_report';
 export * from './precinct_scanner_tally_report';
 export * from './precinct_scanner_tally_qrcode';
 export * from './progress_bar';

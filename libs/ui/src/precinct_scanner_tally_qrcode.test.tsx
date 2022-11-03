@@ -111,31 +111,14 @@ describe('getSignedQuickResultsReportingUrl', () => {
   });
 });
 
-describe('PrecinctScannerTallyQrCode', () => {
-  test('with polls closed', () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        pollsToggledTime={time}
-        election={electionSample}
-        isPollsOpen={false}
-        signedQuickResultsReportingUrl=""
-      />
-    );
-    screen.getByText(/Polls Closed/);
-    screen.getByText('Automatic Election Results Reporting');
-  });
-
-  // We currently don't use the page with polls opened but here for coverage
-  test('with polls open', () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        pollsToggledTime={time}
-        election={electionSample}
-        isPollsOpen
-        signedQuickResultsReportingUrl=""
-      />
-    );
-    screen.getByText(/Polls Opened/);
-    screen.getByText('Automatic Election Results Reporting');
-  });
+test('PrecinctScannerTallyQrCode', () => {
+  render(
+    <PrecinctScannerTallyQrCode
+      pollsTransitionedTime={time}
+      election={electionSample}
+      signedQuickResultsReportingUrl=""
+    />
+  );
+  screen.getByText(/Polls closed/);
+  screen.getByText('Automatic Election Results Reporting');
 });
