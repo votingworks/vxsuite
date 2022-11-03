@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { join } from 'path';
 import moment from 'moment';
 
+import { Admin } from '@votingworks/api';
 import {
   Modal,
   ModalWidth,
@@ -30,6 +31,7 @@ import {
 import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
 import { useAddCastVoteRecordFileMutation } from '../hooks/use_add_cast_vote_record_file_mutation';
+import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 import { AddCastVoteRecordFileResult } from '../lib/backends';
 
 const { UsbDriveStatus } = usbstick;
@@ -79,6 +81,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     logger,
   } = useContext(AppContext);
   const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
+  const fileMode = useCvrFileModeQuery().data;
+
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
   const userRole = auth.user.role;
@@ -334,8 +338,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
   if (usbDriveStatus === UsbDriveStatus.mounted) {
     // Determine if we are already locked to a filemode based on previously loaded CVRs
-    const fileMode = castVoteRecordFiles?.fileMode;
-    const fileModeLocked = !!fileMode;
+    const fileModeLocked = fileMode !== Admin.CvrFileMode.Unlocked;
 
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
@@ -352,8 +355,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       } = file;
       const inProperFileMode =
         !fileModeLocked ||
-        (isTestModeResults && fileMode === 'test') ||
-        (!isTestModeResults && fileMode === 'live');
+        (isTestModeResults && fileMode === Admin.CvrFileMode.Test) ||
+        (!isTestModeResults && fileMode === Admin.CvrFileMode.Official);
       const canImport = !fileImported && inProperFileMode;
       const row = (
         <tr key={name} data-testid="table-row">

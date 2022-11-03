@@ -303,6 +303,56 @@ test('get CVR file metadata', async () => {
   );
 });
 
+test('getCvrFileMode returns "unlocked" if no CVRs exist', () => {
+  const store = Store.memoryStore();
+  expect(store.getCurrentCvrFileModeForElection('unknown-election-id')).toBe(
+    Admin.CvrFileMode.Unlocked
+  );
+
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+    Admin.CvrFileMode.Unlocked
+  );
+});
+
+test('getCvrFileMode returns "test" if test CVRs previously imported', async () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await store.addCastVoteRecordFile({
+    electionId,
+    filePath:
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath(),
+    originalFilename: 'cvrs.jsonl',
+  });
+
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+    Admin.CvrFileMode.Test
+  );
+});
+
+test('getCvrFileMode returns "live" if official CVRs previously imported', async () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await store.addCastVoteRecordFile({
+    electionId,
+    filePath:
+      electionMinimalExhaustiveSampleFixtures.standardLiveCvrFile.asFilePath(),
+    originalFilename: 'cvrs.jsonl',
+  });
+
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+    Admin.CvrFileMode.Official
+  );
+});
+
 test('get write-in adjudication records', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(

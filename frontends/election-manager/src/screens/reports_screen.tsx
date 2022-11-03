@@ -30,6 +30,7 @@ import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
 import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
+import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -169,12 +170,12 @@ export function ReportsScreen(): JSX.Element {
     tallyResultsInfo = resultTables;
   }
 
-  const fileMode = castVoteRecordFiles?.fileMode;
+  const fileMode = useCvrFileModeQuery().data;
   const ballotCountSummaryText = (
     <p>
       <strong>
         {format.count(totalBallotCount)}
-        {fileMode ? ` ${fileMode} ` : ' '}
+        {fileMode === Admin.CvrFileMode.Unlocked ? ' ' : ` ${fileMode} `}
         {pluralize('ballot', totalBallotCount, false)}{' '}
       </strong>{' '}
       have been counted for <strong>{electionDefinition.election.title}</strong>

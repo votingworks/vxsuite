@@ -532,6 +532,18 @@ export enum BallotMode {
 }
 
 /**
+ * The ballot type for the CVR files currently being handled.
+ */
+export enum CvrFileMode {
+  /** Only working with real CVR files generated during an official election. */
+  Official = 'live',
+  /** Only working with test CVR files used during pre-election testing/L&A. */
+  Test = 'test',
+  /** No CVR files imported yet - file mode is not currently locked. */
+  Unlocked = 'unlocked',
+}
+
+/**
  * Schema for {@link BallotMode}.
  */
 export const BallotModeSchema = z.nativeEnum(BallotMode);

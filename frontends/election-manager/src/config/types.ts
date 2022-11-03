@@ -123,8 +123,6 @@ export enum ResultsFileType {
 }
 export type OptionalFile = Optional<File>;
 
-export type CastVoteRecordFileMode = 'test' | 'live';
-
 export interface CastVoteRecordFile {
   readonly name: string;
   readonly importedCvrCount: number;

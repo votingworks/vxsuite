@@ -1,6 +1,7 @@
 import { Admin } from '@votingworks/api';
 import {
   CandidateContest,
+  CastVoteRecord,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -9,6 +10,7 @@ import {
   FullElectionExternalTally,
   Id,
   Iso8601Timestamp,
+  Optional,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
@@ -135,6 +137,20 @@ export class ElectionManagerStoreMemoryBackend
     this.configuredAt = new Date().toISOString();
 
     return this.electionDefinition;
+  }
+
+  getCurrentCvrFileMode(): Promise<Admin.CvrFileMode> {
+    const sampleCvr = this.castVoteRecordFiles?.castVoteRecords?.next()
+      ?.value as Optional<CastVoteRecord>;
+    if (!sampleCvr) {
+      return Promise.resolve(Admin.CvrFileMode.Unlocked);
+    }
+
+    return Promise.resolve(
+      sampleCvr._testBallot
+        ? Admin.CvrFileMode.Test
+        : Admin.CvrFileMode.Official
+    );
   }
 
   loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {

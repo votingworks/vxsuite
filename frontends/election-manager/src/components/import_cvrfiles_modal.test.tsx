@@ -422,11 +422,22 @@ describe('Screens display properly when USB is mounted', () => {
       _batchId: 'batch-1',
       _batchLabel: 'Batch 1',
     };
+
     const mockFiles = CastVoteRecordFiles.empty;
+
+    // Add initial "live" CVR file to lock the file mode:
     const added = await mockFiles.addAll(
       [new File([JSON.stringify(cvr)], 'randomname')],
       eitherNeitherElectionDefinition.election
     );
+
+    window.kiosk!.readFile = jest.fn().mockImplementation((path) =>
+      JSON.stringify({
+        ...cvr,
+        _testBallot: path !== 'live1',
+      })
+    );
+
     const backend = new ElectionManagerStoreMemoryBackend({
       electionDefinition: eitherNeitherElectionDefinition,
       castVoteRecordFiles: added,
@@ -444,7 +455,7 @@ describe('Screens display properly when USB is mounted', () => {
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
-    domGetByText(tableRows[0], '0002');
+    domGetByText(tableRows[0], cvr._scannerId);
     jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
       wasExistingFile: false,
       newlyAdded: 0,

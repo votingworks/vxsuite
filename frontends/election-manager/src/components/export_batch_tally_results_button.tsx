@@ -4,17 +4,19 @@ import {
   assert,
   generateBatchResultsDefaultFilename,
 } from '@votingworks/utils';
+import { Admin } from '@votingworks/api';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
 import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
+import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const { fullElectionTally, castVoteRecordFiles, electionDefinition } =
-    useContext(AppContext);
+  const { fullElectionTally, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const { election } = electionDefinition;
+
+  const isTestMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Test;
 
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,

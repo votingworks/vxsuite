@@ -85,7 +85,6 @@ test('can add multiple CVR files by creating a new instance', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 });
 
 test('can handle duplicate CVR records gracefully', async () => {
@@ -143,7 +142,6 @@ test('can handle duplicate CVR records gracefully', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 });
 
 test('can preprocess files to give information about expected duplicates', async () => {
@@ -185,7 +183,6 @@ test('can preprocess files to give information about expected duplicates', async
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('live');
 
   window.kiosk = fakeKiosk();
   window.kiosk.readFile = jest
@@ -248,6 +245,60 @@ test('can preprocess files to give information about expected duplicates', async
   ]);
 });
 
+test('parseAllFromFileSystemEntries handles empty files', async () => {
+  const { empty } = CastVoteRecordFiles;
+
+  const added = await empty.addAll(
+    [new File([''], 'cvrs.txt', { lastModified: TEST_DATE.getTime() })],
+    electionSample
+  );
+
+  expect([...added.castVoteRecords]).toEqual([]);
+  expect(added.duplicateFiles).toEqual([]);
+  expect(added.fileList).toEqual([
+    {
+      name: 'cvrs.txt',
+      duplicatedCvrCount: 0,
+      importedCvrCount: 0,
+      precinctIds: [],
+      scannerIds: [],
+      allCastVoteRecords: [],
+      exportTimestamp: TEST_DATE,
+    },
+  ]);
+  expect(added.lastError).toBeUndefined();
+
+  window.kiosk = fakeKiosk();
+  window.kiosk.readFile = jest.fn();
+  expect(
+    await added.parseAllFromFileSystemEntries(
+      [
+        {
+          name: 'cvrs.txt',
+          path: 'this/is/a/path',
+          type: 1,
+          size: 0,
+          mtime: TEST_DATE,
+          atime: new Date(),
+          ctime: new Date(),
+        },
+      ],
+      electionSample
+    )
+  ).toEqual([
+    {
+      name: 'cvrs.txt',
+      newCvrCount: 0,
+      importedCvrCount: 0,
+      scannerIds: [],
+      exportTimestamp: TEST_DATE,
+      isTestModeResults: false,
+      fileImported: true,
+      fileContent: '',
+    },
+  ]);
+});
+
 test('test ballot cvrs change the file mode appropriately', async () => {
   const { empty } = CastVoteRecordFiles;
   const cvr: CastVoteRecord = {
@@ -293,7 +344,6 @@ test('test ballot cvrs change the file mode appropriately', async () => {
     },
   ]);
   expect(added.lastError).toBeUndefined();
-  expect(added.fileMode).toBe('test');
 });
 
 test('does not mutate the original when adding a new instance', async () => {

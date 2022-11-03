@@ -294,11 +294,27 @@ export class ElectionManagerStoreAdminBackend
     return parsedElectionDefinition;
   }
 
+  async getCurrentCvrFileMode(): Promise<Admin.CvrFileMode> {
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
+
+    const response = (await fetchJson(
+      `/admin/elections/${currentElectionId}/cvr-file-mode`
+    )) as Admin.GetCvrFileModeResponse;
+
+    if (response.status !== 'ok') {
+      throw new Error(
+        `Unable to determine the current CVR file import mode: ${response.errors
+          .map((e) => e.message)
+          .join(', ')}`
+      );
+    }
+
+    return response.cvrFileMode;
+  }
+
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File
   ): Promise<AddCastVoteRecordFileResult> {
-    await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
-
     const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const formData = new FormData();
@@ -319,6 +335,11 @@ export class ElectionManagerStoreAdminBackend
           .join(', ')}`
       );
     }
+
+    // Also add to local storage if backend request was successful.
+    // (We're temporarily double-writing to both local storage and backend DB while we migrate stuff
+    // over to the backend. See https://github.com/votingworks/vxsuite/issues/2716)
+    await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
 
     return {
       wasExistingFile: addCastVoteRecordFileResponse.wasExistingFile,

@@ -9,6 +9,7 @@ import { getCurrentElectionMetadataResultsQueryKey } from './use_current_electio
 import { cvrsStorageKey } from './use_election_manager_store';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
+import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
@@ -45,6 +46,7 @@ export function useClearCastVoteRecordFilesMutation(): UseClearCastVoteRecordFil
         void queryClient.invalidateQueries(
           getCurrentElectionMetadataResultsQueryKey()
         );
+        void queryClient.invalidateQueries(getCvrFileModeQueryKey());
       },
     }
   );

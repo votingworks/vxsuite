@@ -211,6 +211,20 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     response.json({ status: 'ok' });
   });
 
+  app.get<
+    { electionId: Id },
+    Admin.GetCvrFileModeResponse,
+    Admin.GetCvrFileModeRequest
+  >('/admin/elections/:electionId/cvr-file-mode', (request, response) => {
+    const { electionId } = request.params;
+    const cvrFileMode = store.getCurrentCvrFileModeForElection(electionId);
+
+    response.json({
+      status: 'ok',
+      cvrFileMode,
+    });
+  });
+
   app.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
     '/admin/elections/:electionId/write-ins',
     (request, response) => {

@@ -15,6 +15,7 @@ import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
+import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
 import { getPrintedBallotsQueryKey } from './use_printed_ballots_query';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
@@ -124,6 +125,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
     await queryClient.invalidateQueries(
       getCurrentElectionMetadataResultsQueryKey()
     );
+    await queryClient.invalidateQueries(getCvrFileModeQueryKey());
   }, [backend, logger, queryClient]);
 
   const configure = useCallback(
