@@ -5,7 +5,6 @@ import {
   BallotPageLayoutWithImage,
   ElectionDefinition,
   err,
-  MarkAdjudications,
   MarkThresholds,
   ok,
   PageInterpretation,
@@ -488,32 +487,13 @@ export class Importer {
   /**
    * Continue the existing scanning process
    */
-  async continueImport(options: { forceAccept: false }): Promise<void>;
-  async continueImport(options: {
-    forceAccept: true;
-    frontMarkAdjudications: MarkAdjudications;
-    backMarkAdjudications: MarkAdjudications;
-  }): Promise<void>;
-  async continueImport(options: {
-    forceAccept: boolean;
-    frontMarkAdjudications?: MarkAdjudications;
-    backMarkAdjudications?: MarkAdjudications;
-  }): Promise<void> {
+  async continueImport(options: { forceAccept: boolean }): Promise<void> {
     const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
       if (options.forceAccept) {
         await this.sheetGenerator?.acceptSheet();
-        this.workspace.store.adjudicateSheet(
-          sheet.id,
-          'front',
-          options.frontMarkAdjudications ?? []
-        );
-        this.workspace.store.adjudicateSheet(
-          sheet.id,
-          'back',
-          options.backMarkAdjudications ?? []
-        );
+        this.workspace.store.adjudicateSheet(sheet.id);
       } else {
         await this.sheetGenerator?.rejectSheet();
         this.workspace.store.deleteSheet(sheet.id);

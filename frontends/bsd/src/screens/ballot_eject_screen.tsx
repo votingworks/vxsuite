@@ -2,7 +2,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   Contest,
-  MarkAdjudications,
   PageInterpretation,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
@@ -102,17 +101,11 @@ export function BallotEjectScreen({
     [contestIdsWithIssues]
   );
 
-  const [frontMarkAdjudications, setFrontMarkAdjudications] =
-    useState<MarkAdjudications>();
-  const [backMarkAdjudications, setBackMarkAdjudications] =
-    useState<MarkAdjudications>();
+  let isFrontAdjudicationDone = false;
+  let isBackAdjudicationDone = false;
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
-  useEffect(() => {
-    if (!reviewInfo) {
-      return;
-    }
-
+  if (reviewInfo) {
     const frontInterpretation = reviewInfo.interpreted.front.interpretation;
     const backInterpretation = reviewInfo.interpreted.back.interpretation;
 
@@ -153,63 +146,59 @@ export function BallotEjectScreen({
     }
 
     if (
-      !(
-        frontInterpretation.type === 'InterpretedHmpbPage' &&
-        backInterpretation.type === 'InterpretedHmpbPage'
-      )
+      frontInterpretation.type === 'InterpretedHmpbPage' &&
+      backInterpretation.type === 'InterpretedHmpbPage'
     ) {
-      return;
-    }
+      const frontAdjudication = frontInterpretation.adjudicationInfo;
+      const backAdjudication = backInterpretation.adjudicationInfo;
 
-    const frontAdjudication = frontInterpretation.adjudicationInfo;
-    const backAdjudication = backInterpretation.adjudicationInfo;
+      // A ballot is blank if both sides are marked blank.
+      //
+      // One could argue that making this call is the server's job.
+      // We leave that consideration to:
+      // https://github.com/votingworks/vxsuite/issues/902
+      const isBlank =
+        frontAdjudication.enabledReasonInfos.some(
+          (info) => info.type === AdjudicationReason.BlankBallot
+        ) &&
+        backAdjudication.enabledReasonInfos.some(
+          (info) => info.type === AdjudicationReason.BlankBallot
+        );
 
-    // A ballot is blank if both sides are marked blank.
-    //
-    // One could argue that making this call is the server's job.
-    // We leave that consideration to:
-    // https://github.com/votingworks/vxsuite/issues/902
-    const isBlank =
-      frontAdjudication.enabledReasonInfos.some(
-        (info) => info.type === AdjudicationReason.BlankBallot
-      ) &&
-      backAdjudication.enabledReasonInfos.some(
-        (info) => info.type === AdjudicationReason.BlankBallot
-      );
-
-    if (!isBlank) {
-      if (
-        !frontAdjudication.enabledReasons.some(
-          (reason) =>
-            reason !== AdjudicationReason.BlankBallot &&
-            frontAdjudication.enabledReasonInfos.some(
-              (info) => info.type === reason
-            )
-        )
-      ) {
-        setFrontMarkAdjudications([]);
-      }
-      if (
-        !backAdjudication.enabledReasons.some(
-          (reason) =>
-            reason !== AdjudicationReason.BlankBallot &&
-            backAdjudication.enabledReasonInfos.some(
-              (info) => info.type === reason
-            )
-        )
-      ) {
-        setBackMarkAdjudications([]);
+      if (!isBlank) {
+        if (
+          !frontAdjudication.enabledReasons.some(
+            (reason) =>
+              reason !== AdjudicationReason.BlankBallot &&
+              frontAdjudication.enabledReasonInfos.some(
+                (info) => info.type === reason
+              )
+          )
+        ) {
+          isFrontAdjudicationDone = true;
+        }
+        if (
+          !backAdjudication.enabledReasons.some(
+            (reason) =>
+              reason !== AdjudicationReason.BlankBallot &&
+              backAdjudication.enabledReasonInfos.some(
+                (info) => info.type === reason
+              )
+          )
+        ) {
+          isBackAdjudicationDone = true;
+        }
       }
     }
-  }, [reviewInfo, logger, userRole]);
+  }
 
   useEffect(() => {
     void (async () => {
       const frontAdjudicationComplete =
-        !!frontMarkAdjudications ||
+        !!isFrontAdjudicationDone ||
         !!reviewInfo?.interpreted.front.adjudicationFinishedAt;
       const backAdjudicationComplete =
-        !!backMarkAdjudications ||
+        !!isBackAdjudicationDone ||
         !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
         await logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
@@ -218,15 +207,13 @@ export function BallotEjectScreen({
         });
         await continueScanning({
           forceAccept: true,
-          frontMarkAdjudications: frontMarkAdjudications ?? [],
-          backMarkAdjudications: backMarkAdjudications ?? [],
         });
       }
     })();
   }, [
-    backMarkAdjudications,
+    isBackAdjudicationDone,
     continueScanning,
-    frontMarkAdjudications,
+    isFrontAdjudicationDone,
     reviewInfo?.interpreted.back.adjudicationFinishedAt,
     reviewInfo?.interpreted.front.adjudicationFinishedAt,
     logger,
@@ -269,8 +256,8 @@ export function BallotEjectScreen({
   ]) {
     if (
       reviewPageInfo.adjudicationFinishedAt ||
-      (reviewPageInfo.side === 'front' && frontMarkAdjudications) ||
-      (reviewPageInfo.side === 'back' && backMarkAdjudications)
+      (reviewPageInfo.side === 'front' && isFrontAdjudicationDone) ||
+      (reviewPageInfo.side === 'back' && isBackAdjudicationDone)
     ) {
       continue;
     }
@@ -489,8 +476,6 @@ export function BallotEjectScreen({
                 onPress={() =>
                   continueScanning({
                     forceAccept: true,
-                    frontMarkAdjudications: [],
-                    backMarkAdjudications: [],
                   })
                 }
               >

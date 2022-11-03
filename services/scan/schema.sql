@@ -26,15 +26,7 @@ create table sheets (
   -- Did this sheet require adjudication? This value should never be updated.
   requires_adjudication boolean,
 
-  -- Changes made in adjudication, should be applied on top of the original CVR.
-  -- Updated as the sheet is adjudicated.
-  -- @type {readonly MarkAdjudication[]}
-  front_adjudication_json text,
-  back_adjudication_json text,
-
-  -- When adjudication is finished, these values are updated to now.
-  front_finished_adjudication_at datetime,
-  back_finished_adjudication_at datetime,
+  -- When adjudication is finished, this value is updated to now.
   finished_adjudication_at datetime,
 
   created_at datetime default current_timestamp not null,

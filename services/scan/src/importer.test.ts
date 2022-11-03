@@ -408,14 +408,12 @@ test('scanning pauses on adjudication then continues', async () => {
 
   await importer.continueImport({
     forceAccept: true,
-    frontMarkAdjudications: [],
-    backMarkAdjudications: [],
   });
   await importer.waitForEndOfBatchOrScanningPause();
 
   expect(workspace.store.addSheet).toHaveBeenCalledTimes(3); // no more of these
   expect(workspace.store.deleteSheet).toHaveBeenCalledTimes(1); // no more deletes
-  expect(workspace.store.adjudicateSheet).toHaveBeenCalledTimes(2);
+  expect(workspace.store.adjudicateSheet).toHaveBeenCalledTimes(1);
 });
 
 test('importing a sheet normalizes and orders HMPB pages', async () => {

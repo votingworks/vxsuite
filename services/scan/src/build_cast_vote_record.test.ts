@@ -1,6 +1,5 @@
 import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import {
-  AdjudicationReason,
   AnyContest,
   BallotIdSchema,
   BallotType,
@@ -8,7 +7,6 @@ import {
   getBallotStyle,
   getContests,
   MsEitherNeitherContest,
-  PartyIdSchema,
   unsafeParse,
   vote,
   YesNoContest,
@@ -558,119 +556,6 @@ test('generates a CVR from a completed absentee HMPB page', () => {
   `);
 });
 
-test('generates a CVR from an adjudicated HMPB page', () => {
-  const sheetId = 'sheetid';
-  const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
-  const ballotStyleId = '1';
-  const precinctId = '6522';
-  const batchId = '1234';
-  const batchLabel = 'Batch 1';
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
-  const contests = getContests({ ballotStyle, election });
-
-  expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
-          },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [AdjudicationReason.Overvote],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Overvote,
-                contestId: 'initiative-65',
-                expected: 1,
-                optionIds: ['yes', 'no'],
-                optionIndexes: [0, 1],
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
-        },
-        markAdjudications: [
-          {
-            type: AdjudicationReason.Overvote,
-            contestId: 'initiative-65',
-            optionId: 'no',
-            isMarked: false,
-          },
-        ],
-        contestIds: ['initiative-65'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [AdjudicationReason.Overvote],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-          }),
-        },
-        contestIds: ['1', '2'],
-      },
-    ])
-  ).toMatchInlineSnapshot(`
-    Object {
-      "1": Array [
-        "1",
-      ],
-      "2": Array [
-        "22",
-      ],
-      "_ballotId": "abcdefg",
-      "_ballotStyleId": "1",
-      "_ballotType": "standard",
-      "_batchId": "1234",
-      "_batchLabel": "Batch 1",
-      "_layouts": undefined,
-      "_locales": Object {
-        "primary": "en-US",
-      },
-      "_pageNumbers": Array [
-        1,
-        2,
-      ],
-      "_precinctId": "6522",
-      "_scannerId": "000",
-      "_testBallot": false,
-      "initiative-65": Array [
-        "yes",
-      ],
-    }
-  `);
-});
-
 test('fails to generate a CVR from an invalid HMPB sheet with two pages having the same page number', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
@@ -887,103 +772,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
   ).toThrowError(
     'expected a sheet to have the same precinct, but got front=6522 back=6523'
   );
-});
-
-test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
-  const sheetId = 'sheetid';
-  const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
-  const ballotStyleId = '1';
-  const precinctId = '6522';
-  const batchId = '1234';
-  const batchLabel = 'Batch 1';
-
-  expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {
-            '2': [
-              {
-                id: '23',
-                name: 'Jimmy Edwards',
-                partyIds: [unsafeParse(PartyIdSchema, '4')],
-              },
-            ],
-          },
-        },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
-          },
-        },
-        contestIds: ['initiative-65'],
-        markAdjudications: [
-          {
-            type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'initiative-65',
-            optionId: 'no',
-            isMarked: true,
-          },
-        ],
-      },
-    ])
-  ).toMatchInlineSnapshot(`
-    Object {
-      "1": Array [],
-      "2": Array [
-        "23",
-      ],
-      "_ballotId": "abcdefg",
-      "_ballotStyleId": "1",
-      "_ballotType": "standard",
-      "_batchId": "1234",
-      "_batchLabel": "Batch 1",
-      "_layouts": undefined,
-      "_locales": Object {
-        "primary": "en-US",
-      },
-      "_pageNumbers": Array [
-        1,
-        2,
-      ],
-      "_precinctId": "6522",
-      "_scannerId": "000",
-      "_testBallot": false,
-      "initiative-65": Array [
-        "no",
-      ],
-    }
-  `);
 });
 
 test('fails to generate CVRs from blank pages', () => {

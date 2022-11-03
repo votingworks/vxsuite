@@ -12,8 +12,6 @@ import {
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
-  MarkAdjudications,
-  MarkAdjudicationsSchema,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
@@ -455,27 +453,18 @@ export const ScanBatchResponseSchema: z.ZodSchema<ScanBatchResponse> = z.union([
  * @url /scan/scanContinue
  * @method POST
  */
-export type ScanContinueRequest =
-  | { forceAccept: false }
-  | {
-      forceAccept: true;
-      frontMarkAdjudications: MarkAdjudications;
-      backMarkAdjudications: MarkAdjudications;
-    };
+export interface ScanContinueRequest {
+  forceAccept: boolean;
+}
 
 /**
  * @url /scan/scanContinue
  * @method POST
  */
 export const ScanContinueRequestSchema: z.ZodSchema<ScanContinueRequest> =
-  z.union([
-    z.object({ forceAccept: z.literal(false) }),
-    z.object({
-      forceAccept: z.literal(true),
-      frontMarkAdjudications: MarkAdjudicationsSchema,
-      backMarkAdjudications: MarkAdjudicationsSchema,
-    }),
-  ]);
+  z.object({
+    forceAccept: z.boolean(),
+  });
 
 /**
  * @url /scan/scanContinue

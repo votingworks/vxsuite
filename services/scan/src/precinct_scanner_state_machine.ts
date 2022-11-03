@@ -271,8 +271,7 @@ function recordAcceptedSheet(store: Store, { interpretation }: Context) {
   // If we're storing an accepted sheet that needed review that means it was
   // "adjudicated" (i.e. the voter said to count it without changing anything)
   if (interpretation.type === 'NeedsReviewSheet') {
-    store.adjudicateSheet(sheetId, 'front', []);
-    store.adjudicateSheet(sheetId, 'back', []);
+    store.adjudicateSheet(sheetId);
   }
   debug('Stored accepted sheet: %s', sheetId);
 }

@@ -2,7 +2,6 @@ import {
   BallotLocale,
   BallotMark,
   BallotTargetMark,
-  MarkAdjudications,
   MarkStatus,
   MarkThresholds,
   PageInterpretation,
@@ -46,7 +45,6 @@ export interface PageInterpretationWithAdjudication<
 > {
   interpretation: T;
   contestIds?: readonly string[];
-  markAdjudications?: MarkAdjudications;
 }
 
 export interface BallotPageQrcode {
@@ -59,8 +57,6 @@ export interface BallotConfig extends BallotStyleData {
   locales: BallotLocale;
   isLiveMode: boolean;
 }
-
-export * from './types/ballot_review';
 
 export function getMarkStatus(
   mark: BallotTargetMark,

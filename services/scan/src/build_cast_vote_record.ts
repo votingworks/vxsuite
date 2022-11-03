@@ -16,7 +16,6 @@ import {
   InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
-  MarkAdjudications,
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
@@ -129,8 +128,7 @@ export function getOptionIdsForContestVote(
 
 export function buildCastVoteRecordVotesEntries(
   contests: Contests,
-  votes: VotesDict,
-  markAdjudications?: MarkAdjudications
+  votes: VotesDict
 ): Dictionary<Array<ContestOption['id']>> {
   const result: Dictionary<Array<ContestOption['id']>> = {};
 
@@ -142,33 +140,12 @@ export function buildCastVoteRecordVotesEntries(
     // HINT: Do not use `contest.id` in this loop, use `option.contestId`.
     // `contest.id !== option.contestId` for `ms-either-neither` contests.
     for (const option of allContestOptions(contest, writeInOptions)) {
-      const markAdjudicationsForThisOption =
-        markAdjudications?.filter(
-          ({ contestId, optionId }) =>
-            contestId === option.contestId && optionId === option.id
-        ) ?? [];
-
-      if (markAdjudicationsForThisOption.length === 0) {
-        // no adjudications, just record it as interpreted
-        const interpretedContestOptionPair = interpretedOptionIds.find(
-          ([contestId, optionId]) =>
-            contestId === option.contestId && optionId === option.id
-        );
-        if (interpretedContestOptionPair) {
-          resolvedOptionIds.push(interpretedContestOptionPair);
-        }
-      } else if (markAdjudicationsForThisOption.length === 1) {
-        // a single adjudication, use it
-        const [markAdjudication] = markAdjudicationsForThisOption;
-        if (markAdjudication.isMarked) {
-          resolvedOptionIds.push([option.contestId, option.id]);
-        }
-      } else {
-        throw new Error(
-          `multiple adjudications for contest=${option.contestId}, option=${
-            option.id
-          }: ${JSON.stringify(markAdjudicationsForThisOption)}`
-        );
+      const interpretedContestOptionPair = interpretedOptionIds.find(
+        ([contestId, optionId]) =>
+          contestId === option.contestId && optionId === option.id
+      );
+      if (interpretedContestOptionPair) {
+        resolvedOptionIds.push(interpretedContestOptionPair);
       }
 
       // Ensure all contests end up with an empty array if they have no votes.
@@ -250,15 +227,13 @@ function buildCastVoteRecordFromHmpbPage(
     getContestsFromIds(election, front.contestIds),
     front.interpretation.type === 'InterpretedHmpbPage'
       ? front.interpretation.votes
-      : {},
-    front.markAdjudications
+      : {}
   );
   const backVotesEntries = buildCastVoteRecordVotesEntries(
     getContestsFromIds(election, back.contestIds),
     back.interpretation.type === 'InterpretedHmpbPage'
       ? back.interpretation.votes
-      : {},
-    back.markAdjudications
+      : {}
   );
 
   const votesEntries: Dictionary<string[]> = {
