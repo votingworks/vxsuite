@@ -195,10 +195,10 @@ export function BallotEjectScreen({
   useEffect(() => {
     void (async () => {
       const frontAdjudicationComplete =
-        !!isFrontAdjudicationDone ||
+        isFrontAdjudicationDone ||
         !!reviewInfo?.interpreted.front.adjudicationFinishedAt;
       const backAdjudicationComplete =
-        !!isBackAdjudicationDone ||
+        isBackAdjudicationDone ||
         !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
         await logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
