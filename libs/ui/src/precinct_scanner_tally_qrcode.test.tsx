@@ -119,6 +119,6 @@ test('PrecinctScannerTallyQrCode', () => {
       signedQuickResultsReportingUrl=""
     />
   );
-  screen.getByText(/Polls Closed/);
+  screen.getByText(/Polls closed/);
   screen.getByText('Automatic Election Results Reporting');
 });

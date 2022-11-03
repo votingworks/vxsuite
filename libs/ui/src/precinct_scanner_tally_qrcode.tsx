@@ -70,7 +70,7 @@ export function PrecinctScannerTallyQrCode({
           {electionDate}, {election.county.name}, {election.state}
           <br />
           <Text small as="span">
-            Polls Closed and report created on{' '}
+            Polls closed and report created on{' '}
             {formatFullDateTimeZone(DateTime.fromMillis(pollsTransitionedTime))}
           </Text>
         </p>
