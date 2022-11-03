@@ -1091,7 +1091,6 @@ test('exportCvrs called with orderBySheetId actually orders by sheet ID', async 
       },
     ]);
     store.adjudicateSheet(sheetId);
-    store.adjudicateSheet(sheetId);
   }
 
   const stream = new streams.WritableStream();
