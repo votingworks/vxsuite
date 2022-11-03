@@ -23,8 +23,6 @@ import {
   HmpbPageInterpretation,
   InlineBallotImage,
   Iso8601Timestamp,
-  MarkAdjudication,
-  MarkAdjudicationsSchema,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
@@ -548,16 +546,14 @@ export class Store {
     [front, back]: SheetOf<PageInterpretationWithFiles>
   ): string {
     try {
-      const frontFinishedAdjudicationAt =
+      const finishedAdjudicationAt =
         front.interpretation.type === 'InterpretedHmpbPage' &&
-        !front.interpretation.adjudicationInfo.requiresAdjudication
-          ? DateTime.now().toISOTime()
-          : undefined;
-      const backFinishedAdjudicationAt =
         back.interpretation.type === 'InterpretedHmpbPage' &&
+        !front.interpretation.adjudicationInfo.requiresAdjudication &&
         !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
+
       this.client.run(
         `insert into sheets (
             id,
@@ -569,10 +565,9 @@ export class Store {
             back_normalized_filename,
             back_interpretation_json,
             requires_adjudication,
-            front_finished_adjudication_at,
-            back_finished_adjudication_at
+            finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
@@ -585,8 +580,7 @@ export class Store {
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
           ? 1
           : 0,
-        frontFinishedAdjudicationAt ?? null,
-        backFinishedAdjudicationAt ?? null
+        finishedAdjudicationAt ?? null
       );
     } catch (error) {
       debug(
@@ -661,12 +655,11 @@ export class Store {
         id,
         front_interpretation_json as frontInterpretationJson,
         back_interpretation_json as backInterpretationJson,
-        front_finished_adjudication_at as frontFinishedAdjudicationAt,
-        back_finished_adjudication_at as backFinishedAdjudicationAt
+        finished_adjudication_at as finishedAdjudicationAt
       from sheets
       where
         requires_adjudication = 1 and
-        (front_finished_adjudication_at is null or back_finished_adjudication_at is null) and
+        finished_adjudication_at is null and
         deleted_at is null
       order by created_at asc
       limit 1
@@ -676,8 +669,7 @@ export class Store {
           id: string;
           frontInterpretationJson: string;
           backInterpretationJson: string;
-          frontFinishedAdjudicationAt: string | null;
-          backFinishedAdjudicationAt: string | null;
+          finishedAdjudicationAt: string | null;
         }
       | undefined;
 
@@ -692,14 +684,14 @@ export class Store {
             url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
           interpretation: JSON.parse(row.frontInterpretationJson),
-          adjudicationFinishedAt: row.frontFinishedAdjudicationAt ?? undefined,
+          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
             url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
           interpretation: JSON.parse(row.backInterpretationJson),
-          adjudicationFinishedAt: row.backFinishedAdjudicationAt ?? undefined,
+          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },
       };
     }
@@ -751,28 +743,17 @@ export class Store {
     }
   }
 
-  adjudicateSheet(
-    sheetId: string,
-    side: Scan.Side,
-    adjudications: readonly MarkAdjudication[]
-  ): boolean {
-    debug(
-      'saving mark adjudications for sheet %s %s: %O',
-      side,
-      sheetId,
-      adjudications
-    );
+  adjudicateSheet(sheetId: string): boolean {
+    debug('finishing adjudication for sheet %s', sheetId);
 
     this.client.run(
       `
       update
         sheets
       set
-        ${side}_adjudication_json = ?,
-        ${side}_finished_adjudication_at = ?
+        finished_adjudication_at = ?
       where id = ?
     `,
-      JSON.stringify(adjudications, undefined, 2),
       new Date().toISOString(),
       sheetId
     );
@@ -864,14 +845,14 @@ export class Store {
         where
           requires_adjudication = 1
           and deleted_at is null
-          and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
+          and finished_adjudication_at is null
       `) as { remaining: number };
     const { adjudicated } = this.client.one(`
         select count(*) as adjudicated
         from sheets
         where
           requires_adjudication = 1
-          and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
+          and finished_adjudication_at is not null
       `) as { adjudicated: number };
     return { adjudicated, remaining };
   }
@@ -895,14 +876,11 @@ export class Store {
         batches.id as batchId,
         batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        front_adjudication_json as frontAdjudicationJson,
-        back_adjudication_json as backAdjudicationJson
+        back_interpretation_json as backInterpretationJson
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
-        (requires_adjudication = 0 or
-        (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
+        (requires_adjudication = 0 or finished_adjudication_at is not null)
         and sheets.deleted_at is null
         and batches.deleted_at is null
       ${options.orderBySheetId ? 'order by sheets.id' : ''}
@@ -913,16 +891,12 @@ export class Store {
       batchLabel,
       frontInterpretationJson,
       backInterpretationJson,
-      frontAdjudicationJson,
-      backAdjudicationJson,
     } of this.client.each(sql) as Iterable<{
       id: string;
       batchId: string;
       batchLabel: string | null;
       frontInterpretationJson: string;
       backInterpretationJson: string;
-      frontAdjudicationJson: string | null;
-      backAdjudicationJson: string | null;
     }>) {
       const frontInterpretation: PageInterpretation = JSON.parse(
         frontInterpretationJson
@@ -934,13 +908,6 @@ export class Store {
         frontInterpretation,
         backInterpretation,
       ];
-      const frontAdjudications = frontAdjudicationJson
-        ? safeParseJson(frontAdjudicationJson, MarkAdjudicationsSchema).ok()
-        : undefined;
-      const backAdjudications = backAdjudicationJson
-        ? safeParseJson(backAdjudicationJson, MarkAdjudicationsSchema).ok()
-        : undefined;
-
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
       const includeImages =
@@ -966,7 +933,6 @@ export class Store {
                   electionDefinition
                 )
               : undefined,
-            markAdjudications: frontAdjudications,
           },
           {
             interpretation: backInterpretation,
@@ -976,7 +942,6 @@ export class Store {
                   electionDefinition
                 )
               : undefined,
-            markAdjudications: backAdjudications,
           },
         ],
         includeImages && isHmpbSheet(interpretations)

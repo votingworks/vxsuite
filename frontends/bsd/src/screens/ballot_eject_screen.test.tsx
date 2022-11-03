@@ -160,8 +160,6 @@ test('says the ballot sheet is overvoted if it is', async () => {
   fireEvent.click(getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
-    frontMarkAdjudications: [],
-    backMarkAdjudications: [],
   });
 });
 
@@ -269,8 +267,6 @@ test('says the ballot sheet is undervoted if it is', async () => {
   fireEvent.click(getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
-    frontMarkAdjudications: [],
-    backMarkAdjudications: [],
   });
 });
 
@@ -385,8 +381,6 @@ test('says the ballot sheet is blank if it is', async () => {
   fireEvent.click(getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
-    frontMarkAdjudications: [],
-    backMarkAdjudications: [],
   });
 });
 

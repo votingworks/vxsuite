@@ -621,8 +621,7 @@ test('exportCvrs', async () => {
       },
     },
   ]);
-  store.adjudicateSheet(sheetId, 'front', []);
-  store.adjudicateSheet(sheetId, 'back', []);
+  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await store.exportCvrs(stream);
@@ -750,8 +749,7 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
       },
     },
   ]);
-  store.adjudicateSheet(sheetId, 'front', []);
-  store.adjudicateSheet(sheetId, 'back', []);
+  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await store.exportCvrs(stream);
@@ -873,8 +871,7 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
       },
     },
   ]);
-  store.adjudicateSheet(sheetId, 'front', []);
-  store.adjudicateSheet(sheetId, 'back', []);
+  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await store.exportCvrs(stream);
@@ -976,8 +973,7 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
       },
     },
   ]);
-  store.adjudicateSheet(sheetId, 'front', []);
-  store.adjudicateSheet(sheetId, 'back', []);
+  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await store.exportCvrs(stream, { skipImages: true });
@@ -1094,8 +1090,8 @@ test('exportCvrs called with orderBySheetId actually orders by sheet ID', async 
         },
       },
     ]);
-    store.adjudicateSheet(sheetId, 'front', []);
-    store.adjudicateSheet(sheetId, 'back', []);
+    store.adjudicateSheet(sheetId);
+    store.adjudicateSheet(sheetId);
   }
 
   const stream = new streams.WritableStream();
