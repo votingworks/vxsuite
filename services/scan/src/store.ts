@@ -2,7 +2,10 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { Scan } from '@votingworks/api';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { Bindable, Client as DbClient } from '@votingworks/db';
+import { toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   AnyContest,
   BallotIdSchema,
@@ -34,13 +37,13 @@ import {
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import {
   assert,
   EnvironmentFlagName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { loadImage } from 'canvas';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -50,17 +53,13 @@ import { Writable } from 'stream';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { loadImage } from 'canvas';
-import { toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
+  addBallotImagesToCvr,
   buildCastVoteRecord,
   cvrHasWriteIns,
-  addBallotImagesToCvr,
 } from './build_cast_vote_record';
-import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { mapSheet, SheetOf } from './types';
-
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');

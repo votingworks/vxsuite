@@ -1,25 +1,26 @@
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { createHash } from 'crypto';
 import makeDebug from 'debug';
 import * as fs from 'fs';
-import { sha256 } from 'js-sha256';
 import Database = require('better-sqlite3');
 
 type Database = Database.Database;
 
-const debug = makeDebug('admin:db-client');
+const debug = makeDebug('scan:db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
 /**
- * Values that may be passed to the client as bindable parameters.
+ * Types supported for database values, i.e. what can be passed to `one`, `all`,
+ * `run`, etc. and substituted into the query.
  */
 export type Bindable = string | number | bigint | Buffer | null;
 
 /**
  * Manages a connection for a SQLite database.
  */
-export class DbClient {
+export class Client {
   private db?: Database;
 
   /**
@@ -50,14 +51,14 @@ export class DbClient {
   private getSchemaDigest(): string {
     assert(typeof this.schemaPath === 'string', 'schemaPath is required');
     const schemaSql = fs.readFileSync(this.schemaPath, 'utf-8');
-    return sha256(schemaSql);
+    return createHash('sha256').update(schemaSql).digest('hex');
   }
 
   /**
    * Builds and returns a new client whose data is kept in memory.
    */
-  static memoryClient(schemaPath?: string): DbClient {
-    const client = new DbClient(MEMORY_DB_PATH, schemaPath);
+  static memoryClient(schemaPath?: string): Client {
+    const client = new Client(MEMORY_DB_PATH, schemaPath);
     client.create();
     return client;
   }
@@ -65,8 +66,8 @@ export class DbClient {
   /**
    * Builds and returns a new client at `dbPath`.
    */
-  static fileClient(dbPath: string, schemaPath?: string): DbClient {
-    const client = new DbClient(dbPath, schemaPath);
+  static fileClient(dbPath: string, schemaPath?: string): Client {
+    const client = new Client(dbPath, schemaPath);
 
     if (!schemaPath) {
       return client;
@@ -97,20 +98,17 @@ export class DbClient {
           .replace(/[^\d]+/g, '-')
           .replace(/-+$/, '')}`;
         fs.renameSync(dbPath, backupPath);
-        /* istanbul ignore next */
         debug('backed up database to be reset to %s', backupPath);
       } catch {
         // ignore for now
       }
     }
 
-    /* istanbul ignore next */
     if (shouldResetDatabase) {
       debug('resetting database to updated schema');
       client.reset();
       fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
     } else {
-      /* istanbul ignore next */
       debug('database schema appears to be up to date');
     }
 
@@ -219,11 +217,11 @@ export class DbClient {
       debug('deleting the database file at %s', dbPath);
       fs.unlinkSync(dbPath);
     } catch (error) {
-      /* istanbul ignore next */
-      assert(error instanceof Error);
-      /* istanbul ignore next */
-      debug('failed to delete database file %s: %s', dbPath, error.message);
-      /* istanbul ignore next */
+      debug(
+        'failed to delete database file %s: %s',
+        dbPath,
+        (error as Error).message
+      );
       throw error;
     }
   }

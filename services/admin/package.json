@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@votingworks/api": "workspace:*",
+    "@votingworks/db": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",

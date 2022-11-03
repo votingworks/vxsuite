@@ -1,10 +1,11 @@
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
+import { join } from 'path';
 import * as tmp from 'tmp';
-import { DbClient } from './db_client';
+import { Client } from './client';
 
 test('file database client', () => {
   const dbFile = tmp.fileSync();
-  const client = DbClient.fileClient(dbFile.name);
+  const client = Client.fileClient(dbFile.name);
 
   client.reset();
   fs.accessSync(dbFile.name);
@@ -21,7 +22,7 @@ test('file database client', () => {
   const backupDbFile = tmp.fileSync();
   client.backup(backupDbFile.name);
 
-  const clientForBackup = DbClient.fileClient(backupDbFile.name);
+  const clientForBackup = Client.fileClient(backupDbFile.name);
   expect(clientForBackup.all('select * from muppets')).toEqual([
     { name: 'Kermit' },
     { name: 'Fozzie' },
@@ -36,8 +37,56 @@ test('file database client', () => {
   expect(() => fs.accessSync(dbFile.name)).toThrowError('ENOENT');
 });
 
+test('file database client with a schema', () => {
+  const dbFile = tmp.fileSync();
+  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const client = Client.fileClient(dbFile.name, schemaFile);
+
+  client.reset();
+  fs.accessSync(dbFile.name);
+
+  expect(client.getDatabasePath()).toBe(dbFile.name);
+  expect(client.isMemoryDatabase()).toBe(false);
+
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 0,
+  });
+  client.run(
+    `
+    insert into users (
+      id,
+      name,
+      email,
+      password_hash
+    ) values (
+      ?, ?, ?, ?
+    )
+  `,
+    'kermie',
+    'Kermit',
+    'kermit@muppets.org',
+    'hash'
+  );
+
+  expect(client.all('select * from users')).toEqual([
+    {
+      id: 'kermie',
+      name: 'Kermit',
+      email: 'kermit@muppets.org',
+      password_hash: 'hash',
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    },
+  ]);
+
+  const anotherClient = Client.fileClient(dbFile.name, schemaFile);
+  expect(anotherClient.one('select count(*) as count from users')).toEqual({
+    count: 1,
+  });
+});
+
 test('memory database client', () => {
-  const client = DbClient.memoryClient();
+  const client = Client.memoryClient();
 
   client.reset();
 
@@ -48,7 +97,7 @@ test('memory database client', () => {
 });
 
 test('read/write', () => {
-  const client = DbClient.memoryClient();
+  const client = Client.memoryClient();
 
   client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
@@ -74,7 +123,7 @@ test('read/write', () => {
 });
 
 test('transactions', () => {
-  const client = DbClient.memoryClient();
+  const client = Client.memoryClient();
 
   client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
@@ -113,12 +162,12 @@ test('schema loading', () => {
     `create table if not exists muppets (name varchar(255) unique not null);`
   );
 
-  const client = DbClient.memoryClient(schemaFile.name);
+  const client = Client.memoryClient(schemaFile.name);
   client.run('insert into muppets (name) values (?)', 'Kermit');
 });
 
 test('runtime errors', () => {
-  const client = DbClient.memoryClient();
+  const client = Client.memoryClient();
 
   expect(() => client.run('select * from muppets')).toThrow(
     'no such table: muppets'
@@ -142,7 +191,7 @@ test('runtime errors', () => {
 });
 
 test('#each', () => {
-  const client = DbClient.memoryClient();
+  const client = Client.memoryClient();
 
   client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
@@ -155,13 +204,13 @@ test('#each', () => {
 });
 
 test('connect errors', () => {
-  const client = DbClient.fileClient('/not/a/real/path');
+  const client = Client.fileClient('/not/a/real/path');
   expect(() => client.connect()).toThrow();
 });
 
 test('destroy errors', () => {
   const file = tmp.fileSync();
-  const client = DbClient.fileClient(file.name);
+  const client = Client.fileClient(file.name);
   client.connect();
   file.removeCallback();
   expect(() => client.destroy()).toThrow();
