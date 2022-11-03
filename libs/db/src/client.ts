@@ -11,6 +11,10 @@ const debug = makeDebug('scan:db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
+/**
+ * Types supported for database values, i.e. what can be passed to `one`, `all`,
+ * `run`, etc. and substituted into the query.
+ */
 export type Bindable = string | number | bigint | Buffer | null;
 
 /**
