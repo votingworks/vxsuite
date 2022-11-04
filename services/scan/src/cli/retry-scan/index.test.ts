@@ -144,7 +144,7 @@ test('query with sheet ids', () => {
   const inputWorkspace = createWorkspace(dirSync().name);
   const { store } = inputWorkspace;
 
-  store.setElection(fixtures.electionDefinition);
+  store.setElection(fixtures.electionDefinition.electionData);
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   store.setTestMode(false);
   store.setSkipElectionHashCheck(true);
@@ -231,7 +231,7 @@ test('query with sheet ids', () => {
     const outputWorkspace = createWorkspace(dirSync().name);
     const inputDb = inputWorkspace.store;
 
-    inputDb.setElection(fixtures.electionDefinition);
+    inputDb.setElection(fixtures.electionDefinition.electionData);
     inputDb.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
     inputDb.setTestMode(false);
     inputDb.setSkipElectionHashCheck(true);

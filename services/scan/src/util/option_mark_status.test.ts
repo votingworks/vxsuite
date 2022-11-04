@@ -15,7 +15,6 @@ import { election as eitherNeitherElection } from '../../test/fixtures/choctaw-m
 const markThresholds: MarkThresholds = {
   definite: 0.17,
   marginal: 0.17,
-  writeInText: 0.01,
 };
 const defaultShape: TargetShape = {
   bounds: { x: 0, y: 0, width: 10, height: 10 },

@@ -20,7 +20,7 @@ test('interpret', async () => {
   const store = Store.fileStore(dbPath);
 
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   await call({ action: 'configure', dbPath });
 
   const result = (await call({

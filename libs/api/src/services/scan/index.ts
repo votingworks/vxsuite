@@ -563,13 +563,16 @@ export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z
  * @url /scan/export
  * @method POST
  */
-export type ExportResponse = string;
+export type ExportResponse = string | ErrorsResponse;
 
 /**
  * @url /scan/export
  * @method POST
  */
-export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.string();
+export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
+  z.string(),
+  ErrorsResponseSchema,
+]);
 
 /**
  * This is `never` because there is no request data.

@@ -111,7 +111,7 @@ export async function buildCentralScannerApp({
 
   app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/central-scanner/config/election',
-    async (request, response) => {
+    (request, response) => {
       if (
         !store.getCanUnconfigure() &&
         request.query['ignoreBackupRequirement'] !== 'true' // A backup is required by default
@@ -129,7 +129,7 @@ export async function buildCentralScannerApp({
         return;
       }
 
-      await importer.unconfigure();
+      importer.unconfigure();
       response.json({ status: 'ok' });
     }
   );
@@ -459,6 +459,19 @@ export async function buildCentralScannerApp({
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/central-scanner/scan/export',
     async (_request, response) => {
+      if (!store.hasElection()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'no-election',
+              message: 'cannot export cvrs if no election is configured',
+            },
+          ],
+        });
+        return;
+      }
+
       response.type('text/plain; charset=utf-8');
       await importer.doExport(response);
       store.setCvrsAsBackedUp();
@@ -579,7 +592,7 @@ export async function buildCentralScannerApp({
 
   app.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
     '/central-scanner/scan/zero',
-    async (_request, response) => {
+    (_request, response) => {
       if (!store.getCanUnconfigure()) {
         response.status(400).json({
           status: 'error',
@@ -594,7 +607,7 @@ export async function buildCentralScannerApp({
         return;
       }
 
-      await importer.doZero();
+      importer.doZero();
       response.json({ status: 'ok' });
     }
   );

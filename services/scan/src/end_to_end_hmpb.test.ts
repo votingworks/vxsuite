@@ -55,20 +55,12 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await importer.unconfigure();
+  importer.unconfigure();
   await fs.remove(workspace.path);
 });
 
 test('going through the whole process works', async () => {
   jest.setTimeout(25000);
-
-  // Do this first so interpreter workers get initialized with the right value.
-  await request(app)
-    .patch('/central-scanner/config/skipElectionHashCheck')
-    .send({ skipElectionHashCheck: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
 
   const { election } = stateOfHamilton;
   await importer.restoreConfig();
@@ -77,6 +69,14 @@ test('going through the whole process works', async () => {
     .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
+  // sample ballot election hash does not match election hash for this test
+  await request(app)
+    .patch('/central-scanner/config/skipElectionHashCheck')
+    .send({ skipElectionHashCheck: true })
+    .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
@@ -199,18 +199,18 @@ test('ms-either-neither end-to-end', async () => {
     choctawMockGeneral2020Fixtures;
   await importer.restoreConfig();
 
-  // Do this first so interpreter workers get initialized with the right value.
-  await request(app)
-    .patch('/central-scanner/config/skipElectionHashCheck')
-    .send({ skipElectionHashCheck: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
-
   await request(app)
     .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
+  // sample ballot election hash does not match election hash for this test
+  await request(app)
+    .patch('/central-scanner/config/skipElectionHashCheck')
+    .send({ skipElectionHashCheck: true })
+    .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 

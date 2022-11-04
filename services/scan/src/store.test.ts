@@ -11,7 +11,12 @@ import {
   SheetOf,
   YesNoContest,
 } from '@votingworks/types';
-import { sleep, typedAs } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+  sleep,
+  typedAs,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -26,11 +31,13 @@ test('get/set election', () => {
   const store = Store.memoryStore();
 
   expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.hasElection()).toBeFalsy();
 
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getElectionDefinition()?.election).toEqual(
     stateOfHamilton.election
   );
+  expect(store.hasElection()).toBeTruthy();
 
   store.setElection(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
@@ -39,6 +46,13 @@ test('get/set election', () => {
 test('get/set test mode', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
+  expect(store.getTestMode()).toBe(true);
+  expect(() => store.setTestMode(false)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
   expect(store.getTestMode()).toBe(true);
 
   store.setTestMode(false);
@@ -48,10 +62,55 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toBe(true);
 });
 
+test('get/set skip election hash check mode', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+  expect(() => store.setSkipElectionHashCheck(true)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+
+  store.setSkipElectionHashCheck(true);
+  expect(store.getSkipElectionHashCheck()).toBe(true);
+
+  store.setSkipElectionHashCheck(false);
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+});
+
+test('get/set precinct selection', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getPrecinctSelection()).toBe(undefined);
+  expect(() =>
+    store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
+  ).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getPrecinctSelection()).toBe(undefined);
+
+  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  expect(store.getPrecinctSelection()).toEqual(ALL_PRECINCTS_SELECTION);
+
+  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
+  store.setPrecinctSelection(precinctSelection);
+  expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
+});
+
 test('get/set mark threshold overrides', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
   expect(store.getMarkThresholdOverrides()).toBe(undefined);
+  expect(() => store.setMarkThresholdOverrides()).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
   expect(store.getMarkThresholdOverrides()).toStrictEqual({
@@ -65,7 +124,7 @@ test('get/set mark threshold overrides', () => {
 
 test('get current mark thresholds falls back to election definition defaults', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -87,14 +146,49 @@ test('get current mark thresholds falls back to election definition defaults', (
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
   expect(store.getPollsState()).toEqual('polls_closed_initial');
+  expect(() => store.setPollsState('polls_open')).toThrowError();
 
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
   store.setPollsState('polls_open');
   expect(store.getPollsState()).toEqual('polls_open');
 });
 
+test('get/set scanner as backed up', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  store.setScannerAsBackedUp();
+  expect(store.getScannerBackupTimestamp()).toBeTruthy();
+});
+
+test('get/set cvrs as backed up', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+  store.setCvrsAsBackedUp();
+  expect(store.getCvrsBackupTimestamp()).toBeTruthy();
+});
+
+test('resetElectionSession', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setPollsState('polls_open');
+  store.setScannerAsBackedUp();
+  store.setCvrsAsBackedUp();
+
+  store.resetElectionSession();
+  expect(store.getPollsState()).toEqual('polls_closed_initial');
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+});
+
 test('HMPB template handling', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   const metadata: BallotMetadata = {
     electionHash: 'd34db33f',
     locales: { primary: 'en-US' },
@@ -278,6 +372,7 @@ test('batchStatus', () => {
 
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -287,6 +382,7 @@ test('canUnconfigure in test mode', () => {
 
 test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setTestMode(false);
 
   const frontMetadata: BallotPageMetadata = {
@@ -373,7 +469,7 @@ test('adjudication', () => {
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.addHmpbTemplate(
     Buffer.of(),
     metadata,
@@ -511,6 +607,7 @@ test('adjudication', () => {
 test('zero', () => {
   const dbFile = tmp.fileSync();
   const store = Store.fileStore(dbFile.name);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.addBatch();
   store.addBatch();
@@ -538,6 +635,7 @@ test('zero', () => {
 
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // starts empty
   expect(Array.from(store.forEachResultSheet())).toEqual([]);

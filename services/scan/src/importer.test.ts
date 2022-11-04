@@ -86,10 +86,10 @@ test('startImport calls scanner.scanSheet', async () => {
 
   await importer.startImport();
   await importer.waitForEndOfBatchOrScanningPause();
-  await importer.unconfigure();
+  importer.unconfigure();
 });
 
-test('unconfigure clears all data.', async () => {
+test('unconfigure clears all data.', () => {
   const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
   };
@@ -100,7 +100,7 @@ test('unconfigure clears all data.', async () => {
 
   importer.configure(electionDefinition);
   expect(workspace.store.getElectionDefinition()).toBeDefined();
-  await importer.unconfigure();
+  importer.unconfigure();
   expect(workspace.store.getElectionDefinition()).toBeUndefined();
 });
 
@@ -150,7 +150,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
   await importer.setTestMode(true);
   expect(importer.getStatus().batches).toHaveLength(0);
-  await importer.unconfigure();
+  importer.unconfigure();
 });
 
 test('restoreConfig reconfigures the interpreter worker', async () => {
@@ -173,7 +173,7 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
     action: 'configure',
     dbPath: workspace.store.getDbPath(),
   });
-  await importer.unconfigure();
+  importer.unconfigure();
 });
 
 test('cannot add HMPB templates before configuring an election', async () => {

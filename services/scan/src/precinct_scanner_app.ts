@@ -180,7 +180,7 @@ export async function buildPrecinctScannerApp(
     }
 
     const electionDefinition = bodyParseResult.ok();
-    store.setElection(electionDefinition);
+    store.setElection(electionDefinition.electionData);
     // If the election has only one precinct, set it automatically
     if (electionDefinition.election.precincts.length === 1) {
       store.setPrecinctSelection(
