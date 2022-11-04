@@ -1,6 +1,5 @@
 import {
   ElectionDefinition,
-  Optional,
   MarkThresholds,
   safeParseJson,
   PrecinctSelection,
@@ -34,29 +33,29 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
   }
 }
 
-async function put<Body extends string | ArrayBuffer | unknown>(
-  url: string,
-  value: Body
-): Promise<void> {
-  const isJson =
-    typeof value !== 'string' &&
-    !(value instanceof ArrayBuffer) &&
-    !(value instanceof Uint8Array);
-  const response = await fetch(url, {
-    method: 'PUT',
-    body: /* istanbul ignore next */ isJson
-      ? JSON.stringify(value)
-      : (value as BodyInit),
-    headers: {
-      'Content-Type': isJson ? 'application/json' : 'application/octet-stream',
-    },
-  });
-  const body: OkResponse | ErrorsResponse = await response.json();
+// async function put<Body extends string | ArrayBuffer | unknown>(
+//   url: string,
+//   value: Body
+// ): Promise<void> {
+//   const isJson =
+//     typeof value !== 'string' &&
+//     !(value instanceof ArrayBuffer) &&
+//     !(value instanceof Uint8Array);
+//   const response = await fetch(url, {
+//     method: 'PUT',
+//     body: /* istanbul ignore next */ isJson
+//       ? JSON.stringify(value)
+//       : (value as BodyInit),
+//     headers: {
+//       'Content-Type': isJson ? 'application/json' : 'application/octet-stream',
+//     },
+//   });
+//   const body: OkResponse | ErrorsResponse = await response.json();
 
-  if (body.status !== 'ok') {
-    throw new Error(`PUT ${url} failed: ${JSON.stringify(body.errors)}`);
-  }
-}
+//   if (body.status !== 'ok') {
+//     throw new Error(`PUT ${url} failed: ${JSON.stringify(body.errors)}`);
+//   }
+// }
 
 async function del(url: string): Promise<void> {
   const response = await fetch(url, {
@@ -70,20 +69,15 @@ async function del(url: string): Promise<void> {
   }
 }
 
-export async function getElectionDefinition(): Promise<
-  ElectionDefinition | undefined
-> {
-  return (
-    (safeParseJson(
-      await (
-        await fetch('/precinct-scanner/config/election', {
-          headers: { Accept: 'application/json' },
-        })
-      ).text(),
-      Scan.GetElectionConfigResponseSchema
-    ).unsafeUnwrap() as Exclude<Scan.GetElectionConfigResponse, string>) ??
-    undefined
-  );
+export async function get(): Promise<Scan.PrecinctScannerConfig> {
+  return safeParseJson(
+    await (
+      await fetch('/precinct-scanner/config', {
+        headers: { Accept: 'application/json' },
+      })
+    ).text(),
+    Scan.GetPrecinctScannerConfigResponseSchema
+  ).unsafeUnwrap();
 }
 
 export async function setElection(
@@ -102,31 +96,15 @@ export async function setElection(
   }
 }
 
-export async function getTestMode(): Promise<boolean> {
-  return safeParseJson(
-    await (await fetch('/precinct-scanner/config/testMode')).text(),
-    Scan.GetTestModeConfigResponseSchema
-  ).unsafeUnwrap().testMode;
-}
-
-export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>(
-    '/precinct-scanner/config/testMode',
+export async function setPrecinctSelection(
+  precinctSelection: PrecinctSelection
+): Promise<void> {
+  await patch<Scan.PatchPrecinctSelectionConfigRequest>(
+    '/precinct-scanner/config/precinct',
     {
-      testMode,
+      precinctSelection,
     }
   );
-}
-
-export async function getMarkThresholds(): Promise<Optional<MarkThresholds>> {
-  return safeParseJson(
-    await (
-      await fetch('/precinct-scanner/config/markThresholdOverrides', {
-        headers: { Accept: 'application/json' },
-      })
-    ).text(),
-    Scan.GetMarkThresholdOverridesConfigResponseSchema
-  ).unsafeUnwrap().markThresholdOverrides;
 }
 
 export async function setMarkThresholdOverrides(
@@ -142,45 +120,37 @@ export async function setMarkThresholdOverrides(
   }
 }
 
-export async function getPrecinctSelection(): Promise<
-  Optional<PrecinctSelection>
-> {
-  return safeParseJson(
-    await (
-      await fetch('/precinct-scanner/config/precinct', {
-        headers: { Accept: 'application/json' },
-      })
-    ).text(),
-    Scan.GetPrecinctSelectionConfigResponseSchema
-  ).unsafeUnwrap().precinctSelection;
+export async function setIsSoundMuted(isSoundMuted: boolean): Promise<void> {
+  await patch<Scan.PatchIsSoundMutedConfigRequest>(
+    '/precinct-scanner/config/isSoundMuted',
+    { isSoundMuted }
+  );
 }
 
-export async function setPrecinctSelection(
-  precinctSelection: PrecinctSelection
-): Promise<void> {
-  await put<Scan.PutPrecinctSelectionConfigRequest>(
-    '/precinct-scanner/config/precinct',
+export async function setTestMode(testMode: boolean): Promise<void> {
+  await patch<Scan.PatchTestModeConfigRequest>(
+    '/precinct-scanner/config/testMode',
     {
-      precinctSelection,
+      testMode,
     }
   );
 }
 
-export async function getPollsState(): Promise<PollsState> {
-  return safeParseJson(
-    await (
-      await fetch('/precinct-scanner/config/polls', {
-        headers: { Accept: 'application/json' },
-      })
-    ).text(),
-    Scan.GetPollsStateConfigResponseSchema
-  ).unsafeUnwrap().pollsState;
-}
-
 export async function setPollsState(pollsState: PollsState): Promise<void> {
-  await put<Scan.PutPollsStateConfigRequest>('/precinct-scanner/config/polls', {
+  await patch<Scan.PatchPollsStateRequest>('/precinct-scanner/config/polls', {
     pollsState,
   });
+}
+
+export async function setBallotCountWhenBallotBagLastReplaced(
+  ballotCountWhenBallotBagLastReplaced: number
+): Promise<void> {
+  await patch<Scan.PatchBallotCountWhenBallotBagLastReplacedRequest>(
+    '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
+    {
+      ballotCountWhenBallotBagLastReplaced,
+    }
+  );
 }
 
 export interface AddTemplatesEvents extends EventEmitter {

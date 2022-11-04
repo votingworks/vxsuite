@@ -12,7 +12,7 @@ export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
   machineConfig: Readonly<MachineConfig>;
   precinctSelection?: PrecinctSelection;
-  currentMarkThresholds?: MarkThresholds;
+  markThresholdOverrides?: MarkThresholds;
   auth: InsertedSmartcardAuth.Auth;
   isSoundMuted: boolean;
   logger: Logger;
@@ -21,7 +21,7 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
   precinctSelection: undefined,
-  currentMarkThresholds: undefined,
+  markThresholdOverrides: undefined,
   isSoundMuted: false,
   machineConfig: {
     machineId: '0000',

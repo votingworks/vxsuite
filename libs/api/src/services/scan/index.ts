@@ -234,92 +234,124 @@ export const GetPrecinctSelectionConfigResponseSchema: z.ZodSchema<GetPrecinctSe
 
 /**
  * @url /config/precinct
- * @method PUT
+ * @method PATCH
  */
-export interface PutPrecinctSelectionConfigRequest {
+export interface PatchPrecinctSelectionConfigRequest {
   precinctSelection: PrecinctSelection;
 }
 
 /**
  * @url /config/precinct
- * @method PUT
+ * @method PATCH
  */
-export const PutPrecinctSelectionConfigRequestSchema: z.ZodSchema<PutPrecinctSelectionConfigRequest> =
+export const PatchPrecinctSelectionConfigRequestSchema: z.ZodSchema<PatchPrecinctSelectionConfigRequest> =
   z.object({
     precinctSelection: PrecinctSelectionSchema,
   });
 
 /**
  * @url /config/precinct
- * @method PUT
+ * @method PATCH
  */
-export type PutPrecinctSelectionConfigResponse = OkResponse | ErrorsResponse;
+export type PatchPrecinctSelectionConfigResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /config/precinct
- * @method PUT
+ * @method PATCH
  */
-export const PutPrecinctSelectionConfigResponseSchema: z.ZodSchema<PutPrecinctSelectionConfigResponse> =
+export const PatchPrecinctSelectionConfigResponseSchema: z.ZodSchema<PatchPrecinctSelectionConfigResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * @url /config/precinct
- * @method DELETE
+ * @url /config/isSoundMuted
+ * @method PATCH
  */
-export type DeletePrecinctSelectionConfigResponse = OkResponse;
+export type PatchIsSoundMutedConfigResponse = OkResponse | ErrorsResponse;
 
 /**
- * @url /config/precinct
- * @method DELETE
+ * @url /config/isSoundMuted
+ * @method PATCH
  */
-export const DeletePrecinctSelectionConfigResponseSchema = OkResponseSchema;
+export const PatchIsSoundMutedConfigResponseSchema: z.ZodSchema<PatchIsSoundMutedConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * @url /config/polls
- * @method GET
+ * @url /config/isSoundMuted
+ * @method PATCH
  */
-export type GetPollsStateConfigResponse = OkResponse<{
-  pollsState: PollsState;
-}>;
+export interface PatchIsSoundMutedConfigRequest {
+  isSoundMuted: boolean;
+}
 
 /**
- * @url /config/polls
- * @method GET
+ * @url /config/isSoundMuted
+ * @method PATCH
  */
-export const GetPollsStateConfigResponseSchema: z.ZodSchema<GetPollsStateConfigResponse> =
+export const PatchIsSoundMutedConfigRequestSchema: z.ZodSchema<PatchIsSoundMutedConfigRequest> =
   z.object({
-    status: z.literal('ok'),
-    pollsState: PollsStateSchema,
+    isSoundMuted: z.boolean(),
   });
 
 /**
  * @url /config/polls
- * @method PUT
+ * @method PATCH
  */
-export interface PutPollsStateConfigRequest {
+export interface PatchPollsStateRequest {
   pollsState: PollsState;
 }
 
 /**
  * @url /config/polls
- * @method PUT
+ * @method PATCH
  */
-export const PutPollsStateConfigRequestSchema: z.ZodSchema<PutPollsStateConfigRequest> =
+export const PatchPollsStateRequestSchema: z.ZodSchema<PatchPollsStateRequest> =
   z.object({
     pollsState: PollsStateSchema,
   });
 
 /**
  * @url /config/polls
- * @method PUT
+ * @method PATCH
  */
-export type PutPollsStateConfigResponse = OkResponse | ErrorsResponse;
+export type PatchPollsStateResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /config/polls
- * @method PUT
+ * @method PATCH
  */
-export const PutPollsStateConfigResponseSchema: z.ZodSchema<PutPollsStateConfigResponse> =
+export const PatchPollsStateResponseSchema: z.ZodSchema<PatchPollsStateResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
+
+/**
+ * @url /config/ballotCountWhenBallotBagLastReplaced
+ * @method PATCH
+ */
+export interface PatchBallotCountWhenBallotBagLastReplacedRequest {
+  ballotCountWhenBallotBagLastReplaced: number;
+}
+
+/**
+ * @url /config/ballotCountWhenBallotBagLastReplaced
+ * @method PATCH
+ */
+export const PatchBallotCountWhenBallotBagLastReplacedRequestSchema: z.ZodSchema<PatchBallotCountWhenBallotBagLastReplacedRequest> =
+  z.object({
+    ballotCountWhenBallotBagLastReplaced: z.number(),
+  });
+
+/**
+ * @url /config/ballotCountWhenBallotBagLastReplaced
+ * @method PATCH
+ */
+export type PatchBallotCountWhenBallotBagLastReplacedResponse =
+  | OkResponse
+  | ErrorsResponse;
+
+/**
+ * @url /config/ballotCountWhenBallotBagLastReplaced
+ * @method PATCH
+ */
+export const PatchBallotCountWhenBallotBagLastReplacedResponseSchema: z.ZodSchema<PatchBallotCountWhenBallotBagLastReplacedResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
@@ -774,3 +806,46 @@ export type GetPrecinctScannerStatusResponse = PrecinctScannerStatus;
  */
 export const GetPrecinctScannerStatusResponseSchema: z.ZodSchema<GetPrecinctScannerStatusResponse> =
   PrecinctScannerStatusSchema;
+
+export interface PrecinctScannerConfig {
+  // Config that persists across switching modes
+  electionDefinition?: ElectionDefinition;
+  precinctSelection?: PrecinctSelection;
+  markThresholdOverrides?: MarkThresholds;
+  isSoundMuted: boolean;
+  // "Config" that is specific to each election session
+  isTestMode: boolean;
+  pollsState: PollsState;
+  ballotCountWhenBallotBagLastReplaced: number;
+}
+
+export const PrecinctScannerConfigSchema: z.ZodSchema<PrecinctScannerConfig> =
+  z.object({
+    electionDefinition: ElectionDefinitionSchema.optional(),
+    precinctSelection: PrecinctSelectionSchema.optional(),
+    markThresholdOverrides: MarkThresholdsSchema.optional(),
+    isSoundMuted: z.boolean(),
+    isTestMode: z.boolean(),
+    pollsState: PollsStateSchema,
+    ballotCountWhenBallotBagLastReplaced: z.number(),
+  });
+
+export const InitialPrecinctScannerConfig: PrecinctScannerConfig = {
+  isSoundMuted: false,
+  isTestMode: true,
+  pollsState: 'polls_closed_initial',
+  ballotCountWhenBallotBagLastReplaced: 0,
+};
+
+/**
+ * @url /config
+ * @method GET
+ */
+export type GetPrecinctScannerConfigResponse = PrecinctScannerConfig;
+
+/**
+ * @url /config
+ * @method GET
+ */
+export const GetPrecinctScannerConfigResponseSchema: z.ZodSchema<GetPrecinctScannerConfigResponse> =
+  PrecinctScannerConfigSchema;

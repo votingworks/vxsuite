@@ -2,15 +2,16 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import { Buffer } from 'buffer';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor, typedAs } from '@votingworks/utils';
+import { MarkThresholds } from '@votingworks/types';
 import * as config from './config';
 
-test('GET /config/election', async () => {
+test('GET /config', async () => {
   fetchMock.getOnce(
-    '/precinct-scanner/config/election',
-    testElectionDefinition
+    '/precinct-scanner/config',
+    Scan.InitialPrecinctScannerConfig
   );
-  expect(await config.getElectionDefinition()).toEqual(testElectionDefinition);
+  expect(await config.get()).toEqual(Scan.InitialPrecinctScannerConfig);
 });
 
 test('PATCH /config/election', async () => {
@@ -19,6 +20,10 @@ test('PATCH /config/election', async () => {
     JSON.stringify({ status: 'ok' })
   );
   await config.setElection(testElectionDefinition.electionData);
+
+  expect(
+    fetchMock.calls('/precinct-scanner/config/election', { method: 'PATCH' })
+  ).toHaveLength(1);
 });
 
 test('PATCH /config/election fails', async () => {
@@ -41,6 +46,10 @@ test('DELETE /config/election to delete election', async () => {
     JSON.stringify({ status: 'ok' })
   );
   await config.setElection(undefined);
+
+  expect(
+    fetchMock.calls('/precinct-scanner/config/election', { method: 'DELETE' })
+  ).toHaveLength(1);
 });
 
 test('DELETE /config/election ?ignoreBackupRequirement query param', async () => {
@@ -49,6 +58,13 @@ test('DELETE /config/election ?ignoreBackupRequirement query param', async () =>
     JSON.stringify({ status: 'ok' })
   );
   await config.setElection(undefined, { ignoreBackupRequirement: true });
+
+  expect(
+    fetchMock.calls(
+      '/precinct-scanner/config/election?ignoreBackupRequirement=true',
+      { method: 'DELETE' }
+    )
+  ).toHaveLength(1);
 });
 
 test('DELETE /config/election to delete election with bad API response', async () => {
@@ -59,33 +75,12 @@ test('DELETE /config/election to delete election with bad API response', async (
   await expect(config.setElection(undefined)).rejects.toThrow(/DELETE/);
 });
 
-test('GET /config/testMode', async () => {
-  const testModeTrueResponse: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
-  const testModeFalseResponse: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: false,
-  };
-  fetchMock.getOnce('/precinct-scanner/config/testMode', {
-    body: testModeTrueResponse,
-  });
-  expect(await config.getTestMode()).toEqual(true);
-
-  fetchMock.getOnce(
-    '/precinct-scanner/config/testMode',
-    testModeFalseResponse,
-    {
-      overwriteRoutes: true,
-    }
-  );
-  expect(await config.getTestMode()).toEqual(false);
-});
-
 test('PATCH /config/testMode', async () => {
   fetchMock.patchOnce(
-    '/precinct-scanner/config/testMode',
+    {
+      url: '/precinct-scanner/config/testMode',
+      body: typedAs<Scan.PatchTestModeConfigRequest>({ testMode: true }),
+    },
     JSON.stringify({ status: 'ok' })
   );
   await config.setTestMode(true);
@@ -96,34 +91,52 @@ test('PATCH /config/testMode', async () => {
 });
 
 test('setPrecinctSelection updates', async () => {
-  fetchMock.putOnce(
-    '/precinct-scanner/config/precinct',
+  const precinctSelection = singlePrecinctSelectionFor('23');
+  fetchMock.patchOnce(
+    {
+      url: '/precinct-scanner/config/precinct',
+      body: typedAs<Scan.PatchPrecinctSelectionConfigRequest>({
+        precinctSelection,
+      }),
+    },
     JSON.stringify({ status: 'ok' })
   );
   await config.setPrecinctSelection(singlePrecinctSelectionFor('23'));
 
   expect(
-    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
+    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PATCH' })
   ).toHaveLength(1);
 });
 
 test('setPrecinctSelection fails', async () => {
-  fetchMock.putOnce(
+  fetchMock.patchOnce(
     '/precinct-scanner/config/precinct',
     JSON.stringify({ status: 'error' })
   );
   await expect(
     config.setPrecinctSelection(singlePrecinctSelectionFor('23'))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '"PUT /precinct-scanner/config/precinct failed: undefined"'
+    '"PATCH /precinct-scanner/config/precinct failed: undefined"'
   );
 });
 
 test('PATCH setMarkThresholds', async () => {
-  fetchMock.patchOnce('/precinct-scanner/config/markThresholdOverrides', {
-    body: { status: 'ok' },
-  });
-  await config.setMarkThresholdOverrides({ definite: 0.25, marginal: 0.5 });
+  const markThresholdOverrides: MarkThresholds = {
+    definite: 0.25,
+    marginal: 0.5,
+  };
+  fetchMock.patchOnce(
+    {
+      url: '/precinct-scanner/config/markThresholdOverrides',
+      body: typedAs<Scan.PatchMarkThresholdOverridesConfigRequest>({
+        markThresholdOverrides,
+      }),
+    },
+    {
+      body: { status: 'ok' },
+    }
+  );
+  await config.setMarkThresholdOverrides(markThresholdOverrides);
 
   expect(
     fetchMock.calls('/precinct-scanner/config/markThresholdOverrides', {
@@ -142,6 +155,51 @@ test('setMarkThresholds deletes', async () => {
     fetchMock.calls('/precinct-scanner/config/markThresholdOverrides', {
       method: 'DELETE',
     })
+  ).toHaveLength(1);
+});
+
+test('PATCH isSoundMuted', async () => {
+  fetchMock.patchOnce(
+    {
+      url: '/precinct-scanner/config/isSoundMuted',
+      body: typedAs<Scan.PatchIsSoundMutedConfigRequest>({
+        isSoundMuted: true,
+      }),
+    },
+    {
+      body: { status: 'ok' },
+    }
+  );
+  await config.setIsSoundMuted(true);
+
+  expect(
+    fetchMock.calls('/precinct-scanner/config/isSoundMuted', {
+      method: 'PATCH',
+    })
+  ).toHaveLength(1);
+});
+
+test('PATCH ballotCountWhenBallotBagLastReplaced', async () => {
+  fetchMock.patchOnce(
+    {
+      url: '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
+      body: typedAs<Scan.PatchBallotCountWhenBallotBagLastReplacedRequest>({
+        ballotCountWhenBallotBagLastReplaced: 1500,
+      }),
+    },
+    {
+      body: { status: 'ok' },
+    }
+  );
+  await config.setBallotCountWhenBallotBagLastReplaced(1500);
+
+  expect(
+    fetchMock.calls(
+      '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
+      {
+        method: 'PATCH',
+      }
+    )
   ).toHaveLength(1);
 });
 

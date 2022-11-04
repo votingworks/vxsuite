@@ -277,6 +277,70 @@ export class Store {
     );
   }
 
+  /**
+   * Gets whether sound is muted.
+   */
+  getIsSoundMuted(): boolean {
+    const electionRow = this.client.one(
+      'select is_sound_muted as isSoundMuted from election'
+    ) as { isSoundMuted: number } | undefined;
+
+    if (!electionRow) {
+      // we will not mute sounds by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isSoundMuted);
+  }
+
+  /**
+   * Sets whether to check the election hash.
+   */
+  setIsSoundMuted(isSoundMuted: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set sounds to muted without an election.');
+    }
+
+    this.client.run(
+      'update election set is_sound_muted = ?',
+      isSoundMuted ? 1 : 0
+    );
+  }
+
+  /**
+   * Gets the number of ballots at which the ballot bag was last replaced.
+   */
+  getBallotCountWhenBallotBagLastReplaced(): number {
+    const electionRow = this.client.one(
+      'select ballot_count_when_ballot_bag_last_replaced as ballotCountWhenBallotBagLastReplaced from election'
+    ) as { ballotCountWhenBallotBagLastReplaced: number } | undefined;
+
+    if (!electionRow) {
+      // the default will be 0 once the election is defined
+      return 0;
+    }
+
+    return electionRow.ballotCountWhenBallotBagLastReplaced;
+  }
+
+  /**
+   * Sets whether to check the election hash.
+   */
+  setBallotCountWhenBallotBagLastReplaced(
+    ballotCountWhenBallotBagLastReplaced: number
+  ): void {
+    if (!this.hasElection()) {
+      throw new Error(
+        'Cannot set ballot count when ballot bag last replaced without an election.'
+      );
+    }
+
+    this.client.run(
+      'update election set ballot_count_when_ballot_bag_last_replaced = ?',
+      ballotCountWhenBallotBagLastReplaced
+    );
+  }
+
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionDefinition = this.getElectionDefinition();
     return (
@@ -536,15 +600,16 @@ export class Store {
 
   /**
    * Returns whether the appropriate backups have been completed and it is safe
-   * to unconfigure a machine/zero out data. Always returns true in test mode.
+   * to unconfigure a machine / reset the election session. Always returns
+   * true in test mode.
    */
   getCanUnconfigure(): boolean {
-    // Always allow unconfiguring a machine in test mode
+    // Always allow in test mode
     if (this.getTestMode()) {
       return true;
     }
 
-    // Allow unconfiguring if no ballots have been counted
+    // Allow if no ballots have been counted
     if (!this.getBallotsCounted()) {
       return true;
     }
@@ -556,7 +621,7 @@ export class Store {
       return false;
     }
 
-    // Adding or deleting sheets will update the CVR count
+    // Adding or deleting sheets would have updated the CVR count
     const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
         select
           max(created_at) as maxSheetsCreatedAt, 
@@ -567,7 +632,7 @@ export class Store {
       maxSheetsDeletedAt: Iso8601Timestamp;
     };
 
-    // Deleting non-empty batches will update the CVR count
+    // Deleting non-empty batches would have updated the CVR count
     const { maxBatchesDeletedAt } = this.client.one(`
       select
         max(batches.deleted_at) as maxBatchesDeletedAt
@@ -679,15 +744,13 @@ export class Store {
   resetElectionSession(): void {
     if (this.hasElection()) {
       this.client.transaction(() => {
+        this.setPollsState('polls_closed_initial');
+        this.setBallotCountWhenBallotBagLastReplaced(0);
         this.setCvrsBackedUp(false);
         this.setScannerBackedUp(false);
-        this.setPollsState('polls_closed_initial');
       });
     }
-  }
-
-  zero(): void {
-    this.resetElectionSession();
+    // delete batches, which will cascade delete sheets
     this.client.run('delete from batches');
     // reset autoincrementing key on "batches" table
     this.client.run("delete from sqlite_sequence where name = 'batches'");

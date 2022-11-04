@@ -13,7 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
-import { ALL_PRECINCTS_SELECTION, deferred } from '@votingworks/utils';
+import { deferred } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
@@ -22,20 +22,12 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
-import {
-  mockPollsState,
-  mockPollsStateChange,
-} from '../test/helpers/mock_polls_state';
 import { buildApp } from '../test/helpers/build_app';
+import { mockConfig } from '../test/helpers/mock_config';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
   codeVersion: '3.14',
-};
-
-const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
-  status: 'ok',
-  testMode: true,
 };
 
 const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
@@ -44,27 +36,15 @@ const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
   ballotsCounted: 0,
 };
 
-const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetPrecinctSelectionConfigResponse =
-  {
-    status: 'ok',
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  };
-
-const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
-  {
-    status: 'ok',
-  };
-
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
-  mockPollsState('polls_closed_initial');
+  fetchMock.get('/machine-config', { body: getMachineConfigBody });
 });
 
 test('when services/scan does not respond shows loading screen', async () => {
   fetchMock
-    .get('/precinct-scanner/config/election', { status: 404 })
-    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/precinct-scanner/config', { status: 404 })
     .get('/precinct-scanner/scanner/status', { status: 404 });
 
   buildApp().renderApp();
@@ -72,20 +52,8 @@ test('when services/scan does not respond shows loading screen', async () => {
 });
 
 test('services/scan fails to unconfigure', async () => {
+  mockConfig();
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', statusNoPaper)
     .deleteOnce('/precinct-scanner/config/election', { status: 404 });
 
@@ -114,22 +82,8 @@ test('services/scan fails to unconfigure', async () => {
 });
 
 test('Show invalid card screen when unsupported cards are given', async () => {
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .deleteOnce('/precinct-scanner/config/election', { status: 404 })
-    .get('/precinct-scanner/scanner/status', statusNoPaper);
+  mockConfig();
+  fetchMock.get('/precinct-scanner/scanner/status', statusNoPaper);
 
   const { renderApp, card } = buildApp();
   renderApp();
@@ -166,22 +120,8 @@ test('Show invalid card screen when unsupported cards are given', async () => {
 });
 
 test('show card backwards screen when card connection error occurs', async () => {
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .deleteOnce('/precinct-scanner/config/election', { status: 404 })
-    .get('/precinct-scanner/scanner/status', statusNoPaper);
+  mockConfig();
+  fetchMock.get('/precinct-scanner/scanner/status', statusNoPaper);
 
   const { renderApp, card } = buildApp();
   renderApp();
@@ -195,54 +135,28 @@ test('show card backwards screen when card connection error occurs', async () =>
 });
 
 test('shows internal wiring message when there is no plustek scanner, but tablet is plugged in', async () => {
+  mockConfig();
   const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(false);
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .get('/precinct-scanner/scanner/status', {
-      ...statusNoPaper,
-      state: 'disconnected',
-    });
+  fetchMock.get('/precinct-scanner/scanner/status', {
+    ...statusNoPaper,
+    state: 'disconnected',
+  });
   renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   screen.getByText('Please ask a poll worker for help.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
+  mockConfig();
   const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(true);
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .get('/precinct-scanner/scanner/status', {
-      ...statusNoPaper,
-      state: 'disconnected',
-    });
+  fetchMock.get('/precinct-scanner/scanner/status', {
+    ...statusNoPaper,
+    state: 'disconnected',
+  });
   renderApp();
   await screen.findByRole('heading', { name: 'No Power Detected' });
   screen.getByText('Please ask a poll worker to plug in the power cord.');
@@ -261,27 +175,13 @@ test('shows power cable message when there is no plustek scanner and tablet is n
 });
 
 test('shows instructions to restart when the plustek crashed', async () => {
-  mockPollsState('polls_open');
+  mockConfig({ pollsState: 'polls_open' });
   const { renderApp, hardware } = buildApp();
   hardware.setPrecinctScannerConnected(false);
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .get('/precinct-scanner/scanner/status', {
-      ...statusNoPaper,
-      state: 'unrecoverable_error',
-    });
+  fetchMock.get('/precinct-scanner/scanner/status', {
+    ...statusNoPaper,
+    state: 'unrecoverable_error',
+  });
   renderApp();
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
   screen.getByText('Ask a poll worker to restart the scanner.');
@@ -289,27 +189,14 @@ test('shows instructions to restart when the plustek crashed', async () => {
 });
 
 test('App shows warning message to connect to power when disconnected', async () => {
+  const { mockPollsChange } = mockConfig();
   const { renderApp, hardware, card } = buildApp();
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
+  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   renderApp();
   fetchMock.post('/precinct-scanner/export', {});
   await screen.findByText('Polls Closed');
@@ -331,7 +218,7 @@ test('App shows warning message to connect to power when disconnected', async ()
     electionSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
-  mockPollsStateChange('polls_open');
+  mockPollsChange('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
@@ -348,24 +235,13 @@ test('App shows warning message to connect to power when disconnected', async ()
 });
 
 test('removing card during calibration', async () => {
+  const { mockPollsChange } = mockConfig();
+
   const { renderApp, card } = buildApp();
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/election', {
-      body: electionSampleDefinition,
-    })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigAllPrecinctsResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .post('/precinct-scanner/export', {});
   renderApp();
@@ -378,7 +254,7 @@ test('removing card during calibration', async () => {
   userEvent.click(
     await screen.findByRole('button', { name: 'Yes, Open the Polls' })
   );
-  mockPollsStateChange('polls_open');
+  mockPollsChange('polls_open');
   await screen.findByText('Polls are open.');
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');

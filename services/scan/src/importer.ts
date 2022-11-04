@@ -549,7 +549,7 @@ export class Importer {
    * Reset all the data, both in the store and the ballot images.
    */
   doZero(): void {
-    this.workspace.zero();
+    this.workspace.resetElectionSession();
   }
 
   /**

@@ -81,6 +81,43 @@ test('get/set skip election hash check mode', () => {
   expect(store.getSkipElectionHashCheck()).toBe(false);
 });
 
+test('get/set is sounds muted mode', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getIsSoundMuted()).toBe(false);
+  expect(() => store.setIsSoundMuted(true)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getIsSoundMuted()).toBe(false);
+
+  store.setIsSoundMuted(true);
+  expect(store.getIsSoundMuted()).toBe(true);
+
+  store.setIsSoundMuted(false);
+  expect(store.getIsSoundMuted()).toBe(false);
+});
+
+test('get/set ballot count when ballot bag last replaced', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+  expect(() =>
+    store.setBallotCountWhenBallotBagLastReplaced(1500)
+  ).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+
+  store.setBallotCountWhenBallotBagLastReplaced(1500);
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(1500);
+});
+
 test('get/set precinct selection', () => {
   const store = Store.memoryStore();
 
@@ -174,19 +211,6 @@ test('get/set cvrs as backed up', () => {
   store.setCvrsBackedUp();
   expect(store.getCvrsBackupTimestamp()).toBeTruthy();
   store.setCvrsBackedUp(false);
-  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
-});
-
-test('resetElectionSession', () => {
-  const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
-  store.setPollsState('polls_open');
-  store.setScannerBackedUp();
-  store.setCvrsBackedUp();
-
-  store.resetElectionSession();
-  expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
@@ -663,35 +687,6 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('zero', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
-
-  store.addBatch();
-  store.addBatch();
-  expect(
-    store
-      .batchStatus()
-      .map((batch) => batch.label)
-      .sort((a, b) => a.localeCompare(b))
-  ).toEqual(['Batch 1', 'Batch 2']);
-
-  // zero should clear all batches
-  store.zero();
-  expect(store.batchStatus()).toEqual([]);
-
-  // zero should reset the autoincrement in the batch label
-  store.addBatch();
-  store.addBatch();
-  expect(
-    store
-      .batchStatus()
-      .map((batch) => batch.label)
-      .sort((a, b) => a.localeCompare(b))
-  ).toEqual(['Batch 1', 'Batch 2']);
-});
-
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
@@ -802,6 +797,46 @@ test('iterating over all result sheets', () => {
     sheetWithFiles[1],
   ]);
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
+});
+
+test('resetElectionSession', () => {
+  const dbFile = tmp.fileSync();
+  const store = Store.fileStore(dbFile.name);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  store.setPollsState('polls_open');
+  store.setBallotCountWhenBallotBagLastReplaced(1500);
+
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
+
+  store.setScannerBackedUp();
+  store.setCvrsBackedUp();
+
+  store.resetElectionSession();
+  // resetElectionSession should reset election session state
+  expect(store.getPollsState()).toEqual('polls_closed_initial');
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+  // resetElectionSession should clear all batches
+  expect(store.batchStatus()).toEqual([]);
+
+  // resetElectionSession should reset the autoincrement in the batch label
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
 });
 
 test('getBallotsCounted', () => {

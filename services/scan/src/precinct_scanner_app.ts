@@ -111,22 +111,19 @@ export async function buildPrecinctScannerApp(
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams, Scan.GetElectionConfigResponse>(
-    '/precinct-scanner/config/election',
-    (request, response) => {
-      const electionDefinition = store.getElectionDefinition();
-
-      if (request.accepts('application/octet-stream')) {
-        if (electionDefinition) {
-          response
-            .header('content-type', 'application/octet-stream')
-            .send(electionDefinition.electionData);
-        } else {
-          response.status(404).end();
-        }
-      } else {
-        response.json(electionDefinition ?? null);
-      }
+  app.get<NoParams, Scan.GetPrecinctScannerConfigResponse>(
+    '/precinct-scanner/config',
+    (_request, response) => {
+      response.json({
+        electionDefinition: store.getElectionDefinition(),
+        precinctSelection: store.getPrecinctSelection(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        isSoundMuted: store.getIsSoundMuted(),
+        isTestMode: store.getTestMode(),
+        pollsState: store.getPollsState(),
+        ballotCountWhenBallotBagLastReplaced:
+          store.getBallotCountWhenBallotBagLastReplaced(),
+      });
     }
   );
 
@@ -208,54 +205,13 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get<NoParams, Scan.GetTestModeConfigResponse>(
-    '/precinct-scanner/config/testMode',
-    (_request, response) => {
-      const testMode = store.getTestMode();
-      response.json({ status: 'ok', testMode });
-    }
-  );
-
   app.patch<
     NoParams,
-    Scan.PatchTestModeConfigResponse,
-    Scan.PatchTestModeConfigRequest
-  >('/precinct-scanner/config/testMode', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchTestModeConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    workspace.zero();
-    store.setTestMode(bodyParseResult.ok().testMode);
-    await updateInterpreterConfig(interpreter, workspace);
-    response.json({ status: 'ok' });
-  });
-
-  app.get<NoParams, Scan.GetPrecinctSelectionConfigResponse>(
-    '/precinct-scanner/config/precinct',
-    (_request, response) => {
-      const precinctSelection = store.getPrecinctSelection();
-      response.json({ status: 'ok', precinctSelection });
-    }
-  );
-
-  app.put<
-    NoParams,
-    Scan.PutPrecinctSelectionConfigResponse,
-    Scan.PutPrecinctSelectionConfigRequest
+    Scan.PatchPrecinctSelectionConfigResponse,
+    Scan.PatchPrecinctSelectionConfigRequest
   >('/precinct-scanner/config/precinct', async (request, response) => {
     const bodyParseResult = safeParse(
-      Scan.PutPrecinctSelectionConfigRequestSchema,
+      Scan.PatchPrecinctSelectionConfigRequestSchema,
       request.body
     );
 
@@ -283,26 +239,105 @@ export async function buildPrecinctScannerApp(
     }
 
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    store.zero();
+    workspace.resetElectionSession();
     await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetPollsStateConfigResponse>(
-    '/precinct-scanner/config/polls',
-    (_request, response) => {
-      const pollsState = store.getPollsState();
-      response.json({ status: 'ok', pollsState });
+  app.patch<
+    NoParams,
+    Scan.PatchMarkThresholdOverridesConfigResponse,
+    Scan.PatchMarkThresholdOverridesConfigRequest
+  >(
+    '/precinct-scanner/config/markThresholdOverrides',
+    async (request, response) => {
+      const bodyParseResult = safeParse(
+        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+        request.body
+      );
+
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err();
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        });
+        return;
+      }
+
+      store.setMarkThresholdOverrides(
+        bodyParseResult.ok().markThresholdOverrides
+      );
+      await updateInterpreterConfig(interpreter, workspace);
+
+      response.json({ status: 'ok' });
     }
   );
 
-  app.put<
+  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
+    '/precinct-scanner/config/markThresholdOverrides',
+    async (_request, response) => {
+      store.setMarkThresholdOverrides(undefined);
+      await updateInterpreterConfig(interpreter, workspace);
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.patch<
     NoParams,
-    Scan.PutPollsStateConfigResponse,
-    Scan.PutPollsStateConfigRequest
+    Scan.PatchIsSoundMutedConfigResponse,
+    Scan.PatchIsSoundMutedConfigRequest
+  >('/precinct-scanner/config/isSoundMuted', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchIsSoundMutedConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    store.setIsSoundMuted(bodyParseResult.ok().isSoundMuted);
+    response.json({ status: 'ok' });
+  });
+
+  app.patch<
+    NoParams,
+    Scan.PatchTestModeConfigResponse,
+    Scan.PatchTestModeConfigRequest
+  >('/precinct-scanner/config/testMode', async (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchTestModeConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    workspace.resetElectionSession();
+    store.setTestMode(bodyParseResult.ok().testMode);
+    await updateInterpreterConfig(interpreter, workspace);
+    response.json({ status: 'ok' });
+  });
+
+  app.patch<
+    NoParams,
+    Scan.PatchPollsStateResponse,
+    Scan.PatchPollsStateRequest
   >('/precinct-scanner/config/polls', (request, response) => {
     const bodyParseResult = safeParse(
-      Scan.PutPollsStateConfigRequestSchema,
+      Scan.PatchPollsStateRequestSchema,
       request.body
     );
 
@@ -334,32 +369,15 @@ export async function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    (_request, response) => {
-      const markThresholdOverrides = store.getMarkThresholdOverrides();
-      response.json({ status: 'ok', markThresholdOverrides });
-    }
-  );
-
-  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    async (_request, response) => {
-      store.setMarkThresholdOverrides(undefined);
-      await updateInterpreterConfig(interpreter, workspace);
-      response.json({ status: 'ok' });
-    }
-  );
-
   app.patch<
     NoParams,
-    Scan.PatchMarkThresholdOverridesConfigResponse,
-    Scan.PatchMarkThresholdOverridesConfigRequest
+    Scan.PatchBallotCountWhenBallotBagLastReplacedResponse,
+    Scan.PatchBallotCountWhenBallotBagLastReplacedRequest
   >(
-    '/precinct-scanner/config/markThresholdOverrides',
-    async (request, response) => {
+    '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
+    (request, response) => {
       const bodyParseResult = safeParse(
-        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+        Scan.PatchBallotCountWhenBallotBagLastReplacedRequestSchema,
         request.body
       );
 
@@ -372,11 +390,15 @@ export async function buildPrecinctScannerApp(
         return;
       }
 
-      store.setMarkThresholdOverrides(
-        bodyParseResult.ok().markThresholdOverrides
-      );
-      await updateInterpreterConfig(interpreter, workspace);
+      // Start a new batch
+      const ongoingBatchId = store.getOngoingBatchId();
+      assert(typeof ongoingBatchId === 'string');
+      store.finishBatch({ batchId: ongoingBatchId });
+      store.addBatch();
 
+      store.setBallotCountWhenBallotBagLastReplaced(
+        bodyParseResult.ok().ballotCountWhenBallotBagLastReplaced
+      );
       response.json({ status: 'ok' });
     }
   );
