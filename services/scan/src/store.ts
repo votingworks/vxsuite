@@ -453,28 +453,47 @@ export class Store {
   }
 
   /**
+   * Returns the id of the an unfinished batch if there is one
+   */
+  getOngoingBatchId(): Optional<string> {
+    const ongoingBatchRow = this.client.one(
+      'select id from batches where ended_at is null'
+    ) as { id: string } | undefined;
+
+    return ongoingBatchRow?.id;
+  }
+
+  /**
    * Records that batches have been backed up.
    */
-  setScannerAsBackedUp(): void {
-    if (this.hasElection()) {
+  setScannerBackedUp(backedUp = true): void {
+    if (!this.hasElection()) {
+      throw new Error('Unconfigured scanner cannot be backed up.');
+    }
+
+    if (backedUp) {
       this.client.run(
         'update election set scanner_backed_up_at = current_timestamp'
       );
     } else {
-      throw new Error('Unconfigured scanner cannot be backed up.');
+      this.client.run('update election set scanner_backed_up_at = null');
     }
   }
 
   /**
    * Records that CVRs have been backed up.
    */
-  setCvrsAsBackedUp(): void {
-    if (this.hasElection()) {
+  setCvrsBackedUp(backedUp = true): void {
+    if (!this.hasElection()) {
+      throw new Error('Unconfigured scanner cannot export CVRs.');
+    }
+
+    if (backedUp) {
       this.client.run(
         'update election set cvrs_backed_up_at = current_timestamp'
       );
     } else {
-      throw new Error('Unconfigured scanner cannot have exported cvrs.');
+      this.client.run('update election set cvrs_backed_up_at = null');
     }
   }
 
@@ -498,6 +517,23 @@ export class Store {
     return row?.cvrsBackedUpAt;
   }
 
+  getBallotsCounted(): number {
+    const r = this.client.one(`
+      select
+        count(sheets.id) as ballotsCounted
+      from
+        sheets inner join batches
+      on
+        sheets.batch_id = batches.id
+      and
+        sheets.deleted_at is null
+      where
+        batches.deleted_at is null
+    `) as { ballotsCounted: number } | undefined;
+
+    return r?.ballotsCounted ?? 0;
+  }
+
   /**
    * Returns whether the appropriate backups have been completed and it is safe
    * to unconfigure a machine/zero out data. Always returns true in test mode.
@@ -508,45 +544,49 @@ export class Store {
       return true;
     }
 
-    const scannerBackedUpAt = this.getScannerBackupTimestamp();
-
-    if (!this.batchStatus().length) {
+    // Allow unconfiguring if no ballots have been counted
+    if (!this.getBallotsCounted()) {
       return true;
     }
+
+    const scannerBackedUpAt = this.getScannerBackupTimestamp();
 
     // Require that a scanner backup has taken place
     if (!scannerBackedUpAt) {
       return false;
     }
 
-    const { maxCvrsCreatedAt, maxCvrsDeletedAt } = this.client.one(
-      'select max(created_at) as maxCvrsCreatedAt, max(deleted_at) as maxCvrsDeletedAt from sheets'
-    ) as {
-      maxCvrsCreatedAt: Iso8601Timestamp;
-      maxCvrsDeletedAt: Iso8601Timestamp;
+    // Adding or deleting sheets will update the CVR count
+    const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
+        select
+          max(created_at) as maxSheetsCreatedAt, 
+          max(deleted_at) as maxSheetsDeletedAt
+        from sheets
+      `) as {
+      maxSheetsCreatedAt: Iso8601Timestamp;
+      maxSheetsDeletedAt: Iso8601Timestamp;
     };
-    const { maxBatchesStartedAt, maxBatchesDeletedAt } = this.client.one(
-      'select max(started_at) as maxBatchesStartedAt, max(deleted_at) as maxBatchesDeletedAt from batches'
-    ) as {
-      maxBatchesStartedAt: Iso8601Timestamp;
+
+    // Deleting non-empty batches will update the CVR count
+    const { maxBatchesDeletedAt } = this.client.one(`
+      select
+        max(batches.deleted_at) as maxBatchesDeletedAt
+      from batches inner join sheets
+      on sheets.batch_id = batches.id
+      where sheets.deleted_at is null
+    `) as {
       maxBatchesDeletedAt: Iso8601Timestamp;
     };
 
-    const cvrsLastUpdatedAt = [maxCvrsCreatedAt, maxCvrsDeletedAt]
-      .filter(Boolean)
-      .reduce((max, curr) => (max > curr ? max : curr), '');
-    const batchesLastUpdatedAt = [maxBatchesStartedAt, maxBatchesDeletedAt]
+    const cvrsLastUpdatedAt = [
+      maxBatchesDeletedAt,
+      maxSheetsCreatedAt,
+      maxSheetsDeletedAt,
+    ]
       .filter(Boolean)
       .reduce((max, curr) => (max > curr ? max : curr), '');
 
-    if (!batchesLastUpdatedAt) {
-      return true;
-    }
-
-    const isBackupUpToDate =
-      scannerBackedUpAt >= cvrsLastUpdatedAt &&
-      scannerBackedUpAt >= batchesLastUpdatedAt;
-    return isBackupUpToDate;
+    return scannerBackedUpAt >= cvrsLastUpdatedAt;
   }
 
   addBallotCard(batchId: string): string {
@@ -639,19 +679,18 @@ export class Store {
   resetElectionSession(): void {
     if (this.hasElection()) {
       this.client.transaction(() => {
-        this.client.run(
-          'update election set cvrs_backed_up_at = null, scanner_backed_up_at = null'
-        );
+        this.setCvrsBackedUp(false);
+        this.setScannerBackedUp(false);
         this.setPollsState('polls_closed_initial');
       });
     }
   }
 
   zero(): void {
+    this.resetElectionSession();
     this.client.run('delete from batches');
     // reset autoincrementing key on "batches" table
     this.client.run("delete from sqlite_sequence where name = 'batches'");
-    this.resetElectionSession();
   }
 
   getBallotFilenames(

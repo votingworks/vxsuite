@@ -30,16 +30,7 @@ import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:precinct-scanner:app');
 
-function sum(nums: number[]) {
-  return nums.reduce((a, b) => a + b, 0);
-}
-
 type NoParams = never;
-
-function getBallotsCounted(store: Store): number {
-  const batches = store.batchStatus();
-  return sum(batches.map((batch) => batch.count));
-}
 
 /**
  * Loads ballot layouts from the {@link Store} to be used by the interpreter.
@@ -277,7 +268,7 @@ export async function buildPrecinctScannerApp(
       return;
     }
 
-    if (getBallotsCounted(store) > 0) {
+    if (store.getBallotsCounted() > 0) {
       response.status(400).json({
         status: 'error',
         errors: [
@@ -292,7 +283,7 @@ export async function buildPrecinctScannerApp(
     }
 
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    store.setPollsState('polls_closed_initial');
+    store.zero();
     await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
@@ -322,6 +313,21 @@ export async function buildPrecinctScannerApp(
         errors: [{ type: error.name, message: error.message }],
       });
       return;
+    }
+
+    const previousPollsState = store.getPollsState();
+    const newPollsState = bodyParseResult.ok().pollsState;
+
+    // Start new batch if opening polls, end batch if pausing or closing polls
+    if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
+      store.addBatch();
+    } else if (
+      newPollsState !== 'polls_open' &&
+      previousPollsState === 'polls_open'
+    ) {
+      const ongoingBatchId = store.getOngoingBatchId();
+      assert(typeof ongoingBatchId === 'string');
+      store.finishBatch({ batchId: ongoingBatchId });
     }
 
     store.setPollsState(bodyParseResult.ok().pollsState);
@@ -518,7 +524,7 @@ export async function buildPrecinctScannerApp(
         // TODO: Move machine config provider to shared utilities and access
         // actual machine config, with dev overrides, here instead
         'NO-ID',
-        getBallotsCounted(store),
+        store.getBallotsCounted(),
         store.getTestMode(),
         new Date()
       );
@@ -532,7 +538,7 @@ export async function buildPrecinctScannerApp(
         response
       );
 
-      store.setCvrsAsBackedUp();
+      store.setCvrsBackedUp();
     }
   );
 
@@ -584,7 +590,7 @@ export async function buildPrecinctScannerApp(
         });
       })
       .on('end', () => {
-        store.setScannerAsBackedUp();
+        store.setScannerBackedUp();
       })
       .pipe(response);
   });
@@ -593,7 +599,7 @@ export async function buildPrecinctScannerApp(
     '/precinct-scanner/scanner/status',
     (_request, response) => {
       const machineStatus = machine.status();
-      const ballotsCounted = getBallotsCounted(store);
+      const ballotsCounted = store.getBallotsCounted();
       const canUnconfigure = store.getCanUnconfigure();
       response.json({
         ...machineStatus,

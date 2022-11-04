@@ -161,24 +161,28 @@ test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
-  store.setScannerAsBackedUp();
+  store.setScannerBackedUp();
   expect(store.getScannerBackupTimestamp()).toBeTruthy();
+  store.setScannerBackedUp(false);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
 });
 
 test('get/set cvrs as backed up', () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
-  store.setCvrsAsBackedUp();
+  store.setCvrsBackedUp();
   expect(store.getCvrsBackupTimestamp()).toBeTruthy();
+  store.setCvrsBackedUp(false);
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
 test('resetElectionSession', () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setPollsState('polls_open');
-  store.setScannerAsBackedUp();
-  store.setCvrsAsBackedUp();
+  store.setScannerBackedUp();
+  store.setCvrsBackedUp();
 
   store.resetElectionSession();
   expect(store.getPollsState()).toEqual('polls_closed_initial');
@@ -399,16 +403,16 @@ test('canUnconfigure not in test mode', async () => {
     pageNumber: 2,
   };
 
+  // Can unconfigure if no batches added
+  expect(store.getCanUnconfigure()).toBe(true);
+
   // Create a batch
   const batchId = store.addBatch();
 
-  // Pause so timestamps are not equal
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  // Can unconfigure if only empty batches added
   expect(store.getCanUnconfigure()).toBe(true);
 
-  await sleep(1000);
-  // Add a sheet to the batch and confirm that invalidates the backup/export
+  // Cannot unconfigure after new sheet added
   const sheetId = store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
@@ -428,27 +432,82 @@ test('canUnconfigure not in test mode', async () => {
     },
   ]);
   expect(store.getCanUnconfigure()).toBe(false);
-
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
-  // Delete the sheet, confirm that invalidates the backup/export
+  // Setup second batch with second sheet
+  await sleep(1000);
+  const batchId2 = store.addBatch();
+  store.addSheet(uuid(), batchId2, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Setup third batch with third sheet
+  await sleep(1000);
+  const batchId3 = store.addBatch();
+  const sheetId3 = store.addSheet(uuid(), batchId3, [
+    {
+      originalFilename: '/tmp/front-page3.png',
+      normalizedFilename: '/tmp/front-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page3.png',
+      normalizedFilename: '/tmp/back-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Cannot unconfigure after sheet deleted
   await sleep(1000);
   store.deleteSheet(sheetId);
   expect(store.getCanUnconfigure()).toBe(false);
-
-  // Add another batch, then mark as exported
-  const batchId2 = store.addBatch();
-  // Pause before marking as exported so timestamps are not equal
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
-  // Delete the second batch, confirm that invalidates the backup/export
+  // Can unconfigure after empty batch deleted
+  await sleep(1000);
+  store.deleteBatch(batchId);
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Cannot unconfigure after non-empty batch deleted
   await sleep(1000);
   store.deleteBatch(batchId2);
   expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Can unconfigure if no counted ballots
+  await sleep(1000);
+  store.deleteSheet(sheetId3);
+  expect(store.getCanUnconfigure()).toBe(true);
 });
 
 test('adjudication', () => {
@@ -743,4 +802,103 @@ test('iterating over all result sheets', () => {
     sheetWithFiles[1],
   ]);
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
+});
+
+test('getBallotsCounted', () => {
+  const store = Store.memoryStore();
+
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  };
+
+  expect(store.getBallotsCounted()).toEqual(0);
+
+  // Create a batch and add a sheet to it
+  const batchId = store.addBatch();
+  store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(1);
+  store.finishBatch({ batchId });
+  expect(store.getBallotsCounted()).toEqual(1);
+
+  // Create a second batch and add a second and third sheet
+  const batch2Id = store.addBatch();
+  store.addSheet(uuid(), batch2Id, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(2);
+
+  const sheetId3 = store.addSheet(uuid(), batch2Id, [
+    {
+      originalFilename: '/tmp/front-page3.png',
+      normalizedFilename: '/tmp/front-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page3.png',
+      normalizedFilename: '/tmp/back-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(3);
+  store.finishBatch({ batchId: batch2Id });
+  expect(store.getBallotsCounted()).toEqual(3);
+
+  // Delete one of the sheets
+  store.deleteSheet(sheetId3);
+  expect(store.getBallotsCounted()).toEqual(2);
+
+  // Delete one of the batches
+  store.deleteBatch(batchId);
+  expect(store.getBallotsCounted()).toEqual(1);
 });

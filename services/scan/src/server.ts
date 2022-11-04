@@ -114,6 +114,9 @@ export async function start({
         importer: resolvedImporter,
         workspace: resolvedWorkspace,
       }));
+
+    // cleanup incomplete batches from before
+    resolvedWorkspace.store.cleanupIncompleteBatches();
   }
 
   resolvedApp.listen(port, async () => {
@@ -128,7 +131,4 @@ export async function start({
       });
     }
   });
-
-  // cleanup incomplete batches from before
-  resolvedWorkspace.store.cleanupIncompleteBatches();
 }

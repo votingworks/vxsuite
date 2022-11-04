@@ -8,6 +8,8 @@ import {
   BallotPageLayoutWithImage,
   BallotType,
   InterpretedHmpbPage,
+  PageInterpretationWithFiles,
+  SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { BallotConfig, typedAs } from '@votingworks/utils';
@@ -76,6 +78,67 @@ beforeEach(async () => {
   );
   app = await buildCentralScannerApp({ importer, workspace });
 });
+
+const frontOriginal = stateOfHamilton.filledInPage1Flipped;
+const frontNormalized = stateOfHamilton.filledInPage1;
+const backOriginal = stateOfHamilton.filledInPage2;
+const backNormalized = stateOfHamilton.filledInPage2;
+const sheet: SheetOf<PageInterpretationWithFiles> = [
+  {
+    originalFilename: frontOriginal,
+    normalizedFilename: frontNormalized,
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        locales: { primary: 'en-US' },
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 1,
+      },
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+  {
+    originalFilename: backOriginal,
+    normalizedFilename: backNormalized,
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        locales: { primary: 'en-US' },
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 2,
+      },
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+];
 
 test('reloads configuration from the store', () => {
   // did we load everything from the store?
@@ -211,7 +274,9 @@ test('DELETE /config/election no-backup error', async () => {
   importer.unconfigure.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .delete('/central-scanner/config/election')
@@ -230,7 +295,7 @@ test('DELETE /config/election no-backup error', async () => {
 
 test('DELETE /config/election', async () => {
   importer.unconfigure.mockReturnValue();
-  workspace.store.setScannerAsBackedUp();
+  workspace.store.setScannerBackedUp();
 
   await request(app)
     .delete('/central-scanner/config/election')
@@ -243,7 +308,9 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
   importer.unconfigure.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .delete('/central-scanner/config/election?ignoreBackupRequirement=true')
@@ -377,7 +444,9 @@ test('POST /scan/zero error', async () => {
   importer.doZero.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .post('/central-scanner/scan/zero')
@@ -396,7 +465,7 @@ test('POST /scan/zero error', async () => {
 
 test('POST /scan/zero', async () => {
   importer.doZero.mockReturnValue();
-  workspace.store.setScannerAsBackedUp();
+  workspace.store.setScannerBackedUp();
 
   await request(app)
     .post('/central-scanner/scan/zero')
@@ -406,67 +475,8 @@ test('POST /scan/zero', async () => {
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
-  const frontOriginal = stateOfHamilton.filledInPage1Flipped;
-  const frontNormalized = stateOfHamilton.filledInPage1;
-  const backOriginal = stateOfHamilton.filledInPage2;
-  const backNormalized = stateOfHamilton.filledInPage2;
   const batchId = workspace.store.addBatch();
-  const sheetId = workspace.store.addSheet(uuid(), batchId, [
-    {
-      originalFilename: frontOriginal,
-      normalizedFilename: frontNormalized,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-    {
-      originalFilename: backOriginal,
-      normalizedFilename: backNormalized,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-  ]);
+  const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
   workspace.store.finishBatch({ batchId });
 
   await request(app)

@@ -474,7 +474,7 @@ export async function buildCentralScannerApp({
 
       response.type('text/plain; charset=utf-8');
       await importer.doExport(response);
-      store.setCvrsAsBackedUp();
+      store.setCvrsBackedUp();
       response.end();
     }
   );
@@ -660,7 +660,7 @@ export async function buildCentralScannerApp({
         });
       })
       .on('end', () => {
-        store.setScannerAsBackedUp();
+        store.setScannerBackedUp();
       })
       .pipe(response);
   });
