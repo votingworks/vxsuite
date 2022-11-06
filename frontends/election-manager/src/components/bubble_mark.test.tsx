@@ -10,7 +10,7 @@ test('Mark has border by default', () => {
   expect(style.background).toBe('');
 });
 
-test('Mark has background when cheked', () => {
+test('Mark has background when checked', () => {
   const { container } = render(<Bubble checked />);
   const style = getComputedStyle(container.querySelector('span')!);
   expect(style.background).toBe('rgb(0, 0, 0)');
