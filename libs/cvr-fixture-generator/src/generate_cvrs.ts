@@ -87,7 +87,7 @@ function getVoteConfigurationsForCandidateOptions(
     const voteOption = new Map<ContestId, readonly ContestOptionId[]>();
     for (const [contestId, optionsForContest] of candidateOptionsForContest) {
       // Add the ith contest choice option as the vote for each contest
-      // If i is greater then the number of votes generated for this contest, vote for the final generated vote again.
+      // If i is greater than the number of votes generated for this contest, vote for the final generated vote again.
       voteOption.set(
         contestId,
         optionsForContest[
