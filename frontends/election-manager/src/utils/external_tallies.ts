@@ -99,7 +99,7 @@ export function getTotalNumberOfBallots(
     contestIdSets = newListOfContestIdSets;
   }
 
-  // Within each ballot set find the maximum number of ballots cast on a contest, that is the number of ballots cast amoungst ballot styles represented.
+  // Within each ballot set find the maximum number of ballots cast on a contest, that is the number of ballots cast amongst ballot styles represented.
   const ballotsCastPerSet = contestIdSets.map((set) =>
     [...set].reduce(
       (prevValue, contestId) =>
