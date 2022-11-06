@@ -1,5 +1,5 @@
 ## Overview
-<!-- add a link to a Github Issue here -->
+<!-- add a link to a GitHub Issue here -->
 
 ## Demo Video or Screenshot
 

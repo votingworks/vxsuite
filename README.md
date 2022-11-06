@@ -263,7 +263,7 @@ help you contribute.
    pnpm cypress:run
    ```
 
-1. Push your branch to your fork on Github.
+1. Push your branch to your fork on GitHub.
 1. Create a pull request to merge your branch into `votingworks/vxsuite/main`.
    Once the pull request is created CircleCI will automatically run all the
    tests to ensure the app is working correctly.
