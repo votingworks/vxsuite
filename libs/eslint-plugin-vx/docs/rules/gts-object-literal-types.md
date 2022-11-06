@@ -106,7 +106,7 @@ makeSound(cat);
  * function call. 'horse' does not meet the type contract of 'Animal'.
  */
 const horse: Animal = {
-  sound: 'niegh',
+  sound: 'neigh',
 };
 
 const dog: Animal = {
