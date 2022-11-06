@@ -55,7 +55,7 @@ export enum ScannerError {
   OnlySupportColorMode = /** < Only support color mode */ 'PLKSS_ERRCODE_ONLY_SUPPORT_COLOR_MODE',
   NoSupportEject = /** < No support eject direction control */ 'PLKSS_ERRCODE_NO_SUPPORT_EJECT',
   PaperNotReady = /** < No paper */ 'PLKSS_ERRCODE_PAPER_NOT_READY',
-  InvalidSerialnum = /** < The Serial number is invailid */ 'PLKSS_ERRCODE_INVALID_SERIALNUM',
+  InvalidSerialnum = /** < The Serial number is invalid */ 'PLKSS_ERRCODE_INVALID_SERIALNUM',
   FormatNotSupport = /** < The format is not supported */ 'PLKSS_ERRCODE_FORMAT_NOT_SUPPORT',
   NoCalibrationData = /** < Not yet calibration */ 'PLKSS_ERRCODE_NO_CALIBRATION_DATA',
   NoDevices = 'PLKSS_ERRCODE_NO_DEVICES',
