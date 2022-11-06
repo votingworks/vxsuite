@@ -39,7 +39,7 @@
 # Two files: election_details and candidate_id_mapping
 #
 # election_details
-# - 9 sections, each row starts with 0-8 to idenify which section it's a part of
+# - 9 sections, each row starts with 0-8 to identify which section it's a part of
 # - section 0 is one row: 0, "GEMS Import Data", MAJOR_VERSION, MINOR_VERSION, SORT_BY, ?, ?, ?
 # - section 1 is one row: 1, ELECTION_TITLE, ELECTION_DATE
 # - section 2 is one row per district: 2, PARENT_DISTRICT, DISTRICT_ID, DISTRICT_LABEL
