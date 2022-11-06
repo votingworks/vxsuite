@@ -414,7 +414,7 @@ test('parsing CVRs flags when a candidate ID in a CVR is not present in the elec
         "Candidate ID 'write-in-1' in CVR is not a valid candidate choice for contest: 'president'",
         "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'president'",
         "Candidate ID 'not-a-candidate' in CVR is not a valid candidate choice for contest: 'county-commissioners'",
-        // No error for write in on comissioners race
+        // No error for write in on commissioners race
       ],
       lineNumber: 1,
     },
