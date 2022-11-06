@@ -22,7 +22,7 @@ describe('generateBatchTallyResultsCSV', () => {
       generateCvr(
         election,
         {
-          'governor-contest-liberty': ['aaron-aligator'],
+          'governor-contest-liberty': ['aaron-alligator'],
           'schoolboard-liberty': [],
         },
         { batchId: 'batch-1', batchLabel: 'Batch 1', ballotStyleId: '2L' }
@@ -57,7 +57,7 @@ describe('generateBatchTallyResultsCSV', () => {
       'Batch ID,Batch Name,Tabulator,Number of Ballots'
     );
     expect(headerRow).toContain(
-      '"Liberty Party Governor - Ballots Cast","Liberty Party Governor - Undervotes","Liberty Party Governor - Overvotes","Liberty Party Governor - Aaron Aligator","Liberty Party Governor - Peter Pigeon","Liberty Party Governor - Write In",'
+      '"Liberty Party Governor - Ballots Cast","Liberty Party Governor - Undervotes","Liberty Party Governor - Overvotes","Liberty Party Governor - Aaron Alligator","Liberty Party Governor - Peter Pigeon","Liberty Party Governor - Write In",'
     );
     const expectedDataRows = [
       'batch-1,Batch 1,scanner-1,2,2,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',

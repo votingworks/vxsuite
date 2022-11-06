@@ -24,7 +24,7 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         election,
         {
-          'governor-contest-liberty': ['aaron-aligator'],
+          'governor-contest-liberty': ['aaron-alligator'],
           'schoolboard-liberty': [],
         },
         {
@@ -48,7 +48,7 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         election,
         {
-          'governor-contest-liberty': ['aaron-aligator', 'peter-pigeon'],
+          'governor-contest-liberty': ['aaron-alligator', 'peter-pigeon'],
           'schoolboard-liberty': [
             'amber-brkich',
             'chris-daugherty',
@@ -64,7 +64,7 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         election,
         {
-          'governor-contest-liberty': ['aaron-aligator'],
+          'governor-contest-liberty': ['aaron-alligator'],
           'schoolboard-liberty': [
             'amber-brkich',
             'chris-daugherty',
@@ -141,7 +141,7 @@ describe('Election Manager can create SEMS tallies', () => {
         contestId: 'governor-contest-liberty',
         metadata: { ballots: 5, undervotes: 1, overvotes: 1 },
         votesByOptionId: {
-          'aaron-aligator': 2,
+          'aaron-alligator': 2,
           'peter-pigeon': 1,
           'write-in': 0,
         },
@@ -164,7 +164,7 @@ describe('Election Manager can create SEMS tallies', () => {
         contestId: 'governor-contest-liberty',
         metadata: { ballots: 0, undervotes: 0, overvotes: 0 },
         votesByOptionId: {
-          'aaron-aligator': 0,
+          'aaron-alligator': 0,
           'peter-pigeon': 0,
           'write-in': 0,
         },
@@ -242,7 +242,7 @@ describe('Election Manager can create SEMS tallies', () => {
             {
               contestId: 'governor-contest-liberty',
               precinctId: 'precinct-2',
-              candidateId: 'aaron-aligator',
+              candidateId: 'aaron-alligator',
               numberOfVotes: 2,
             },
             {
