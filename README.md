@@ -436,7 +436,7 @@ with `DEBUG` set to the right value, you'll get logging. Example:
 
 ```sh
 # log from the geometry module
-DEBUG=math:geomery pnpm start
+DEBUG=math:geometry pnpm start
 # log from the whole math library
 DEBUG=math:* pnpm start
 # log everything
