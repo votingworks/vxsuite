@@ -157,7 +157,7 @@ test('precinct table renders properly when there is no data', () => {
   );
 });
 
-test('loads prexisting manual data to edit', async () => {
+test('loads preexisting manual data to edit', async () => {
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(
     electionSampleDefinition.election
   );
