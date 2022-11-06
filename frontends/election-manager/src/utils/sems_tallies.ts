@@ -52,7 +52,7 @@ export interface SemsFileRow {
 // TODO(caro) revisit how to count the total number of ballots for multi seat contests
 // The number of total ballots is undervotes + overvotes + (othervotes / numseats)
 // That formula assumes all votes voted for the maxiumum number of seats allowed which is
-// probably not true in practice. This is irreleveant with the number of seats is 1.
+// probably not true in practice. This is irrelevant with the number of seats is 1.
 export function getContestTallyForCandidateContest(
   contest: CandidateContest,
   rows: SemsFileRow[]
