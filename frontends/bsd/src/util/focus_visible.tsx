@@ -1,4 +1,4 @@
-// This is a "polyfill" for the css psudo-class :focus-visible
+// This is a "polyfill" for the css pseudo-class :focus-visible
 // https://caniuse.com/#feat=css-focus-visible
 
 export function focusVisible(): void {
