@@ -22,7 +22,7 @@ Resolves #1
 
 <!--
 If not clearly described in the related issue(s), describe:
-- Why this change is propsed?
+- Why this change is proposed?
 - What issue/bug does it solve?
 -->
 
