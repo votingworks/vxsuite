@@ -30,7 +30,7 @@ information as possible is encoded. Here are some of the guidelines:
 - **write-in encoding**: a character encoding for write-in names that requires 5
   bits per character. Here is the full character set:
   `ABCDEFGHIJKLMNOPQRSTUVWXYZ '"-.,`.
-- **hex encoding**: a character encoding for hexidecimal characters that
+- **hex encoding**: a character encoding for hexadecimal characters that
   requires 4 bits per character. Here is the full character set:
   `0123456789abcdef`.
 - **fixed-length string**: a UTF-8 string with a length known to both encoder
@@ -147,7 +147,7 @@ metadata `H` and election definition `ED`, `H` is encoded as follows:
   `01010110 01011000 00000001`. This must be at the start of the encoded data,
   or the data does not represent a valid v1-encoded HMPB metadata.
   - Size: 24 bits.
-- **Election Hash:** This is a dynamic-length hexidecimal string long
+- **Election Hash:** This is a dynamic-length hexadecimal string long
   (`ED.electionHash`).
   - Size: `(1 + bytes(ED.electionHash) / 2) * 8` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`

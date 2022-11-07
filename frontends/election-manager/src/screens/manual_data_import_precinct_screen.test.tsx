@@ -444,7 +444,7 @@ test('can enter data for yes no contests as expected', async () => {
   );
 });
 
-test('loads prexisting manual data to edit', async () => {
+test('loads preexisting manual data to edit', async () => {
   const { election } = electionSampleDefinition;
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(election);
   talliesByPrecinct['23'] = buildExternalTally(election, 1, [

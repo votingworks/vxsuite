@@ -219,10 +219,10 @@ test('renders as expected for all precincts in a primary election', () => {
   within(screen.getByTestId('zoo-council-mammal-write-in')).getByText('0');
   expect(within(zooCouncil).queryByText('Write-In')).toBeDefined();
 
-  const eitherNeiher = screen.getByTestId('results-table-new-zoo-either');
-  within(eitherNeiher).getByText(/1 ballot cast/);
-  within(eitherNeiher).getByText(/0 overvotes/);
-  within(eitherNeiher).getByText(/0 undervotes/);
+  const eitherNeither = screen.getByTestId('results-table-new-zoo-either');
+  within(eitherNeither).getByText(/1 ballot cast/);
+  within(eitherNeither).getByText(/0 overvotes/);
+  within(eitherNeither).getByText(/0 undervotes/);
   within(screen.getByTestId('new-zoo-either-yes')).getByText('1');
   within(screen.getByTestId('new-zoo-either-no')).getByText('0');
   const pickOne = screen.getByTestId('results-table-new-zoo-pick');

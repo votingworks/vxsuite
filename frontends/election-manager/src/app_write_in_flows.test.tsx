@@ -97,7 +97,7 @@ test('manual write-in data end-to-end test', async () => {
     '3'
   );
 
-  // Add votes to the the pre-adjudicated value
+  // Add votes to the pre-adjudicated value
   const zooMammalCouncil = screen
     .getByText('Zoo Council - Mammal Party')
     .closest('div')!;

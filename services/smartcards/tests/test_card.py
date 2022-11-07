@@ -1,5 +1,5 @@
 
-# going to test the consructor
+# going to test the constructor
 from .mock_card import MockCard
 from smartcards.card import VXCardObserver, Card4442, CardAT24C, find_card_by_atr, CARD_TYPES, Card
 from smartcard.util import toHexString, toASCIIBytes, toASCIIString

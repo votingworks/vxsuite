@@ -1476,7 +1476,7 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "aaron-aligator": 30,
+          "aaron-alligator": 30,
           "peter-pigeon": 30,
           "write-in": 30,
         },
@@ -1578,7 +1578,7 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "aaron-aligator": 30,
+          "aaron-alligator": 30,
           "peter-pigeon": 300,
           "write-in": 30,
         },
@@ -1669,7 +1669,7 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "aaron-aligator": 30,
+          "aaron-alligator": 30,
           "peter-pigeon": 30,
           "write-in": 30,
         },
@@ -1759,7 +1759,7 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "aaron-aligator": 30,
+          "aaron-alligator": 30,
           "peter-pigeon": 300,
           "write-in": 30,
         },
@@ -1887,7 +1887,7 @@ Object {
           "undervotes": 60,
         },
         "tallies": Object {
-          "aaron-aligator": 60,
+          "aaron-alligator": 60,
           "peter-pigeon": 330,
           "write-in": 60,
         },

@@ -13,12 +13,12 @@ test('formatDurationNs as microseconds', () => {
   expect(formatDurationNs(BigInt(123_456))).toEqual('123.45µs');
 });
 
-test('formatDuationNs as milliseconds', () => {
+test('formatDurationNs as milliseconds', () => {
   expect(formatDurationNs(BigInt(1_234_567))).toEqual('1.23ms');
   expect(formatDurationNs(BigInt(987_654_321))).toEqual('987.65ms');
 });
 
-test('formatDuationNs as seconds', () => {
+test('formatDurationNs as seconds', () => {
   expect(formatDurationNs(BigInt(1_234_567_000))).toEqual('1.23s');
 });
 

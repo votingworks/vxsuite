@@ -42,12 +42,12 @@ export function DefinitionEditorScreen({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
 
-  const [isConfimingUnconfig, setIsConfimingUnconfig] = useState(false);
+  const [isConfirmingUnconfig, setIsConfirmingUnconfig] = useState(false);
   function cancelConfirmingUnconfig() {
-    setIsConfimingUnconfig(false);
+    setIsConfirmingUnconfig(false);
   }
   function initConfirmingUnconfig() {
-    setIsConfimingUnconfig(true);
+    setIsConfirmingUnconfig(true);
   }
 
   const validateElectionDefinition = useCallback(() => {
@@ -135,7 +135,7 @@ export function DefinitionEditorScreen({
           />
         </FlexTextareaWrapper>
       </NavigationScreen>
-      {isConfimingUnconfig && (
+      {isConfirmingUnconfig && (
         <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
       )}
     </React.Fragment>

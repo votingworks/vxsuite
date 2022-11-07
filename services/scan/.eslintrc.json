@@ -6,7 +6,7 @@
   "overrides": [
     // This file causes this rule to crash on private constructors.
     // Started happening after TypeScript upgrade to v4.6. I was not able to
-    // find an issue on the Github repo for @typescript-eslint/eslint-plugin.
+    // find an issue on the GitHub repo for @typescript-eslint/eslint-plugin.
     {
       "files": ["src/db_client.ts", "src/store.ts"],
       "rules": {

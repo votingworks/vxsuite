@@ -238,7 +238,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   screen.getByText('Voter session activated: 12');
 
-  // Poll Workder removes their card
+  // Poll Worker removes their card
   card.removeCard();
   await advanceTimersAndPromises();
 

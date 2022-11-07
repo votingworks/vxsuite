@@ -147,7 +147,7 @@ export function makeBinaryImageData(
 }
 
 /**
- * Creates a grayscale image from a string description. Use hexidecimal digits
+ * Creates a grayscale image from a string description. Use hexadecimal digits
  * for pixel values, with `0` being black and `f` being white.
  *
  * @see {@link describeBinaryImageData}

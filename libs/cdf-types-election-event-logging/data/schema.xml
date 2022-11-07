@@ -232,7 +232,7 @@
   </xsd:complexType>
   <xsd:complexType name="ElectionEventLogDocumentation">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">ElectionEventLogDocumention is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.</xsd:documentation>
+      <xsd:documentation xml:lang="en">ElectionEventLogDocumentation is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.</xsd:documentation>
     </xsd:annotation>
     <xsd:sequence>
       <xsd:element name="DeviceId" type="xsd:string" minOccurs="0">

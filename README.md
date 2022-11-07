@@ -263,7 +263,7 @@ help you contribute.
    pnpm cypress:run
    ```
 
-1. Push your branch to your fork on Github.
+1. Push your branch to your fork on GitHub.
 1. Create a pull request to merge your branch into `votingworks/vxsuite/main`.
    Once the pull request is created CircleCI will automatically run all the
    tests to ensure the app is working correctly.
@@ -436,7 +436,7 @@ with `DEBUG` set to the right value, you'll get logging. Example:
 
 ```sh
 # log from the geometry module
-DEBUG=math:geomery pnpm start
+DEBUG=math:geometry pnpm start
 # log from the whole math library
 DEBUG=math:* pnpm start
 # log everything

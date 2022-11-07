@@ -181,7 +181,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
         printedElement.queryAllByText('Fish Party Example Primary Election:')
       ).toHaveLength(election.precincts.length);
 
-      // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
+      // Check that there are no QR code pages since we are opening polls, even though reporting is turned on.
       expect(
         printedElement.queryAllByText('Automatic Election Results Reporting')
       ).toHaveLength(0);
@@ -387,7 +387,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
       printedElement.queryAllByText('Fish Party Example Primary Election:')
     ).toHaveLength(election.precincts.length);
 
-    // Check there there is a QR code page since we are closing polls
+    // Check that there is a QR code page since we are closing polls
     printedElement.getByText('Automatic Election Results Reporting');
 
     // Check that the expected results are on the tally report for Precinct 1 Mammal Party

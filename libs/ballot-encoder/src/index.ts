@@ -70,7 +70,7 @@ export const WriteInEncoding = new CustomEncoding(
 );
 
 /**
- * Encoding for hexidecimal string values, e.g. the election hash.
+ * Encoding for hexadecimal string values, e.g. the election hash.
  */
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 

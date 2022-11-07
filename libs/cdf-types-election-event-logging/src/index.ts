@@ -319,7 +319,7 @@ export const ElectionEventLogSchema: z.ZodSchema<ElectionEventLog> = z.object({
 });
 
 /**
- * ElectionEventLogDocumention is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.
+ * ElectionEventLogDocumentation is the root class.  It includes EventIdDescription and EventTypeDescription, as well as other information for identifying the specific device associated with the election event documentation.
  */
 export interface ElectionEventLogDocumentation {
   readonly '@type': 'EventLogging.ElectionEventLogDocumentation';

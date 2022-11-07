@@ -11,7 +11,7 @@ import { Theme } from './themes';
 // - First and last child HTML tags of Prose have no margins so that a parent
 //   layout component may define the layout. The HTML class "ignore-prose" HTML
 //   class is applied to tag.
-// - Width is constrained to 1.5 alphabets (66ch) to imporove readability.
+// - Width is constrained to 1.5 alphabets (66ch) to improve readability.
 // - Spacing between elements is defined such that headings are closer to the
 //   text that follows them.
 //
