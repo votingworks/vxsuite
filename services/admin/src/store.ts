@@ -13,6 +13,7 @@ import {
   Id,
   Iso8601Timestamp,
   ok,
+  Optional,
   PrecinctId,
   Result,
   safeParseElectionDefinition,
@@ -38,34 +39,41 @@ function convertSqliteTimestampToIso8601(
 }
 
 /**
- * Kinds of errors that can occur when adding a CVR file.
+ * Errors that can occur when adding a CVR file.
  */
-export type AddCastVoteRecordErrorKind =
-  | 'BallotIdRequired'
-  | 'BallotIdAlreadyExistsWithDifferentData';
+export interface AddCastVoteRecordError {
+  readonly kind:
+    | 'BallotIdRequired'
+    | 'BallotIdAlreadyExistsWithDifferentData'
+    | 'MixedLiveAndTestBallots';
+  readonly userFriendlyMessage?: string;
+}
 
 /**
  * An error caused by a missing ballot ID in a CVR file.
  */
-export interface AddCastVoteRecordBallotIdRequiredError {
+export interface AddCastVoteRecordBallotIdRequiredError
+  extends AddCastVoteRecordError {
   readonly kind: 'BallotIdRequired';
 }
 
 /**
  * An error caused by a duplicate ballot ID.
  */
-export interface AddCastVoteRecordBallotIdExistsWithDifferentDataError {
+export interface AddCastVoteRecordBallotIdExistsWithDifferentDataError
+  extends AddCastVoteRecordError {
   readonly kind: 'BallotIdAlreadyExistsWithDifferentData';
   readonly newData: string;
   readonly existingData: string;
 }
 
 /**
- * Errors that can occur when adding a CVR file.
+ * An error caused by attempting to import both "live" and "test" ballots for an election.
  */
-export type AddCastVoteRecordError =
-  | AddCastVoteRecordBallotIdRequiredError
-  | AddCastVoteRecordBallotIdExistsWithDifferentDataError;
+export interface MixedLiveAndTestBallotsError extends AddCastVoteRecordError {
+  readonly kind: 'MixedLiveAndTestBallots';
+  readonly message: string;
+}
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -277,16 +285,55 @@ export class Store {
 
         const lines = readline.createInterface(fs.createReadStream(filePath));
 
+        const currentCvrFileMode =
+          this.getCurrentCvrFileModeForElection(electionId);
+        let lastLineCvrMode: Optional<Admin.CvrFileMode>;
+        let nextLineCvrMode: Optional<Admin.CvrFileMode>;
+
         for await (const line of lines) {
           if (line.trim() === '') {
             continue;
           }
 
-          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking against
-          // attempts to mix "live" and "test" CVRs for the same election.
+          // Parse CVR data for validation.
+          const cvr = safeParseJson(line).unsafeUnwrap() as CastVoteRecord;
+          nextLineCvrMode = cvr._testBallot
+            ? Admin.CvrFileMode.Test
+            : Admin.CvrFileMode.Official;
+
+          // Ensure CVR mode matches previous file imports, if any:
+          if (
+            currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
+            nextLineCvrMode !== currentCvrFileMode
+          ) {
+            this.client.run('rollback transaction');
+
+            return err({
+              kind: 'MixedLiveAndTestBallots',
+              userFriendlyMessage:
+                `this file contains ${nextLineCvrMode} ballots, ` +
+                `but you are currently in ${currentCvrFileMode} mode`,
+            });
+          }
+
+          // Ensure CVR mode matches last-processed CVR:
+          if (lastLineCvrMode && nextLineCvrMode !== lastLineCvrMode) {
+            this.client.run('rollback transaction');
+
+            return err({
+              kind: 'MixedLiveAndTestBallots',
+              userFriendlyMessage:
+                'these CVRs cannot be tabulated together because ' +
+                'they mix live and test ballots',
+            });
+          }
+
+          lastLineCvrMode = nextLineCvrMode;
+
           const result = this.addCastVoteRecordFileEntry(electionId, id, line);
 
           if (result.isErr()) {
+            this.client.run('rollback transaction');
             return result;
           }
 
@@ -373,6 +420,22 @@ export class Store {
     if (!ballotId) {
       return err({ kind: 'BallotIdRequired' });
     }
+
+    // Ensure CVR mode matches any previously imported CVRs:
+    const currentCvrFileMode =
+      this.getCurrentCvrFileModeForElection(electionId);
+    const thisCvrFileMode = cvr._testBallot
+      ? Admin.CvrFileMode.Test
+      : Admin.CvrFileMode.Official;
+    if (
+      currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
+      currentCvrFileMode !== thisCvrFileMode
+    ) {
+      return err({ kind: 'MixedLiveAndTestBallots' });
+    }
+
+    // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
+    // to prevent importing CVRs for the wrong election.
 
     const existing = this.client.one(
       `

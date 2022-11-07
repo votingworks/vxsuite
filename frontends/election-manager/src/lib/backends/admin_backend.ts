@@ -1,4 +1,4 @@
-import { Admin } from '@votingworks/api';
+import { Admin, fetchWithSchema } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   ContestId,
@@ -320,13 +320,11 @@ export class ElectionManagerStoreAdminBackend
     const formData = new FormData();
     formData.append(CVR_FILE_ATTACHMENT_NAME, newCastVoteRecordFile);
 
-    const addCastVoteRecordFileResponse = (await fetchJson(
+    const addCastVoteRecordFileResponse = await fetchWithSchema(
+      Admin.PostCvrFileResponseSchema,
       `/admin/elections/${currentElectionId}/cvr-files`,
-      {
-        method: 'POST',
-        body: formData,
-      }
-    )) as Admin.PostCvrFileResponse;
+      { method: 'POST', body: formData }
+    );
 
     if (addCastVoteRecordFileResponse.status !== 'ok') {
       throw new Error(
