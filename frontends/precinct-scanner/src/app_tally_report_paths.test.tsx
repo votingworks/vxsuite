@@ -181,7 +181,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
         printedElement.queryAllByText('Fish Party Example Primary Election:')
       ).toHaveLength(election.precincts.length);
 
-      // Check there are no QR code pages since we are opening polls, even though reporting is turned on.
+      // Check that there are no QR code pages since we are opening polls, even though reporting is turned on.
       expect(
         printedElement.queryAllByText('Automatic Election Results Reporting')
       ).toHaveLength(0);
