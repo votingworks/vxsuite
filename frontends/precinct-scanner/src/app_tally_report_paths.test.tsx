@@ -387,7 +387,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
       printedElement.queryAllByText('Fish Party Example Primary Election:')
     ).toHaveLength(election.precincts.length);
 
-    // Check there is a QR code page since we are closing polls
+    // Check that there is a QR code page since we are closing polls
     printedElement.getByText('Automatic Election Results Reporting');
 
     // Check that the expected results are on the tally report for Precinct 1 Mammal Party
