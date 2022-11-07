@@ -27,6 +27,7 @@ import * as SetupScannerScreen from './screens/setup_scanner_screen';
 import * as UnconfiguredElectionScreen from './screens/unconfigured_election_screen';
 import * as UnconfiguredPrecinctScreen from './screens/unconfigured_precinct_screen';
 import * as ReplaceBallotBagScreen from './components/replace_ballot_bag_screen';
+import * as UserInterfaceScreen from './screens/user_interface_screen';
 
 export function PreviewApp(): JSX.Element {
   return (
@@ -54,6 +55,7 @@ export function PreviewApp(): JSX.Element {
         SetupScannerScreen,
         UnconfiguredElectionScreen,
         UnconfiguredPrecinctScreen,
+        UserInterfaceScreen,
         ReplaceBallotBagScreen,
       ]}
     />

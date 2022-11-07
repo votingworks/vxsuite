@@ -10,5 +10,13 @@ export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
   codeVersion: z.string().nonempty(),
 });
 
+export type TextSizeSetting = 0 | 1 | 2 | 3;
+
+export interface UserSettings {
+  textSize: TextSizeSetting;
+}
+export type SetUserSettings = (partial: PartialUserSettings) => void;
+export type PartialUserSettings = Partial<UserSettings>;
+
 export type MachineConfigResponse = MachineConfig;
 export const MachineConfigResponseSchema = MachineConfigSchema;

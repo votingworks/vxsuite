@@ -33,7 +33,11 @@ import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-import { MachineConfig } from './config/types';
+import {
+  MachineConfig,
+  PartialUserSettings,
+  UserSettings,
+} from './config/types';
 
 import * as config from './api/config';
 import * as scanner from './api/scan';
@@ -57,7 +61,7 @@ import { ScanReturnedBallotScreen } from './screens/scan_returned_ballot_screen'
 import { ScanJamScreen } from './screens/scan_jam_screen';
 import { ScanBusyScreen } from './screens/scan_busy_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
-import { BALLOT_BAG_CAPACITY } from './config/globals';
+import * as GLOBALS from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
@@ -94,10 +98,15 @@ interface FrontendState extends StoredFrontendState {
   isScannerConfigLoaded: boolean;
 }
 
+interface UserState {
+  userSettings: UserSettings;
+}
+
 export interface State
   extends HardwareState,
     ScannerConfigState,
-    FrontendState {}
+    FrontendState,
+    UserState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
   machineConfig: {
@@ -125,10 +134,15 @@ const initialFrontendState: Readonly<FrontendState> = {
   isScannerConfigLoaded: false,
 };
 
+const initialVoterState: Readonly<UserState> = {
+  userSettings: { textSize: GLOBALS.DEFAULT_FONT_SIZE },
+};
+
 const initialState: Readonly<State> = {
   ...initialHardwareState,
   ...initialScannerConfigState,
   ...initialFrontendState,
+  ...initialVoterState,
 };
 
 // Sets State.
@@ -142,6 +156,7 @@ type AppAction =
       type: 'refreshConfigFromScanner';
       scannerConfig: ScannerConfigState;
     }
+  | { type: 'setUserSettings'; userSettings: PartialUserSettings }
   | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
   | { type: 'updatePollsState'; pollsState: PollsState }
@@ -205,6 +220,18 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         ballotCountWhenBallotBagLastReplaced: action.currentBallotCount,
       };
+    case 'setUserSettings':
+      /* istanbul ignore next */
+      if (Object.keys(action.userSettings).join(',') !== 'textSize') {
+        throw new Error('unknown userSetting key');
+      }
+      return {
+        ...state,
+        userSettings: {
+          ...state.userSettings,
+          ...action.userSettings,
+        },
+      };
     case 'setMachineConfig':
       return {
         ...state,
@@ -225,16 +252,17 @@ export function AppRoot({
 }: Props): JSX.Element | null {
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
-    electionDefinition,
-    isScannerConfigLoaded,
-    isTestMode,
-    precinctSelection,
-    currentMarkThresholds,
-    pollsState,
-    initializedFromStorage,
-    machineConfig,
-    isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
+    currentMarkThresholds,
+    electionDefinition,
+    initializedFromStorage,
+    isScannerConfigLoaded,
+    isSoundMuted,
+    isTestMode,
+    machineConfig,
+    pollsState,
+    precinctSelection,
+    userSettings,
   } = appState;
 
   const usbDrive = useUsbDrive({ logger });
@@ -351,6 +379,16 @@ export function AppRoot({
     isSoundMuted,
   ]);
 
+  const setUserSettings = useCallback(
+    (newUserSettings: PartialUserSettings) => {
+      dispatchAppState({
+        type: 'setUserSettings',
+        userSettings: newUserSettings,
+      });
+    },
+    []
+  );
+
   const updatePollsState = useCallback(async (newPollsState: PollsState) => {
     dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
     await config.setPollsState(newPollsState);
@@ -404,7 +442,7 @@ export function AppRoot({
   const needsToReplaceBallotBag =
     scannerStatus &&
     scannerStatus.ballotsCounted >=
-      ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
+      ballotCountWhenBallotBagLastReplaced + GLOBALS.BALLOT_BAG_CAPACITY;
 
   // The scan service waits to receive a command to scan or accept a ballot. The
   // frontend controls when this happens so that ensure we're only scanning when
@@ -512,6 +550,8 @@ export function AppRoot({
           auth,
           isSoundMuted,
           logger,
+          userSettings,
+          setUserSettings,
         }}
       >
         <ElectionManagerScreen
@@ -561,6 +601,8 @@ export function AppRoot({
           auth,
           isSoundMuted,
           logger,
+          userSettings,
+          setUserSettings,
         }}
       >
         <PollWorkerScreen
@@ -592,6 +634,8 @@ export function AppRoot({
           auth,
           isSoundMuted,
           logger,
+          userSettings,
+          setUserSettings,
         }}
       >
         <PollsNotOpenScreen
@@ -688,6 +732,8 @@ export function AppRoot({
         auth,
         isSoundMuted,
         logger,
+        userSettings,
+        setUserSettings,
       }}
     >
       {voterScreen}
