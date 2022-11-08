@@ -5,7 +5,7 @@ import {
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
-import { BallotId, CastVoteRecord } from '@votingworks/types';
+import { CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
@@ -222,31 +222,6 @@ test('analyze a CVR file', async () => {
   expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
-test('adding a CVR file if adding an entry fails', async () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  const cvrFile =
-    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
-
-  jest.spyOn(store, 'addCastVoteRecordFileEntry').mockImplementation(() => {
-    throw new Error('oops');
-  });
-
-  await expect(async () =>
-    (
-      await store.addCastVoteRecordFile({
-        electionId,
-        filePath: cvrFile,
-        originalFilename: 'cvrs.jsonl',
-      })
-    ).unsafeUnwrap()
-  ).rejects.toThrowError('oops');
-
-  expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
-});
-
 test('add a CVR file entry without a ballot ID', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(
@@ -385,39 +360,6 @@ test('add a CVR file with mixed live and test CVRs', async () => {
       'these CVRs cannot be tabulated together because ' +
       'they mix live and test ballots',
   });
-});
-
-test('add a single test CVR after adding a live CVR file', async () => {
-  const { electionDefinition, standardLiveCvrFile } =
-    electionMinimalExhaustiveSampleFixtures;
-
-  const store = Store.memoryStore();
-  const electionId = store.addElection(electionDefinition.electionData);
-
-  await store.addCastVoteRecordFile({
-    electionId,
-    filePath: standardLiveCvrFile.asFilePath(),
-    originalFilename: 'live-cvrs.jsonl',
-  });
-
-  const cvr: CastVoteRecord = {
-    _ballotId: 'id-9999999' as BallotId,
-    _ballotStyleId: '1M',
-    _ballotType: 'absentee',
-    _batchId: 'batch-id',
-    _batchLabel: 'batch-label',
-    _precinctId: 'precinct-1',
-    _scannerId: 'scanner-1',
-    _testBallot: true,
-  };
-  const result = store.addCastVoteRecordFileEntry(
-    electionId,
-    'cvr-file-id',
-    JSON.stringify(cvr)
-  );
-
-  expect(result.isErr()).toBe(true);
-  expect(result.err()).toEqual({ kind: 'MixedLiveAndTestBallots' });
 });
 
 test('get CVR file metadata', async () => {

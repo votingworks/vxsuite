@@ -5,6 +5,7 @@
 import { Admin } from '@votingworks/api';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
+  BallotId,
   BallotStyleId,
   CastVoteRecord,
   ContestId,
@@ -297,6 +298,14 @@ export class Store {
 
           // Parse CVR data for validation.
           const cvr = safeParseJson(line).unsafeUnwrap() as CastVoteRecord;
+
+          if (!cvr._ballotId) {
+            return err({ kind: 'BallotIdRequired' });
+          }
+
+          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
+          // to prevent importing CVRs for the wrong election.
+
           nextLineCvrMode = cvr._testBallot
             ? Admin.CvrFileMode.Test
             : Admin.CvrFileMode.Official;
@@ -330,12 +339,19 @@ export class Store {
 
           lastLineCvrMode = nextLineCvrMode;
 
-          const result = this.addCastVoteRecordFileEntry(electionId, id, line);
+          const result = this.addCastVoteRecordFileEntry(
+            electionId,
+            id,
+            cvr._ballotId,
+            line
+          );
 
           if (result.isErr()) {
             this.client.run('rollback transaction');
             return result;
           }
+
+          this.addWriteInsFromCvr(result.ok().id, cvr);
 
           if (result.ok().isNew) {
             newlyAdded += 1;
@@ -409,34 +425,12 @@ export class Store {
    * the same contents has already been added, returns the ID of that record and
    * associates `cvrFileId` with it.
    */
-  addCastVoteRecordFileEntry(
+  private addCastVoteRecordFileEntry(
     electionId: Id,
     cvrFileId: Id,
+    ballotId: BallotId,
     data: string
   ): Result<{ id: Id; isNew: boolean }, AddCastVoteRecordError> {
-    const cvr = safeParseJson(data).unsafeUnwrap() as CastVoteRecord;
-    const ballotId = cvr._ballotId;
-
-    if (!ballotId) {
-      return err({ kind: 'BallotIdRequired' });
-    }
-
-    // Ensure CVR mode matches any previously imported CVRs:
-    const currentCvrFileMode =
-      this.getCurrentCvrFileModeForElection(electionId);
-    const thisCvrFileMode = cvr._testBallot
-      ? Admin.CvrFileMode.Test
-      : Admin.CvrFileMode.Official;
-    if (
-      currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
-      currentCvrFileMode !== thisCvrFileMode
-    ) {
-      return err({ kind: 'MixedLiveAndTestBallots' });
-    }
-
-    // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
-    // to prevent importing CVRs for the wrong election.
-
     const existing = this.client.one(
       `
         select
@@ -493,17 +487,19 @@ export class Store {
       id
     );
 
+    return ok({ id, isNew: !existing });
+  }
+
+  private addWriteInsFromCvr(cvrId: string, cvr: CastVoteRecord): void {
     for (const [contestId, writeInIds] of getWriteInsFromCastVoteRecord(cvr)) {
       for (const optionId of writeInIds) {
         this.addWriteIn({
-          castVoteRecordId: id,
+          castVoteRecordId: cvrId,
           contestId,
           optionId,
         });
       }
     }
-
-    return ok({ id, isNew: !existing });
   }
 
   /**
