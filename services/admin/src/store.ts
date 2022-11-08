@@ -306,8 +306,8 @@ export class Store {
           // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
           // to prevent importing CVRs for the wrong election.
 
-          containsTestBallots = containsTestBallots || cvr._testBallot;
-          containsLiveBallots = containsLiveBallots || !cvr._testBallot;
+          containsTestBallots ||= cvr._testBallot;
+          containsLiveBallots ||= !cvr._testBallot;
           if (containsTestBallots && containsLiveBallots) {
             this.client.run('rollback transaction');
 
