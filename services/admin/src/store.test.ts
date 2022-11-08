@@ -1,4 +1,5 @@
 import { Admin } from '@votingworks/api';
+import { Client as DBClient } from '@votingworks/db';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   arbitraryBallotLocale,
@@ -219,6 +220,31 @@ test('analyze a CVR file', async () => {
   });
 
   // analyzing does not add to the store
+  expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
+});
+
+test('adding a CVR file if adding an entry fails', async () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  const cvrFile =
+    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
+
+  jest.spyOn(DBClient.prototype, 'run').mockImplementationOnce(() => {
+    throw new Error('oops');
+  });
+
+  await expect(async () =>
+    (
+      await store.addCastVoteRecordFile({
+        electionId,
+        filePath: cvrFile,
+        originalFilename: 'cvrs.jsonl',
+      })
+    ).unsafeUnwrap()
+  ).rejects.toThrowError('oops');
+
   expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
