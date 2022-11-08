@@ -11,7 +11,7 @@ type TestResponse =
     }>
   | ErrorsResponse;
 
-const TestSchema: z.ZodSchema<TestResponse> = z.union([
+const TestResponseSchema: z.ZodSchema<TestResponse> = z.union([
   z.object({
     status: z.literal('ok'),
     foo: z.literal('bar'),
@@ -45,7 +45,9 @@ test('passes the URL through as-is to fetch', async () => {
     return true;
   }, OK_RESPONSE_STRING);
 
-  expect(await fetchWithSchema(TestSchema, '/example')).toEqual(OK_RESPONSE);
+  expect(await fetchWithSchema(TestResponseSchema, '/example')).toEqual(
+    OK_RESPONSE
+  );
 });
 
 test('adds "Accept: application/json" by default', async () => {
@@ -55,7 +57,9 @@ test('adds "Accept: application/json" by default', async () => {
     return true;
   }, OK_RESPONSE_STRING);
 
-  expect(await fetchWithSchema(TestSchema, '/example')).toEqual(OK_RESPONSE);
+  expect(await fetchWithSchema(TestResponseSchema, '/example')).toEqual(
+    OK_RESPONSE
+  );
 });
 
 test('allows overriding Accept header', async () => {
@@ -65,7 +69,7 @@ test('allows overriding Accept header', async () => {
     return true;
   }, OK_RESPONSE_STRING);
 
-  await fetchWithSchema(TestSchema, '/example', {
+  await fetchWithSchema(TestResponseSchema, '/example', {
     headers: { Accept: 'x-custom-json' },
   });
 });
@@ -80,7 +84,7 @@ test('preserves custom headers', async () => {
   }, OK_RESPONSE_STRING);
 
   expect(
-    await fetchWithSchema(TestSchema, '/example', {
+    await fetchWithSchema(TestResponseSchema, '/example', {
       headers: { 'X-Custom': '123' },
     })
   ).toEqual(OK_RESPONSE);
@@ -89,13 +93,17 @@ test('preserves custom headers', async () => {
 test('returns parsed errors', async () => {
   fetchMock.getOnce('/example', { status: 400, body: ERROR_RESPONSE_STRING });
 
-  expect(await fetchWithSchema(TestSchema, '/example')).toEqual(ERROR_RESPONSE);
+  expect(await fetchWithSchema(TestResponseSchema, '/example')).toEqual(
+    ERROR_RESPONSE
+  );
 });
 
 test('throws on invalid JSON response', async () => {
   fetchMock.getOnce('/example', { status: 500, body: 'unknown server error' });
 
-  await expect(fetchWithSchema(TestSchema, '/example')).rejects.toThrowError(
+  await expect(
+    fetchWithSchema(TestResponseSchema, '/example')
+  ).rejects.toThrowError(
     "invalid JSON received: 'unknown server error' | status code: 500"
   );
 });
@@ -106,9 +114,9 @@ test('throws if "ok" response fails schema validation ', async () => {
     JSON.stringify({ status: 'ok', thisField: 'isInvalid' })
   );
 
-  await expect(fetchWithSchema(TestSchema, '/example')).rejects.toThrowError(
-    /invalid response received: .+ | status code: 200/
-  );
+  await expect(
+    fetchWithSchema(TestResponseSchema, '/example')
+  ).rejects.toThrowError(/invalid response received: .+ | status code: 200/);
 });
 
 test('throws if "error" response fails schema validation ', async () => {
@@ -117,7 +125,7 @@ test('throws if "error" response fails schema validation ', async () => {
     body: JSON.stringify({ status: 'error', thisField: 'isInvalid' }),
   });
 
-  await expect(fetchWithSchema(TestSchema, '/example')).rejects.toThrowError(
-    /invalid response received: .+ | status code: 400/
-  );
+  await expect(
+    fetchWithSchema(TestResponseSchema, '/example')
+  ).rejects.toThrowError(/invalid response received: .+ | status code: 400/);
 });
