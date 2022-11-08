@@ -45,6 +45,7 @@ export interface AddCastVoteRecordError {
   readonly kind:
     | 'BallotIdRequired'
     | 'BallotIdAlreadyExistsWithDifferentData'
+    | 'InvalidCvrFileMode'
     | 'MixedLiveAndTestBallots';
   readonly userFriendlyMessage?: string;
 }
@@ -349,7 +350,7 @@ export class Store {
           this.client.run('rollback transaction');
 
           return err({
-            kind: 'MixedLiveAndTestBallots',
+            kind: 'InvalidCvrFileMode',
             userFriendlyMessage:
               `this file contains ${
                 containsLiveBallots ? 'live' : 'test'

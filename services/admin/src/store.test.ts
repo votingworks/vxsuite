@@ -311,7 +311,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
 
   expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
-    kind: 'MixedLiveAndTestBallots',
+    kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
       'this file contains live ballots, but you are currently in test mode',
   });
@@ -350,7 +350,7 @@ test('add a test CVR file after adding a live CVR file', async () => {
 
   expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
-    kind: 'MixedLiveAndTestBallots',
+    kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
       'this file contains test ballots, but you are currently in live mode',
   });
