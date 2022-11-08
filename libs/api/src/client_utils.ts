@@ -1,4 +1,4 @@
-import { safeParseJson } from '@votingworks/types';
+import { safeParse, safeParseJson } from '@votingworks/types';
 import * as z from 'zod';
 
 import { ErrorsResponse, OkResponse } from './base';
@@ -30,12 +30,14 @@ export async function fetchWithSchema<T extends OkResponse | ErrorsResponse>(
   }
 
   const responseJson = jsonParseResult.ok();
-  const parseResult = responseSchema.safeParse(responseJson);
-  if (!parseResult.success) {
+  const parseResult = safeParse(responseSchema, responseJson);
+  if (parseResult.isErr()) {
     throw new Error(
-      `invalid response received: ${parseResult.error} | status code: ${response.status}`
+      `invalid response received: ${parseResult.err()} | status code: ${
+        response.status
+      }`
     );
   }
 
-  return parseResult.data;
+  return parseResult.ok();
 }
