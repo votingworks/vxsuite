@@ -231,7 +231,7 @@ test('adding a CVR file if adding an entry fails', async () => {
   const cvrFile =
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
 
-  jest.spyOn(DBClient.prototype, 'run').mockImplementationOnce(() => {
+  jest.spyOn(DBClient.prototype, 'one').mockImplementationOnce(() => {
     throw new Error('oops');
   });
 
