@@ -14,7 +14,6 @@ import {
   Id,
   Iso8601Timestamp,
   ok,
-  Optional,
   PrecinctId,
   Result,
   safeParseElectionDefinition,
@@ -288,8 +287,8 @@ export class Store {
 
         const currentCvrFileMode =
           this.getCurrentCvrFileModeForElection(electionId);
-        let lastLineCvrMode: Optional<Admin.CvrFileMode>;
-        let nextLineCvrMode: Optional<Admin.CvrFileMode>;
+        let containsTestBallots = false;
+        let containsLiveBallots = false;
 
         for await (const line of lines) {
           if (line.trim() === '') {
@@ -306,27 +305,9 @@ export class Store {
           // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
           // to prevent importing CVRs for the wrong election.
 
-          nextLineCvrMode = cvr._testBallot
-            ? Admin.CvrFileMode.Test
-            : Admin.CvrFileMode.Official;
-
-          // Ensure CVR mode matches previous file imports, if any:
-          if (
-            currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
-            nextLineCvrMode !== currentCvrFileMode
-          ) {
-            this.client.run('rollback transaction');
-
-            return err({
-              kind: 'MixedLiveAndTestBallots',
-              userFriendlyMessage:
-                `this file contains ${nextLineCvrMode} ballots, ` +
-                `but you are currently in ${currentCvrFileMode} mode`,
-            });
-          }
-
-          // Ensure CVR mode matches last-processed CVR:
-          if (lastLineCvrMode && nextLineCvrMode !== lastLineCvrMode) {
+          containsTestBallots = containsTestBallots || cvr._testBallot;
+          containsLiveBallots = containsLiveBallots || !cvr._testBallot;
+          if (containsTestBallots && containsLiveBallots) {
             this.client.run('rollback transaction');
 
             return err({
@@ -336,8 +317,6 @@ export class Store {
                 'they mix live and test ballots',
             });
           }
-
-          lastLineCvrMode = nextLineCvrMode;
 
           const result = this.addCastVoteRecordFileEntry(
             electionId,
@@ -358,6 +337,25 @@ export class Store {
           } else {
             alreadyPresent += 1;
           }
+        }
+
+        // Ensure CVR mode matches previous file imports, if any:
+        if (
+          (currentCvrFileMode === Admin.CvrFileMode.Test &&
+            containsLiveBallots) ||
+          (currentCvrFileMode === Admin.CvrFileMode.Official &&
+            containsTestBallots)
+        ) {
+          this.client.run('rollback transaction');
+
+          return err({
+            kind: 'MixedLiveAndTestBallots',
+            userFriendlyMessage:
+              `this file contains ${
+                containsLiveBallots ? 'live' : 'test'
+              } ballots, ` +
+              `but you are currently in ${currentCvrFileMode} mode`,
+          });
         }
       }
 

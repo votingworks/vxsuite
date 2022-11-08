@@ -5,7 +5,7 @@ import {
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
-import { CastVoteRecord } from '@votingworks/types';
+import { BallotId, CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
@@ -279,7 +279,7 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
 });
 
 test('add a live CVR file after adding a test CVR file', async () => {
-  const { electionDefinition, standardCvrFile, standardLiveCvrFile } =
+  const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
 
   const store = Store.memoryStore();
@@ -291,9 +291,21 @@ test('add a live CVR file after adding a test CVR file', async () => {
     originalFilename: 'test-cvrs.jsonl',
   });
 
+  const liveCvr: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+  };
+  const tmpFile = fileSync();
+  await fs.writeFile(tmpFile.name, JSON.stringify(liveCvr));
   const result = await store.addCastVoteRecordFile({
     electionId,
-    filePath: standardLiveCvrFile.asFilePath(),
+    filePath: tmpFile.name,
     originalFilename: 'live-cvrs.jsonl',
   });
 
@@ -306,7 +318,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
 });
 
 test('add a test CVR file after adding a live CVR file', async () => {
-  const { electionDefinition, standardCvrFile, standardLiveCvrFile } =
+  const { electionDefinition, standardLiveCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
 
   const store = Store.memoryStore();
@@ -318,9 +330,21 @@ test('add a test CVR file after adding a live CVR file', async () => {
     originalFilename: 'live-cvrs.jsonl',
   });
 
+  const testCvr: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: true,
+  };
+  const tmpFile = fileSync();
+  await fs.writeFile(tmpFile.name, JSON.stringify(testCvr));
   const result = await store.addCastVoteRecordFile({
     electionId,
-    filePath: standardCvrFile.asFilePath(),
+    filePath: tmpFile.name,
     originalFilename: 'test-cvrs.jsonl',
   });
 
