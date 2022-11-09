@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, filterTalliesByParamsAndBatchId } from '@votingworks/utils';
 import {
   Election,
   expandEitherNeitherContests,
@@ -6,8 +6,6 @@ import {
   FullElectionTally,
   TallyCategory,
 } from '@votingworks/types';
-
-import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 
 export function* generateRowsForBatchTallyResultsCsv(
   fullElectionTally: FullElectionTally,

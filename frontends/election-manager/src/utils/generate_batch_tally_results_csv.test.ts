@@ -7,13 +7,23 @@ import {
   generateCvr,
   generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
-import { computeFullElectionTally } from '../lib/votecounting';
-import { parseCvrsAndAssertSuccess } from '../lib/votecounting.test';
+import { CastVoteRecord, Election } from '@votingworks/types';
+import { computeFullElectionTally, parseCvrs } from '@votingworks/utils';
 import {
   generateBatchTallyResultsCsv,
   generateHeaderRowForBatchResultsCsv,
   generateRowsForBatchTallyResultsCsv,
 } from './generate_batch_tally_results_csv';
+
+function parseCvrsAndAssertSuccess(
+  cvrsFileContents: string,
+  election: Election
+): CastVoteRecord[] {
+  return [...parseCvrs(cvrsFileContents, election)].map(({ cvr, errors }) => {
+    expect({ cvr, errors }).toEqual({ cvr, errors: [] });
+    return cvr;
+  });
+}
 
 describe('generateBatchTallyResultsCSV', () => {
   it('generates correct candidate tallies in primary election', () => {

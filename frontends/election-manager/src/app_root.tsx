@@ -21,16 +21,14 @@ import {
   throwIllegalValue,
   usbstick,
   Hardware,
+  computeFullElectionTally,
+  getEmptyFullElectionTally,
 } from '@votingworks/utils';
 import {
   useUsbDrive,
   useDevices,
   useDippedSmartcardAuth,
 } from '@votingworks/ui';
-import {
-  computeFullElectionTally,
-  getEmptyFullElectionTally,
-} from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';

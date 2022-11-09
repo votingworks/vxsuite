@@ -24,16 +24,16 @@ import {
   ContestOptionTally,
   ContestId,
 } from '@votingworks/types';
+
+import { assert, throwIllegalValue } from './assert';
+import { find } from './find';
+import { typedAs } from './types';
 import {
-  assert,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
-  find,
   getEmptyTally,
   normalizeWriteInId,
-  throwIllegalValue,
-  typedAs,
-} from '@votingworks/utils';
+} from './votes';
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;
@@ -339,7 +339,13 @@ function makePairs<T>(inputArray: T[]): Array<Pair<T>> {
   const pairs = [];
   for (let i = 0; i < inputArray.length; i += 1) {
     for (let j = i + 1; j < inputArray.length; j += 1) {
-      pairs.push({ first: inputArray[i], second: inputArray[j] });
+      const first = inputArray[i];
+      const second = inputArray[j];
+      if (!first || !second) {
+        continue;
+      }
+
+      pairs.push({ first, second });
     }
   }
 
@@ -370,6 +376,8 @@ function findOvervotePairTally(
       return pairTally;
     }
   }
+
+  return undefined;
 }
 
 // filters the CVR so it doesn't contain contests it shouldn't (TODO: should we cancel it altogether if it does?)

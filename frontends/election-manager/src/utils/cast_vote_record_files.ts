@@ -1,5 +1,9 @@
 import { CastVoteRecord, Election } from '@votingworks/types';
-import { assert, parseCvrFileInfoFromFilename } from '@votingworks/utils';
+import {
+  assert,
+  parseCvrFileInfoFromFilename,
+  parseCvrs,
+} from '@votingworks/utils';
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
 import {
@@ -7,7 +11,6 @@ import {
   CastVoteRecordFilePreprocessedData,
 } from '../config/types';
 import { readFileAsync } from '../lib/read_file_async';
-import { parseCvrs } from '../lib/votecounting';
 
 /**
  * Adds elements to a set by creating a new set with the contents of the
