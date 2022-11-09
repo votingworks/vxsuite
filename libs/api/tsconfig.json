@@ -4,7 +4,7 @@
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
-    "lib": ["esnext"],
+    "lib": ["dom", "esnext"],
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,

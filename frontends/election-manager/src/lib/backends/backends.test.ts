@@ -118,7 +118,7 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       return {
         body: typedAs<Admin.PostCvrFileResponse>({
           status: 'ok',
-          id: `${electionId};${cvrFile.name}`,
+          id: `${electionId}-${cvrFile.name}`.replaceAll('.', '_'),
           wasExistingFile: result.wasExistingFile,
           newlyAdded: result.newlyAdded,
           alreadyPresent: result.alreadyPresent,

@@ -175,7 +175,9 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
             errors: [
               {
                 type: result.err().kind,
-                message: JSON.stringify(result.err()),
+                message:
+                  result.err().userFriendlyMessage ||
+                  JSON.stringify(result.err()),
               },
             ],
           });

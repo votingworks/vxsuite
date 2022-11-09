@@ -1,11 +1,12 @@
 import { Admin } from '@votingworks/api';
+import { Client as DBClient } from '@votingworks/db';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   arbitraryBallotLocale,
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
-import { CastVoteRecord } from '@votingworks/types';
+import { BallotId, CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
@@ -230,7 +231,7 @@ test('adding a CVR file if adding an entry fails', async () => {
   const cvrFile =
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
 
-  jest.spyOn(store, 'addCastVoteRecordFileEntry').mockImplementation(() => {
+  jest.spyOn(DBClient.prototype, 'one').mockImplementationOnce(() => {
     throw new Error('oops');
   });
 
@@ -269,6 +270,146 @@ test('add a CVR file entry without a ballot ID', async () => {
   expect(result.unsafeUnwrapErr()).toEqual(
     typedAs<AddCastVoteRecordError>({ kind: 'BallotIdRequired' })
   );
+});
+
+test('add a CVR file entry matching an existing ballot ID with different data', async () => {
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  await store.addCastVoteRecordFile({
+    electionId,
+    filePath: standardCvrFile.asFilePath(),
+  });
+
+  // Create modified CVR file with ballot data changed slightly:
+  const tmpFile = fileSync();
+  await fs.writeFile(
+    tmpFile.name,
+    standardCvrFile.asText().replaceAll('zebra', 'striped horse')
+  );
+
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+  });
+
+  expect(result.isErr()).toBe(true);
+  expect(result.err()).toMatchObject({
+    kind: 'BallotIdAlreadyExistsWithDifferentData',
+    existingData: /zebra/,
+    newData: /striped horse/,
+  });
+});
+
+test('add a live CVR file after adding a test CVR file', async () => {
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  await store.addCastVoteRecordFile({
+    electionId,
+    filePath: standardCvrFile.asFilePath(),
+    originalFilename: 'test-cvrs.jsonl',
+  });
+
+  const liveCvr: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+  };
+  const tmpFile = fileSync();
+  await fs.writeFile(tmpFile.name, JSON.stringify(liveCvr));
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+    originalFilename: 'live-cvrs.jsonl',
+  });
+
+  expect(result.isErr()).toBe(true);
+  expect(result.err()).toEqual({
+    kind: 'InvalidCvrFileMode',
+    userFriendlyMessage:
+      'this file contains live ballots, but you are currently in test mode',
+  });
+});
+
+test('add a test CVR file after adding a live CVR file', async () => {
+  const { electionDefinition, standardLiveCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  await store.addCastVoteRecordFile({
+    electionId,
+    filePath: standardLiveCvrFile.asFilePath(),
+    originalFilename: 'live-cvrs.jsonl',
+  });
+
+  const testCvr: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: true,
+  };
+  const tmpFile = fileSync();
+  await fs.writeFile(tmpFile.name, JSON.stringify(testCvr));
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+    originalFilename: 'test-cvrs.jsonl',
+  });
+
+  expect(result.isErr()).toBe(true);
+  expect(result.err()).toEqual({
+    kind: 'InvalidCvrFileMode',
+    userFriendlyMessage:
+      'this file contains test ballots, but you are currently in live mode',
+  });
+});
+
+test('add a CVR file with mixed live and test CVRs', async () => {
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  // Create modified "test" CVR file with one CVR flipped to "live":
+  const cvrData = standardCvrFile.asText();
+  const tmpFile = fileSync();
+  await fs.writeFile(
+    tmpFile.name,
+    cvrData.replace('"_testBallot":true', '"_testBallot":false')
+  );
+
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+    originalFilename: 'mixed-cvrs.jsonl',
+  });
+
+  expect(result.isErr()).toBe(true);
+  expect(result.err()).toEqual({
+    kind: 'MixedLiveAndTestBallots',
+    userFriendlyMessage:
+      'these CVRs cannot be tabulated together because ' +
+      'they mix live and test ballots',
+  });
 });
 
 test('get CVR file metadata', async () => {

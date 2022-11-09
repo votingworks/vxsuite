@@ -5,6 +5,7 @@
 import { Admin } from '@votingworks/api';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
+  BallotId,
   BallotStyleId,
   CastVoteRecord,
   ContestId,
@@ -38,34 +39,42 @@ function convertSqliteTimestampToIso8601(
 }
 
 /**
- * Kinds of errors that can occur when adding a CVR file.
+ * Errors that can occur when adding a CVR file.
  */
-export type AddCastVoteRecordErrorKind =
-  | 'BallotIdRequired'
-  | 'BallotIdAlreadyExistsWithDifferentData';
+export interface AddCastVoteRecordError {
+  readonly kind:
+    | 'BallotIdRequired'
+    | 'BallotIdAlreadyExistsWithDifferentData'
+    | 'InvalidCvrFileMode'
+    | 'MixedLiveAndTestBallots';
+  readonly userFriendlyMessage?: string;
+}
 
 /**
  * An error caused by a missing ballot ID in a CVR file.
  */
-export interface AddCastVoteRecordBallotIdRequiredError {
+export interface AddCastVoteRecordBallotIdRequiredError
+  extends AddCastVoteRecordError {
   readonly kind: 'BallotIdRequired';
 }
 
 /**
  * An error caused by a duplicate ballot ID.
  */
-export interface AddCastVoteRecordBallotIdExistsWithDifferentDataError {
+export interface AddCastVoteRecordBallotIdExistsWithDifferentDataError
+  extends AddCastVoteRecordError {
   readonly kind: 'BallotIdAlreadyExistsWithDifferentData';
   readonly newData: string;
   readonly existingData: string;
 }
 
 /**
- * Errors that can occur when adding a CVR file.
+ * An error caused by attempting to import both "live" and "test" ballots for an election.
  */
-export type AddCastVoteRecordError =
-  | AddCastVoteRecordBallotIdRequiredError
-  | AddCastVoteRecordBallotIdExistsWithDifferentDataError;
+export interface MixedLiveAndTestBallotsError extends AddCastVoteRecordError {
+  readonly kind: 'MixedLiveAndTestBallots';
+  readonly message: string;
+}
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -277,24 +286,77 @@ export class Store {
 
         const lines = readline.createInterface(fs.createReadStream(filePath));
 
+        const currentCvrFileMode =
+          this.getCurrentCvrFileModeForElection(electionId);
+        let containsTestBallots = false;
+        let containsLiveBallots = false;
+
         for await (const line of lines) {
           if (line.trim() === '') {
             continue;
           }
 
-          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking against
-          // attempts to mix "live" and "test" CVRs for the same election.
-          const result = this.addCastVoteRecordFileEntry(electionId, id, line);
+          // Parse CVR data for validation.
+          const cvr = safeParseJson(line).unsafeUnwrap() as CastVoteRecord;
+
+          if (!cvr._ballotId) {
+            return err({ kind: 'BallotIdRequired' });
+          }
+
+          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
+          // to prevent importing CVRs for the wrong election.
+
+          containsTestBallots ||= cvr._testBallot;
+          containsLiveBallots ||= !cvr._testBallot;
+          if (containsTestBallots && containsLiveBallots) {
+            this.client.run('rollback transaction');
+
+            return err({
+              kind: 'MixedLiveAndTestBallots',
+              userFriendlyMessage:
+                'these CVRs cannot be tabulated together because ' +
+                'they mix live and test ballots',
+            });
+          }
+
+          const result = this.addCastVoteRecordFileEntry(
+            electionId,
+            id,
+            cvr._ballotId,
+            line
+          );
 
           if (result.isErr()) {
+            this.client.run('rollback transaction');
             return result;
           }
+
+          this.addWriteInsFromCvr(result.ok().id, cvr);
 
           if (result.ok().isNew) {
             newlyAdded += 1;
           } else {
             alreadyPresent += 1;
           }
+        }
+
+        // Ensure CVR mode matches previous file imports, if any:
+        if (
+          (currentCvrFileMode === Admin.CvrFileMode.Test &&
+            containsLiveBallots) ||
+          (currentCvrFileMode === Admin.CvrFileMode.Official &&
+            containsTestBallots)
+        ) {
+          this.client.run('rollback transaction');
+
+          return err({
+            kind: 'InvalidCvrFileMode',
+            userFriendlyMessage:
+              `this file contains ${
+                containsLiveBallots ? 'live' : 'test'
+              } ballots, ` +
+              `but you are currently in ${currentCvrFileMode} mode`,
+          });
         }
       }
 
@@ -362,18 +424,12 @@ export class Store {
    * the same contents has already been added, returns the ID of that record and
    * associates `cvrFileId` with it.
    */
-  addCastVoteRecordFileEntry(
+  private addCastVoteRecordFileEntry(
     electionId: Id,
     cvrFileId: Id,
+    ballotId: BallotId,
     data: string
   ): Result<{ id: Id; isNew: boolean }, AddCastVoteRecordError> {
-    const cvr = safeParseJson(data).unsafeUnwrap() as CastVoteRecord;
-    const ballotId = cvr._ballotId;
-
-    if (!ballotId) {
-      return err({ kind: 'BallotIdRequired' });
-    }
-
     const existing = this.client.one(
       `
         select
@@ -430,17 +486,19 @@ export class Store {
       id
     );
 
+    return ok({ id, isNew: !existing });
+  }
+
+  private addWriteInsFromCvr(cvrId: string, cvr: CastVoteRecord): void {
     for (const [contestId, writeInIds] of getWriteInsFromCastVoteRecord(cvr)) {
       for (const optionId of writeInIds) {
         this.addWriteIn({
-          castVoteRecordId: id,
+          castVoteRecordId: cvrId,
           contestId,
           optionId,
         });
       }
     }
-
-    return ok({ id, isNew: !existing });
   }
 
   /**
