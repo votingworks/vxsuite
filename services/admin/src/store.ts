@@ -19,7 +19,12 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import {
+  assert,
+  ParseCastVoteRecordResult,
+  parseCvrs,
+  typedAs,
+} from '@votingworks/utils';
 import * as fs from 'fs';
 import { basename, join } from 'path';
 import * as readline from 'readline';
@@ -41,40 +46,50 @@ function convertSqliteTimestampToIso8601(
 /**
  * Errors that can occur when adding a CVR file.
  */
-export interface AddCastVoteRecordError {
-  readonly kind:
-    | 'BallotIdRequired'
-    | 'BallotIdAlreadyExistsWithDifferentData'
-    | 'InvalidCvrFileMode'
-    | 'MixedLiveAndTestBallots';
-  readonly userFriendlyMessage?: string;
-}
+export type AddCastVoteRecordError = {
+  userFriendlyMessage?: string;
+} & (
+  | {
+      readonly kind: 'BallotIdRequired';
+    }
+  | {
+      readonly kind: 'BallotIdAlreadyExistsWithDifferentData';
+      readonly newData: string;
+      readonly existingData: string;
+    }
+  | {
+      readonly kind: 'InvalidCvr';
+      readonly lineNumber: number;
+      readonly errors: string[];
+    }
+  | {
+      readonly kind: 'InvalidCvrFileMode';
+    }
+  | {
+      readonly kind: 'InvalidElectionId';
+    }
+  | {
+      readonly kind: 'InvalidVote';
+      readonly lineNumber: number;
+    }
+  | {
+      readonly kind: 'MismatchedElectionDetails';
+      readonly lineNumber: number;
+    }
+  | {
+      readonly kind: 'MixedLiveAndTestBallots';
+    }
+);
 
-/**
- * An error caused by a missing ballot ID in a CVR file.
- */
-export interface AddCastVoteRecordBallotIdRequiredError
-  extends AddCastVoteRecordError {
-  readonly kind: 'BallotIdRequired';
-}
-
-/**
- * An error caused by a duplicate ballot ID.
- */
-export interface AddCastVoteRecordBallotIdExistsWithDifferentDataError
-  extends AddCastVoteRecordError {
-  readonly kind: 'BallotIdAlreadyExistsWithDifferentData';
-  readonly newData: string;
-  readonly existingData: string;
-}
-
-/**
- * An error caused by attempting to import both "live" and "test" ballots for an election.
- */
-export interface MixedLiveAndTestBallotsError extends AddCastVoteRecordError {
-  readonly kind: 'MixedLiveAndTestBallots';
-  readonly message: string;
-}
+type AddCastVoteResult = Result<
+  {
+    id: Id;
+    wasExistingFile: boolean;
+    newlyAdded: number;
+    alreadyPresent: number;
+  },
+  AddCastVoteRecordError
+>;
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -206,6 +221,45 @@ export class Store {
     }
   }
 
+  private convertCvrParseErrorsToApiError(
+    cvrParseResult: ParseCastVoteRecordResult
+  ): AddCastVoteRecordError {
+    // Find errors for which we want surface specific messaging to
+    // the user:
+    // [TODO: there's room for simplification here - currently leveraging
+    // older validation code in `parseCvrs` as a first step.]
+    for (const errorMessage of cvrParseResult.errors) {
+      if (errorMessage.includes('not in the election definition')) {
+        return {
+          kind: 'MismatchedElectionDetails',
+          lineNumber: cvrParseResult.lineNumber,
+          userFriendlyMessage: errorMessage,
+        };
+      }
+
+      if (
+        errorMessage.includes('not a valid contest choice') ||
+        errorMessage.includes('not a valid candidate choice')
+      ) {
+        return {
+          kind: 'InvalidVote',
+          lineNumber: cvrParseResult.lineNumber,
+          userFriendlyMessage: errorMessage,
+        };
+      }
+    }
+
+    // Generic fallback error for unhandled validation errors:
+    return {
+      kind: 'InvalidCvr',
+      lineNumber: cvrParseResult.lineNumber,
+      errors: cvrParseResult.errors,
+      userFriendlyMessage:
+        `the CVR at line ${cvrParseResult.lineNumber} is invalid for ` +
+        `this election`,
+    };
+  }
+
   /**
    * Adds a CVR file record and returns its ID. If a CVR file with the same
    * contents has already been added, returns the ID of that record instead.
@@ -223,22 +277,15 @@ export class Store {
     filePath: string;
     originalFilename?: string;
     analyzeOnly?: boolean;
-  }): Promise<
-    Result<
-      {
-        id: Id;
-        wasExistingFile: boolean;
-        newlyAdded: number;
-        alreadyPresent: number;
-      },
-      AddCastVoteRecordError
-    >
-  > {
-    this.client.run('begin transaction');
-    let inTransaction = true;
+  }): Promise<AddCastVoteResult> {
+    const election = this.getElection(electionId)?.electionDefinition.election;
+    if (!election) {
+      return err({ kind: 'InvalidElectionId' });
+    }
+
     const sha256Hash = await sha256File(filePath);
 
-    try {
+    const transactionFn = async (): Promise<AddCastVoteResult> => {
       let id = uuid();
       let newlyAdded = 0;
       let alreadyPresent = 0;
@@ -296,21 +343,22 @@ export class Store {
             continue;
           }
 
-          // Parse CVR data for validation.
-          const cvr = safeParseJson(line).unsafeUnwrap() as CastVoteRecord;
+          const [cvrParseResult] = [...parseCvrs(line, election)];
+          assert(cvrParseResult);
+
+          if (cvrParseResult.errors.length > 0) {
+            return err(this.convertCvrParseErrorsToApiError(cvrParseResult));
+          }
+
+          const { cvr } = cvrParseResult;
 
           if (!cvr._ballotId) {
             return err({ kind: 'BallotIdRequired' });
           }
 
-          // TODO(https://github.com/votingworks/vxsuite/issues/2716): add error checking
-          // to prevent importing CVRs for the wrong election.
-
           containsTestBallots ||= cvr._testBallot;
           containsLiveBallots ||= !cvr._testBallot;
           if (containsTestBallots && containsLiveBallots) {
-            this.client.run('rollback transaction');
-
             return err({
               kind: 'MixedLiveAndTestBallots',
               userFriendlyMessage:
@@ -327,7 +375,6 @@ export class Store {
           );
 
           if (result.isErr()) {
-            this.client.run('rollback transaction');
             return result;
           }
 
@@ -347,8 +394,6 @@ export class Store {
           (currentCvrFileMode === Admin.CvrFileMode.Official &&
             containsTestBallots)
         ) {
-          this.client.run('rollback transaction');
-
           return err({
             kind: 'InvalidCvrFileMode',
             userFriendlyMessage:
@@ -360,23 +405,23 @@ export class Store {
         }
       }
 
-      this.client.run(
-        analyzeOnly ? 'rollback transaction' : 'commit transaction'
-      );
-      inTransaction = false;
-
       return ok({
         id,
         wasExistingFile: !!existing,
         newlyAdded,
         alreadyPresent,
       });
-    } catch (error) {
-      if (inTransaction) {
-        this.client.run('rollback transaction');
+    };
+
+    function shouldCommit(result: AddCastVoteResult) {
+      if (analyzeOnly) {
+        return false;
       }
-      throw error;
+
+      return result.isOk();
     }
+
+    return await this.client.transaction(transactionFn, shouldCommit);
   }
 
   getCastVoteRecordForWriteIn(
@@ -635,8 +680,8 @@ export class Store {
   /**
    * Deletes all CVR files for an election.
    */
-  deleteCastVoteRecordFiles(electionId: Id): void {
-    this.client.transaction(() => {
+  async deleteCastVoteRecordFiles(electionId: Id): Promise<void> {
+    await this.client.transaction(() => {
       this.client.run(
         `
           delete from cvr_file_entries

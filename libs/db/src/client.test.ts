@@ -122,7 +122,7 @@ test('read/write', () => {
   );
 });
 
-test('transactions', () => {
+test('transactions', async () => {
   const client = Client.memoryClient();
 
   client.exec(
@@ -134,7 +134,8 @@ test('transactions', () => {
     count: 1,
   });
 
-  expect(() =>
+  // Should roll back on exception:
+  await expect(
     client.transaction(() => {
       client.run('insert into muppets (name) values (?)', 'Fozzie');
       expect(client.one('select count(*) as count from muppets')).toEqual({
@@ -142,16 +143,54 @@ test('transactions', () => {
       });
       throw new Error('rollback');
     })
-  ).toThrow('rollback');
+  ).rejects.toThrow('rollback');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
 
-  client.transaction(() => {
+  // Should commit by default, if no exceptions occur:
+  await client.transaction(() => {
     client.run('insert into muppets (name) values (?)', 'Fozzie');
   });
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 2,
+  });
+
+  // Should roll back if shouldCommit test returns false:
+  await expect(
+    client.transaction(
+      () => {
+        client.run('insert into muppets (name) values (?)', 'Gonzo');
+        expect(client.one('select count(*) as count from muppets')).toEqual({
+          count: 3,
+        });
+        return 'this is a result';
+      },
+      (result) => {
+        expect(result).toEqual('this is a result');
+        return false;
+      }
+    )
+  ).resolves.toEqual('this is a result');
+  expect(client.one('select count(*) as count from muppets')).toEqual({
+    count: 2,
+  });
+
+  // Should commit if shouldCommit test returns true:
+  await expect(
+    client.transaction(
+      async () => {
+        client.run('insert into muppets (name) values (?)', 'Gonzo');
+        return await Promise.resolve('another result');
+      },
+      (result) => {
+        expect(result).toEqual('another result');
+        return true;
+      }
+    )
+  ).resolves.toEqual('another result');
+  expect(client.one('select count(*) as count from muppets')).toEqual({
+    count: 3,
   });
 });
 
