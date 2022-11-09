@@ -19,6 +19,7 @@ import {
   NullPrinter,
   MemoryStorage,
   Storage,
+  getEmptyFullElectionTally,
 } from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
@@ -33,7 +34,6 @@ import {
   ResetElection,
 } from '../src/config/types';
 import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
-import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
   ElectionManagerStoreBackend,

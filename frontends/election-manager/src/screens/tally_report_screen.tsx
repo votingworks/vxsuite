@@ -1,7 +1,11 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useLocation, useParams } from 'react-router-dom';
-import { assert, find } from '@votingworks/utils';
+import {
+  assert,
+  find,
+  filterTalliesByParamsAndBatchId,
+} from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
@@ -32,7 +36,6 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
-import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 import { useMarkResultsOfficialMutation } from '../hooks/use_mark_results_official_mutation';
 import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 

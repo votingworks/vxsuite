@@ -11,8 +11,8 @@ import {
   writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
+import { computeFullElectionTally, parseCvrs } from '@votingworks/utils';
 import { ExportableContestTally, ExportableTallies } from '../config/types';
-import { computeFullElectionTally, parseCvrs } from '../lib/votecounting';
 import {
   getCombinedExportableContestTally,
   getExportableTallies,

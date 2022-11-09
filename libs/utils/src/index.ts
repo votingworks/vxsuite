@@ -31,4 +31,5 @@ export * from './Storage';
 export * from './tallies';
 export * from './types';
 export * from './votes';
+export * from './votecounting';
 export * as usbstick from './usbstick';

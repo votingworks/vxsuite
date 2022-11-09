@@ -8,7 +8,11 @@ import {
   Printer,
   VotingMethod,
 } from '@votingworks/types';
-import { usbstick, NullPrinter } from '@votingworks/utils';
+import {
+  usbstick,
+  NullPrinter,
+  getEmptyFullElectionTally,
+} from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
 import {
   SaveElection,
@@ -20,7 +24,6 @@ import {
   ResetElection,
 } from '../config/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
-import { getEmptyFullElectionTally } from '../lib/votecounting';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
 export interface AppContextInterface {

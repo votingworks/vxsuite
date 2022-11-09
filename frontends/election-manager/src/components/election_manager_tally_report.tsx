@@ -22,11 +22,14 @@ import {
   VotingMethod,
   Optional,
 } from '@votingworks/types';
-import { filterTalliesByParams, find } from '@votingworks/utils';
+import {
+  filterTalliesByParams,
+  find,
+  modifyTallyWithWriteInInfo,
+} from '@votingworks/utils';
 import React, { forwardRef } from 'react';
 
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
-import { modifyTallyWithWriteInInfo } from '../lib/votecounting';
 import { mergeWriteIns } from '../utils/write_ins';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
