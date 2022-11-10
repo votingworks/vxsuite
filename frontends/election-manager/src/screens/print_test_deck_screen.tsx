@@ -75,7 +75,7 @@ function PrecinctTallyReport({
 interface BmdPaperBallotsProps {
   electionDefinition: ElectionDefinition;
   onAllRendered: (numBallots: number) => void;
-  precinctId: string;
+  precinctId: PrecinctId;
 }
 
 function BmdPaperBallots({
@@ -335,13 +335,13 @@ export function PrintTestDeckScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
-  const [precinctIds, setPrecinctIds] = useState<string[]>([]);
+  const [precinctIds, setPrecinctIds] = useState<PrecinctId[]>([]);
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
   const [showPrintingError, setShowPrintingError] = useState(false);
 
   const pageTitle = 'Precinct L&A Packages';
 
-  function generatePrecinctIds(precinctId: string): string[] {
+  function generatePrecinctIds(precinctId: PrecinctId): PrecinctId[] {
     if (precinctId === 'all') {
       const sortedPrecincts = [...election.precincts].sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
@@ -421,7 +421,7 @@ export function PrintTestDeckScreen(): JSX.Element {
     }
   }, [election, precinctIds.length, printIndex]);
 
-  async function startPrint(precinctId: string) {
+  async function startPrint(precinctId: PrecinctId) {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (printers.some((p) => p.connected)) {

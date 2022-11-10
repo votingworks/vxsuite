@@ -20,8 +20,8 @@ export interface PollWorkerUser {
 export interface VoterUser {
   readonly role: 'voter';
   readonly createdAt: number;
-  readonly ballotStyleId: string;
-  readonly precinctId: string;
+  readonly ballotStyleId: BallotStyleId;
+  readonly precinctId: PrecinctId;
   readonly voidedAt?: number;
   readonly ballotPrintedAt?: number;
   readonly updatedAt?: number;

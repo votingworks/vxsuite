@@ -605,7 +605,7 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async getWriteInAdjudicationTable(
-    contestId: string
+    contestId: ContestId
   ): Promise<Admin.WriteInAdjudicationTable> {
     const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 

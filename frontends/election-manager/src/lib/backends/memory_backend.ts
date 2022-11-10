@@ -522,7 +522,7 @@ export class ElectionManagerStoreMemoryBackend
   }
 
   async getWriteInAdjudicationTable(
-    contestId: string
+    contestId: ContestId
   ): Promise<Admin.WriteInAdjudicationTable> {
     const contest = find(
       this.electionDefinition?.election.contests ?? [],

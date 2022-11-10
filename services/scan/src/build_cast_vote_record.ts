@@ -3,6 +3,7 @@ import {
   BallotId,
   BallotMetadata,
   BallotPageLayout,
+  BallotStyleId,
   BallotType,
   CandidateVote,
   CastVoteRecord,
@@ -162,7 +163,7 @@ export function buildCastVoteRecordVotesEntries(
 
 export function getContestsForBallotStyle(
   election: Election,
-  ballotStyleId: string
+  ballotStyleId: BallotStyleId
 ): Contests {
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);

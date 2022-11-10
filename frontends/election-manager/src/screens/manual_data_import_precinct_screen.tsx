@@ -500,7 +500,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   // Modifies the external tally in place and returns the same object
   function addWriteInCandidateToExternalTally(
     externalTally: TempExternalTally,
-    contestId: string,
+    contestId: ContestId,
     name: string
   ) {
     const contestTally = externalTally.contestTallies[contestId];
@@ -551,7 +551,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   );
 
   const addWriteInCandidate = useCallback(
-    (contestId: string, name: string) => {
+    (contestId: ContestId, name: string) => {
       assert(currentPrecinctTally);
       assert(talliesByPrecinct);
 
@@ -582,7 +582,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   );
 
   const removeCandidate = useCallback(
-    (contestId: string, candidateId: string) => {
+    (contestId: ContestId, candidateId: CandidateId) => {
       assert(currentPrecinctTally);
       assert(talliesByPrecinct);
 

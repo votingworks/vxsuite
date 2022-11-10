@@ -9,6 +9,7 @@ import {
 } from '@votingworks/ui';
 
 import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
+import { PartyId } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
@@ -219,7 +220,7 @@ export function ElectionManager(): JSX.Element {
       <Route
         exact
         path={[
-          routerPaths.tallyPartyReport({ partyId: ':partyId' }),
+          routerPaths.tallyPartyReport({ partyId: ':partyId' as PartyId }),
           routerPaths.tallyFullReport,
         ]}
       >
