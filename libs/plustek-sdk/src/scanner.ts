@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { err, ok, Result, safeParse } from '@votingworks/types';
+import { err, ok, Result, safeParse, SheetOf } from '@votingworks/types';
 import { deferred, throwIllegalValue } from '@votingworks/utils';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
@@ -54,7 +54,7 @@ export type GetPaperStatusResult = Result<PaperStatus, ScannerError | Error>;
  * The return type of {@link ScannerClient.scan}.
  */
 export type ScanResult = Result<
-  { files: [string, string] },
+  { files: SheetOf<string> },
   ScannerError | Error
 >;
 

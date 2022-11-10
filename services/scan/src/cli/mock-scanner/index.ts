@@ -1,10 +1,11 @@
+import { SheetOf } from '@votingworks/types';
 import got, { Response } from 'got';
 import { resolve } from 'path';
 import { MOCK_SCANNER_PORT } from '../../globals';
 
 type Command =
   | { type: 'help'; commandName?: Command['type'] }
-  | { type: 'load'; files: readonly [string, string] }
+  | { type: 'load'; files: SheetOf<string> }
   | { type: 'remove' };
 
 const BASE_URL = `http://localhost:${MOCK_SCANNER_PORT}`;

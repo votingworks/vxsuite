@@ -1,4 +1,8 @@
-import { ElectionDefinition, PageInterpretation } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PageInterpretation,
+  SheetOf,
+} from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import { cpus } from 'os';
 import { isAbsolute, join, resolve } from 'path';
@@ -154,7 +158,7 @@ export async function retryScan(
         const backInterpretation: PageInterpretation = JSON.parse(
           backInterpretationJson
         );
-        const originalScans: [PageScan, PageScan] = [
+        const originalScans: SheetOf<PageScan> = [
           {
             interpretation: frontInterpretation,
             originalFilename: absolutify(frontOriginalFilename),

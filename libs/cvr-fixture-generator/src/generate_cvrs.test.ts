@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { BallotType } from '@votingworks/types';
+import { BallotType, SheetOf } from '@votingworks/types';
 import {
   castVoteRecordHasWriteIns,
   readBallotPackageFromBuffer,
@@ -130,7 +130,7 @@ test('records have votes for consecutive pages', async () => {
     scannerNames: ['scanner-1'],
     testMode: false,
   })) {
-    const pageNumbers = cvr._pageNumbers as [number, number];
+    const pageNumbers = cvr._pageNumbers as SheetOf<number>;
 
     expect(pageNumbers).toHaveLength(2);
     expect(pageNumbers[0] + 1).toEqual(pageNumbers[1]);

@@ -17,6 +17,7 @@ import {
   InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  mapSheet,
   SheetOf,
   UninterpretedHmpbPage,
   VotesDict,
@@ -222,17 +223,22 @@ function buildCastVoteRecordFromHmpbPage(
     throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`);
   }
 
-  const frontVotesEntries = buildCastVoteRecordVotesEntries(
-    getContestsFromIds(election, front.contestIds),
-    front.interpretation.type === 'InterpretedHmpbPage'
-      ? front.interpretation.votes
-      : {}
-  );
-  const backVotesEntries = buildCastVoteRecordVotesEntries(
-    getContestsFromIds(election, back.contestIds),
-    back.interpretation.type === 'InterpretedHmpbPage'
-      ? back.interpretation.votes
-      : {}
+  const [frontVotesEntries, backVotesEntries] = mapSheet(
+    [front, back],
+    (page) => {
+      if (!page.contestIds) {
+        throw new Error(
+          `expected sheet to have contest ids with sheet ${sheetId}`
+        );
+      }
+
+      return buildCastVoteRecordVotesEntries(
+        getContestsFromIds(election, page.contestIds),
+        page.interpretation.type === 'InterpretedHmpbPage'
+          ? page.interpretation.votes
+          : {}
+      );
+    }
   );
 
   const votesEntries: Dictionary<string[]> = {
@@ -270,7 +276,7 @@ export function addBallotImagesToCvr(
 export function cvrHasWriteIns(
   election: Election,
   cvr: CastVoteRecord
-): [boolean, boolean] {
+): SheetOf<boolean> {
   const potentialWriteIns: string[] = election.contests
     .filter((c) => c.type === 'candidate' && c.allowWriteIns)
     .map((c) => c.id);
