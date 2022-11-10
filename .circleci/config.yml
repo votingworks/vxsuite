@@ -523,28 +523,6 @@ jobs:
       - store_test_results:
           path: libs/logging/reports/
 
-  test-libs-lsd:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/lsd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/lsd lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/lsd test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/lsd/reports/
-
   test-libs-plustek-sdk:
     executor: nodejs
     resource_class: xlarge
@@ -800,7 +778,6 @@ workflows:
       - test-libs-fixtures
       - test-libs-image-utils
       - test-libs-logging
-      - test-libs-lsd
       - test-libs-plustek-sdk
       - test-libs-res-to-ts
       - test-libs-test-utils

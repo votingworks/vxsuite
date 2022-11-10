@@ -81,10 +81,6 @@
       "path": "libs/logging"
     },
     {
-      "name": "libs/lsd",
-      "path": "libs/lsd"
-    },
-    {
       "name": "libs/types",
       "path": "libs/types"
     },
