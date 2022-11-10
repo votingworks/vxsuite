@@ -10,6 +10,7 @@ import {
   PageInterpretation,
   PageInterpretationWithFiles,
   Result,
+  SheetOf,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION, find, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -19,7 +20,6 @@ import { join } from 'path';
 import { Writable } from 'stream';
 import { v4 as uuid } from 'uuid';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
-import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
 import { Workspace } from './util/workspace';

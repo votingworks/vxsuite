@@ -26,6 +26,7 @@ import {
   MarkThresholds,
   PageInterpretation,
   PrecinctSelection,
+  SheetOf,
 } from '@votingworks/types';
 import {
   adjudicationReasonDescription,
@@ -35,7 +36,7 @@ import {
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
-import { BallotPageQrcode, SheetOf } from './types';
+import { BallotPageQrcode } from './types';
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';

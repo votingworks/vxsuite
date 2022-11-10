@@ -1,5 +1,4 @@
-import { PageInterpretation } from '@votingworks/types';
-import { SheetOf } from '../types';
+import { PageInterpretation, SheetOf } from '@votingworks/types';
 
 export enum Castability {
   Uncastable = 'Uncastable',

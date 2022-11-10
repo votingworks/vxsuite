@@ -1,11 +1,11 @@
-import { ElectionDefinition, Rect } from '@votingworks/types';
+import { ElectionDefinition, Rect, SheetOf } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as z from 'zod';
 import {
   detectQrCode,
   getQrCodeSearchAreas,
 } from '@votingworks/ballot-interpreter-vx';
-import { BallotPageQrcode, SheetOf } from '../types';
+import { BallotPageQrcode } from '../types';
 import { loadImageData } from '../util/images';
 import { Stats, stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';

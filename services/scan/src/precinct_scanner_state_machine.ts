@@ -8,7 +8,7 @@ import {
   ScannerError,
 } from '@votingworks/plustek-sdk';
 import { v4 as uuid } from 'uuid';
-import { err, Id, ok, Result } from '@votingworks/types';
+import { err, Id, ok, Result, SheetOf } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import {
@@ -31,7 +31,6 @@ import {
   SheetInterpretation,
   PrecinctScannerInterpreter,
 } from './precinct_scanner_interpreter';
-import { SheetOf } from './types';
 import { Store } from './store';
 import { Workspace } from './util/workspace';
 

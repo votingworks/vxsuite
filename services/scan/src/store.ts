@@ -34,6 +34,8 @@ import {
   PrecinctSelectionSchema,
   safeParseJson,
   unsafeParse,
+  mapSheet,
+  SheetOf,
 } from '@votingworks/types';
 import {
   assert,
@@ -57,7 +59,6 @@ import {
   cvrHasWriteIns,
 } from './build_cast_vote_record';
 import { sheetRequiresAdjudication } from './interpreter';
-import { mapSheet, SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');

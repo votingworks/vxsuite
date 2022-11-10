@@ -2,11 +2,10 @@ import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
-import { BallotPaperSize } from '@votingworks/types';
+import { BallotPaperSize, SheetOf } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { streamExecFile } from './exec';
 import { StreamLines } from './util/stream_lines';
-import { SheetOf } from './types';
 
 const debug = makeDebug('scan:scanner');
 

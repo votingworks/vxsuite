@@ -5,11 +5,11 @@ import {
   ok,
   PageInterpretationWithFiles,
   Result,
+  SheetOf,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import { VX_MACHINE_TYPE } from '../globals';
 import { Store } from '../store';
-import { SheetOf } from '../types';
 import { saveSheetImages } from '../util/save_images';
 
 export type Input =
