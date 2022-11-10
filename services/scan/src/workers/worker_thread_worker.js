@@ -6,8 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('esbuild-runner/register');
 }
 
-const { err, ok } = require('@votingworks/types');
-const { assert } = require('@votingworks/utils');
+const { ok, wrapException } = require('@votingworks/types');
 const { resolve } = require('path');
 const { parentPort, workerData } = require('worker_threads');
 const json = require('./json_serialization');
@@ -26,8 +25,7 @@ if (pp) {
     try {
       output = ok(await call(json.deserialize(input)));
     } catch (error) {
-      assert(error instanceof Error);
-      output = err(error);
+      output = wrapException(error);
     }
 
     pp.postMessage(json.serialize(output));
