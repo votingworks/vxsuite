@@ -28,7 +28,7 @@ import {
   usbstick,
   assert,
 } from '@votingworks/utils';
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 
 import { Scan } from '@votingworks/api';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
@@ -327,7 +327,11 @@ export function AppRoot({
     await config.setBallotCountWhenBallotBagLastReplaced(
       scannerStatus.ballotsCounted
     );
-  }, [scannerStatus]);
+    await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
+      disposition: 'success',
+      message: 'Poll worker confirmed that they replaced the ballot bag.',
+    });
+  }, [logger, scannerStatus]);
 
   const needsToReplaceBallotBag =
     scannerStatus &&

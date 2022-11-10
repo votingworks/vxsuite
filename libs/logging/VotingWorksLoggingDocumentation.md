@@ -354,6 +354,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### ballot-bag-replaced
+**Type:** [user-action](#user-action)  
+**Description:** User confirmed that they replaced the ballot bag.  
+**Machines:** vx-precinct-scan-frontend
 ### tally-report-cleared-from-card
 **Type:** [application-action](#application-action)  
 **Description:** The tally report has been cleared from the poll worker card.  

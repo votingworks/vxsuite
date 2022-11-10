@@ -1106,7 +1106,7 @@ test('replace ballot bag flow', async () => {
   fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
-  const { card, renderApp } = buildApp();
+  const { card, logger, renderApp } = buildApp();
   renderApp();
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1171,6 +1171,12 @@ test('replace ballot bag flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.BallotBagReplaced,
+    'poll_worker',
+    expect.anything()
+  );
 
   // Does not prompt again if new threshold hasn't been reached
   fetchMock.restore();
