@@ -13,11 +13,12 @@ import {
   PageInterpretationWithFiles,
   PrecinctSelection,
   Result,
+  mapSheet,
+  SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import * as qrcodeWorker from './workers/qrcode';
 import { Interpreter as VxInterpreter } from './interpreter';
-import { mapSheet, SheetOf } from './types';
 import { saveSheetImages } from './util/save_images';
 import { ScannerLocation, SCANNER_LOCATION } from './globals';
 

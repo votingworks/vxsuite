@@ -8,38 +8,6 @@ import {
 } from '@votingworks/types';
 import { BallotStyleData } from '@votingworks/utils';
 
-export type SheetOf<T> = readonly [T, T];
-
-/**
- * Helper for mapping sheet-wise data from one format to another.
- */
-export function mapSheet<T, U>(
-  sheet: SheetOf<T>,
-  fn: (page: T) => Promise<U>
-): Promise<SheetOf<U>>;
-export function mapSheet<T, U>(
-  sheet: SheetOf<T>,
-  fn: (page: T) => U
-): SheetOf<U>;
-export function mapSheet<T, U>(
-  sheet: SheetOf<T>,
-  fn: (page: T) => U
-): SheetOf<U> | Promise<SheetOf<U>> {
-  const front = fn(sheet[0]);
-  const back = fn(sheet[1]);
-
-  if (
-    front &&
-    back &&
-    typeof (front as unknown as PromiseLike<U>).then === 'function' &&
-    typeof (back as unknown as PromiseLike<U>).then === 'function'
-  ) {
-    return Promise.all([front, back]);
-  }
-
-  return [front, back];
-}
-
 export interface PageInterpretationWithAdjudication<
   T extends PageInterpretation = PageInterpretation
 > {

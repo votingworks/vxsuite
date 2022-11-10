@@ -9,9 +9,9 @@ import {
   PageInterpretation,
   Precinct,
   Result,
+  SheetOf,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
-import { SheetOf } from './types';
 
 const BlankPageTypes: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',

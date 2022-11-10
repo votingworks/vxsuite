@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
+import { SheetOf } from '@votingworks/types';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
-import { SheetOf } from './types';
 
 type Batch = ReadonlyArray<SheetOf<string>>;
 

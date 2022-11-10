@@ -17,6 +17,7 @@ import {
   InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  SheetOf,
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
@@ -26,10 +27,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/utils';
 import { VX_MACHINE_ID } from './globals';
-import {
-  PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
-  SheetOf,
-} from './types';
+import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from './types';
 import {
   describeValidationError,
   validateSheetInterpretation,
