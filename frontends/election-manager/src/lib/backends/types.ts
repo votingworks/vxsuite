@@ -48,7 +48,8 @@ export interface ElectionManagerStoreBackend {
    * Adds a new cast vote record file.
    */
   addCastVoteRecordFile(
-    newCastVoteRecordFile: File
+    newCastVoteRecordFile: File,
+    options?: { analyzeOnly?: boolean }
   ): Promise<AddCastVoteRecordFileResult>;
 
   /**
