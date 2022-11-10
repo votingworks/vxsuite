@@ -651,7 +651,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Save SEMS Results'));
   jest.advanceTimersByTime(2000);
   getByText(
-    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
   );
 
   fireEvent.click(getByText('Save'));
@@ -662,7 +662,7 @@ test('tabulating CVRs', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       2,
-      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
       'test-content'
     );
   });
@@ -789,7 +789,7 @@ test('tabulating CVRs with SEMS file', async () => {
   fireEvent.click(getByText('Save SEMS Results'));
   jest.advanceTimersByTime(2000);
   getByText(
-    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
   );
 
   fireEvent.click(getByText('Save'));
@@ -800,7 +800,7 @@ test('tabulating CVRs with SEMS file', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
       'test-content'
     );
   });

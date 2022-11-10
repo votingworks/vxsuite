@@ -230,7 +230,7 @@ export function generateSemsFinalExportDefaultFilename(
   const filemode = isTestModeResults ? 'test' : 'live';
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
   const electionName = generateElectionName(election);
-  return `votingworks${WORD_SEPARATOR}sems${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`;
+  return `votingworks${WORD_SEPARATOR}sems${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.txt`;
 }
 
 /**
