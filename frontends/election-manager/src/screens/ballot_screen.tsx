@@ -1,11 +1,5 @@
 import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -27,13 +21,13 @@ import {
   Monospace,
   Prose,
   useStoredState,
+  printElementWhenReady,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
 import { BallotScreenProps, PrintableBallotType } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
-import { PrintButton } from '../components/print_button';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 import {
   getBallotPath,
@@ -53,6 +47,7 @@ import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 import { ServicesContext } from '../contexts/services_context';
+import { NewPrintButton } from '../components/new_print_button';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -83,14 +78,12 @@ const BallotPreview = styled.div`
 
 export function BallotScreen(): JSX.Element {
   const history = useHistory();
-  const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
     precinctId,
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const { electionDefinition, printBallotRef, logger, auth } =
-    useContext(AppContext);
+  const { electionDefinition, logger, auth } = useContext(AppContext);
   const { storage } = useContext(ServicesContext);
   const addPrintedBallotMutation = useAddPrintedBallotMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
@@ -161,6 +154,44 @@ export function BallotScreen(): JSX.Element {
     isAbsentee,
   });
 
+  const onPreviewRendered = useCallback((pageCount) => {
+    setBallotPages(pageCount);
+  }, []);
+
+  const ballotWithCallback = useCallback(
+    (onRendered: (pageCount: number) => void) => {
+      return (
+        <HandMarkedPaperBallot
+          ballotStyleId={ballotStyleId}
+          election={election}
+          electionHash={electionHash}
+          ballotMode={ballotMode}
+          isAbsentee={isAbsentee}
+          precinctId={precinctId}
+          locales={locales}
+          onRendered={onRendered}
+        />
+      );
+    },
+    [
+      ballotMode,
+      ballotStyleId,
+      election,
+      electionHash,
+      isAbsentee,
+      locales,
+      precinctId,
+    ]
+  );
+
+  const printBallot = useCallback(async () => {
+    await printElementWhenReady(ballotWithCallback, {
+      sides: 'two-sided-long-edge',
+      copies: ballotCopies,
+      screenDisplayNone: false,
+    });
+  }, [ballotCopies, ballotWithCallback]);
+
   function afterPrint(numCopies: number) {
     // TODO(auth) check permissions for viewing ballots
     const ballotType = isAbsentee
@@ -193,22 +224,6 @@ export function BallotScreen(): JSX.Element {
       disposition: 'failure',
     });
   }
-
-  const onRendered = useCallback(() => {
-    if (ballotPreviewRef?.current && printBallotRef?.current) {
-      ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
-    }
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const pagedJsPageCount = Number(
-      (
-        ballotPreviewRef.current?.getElementsByClassName(
-          'pagedjs_pages'
-        )[0] as HTMLElement
-      )?.style.getPropertyValue('--pagedjs-page-count') || 0
-    );
-    setBallotPages(pagedJsPageCount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ballotPreviewRef]);
 
   return (
     <React.Fragment>
@@ -277,14 +292,12 @@ export function BallotScreen(): JSX.Element {
             )}
           </p>
           <p>
-            <PrintButton
+            <NewPrintButton
               primary
               title={filename}
+              print={printBallot}
               afterPrint={() => afterPrint(ballotCopies)}
               afterPrintError={afterPrintError}
-              copies={ballotCopies}
-              sides="two-sided-long-edge"
-              warning={ballotMode !== Admin.BallotMode.Official}
             >
               <PrintBallotButtonText
                 ballotCopies={ballotCopies}
@@ -293,7 +306,7 @@ export function BallotScreen(): JSX.Element {
                 election={election}
                 localeCode={currentLocaleCode}
               />
-            </PrintButton>
+            </NewPrintButton>
             {window.kiosk && (
               <React.Fragment>
                 {' '}
@@ -333,9 +346,7 @@ export function BallotScreen(): JSX.Element {
           <h4>Front Pages</h4>
           <h4>Back Pages</h4>
         </BallotPreviewHeader>
-        <BallotPreview ref={ballotPreviewRef}>
-          <p>Rendering ballot preview…</p>
-        </BallotPreview>
+        <BallotPreview>{ballotWithCallback(onPreviewRendered)}</BallotPreview>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFileToUsb
@@ -346,16 +357,6 @@ export function BallotScreen(): JSX.Element {
           fileType={FileType.Ballot}
         />
       )}
-      <HandMarkedPaperBallot
-        ballotStyleId={ballotStyleId}
-        election={election}
-        electionHash={electionHash}
-        ballotMode={ballotMode}
-        isAbsentee={isAbsentee}
-        precinctId={precinctId}
-        locales={locales}
-        onRendered={onRendered}
-      />
     </React.Fragment>
   );
 }

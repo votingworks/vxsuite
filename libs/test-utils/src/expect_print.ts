@@ -1,9 +1,4 @@
-import {
-  prettyDOM,
-  render,
-  RenderResult,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, waitFor } from '@testing-library/react';
 import {
   ElementWithCallback,
   Optional,
@@ -75,23 +70,17 @@ export function expectTestToEndWithAllPrintsAsserted(): void {
   );
 }
 
-/**
- * Applies an inspection function (containing jest assertions) to a render
- * result and, on error, edits the messages to be more useful on test failure
- */
-function inspectRenderResult(
-  inspect: InspectPrintFunction,
-  renderResult: RenderResult
-) {
-  try {
-    inspect(renderResult, lastPrintOptions);
-  } catch (error) {
-    assert(error instanceof Error);
-    const errorMessageMinusDom = error.message.split('\n')[0];
-    const renderResultDom = prettyDOM(renderResult.container);
-    error.message = `${errorMessageMinusDom}\n\n${renderResultDom}`;
-    throw error;
-  }
+function getPrintRoot() {
+  let printRoot = document.querySelector(
+    '#print-root'
+  ) as Optional<HTMLDivElement>;
+  if (printRoot) return printRoot;
+
+  printRoot = document.createElement('div');
+  printRoot.id = 'print-root';
+  printRoot.dataset['testid'] = 'print-root';
+  document.body.appendChild(printRoot);
+  return printRoot;
 }
 
 /**
@@ -102,8 +91,10 @@ function inspectRenderResult(
  */
 function inspectPrintedElement(inspect: InspectPrintFunction): void {
   assert(lastPrintedElement);
-  const renderResult = render(lastPrintedElement);
-  inspectRenderResult(inspect, renderResult);
+  const renderResult = render(lastPrintedElement, {
+    baseElement: getPrintRoot(),
+  });
+  inspect(renderResult, lastPrintOptions);
   renderResult.unmount();
 }
 
@@ -116,14 +107,19 @@ function inspectPrintedElement(inspect: InspectPrintFunction): void {
 async function inspectPrintedWhenReadyElement(
   inspect: InspectPrintFunction
 ): Promise<void> {
-  let renderResult: Optional<RenderResult>;
-  const renderedPromise = new Promise<void>((resolve) => {
-    assert(lastPrintedElementWithCallback);
-    renderResult = render(lastPrintedElementWithCallback(resolve));
+  assert(lastPrintedElementWithCallback);
+
+  let onRendered!: VoidFunction;
+  const onRenderedPromise = new Promise<void>((resolve) => {
+    onRendered = resolve;
   });
-  await renderedPromise;
-  assert(renderResult);
-  inspectRenderResult(inspect, renderResult);
+
+  const renderResult = render(lastPrintedElementWithCallback(onRendered), {
+    baseElement: getPrintRoot(),
+  });
+  await onRenderedPromise;
+
+  inspect(renderResult, lastPrintOptions);
   renderResult.unmount();
 }
 

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import 'jest-styled-components';
 import {
   advancePromises,
   advanceTimersAndPromises,
@@ -106,6 +107,31 @@ describe('printElement', () => {
     }
 
     expect(screen.queryByTestId('print-root')).not.toBeInTheDocument();
+  });
+
+  test('printed elements have "display: none;" wrapper by default', async () => {
+    const printPromise = printElement(simpleElement, {
+      sides: 'one-sided',
+    });
+
+    await waitFor(() => {
+      const element = screen.getByText('Print me!');
+      expect(element.parentElement).toHaveStyleRule('display', 'none');
+    });
+    await printPromise;
+  });
+
+  test('printed elements have no "display: none;" wrapper if screenDisplayNone is false', async () => {
+    const printPromise = printElement(simpleElement, {
+      sides: 'one-sided',
+      screenDisplayNone: false,
+    });
+
+    await waitFor(() => {
+      const element = screen.getByText('Print me!');
+      expect(element.parentElement).not.toHaveStyleRule('display', 'none');
+    });
+    await printPromise;
   });
 });
 

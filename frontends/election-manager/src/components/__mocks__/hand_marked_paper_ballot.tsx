@@ -8,23 +8,21 @@ export function HandMarkedPaperBallot({
   precinctId,
   electionHash,
   locales,
+  isAbsentee,
+  ballotMode,
 }: HandMarkedPaperBallotProps): JSX.Element {
   useEffect(() => {
-    onRendered?.({
-      election,
-      ballotStyleId,
-      precinctId,
-      electionHash,
-      locales,
-    });
+    onRendered?.(0);
   }, [ballotStyleId, election, electionHash, locales, onRendered, precinctId]);
 
   return (
     <div>
       <h1>Mocked HMPB</h1>
-      Election: {election.title}
-      <br />
-      Ballot Style {ballotStyleId}, precinct {precinctId}.
+      <p>Election: {election.title}</p>
+      <p>Ballot Style: {ballotStyleId}</p>
+      <p>Precinct: {precinctId}</p>
+      <p>Absentee: {Boolean(isAbsentee).toString()}</p>
+      <p>Ballot Mode: {ballotMode}</p>
     </div>
   );
 }

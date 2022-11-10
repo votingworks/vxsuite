@@ -22,6 +22,7 @@ import {
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
+  expectPrint,
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
@@ -484,7 +485,15 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(getByText('Official'));
   fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
-  expect(printer.print).toHaveBeenCalledTimes(1);
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText('Mocked HMPB');
+    printedElement.getByText('Ballot Mode: live');
+    printedElement.getByText('Absentee: true');
+    expect(printOptions).toMatchObject({
+      sides: 'two-sided-long-edge',
+      copies: 1,
+    });
+  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotPrinted,
     expect.any(String),
@@ -492,12 +501,11 @@ test('printing ballots and printed ballots report', async () => {
   );
   fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
-  expect(printer.print).toHaveBeenCalledTimes(2);
+  await expectPrint();
   fireEvent.click(getByText('Precinct'));
   fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
-  expect(printer.print).toHaveBeenCalledTimes(3);
-
+  await expectPrint();
   await waitFor(() => !getByText('Printing'));
 
   fireEvent.click(getByText('Reports'));
@@ -517,7 +525,6 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(queryAllByText('Print Report')[0]);
 
   await waitFor(() => getByText('Printing'));
-  expect(printer.print).toHaveBeenCalledTimes(4);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrintedBallotReportPrinted,
     expect.any(String),

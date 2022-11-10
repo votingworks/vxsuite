@@ -5,12 +5,16 @@ import styled from 'styled-components';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import { getPrinter } from '@votingworks/utils';
 
-const PrintStyles = styled.div`
+const ScreenDisplayNone = styled.div`
   display: none;
   @media print {
     display: block;
   }
 `;
+
+export interface PrintElementOptions extends PrintOptions {
+  screenDisplayNone?: boolean;
+}
 
 // Render an element and print it. The function to render the element takes a
 // callback to indicate when the component has finished rendering and is ready
@@ -18,7 +22,7 @@ const PrintStyles = styled.div`
 // renders or post-processing before being ready to print.
 export async function printElementWhenReady(
   elementWithOnReadyCallback: ElementWithCallback,
-  printOptions: PrintOptions
+  { screenDisplayNone = true, ...printOptions }: PrintElementOptions
 ): Promise<void> {
   const printRoot = document.createElement('div');
   printRoot.id = 'print-root';
@@ -57,7 +61,13 @@ export async function printElementWhenReady(
     }
 
     ReactDom.render(
-      <PrintStyles>{elementWithOnReadyCallback(onElementReady)}</PrintStyles>,
+      screenDisplayNone ? (
+        <ScreenDisplayNone>
+          {elementWithOnReadyCallback(onElementReady)}
+        </ScreenDisplayNone>
+      ) : (
+        elementWithOnReadyCallback(onElementReady)
+      ),
       printRoot
     );
   });
@@ -83,7 +93,7 @@ function WrapperWithCallbackAfterFirstRender({
 // after their initial render.
 export function printElement(
   element: JSX.Element,
-  printOptions: PrintOptions
+  printElementOptions: PrintElementOptions
 ): Promise<void> {
   return printElementWhenReady(
     (onElementReady) => (
@@ -91,6 +101,6 @@ export function printElement(
         {element}
       </WrapperWithCallbackAfterFirstRender>
     ),
-    printOptions
+    printElementOptions
   );
 }
