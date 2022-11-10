@@ -258,7 +258,7 @@ describe('generateSemsFinalExportDefaultFilename', () => {
     expect(
       generateSemsFinalExportDefaultFilename(true, mockElection, time)
     ).toBe(
-      'votingworks-sems-test-results_king-county_general-election_2019-03-01_01-09-02.csv'
+      'votingworks-sems-test-results_king-county_general-election_2019-03-01_01-09-02.txt'
     );
   });
 
@@ -272,7 +272,7 @@ describe('generateSemsFinalExportDefaultFilename', () => {
     expect(
       generateSemsFinalExportDefaultFilename(false, mockElection, time)
     ).toBe(
-      'votingworks-sems-live-results_king-county_general-election_2019-03-01_01-09-02.csv'
+      'votingworks-sems-live-results_king-county_general-election_2019-03-01_01-09-02.txt'
     );
     expect(generateSemsFinalExportDefaultFilename(false, mockElection)).toEqual(
       expect.stringMatching(
