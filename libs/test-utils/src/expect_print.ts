@@ -16,6 +16,7 @@ export type InspectPrintFunction = (
 let lastPrintedElement: Optional<JSX.Element>;
 let lastPrintedElementWithCallback: Optional<ElementWithCallback>;
 let lastPrintOptions: Optional<PrintOptions>;
+let errorOnNextPrint: Optional<Error>;
 
 /**
  * Clears the state of this module i.e. data about what was last printed.
@@ -25,6 +26,11 @@ export function resetExpectPrint(): void {
   lastPrintedElement = undefined;
   lastPrintedElementWithCallback = undefined;
   lastPrintOptions = undefined;
+  errorOnNextPrint = undefined;
+}
+
+export function throwOnNextPrint(error: Error = new Error()): void {
+  errorOnNextPrint = error;
 }
 
 function expectAllPrintsAsserted(message: string) {
@@ -42,6 +48,12 @@ export function fakePrintElement(
     'You have not made any assertions against the last print before another print within a test.'
   );
 
+  if (errorOnNextPrint) {
+    const failedPrintPromise = Promise.reject(errorOnNextPrint);
+    errorOnNextPrint = undefined;
+    return failedPrintPromise;
+  }
+
   lastPrintedElement = element;
   lastPrintOptions = printOptions;
   return Promise.resolve();
@@ -54,6 +66,12 @@ export function fakePrintElementWhenReady(
   expectAllPrintsAsserted(
     'You have not made any assertions against the last print before another print within a test.'
   );
+
+  if (errorOnNextPrint) {
+    const failedPrintPromise = Promise.reject(errorOnNextPrint);
+    errorOnNextPrint = undefined;
+    return failedPrintPromise;
+  }
 
   lastPrintedElementWithCallback = elementWithCallback;
   lastPrintOptions = printOptions;
