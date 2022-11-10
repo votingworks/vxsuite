@@ -3232,124 +3232,184 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       </div>
     </div>
   </div>
-  <div
-    class="print-only"
-  >
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-    <div>
-      <h1>
-        Mocked HMPB
-      </h1>
-      Election: 
-      Mock General Election Choctaw 2020
-      <br />
-      Ballot Style 
-      5
-      , precinct 
-      6522
-      .
-    </div>
-  </div>
   <div>
-    <div
-      id="ballot-0"
-    />
-    <div
-      id="ballot-1"
-    />
-    <div
-      id="ballot-2"
-    />
-    <div
-      id="ballot-3"
-    />
-    <div
-      id="ballot-4"
-    />
-    <div
-      id="ballot-5"
-    />
-    <div
-      id="ballot-6"
-    />
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      <p>
+        Election: 
+        Mock General Election Choctaw 2020
+      </p>
+      <p>
+        Ballot Style: 
+        5
+      </p>
+      <p>
+        Precinct: 
+        6522
+      </p>
+      <p>
+        Absentee: 
+        false
+      </p>
+      <p>
+        Ballot Mode: 
+        test
+      </p>
+    </div>
   </div>
+  <div />
 </div>
 `;
 
