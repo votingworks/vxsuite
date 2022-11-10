@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs-extra';
 import { join } from 'path';
 import { fileSync } from 'tmp';
-import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
+import { LoopScanner, parseBatches, parseBatchesFromEnv } from './loop_scanner';
 
 function readFiles(paths: readonly string[]): string[] {
   return paths.map((path) => readFileSync(path, 'utf8'));
@@ -64,5 +64,11 @@ test('interprets multiple path separators in a row as a batch separator', () => 
   expect(parseBatchesFromEnv('01.png,02.png,,,03.png,04.png')).toEqual([
     [['01.png', '02.png']],
     [['03.png', '04.png']],
+  ]);
+});
+
+test('ignores comments', () => {
+  expect(parseBatches(['# comment', '01.png', '02.png'])).toEqual([
+    [['01.png', '02.png']],
   ]);
 });
