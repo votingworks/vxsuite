@@ -269,7 +269,6 @@ test('add a CVR file entry without a ballot ID', async () => {
     filePath: tmpfile.name,
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.unsafeUnwrapErr()).toEqual(
     typedAs<AddCastVoteRecordError>({ kind: 'BallotIdRequired' })
   );
@@ -299,7 +298,6 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
     filePath: tmpFile.name,
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toMatchObject({
     kind: 'BallotIdAlreadyExistsWithDifferentData',
     existingData: /zebra/,
@@ -338,7 +336,6 @@ test('add a live CVR file after adding a test CVR file', async () => {
     originalFilename: 'live-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
@@ -377,7 +374,6 @@ test('add a test CVR file after adding a live CVR file', async () => {
     originalFilename: 'test-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
@@ -406,7 +402,6 @@ test('add a CVR file with mixed live and test CVRs', async () => {
     originalFilename: 'mixed-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'MixedLiveAndTestBallots',
     userFriendlyMessage:
@@ -428,7 +423,6 @@ test('add a CVR file with an invalid election id', async () => {
     filePath: cvrFile.asFilePath(),
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({ kind: 'InvalidElectionId' });
 });
 
@@ -445,7 +439,6 @@ test('add a CVR file with mismatched election details', async () => {
     filePath: cvrFile.asFilePath(),
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toMatchObject({
     kind: 'MismatchedElectionDetails',
     lineNumber: 1,
@@ -471,7 +464,6 @@ test('add a CVR file with an invalid vote', async () => {
     filePath: tmpFile.name,
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toMatchObject({
     kind: 'InvalidVote',
     lineNumber: 1,
@@ -982,7 +974,7 @@ test('write-in adjudication lifecycle', async () => {
     }
   `);
 
-  await store.deleteCastVoteRecordFiles(electionId);
+  store.deleteCastVoteRecordFiles(electionId);
 
   expect(store.getDebugSummary()).toMatchInlineSnapshot(`
     Map {

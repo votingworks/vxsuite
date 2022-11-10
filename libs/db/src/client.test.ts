@@ -134,8 +134,8 @@ test('transactions', async () => {
     count: 1,
   });
 
-  // Should roll back on exception:
-  await expect(
+  // Should roll back on synchronous exception:
+  expect(() =>
     client.transaction(() => {
       client.run('insert into muppets (name) values (?)', 'Fozzie');
       expect(client.one('select count(*) as count from muppets')).toEqual({
@@ -143,21 +143,35 @@ test('transactions', async () => {
       });
       throw new Error('rollback');
     })
+  ).toThrow('rollback');
+  expect(client.one('select count(*) as count from muppets')).toEqual({
+    count: 1,
+  });
+
+  // Should roll back on async exception:
+  await expect(() =>
+    client.transaction(() => {
+      client.run('insert into muppets (name) values (?)', 'Fozzie');
+      expect(client.one('select count(*) as count from muppets')).toEqual({
+        count: 2,
+      });
+      return Promise.reject(new Error('rollback'));
+    })
   ).rejects.toThrow('rollback');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
 
   // Should commit by default, if no exceptions occur:
-  await client.transaction(() => {
+  client.transaction(() => {
     client.run('insert into muppets (name) values (?)', 'Fozzie');
   });
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 2,
   });
 
-  // Should roll back if shouldCommit test returns false:
-  await expect(
+  // Should roll back if `shouldCommit` test returns false:
+  expect(
     client.transaction(
       () => {
         client.run('insert into muppets (name) values (?)', 'Gonzo');
@@ -171,17 +185,17 @@ test('transactions', async () => {
         return false;
       }
     )
-  ).resolves.toEqual('this is a result');
+  ).toEqual('this is a result');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 2,
   });
 
-  // Should commit if shouldCommit test returns true:
+  // Should commit if `shouldCommit` test returns true:
   await expect(
     client.transaction(
-      async () => {
+      () => {
         client.run('insert into muppets (name) values (?)', 'Gonzo');
-        return await Promise.resolve('another result');
+        return Promise.resolve('another result');
       },
       (result) => {
         expect(result).toEqual('another result');

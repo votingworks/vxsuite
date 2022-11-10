@@ -206,9 +206,9 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     { electionId: Id },
     Admin.DeleteCvrFileResponse,
     Admin.DeleteCvrFileRequest
-  >('/admin/elections/:electionId/cvr-files', async (request, response) => {
+  >('/admin/elections/:electionId/cvr-files', (request, response) => {
     const { electionId } = request.params;
-    await store.deleteCastVoteRecordFiles(electionId);
+    store.deleteCastVoteRecordFiles(electionId);
     store.setElectionResultsOfficial(electionId, false);
     response.json({ status: 'ok' });
   });

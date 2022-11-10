@@ -413,7 +413,7 @@ export class Store {
       });
     };
 
-    function shouldCommit(result: AddCastVoteResult) {
+    function shouldCommit(result: AddCastVoteResult): boolean {
       if (analyzeOnly) {
         return false;
       }
@@ -680,8 +680,8 @@ export class Store {
   /**
    * Deletes all CVR files for an election.
    */
-  async deleteCastVoteRecordFiles(electionId: Id): Promise<void> {
-    await this.client.transaction(() => {
+  deleteCastVoteRecordFiles(electionId: Id): void {
+    this.client.transaction(() => {
       this.client.run(
         `
           delete from cvr_file_entries
