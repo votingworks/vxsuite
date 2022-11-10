@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/types';
+import { ok, Result, wrapException } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import * as json from '../json_serialization';
@@ -27,8 +27,7 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
         await this.call(json.deserialize(json.serialize(message)) as I)
       );
     } catch (error) {
-      assert(error instanceof Error);
-      output = err(error);
+      output = wrapException(error);
     }
 
     worker.emit('message', json.serialize(output));
