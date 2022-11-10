@@ -117,27 +117,6 @@ export function AppRoot({
   const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const saveTranscribedValue = useCallback(
-    async (adjudicationId: string, transcribedValue: string) => {
-      try {
-        await fetch(
-          `/admin/write-ins/adjudications/${adjudicationId}/transcription`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({ transcribedValue }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      } catch (error) {
-        assert(error instanceof Error);
-        throw error;
-      }
-    },
-    []
-  );
-
   useEffect(() => {
     const totalBallots =
       fullElectionTally.overallTally.numberOfBallotsCounted +
@@ -260,7 +239,6 @@ export function AppRoot({
         updateExternalTally,
         manualTallyVotingMethod,
         setManualTallyVotingMethod,
-        saveTranscribedValue,
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
