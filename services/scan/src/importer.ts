@@ -18,7 +18,9 @@ import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { Writable } from 'stream';
+import { pipeline } from 'stream/promises';
 import { v4 as uuid } from 'uuid';
+import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
@@ -537,7 +539,10 @@ export class Importer {
       return;
     }
 
-    await this.workspace.store.exportCvrs(writeStream);
+    await pipeline(
+      exportCastVoteRecordsAsNdJson({ store: this.workspace.store }),
+      writeStream
+    );
   }
 
   /**

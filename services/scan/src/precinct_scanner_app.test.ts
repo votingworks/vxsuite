@@ -1399,9 +1399,12 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
 });
 
 describe('POST /precinct-scanner/export', () => {
-  test('passes skipImages parameter to exportCvrs', async () => {
+  test('sets CVRs as backed up', async () => {
     const { app, workspace } = await createApp();
-    const spyExportCvrs = jest.spyOn(workspace.store, 'exportCvrs');
+    const spySetCvrsAsBackedUp = jest.spyOn(
+      workspace.store,
+      'setCvrsAsBackedUp'
+    );
 
     await configureApp(app);
     await request(app)
@@ -1411,10 +1414,7 @@ describe('POST /precinct-scanner/export', () => {
       .send({ skipImages: true })
       .expect(200);
 
-    expect(spyExportCvrs).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ skipImages: true })
-    );
+    expect(spySetCvrsAsBackedUp).toHaveBeenCalled();
   });
 });
 

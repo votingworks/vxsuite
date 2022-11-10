@@ -11,13 +11,13 @@ import {
   vote,
   YesNoContest,
 } from '@votingworks/types';
-import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
+import { election, electionDefinition } from '../../test/fixtures/2020-choctaw';
 import {
   buildCastVoteRecord,
   getCvrBallotType,
   getOptionIdsForContestVote,
   getWriteInOptionIdsForContestVote,
-} from './build_cast_vote_record';
+} from './build';
 
 const candidateContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is CandidateContest => contest.type === 'candidate'

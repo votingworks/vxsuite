@@ -19,8 +19,10 @@ import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
+import { pipeline } from 'stream/promises';
 import { z } from 'zod';
 import { backup } from './backup';
+import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { Store } from './store';
@@ -508,7 +510,7 @@ export async function buildPrecinctScannerApp(
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
-    (request, response) => {
+    async (request, response) => {
       const skipImages = request.body?.skipImages;
       debug(`exporting CVRs ${skipImages ? 'without' : 'with'} inline images`);
 
@@ -524,10 +526,13 @@ export async function buildPrecinctScannerApp(
       response
         .header('Content-Type', 'text/plain; charset=utf-8')
         .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
-      void store.exportCvrs(response, { skipImages });
-      response.on('end', () => {
-        store.setCvrsAsBackedUp();
-      });
+
+      await pipeline(
+        exportCastVoteRecordsAsNdJson({ store, skipImages }),
+        response
+      );
+
+      store.setCvrsAsBackedUp();
     }
   );
 
