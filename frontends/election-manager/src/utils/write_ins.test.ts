@@ -1,6 +1,7 @@
 import { electionSample } from '@votingworks/fixtures';
 import {
   CandidateId,
+  ContestId,
   Dictionary,
   ExternalTally,
   writeInCandidate,
@@ -29,7 +30,7 @@ function writeInCountsAsObject(
 // returns new write-in candidate id
 function addWriteInToExternalTally(
   externalTally: ExternalTally,
-  contestId: string,
+  contestId: ContestId,
   name: string,
   tally: number
 ): CandidateId {

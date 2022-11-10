@@ -1,9 +1,11 @@
 import React from 'react';
 import {
+  BallotStyleId,
   Candidate,
   ElectionDefinition,
   getBallotStyle,
   getContests,
+  PrecinctId,
   vote,
 } from '@votingworks/types';
 import {
@@ -37,8 +39,8 @@ function renderBmdPaperBallot({
   onRendered,
 }: {
   electionDefinition: ElectionDefinition;
-  ballotStyleId: string;
-  precinctId: string;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
   onRendered?: () => void;

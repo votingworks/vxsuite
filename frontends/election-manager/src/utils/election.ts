@@ -78,7 +78,7 @@ export function getSuperBallotStyleData(election: Election): BallotStyleData {
  * Returns whether a ballot style ID corresponds to the super ballot, a special ballot only
  * available to system admins that includes all contests across all precincts
  */
-export function isSuperBallotStyle(ballotStyleId: string): boolean {
+export function isSuperBallotStyle(ballotStyleId: BallotStyleId): boolean {
   return ballotStyleId === superBallotStyleId;
 }
 
