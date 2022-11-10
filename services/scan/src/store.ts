@@ -5,10 +5,8 @@
 import { Scan } from '@votingworks/api';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { Bindable, Client as DbClient } from '@votingworks/db';
-import { toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   AnyContest,
-  BallotIdSchema,
   BallotMetadata,
   BallotMetadataSchema,
   BallotPageLayout,
@@ -20,44 +18,32 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
-  HmpbPageInterpretation,
-  InlineBallotImage,
+  Id,
   Iso8601Timestamp,
+  mapSheet,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
   PageInterpretation,
+  PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
   PollsStateSchema,
   PrecinctSelection as PrecinctSelectionType,
   PrecinctSelectionSchema,
   safeParseJson,
-  unsafeParse,
-  mapSheet,
   SheetOf,
 } from '@votingworks/types';
-import {
-  assert,
-  EnvironmentFlagName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import { loadImage } from 'canvas';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
-import { Writable } from 'stream';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import {
-  addBallotImagesToCvr,
-  buildCastVoteRecord,
-  cvrHasWriteIns,
-} from './build_cast_vote_record';
 import { sheetRequiresAdjudication } from './interpreter';
 import { normalizeAndJoin } from './util/path';
 
@@ -78,8 +64,6 @@ export enum BackupKey {
   Cvrs = 'cvrs',
 }
 
-const CvrBallotImageScale = 0.5;
-
 const SchemaPath = join(__dirname, '../schema.sql');
 
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
@@ -89,33 +73,11 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   definite: 0.25,
 };
 
-async function loadImagePathShrinkBase64(
-  path: string,
-  factor: number
-): Promise<string> {
-  const image = await loadImage(path);
-  const newImageData = toImageData(image, {
-    maxWidth: image.width * factor,
-    maxHeight: image.height * factor,
-  });
-  return toDataUrl(newImageData, 'image/jpeg').slice(
-    'data:image/jpeg;base64,'.length
-  );
-}
-
-function isHmpbPage(
-  interpretation: PageInterpretation
-): interpretation is HmpbPageInterpretation {
-  return (
-    interpretation.type === 'InterpretedHmpbPage' ||
-    interpretation.type === 'UninterpretedHmpbPage'
-  );
-}
-
-function isHmpbSheet(
-  interpretations: SheetOf<PageInterpretation>
-): interpretations is SheetOf<HmpbPageInterpretation> {
-  return isHmpbPage(interpretations[0]) && isHmpbPage(interpretations[1]);
+export interface ResultSheet {
+  readonly id: Id;
+  readonly batchId: Id;
+  readonly batchLabel?: string;
+  readonly interpretation: SheetOf<PageInterpretation>;
 }
 
 /**
@@ -859,18 +821,11 @@ export class Store {
   }
 
   /**
-   * Exports all CVR JSON data to a stream.
+   * Yields all sheets in the database that would be included in a CVR export.
    */
-  async exportCvrs(
-    writeStream: Writable,
-    options: { skipImages?: boolean; orderBySheetId?: boolean } = {}
-  ): Promise<void> {
-    const electionDefinition = this.getElectionDefinition();
-
-    if (!electionDefinition) {
-      throw new Error('no election configured');
-    }
-
+  *forEachResultSheet(options?: {
+    orderBySheetId?: boolean;
+  }): Generator<ResultSheet> {
     const sql = `
       select
         sheets.id as id,
@@ -884,129 +839,25 @@ export class Store {
         (requires_adjudication = 0 or finished_adjudication_at is not null)
         and sheets.deleted_at is null
         and batches.deleted_at is null
-      ${options.orderBySheetId ? 'order by sheets.id' : ''}
+      ${options?.orderBySheetId ? 'order by sheets.id' : ''}
     `;
-    for (const {
-      id,
-      batchId,
-      batchLabel,
-      frontInterpretationJson,
-      backInterpretationJson,
-    } of this.client.each(sql) as Iterable<{
+    for (const row of this.client.each(sql) as Iterable<{
       id: string;
       batchId: string;
       batchLabel: string | null;
       frontInterpretationJson: string;
       backInterpretationJson: string;
     }>) {
-      const frontInterpretation: PageInterpretation = JSON.parse(
-        frontInterpretationJson
-      );
-      const backInterpretation: PageInterpretation = JSON.parse(
-        backInterpretationJson
-      );
-      const interpretations: SheetOf<PageInterpretation> = [
-        frontInterpretation,
-        backInterpretation,
-      ];
-      const frontImage: InlineBallotImage = { normalized: '' };
-      const backImage: InlineBallotImage = { normalized: '' };
-      const includeImages =
-        isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
-        !options.skipImages;
-
-      const cvr = buildCastVoteRecord(
-        id,
-        batchId,
-        batchLabel || '',
-        (frontInterpretation.type === 'InterpretedBmdPage' &&
-          frontInterpretation.ballotId) ||
-          (backInterpretation.type === 'InterpretedBmdPage' &&
-            backInterpretation.ballotId) ||
-          unsafeParse(BallotIdSchema, id),
-        electionDefinition.election,
-        [
-          {
-            interpretation: frontInterpretation,
-            contestIds: isHmpbPage(frontInterpretation)
-              ? this.getContestIdsForMetadata(
-                  frontInterpretation.metadata,
-                  electionDefinition
-                )
-              : undefined,
-          },
-          {
-            interpretation: backInterpretation,
-            contestIds: isHmpbPage(backInterpretation)
-              ? this.getContestIdsForMetadata(
-                  backInterpretation.metadata,
-                  electionDefinition
-                )
-              : undefined,
-          },
-        ],
-        includeImages && isHmpbSheet(interpretations)
-          ? mapSheet(
-              interpretations,
-              (interpretation) =>
-                this.getBallotPageLayoutForMetadata(
-                  interpretation.metadata,
-                  electionDefinition
-                ) as BallotPageLayout
-            )
-          : undefined
-      );
-
-      if (cvr) {
-        let cvrMaybeWithBallotImages = cvr;
-
-        // if write-in adjudication & there are write-ins in this CVR, we augment record with ballot images
-        if (
-          includeImages &&
-          isHmpbSheet([frontInterpretation, backInterpretation])
-        ) {
-          const [frontHasWriteIns, backHasWriteIns] = cvrHasWriteIns(
-            electionDefinition.election,
-            cvr
-          );
-          if (frontHasWriteIns) {
-            const frontFilenames = this.getBallotFilenames(id, 'front');
-            if (frontFilenames) {
-              frontImage.normalized = await loadImagePathShrinkBase64(
-                frontFilenames.normalized,
-                CvrBallotImageScale
-              );
-            }
-          }
-
-          if (backHasWriteIns) {
-            const backFilenames = this.getBallotFilenames(id, 'back');
-            if (backFilenames) {
-              backImage.normalized = await loadImagePathShrinkBase64(
-                backFilenames.normalized,
-                CvrBallotImageScale
-              );
-            }
-
-            cvrMaybeWithBallotImages = addBallotImagesToCvr(cvr, [
-              frontImage,
-              backImage,
-            ]);
-          }
-        }
-
-        const canWriteNext = writeStream.write(
-          `${JSON.stringify(cvrMaybeWithBallotImages)}\n`
-        );
-        if (!canWriteNext) {
-          await new Promise((resolve) => {
-            writeStream.once('drain', resolve);
-          });
-        }
-      }
+      yield {
+        id: row.id,
+        batchId: row.batchId,
+        batchLabel: row.batchLabel ?? undefined,
+        interpretation: mapSheet(
+          [row.frontInterpretationJson, row.backInterpretationJson],
+          (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
+        ),
+      };
     }
-
-    writeStream.end();
   }
 
   addHmpbTemplate(

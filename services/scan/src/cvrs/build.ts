@@ -27,12 +27,12 @@ import {
   assert,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { VX_MACHINE_ID } from './globals';
-import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from './types';
+import { VX_MACHINE_ID } from '../globals';
+import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from '../types';
 import {
   describeValidationError,
   validateSheetInterpretation,
-} from './validation';
+} from '../validation';
 
 export function getCvrBallotType(
   ballotType: BallotType

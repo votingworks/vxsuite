@@ -1,12 +1,12 @@
+import { FULL_LOG_PATH } from '@votingworks/logging';
+import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
-import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { FULL_LOG_PATH } from '@votingworks/logging';
-import { PassThrough } from 'stream';
+import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
 
 const debug = makeDebug('scan:backup');
@@ -90,9 +90,10 @@ export class Backup {
     debug('added election.json to backup');
 
     debug('adding CVRs to backup...');
-    const cvrStream = new PassThrough();
-    void this.store.exportCvrs(cvrStream);
-    await this.addEntry('cvrs.jsonl', cvrStream);
+    await this.addEntry(
+      'cvrs.jsonl',
+      exportCastVoteRecordsAsNdJson({ store: this.store })
+    );
     debug('added CVRs to backup');
 
     debug('adding database files to backup...');
