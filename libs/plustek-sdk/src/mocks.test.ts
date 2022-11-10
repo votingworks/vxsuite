@@ -1,10 +1,11 @@
+import { SheetOf } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
 import { PaperStatus } from './paper_status';
 import { ClientDisconnectedError, InvalidClientResponseError } from './scanner';
 
-const files: [string, string] = ['/tmp/a.jpg', '/tmp/b.jpg'];
+const files: SheetOf<string> = ['/tmp/a.jpg', '/tmp/b.jpg'];
 
 function expectNoPaper(status?: PaperStatus) {
   expect([PaperStatus.VtmDevReadyNoPaper, PaperStatus.NoPaperStatus]).toContain(

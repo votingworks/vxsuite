@@ -7,6 +7,7 @@ import {
   ContestId,
   ContestOptionId,
   InlineBallotImage,
+  SheetOf,
   unsafeParse,
   YesNoVote,
 } from '@votingworks/types';
@@ -131,7 +132,7 @@ export async function* generateCvrs({
   const { ballotStyles, contests } = electionDefinition.election;
   const ballotImageCache = new Map<
     BallotPackageEntry,
-    [InlineBallotImage, InlineBallotImage]
+    SheetOf<InlineBallotImage>
   >();
   let ballotId = 0;
   for (const ballotStyle of ballotStyles) {

@@ -13,10 +13,12 @@ import {
   getContestsFromIds,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
+  mapSheet,
   MarkThresholds,
   ok,
   PageInterpretation,
   Result,
+  SheetOf,
 } from '@votingworks/types';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
@@ -49,7 +51,7 @@ export interface InterpretFileResult {
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,
-  sheet: readonly [string, string],
+  sheet: SheetOf<string>,
   {
     isTestMode,
     markThresholds = electionDefinition.election.markThresholds ??
@@ -60,7 +62,7 @@ export async function interpret(
     markThresholds?: MarkThresholds;
     adjudicationReasons?: readonly AdjudicationReason[];
   }
-): Promise<Result<[InterpretFileResult, InterpretFileResult], Error>> {
+): Promise<Result<SheetOf<InterpretFileResult>, Error>> {
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 
   if (!paperSize) {
@@ -69,14 +71,12 @@ export async function interpret(
 
   const geometry = getScannedBallotCardGeometry(paperSize);
   let [frontPage, backPage] = sheet;
-  let frontImageData = toImageData(await loadImage(frontPage), {
-    maxWidth: geometry.canvasSize.width,
-    maxHeight: geometry.canvasSize.height,
-  });
-  let backImageData = toImageData(await loadImage(backPage), {
-    maxWidth: geometry.canvasSize.width,
-    maxHeight: geometry.canvasSize.height,
-  });
+  let [frontImageData, backImageData] = await mapSheet(sheet, async (page) =>
+    toImageData(await loadImage(page), {
+      maxWidth: geometry.canvasSize.width,
+      maxHeight: geometry.canvasSize.height,
+    })
+  );
 
   const frontDebug = imageDebugger(frontPage, frontImageData);
   const backDebug = imageDebugger(backPage, backImageData);

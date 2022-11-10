@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result, SheetOf } from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
@@ -30,7 +30,7 @@ import {
 const debug = makeDebug('plustek-sdk:mock-client');
 
 interface Context {
-  sheetFiles?: readonly [string, string];
+  sheetFiles?: SheetOf<string>;
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
   scanError?: 'error_feeding' | 'only_one_file_returned';
@@ -44,7 +44,7 @@ type Event =
   | { type: 'FREEZE' }
   | {
       type: 'LOAD_SHEET';
-      sheetFiles: readonly [string, string];
+      sheetFiles: SheetOf<string>;
     }
   | { type: 'REMOVE_SHEET' }
   | { type: 'SCAN' }
@@ -299,7 +299,7 @@ export class MockScannerClient implements ScannerClient {
    * Loads a sheet with scan images from `files`.
    */
   async simulateLoadSheet(
-    files: readonly [string, string]
+    files: SheetOf<string>
   ): Promise<Result<void, Errors>> {
     debug('manualLoad files=%o', files);
 

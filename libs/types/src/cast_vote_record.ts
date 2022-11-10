@@ -5,7 +5,7 @@ import {
   InlineBallotImage,
   PrecinctId,
 } from './election';
-import { BallotPageLayout } from './hmpb';
+import { BallotPageLayout, SheetOf } from './hmpb';
 import { Dictionary } from './generic';
 
 export interface CastVoteRecord
@@ -16,12 +16,12 @@ export interface CastVoteRecord
     | number
     | readonly number[]
     | BallotLocale
-    | readonly [InlineBallotImage, InlineBallotImage]
-    | readonly [BallotPageLayout, BallotPageLayout]
+    | SheetOf<InlineBallotImage>
+    | SheetOf<BallotPageLayout>
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
-  readonly _ballotImages?: readonly [InlineBallotImage, InlineBallotImage];
+  readonly _ballotImages?: SheetOf<InlineBallotImage>;
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;
@@ -29,7 +29,7 @@ export interface CastVoteRecord
   readonly _testBallot: boolean;
   readonly _scannerId: string;
   readonly _pageNumber?: number;
-  readonly _pageNumbers?: readonly [number, number];
-  readonly _layouts?: readonly [BallotPageLayout, BallotPageLayout];
+  readonly _pageNumbers?: SheetOf<number>;
+  readonly _layouts?: SheetOf<BallotPageLayout>;
   readonly _locales?: BallotLocale;
 }
