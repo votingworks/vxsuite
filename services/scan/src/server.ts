@@ -86,7 +86,8 @@ export async function start({
     resolvedApp = await buildPrecinctScannerApp(
       precinctScannerMachine,
       precinctScannerInterpreter,
-      resolvedWorkspace
+      resolvedWorkspace,
+      logger
     );
   } else {
     assert(machineType === 'bsd');

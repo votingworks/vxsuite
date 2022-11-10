@@ -215,7 +215,8 @@ export async function createApp(
   const app = await buildPrecinctScannerApp(
     precinctScannerMachine,
     interpreter,
-    workspace
+    workspace,
+    logger
   );
   await expectStatus(app, { state: 'connecting' });
   deferredConnect.resolve();

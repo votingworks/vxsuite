@@ -1,6 +1,7 @@
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
@@ -93,7 +94,8 @@ async function updateInterpreterConfig(
 export async function buildPrecinctScannerApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
-  workspace: Workspace
+  workspace: Workspace,
+  logger: Logger
 ): Promise<Application> {
   const { store } = workspace;
 
@@ -335,7 +337,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchPollsStateResponse,
     Scan.PatchPollsStateRequest
-  >('/precinct-scanner/config/polls', (request, response) => {
+  >('/precinct-scanner/config/polls', async (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchPollsStateRequestSchema,
       request.body
@@ -355,7 +357,13 @@ export async function buildPrecinctScannerApp(
 
     // Start new batch if opening polls, end batch if pausing or closing polls
     if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
-      store.addBatch();
+      const batchId = store.addBatch();
+      await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+        disposition: 'success',
+        message:
+          'New scanning batch started due to polls being opened or reopened.',
+        batchId,
+      });
     } else if (
       newPollsState !== 'polls_open' &&
       previousPollsState === 'polls_open'
@@ -363,6 +371,12 @@ export async function buildPrecinctScannerApp(
       const ongoingBatchId = store.getOngoingBatchId();
       assert(typeof ongoingBatchId === 'string');
       store.finishBatch({ batchId: ongoingBatchId });
+      await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+        disposition: 'success',
+        message:
+          'Current scanning batch ended due to polls being closed or paused.',
+        batchId: ongoingBatchId,
+      });
     }
 
     store.setPollsState(bodyParseResult.ok().pollsState);
@@ -375,7 +389,7 @@ export async function buildPrecinctScannerApp(
     Scan.PatchBallotCountWhenBallotBagLastReplacedRequest
   >(
     '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-    (request, response) => {
+    async (request, response) => {
       const bodyParseResult = safeParse(
         Scan.PatchBallotCountWhenBallotBagLastReplacedRequestSchema,
         request.body
@@ -394,7 +408,18 @@ export async function buildPrecinctScannerApp(
       const ongoingBatchId = store.getOngoingBatchId();
       assert(typeof ongoingBatchId === 'string');
       store.finishBatch({ batchId: ongoingBatchId });
-      store.addBatch();
+      await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+        disposition: 'success',
+        message: 'Current scanning batch ended due to ballot bag replacement.',
+        batchId: ongoingBatchId,
+      });
+
+      const batchId = store.addBatch();
+      await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+        disposition: 'success',
+        message: 'New scanning batch started due to ballot bag replacement.',
+        batchId,
+      });
 
       store.setBallotCountWhenBallotBagLastReplaced(
         bodyParseResult.ok().ballotCountWhenBallotBagLastReplaced

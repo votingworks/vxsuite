@@ -4,6 +4,8 @@ import { Application } from 'express';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
+import waitForExpect from 'wait-for-expect';
+import { LogEventId } from '@votingworks/logging';
 import {
   ballotImages,
   configureApp,
@@ -109,7 +111,7 @@ describe('PATCH /precinct-scanner/config/precinct', () => {
 });
 
 test('ballot batching', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
   // Scan two ballots, which should have the same batch
@@ -117,19 +119,49 @@ test('ballot batching', async () => {
   await scanBallot(mockPlustek, app, 1);
   let cvrs = await postExportCvrs(app);
   expect(cvrs.length).toBe(2);
-  expect(cvrs[0]._batchId).toEqual(cvrs[1]._batchId);
+  const batch1Id = cvrs[0]._batchId;
+  expect(cvrs[1]._batchId).toEqual(batch1Id);
 
-  // Scan two ballots after pausing and unpausing polls, should be a new batch
+  // Pause polls, which should stop the current batch
   await setPollsState(app, 'polls_paused');
+  await waitForExpect(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctScannerBatchEnded,
+      'system',
+      expect.objectContaining({
+        disposition: 'success',
+        message:
+          'Current scanning batch ended due to polls being closed or paused.',
+        batchId: batch1Id,
+      })
+    );
+  });
+
+  // Reopen polls, which should stop the current batch
   await setPollsState(app, 'polls_open');
+  await waitForExpect(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctScannerBatchStarted,
+      'system',
+      expect.objectContaining({
+        disposition: 'success',
+        message:
+          'New scanning batch started due to polls being opened or reopened.',
+        batchId: expect.not.stringMatching(batch1Id),
+      })
+    );
+  });
+
+  // Confirm there is a new, second batch distinct from the first
   await scanBallot(mockPlustek, app, 2);
   await scanBallot(mockPlustek, app, 3);
   cvrs = await postExportCvrs(app);
   expect(cvrs.length).toBe(4);
-  expect(cvrs[1]._batchId).not.toEqual(cvrs[2]._batchId);
-  expect(cvrs[2]._batchId).toEqual(cvrs[3]._batchId);
+  const batch2Id = cvrs[2]._batchId;
+  expect(batch2Id).not.toEqual(batch1Id);
+  expect(cvrs[3]._batchId).toEqual(batch2Id);
 
-  // Scan two ballots after changing the ballot bag, should be a new batch
+  // Change the ballot box, which should create a new batch
   await patch(
     app,
     '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
@@ -137,10 +169,35 @@ test('ballot batching', async () => {
       ballotCountWhenBallotBagLastReplaced: 1500,
     }
   );
+  await waitForExpect(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctScannerBatchEnded,
+      'system',
+      expect.objectContaining({
+        disposition: 'success',
+        message: 'Current scanning batch ended due to ballot bag replacement.',
+        batchId: batch2Id,
+      })
+    );
+  });
+  await waitForExpect(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PrecinctScannerBatchStarted,
+      'system',
+      expect.objectContaining({
+        disposition: 'success',
+        message: 'New scanning batch started due to ballot bag replacement.',
+        batchId: expect.not.stringMatching(batch2Id),
+      })
+    );
+  });
+
+  // Confirm there is a third batch, distinct from the second
   await scanBallot(mockPlustek, app, 4);
   await scanBallot(mockPlustek, app, 5);
   cvrs = await postExportCvrs(app);
   expect(cvrs.length).toBe(6);
-  expect(cvrs[3]._batchId).not.toEqual(cvrs[4]._batchId);
-  expect(cvrs[4]._batchId).toEqual(cvrs[5]._batchId);
+  const batch3Id = cvrs[4]._batchId;
+  expect(cvrs[3]._batchId).not.toEqual(batch3Id);
+  expect(cvrs[5]._batchId).toEqual(batch3Id);
 });

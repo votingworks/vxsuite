@@ -111,6 +111,8 @@ export enum LogEventId {
   BallotBagReplaced = 'ballot-bag-replaced',
   TallyReportClearedFromCard = 'tally-report-cleared-from-card',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
+  PrecinctScannerBatchStarted = 'precinct-scanner-batch-started',
+  PrecinctScannerBatchEnded = 'precinct-scanner-batch-ended',
   // VxScan service state machine logs
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
@@ -813,6 +815,22 @@ const PrecinctConfigurationChanged: LogDetails = {
   ],
 };
 
+const PrecinctScannerBatchStarted: LogDetails = {
+  eventId: LogEventId.PrecinctScannerBatchStarted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
+};
+
+const PrecinctScannerBatchEnded: LogDetails = {
+  eventId: LogEventId.PrecinctScannerBatchEnded,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
+};
+
 const ScannerEvent: LogDetails = {
   eventId: LogEventId.ScannerEvent,
   eventType: LogEventType.ApplicationAction,
@@ -1005,6 +1023,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TallyReportClearedFromCard;
     case LogEventId.PrecinctConfigurationChanged:
       return PrecinctConfigurationChanged;
+    case LogEventId.PrecinctScannerBatchEnded:
+      return PrecinctScannerBatchEnded;
+    case LogEventId.PrecinctScannerBatchStarted:
+      return PrecinctScannerBatchStarted;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:

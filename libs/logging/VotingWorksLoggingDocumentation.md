@@ -366,6 +366,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has changed the precinct setting.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+### precinct-scanner-batch-started
+**Type:** [system-action](#system-action)  
+**Description:** The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.  
+**Machines:** vx-scan-service
+### precinct-scanner-batch-ended
+**Type:** [system-action](#system-action)  
+**Description:** The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.  
+**Machines:** vx-scan-service
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)  
 **Description:** Precinct scanner state machine received an event.  
