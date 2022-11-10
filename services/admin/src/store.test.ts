@@ -1,6 +1,9 @@
 import { Admin } from '@votingworks/api';
 import { Client as DBClient } from '@votingworks/db';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  electionMinimalExhaustiveSampleFixtures,
+  primaryElectionSampleFixtures,
+} from '@votingworks/fixtures';
 import {
   arbitraryBallotLocale,
   arbitraryBallotStyleId,
@@ -266,7 +269,6 @@ test('add a CVR file entry without a ballot ID', async () => {
     filePath: tmpfile.name,
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.unsafeUnwrapErr()).toEqual(
     typedAs<AddCastVoteRecordError>({ kind: 'BallotIdRequired' })
   );
@@ -288,7 +290,7 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
   const tmpFile = fileSync();
   await fs.writeFile(
     tmpFile.name,
-    standardCvrFile.asText().replaceAll('zebra', 'striped horse')
+    standardCvrFile.asText().replaceAll('zebra', 'write-in striped horse')
   );
 
   const result = await store.addCastVoteRecordFile({
@@ -296,11 +298,10 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
     filePath: tmpFile.name,
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toMatchObject({
     kind: 'BallotIdAlreadyExistsWithDifferentData',
     existingData: /zebra/,
-    newData: /striped horse/,
+    newData: /write-in striped horse/,
   });
 });
 
@@ -335,7 +336,6 @@ test('add a live CVR file after adding a test CVR file', async () => {
     originalFilename: 'live-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
@@ -374,7 +374,6 @@ test('add a test CVR file after adding a live CVR file', async () => {
     originalFilename: 'test-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'InvalidCvrFileMode',
     userFriendlyMessage:
@@ -403,12 +402,101 @@ test('add a CVR file with mixed live and test CVRs', async () => {
     originalFilename: 'mixed-cvrs.jsonl',
   });
 
-  expect(result.isErr()).toBe(true);
   expect(result.err()).toEqual({
     kind: 'MixedLiveAndTestBallots',
     userFriendlyMessage:
       'these CVRs cannot be tabulated together because ' +
       'they mix live and test ballots',
+  });
+});
+
+test('add a CVR file with an invalid election id', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  store.addElection(electionDefinition.electionData);
+
+  const { cvrFile } = primaryElectionSampleFixtures;
+
+  const result = await store.addCastVoteRecordFile({
+    electionId: 'not-a-real-election-id',
+    filePath: cvrFile.asFilePath(),
+  });
+
+  expect(result.err()).toEqual({ kind: 'InvalidElectionId' });
+});
+
+test('add a CVR file with mismatched election details', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  const { cvrFile } = primaryElectionSampleFixtures;
+
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: cvrFile.asFilePath(),
+  });
+
+  expect(result.err()).toMatchObject({
+    kind: 'MismatchedElectionDetails',
+    lineNumber: 1,
+    userFriendlyMessage: /not in the election definition/,
+  });
+});
+
+test('add a CVR file with an invalid vote', async () => {
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  const tmpFile = fileSync();
+  await fs.writeFile(
+    tmpFile.name,
+    standardCvrFile.asText().replaceAll('yes', 'absolutely')
+  );
+
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+  });
+
+  expect(result.err()).toMatchObject({
+    kind: 'InvalidVote',
+    lineNumber: 1,
+    userFriendlyMessage: /not a valid contest choice/,
+  });
+});
+
+test('add a CVR file with unhandled validation errors', async () => {
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionDefinition.electionData);
+
+  const tmpFile = fileSync();
+  await fs.writeFile(
+    tmpFile.name,
+    standardCvrFile
+      .asText()
+      .replaceAll('"_testBallot":true', '"_testBallot":"yep"')
+  );
+
+  const result = await store.addCastVoteRecordFile({
+    electionId,
+    filePath: tmpFile.name,
+  });
+
+  expect(result.isErr()).toBe(true);
+  expect(result.err()).toMatchObject({
+    kind: 'InvalidCvr',
+    lineNumber: 1,
+    errors: [/must be true or false/],
+    userFriendlyMessage: 'the CVR at line 1 is invalid for this election',
   });
 });
 

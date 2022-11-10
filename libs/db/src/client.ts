@@ -126,11 +126,52 @@ export class Client {
   }
 
   /**
-   * Run {@link fn} within a transaction.
+   * Run {@link fn} within a transaction and roll back the transaction if an
+   * exception occurs.
+   *
+   * If {@link shouldCommit} is specified, the transaction
+   * will be committed only if {@link shouldCommit} returns true for the result
+   * of {@link fn}.
    */
-  transaction(fn: () => void): void {
-    const db = this.getDatabase();
-    db.transaction(fn)();
+  transaction<T>(fn: () => T, shouldCommit?: (result: T) => boolean): T;
+  transaction<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (result: T) => boolean
+  ): Promise<T>;
+  transaction<T>(
+    fn: () => T | Promise<T>,
+    shouldCommit?: (result: T) => boolean
+  ): T | Promise<T> {
+    this.run('begin transaction');
+
+    const concludeTransaction = (result: T): void => {
+      if (!shouldCommit || shouldCommit(result)) {
+        this.run('commit transaction');
+      } else {
+        this.run('rollback transaction');
+      }
+    };
+
+    try {
+      const resultOrPromise = fn();
+
+      if (typeof (resultOrPromise as PromiseLike<T>)?.then === 'function') {
+        void (resultOrPromise as PromiseLike<T>).then(
+          concludeTransaction,
+          (error) => {
+            this.run('rollback transaction');
+            return error;
+          }
+        );
+      } else {
+        concludeTransaction(resultOrPromise as T);
+      }
+
+      return resultOrPromise;
+    } catch (error) {
+      this.run('rollback transaction');
+      throw error;
+    }
   }
 
   /**
