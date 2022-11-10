@@ -47,10 +47,6 @@ export interface AppContextInterface {
   ) => Promise<void>;
   manualTallyVotingMethod: VotingMethod;
   setManualTallyVotingMethod: (votingMethod: VotingMethod) => void;
-  saveTranscribedValue: (
-    adjudicationId: string,
-    transcribedValue: string
-  ) => Promise<void>;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   generateExportableTallies: () => ExportableTallies;
   auth: DippedSmartcardAuth.Auth;
@@ -78,7 +74,6 @@ const appContext: AppContextInterface = {
   updateExternalTally: async () => undefined,
   manualTallyVotingMethod: VotingMethod.Precinct,
   setManualTallyVotingMethod: () => undefined,
-  saveTranscribedValue: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,

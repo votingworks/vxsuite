@@ -9,7 +9,6 @@ import {
   FullElectionTally,
   FullElectionExternalTally,
   FullElectionExternalTallies,
-  AdjudicationId,
   DippedSmartcardAuth,
   Printer,
   VotingMethod,
@@ -54,10 +53,6 @@ interface RenderInAppContextParams {
   printBallotRef?: RefObject<HTMLElement>;
   saveElection?: SaveElection;
   resetElection?: ResetElection;
-  saveTranscribedValue?: (
-    adjudicationId: AdjudicationId,
-    transcribedValue: string
-  ) => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
   usbDriveEject?: () => Promise<void>;
@@ -126,7 +121,6 @@ export function renderInAppContext(
     manualTallyVotingMethod = VotingMethod.Precinct,
     setManualTallyVotingMethod = jest.fn(),
     fullElectionExternalTallies = new Map(),
-    saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
     auth = Dipped.fakeElectionManagerAuth(),
     machineConfig = {
@@ -163,7 +157,6 @@ export function renderInAppContext(
         setManualTallyVotingMethod,
         fullElectionExternalTallies,
         generateExportableTallies,
-        saveTranscribedValue,
         auth,
         machineConfig,
         hasCardReaderAttached,
