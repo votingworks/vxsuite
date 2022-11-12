@@ -33,30 +33,6 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
   }
 }
 
-// async function put<Body extends string | ArrayBuffer | unknown>(
-//   url: string,
-//   value: Body
-// ): Promise<void> {
-//   const isJson =
-//     typeof value !== 'string' &&
-//     !(value instanceof ArrayBuffer) &&
-//     !(value instanceof Uint8Array);
-//   const response = await fetch(url, {
-//     method: 'PUT',
-//     body: /* istanbul ignore next */ isJson
-//       ? JSON.stringify(value)
-//       : (value as BodyInit),
-//     headers: {
-//       'Content-Type': isJson ? 'application/json' : 'application/octet-stream',
-//     },
-//   });
-//   const body: OkResponse | ErrorsResponse = await response.json();
-
-//   if (body.status !== 'ok') {
-//     throw new Error(`PUT ${url} failed: ${JSON.stringify(body.errors)}`);
-//   }
-// }
-
 async function del(url: string): Promise<void> {
   const response = await fetch(url, {
     method: 'DELETE',
