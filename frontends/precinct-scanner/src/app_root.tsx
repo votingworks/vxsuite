@@ -318,7 +318,7 @@ export function AppRoot({
 
   const scannerStatus = usePrecinctScannerStatus();
 
-  const ballotBagReplaced = useCallback(async () => {
+  const onBallotBagReplaced = useCallback(async () => {
     assert(scannerStatus);
     dispatchAppState({
       type: 'ballotBagReplaced',
@@ -472,7 +472,7 @@ export function AppRoot({
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollWorkerAuthenticated={isPollWorkerAuth(auth)}
-        onComplete={ballotBagReplaced}
+        onComplete={onBallotBagReplaced}
       />
     );
   }
