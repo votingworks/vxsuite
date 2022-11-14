@@ -5,7 +5,10 @@ import {
   BallotPageMetadata,
   BallotType,
   CandidateContest,
+  InterpretedHmpbPage,
+  mapSheet,
   PageInterpretationWithFiles,
+  SheetOf,
   YesNoContest,
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
@@ -14,7 +17,7 @@ import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import { Store } from './store';
+import { ResultSheet, Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -531,4 +534,115 @@ test('zero', () => {
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
+});
+
+test('iterating over all result sheets', () => {
+  const store = Store.memoryStore();
+
+  // starts empty
+  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+
+  // add a batch with a sheet
+  const batchId = store.addBatch();
+  const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
+    {
+      originalFilename: '/original.png',
+      normalizedFilename: '/normalized.png',
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        votes: {},
+        markInfo: {
+          ballotSize: { width: 800, height: 1000 },
+          marks: [],
+        },
+        metadata: {
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestMode: false,
+          pageNumber: 1,
+          locales: { primary: 'en-US' },
+          ballotType: BallotType.Standard,
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+      },
+    },
+    {
+      originalFilename: '/original.png',
+      normalizedFilename: '/normalized.png',
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        votes: {},
+        markInfo: {
+          ballotSize: { width: 800, height: 1000 },
+          marks: [],
+        },
+        metadata: {
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestMode: false,
+          pageNumber: 2,
+          locales: { primary: 'en-US' },
+          ballotType: BallotType.Standard,
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+      },
+    },
+  ];
+  store.addSheet(uuid(), batchId, sheetWithFiles);
+  store.finishBatch({ batchId });
+
+  // has one sheet
+  expect(Array.from(store.forEachResultSheet())).toEqual(
+    typedAs<ResultSheet[]>([
+      {
+        id: expect.any(String),
+        batchId,
+        batchLabel: 'Batch 1',
+        interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
+      },
+    ])
+  );
+
+  // delete the batch and the results are empty again
+  store.deleteBatch(batchId);
+  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+
+  // add a sheet requiring adjudication and check that it is not included
+  const batchId2 = store.addBatch();
+  store.addSheet(uuid(), batchId2, [
+    {
+      ...sheetWithFiles[0],
+      interpretation: {
+        ...(sheetWithFiles[0].interpretation as InterpretedHmpbPage),
+        adjudicationInfo: {
+          requiresAdjudication: true,
+          enabledReasons: [AdjudicationReason.Overvote],
+          enabledReasonInfos: [
+            {
+              type: AdjudicationReason.Overvote,
+              contestId: 'contest-1',
+              optionIds: ['candidate-1', 'candidate-2'],
+              optionIndexes: [0, 1],
+              expected: 1,
+            },
+          ],
+          ignoredReasonInfos: [],
+        },
+      },
+    },
+    sheetWithFiles[1],
+  ]);
+  expect(Array.from(store.forEachResultSheet())).toEqual([]);
 });
