@@ -164,7 +164,7 @@ export async function* exportCastVoteRecords({
 }
 
 /**
- * Export all CVRs newline-delimited JSON.
+ * Export all CVRs as a newline-delimited JSON stream.
  */
 export function exportCastVoteRecordsAsNdJson({
   store,
