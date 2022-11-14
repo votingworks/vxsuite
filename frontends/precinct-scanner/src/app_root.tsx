@@ -123,7 +123,7 @@ function appReducer(state: State, action: AppAction): State {
   switch (action.type) {
     case 'refreshStateFromBackend': {
       return {
-        ...state,
+        machineConfig: state.machineConfig,
         ...action.scannerConfig,
         isBackendStateLoaded: true,
       };
