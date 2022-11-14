@@ -313,16 +313,22 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async addCastVoteRecordFile(
-    newCastVoteRecordFile: File
+    newCastVoteRecordFile: File,
+    options?: { analyzeOnly?: boolean }
   ): Promise<AddCastVoteRecordFileResult> {
     const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     const formData = new FormData();
     formData.append(CVR_FILE_ATTACHMENT_NAME, newCastVoteRecordFile);
 
+    const query = new URLSearchParams();
+    if (options?.analyzeOnly) {
+      query.set('analyzeOnly', options.analyzeOnly.toString());
+    }
+
     const addCastVoteRecordFileResponse = await fetchWithSchema(
       Admin.PostCvrFileResponseSchema,
-      `/admin/elections/${currentElectionId}/cvr-files`,
+      `/admin/elections/${currentElectionId}/cvr-files?${query}`,
       { method: 'POST', body: formData }
     );
 
@@ -334,11 +340,16 @@ export class ElectionManagerStoreAdminBackend
       );
     }
 
-    // Also add to local storage if backend request was successful.
-    // (We're temporarily double-writing to both local storage and backend DB while we migrate stuff
-    // over to the backend. See https://github.com/votingworks/vxsuite/issues/2716)
-    await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
+    if (!options?.analyzeOnly) {
+      // Also add to local storage if backend request was successful.
+      // (We're temporarily double-writing to both local storage and backend DB while we migrate stuff
+      // over to the backend. See https://github.com/votingworks/vxsuite/issues/2716)
+      await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
+    }
 
+    // TODO(https://github.com/votingworks/vxsuite/issues/2716): We'll need more
+    // data about the file to maintain feature parity while we move CVR
+    // data/logic to the server.
     return {
       wasExistingFile: addCastVoteRecordFileResponse.wasExistingFile,
       newlyAdded: addCastVoteRecordFileResponse.newlyAdded,

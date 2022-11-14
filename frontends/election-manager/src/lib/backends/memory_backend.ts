@@ -182,11 +182,14 @@ export class ElectionManagerStoreMemoryBackend
   }
 
   async addCastVoteRecordFile(
-    newCastVoteRecordFile: File
+    newCastVoteRecordFile: File,
+    options?: { analyzeOnly?: boolean }
   ): Promise<AddCastVoteRecordFileResult> {
     if (!this.electionDefinition) {
       throw new Error('Election definition must be configured first');
     }
+
+    const oldCastVoteRecordFiles = this.castVoteRecordFiles;
 
     this.castVoteRecordFiles = await (
       this.castVoteRecordFiles ?? CastVoteRecordFiles.empty
@@ -201,9 +204,13 @@ export class ElectionManagerStoreMemoryBackend
     const newlyAdded = file?.importedCvrCount ?? 0;
     const alreadyPresent = file?.duplicatedCvrCount ?? 0;
 
-    if (!wasExistingFile && file) {
+    if (!wasExistingFile && file && !options?.analyzeOnly) {
       const newWriteIns = this.getWriteInsFromCastVoteRecords(file);
       this.writeIns = [...(this.writeIns ?? []), ...newWriteIns];
+    }
+
+    if (options?.analyzeOnly) {
+      this.castVoteRecordFiles = oldCastVoteRecordFiles;
     }
 
     return {
