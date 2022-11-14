@@ -9,7 +9,7 @@ export function getCvrFileAnalysisQueryKey(cvrFile: File): QueryKey {
   return ['cvr-file-analysis', cvrFile.name, cvrFile.lastModified];
 }
 
-/** Returns a query for an analysis of the the given CVR file. */
+/** Returns a query for an analysis of the given CVR file. */
 export function useCvrFileAnalysisQuery(
   cvrFile: File
 ): UseQueryResult<AddCastVoteRecordFileResult> {
