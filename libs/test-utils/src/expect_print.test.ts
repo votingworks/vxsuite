@@ -8,7 +8,7 @@ import {
   fakePrintElement,
   fakePrintElementWhenReady,
   resetExpectPrint,
-  throwOnNextPrint,
+  simulateErrorOnNextPrint,
   expectPrintToMatchSnapshot,
 } from './expect_print';
 
@@ -168,11 +168,11 @@ describe('expectPrint', () => {
   });
 });
 
-test('throwOnNextPrint', async () => {
+test('simulateErrorOnNextPrint', async () => {
   expect.assertions(3);
 
   // Works for fakePrintElement
-  throwOnNextPrint();
+  simulateErrorOnNextPrint();
   try {
     await fakePrintElement(simpleElement, fakeOptions);
   } catch (error) {
@@ -184,7 +184,7 @@ test('throwOnNextPrint', async () => {
   await expectPrint();
 
   // Works for fakePrintElementWhenReady, with custom error
-  throwOnNextPrint(new Error('message'));
+  simulateErrorOnNextPrint(new Error('message'));
   try {
     await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   } catch (error) {

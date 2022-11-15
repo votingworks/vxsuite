@@ -11,7 +11,7 @@ import {
   fakeKiosk,
   fakePrinter,
   hasTextAcrossElements,
-  throwOnNextPrint,
+  simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
 import { BallotStyleId, PrecinctId } from '@votingworks/types';
 import {
@@ -217,7 +217,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   await within(modal).findByText('Printing Official Ballot (1 of 4)');
   await expectPrint();
   act(() => hardware.setPrinterConnected(false));
-  throwOnNextPrint();
+  simulateErrorOnNextPrint();
   jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   await within(modal).findByText('Printer Disconnected');
   expect(logger.log).toHaveBeenLastCalledWith(

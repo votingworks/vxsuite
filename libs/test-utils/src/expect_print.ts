@@ -29,7 +29,12 @@ export function resetExpectPrint(): void {
   errorOnNextPrint = undefined;
 }
 
-export function throwOnNextPrint(error: Error = new Error()): void {
+/**
+ * Throws the provided error the next time that fakePrintElement or
+ * fakePrintElementWhenReady are called. Used to simulate errors we
+ * may receive from the printer itself.
+ */
+export function simulateErrorOnNextPrint(error: Error = new Error()): void {
   errorOnNextPrint = error;
 }
 
