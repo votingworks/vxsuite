@@ -118,27 +118,22 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       } = ballotConfig;
       assert(typeof layoutFilename === 'string');
       const ballotPdfData = Buffer.from(
-        await printElementToPdfWhenReady(
-          (onRendered) => {
-            return (
-              <HandMarkedPaperBallot
-                ballotStyleId={ballotStyleId}
-                election={election}
-                electionHash={electionHash}
-                ballotMode={
-                  isLiveMode ? Admin.BallotMode.Official : Admin.BallotMode.Test
-                }
-                isAbsentee={isAbsentee}
-                precinctId={precinctId}
-                onRendered={onRendered}
-                locales={locales}
-              />
-            );
-          },
-          {
-            screenDisplayNone: false,
-          }
-        )
+        await printElementToPdfWhenReady((onRendered) => {
+          return (
+            <HandMarkedPaperBallot
+              ballotStyleId={ballotStyleId}
+              election={election}
+              electionHash={electionHash}
+              ballotMode={
+                isLiveMode ? Admin.BallotMode.Official : Admin.BallotMode.Test
+              }
+              isAbsentee={isAbsentee}
+              precinctId={precinctId}
+              onRendered={onRendered}
+              locales={locales}
+            />
+          );
+        })
       );
 
       const layouts: BallotPageLayout[] = [];

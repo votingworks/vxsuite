@@ -190,7 +190,6 @@ export function BallotScreen(): JSX.Element {
       await printElementWhenReady(ballotWithCallback, {
         sides: 'two-sided-long-edge',
         copies: ballotCopies,
-        screenDisplayNone: false,
       });
 
       const ballotType = isAbsentee

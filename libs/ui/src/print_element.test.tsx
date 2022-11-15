@@ -126,19 +126,6 @@ describe('printElement', () => {
     });
     await printPromise;
   });
-
-  test('printed elements have no "display: none;" wrapper if screenDisplayNone is false', async () => {
-    const printPromise = printElement(simpleElement, {
-      sides: 'one-sided',
-      screenDisplayNone: false,
-    });
-
-    await waitFor(() => {
-      const element = screen.getByText('Print me!');
-      expect(element.parentElement).not.toHaveStyleRule('display', 'none');
-    });
-    await printPromise;
-  });
 });
 
 function SleeperElement({ afterSleep }: { afterSleep: () => void }) {

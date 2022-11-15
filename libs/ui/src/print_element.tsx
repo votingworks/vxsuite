@@ -1,56 +1,17 @@
 import React, { useEffect } from 'react';
 import ReactDom from 'react-dom';
-import styled from 'styled-components';
 
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import { assert, getPrinter } from '@votingworks/utils';
-
-const ScreenDisplayNone = styled.div`
-  display: none;
-  @media print {
-    display: block;
-  }
-`;
-
-interface PrintElementBaseOptions {
-  screenDisplayNone?: boolean;
-}
-
-export type PrintElementToPdfOptions = PrintElementBaseOptions;
-
-export interface PrintElementOptions
-  extends PrintElementBaseOptions,
-    PrintOptions {}
-
-type PrintElementToPdfOptionsDiscriminated = PrintElementToPdfOptions & {
-  printToPdf: true;
-};
-type PrintElementOptionsDiscriminated = PrintElementOptions & {
-  printToPdf: false;
-};
-type PrintElementSuperOptionsDiscriminated =
-  | PrintElementToPdfOptionsDiscriminated
-  | PrintElementOptionsDiscriminated;
 
 // Render an element and print it. The function to render the element takes a
 // callback to indicate when the component has finished rendering and is ready
 // to be printed. This accommodates components that may want to do multiple
 // renders or post-processing before being ready to print.
-async function printElementWhenReadySuper(
+async function printElementWhenReadySuper<PrintResult>(
   elementWithOnReadyCallback: ElementWithCallback,
-  printElementToPrinterOptions: PrintElementOptionsDiscriminated
-): Promise<void>;
-async function printElementWhenReadySuper(
-  elementWithOnReadyCallback: ElementWithCallback,
-  printElementToPdfOptions: PrintElementToPdfOptionsDiscriminated
-): Promise<Uint8Array>;
-async function printElementWhenReadySuper(
-  elementWithOnReadyCallback: ElementWithCallback,
-  {
-    screenDisplayNone = true,
-    ...printOptionsDiscriminated
-  }: PrintElementSuperOptionsDiscriminated
-): Promise<void | Uint8Array> {
+  print: () => Promise<PrintResult>
+): Promise<PrintResult> {
   const printRoot = document.createElement('div');
   printRoot.id = 'print-root';
   printRoot.dataset['testid'] = 'print-root';
@@ -69,19 +30,11 @@ async function printElementWhenReadySuper(
     return Promise.all(imageLoadPromises);
   }
 
-  return new Promise<void | Uint8Array>((resolve, reject) => {
+  return new Promise<PrintResult>((resolve, reject) => {
     async function printAndTeardown() {
       try {
-        if (printOptionsDiscriminated.printToPdf) {
-          assert(window.kiosk);
-          const pdfData = await window.kiosk.printToPDF();
-          resolve(pdfData);
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { printToPdf, ...printOptions } = printOptionsDiscriminated;
-          await getPrinter().print(printOptions);
-          resolve();
-        }
+        const printResult = await print();
+        resolve(printResult);
       } catch (e) {
         reject(e);
       } finally {
@@ -95,16 +48,7 @@ async function printElementWhenReadySuper(
       await printAndTeardown();
     }
 
-    ReactDom.render(
-      screenDisplayNone ? (
-        <ScreenDisplayNone>
-          {elementWithOnReadyCallback(onElementReady)}
-        </ScreenDisplayNone>
-      ) : (
-        elementWithOnReadyCallback(onElementReady)
-      ),
-      printRoot
-    );
+    ReactDom.render(elementWithOnReadyCallback(onElementReady), printRoot);
   });
 }
 
@@ -126,18 +70,10 @@ function WrapperWithCallbackAfterFirstRender({
 
 // Function for printing regular React components that are ready to print
 // after their initial render.
-async function printElementSuper(
+function printElementSuper<PrintResult>(
   element: JSX.Element,
-  printElementToPrinterOptions: PrintElementOptionsDiscriminated
-): Promise<void>;
-async function printElementSuper(
-  element: JSX.Element,
-  printElementToPdfOptions: PrintElementToPdfOptionsDiscriminated
-): Promise<Uint8Array>;
-function printElementSuper(
-  element: JSX.Element,
-  printElementSuperOptions: PrintElementSuperOptionsDiscriminated
-): Promise<void | Uint8Array> {
+  print: () => Promise<PrintResult>
+): Promise<PrintResult> {
   const elementWithCallbackAfterFirstRender: ElementWithCallback = (
     onElementReady
   ) => (
@@ -146,56 +82,46 @@ function printElementSuper(
     </WrapperWithCallbackAfterFirstRender>
   );
 
-  // Silly, but typescript doesn't handle the overload with the union type
-  // argument, so we have two different calls to printElementWhenReadySuper
-  if (printElementSuperOptions.printToPdf) {
-    return printElementWhenReadySuper(
-      elementWithCallbackAfterFirstRender,
-      printElementSuperOptions
-    );
-  }
-  return printElementWhenReadySuper(
-    elementWithCallbackAfterFirstRender,
-    printElementSuperOptions
-  );
+  return printElementWhenReadySuper(elementWithCallbackAfterFirstRender, print);
+}
+
+function printWithOptions(printOptions: PrintOptions) {
+  return () => {
+    return getPrinter().print(printOptions);
+  };
 }
 
 export async function printElementWhenReady(
   elementWithOnReadyCallback: ElementWithCallback,
-  printElementOptions: PrintElementOptions
+  printOptions: PrintOptions
 ): Promise<void> {
-  return printElementWhenReadySuper(elementWithOnReadyCallback, {
-    printToPdf: false,
-    ...printElementOptions,
-  });
+  return printElementWhenReadySuper(
+    elementWithOnReadyCallback,
+    printWithOptions(printOptions)
+  );
 }
 
 export async function printElement(
   element: JSX.Element,
-  printElementOptions: PrintElementOptions
+  printOptions: PrintOptions
 ): Promise<void> {
-  return printElementSuper(element, {
-    printToPdf: false,
-    ...printElementOptions,
-  });
+  return printElementSuper(element, printWithOptions(printOptions));
+}
+
+async function printToPdf(): Promise<Uint8Array> {
+  assert(window.kiosk);
+  const pdfData = await window.kiosk.printToPDF();
+  return pdfData;
 }
 
 export async function printElementToPdfWhenReady(
-  elementWithOnReadyCallback: ElementWithCallback,
-  printElementToPdfOptions: PrintElementToPdfOptions = {}
+  elementWithOnReadyCallback: ElementWithCallback
 ): Promise<Uint8Array> {
-  return printElementWhenReadySuper(elementWithOnReadyCallback, {
-    printToPdf: true,
-    ...printElementToPdfOptions,
-  });
+  return printElementWhenReadySuper(elementWithOnReadyCallback, printToPdf);
 }
 
 export async function printElementToPdf(
-  element: JSX.Element,
-  printElementToPdfOptions: PrintElementToPdfOptions = {}
+  element: JSX.Element
 ): Promise<Uint8Array> {
-  return printElementSuper(element, {
-    printToPdf: true,
-    ...printElementToPdfOptions,
-  });
+  return printElementSuper(element, printToPdf);
 }

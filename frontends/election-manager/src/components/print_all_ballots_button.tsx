@@ -143,7 +143,6 @@ export function PrintAllBallotsButton(): JSX.Element {
       {
         sides: 'two-sided-long-edge',
         copies: ballotCopies,
-        screenDisplayNone: false,
       }
     );
 

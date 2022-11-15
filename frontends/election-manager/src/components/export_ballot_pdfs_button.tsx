@@ -131,25 +131,20 @@ export function ExportBallotPdfsButton(): JSX.Element {
     });
 
     const ballotPdfData = Buffer.from(
-      await printElementToPdfWhenReady(
-        (onRendered) => {
-          return (
-            <HandMarkedPaperBallot
-              ballotStyleId={ballotStyleId}
-              election={election}
-              electionHash={electionHash}
-              ballotMode={ballotMode}
-              isAbsentee={isAbsentee}
-              precinctId={precinctId}
-              onRendered={onRendered}
-              locales={defaultBallotLocales}
-            />
-          );
-        },
-        {
-          screenDisplayNone: false,
-        }
-      )
+      await printElementToPdfWhenReady((onRendered) => {
+        return (
+          <HandMarkedPaperBallot
+            ballotStyleId={ballotStyleId}
+            election={election}
+            electionHash={electionHash}
+            ballotMode={ballotMode}
+            isAbsentee={isAbsentee}
+            precinctId={precinctId}
+            onRendered={onRendered}
+            locales={defaultBallotLocales}
+          />
+        );
+      })
     );
 
     await archive.file(ballotFilename, ballotPdfData);
