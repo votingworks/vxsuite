@@ -129,10 +129,6 @@ function generateHandMarkedPaperBallots({
   return ballots;
 }
 
-function generateHmpbTargetElementId(ballotIndex: number) {
-  return `ballot-${ballotIndex}`;
-}
-
 interface HandMarkedPaperBallotsProps {
   election: Election;
   electionHash: string;
@@ -157,7 +153,7 @@ function HandMarkedPaperBallots({
   }
 
   return (
-    <div className="print-only">
+    <div>
       {ballots.map((ballot, i) => (
         <HandMarkedPaperBallot
           key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
@@ -170,65 +166,10 @@ function HandMarkedPaperBallots({
           locales={{ primary: 'en-US' }}
           votes={ballot.votes}
           onRendered={() => onRendered()}
-          targetElementId={generateHmpbTargetElementId(i)}
         />
       ))}
     </div>
   );
-}
-
-/**
- * Hand-marked paper ballots are post-processed by Paged.js on a per-ballot basis and rendered to a
- * target element. useCreateHmpbTargetElements creates a set of target elements, one for every
- * hand-marked paper ballot. In the past, we rendered all test deck hand-marked paper ballots to
- * the same target element, but this occasionally resulted in a misordered test deck.
- *
- * We render the target elements separate from HandMarkedPaperBallot and in this unconventional way
- * because we need each target element to 1) exist before the corresponding HandMarkedPaperBallot
- * is rendered and 2) be unaffected by HandMarkedPaperBallot's React lifecycle.
- */
-function useCreateHmpbTargetElements({
-  containerRef,
-  election,
-  precinctId,
-  printingHandMarkedPaperBallots,
-}: {
-  containerRef?: React.RefObject<HTMLElement>;
-  election: Election;
-  precinctId: PrecinctId;
-  printingHandMarkedPaperBallots: boolean;
-}) {
-  const [
-    hmpbTargetElementsCreatedForPrecinctId,
-    setHmpbTargetElementsCreatedForPrecinctId,
-  ] = useState<string>();
-
-  useEffect(() => {
-    const container = containerRef?.current;
-
-    if (container && printingHandMarkedPaperBallots) {
-      const numBallots = generateHandMarkedPaperBallots({
-        election,
-        precinctId,
-      }).length;
-      for (let i = 0; i < numBallots; i += 1) {
-        const hmpbTargetElement = document.createElement('div');
-        hmpbTargetElement.id = generateHmpbTargetElementId(i);
-        container.appendChild(hmpbTargetElement);
-      }
-      setHmpbTargetElementsCreatedForPrecinctId(precinctId);
-    }
-
-    // Cleanup action: Clear the created elements
-    return () => {
-      if (container) {
-        container.innerHTML = '';
-        setHmpbTargetElementsCreatedForPrecinctId(undefined);
-      }
-    };
-  }, [containerRef, election, precinctId, printingHandMarkedPaperBallots]);
-
-  return { hmpbTargetElementsCreatedForPrecinctId };
 }
 
 // FIXME: We're using `React.memo` to prevent re-rendering `TestDeckBallots`,
@@ -329,8 +270,7 @@ interface PrintIndex {
 
 export function PrintTestDeckScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const { electionDefinition, printer, auth, logger, printBallotRef } =
-    useContext(AppContext);
+  const { electionDefinition, printer, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
@@ -542,15 +482,6 @@ export function PrintTestDeckScreen(): JSX.Element {
       })
     : undefined;
 
-  const { hmpbTargetElementsCreatedForPrecinctId } =
-    useCreateHmpbTargetElements({
-      containerRef: printBallotRef,
-      election,
-      precinctId: currentPrecinctId,
-      printingHandMarkedPaperBallots:
-        printIndex?.component === 'HandMarkedPaperBallots',
-    });
-
   return (
     <React.Fragment>
       {printIndex && currentPrecinct && (
@@ -620,15 +551,14 @@ export function PrintTestDeckScreen(): JSX.Element {
           precinctId={precinctIds[printIndex.precinctIndex]}
         />
       )}
-      {printIndex?.component === 'HandMarkedPaperBallots' &&
-        hmpbTargetElementsCreatedForPrecinctId === currentPrecinctId && (
-          <HandMarkedPaperBallotsMemoized
-            election={election}
-            electionHash={electionHash}
-            precinctId={currentPrecinctId}
-            onAllRendered={onAllHandMarkedPaperBallotsRendered}
-          />
-        )}
+      {printIndex?.component === 'HandMarkedPaperBallots' && (
+        <HandMarkedPaperBallotsMemoized
+          election={election}
+          electionHash={electionHash}
+          precinctId={currentPrecinctId}
+          onAllRendered={onAllHandMarkedPaperBallotsRendered}
+        />
+      )}
       {showPrintingError && (
         <PrinterNotConnectedModal onClose={() => setShowPrintingError(false)} />
       )}

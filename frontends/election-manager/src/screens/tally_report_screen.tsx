@@ -31,7 +31,7 @@ import {
 } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
-import { PrintButton } from '../components/print_button';
+import { DeprecatedPrintButton } from '../components/deprecated_print_button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 
@@ -250,14 +250,14 @@ export function TallyReportScreen(): JSX.Element {
             election={election}
           />
           <p>
-            <PrintButton
+            <DeprecatedPrintButton
               afterPrint={afterPrint}
               afterPrintError={afterPrintError}
               primary
               sides="one-sided"
             >
               Print Report
-            </PrintButton>{' '}
+            </DeprecatedPrintButton>{' '}
             {window.kiosk && (
               <Button onPress={() => setIsSaveModalOpen(true)}>
                 Save Report as PDF

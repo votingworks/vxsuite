@@ -7,10 +7,13 @@ import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import React from 'react';
 import { Admin } from '@votingworks/api';
 import {
+  expectPrint,
   fakeKiosk,
   fakePrinter,
   hasTextAcrossElements,
+  simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
+import { BallotStyleId, PrecinctId } from '@votingworks/types';
 import {
   renderInAppContext,
   renderRootElement,
@@ -108,25 +111,30 @@ test('print sequence proceeds as expected', async () => {
     )
   );
 
-  const expectedBallotStyles = [
-    ['Precinct 1', '1M'],
-    ['Precinct 1', '2F'],
-    ['Precinct 2', '1M'],
-    ['Precinct 2', '2F'],
+  const expectedBallotStyles: Array<[string, PrecinctId, BallotStyleId]> = [
+    ['Precinct 1', 'precinct-1', '1M'],
+    ['Precinct 1', 'precinct-1', '2F'],
+    ['Precinct 2', 'precinct-2', '1M'],
+    ['Precinct 2', 'precinct-2', '2F'],
   ];
 
   for (const [i, expectedBallotStyle] of expectedBallotStyles.entries()) {
     await within(modal).findByText(`Printing Official Ballot (${i + 1} of 4)`);
     within(modal).getByText(
       hasTextAcrossElements(
-        `Precinct: ${expectedBallotStyle[0]}, Ballot Style: ${expectedBallotStyle[1]}`
+        `Precinct: ${expectedBallotStyle[0]}, Ballot Style: ${expectedBallotStyle[2]}`
       )
     );
-    expect(printer.print).toHaveBeenCalledTimes(i + 1);
-    expect(printer.print).toHaveBeenLastCalledWith({
-      sides: 'two-sided-long-edge',
-      copies: 1,
+    await expectPrint((printedElement, printOptions) => {
+      printedElement.getByText('Mocked HMPB');
+      printedElement.getByText(`Ballot Style: ${expectedBallotStyle[2]}`);
+      printedElement.getByText(`Precinct: ${expectedBallotStyle[1]}`);
+      expect(printOptions).toMatchObject({
+        sides: 'two-sided-long-edge',
+        copies: 1,
+      });
     });
+
     expect(logger.log).toHaveBeenCalledTimes(i + 1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.BallotPrinted,
@@ -207,7 +215,9 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
     )
   );
   await within(modal).findByText('Printing Official Ballot (1 of 4)');
+  await expectPrint();
   act(() => hardware.setPrinterConnected(false));
+  simulateErrorOnNextPrint();
   jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   await within(modal).findByText('Printer Disconnected');
   expect(logger.log).toHaveBeenLastCalledWith(

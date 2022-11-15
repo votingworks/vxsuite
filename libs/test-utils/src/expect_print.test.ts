@@ -8,6 +8,8 @@ import {
   fakePrintElement,
   fakePrintElementWhenReady,
   resetExpectPrint,
+  simulateErrorOnNextPrint,
+  expectPrintToMatchSnapshot,
 } from './expect_print';
 
 beforeEach(() => {
@@ -164,4 +166,37 @@ describe('expectPrint', () => {
     // Printing another element should not throw an error
     await fakePrintElement(simpleElement, fakeOptions);
   });
+});
+
+test('simulateErrorOnNextPrint', async () => {
+  expect.assertions(3);
+
+  // Works for fakePrintElement
+  simulateErrorOnNextPrint();
+  try {
+    await fakePrintElement(simpleElement, fakeOptions);
+  } catch (error) {
+    expect(error).toBeInstanceOf(Error);
+  }
+
+  // Should be able to print and assert normally now
+  await fakePrintElement(simpleElement, fakeOptions);
+  await expectPrint();
+
+  // Works for fakePrintElementWhenReady, with custom error
+  simulateErrorOnNextPrint(new Error('message'));
+  try {
+    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+  } catch (error) {
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toEqual('message');
+  }
+
+  await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+  await expectPrint();
+});
+
+test('expectPrintToMatchSnapshot', async () => {
+  await fakePrintElement(simpleElement, fakeOptions);
+  await expectPrintToMatchSnapshot();
 });

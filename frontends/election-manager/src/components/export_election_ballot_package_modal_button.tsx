@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
@@ -19,6 +19,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   throwIllegalValue,
+  BallotConfig,
 } from '@votingworks/utils';
 import {
   Button,
@@ -28,6 +29,7 @@ import {
   UsbControllerButton,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
+  printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
@@ -40,6 +42,7 @@ import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
+import { DownloadableArchive } from '../utils/downloadable_archive';
 
 const { UsbDriveStatus } = usbstick;
 const UsbImage = styled.img`
@@ -93,55 +96,72 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   }, [state, election, electionData, electionHash, logger, userRole]);
 
   /**
-   * Callback from `HandMarkedPaperBallot` to let us know the preview has been
-   * rendered. Once this happens, we generate a PDF and move on to the next one
-   * or finish up if that was the last one.
+   * Renders all ballot configs to PDFs, generates their layout files,
+   * and add the PDFs and layouts to the specified archive. Advances
+   * workflow state after each ballot config to update UI.
    */
-  const onRendered = useCallback(async () => {
-    if (state.type !== 'RenderBallot') {
-      throw new Error(
-        `unexpected state '${state.type}' found during onRendered callback`
-      );
-    }
-
-    const {
-      ballotStyleId,
-      precinctId,
-      locales,
-      isLiveMode,
-      filename,
-      layoutFilename,
-    } = state.currentBallotConfig;
+  async function archiveBallots(
+    ballotConfigs: readonly BallotConfig[],
+    archive: DownloadableArchive
+  ) {
     assert(window.kiosk);
-    assert(typeof layoutFilename === 'string');
-    const ballotPdfData = Buffer.from(await window.kiosk.printToPDF());
-    const layouts: BallotPageLayout[] = [];
-    for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
-      scale: 2,
-    })) {
-      const metadata: HmpbBallotPageMetadata = {
+    assert(electionDefinition);
+    for (const ballotConfig of ballotConfigs) {
+      const {
         ballotStyleId,
-        electionHash: electionDefinition.electionHash,
-        ballotType: BallotType.Standard,
         precinctId,
         locales,
-        isTestMode: !isLiveMode,
-        pageNumber,
-      };
-      const { ballotPageLayout } = await interpretTemplate({
-        electionDefinition,
-        imageData: page,
-        metadata,
-      });
-      layouts.push(ballotPageLayout);
+        isLiveMode,
+        isAbsentee,
+        filename,
+        layoutFilename,
+      } = ballotConfig;
+      assert(typeof layoutFilename === 'string');
+      const ballotPdfData = Buffer.from(
+        await printElementToPdfWhenReady((onRendered) => {
+          return (
+            <HandMarkedPaperBallot
+              ballotStyleId={ballotStyleId}
+              election={election}
+              electionHash={electionHash}
+              ballotMode={
+                isLiveMode ? Admin.BallotMode.Official : Admin.BallotMode.Test
+              }
+              isAbsentee={isAbsentee}
+              precinctId={precinctId}
+              onRendered={onRendered}
+              locales={locales}
+            />
+          );
+        })
+      );
+
+      const layouts: BallotPageLayout[] = [];
+      for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
+        scale: 2,
+      })) {
+        const metadata: HmpbBallotPageMetadata = {
+          ballotStyleId,
+          electionHash: electionDefinition.electionHash,
+          ballotType: BallotType.Standard,
+          precinctId,
+          locales,
+          isTestMode: !isLiveMode,
+          pageNumber,
+        };
+        const { ballotPageLayout } = await interpretTemplate({
+          electionDefinition,
+          imageData: page,
+          metadata,
+        });
+        layouts.push(ballotPageLayout);
+      }
+
+      await archive.file(layoutFilename, JSON.stringify(layouts, undefined, 2));
+      await archive.file(filename, ballotPdfData);
+      setState(workflow.next);
     }
-    await state.archive.file(
-      layoutFilename,
-      JSON.stringify(layouts, undefined, 2)
-    );
-    await state.archive.file(filename, ballotPdfData);
-    setState(workflow.next);
-  }, [electionDefinition, state]);
+  }
 
   function closeModal() {
     setIsModalOpen(false);
@@ -177,6 +197,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
       );
       setState(workflow.next);
+      await archiveBallots(state.ballotConfigs, state.archive);
     } catch (error) {
       assert(error instanceof Error);
       setState(workflow.error(state, error));
@@ -268,14 +289,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           Cancel
         </LinkButton>
       );
-      const {
-        ballotStyleId,
-        precinctId,
-        contestIds,
-        isLiveMode,
-        locales,
-        isAbsentee,
-      } = state.currentBallotConfig;
+      const { ballotStyleId, precinctId, contestIds, locales } =
+        state.currentBallotConfig;
       const precinct = getPrecinctById({ election, precinctId });
       assert(precinct);
       const precinctName = precinct.name;
@@ -306,18 +321,6 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               <Monospace>{state.currentBallotConfig.filename}</Monospace>
             </li>
           </ul>
-          <HandMarkedPaperBallot
-            ballotStyleId={ballotStyleId}
-            election={election}
-            electionHash={electionHash}
-            ballotMode={
-              isLiveMode ? Admin.BallotMode.Official : Admin.BallotMode.Test
-            }
-            isAbsentee={isAbsentee}
-            precinctId={precinctId}
-            onRendered={onRendered}
-            locales={locales}
-          />
         </Prose>
       );
       break;

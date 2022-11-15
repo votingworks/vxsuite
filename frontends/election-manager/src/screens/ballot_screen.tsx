@@ -1,11 +1,5 @@
 import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -27,13 +21,14 @@ import {
   Monospace,
   Prose,
   useStoredState,
+  printElementWhenReady,
+  printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
 import { BallotScreenProps, PrintableBallotType } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
-import { PrintButton } from '../components/print_button';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 import {
   getBallotPath,
@@ -45,7 +40,6 @@ import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
 import { getBallotLayoutPageSizeReadableString } from '../utils/get_ballot_layout_page_size';
-import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
@@ -53,6 +47,7 @@ import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 import { ServicesContext } from '../contexts/services_context';
+import { PrintButton } from '../components/print_button';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -83,14 +78,12 @@ const BallotPreview = styled.div`
 
 export function BallotScreen(): JSX.Element {
   const history = useHistory();
-  const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
     precinctId,
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const { electionDefinition, printBallotRef, logger, auth } =
-    useContext(AppContext);
+  const { electionDefinition, logger, auth } = useContext(AppContext);
   const { storage } = useContext(ServicesContext);
   const addPrintedBallotMutation = useAddPrintedBallotMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
@@ -161,54 +154,91 @@ export function BallotScreen(): JSX.Element {
     isAbsentee,
   });
 
-  function afterPrint(numCopies: number) {
-    // TODO(auth) check permissions for viewing ballots
-    const ballotType = isAbsentee
-      ? PrintableBallotType.Absentee
-      : PrintableBallotType.Precinct;
-    void addPrintedBallotMutation.mutateAsync({
+  const onPreviewRendered = useCallback((pageCount) => {
+    setBallotPages(pageCount);
+  }, []);
+
+  const ballotWithCallback = useCallback(
+    (onRendered: (pageCount: number) => void) => {
+      return (
+        <HandMarkedPaperBallot
+          ballotStyleId={ballotStyleId}
+          election={election}
+          electionHash={electionHash}
+          ballotMode={ballotMode}
+          isAbsentee={isAbsentee}
+          precinctId={precinctId}
+          locales={locales}
+          onRendered={onRendered}
+        />
+      );
+    },
+    [
+      ballotMode,
       ballotStyleId,
-      precinctId,
+      election,
+      electionHash,
+      isAbsentee,
       locales,
-      numCopies,
-      ballotType,
-      ballotMode,
-    });
-    void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `${numCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
-      disposition: 'success',
-      ballotStyleId,
       precinctId,
-      locales: getHumanBallotLanguageFormat(locales),
-      ballotType,
-      ballotMode,
-      numCopies,
-    });
-  }
+    ]
+  );
 
-  function afterPrintError(errorMessage: string) {
+  const printBallot = useCallback(async () => {
     // TODO(auth) check permissions for viewing ballots
-    void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `Error attempting to print ballot: ${errorMessage}`,
-      disposition: 'failure',
-    });
-  }
+    try {
+      await printElementWhenReady(ballotWithCallback, {
+        sides: 'two-sided-long-edge',
+        copies: ballotCopies,
+      });
 
-  const onRendered = useCallback(() => {
-    if (ballotPreviewRef?.current && printBallotRef?.current) {
-      ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
+      const ballotType = isAbsentee
+        ? PrintableBallotType.Absentee
+        : PrintableBallotType.Precinct;
+
+      // Update the printed ballot count
+      await addPrintedBallotMutation.mutateAsync({
+        ballotStyleId,
+        precinctId,
+        locales,
+        numCopies: ballotCopies,
+        ballotType,
+        ballotMode,
+      });
+
+      await logger.log(LogEventId.BallotPrinted, userRole, {
+        message: `${ballotCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
+        disposition: 'success',
+        ballotStyleId,
+        precinctId,
+        locales: getHumanBallotLanguageFormat(locales),
+        ballotType,
+        ballotMode,
+        ballotCopies,
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      void logger.log(LogEventId.BallotPrinted, userRole, {
+        message: `Error attempting to print ballot: ${error.message}`,
+        disposition: 'failure',
+      });
     }
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const pagedJsPageCount = Number(
-      (
-        ballotPreviewRef.current?.getElementsByClassName(
-          'pagedjs_pages'
-        )[0] as HTMLElement
-      )?.style.getPropertyValue('--pagedjs-page-count') || 0
-    );
-    setBallotPages(pagedJsPageCount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ballotPreviewRef]);
+  }, [
+    addPrintedBallotMutation,
+    ballotCopies,
+    ballotMode,
+    ballotStyleId,
+    ballotWithCallback,
+    isAbsentee,
+    locales,
+    logger,
+    precinctId,
+    userRole,
+  ]);
+
+  const printBallotToPdf = useCallback(() => {
+    return printElementToPdfWhenReady(ballotWithCallback);
+  }, [ballotWithCallback]);
 
   return (
     <React.Fragment>
@@ -277,15 +307,7 @@ export function BallotScreen(): JSX.Element {
             )}
           </p>
           <p>
-            <PrintButton
-              primary
-              title={filename}
-              afterPrint={() => afterPrint(ballotCopies)}
-              afterPrintError={afterPrintError}
-              copies={ballotCopies}
-              sides="two-sided-long-edge"
-              warning={ballotMode !== Admin.BallotMode.Official}
-            >
+            <PrintButton primary print={printBallot}>
               <PrintBallotButtonText
                 ballotCopies={ballotCopies}
                 ballotMode={ballotMode}
@@ -333,29 +355,17 @@ export function BallotScreen(): JSX.Element {
           <h4>Front Pages</h4>
           <h4>Back Pages</h4>
         </BallotPreviewHeader>
-        <BallotPreview ref={ballotPreviewRef}>
-          <p>Rendering ballot preview…</p>
-        </BallotPreview>
+        <BallotPreview>{ballotWithCallback(onPreviewRendered)}</BallotPreview>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={generateFileContentToSaveAsPdf}
+          generateFileContent={printBallotToPdf}
           defaultFilename={filename}
           defaultDirectory={BALLOT_PDFS_FOLDER}
           fileType={FileType.Ballot}
         />
       )}
-      <HandMarkedPaperBallot
-        ballotStyleId={ballotStyleId}
-        election={election}
-        electionHash={electionHash}
-        ballotMode={ballotMode}
-        isAbsentee={isAbsentee}
-        precinctId={precinctId}
-        locales={locales}
-        onRendered={onRendered}
-      />
     </React.Fragment>
   );
 }

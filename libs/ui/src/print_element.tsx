@@ -3,23 +3,24 @@ import ReactDom from 'react-dom';
 import styled from 'styled-components';
 
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
-import { getPrinter } from '@votingworks/utils';
+import { assert, getPrinter } from '@votingworks/utils';
 
-const PrintStyles = styled.div`
-  display: none;
-  @media print {
-    display: block;
+const PrintOnly = styled.div`
+  @media screen {
+    visibility: hidden;
   }
 `;
 
-// Render an element and print it. The function to render the element takes a
-// callback to indicate when the component has finished rendering and is ready
-// to be printed. This accommodates components that may want to do multiple
-// renders or post-processing before being ready to print.
-export async function printElementWhenReady(
+/**
+ * Render an element and call the provided print function. The function to render
+ * the element takes a callback to indicate when the component has finished rendering
+ * and is ready to be printed. This accommodates components that may want to do
+ * multiple renders or post-processing before being ready to print.
+ * */
+async function printElementWhenReadyHelper<PrintResult>(
   elementWithOnReadyCallback: ElementWithCallback,
-  printOptions: PrintOptions
-): Promise<void> {
+  print: () => Promise<PrintResult>
+): Promise<PrintResult> {
   const printRoot = document.createElement('div');
   printRoot.id = 'print-root';
   printRoot.dataset['testid'] = 'print-root';
@@ -38,11 +39,11 @@ export async function printElementWhenReady(
     return Promise.all(imageLoadPromises);
   }
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<PrintResult>((resolve, reject) => {
     async function printAndTeardown() {
       try {
-        await getPrinter().print(printOptions);
-        resolve();
+        const printResult = await print();
+        resolve(printResult);
       } catch (e) {
         reject(e);
       } finally {
@@ -57,15 +58,16 @@ export async function printElementWhenReady(
     }
 
     ReactDom.render(
-      <PrintStyles>{elementWithOnReadyCallback(onElementReady)}</PrintStyles>,
+      <PrintOnly>{elementWithOnReadyCallback(onElementReady)}</PrintOnly>,
       printRoot
     );
   });
 }
 
-// Wrapper component to give a regular component an "onRendered"
-// callback prop that will get called after the first render of
-// the component finishes.
+/**
+ * Wrapper component to give a regular component an "onRendered" callback prop
+ * that will get called after the first render of the component finishes.
+ * */
 function WrapperWithCallbackAfterFirstRender({
   children,
   onRendered,
@@ -79,18 +81,79 @@ function WrapperWithCallbackAfterFirstRender({
   return children;
 }
 
-// Function for printing regular React components that are ready to print
-// after their initial render.
-export function printElement(
+/**
+ * Renders regular React components that are ready to print after their initial
+ * render, then  calls the provided print function.
+ * */
+function printElementSuper<PrintResult>(
+  element: JSX.Element,
+  print: () => Promise<PrintResult>
+): Promise<PrintResult> {
+  const elementWithCallbackAfterFirstRender: ElementWithCallback = (
+    onElementReady
+  ) => (
+    <WrapperWithCallbackAfterFirstRender onRendered={onElementReady}>
+      {element}
+    </WrapperWithCallbackAfterFirstRender>
+  );
+
+  return printElementWhenReadyHelper(
+    elementWithCallbackAfterFirstRender,
+    print
+  );
+}
+
+function printWithOptions(printOptions: PrintOptions) {
+  return () => {
+    return getPrinter().print(printOptions);
+  };
+}
+
+/**
+ * Renders a React component that takes a callback to indicate when rendering
+ * is finished, and sends it to the printer when ready.
+ */
+export async function printElementWhenReady(
+  elementWithOnReadyCallback: ElementWithCallback,
+  printOptions: PrintOptions
+): Promise<void> {
+  return printElementWhenReadyHelper(
+    elementWithOnReadyCallback,
+    printWithOptions(printOptions)
+  );
+}
+
+/**
+ * Renders a React component and sends it to the printer.
+ */
+export async function printElement(
   element: JSX.Element,
   printOptions: PrintOptions
 ): Promise<void> {
-  return printElementWhenReady(
-    (onElementReady) => (
-      <WrapperWithCallbackAfterFirstRender onRendered={onElementReady}>
-        {element}
-      </WrapperWithCallbackAfterFirstRender>
-    ),
-    printOptions
-  );
+  return printElementSuper(element, printWithOptions(printOptions));
+}
+
+/**
+ * Renders a React component that takes a callback to indicate when rendering
+ * is finished, and returns a promise for it as PDF data.
+ */
+async function printToPdf(): Promise<Uint8Array> {
+  assert(window.kiosk);
+  const pdfData = await window.kiosk.printToPDF();
+  return pdfData;
+}
+
+export async function printElementToPdfWhenReady(
+  elementWithOnReadyCallback: ElementWithCallback
+): Promise<Uint8Array> {
+  return printElementWhenReadyHelper(elementWithOnReadyCallback, printToPdf);
+}
+
+/**
+ * Renders a React component and returns a promise for it as PDF data.
+ */
+export async function printElementToPdf(
+  element: JSX.Element
+): Promise<Uint8Array> {
+  return printElementSuper(element, printToPdf);
 }

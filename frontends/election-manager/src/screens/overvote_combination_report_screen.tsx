@@ -11,7 +11,7 @@ import {
 import { LogoMark, Prose, Table, TD, Text } from '@votingworks/ui';
 import { ContestTallyMeta } from '@votingworks/types';
 import { NavigationScreen } from '../components/navigation_screen';
-import { PrintButton } from '../components/print_button';
+import { DeprecatedPrintButton } from '../components/deprecated_print_button';
 import { LinkButton } from '../components/link_button';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
@@ -82,9 +82,9 @@ export function OvervoteCombinationReportScreen(): JSX.Element {
         <Prose maxWidth={false}>
           {reportHeader}
           <p>
-            <PrintButton primary sides="one-sided">
+            <DeprecatedPrintButton primary sides="one-sided">
               Print {statusPrefix} Tally Report
-            </PrintButton>
+            </DeprecatedPrintButton>
           </p>
           <p>
             <LinkButton small to={routerPaths.tally}>

@@ -19,6 +19,7 @@ import {
   UsbControllerButton,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
+  printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -36,7 +37,6 @@ import { Loading } from './loading';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 import { BallotTypeToggle } from './ballot_type_toggle';
 import { BallotModeToggle } from './ballot_mode_toggle';
-import { PrintableArea } from './printable_area';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { generatePdfExportMetadataCsv } from '../utils/generate_pdf_export_metadata_csv';
 
@@ -74,7 +74,6 @@ export function ExportBallotPdfsButton(): JSX.Element {
   const [archive, setArchive] = useState(new DownloadableArchive());
   const [ballotMode, setBallotMode] = useState(Admin.BallotMode.Official);
   const [isAbsentee, setIsAbsentee] = useState(false);
-  const [ballotIndex, setBallotIndex] = useState(0);
 
   const defaultArchiveFilename = getBallotArchiveFilename(
     electionHash,
@@ -88,17 +87,6 @@ export function ExportBallotPdfsButton(): JSX.Element {
       getBallotStylesData(election)
     );
   }, [election]);
-
-  const ballotStyle = ballotStyleList[ballotIndex];
-  const ballotFilename = getBallotPath({
-    ballotStyleId: ballotStyle.ballotStyleId,
-    precinctId: ballotStyle.precinctId,
-    ballotMode,
-    isAbsentee,
-    election,
-    electionHash,
-    locales: defaultBallotLocales,
-  });
 
   const doFileMetadata = useCallback(async () => {
     const pdfExportMetadataCsv = generatePdfExportMetadataCsv({
@@ -130,24 +118,50 @@ export function ExportBallotPdfsButton(): JSX.Element {
     });
   }, [doFileMetadata, archive, logger, userRole, defaultArchiveFilename]);
 
-  const onRendered = useCallback(async () => {
-    assert(window.kiosk);
-    const ballotPdfData = Buffer.from(await window.kiosk.printToPDF());
-    await archive.file(ballotFilename, ballotPdfData);
+  async function exportBallotStyle(ballotStyle: BallotStyleData) {
+    const { ballotStyleId, precinctId } = ballotStyle;
+    const ballotFilename = getBallotPath({
+      ballotStyleId: ballotStyle.ballotStyleId,
+      precinctId: ballotStyle.precinctId,
+      ballotMode,
+      isAbsentee,
+      election,
+      electionHash,
+      locales: defaultBallotLocales,
+    });
 
-    if (ballotIndex + 1 === ballotStyleList.length) {
-      await endExport();
-    } else {
-      setBallotIndex(ballotIndex + 1);
+    const ballotPdfData = Buffer.from(
+      await printElementToPdfWhenReady((onRendered) => {
+        return (
+          <HandMarkedPaperBallot
+            ballotStyleId={ballotStyleId}
+            election={election}
+            electionHash={electionHash}
+            ballotMode={ballotMode}
+            isAbsentee={isAbsentee}
+            precinctId={precinctId}
+            onRendered={onRendered}
+            locales={defaultBallotLocales}
+          />
+        );
+      })
+    );
+
+    await archive.file(ballotFilename, ballotPdfData);
+  }
+
+  async function exportAllBallotStyles() {
+    for (const ballotStyle of ballotStyleList) {
+      await exportBallotStyle(ballotStyle);
     }
-  }, [archive, ballotIndex, ballotStyleList, ballotFilename, endExport]);
+    await endExport();
+  }
 
   function closeModal() {
     setIsModalOpen(false);
     setModalState('BeforeExport');
     setModalError(undefined);
     setArchive(new DownloadableArchive());
-    setBallotIndex(0);
   }
 
   // Callback to open the file dialog.
@@ -172,6 +186,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
         );
       }
       setModalState('GeneratingFiles');
+      await exportAllBallotStyles();
     } catch (error) {
       assert(error instanceof Error);
       setModalState('Error');
@@ -269,25 +284,11 @@ export function ExportBallotPdfsButton(): JSX.Element {
 
     case 'GeneratingFiles': {
       mainContent = (
-        <React.Fragment>
-          <Prose textCenter>
-            <h1>
-              <strong>Generating Ballot PDFs…</strong>
-            </h1>
-          </Prose>
-          <PrintableArea>
-            <HandMarkedPaperBallot
-              ballotStyleId={ballotStyle.ballotStyleId}
-              election={election}
-              electionHash={electionHash}
-              ballotMode={ballotMode}
-              isAbsentee={isAbsentee}
-              precinctId={ballotStyle.precinctId}
-              onRendered={onRendered}
-              locales={defaultBallotLocales}
-            />
-          </PrintableArea>
-        </React.Fragment>
+        <Prose textCenter>
+          <h1>
+            <strong>Generating Ballot PDFs…</strong>
+          </h1>
+        </Prose>
       );
       break;
     }

@@ -19,7 +19,7 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 
-import { PrintButton } from '../components/print_button';
+import { DeprecatedPrintButton } from '../components/deprecated_print_button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
@@ -162,14 +162,14 @@ export function PrintedBallotsReportScreen(): JSX.Element {
       </p>
 
       <p className="no-print">
-        <PrintButton
+        <DeprecatedPrintButton
           primary
           sides="one-sided"
           afterPrint={logAfterPrint}
           afterPrintError={logAfterPrintError}
         >
           Print Report
-        </PrintButton>
+        </DeprecatedPrintButton>
       </p>
       <p className="no-print">
         <LinkButton small to={routerPaths.reports}>
