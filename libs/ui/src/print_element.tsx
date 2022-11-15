@@ -17,7 +17,7 @@ const PrintOnly = styled.div`
  * and is ready to be printed. This accommodates components that may want to do
  * multiple renders or post-processing before being ready to print.
  * */
-async function printElementWhenReadySuper<PrintResult>(
+async function printElementWhenReadyHelper<PrintResult>(
   elementWithOnReadyCallback: ElementWithCallback,
   print: () => Promise<PrintResult>
 ): Promise<PrintResult> {
@@ -97,7 +97,10 @@ function printElementSuper<PrintResult>(
     </WrapperWithCallbackAfterFirstRender>
   );
 
-  return printElementWhenReadySuper(elementWithCallbackAfterFirstRender, print);
+  return printElementWhenReadyHelper(
+    elementWithCallbackAfterFirstRender,
+    print
+  );
 }
 
 function printWithOptions(printOptions: PrintOptions) {
@@ -114,7 +117,7 @@ export async function printElementWhenReady(
   elementWithOnReadyCallback: ElementWithCallback,
   printOptions: PrintOptions
 ): Promise<void> {
-  return printElementWhenReadySuper(
+  return printElementWhenReadyHelper(
     elementWithOnReadyCallback,
     printWithOptions(printOptions)
   );
@@ -143,7 +146,7 @@ async function printToPdf(): Promise<Uint8Array> {
 export async function printElementToPdfWhenReady(
   elementWithOnReadyCallback: ElementWithCallback
 ): Promise<Uint8Array> {
-  return printElementWhenReadySuper(elementWithOnReadyCallback, printToPdf);
+  return printElementWhenReadyHelper(elementWithOnReadyCallback, printToPdf);
 }
 
 /**
