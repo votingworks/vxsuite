@@ -73,7 +73,6 @@ test("setting the election also sets precinct if there's only one", async () => 
 describe('POST /precinct-scanner/export', () => {
   test('sets CVRs as backed up', async () => {
     const { app, workspace } = await createApp();
-    const spySetCvrsAsBackedUp = jest.spyOn(workspace.store, 'setCvrsBackedUp');
 
     await configureApp(app);
     await request(app)
@@ -83,7 +82,7 @@ describe('POST /precinct-scanner/export', () => {
       .send({ skipImages: true })
       .expect(200);
 
-    expect(spySetCvrsAsBackedUp).toHaveBeenCalledWith();
+    expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
   });
 });
 
