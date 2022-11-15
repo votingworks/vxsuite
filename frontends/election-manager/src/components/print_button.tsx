@@ -66,18 +66,27 @@ export function PrintButton({
   const { hasPrinterAttached } = useContext(AppContext);
   const [isShowingConnectPrinterModal, setIsShowingConnectPrinterModal] =
     useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
+  const [isShowingDefaultProgressModal, setIsShowingDefaultProgressModal] =
+    useState(false);
 
   const needsPrinter = Boolean(window.kiosk) && !hasPrinterAttached;
 
   const handlePrint = useCallback(async () => {
     setIsShowingConnectPrinterModal(false);
-    setIsPrinting(true);
+    if (useDefaultProgressModal) {
+      setIsShowingDefaultProgressModal(true);
+    }
     await print();
+
+    /* The default progress modal is for cases where we're printing a single
+     * document. We don't need to wait until the print is finished to free up
+     * the UI. Instead, we wait a set amount of time so the user has feedback
+     * that the print has started, and then close the modal.
+     */
     if (useDefaultProgressModal) {
       await makeCancelable(sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000));
+      setIsShowingDefaultProgressModal(false);
     }
-    setIsPrinting(false);
   }, [makeCancelable, print, useDefaultProgressModal]);
 
   return (
@@ -99,7 +108,7 @@ export function PrintButton({
           onClose={() => setIsShowingConnectPrinterModal(false)}
         />
       )}
-      {isPrinting && useDefaultProgressModal && (
+      {isShowingDefaultProgressModal && (
         <Modal centerContent content={<Loading>Printing</Loading>} />
       )}
     </React.Fragment>
