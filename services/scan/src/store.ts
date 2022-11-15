@@ -446,14 +446,10 @@ export class Store {
       throw new Error('Cannot set precinct selection without an election.');
     }
 
-    if (!precinctSelection) {
-      this.client.run('update election set precinct_selection = null');
-    } else {
-      this.client.run(
-        'update election set precinct_selection = ?',
-        JSON.stringify(precinctSelection)
-      );
-    }
+    this.client.run(
+      'update election set precinct_selection = ?',
+      precinctSelection ? JSON.stringify(precinctSelection) : null
+    );
   }
 
   /**
