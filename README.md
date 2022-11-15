@@ -98,7 +98,7 @@ Test that you can run the code
 
 ```sh
 # try out BMD:
-make -C services/smartcards build run &
+make -C services/smartcards build
 # ^ wait for this to settle, then…
 cd frontends/bmd
 pnpm install
