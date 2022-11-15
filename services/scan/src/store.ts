@@ -355,11 +355,11 @@ export class Store {
    */
   getMarkThresholdOverrides(): Optional<MarkThresholds> {
     const electionRow = this.client.one(
-      'select marginal_mark_threshold_override as MarginalMarkThresholdOverride, definite_mark_threshold_override as DefiniteMarkThresholdOverride from election'
+      'select marginal_mark_threshold_override as marginal, definite_mark_threshold_override as definite from election'
     ) as
       | {
-          MarginalMarkThresholdOverride?: number;
-          DefiniteMarkThresholdOverride?: number;
+          marginal: number | null;
+          definite: number | null;
         }
       | undefined;
 
@@ -367,11 +367,11 @@ export class Store {
       return undefined;
     }
 
-    if (electionRow.DefiniteMarkThresholdOverride) {
-      assert(typeof electionRow.MarginalMarkThresholdOverride === 'number');
+    if (electionRow.definite) {
+      assert(typeof electionRow.marginal === 'number');
       return {
-        marginal: electionRow.MarginalMarkThresholdOverride,
-        definite: electionRow.DefiniteMarkThresholdOverride,
+        marginal: electionRow.marginal,
+        definite: electionRow.definite,
       };
     }
 
