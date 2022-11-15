@@ -715,7 +715,9 @@ export function HandMarkedPaperBallot({
 
   return (
     <React.Fragment>
+      {/* div used as the target element for content chunked (paginated) by PagedJs */}
       <div ref={pagedBallotRef} />
+      {/* div where we render our unpaginated ballot initially, hidden with display: none */}
       <UnpagedBallot aria-hidden data-ballot ref={unpagedBallotRef}>
         <div className="ballot-footer">
           <PageFooter>
