@@ -22,6 +22,7 @@ import {
   Prose,
   useStoredState,
   printElementWhenReady,
+  printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
@@ -39,7 +40,6 @@ import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
 import { getBallotLayoutPageSizeReadableString } from '../utils/get_ballot_layout_page_size';
-import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
@@ -236,6 +236,10 @@ export function BallotScreen(): JSX.Element {
     userRole,
   ]);
 
+  const printBallotToPdf = useCallback(() => {
+    return printElementToPdfWhenReady(ballotWithCallback);
+  }, [ballotWithCallback]);
+
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -356,7 +360,7 @@ export function BallotScreen(): JSX.Element {
       {isSaveModalOpen && (
         <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={generateFileContentToSaveAsPdf}
+          generateFileContent={printBallotToPdf}
           defaultFilename={filename}
           defaultDirectory={BALLOT_PDFS_FOLDER}
           fileType={FileType.Ballot}
