@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
 import ReactDom from 'react-dom';
+import styled from 'styled-components';
 
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import { assert, getPrinter } from '@votingworks/utils';
+
+const PrintOnly = styled.div`
+  @media screen {
+    visibility: hidden;
+  }
+`;
 
 // Render an element and print it. The function to render the element takes a
 // callback to indicate when the component has finished rendering and is ready
@@ -48,7 +55,10 @@ async function printElementWhenReadySuper<PrintResult>(
       await printAndTeardown();
     }
 
-    ReactDom.render(elementWithOnReadyCallback(onElementReady), printRoot);
+    ReactDom.render(
+      <PrintOnly>{elementWithOnReadyCallback(onElementReady)}</PrintOnly>,
+      printRoot
+    );
   });
 }
 

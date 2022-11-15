@@ -115,14 +115,16 @@ describe('printElement', () => {
     expect(screen.queryByTestId('print-root')).not.toBeInTheDocument();
   });
 
-  test('printed elements have "display: none;" wrapper by default', async () => {
+  test('printed elements have "visibility: hidden;" wrapper ', async () => {
     const printPromise = printElement(simpleElement, {
       sides: 'one-sided',
     });
 
     await waitFor(() => {
       const element = screen.getByText('Print me!');
-      expect(element.parentElement).toHaveStyleRule('display', 'none');
+      expect(element.parentElement).toHaveStyleRule('visibility', 'hidden', {
+        media: 'screen',
+      });
     });
     await printPromise;
   });
