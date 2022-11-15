@@ -47,7 +47,7 @@ import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 import { ServicesContext } from '../contexts/services_context';
-import { NewPrintButton } from '../components/new_print_button';
+import { PrintButton } from '../components/print_button';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -185,45 +185,57 @@ export function BallotScreen(): JSX.Element {
   );
 
   const printBallot = useCallback(async () => {
-    await printElementWhenReady(ballotWithCallback, {
-      sides: 'two-sided-long-edge',
-      copies: ballotCopies,
-      screenDisplayNone: false,
-    });
-  }, [ballotCopies, ballotWithCallback]);
-
-  function afterPrint(numCopies: number) {
     // TODO(auth) check permissions for viewing ballots
-    const ballotType = isAbsentee
-      ? PrintableBallotType.Absentee
-      : PrintableBallotType.Precinct;
-    void addPrintedBallotMutation.mutateAsync({
-      ballotStyleId,
-      precinctId,
-      locales,
-      numCopies,
-      ballotType,
-      ballotMode,
-    });
-    void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `${numCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
-      disposition: 'success',
-      ballotStyleId,
-      precinctId,
-      locales: getHumanBallotLanguageFormat(locales),
-      ballotType,
-      ballotMode,
-      numCopies,
-    });
-  }
+    try {
+      await printElementWhenReady(ballotWithCallback, {
+        sides: 'two-sided-long-edge',
+        copies: ballotCopies,
+        screenDisplayNone: false,
+      });
 
-  function afterPrintError(errorMessage: string) {
-    // TODO(auth) check permissions for viewing ballots
-    void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `Error attempting to print ballot: ${errorMessage}`,
-      disposition: 'failure',
-    });
-  }
+      const ballotType = isAbsentee
+        ? PrintableBallotType.Absentee
+        : PrintableBallotType.Precinct;
+
+      // Update the printed ballot count
+      await addPrintedBallotMutation.mutateAsync({
+        ballotStyleId,
+        precinctId,
+        locales,
+        numCopies: ballotCopies,
+        ballotType,
+        ballotMode,
+      });
+
+      await logger.log(LogEventId.BallotPrinted, userRole, {
+        message: `${ballotCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
+        disposition: 'success',
+        ballotStyleId,
+        precinctId,
+        locales: getHumanBallotLanguageFormat(locales),
+        ballotType,
+        ballotMode,
+        ballotCopies,
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      void logger.log(LogEventId.BallotPrinted, userRole, {
+        message: `Error attempting to print ballot: ${error.message}`,
+        disposition: 'failure',
+      });
+    }
+  }, [
+    addPrintedBallotMutation,
+    ballotCopies,
+    ballotMode,
+    ballotStyleId,
+    ballotWithCallback,
+    isAbsentee,
+    locales,
+    logger,
+    precinctId,
+    userRole,
+  ]);
 
   return (
     <React.Fragment>
@@ -292,13 +304,7 @@ export function BallotScreen(): JSX.Element {
             )}
           </p>
           <p>
-            <NewPrintButton
-              primary
-              title={filename}
-              print={printBallot}
-              afterPrint={() => afterPrint(ballotCopies)}
-              afterPrintError={afterPrintError}
-            >
+            <PrintButton primary print={printBallot}>
               <PrintBallotButtonText
                 ballotCopies={ballotCopies}
                 ballotMode={ballotMode}
@@ -306,7 +312,7 @@ export function BallotScreen(): JSX.Element {
                 election={election}
                 localeCode={currentLocaleCode}
               />
-            </NewPrintButton>
+            </PrintButton>
             {window.kiosk && (
               <React.Fragment>
                 {' '}

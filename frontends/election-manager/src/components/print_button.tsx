@@ -1,151 +1,106 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 
 import {
   Button,
   StyledButtonProps,
   Modal,
   useCancelablePromise,
-  useMountedState,
+  Prose,
 } from '@votingworks/ui';
+import { sleep } from '@votingworks/utils';
 import { Loading } from './loading';
-import { PrintOptions } from '../config/types';
 import { AppContext } from '../contexts/app_context';
-import { PrintableArea } from './printable_area';
-import { PrinterNotConnectedModal } from './printer_not_connected_modal';
 
-interface ConfirmModal {
-  content: React.ReactNode;
-  confirmButtonLabel?: string;
+const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
+
+interface PrinterNotConnectedModalProps {
+  isNotConnected: boolean;
+  onContinue: () => void;
+  onClose: () => void;
+}
+
+function PrinterNotConnectedModal({
+  isNotConnected,
+  onContinue,
+  onClose,
+}: PrinterNotConnectedModalProps): JSX.Element {
+  return (
+    <Modal
+      content={
+        isNotConnected ? (
+          <Prose>
+            <h2>The printer is not connected.</h2>
+            <p>Please connect the printer.</p>
+          </Prose>
+        ) : (
+          <Prose>
+            <h2>The printer is now connected.</h2>
+            <p>You may continue printing.</p>
+          </Prose>
+        )
+      }
+      actions={
+        <React.Fragment>
+          <Button primary onPress={onContinue} disabled={isNotConnected}>
+            Continue
+          </Button>
+          <Button onPress={onClose}>Close</Button>
+        </React.Fragment>
+      }
+    />
+  );
 }
 
 interface PrintButtonProps extends StyledButtonProps {
-  title?: string;
-  afterPrint?: () => void;
-  afterPrintError?: (errorMessage: string) => void;
-  copies?: number;
-  sides: PrintOptions['sides'];
-  confirmModal?: ConfirmModal;
-  printTarget?: JSX.Element;
-  printTargetTestId?: string;
+  print: () => Promise<void>;
+  useDefaultProgressModal?: boolean;
 }
 
 export function PrintButton({
-  title,
-  afterPrint,
-  afterPrintError,
+  print,
+  useDefaultProgressModal = true,
   children,
-  copies,
-  sides,
-  confirmModal,
-  printTarget,
-  printTargetTestId,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
-  const isMounted = useMountedState();
   const makeCancelable = useCancelablePromise();
-  const { printer } = useContext(AppContext);
-  const [isConfirming, setIsConfirming] = useState(false);
+  const { hasPrinterAttached } = useContext(AppContext);
+  const [isShowingConnectPrinterModal, setIsShowingConnectPrinterModal] =
+    useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
-  const [showPrintingError, setShowPrintingError] = useState(false);
-  const [shouldRenderPrintTarget, setShouldRenderPrintTarget] = useState(false);
 
-  const print = useCallback(async () => {
-    if (window.kiosk) {
-      const printers = await makeCancelable(window.kiosk.getPrinterInfo());
-      if (!printers.some((p) => p.connected)) {
-        setShowPrintingError(true);
-        afterPrintError?.('No printer connected.');
-        return;
-      }
-    }
+  const needsPrinter = Boolean(window.kiosk) && !hasPrinterAttached;
 
+  const handlePrint = useCallback(async () => {
+    setIsShowingConnectPrinterModal(false);
     setIsPrinting(true);
-    setTimeout(() => {
-      if (!isMounted()) return;
-      setIsPrinting(false);
-    }, 3000);
-    const documentTitle = document.title;
-    if (title) {
-      document.title = title;
-    }
-    await makeCancelable(printer.print({ sides, copies }));
-    if (title) {
-      document.title = documentTitle;
-    }
-
-    setShouldRenderPrintTarget(false);
-    afterPrint?.();
-  }, [
-    afterPrint,
-    afterPrintError,
-    copies,
-    isMounted,
-    makeCancelable,
-    printer,
-    sides,
-    title,
-  ]);
-
-  useEffect(() => {
-    if (shouldRenderPrintTarget) {
-      void print();
-    }
-  }, [shouldRenderPrintTarget, print]);
-
-  const startPrint = useCallback(async () => {
-    if (printTarget) {
-      setShouldRenderPrintTarget(true);
-    } else {
-      await print();
-    }
-  }, [print, printTarget]);
-
-  function donePrintingError() {
-    setShowPrintingError(false);
-  }
-
-  function initConfirmModal() {
-    setIsConfirming(true);
-  }
-
-  function cancelPrint() {
-    setIsConfirming(false);
-  }
-
-  async function confirmPrint() {
-    setIsConfirming(false);
     await print();
-  }
+    if (useDefaultProgressModal) {
+      await makeCancelable(sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000));
+    }
+    setIsPrinting(false);
+  }, [makeCancelable, print, useDefaultProgressModal]);
 
   return (
     <React.Fragment>
-      <Button onPress={confirmModal ? initConfirmModal : startPrint} {...rest}>
+      <Button
+        onPress={
+          needsPrinter
+            ? () => setIsShowingConnectPrinterModal(true)
+            : handlePrint
+        }
+        {...rest}
+      >
         {children}
       </Button>
-      {isPrinting && (
-        <Modal centerContent content={<Loading>Printing</Loading>} />
-      )}
-      {isConfirming && (
-        <Modal
-          centerContent
-          content={confirmModal?.content}
-          actions={
-            <React.Fragment>
-              <Button primary onPress={confirmPrint}>
-                {confirmModal?.confirmButtonLabel ?? 'Print'}
-              </Button>
-              <Button onPress={cancelPrint}>Cancel</Button>
-            </React.Fragment>
-          }
+      {isShowingConnectPrinterModal && (
+        <PrinterNotConnectedModal
+          isNotConnected={needsPrinter}
+          onContinue={handlePrint}
+          onClose={() => setIsShowingConnectPrinterModal(false)}
         />
       )}
-      {showPrintingError && (
-        <PrinterNotConnectedModal onClose={donePrintingError} />
-      )}
-      {printTarget && shouldRenderPrintTarget && (
-        <PrintableArea data-testid={printTargetTestId}>
-          {printTarget}
-        </PrintableArea>
+      {isPrinting && useDefaultProgressModal && (
+        <Modal centerContent content={<Loading>Printing</Loading>} />
       )}
     </React.Fragment>
   );

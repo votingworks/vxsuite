@@ -4,7 +4,7 @@ import { LogEventId } from '@votingworks/logging';
 
 import { isElectionManagerAuth } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
-import { PrintButton } from './print_button';
+import { DeprecatedPrintButton } from './deprecated_print_button';
 import { TestDeckTallyReport } from './test_deck_tally_report';
 import { generateTestDeckBallots } from '../utils/election';
 
@@ -48,7 +48,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   );
 
   return (
-    <PrintButton
+    <DeprecatedPrintButton
       afterPrint={afterPrint}
       afterPrintError={afterPrintError}
       sides="one-sided"
@@ -56,6 +56,6 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
       printTargetTestId="full-test-deck-tally-report"
     >
       Print Full Test Deck Tally Report
-    </PrintButton>
+    </DeprecatedPrintButton>
   );
 }

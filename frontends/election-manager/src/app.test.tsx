@@ -459,6 +459,7 @@ test('printing ballots and printed ballots report', async () => {
   const printer = fakePrinter();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
   const logger = fakeLogger();
   const { getByText, getAllByText, queryAllByText, getAllByTestId } =
     renderRootElement(
@@ -484,6 +485,19 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(getByText('Test'));
   fireEvent.click(getByText('Official'));
   fireEvent.click(getByText('Print 1', { exact: false }));
+
+  // PrintButton flow where printer is not connected
+  await screen.findByText('The printer is not connected.');
+  expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+  act(() => {
+    hardware.setPrinterConnected(true);
+  });
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
+  });
+  userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+  // Printing should now continue normally
   await waitFor(() => getByText('Printing'));
   await expectPrint((printedElement, printOptions) => {
     printedElement.getByText('Mocked HMPB');
