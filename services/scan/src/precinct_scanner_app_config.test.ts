@@ -195,7 +195,7 @@ test('ballot batching', async () => {
   await scanBallot(mockPlustek, app, 4);
   await scanBallot(mockPlustek, app, 5);
   cvrs = await postExportCvrs(app);
-  expect(cvrs.length).toBe(6);
+  expect(cvrs).toHaveLength(6);
   const batch3Id = cvrs[4]._batchId;
   expect(cvrs[3]._batchId).not.toEqual(batch3Id);
   expect(cvrs[5]._batchId).toEqual(batch3Id);
