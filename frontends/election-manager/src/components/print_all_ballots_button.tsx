@@ -109,19 +109,6 @@ export function PrintAllBallotsButton(): JSX.Element {
     setPrintFailed(false);
   }
 
-  async function onPrintError() {
-    setPrintFailed(true);
-    setModalState('no-printer');
-    setBallotIndex(undefined);
-    await logger.log(LogEventId.BallotPrinted, userRole, {
-      disposition: 'failure',
-      message:
-        'Failed to print ballots while printing all ballot styles because printer was disconnected.',
-      result: 'User directed to reconnect printer.',
-      error: 'Printer disconnected.',
-    });
-  }
-
   async function printBallotStyle(ballotStyle: BallotStyleData) {
     const { ballotStyleId, precinctId } = ballotStyle;
 
@@ -177,7 +164,16 @@ export function PrintAllBallotsButton(): JSX.Element {
       try {
         await printBallotStyle(ballotStyle);
       } catch {
-        await onPrintError();
+        setPrintFailed(true);
+        setModalState('no-printer');
+        setBallotIndex(undefined);
+        await logger.log(LogEventId.BallotPrinted, userRole, {
+          disposition: 'failure',
+          message:
+            'Failed to print ballots while printing all ballot styles because printer was disconnected.',
+          result: 'User directed to reconnect printer.',
+          error: 'Printer disconnected.',
+        });
         return;
       }
 
