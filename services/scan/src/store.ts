@@ -578,7 +578,7 @@ export class Store {
   }
 
   getBallotsCounted(): number {
-    const r = this.client.one(`
+    const row = this.client.one(`
       select
         count(sheets.id) as ballotsCounted
       from
@@ -591,7 +591,7 @@ export class Store {
         batches.deleted_at is null
     `) as { ballotsCounted: number } | undefined;
 
-    return r?.ballotsCounted ?? 0;
+    return row?.ballotsCounted ?? 0;
   }
 
   /**
