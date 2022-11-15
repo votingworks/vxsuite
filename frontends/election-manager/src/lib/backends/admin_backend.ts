@@ -12,19 +12,23 @@ import {
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { assert, fetchJson, Storage, typedAs } from '@votingworks/utils';
+import {
+  assert,
+  fetchJson,
+  parseCvrFileInfoFromFilename,
+  Storage,
+  typedAs,
+} from '@votingworks/utils';
 import { z } from 'zod';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from '../../utils/external_tallies';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from './types';
+import { ElectionManagerStoreBackend } from './types';
 
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
+const CVR_FILE_TIMESTAMP_FIELD_NAME = 'exportedTimestamp';
 const cvrsStorageKey = 'cvrFiles';
 const isOfficialResultsKey = 'isOfficialResults';
 const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
@@ -315,11 +319,22 @@ export class ElectionManagerStoreAdminBackend
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }
-  ): Promise<AddCastVoteRecordFileResult> {
+  ): Promise<Admin.CvrFileImportInfo> {
     const currentElectionId = await this.loadCurrentElectionIdOrThrow();
+
+    const infoFromFilename = parseCvrFileInfoFromFilename(
+      newCastVoteRecordFile.name
+    );
+    const cvrFileExportTimestamp = new Date(
+      infoFromFilename?.timestamp || newCastVoteRecordFile.lastModified
+    );
 
     const formData = new FormData();
     formData.append(CVR_FILE_ATTACHMENT_NAME, newCastVoteRecordFile);
+    formData.append(
+      CVR_FILE_TIMESTAMP_FIELD_NAME,
+      cvrFileExportTimestamp.toISOString()
+    );
 
     const query = new URLSearchParams();
     if (options?.analyzeOnly) {
@@ -347,13 +362,26 @@ export class ElectionManagerStoreAdminBackend
       await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
     }
 
-    // TODO(https://github.com/votingworks/vxsuite/issues/2716): We'll need more
-    // data about the file to maintain feature parity while we move CVR
-    // data/logic to the server.
+    const {
+      alreadyPresent,
+      exportedTimestamp,
+      fileMode,
+      fileName,
+      id,
+      newlyAdded,
+      scannerIds,
+      wasExistingFile,
+    } = addCastVoteRecordFileResponse;
+
     return {
-      wasExistingFile: addCastVoteRecordFileResponse.wasExistingFile,
-      newlyAdded: addCastVoteRecordFileResponse.newlyAdded,
-      alreadyPresent: addCastVoteRecordFileResponse.alreadyPresent,
+      alreadyPresent,
+      exportedTimestamp,
+      fileMode,
+      fileName,
+      id,
+      newlyAdded,
+      scannerIds,
+      wasExistingFile,
     };
   }
 

@@ -156,6 +156,7 @@ test('POST /admin/elections/:electionId/cvr-files', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const response = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -191,6 +192,7 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const response = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -204,6 +206,10 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
       wasExistingFile: false,
       newlyAdded: 3000,
       alreadyPresent: 0,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
 
@@ -214,6 +220,7 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const response2 = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -227,6 +234,10 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
       wasExistingFile: true,
       newlyAdded: 0,
       alreadyPresent: 3000,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: [],
     })
   );
 });
@@ -243,6 +254,7 @@ test('POST /admin/elections/:electionId/cvr-files?analyzeOnly=true', async () =>
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const response = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -256,6 +268,10 @@ test('POST /admin/elections/:electionId/cvr-files?analyzeOnly=true', async () =>
       wasExistingFile: false,
       newlyAdded: 3000,
       alreadyPresent: 0,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
 
@@ -274,6 +290,7 @@ test('POST /admin/elections/:electionId/cvr-files bad query param', async () => 
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(400);
 });
 
@@ -284,6 +301,22 @@ test('POST /admin/elections/:electionId/cvr-files without a file', async () => {
 
   await request(app)
     .post(`/admin/elections/${electionId}/cvr-files`)
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
+    .expect(400);
+});
+
+test('POST /admin/elections/:electionId/cvr-files without exportedTimestamp', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
     .expect(400);
 });
 
@@ -301,6 +334,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const partial1Response = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -314,6 +348,10 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       wasExistingFile: false,
       newlyAdded: 101,
       alreadyPresent: 0,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
 
@@ -328,6 +366,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       electionMinimalExhaustiveSampleFixtures.partial2CvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
 
   const partial2Response = unsafeParse(
@@ -342,6 +381,10 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       wasExistingFile: false,
       newlyAdded: 20,
       alreadyPresent: 21,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
 
@@ -356,6 +399,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
 
   const standardResponse = unsafeParse(
@@ -370,6 +414,10 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       wasExistingFile: false,
       newlyAdded: 2879,
       alreadyPresent: 121,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
 
@@ -380,6 +428,10 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
       wasExistingFile: false,
       newlyAdded: 20,
       alreadyPresent: 21,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrFile.json',
+      scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
     })
   );
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(
@@ -410,6 +462,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate ballot IDs', as
       ]),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(400);
   const response = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -440,6 +493,7 @@ test('DELETE /admin/elections/:electionId/cvr-files', async () => {
       electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
 
   await request(app)
@@ -461,6 +515,7 @@ test('GET /admin/elections/:electionId/write-ins', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const postCvrResponse = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -531,6 +586,7 @@ test('PUT /admin/write-ins/:writeInId/transcription', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const postCvrResponse = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -591,6 +647,7 @@ test('PUT /admin/write-ins/:writeInId/transcription missing value', async () => 
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const postCvrResponse = unsafeParse(
     Admin.PostCvrFileResponseSchema,

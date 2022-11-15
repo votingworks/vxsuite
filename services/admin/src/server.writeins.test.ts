@@ -30,6 +30,7 @@ test('write-in adjudication lifecycle', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const postCvrResponse = unsafeParse(
     Admin.PostCvrFileResponseSchema,
@@ -404,6 +405,7 @@ test('write-in summary filtered by contestId & status', async () => {
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
       'cvrFile.json'
     )
+    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
   const postCvrResponse = unsafeParse(
     Admin.PostCvrFileResponseSchema,

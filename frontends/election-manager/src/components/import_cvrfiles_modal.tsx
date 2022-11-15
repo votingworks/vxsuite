@@ -150,7 +150,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // instead of file attachments.
     const fileContent = await window.kiosk.readFile(fileData.path, 'utf-8');
 
-    await importCvrFile(new File([fileContent], fileData.name));
+    await importCvrFile(
+      new File([fileContent], fileData.name, {
+        lastModified: moment(fileData.exportTimestamp).valueOf(),
+      })
+    );
   }
 
   const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (

@@ -24,10 +24,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { CastVoteRecordFile } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from './types';
+import { ElectionManagerStoreBackend } from './types';
 
 interface MemoryWriteInRecord {
   readonly id: Id;
@@ -184,7 +181,7 @@ export class ElectionManagerStoreMemoryBackend
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }
-  ): Promise<AddCastVoteRecordFileResult> {
+  ): Promise<Admin.CvrFileImportInfo> {
     if (!this.electionDefinition) {
       throw new Error('Election definition must be configured first');
     }
@@ -213,10 +210,17 @@ export class ElectionManagerStoreMemoryBackend
       this.castVoteRecordFiles = oldCastVoteRecordFiles;
     }
 
+    assert(file);
+
     return {
       wasExistingFile,
       newlyAdded,
       alreadyPresent,
+      exportedTimestamp: file.exportTimestamp.toISOString(),
+      fileMode: await this.getCurrentCvrFileMode(),
+      fileName: file.name,
+      id: uuid(),
+      scannerIds: [...file.scannerIds],
     };
   }
 

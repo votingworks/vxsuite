@@ -7,6 +7,8 @@ import {
   ElectionDefinitionSchema,
   Id,
   IdSchema,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
   safeParseNumber,
 } from '@votingworks/types';
 import * as z from 'zod';
@@ -17,6 +19,7 @@ import {
   OkResponseSchema,
 } from '../../base';
 import {
+  CvrFileImportInfo,
   BallotMode,
   BallotModeSchema,
   CastVoteRecordFileRecord,
@@ -160,26 +163,23 @@ export const DeleteElectionResponseSchema = z.union([
  * @url /admin/elections/:electionId/cvr-files
  * @method POST
  */
-export type PostCvrFileRequest = never;
+export interface PostCvrFileRequest {
+  exportedTimestamp: Iso8601Timestamp;
+}
 
 /**
  * @url /admin/elections/:electionId/cvr-files
  * @method POST
  */
 export const PostCvrFileRequestSchema: z.ZodSchema<PostCvrFileRequest> =
-  z.never();
+  z.object({ exportedTimestamp: Iso8601TimestampSchema });
 
 /**
  * @url /admin/elections/:electionId/cvr-files
  * @method POST
  */
 export type PostCvrFileResponse =
-  | OkResponse<{
-      id: Id;
-      wasExistingFile: boolean;
-      newlyAdded: number;
-      alreadyPresent: number;
-    }>
+  | OkResponse<CvrFileImportInfo>
   | ErrorsResponse;
 
 /**
@@ -194,6 +194,10 @@ export const PostCvrFileResponseSchema: z.ZodSchema<PostCvrFileResponse> =
       wasExistingFile: z.boolean(),
       newlyAdded: z.number().int().nonnegative(),
       alreadyPresent: z.number().int().nonnegative(),
+      exportedTimestamp: Iso8601TimestampSchema,
+      fileMode: z.nativeEnum(CvrFileMode),
+      fileName: z.string(),
+      scannerIds: z.array(z.string()),
     }),
     ErrorsResponseSchema,
   ]);

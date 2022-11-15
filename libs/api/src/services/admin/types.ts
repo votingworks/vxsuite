@@ -42,6 +42,21 @@ export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
 });
 
 /**
+ * Info related to a CVR file import attempt.
+ */
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type CvrFileImportInfo = {
+  id: Id;
+  alreadyPresent: number;
+  exportedTimestamp: Iso8601Timestamp;
+  fileMode: CvrFileMode;
+  fileName: string;
+  newlyAdded: number;
+  scannerIds: string[];
+  wasExistingFile: boolean;
+};
+
+/**
  * A cast vote record file's metadata.
  */
 export interface CastVoteRecordFileRecord {
