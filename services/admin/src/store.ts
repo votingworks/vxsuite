@@ -16,6 +16,7 @@ import {
   ok,
   PrecinctId,
   Result,
+  safeParse,
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
@@ -287,6 +288,7 @@ export class Store {
       const currentCvrFileMode =
         this.getCurrentCvrFileModeForElection(electionId);
       let newCvrFileMode: Admin.CvrFileMode;
+      const precinctIds = new Set<string>();
       const scannerIds = new Set<string>();
 
       const existing = this.client.one(
@@ -314,23 +316,26 @@ export class Store {
         id = existing.id;
         newCvrFileMode = currentCvrFileMode;
       } else {
-        // TODO(https://github.com/votingworks/vxsuite/issues/2716): store the
-        // export timestamp and scanner IDs as well and expose in the read path,
-        // since they're needed client-side.
         this.client.run(
           `
             insert into cvr_files (
               id,
               election_id,
               filename,
+              export_timestamp,
+              precinct_ids,
+              scanner_ids,
               sha256_hash
             ) values (
-              ?, ?, ?, ?
+              ?, ?, ?, ?, ?, ?, ?
             )
           `,
           id,
           electionId,
           originalFilename,
+          exportedTimestamp,
+          JSON.stringify([]),
+          JSON.stringify([]),
           sha256Hash
         );
 
@@ -378,6 +383,7 @@ export class Store {
             return result;
           }
 
+          precinctIds.add(cvr._precinctId);
           scannerIds.add(cvr._scannerId);
 
           this.addWriteInsFromCvr(result.ok().id, cvr);
@@ -388,6 +394,19 @@ export class Store {
             alreadyPresent += 1;
           }
         }
+
+        this.client.run(
+          `
+            update cvr_files
+            set
+              precinct_ids = ?,
+              scanner_ids = ?
+            where id = ?
+          `,
+          JSON.stringify([...precinctIds]),
+          JSON.stringify([...scannerIds]),
+          id
+        );
 
         newCvrFileMode = containsLiveBallots
           ? Admin.CvrFileMode.Official
@@ -622,6 +641,9 @@ export class Store {
       select
         election_id as electionId,
         filename,
+        export_timestamp as exportTimestamp,
+        precinct_ids as precinctIds,
+        scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
         created_at as createdAt
       from cvr_files
@@ -632,6 +654,9 @@ export class Store {
       | {
           electionId: Id;
           filename: string;
+          exportTimestamp: string;
+          precinctIds: string;
+          scannerIds: string;
           sha256Hash: string;
           createdAt: string;
         }
@@ -641,13 +666,16 @@ export class Store {
       return undefined;
     }
 
-    return {
+    return safeParse(Admin.CastVoteRecordFileRecordSchema, {
       id: cvrFileId,
       electionId: result.electionId,
       sha256Hash: result.sha256Hash,
       filename: result.filename,
+      exportTimestamp: convertSqliteTimestampToIso8601(result.exportTimestamp),
+      precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
+      scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-    };
+    }).unsafeUnwrap();
   }
 
   /**

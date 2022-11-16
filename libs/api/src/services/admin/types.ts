@@ -63,6 +63,9 @@ export interface CastVoteRecordFileRecord {
   readonly id: Id;
   readonly electionId: Id;
   readonly filename: string;
+  readonly exportTimestamp: Iso8601Timestamp;
+  readonly precinctIds: string[];
+  readonly scannerIds: string[];
   readonly sha256Hash: string;
   readonly createdAt: Iso8601Timestamp;
 }
@@ -75,6 +78,9 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     id: IdSchema,
     electionId: IdSchema,
     filename: z.string().nonempty(),
+    exportTimestamp: Iso8601TimestampSchema,
+    precinctIds: z.array(z.string()),
+    scannerIds: z.array(z.string()),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
   });

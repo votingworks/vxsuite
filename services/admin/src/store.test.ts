@@ -598,6 +598,9 @@ test('get CVR file metadata', async () => {
       id,
       electionId,
       filename: 'cvrs.jsonl',
+      exportTimestamp: '2021-09-02T22:27:58.327Z',
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['scanner-1', 'scanner-2'],
       sha256Hash: expect.any(String),
       createdAt: expect.any(String),
     })

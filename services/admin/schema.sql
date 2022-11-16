@@ -46,6 +46,9 @@ create table cvr_files (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   filename text not null,
+  export_timestamp timestamp not null,
+  precinct_ids text not null,
+  scanner_ids text not null,
   sha256_hash text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
