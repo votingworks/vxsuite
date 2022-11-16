@@ -86,8 +86,7 @@ export function mockConfig(
     mockBallotBagReplaced: (ballotCountWhenBallotBagLastReplaced: number) => {
       fetchMock.patchOnce(
         {
-          url: '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-          body: { ballotCountWhenBallotBagLastReplaced },
+          url: '/precinct-scanner/config/ballotBagReplaced',
         },
         {
           body: {

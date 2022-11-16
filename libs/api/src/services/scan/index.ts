@@ -326,33 +326,14 @@ export const PatchPollsStateResponseSchema: z.ZodSchema<PatchPollsStateResponse>
  * @url /config/ballotCountWhenBallotBagLastReplaced
  * @method PATCH
  */
-export interface PatchBallotCountWhenBallotBagLastReplacedRequest {
-  ballotCountWhenBallotBagLastReplaced: number;
-}
+export type PatchBallotBagReplaced = OkResponse;
 
 /**
  * @url /config/ballotCountWhenBallotBagLastReplaced
  * @method PATCH
  */
-export const PatchBallotCountWhenBallotBagLastReplacedRequestSchema: z.ZodSchema<PatchBallotCountWhenBallotBagLastReplacedRequest> =
-  z.object({
-    ballotCountWhenBallotBagLastReplaced: z.number(),
-  });
-
-/**
- * @url /config/ballotCountWhenBallotBagLastReplaced
- * @method PATCH
- */
-export type PatchBallotCountWhenBallotBagLastReplacedResponse =
-  | OkResponse
-  | ErrorsResponse;
-
-/**
- * @url /config/ballotCountWhenBallotBagLastReplaced
- * @method PATCH
- */
-export const PatchBallotCountWhenBallotBagLastReplacedResponseSchema: z.ZodSchema<PatchBallotCountWhenBallotBagLastReplacedResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
+export const PatchBallotBagReplacedSchema: z.ZodSchema<PatchBallotBagReplaced> =
+  OkResponseSchema;
 
 /**
  * @url /config/markThresholdOverrides

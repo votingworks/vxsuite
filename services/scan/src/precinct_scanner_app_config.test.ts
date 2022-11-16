@@ -110,7 +110,7 @@ describe('PATCH /precinct-scanner/config/precinct', () => {
 });
 
 test('ballot batching', async () => {
-  const { app, mockPlustek, logger } = await createApp();
+  const { app, mockPlustek, logger, workspace } = await createApp();
   await configureApp(app);
 
   // Scan two ballots, which should have the same batch
@@ -160,14 +160,9 @@ test('ballot batching', async () => {
   expect(batch2Id).not.toEqual(batch1Id);
   expect(cvrs[3]._batchId).toEqual(batch2Id);
 
-  // Change the ballot box, which should create a new batch
-  await patch(
-    app,
-    '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-    {
-      ballotCountWhenBallotBagLastReplaced: 1500,
-    }
-  );
+  // Replace the ballot bag, which should create a new batch
+  await patch(app, '/precinct-scanner/config/ballotBagReplaced');
+  expect(workspace.store.getBallotCountWhenBallotBagLastReplaced()).toEqual(4);
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PrecinctScannerBatchEnded,

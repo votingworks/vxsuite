@@ -106,7 +106,6 @@ type AppAction =
     }
   | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'toggleIsSoundMuted' }
-  | { type: 'ballotBagReplaced'; currentBallotCount: number }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
 function appReducer(state: State, action: AppAction): State {
@@ -159,11 +158,6 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         isSoundMuted: !state.isSoundMuted,
-      };
-    case 'ballotBagReplaced':
-      return {
-        ...state,
-        ballotCountWhenBallotBagLastReplaced: action.currentBallotCount,
       };
     case 'setMachineConfig':
       return {
@@ -319,19 +313,13 @@ export function AppRoot({
   const scannerStatus = usePrecinctScannerStatus();
 
   const onBallotBagReplaced = useCallback(async () => {
-    assert(scannerStatus);
-    dispatchAppState({
-      type: 'ballotBagReplaced',
-      currentBallotCount: scannerStatus.ballotsCounted,
-    });
-    await config.setBallotCountWhenBallotBagLastReplaced(
-      scannerStatus.ballotsCounted
-    );
+    await config.setBallotBagReplaced();
+    await refreshConfig();
     await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
       disposition: 'success',
       message: 'Poll worker confirmed that they replaced the ballot bag.',
     });
-  }, [logger, scannerStatus]);
+  }, [logger, refreshConfig]);
 
   const needsToReplaceBallotBag =
     scannerStatus &&

@@ -118,15 +118,19 @@ export async function setPollsState(pollsState: PollsState): Promise<void> {
   });
 }
 
-export async function setBallotCountWhenBallotBagLastReplaced(
-  ballotCountWhenBallotBagLastReplaced: number
-): Promise<void> {
-  await patch<Scan.PatchBallotCountWhenBallotBagLastReplacedRequest>(
-    '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-    {
-      ballotCountWhenBallotBagLastReplaced,
-    }
-  );
+export async function setBallotBagReplaced(): Promise<void> {
+  const response = await fetch('/precinct-scanner/config/ballotBagReplaced', {
+    method: 'PATCH',
+  });
+  const body: OkResponse | ErrorsResponse = await response.json();
+
+  if (body.status !== 'ok') {
+    throw new Error(
+      `PATCH /precinct-scanner/config/ballotBagReplaced failed: ${JSON.stringify(
+        body.errors
+      )}`
+    );
+  }
 }
 
 export interface AddTemplatesEvents extends EventEmitter {

@@ -179,27 +179,16 @@ test('PATCH isSoundMuted', async () => {
   ).toHaveLength(1);
 });
 
-test('PATCH ballotCountWhenBallotBagLastReplaced', async () => {
-  fetchMock.patchOnce(
-    {
-      url: '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-      body: typedAs<Scan.PatchBallotCountWhenBallotBagLastReplacedRequest>({
-        ballotCountWhenBallotBagLastReplaced: 1500,
-      }),
-    },
-    {
-      body: { status: 'ok' },
-    }
-  );
-  await config.setBallotCountWhenBallotBagLastReplaced(1500);
+test('PATCH ballotBagReplaced', async () => {
+  fetchMock.patchOnce('/precinct-scanner/config/ballotBagReplaced', {
+    body: { status: 'ok' },
+  });
+  await config.setBallotBagReplaced();
 
   expect(
-    fetchMock.calls(
-      '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-      {
-        method: 'PATCH',
-      }
-    )
+    fetchMock.calls('/precinct-scanner/config/ballotBagReplaced', {
+      method: 'PATCH',
+    })
   ).toHaveLength(1);
 });
 

@@ -383,47 +383,30 @@ export async function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
-  app.patch<
-    NoParams,
-    Scan.PatchBallotCountWhenBallotBagLastReplacedResponse,
-    Scan.PatchBallotCountWhenBallotBagLastReplacedRequest
-  >(
-    '/precinct-scanner/config/ballotCountWhenBallotBagLastReplaced',
-    async (request, response) => {
-      const bodyParseResult = safeParse(
-        Scan.PatchBallotCountWhenBallotBagLastReplacedRequestSchema,
-        request.body
-      );
-
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
+  app.patch<NoParams, Scan.PatchBallotBagReplaced>(
+    '/precinct-scanner/config/ballotBagReplaced',
+    async (_request, response) => {
+      // If polls are open, we need to end current batch and start a new batch
+      if (store.getPollsState() === 'polls_open') {
+        const ongoingBatchId = store.getOngoingBatchId();
+        assert(typeof ongoingBatchId === 'string');
+        store.finishBatch({ batchId: ongoingBatchId });
+        await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+          disposition: 'success',
+          message:
+            'Current scanning batch ended due to ballot bag replacement.',
+          batchId: ongoingBatchId,
         });
-        return;
+
+        const batchId = store.addBatch();
+        await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+          disposition: 'success',
+          message: 'New scanning batch started due to ballot bag replacement.',
+          batchId,
+        });
       }
 
-      // Start a new batch
-      const ongoingBatchId = store.getOngoingBatchId();
-      assert(typeof ongoingBatchId === 'string');
-      store.finishBatch({ batchId: ongoingBatchId });
-      await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
-        disposition: 'success',
-        message: 'Current scanning batch ended due to ballot bag replacement.',
-        batchId: ongoingBatchId,
-      });
-
-      const batchId = store.addBatch();
-      await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
-        disposition: 'success',
-        message: 'New scanning batch started due to ballot bag replacement.',
-        batchId,
-      });
-
-      store.setBallotCountWhenBallotBagLastReplaced(
-        bodyParseResult.ok().ballotCountWhenBallotBagLastReplaced
-      );
+      store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
       response.json({ status: 'ok' });
     }
   );
