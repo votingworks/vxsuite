@@ -6,7 +6,6 @@ import {
   Card,
   Provider,
   MarkThresholds,
-  ElectionDefinition,
   PrecinctSelection,
   PollsState,
 } from '@votingworks/types';
@@ -29,8 +28,9 @@ import {
   usbstick,
   assert,
 } from '@votingworks/utils';
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 
+import { Scan } from '@votingworks/api';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
@@ -62,8 +62,6 @@ import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_scre
 
 const debug = makeDebug('precinct-scanner:app-root');
 
-export const stateStorageKey = 'state';
-
 export interface Props {
   hardware: Hardware;
   card: Card;
@@ -76,28 +74,9 @@ interface HardwareState {
   machineConfig: Readonly<MachineConfig>;
 }
 
-interface ScannerConfigState {
-  electionDefinition?: ElectionDefinition;
-  precinctSelection?: PrecinctSelection;
-  pollsState: PollsState;
-  currentMarkThresholds?: MarkThresholds;
-  isTestMode: boolean;
+export interface State extends HardwareState, Scan.PrecinctScannerConfig {
+  isBackendStateLoaded: boolean;
 }
-
-interface StoredFrontendState {
-  ballotCountWhenBallotBagLastReplaced: number;
-  isSoundMuted: boolean;
-}
-
-interface FrontendState extends StoredFrontendState {
-  initializedFromStorage: boolean;
-  isScannerConfigLoaded: boolean;
-}
-
-export interface State
-  extends HardwareState,
-    ScannerConfigState,
-    FrontendState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
   machineConfig: {
@@ -106,47 +85,27 @@ const initialHardwareState: Readonly<HardwareState> = {
   },
 };
 
-const initialScannerConfigState: Readonly<ScannerConfigState> = {
-  electionDefinition: undefined,
-  isTestMode: false,
-  currentMarkThresholds: undefined,
-  precinctSelection: undefined,
-  pollsState: 'polls_closed_initial',
-};
-
-const initialStoredFrontendState: Readonly<StoredFrontendState> = {
-  ballotCountWhenBallotBagLastReplaced: 0,
-  isSoundMuted: false,
-};
-
-const initialFrontendState: Readonly<FrontendState> = {
-  ...initialStoredFrontendState,
-  initializedFromStorage: false,
-  isScannerConfigLoaded: false,
-};
-
 const initialState: Readonly<State> = {
   ...initialHardwareState,
-  ...initialScannerConfigState,
-  ...initialFrontendState,
+  ...Scan.InitialPrecinctScannerConfig,
+  isBackendStateLoaded: false,
 };
 
 // Sets State.
 type AppAction =
+  | { type: 'updateTestMode'; isTestMode: boolean }
+  | { type: 'resetElectionSession' }
   | {
-      type: 'initializeAppState';
-      storedFrontendState: StoredFrontendState;
-    }
-  | { type: 'resetPollsToClosed' }
-  | {
-      type: 'refreshConfigFromScanner';
-      scannerConfig: ScannerConfigState;
+      type: 'refreshStateFromBackend';
+      scannerConfig: Scan.PrecinctScannerConfig;
     }
   | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
-  | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
+  | {
+      type: 'updateMarkThresholdOverrides';
+      markThresholdOverrides?: MarkThresholds;
+    }
   | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'toggleIsSoundMuted' }
-  | { type: 'ballotBagReplaced'; currentBallotCount: number }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
 function appReducer(state: State, action: AppAction): State {
@@ -161,34 +120,34 @@ function appReducer(state: State, action: AppAction): State {
     }
   );
   switch (action.type) {
-    case 'initializeAppState':
+    case 'refreshStateFromBackend': {
       return {
-        ...state,
-        ...action.storedFrontendState,
-        initializedFromStorage: true,
+        machineConfig: state.machineConfig,
+        ...action.scannerConfig,
+        isBackendStateLoaded: true,
       };
-    case 'resetPollsToClosed':
+    }
+    case 'resetElectionSession': {
       return {
         ...state,
         pollsState: 'polls_closed_initial',
         ballotCountWhenBallotBagLastReplaced: 0,
       };
-    case 'refreshConfigFromScanner': {
+    }
+    case 'updateTestMode':
       return {
         ...state,
-        ...action.scannerConfig,
-        isScannerConfigLoaded: true,
+        isTestMode: action.isTestMode,
       };
-    }
     case 'updatePrecinctSelection':
       return {
         ...state,
         precinctSelection: action.precinctSelection,
       };
-    case 'updateMarkThresholds':
+    case 'updateMarkThresholdOverrides':
       return {
         ...state,
-        currentMarkThresholds: action.markThresholds,
+        markThresholdOverrides: action.markThresholdOverrides,
       };
     case 'updatePollsState':
       return {
@@ -199,11 +158,6 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         isSoundMuted: !state.isSoundMuted,
-      };
-    case 'ballotBagReplaced':
-      return {
-        ...state,
-        ballotCountWhenBallotBagLastReplaced: action.currentBallotCount,
       };
     case 'setMachineConfig':
       return {
@@ -226,12 +180,11 @@ export function AppRoot({
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
     electionDefinition,
-    isScannerConfigLoaded,
+    isBackendStateLoaded,
     isTestMode,
     precinctSelection,
-    currentMarkThresholds,
+    markThresholdOverrides,
     pollsState,
-    initializedFromStorage,
     machineConfig,
     isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
@@ -263,26 +216,10 @@ export function AppRoot({
   const makeCancelable = useCancelablePromise();
 
   const refreshConfig = useCallback(async () => {
-    const newElectionDefinition = await makeCancelable(
-      config.getElectionDefinition()
-    );
-    const newIsTestMode = await makeCancelable(config.getTestMode());
-    const newPrecinctSelection = await makeCancelable(
-      config.getPrecinctSelection()
-    );
-    const newPollsState = await makeCancelable(config.getPollsState());
-    const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
-
-    const scannerConfig: ScannerConfigState = {
-      electionDefinition: newElectionDefinition,
-      isTestMode: newIsTestMode,
-      currentMarkThresholds: newMarkThresholds,
-      precinctSelection: newPrecinctSelection,
-      pollsState: newPollsState,
-    };
+    const scannerConfig = await makeCancelable(config.get());
 
     dispatchAppState({
-      type: 'refreshConfigFromScanner',
+      type: 'refreshStateFromBackend',
       scannerConfig,
     });
   }, [makeCancelable]);
@@ -314,47 +251,17 @@ export function AppRoot({
       }
     }
 
-    async function updateStateFromStorage() {
-      const storedFrontendState: StoredFrontendState =
-        ((await storage.get(stateStorageKey)) as
-          | StoredFrontendState
-          | undefined) || initialStoredFrontendState;
-      dispatchAppState({
-        type: 'initializeAppState',
-        storedFrontendState,
-      });
-    }
-
     void initializeScanner();
-    void updateStateFromStorage();
   }, [refreshConfig, storage]);
 
-  useEffect(() => {
-    async function storeAppState() {
-      // Only store app state if we've first initialized from the stored state
-      if (initializedFromStorage) {
-        // We use an explicit type here to remind ourselves to store any
-        // new fields we add to StoredFrontendState.
-        const frontendStateToStore: StoredFrontendState = {
-          ballotCountWhenBallotBagLastReplaced,
-          isSoundMuted,
-        };
-        await storage.set(stateStorageKey, frontendStateToStore);
-      }
-    }
-
-    void storeAppState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    ballotCountWhenBallotBagLastReplaced,
-    initializedFromStorage,
-    isSoundMuted,
-  ]);
-
-  const updatePollsState = useCallback(async (newPollsState: PollsState) => {
-    dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
-    await config.setPollsState(newPollsState);
-  }, []);
+  const updatePollsState = useCallback(
+    async (newPollsState: PollsState) => {
+      await config.setPollsState(newPollsState);
+      dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
+      await refreshConfig();
+    },
+    [refreshConfig]
+  );
 
   const resetPollsToPaused = useCallback(async () => {
     await updatePollsState('polls_paused');
@@ -362,19 +269,20 @@ export function AppRoot({
 
   const toggleTestMode = useCallback(async () => {
     await config.setTestMode(!isTestMode);
-    dispatchAppState({ type: 'resetPollsToClosed' });
+    dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
+    dispatchAppState({ type: 'resetElectionSession' });
     await refreshConfig();
   }, [refreshConfig, isTestMode]);
 
-  const toggleIsSoundMuted = useCallback(() => {
+  const toggleIsSoundMuted = useCallback(async () => {
     dispatchAppState({ type: 'toggleIsSoundMuted' });
-  }, []);
+    await config.setIsSoundMuted(!isSoundMuted);
+  }, [isSoundMuted]);
 
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
       try {
         await config.setElection(undefined, options);
-        dispatchAppState({ type: 'resetPollsToClosed' });
         await refreshConfig();
       } catch (error) {
         debug('failed unconfigureServer()', error);
@@ -386,20 +294,32 @@ export function AppRoot({
   async function updatePrecinctSelection(
     newPrecinctSelection: PrecinctSelection
   ) {
+    await config.setPrecinctSelection(newPrecinctSelection);
     dispatchAppState({
       type: 'updatePrecinctSelection',
       precinctSelection: newPrecinctSelection,
     });
-    await config.setPrecinctSelection(newPrecinctSelection);
     await refreshConfig();
   }
 
   async function updateMarkThresholds(markThresholds?: MarkThresholds) {
-    dispatchAppState({ type: 'updateMarkThresholds', markThresholds });
+    dispatchAppState({
+      type: 'updateMarkThresholdOverrides',
+      markThresholdOverrides: markThresholds,
+    });
     await config.setMarkThresholdOverrides(markThresholds);
   }
 
   const scannerStatus = usePrecinctScannerStatus();
+
+  const onBallotBagReplaced = useCallback(async () => {
+    await config.setBallotBagReplaced();
+    await refreshConfig();
+    await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
+      disposition: 'success',
+      message: 'Poll worker confirmed that they replaced the ballot bag.',
+    });
+  }, [logger, refreshConfig]);
 
   const needsToReplaceBallotBag =
     scannerStatus &&
@@ -481,7 +401,7 @@ export function AppRoot({
     );
   }
 
-  if (!isScannerConfigLoaded) {
+  if (!isBackendStateLoaded) {
     return <LoadingConfigurationScreen />;
   }
 
@@ -507,7 +427,7 @@ export function AppRoot({
         value={{
           electionDefinition,
           precinctSelection,
-          currentMarkThresholds,
+          markThresholdOverrides,
           machineConfig,
           auth,
           isSoundMuted,
@@ -540,12 +460,7 @@ export function AppRoot({
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollWorkerAuthenticated={isPollWorkerAuth(auth)}
-        onComplete={() =>
-          dispatchAppState({
-            type: 'ballotBagReplaced',
-            currentBallotCount: scannerStatus.ballotsCounted,
-          })
-        }
+        onComplete={onBallotBagReplaced}
       />
     );
   }
@@ -556,7 +471,7 @@ export function AppRoot({
         value={{
           electionDefinition,
           precinctSelection,
-          currentMarkThresholds,
+          markThresholdOverrides,
           machineConfig,
           auth,
           isSoundMuted,
@@ -587,7 +502,7 @@ export function AppRoot({
         value={{
           electionDefinition,
           precinctSelection,
-          currentMarkThresholds,
+          markThresholdOverrides,
           machineConfig,
           auth,
           isSoundMuted,
@@ -683,7 +598,7 @@ export function AppRoot({
       value={{
         electionDefinition,
         precinctSelection,
-        currentMarkThresholds,
+        markThresholdOverrides,
         machineConfig,
         auth,
         isSoundMuted,

@@ -1,6 +1,7 @@
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
@@ -30,16 +31,7 @@ import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:precinct-scanner:app');
 
-function sum(nums: number[]) {
-  return nums.reduce((a, b) => a + b, 0);
-}
-
 type NoParams = never;
-
-function getBallotsCounted(store: Store): number {
-  const batches = store.batchStatus();
-  return sum(batches.map((batch) => batch.count));
-}
 
 /**
  * Loads ballot layouts from the {@link Store} to be used by the interpreter.
@@ -102,7 +94,8 @@ async function updateInterpreterConfig(
 export async function buildPrecinctScannerApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
-  workspace: Workspace
+  workspace: Workspace,
+  logger: Logger
 ): Promise<Application> {
   const { store } = workspace;
 
@@ -120,22 +113,19 @@ export async function buildPrecinctScannerApp(
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams, Scan.GetElectionConfigResponse>(
-    '/precinct-scanner/config/election',
-    (request, response) => {
-      const electionDefinition = store.getElectionDefinition();
-
-      if (request.accepts('application/octet-stream')) {
-        if (electionDefinition) {
-          response
-            .header('content-type', 'application/octet-stream')
-            .send(electionDefinition.electionData);
-        } else {
-          response.status(404).end();
-        }
-      } else {
-        response.json(electionDefinition ?? null);
-      }
+  app.get<NoParams, Scan.GetPrecinctScannerConfigResponse>(
+    '/precinct-scanner/config',
+    (_request, response) => {
+      response.json({
+        electionDefinition: store.getElectionDefinition(),
+        precinctSelection: store.getPrecinctSelection(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        isSoundMuted: store.getIsSoundMuted(),
+        isTestMode: store.getTestMode(),
+        pollsState: store.getPollsState(),
+        ballotCountWhenBallotBagLastReplaced:
+          store.getBallotCountWhenBallotBagLastReplaced(),
+      });
     }
   );
 
@@ -180,7 +170,7 @@ export async function buildPrecinctScannerApp(
     }
 
     const electionDefinition = bodyParseResult.ok();
-    store.setElection(electionDefinition);
+    store.setElection(electionDefinition.electionData);
     // If the election has only one precinct, set it automatically
     if (electionDefinition.election.precincts.length === 1) {
       store.setPrecinctSelection(
@@ -217,54 +207,13 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get<NoParams, Scan.GetTestModeConfigResponse>(
-    '/precinct-scanner/config/testMode',
-    (_request, response) => {
-      const testMode = store.getTestMode();
-      response.json({ status: 'ok', testMode });
-    }
-  );
-
   app.patch<
     NoParams,
-    Scan.PatchTestModeConfigResponse,
-    Scan.PatchTestModeConfigRequest
-  >('/precinct-scanner/config/testMode', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchTestModeConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    workspace.zero();
-    store.setTestMode(bodyParseResult.ok().testMode);
-    await updateInterpreterConfig(interpreter, workspace);
-    response.json({ status: 'ok' });
-  });
-
-  app.get<NoParams, Scan.GetPrecinctSelectionConfigResponse>(
-    '/precinct-scanner/config/precinct',
-    (_request, response) => {
-      const precinctSelection = store.getPrecinctSelection();
-      response.json({ status: 'ok', precinctSelection });
-    }
-  );
-
-  app.put<
-    NoParams,
-    Scan.PutPrecinctSelectionConfigResponse,
-    Scan.PutPrecinctSelectionConfigRequest
+    Scan.PatchPrecinctSelectionConfigResponse,
+    Scan.PatchPrecinctSelectionConfigRequest
   >('/precinct-scanner/config/precinct', async (request, response) => {
     const bodyParseResult = safeParse(
-      Scan.PutPrecinctSelectionConfigRequestSchema,
+      Scan.PatchPrecinctSelectionConfigRequestSchema,
       request.body
     );
 
@@ -277,7 +226,7 @@ export async function buildPrecinctScannerApp(
       return;
     }
 
-    if (getBallotsCounted(store) > 0) {
+    if (store.getBallotsCounted() > 0) {
       response.status(400).json({
         status: 'error',
         errors: [
@@ -292,58 +241,10 @@ export async function buildPrecinctScannerApp(
     }
 
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    store.setPollsState('polls_closed_initial');
+    workspace.resetElectionSession();
     await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
-
-  app.get<NoParams, Scan.GetPollsStateConfigResponse>(
-    '/precinct-scanner/config/polls',
-    (_request, response) => {
-      const pollsState = store.getPollsState();
-      response.json({ status: 'ok', pollsState });
-    }
-  );
-
-  app.put<
-    NoParams,
-    Scan.PutPollsStateConfigResponse,
-    Scan.PutPollsStateConfigRequest
-  >('/precinct-scanner/config/polls', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PutPollsStateConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    store.setPollsState(bodyParseResult.ok().pollsState);
-    response.json({ status: 'ok' });
-  });
-
-  app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    (_request, response) => {
-      const markThresholdOverrides = store.getMarkThresholdOverrides();
-      response.json({ status: 'ok', markThresholdOverrides });
-    }
-  );
-
-  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    async (_request, response) => {
-      store.setMarkThresholdOverrides(undefined);
-      await updateInterpreterConfig(interpreter, workspace);
-      response.json({ status: 'ok' });
-    }
-  );
 
   app.patch<
     NoParams,
@@ -371,6 +272,141 @@ export async function buildPrecinctScannerApp(
       );
       await updateInterpreterConfig(interpreter, workspace);
 
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
+    '/precinct-scanner/config/markThresholdOverrides',
+    async (_request, response) => {
+      store.setMarkThresholdOverrides(undefined);
+      await updateInterpreterConfig(interpreter, workspace);
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.patch<
+    NoParams,
+    Scan.PatchIsSoundMutedConfigResponse,
+    Scan.PatchIsSoundMutedConfigRequest
+  >('/precinct-scanner/config/isSoundMuted', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchIsSoundMutedConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    store.setIsSoundMuted(bodyParseResult.ok().isSoundMuted);
+    response.json({ status: 'ok' });
+  });
+
+  app.patch<
+    NoParams,
+    Scan.PatchTestModeConfigResponse,
+    Scan.PatchTestModeConfigRequest
+  >('/precinct-scanner/config/testMode', async (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchTestModeConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    workspace.resetElectionSession();
+    store.setTestMode(bodyParseResult.ok().testMode);
+    await updateInterpreterConfig(interpreter, workspace);
+    response.json({ status: 'ok' });
+  });
+
+  app.patch<
+    NoParams,
+    Scan.PatchPollsStateResponse,
+    Scan.PatchPollsStateRequest
+  >('/precinct-scanner/config/polls', async (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchPollsStateRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    const previousPollsState = store.getPollsState();
+    const newPollsState = bodyParseResult.ok().pollsState;
+
+    // Start new batch if opening polls, end batch if pausing or closing polls
+    if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
+      const batchId = store.addBatch();
+      await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+        disposition: 'success',
+        message:
+          'New scanning batch started due to polls being opened or reopened.',
+        batchId,
+      });
+    } else if (
+      newPollsState !== 'polls_open' &&
+      previousPollsState === 'polls_open'
+    ) {
+      const ongoingBatchId = store.getOngoingBatchId();
+      assert(typeof ongoingBatchId === 'string');
+      store.finishBatch({ batchId: ongoingBatchId });
+      await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+        disposition: 'success',
+        message:
+          'Current scanning batch ended due to polls being closed or paused.',
+        batchId: ongoingBatchId,
+      });
+    }
+
+    store.setPollsState(bodyParseResult.ok().pollsState);
+    response.json({ status: 'ok' });
+  });
+
+  app.patch<NoParams, Scan.PatchBallotBagReplaced>(
+    '/precinct-scanner/config/ballotBagReplaced',
+    async (_request, response) => {
+      // If polls are open, we need to end current batch and start a new batch
+      if (store.getPollsState() === 'polls_open') {
+        const ongoingBatchId = store.getOngoingBatchId();
+        assert(typeof ongoingBatchId === 'string');
+        store.finishBatch({ batchId: ongoingBatchId });
+        await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+          disposition: 'success',
+          message:
+            'Current scanning batch ended due to ballot bag replacement.',
+          batchId: ongoingBatchId,
+        });
+
+        const batchId = store.addBatch();
+        await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+          disposition: 'success',
+          message: 'New scanning batch started due to ballot bag replacement.',
+          batchId,
+        });
+      }
+
+      store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
       response.json({ status: 'ok' });
     }
   );
@@ -518,7 +554,7 @@ export async function buildPrecinctScannerApp(
         // TODO: Move machine config provider to shared utilities and access
         // actual machine config, with dev overrides, here instead
         'NO-ID',
-        getBallotsCounted(store),
+        store.getBallotsCounted(),
         store.getTestMode(),
         new Date()
       );
@@ -532,7 +568,7 @@ export async function buildPrecinctScannerApp(
         response
       );
 
-      store.setCvrsAsBackedUp();
+      store.setCvrsBackedUp();
     }
   );
 
@@ -584,7 +620,7 @@ export async function buildPrecinctScannerApp(
         });
       })
       .on('end', () => {
-        store.setScannerAsBackedUp();
+        store.setScannerBackedUp();
       })
       .pipe(response);
   });
@@ -593,7 +629,7 @@ export async function buildPrecinctScannerApp(
     '/precinct-scanner/scanner/status',
     (_request, response) => {
       const machineStatus = machine.status();
-      const ballotsCounted = getBallotsCounted(store);
+      const ballotsCounted = store.getBallotsCounted();
       const canUnconfigure = store.getCanUnconfigure();
       response.json({
         ...machineStatus,

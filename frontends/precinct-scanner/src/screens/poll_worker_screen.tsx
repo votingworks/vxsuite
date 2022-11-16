@@ -179,7 +179,8 @@ export function PollWorkerScreen({
       setCurrentTally(tally);
     }
     void calculateTally();
-  }, [election, scannedBallotCount, precinctSelection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function saveTally(
     pollsTransition: PollsTransition,

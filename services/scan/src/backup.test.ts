@@ -13,7 +13,7 @@ import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
-import { ConfigKey, Store } from './store';
+import { Store } from './store';
 
 jest.mock('fs-extra', (): typeof import('fs-extra') => {
   return {
@@ -68,7 +68,7 @@ test('unconfigured', async () => {
 
 test('configured', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -98,7 +98,7 @@ test('zip entry fails', async () => {
 
 test('has election.json', async () => {
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(asElectionDefinition(election).electionData);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -113,7 +113,7 @@ test('has election.json', async () => {
 
 test('has ballots.db', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   const output = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -128,16 +128,14 @@ test('has ballots.db', async () => {
   const dbFile = fileSync();
   await writeFile(dbFile.fd, await readEntry(dbEntry!));
   const db = new Database(dbFile.name);
-  const stmt = db.prepare<[ConfigKey]>(
-    'select value from configs where key = ?'
-  );
-  const row: { value: string } = stmt.get(ConfigKey.Election);
-  expect(JSON.parse(row.value)).toEqual(electionDefinition);
+  const stmt = db.prepare('select election_data as electionData from election');
+  const row: { electionData: string } = stmt.get();
+  expect(row.electionData).toEqual(electionDefinition.electionData);
 });
 
 test('has all files referenced in the database', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   const batchId = store.addBatch();
 
   const frontOriginalFile = fileSync();
@@ -216,7 +214,7 @@ test('has all files referenced in the database', async () => {
 
 test('has cvrs.jsonl', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   const result = new WritableStream();
 
   const batchId = store.addBatch();
@@ -267,7 +265,7 @@ test('does not have vx-logs.log if file does not exist', async () => {
   existsSyncMock.mockReturnValueOnce(false);
 
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(asElectionDefinition(election).electionData);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -283,7 +281,7 @@ test('has vx-logs.log if file exists', async () => {
   existsSyncMock.mockReturnValueOnce(true);
 
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(asElectionDefinition(election).electionData);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -326,7 +324,7 @@ test.each(spaceOptimizedBackupTestCases)(
     expectedScanImagesInBackup,
   }) => {
     const store = Store.memoryStore();
-    store.setElection(electionDefinition);
+    store.setElection(electionDefinition.electionData);
     const batchId = store.addBatch();
 
     const originalFileNames = [];

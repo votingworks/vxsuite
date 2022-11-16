@@ -15,14 +15,12 @@ import {
   BallotPaperSize,
   BallotSheetInfo,
   ElectionDefinition,
-  ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
   Id,
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
-  MarkThresholdsSchema,
   Optional,
   PageInterpretation,
   PageInterpretationSchema,
@@ -31,6 +29,8 @@ import {
   PollsStateSchema,
   PrecinctSelection as PrecinctSelectionType,
   PrecinctSelectionSchema,
+  safeParse,
+  safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
@@ -49,24 +49,7 @@ import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
 
-export enum ConfigKey {
-  Election = 'election',
-  TestMode = 'testMode',
-  MarkThresholdOverrides = 'markThresholdOverrides',
-  // @deprecated
-  SkipElectionHashCheck = 'skipElectionHashCheck',
-  PrecinctSelection = 'precinctSelection',
-  PollsState = 'pollsState',
-}
-
-export enum BackupKey {
-  Scanner = 'scanner',
-  Cvrs = 'cvrs',
-}
-
 const SchemaPath = join(__dirname, '../schema.sql');
-
-export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
 
 export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   marginal: 0.17,
@@ -78,6 +61,12 @@ export interface ResultSheet {
   readonly batchId: Id;
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;
+}
+
+function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
+  return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
+    zone: 'GMT',
+  });
 }
 
 /**
@@ -185,78 +174,176 @@ export class Store {
   }
 
   /**
+   * Gets whether an election is currently configured.
+   */
+  hasElection(): boolean {
+    return Boolean(this.client.one('select id from election'));
+  }
+
+  /**
    * Gets the current election definition.
    */
   getElectionDefinition(): ElectionDefinition | undefined {
-    const electionDefinition: ElectionDefinition | undefined = this.getConfig(
-      ConfigKey.Election,
-      ElectionDefinitionSchema
-    );
+    const electionRow = this.client.one(
+      'select election_data as electionData from election'
+    ) as { electionData: string } | undefined;
 
-    if (electionDefinition) {
-      return {
-        ...electionDefinition,
-        election: {
-          markThresholds: DefaultMarkThresholds,
-          ...electionDefinition.election,
-        },
-      };
+    if (!electionRow?.electionData) {
+      return undefined;
     }
 
-    return undefined;
+    const electionDefinitionParseResult = safeParseElectionDefinition(
+      electionRow.electionData
+    );
+
+    if (electionDefinitionParseResult.isErr()) {
+      throw new Error('Unable to parse stored election data.');
+    }
+
+    const electionDefinition = electionDefinitionParseResult.ok();
+
+    return {
+      ...electionDefinition,
+      election: {
+        markThresholds: DefaultMarkThresholds,
+        ...electionDefinition.election,
+      },
+    };
   }
 
   /**
    * Sets the current election definition.
    */
-  setElection(electionDefinition?: ElectionDefinition): void {
-    this.setConfig(ConfigKey.Election, electionDefinition);
+  setElection(electionData?: string): void {
+    this.client.run('delete from election');
+    if (electionData) {
+      this.client.run(
+        'insert into election (election_data) values (?)',
+        electionData
+      );
+    }
   }
 
   /**
    * Gets the current test mode setting value.
    */
   getTestMode(): boolean {
-    // service should default to test mode if not set
-    return this.getConfig(ConfigKey.TestMode, true, z.boolean());
-  }
+    const electionRow = this.client.one(
+      'select is_test_mode as isTestMode from election'
+    ) as { isTestMode: number } | undefined;
 
-  /**
-   * Gets whether to skip election hash checks.
-   */
-  getSkipElectionHashCheck(): boolean {
-    return this.getConfig(ConfigKey.SkipElectionHashCheck, false, z.boolean());
+    if (!electionRow) {
+      // test mode will be the default once an election is defined
+      return true;
+    }
+
+    return Boolean(electionRow.isTestMode);
   }
 
   /**
    * Sets the current test mode setting value.
    */
   setTestMode(testMode: boolean): void {
-    this.setConfig(ConfigKey.TestMode, testMode);
+    if (!this.hasElection()) {
+      throw new Error('Cannot set test mode without an election.');
+    }
+
+    this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
+  }
+
+  /**
+   * Gets whether to skip election hash checks.
+   */
+  getSkipElectionHashCheck(): boolean {
+    const electionRow = this.client.one(
+      'select skip_election_hash_check as skipElectionHashCheck from election'
+    ) as { skipElectionHashCheck: number } | undefined;
+
+    if (!electionRow) {
+      // we will not skip the check by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.skipElectionHashCheck);
   }
 
   /**
    * Sets whether to check the election hash.
    */
   setSkipElectionHashCheck(skipElectionHashCheck: boolean): void {
-    this.setConfig(ConfigKey.SkipElectionHashCheck, skipElectionHashCheck);
-  }
+    if (!this.hasElection()) {
+      throw new Error(
+        'Cannot set to skip election hash check without an election.'
+      );
+    }
 
-  /**
-   * Gets the current override values for mark thresholds if they are set.
-   * If there are no overrides set, returns undefined.
-   */
-  getMarkThresholdOverrides(): Optional<MarkThresholds> {
-    return this.getConfig(
-      ConfigKey.MarkThresholdOverrides,
-      MarkThresholdsSchema
+    this.client.run(
+      'update election set skip_election_hash_check = ?',
+      skipElectionHashCheck ? 1 : 0
     );
   }
 
-  getCurrentMarkThresholds(): Optional<MarkThresholds> {
-    return (
-      this.getMarkThresholdOverrides() ??
-      this.getElectionDefinition()?.election.markThresholds
+  /**
+   * Gets whether sound is muted.
+   */
+  getIsSoundMuted(): boolean {
+    const electionRow = this.client.one(
+      'select is_sound_muted as isSoundMuted from election'
+    ) as { isSoundMuted: number } | undefined;
+
+    if (!electionRow) {
+      // we will not mute sounds by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isSoundMuted);
+  }
+
+  /**
+   * Sets whether to check the election hash.
+   */
+  setIsSoundMuted(isSoundMuted: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set sounds to muted without an election.');
+    }
+
+    this.client.run(
+      'update election set is_sound_muted = ?',
+      isSoundMuted ? 1 : 0
+    );
+  }
+
+  /**
+   * Gets the number of ballots at which the ballot bag was last replaced.
+   */
+  getBallotCountWhenBallotBagLastReplaced(): number {
+    const electionRow = this.client.one(
+      'select ballot_count_when_ballot_bag_last_replaced as ballotCountWhenBallotBagLastReplaced from election'
+    ) as { ballotCountWhenBallotBagLastReplaced: number } | undefined;
+
+    if (!electionRow) {
+      // the default will be 0 once the election is defined
+      return 0;
+    }
+
+    return electionRow.ballotCountWhenBallotBagLastReplaced;
+  }
+
+  /**
+   * Sets whether to check the election hash.
+   */
+  setBallotCountWhenBallotBagLastReplaced(
+    ballotCountWhenBallotBagLastReplaced: number
+  ): void {
+    if (!this.hasElection()) {
+      throw new Error(
+        'Cannot set ballot count when ballot bag last replaced without an election.'
+      );
+    }
+
+    this.client.run(
+      'update election set ballot_count_when_ballot_bag_last_replaced = ?',
+      ballotCountWhenBallotBagLastReplaced
     );
   }
 
@@ -269,12 +356,62 @@ export class Store {
   }
 
   /**
+   * Gets the current override values for mark thresholds if they are set.
+   * If there are no overrides set, returns undefined.
+   */
+  getMarkThresholdOverrides(): Optional<MarkThresholds> {
+    const electionRow = this.client.one(
+      'select marginal_mark_threshold_override as marginal, definite_mark_threshold_override as definite from election'
+    ) as
+      | {
+          marginal: number | null;
+          definite: number | null;
+        }
+      | undefined;
+
+    if (!electionRow) {
+      return undefined;
+    }
+
+    if (electionRow.definite) {
+      assert(typeof electionRow.marginal === 'number');
+      return {
+        marginal: electionRow.marginal,
+        definite: electionRow.definite,
+      };
+    }
+
+    return undefined;
+  }
+
+  getCurrentMarkThresholds(): Optional<MarkThresholds> {
+    return (
+      this.getMarkThresholdOverrides() ??
+      this.getElectionDefinition()?.election.markThresholds
+    );
+  }
+
+  /**
    * Sets the current override values for mark thresholds. A value of undefined
    * will remove overrides and cause thresholds to fallback to the default values
    * in the election definition.
    */
   setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds);
+    if (!this.hasElection()) {
+      throw new Error('Cannot set mark thresholds without an election.');
+    }
+
+    if (!markThresholds) {
+      this.client.run(
+        'update election set definite_mark_threshold_override = null, marginal_mark_threshold_override = null'
+      );
+    } else {
+      this.client.run(
+        'update election set definite_mark_threshold_override = ?, marginal_mark_threshold_override = ?',
+        markThresholds.definite,
+        markThresholds.marginal
+      );
+    }
   }
 
   /**
@@ -283,7 +420,27 @@ export class Store {
    * default).
    */
   getPrecinctSelection(): Optional<PrecinctSelectionType> {
-    return this.getConfig(ConfigKey.PrecinctSelection, PrecinctSelectionSchema);
+    const electionRow = this.client.one(
+      'select precinct_selection as rawPrecinctSelection from election'
+    ) as { rawPrecinctSelection: string } | undefined;
+
+    const rawPrecinctSelection = electionRow?.rawPrecinctSelection;
+
+    if (!rawPrecinctSelection) {
+      // precinct selection is undefined when there is no election
+      return undefined;
+    }
+
+    const precinctSelectionParseResult = safeParseJson(
+      rawPrecinctSelection,
+      PrecinctSelectionSchema
+    );
+
+    if (precinctSelectionParseResult.isErr()) {
+      throw new Error('Unable to parse stored precinct selection.');
+    }
+
+    return precinctSelectionParseResult.ok();
   }
 
   /**
@@ -291,93 +448,50 @@ export class Store {
    * `undefined` to accept from all precincts (this is the default).
    */
   setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
-    this.setConfig(ConfigKey.PrecinctSelection, precinctSelection);
+    if (!this.hasElection()) {
+      throw new Error('Cannot set precinct selection without an election.');
+    }
+
+    this.client.run(
+      'update election set precinct_selection = ?',
+      precinctSelection ? JSON.stringify(precinctSelection) : null
+    );
   }
 
   /**
    * Gets the current polls state (open, paused, closed initial, or closed final)
    */
   getPollsState(): PollsStateType {
-    return this.getConfig(
-      ConfigKey.PollsState,
-      'polls_closed_initial',
-      PollsStateSchema
+    const electionRow = this.client.one(
+      'select polls_state as rawPollsState from election'
+    ) as { rawPollsState: string } | undefined;
+
+    if (!electionRow) {
+      // we will not skip the check by default once an election is defined
+      return 'polls_closed_initial';
+    }
+
+    const pollsStateParseResult = safeParse(
+      PollsStateSchema,
+      electionRow.rawPollsState
     );
+
+    if (pollsStateParseResult.isErr()) {
+      throw new Error('Unable to parse stored polls state.');
+    }
+
+    return pollsStateParseResult.ok();
   }
 
   /**
    * Sets the current polls state
    */
   setPollsState(pollsState: PollsStateType): void {
-    this.setConfig(ConfigKey.PollsState, pollsState);
-  }
-
-  /**
-   * Gets a config value by key.
-   */
-  private getConfig<T>(key: ConfigKey, schema: z.ZodSchema<T>): T | undefined;
-  private getConfig<T>(
-    key: ConfigKey,
-    defaultValue: T,
-    schema: z.ZodSchema<T>
-  ): T;
-  private getConfig<T>(
-    key: ConfigKey,
-    defaultValueOrSchema: z.ZodSchema<T> | T,
-    maybeSchema?: z.ZodSchema<T>
-  ): T | undefined {
-    debug('get config %s', key);
-
-    const row = this.client.one<[string]>(
-      'select value from configs where key = ?',
-      key
-    ) as { value: string } | undefined;
-
-    let defaultValue: T | undefined;
-    let schema: z.ZodSchema<T>;
-
-    if (maybeSchema) {
-      defaultValue = defaultValueOrSchema as T;
-      schema = maybeSchema;
-    } else {
-      schema = defaultValueOrSchema as z.ZodSchema<T>;
+    if (!this.hasElection()) {
+      throw new Error('Cannot set polls state without an election.');
     }
 
-    if (typeof row === 'undefined') {
-      debug('returning default value for config %s: %o', key, defaultValue);
-      return defaultValue;
-    }
-
-    const result = safeParseJson(row.value, schema);
-
-    if (result.isErr()) {
-      debug('failed to validate stored config %s: %s', key, result.err());
-      return undefined;
-    }
-
-    const value = result.ok();
-    let inspectedResult = inspect(value, false, 2, true);
-    if (inspectedResult.length > 200) {
-      inspectedResult = `${inspectedResult.slice(0, 199)}…`;
-    }
-    debug('returning stored value for config %s: %s', key, inspectedResult);
-    return value;
-  }
-
-  /**
-   * Sets the current election definition.
-   */
-  private setConfig<T>(key: ConfigKey, value?: T): void {
-    debug('set config %s=%O', key, value);
-    if (typeof value === 'undefined') {
-      this.client.run('delete from configs where key = ?', key);
-    } else {
-      this.client.run(
-        'insert or replace into configs (key, value) values (?, ?)',
-        key,
-        JSON.stringify(value)
-      );
-    }
+    this.client.run('update election set polls_state = ?', pollsState);
   }
 
   /**
@@ -405,89 +519,151 @@ export class Store {
   }
 
   /**
+   * Returns the id of the an unfinished batch if there is one
+   */
+  getOngoingBatchId(): Optional<string> {
+    const ongoingBatchRow = this.client.one(
+      'select id from batches where ended_at is null'
+    ) as { id: string } | undefined;
+
+    return ongoingBatchRow?.id;
+  }
+
+  /**
    * Records that batches have been backed up.
    */
-  setScannerAsBackedUp(): void {
-    this.setBackupTimestamp(BackupKey.Scanner);
+  setScannerBackedUp(backedUp = true): void {
+    if (!this.hasElection()) {
+      throw new Error('Unconfigured scanner cannot be backed up.');
+    }
+
+    if (backedUp) {
+      this.client.run(
+        'update election set scanner_backed_up_at = current_timestamp'
+      );
+    } else {
+      this.client.run('update election set scanner_backed_up_at = null');
+    }
   }
 
   /**
    * Records that CVRs have been backed up.
    */
-  setCvrsAsBackedUp(): void {
-    this.setBackupTimestamp(BackupKey.Cvrs);
+  setCvrsBackedUp(backedUp = true): void {
+    if (!this.hasElection()) {
+      throw new Error('Unconfigured scanner cannot export CVRs.');
+    }
+
+    if (backedUp) {
+      this.client.run(
+        'update election set cvrs_backed_up_at = current_timestamp'
+      );
+    } else {
+      this.client.run('update election set cvrs_backed_up_at = null');
+    }
   }
 
   /**
-   * Sets the timestamp of a backup
+   * Gets the timestamp for the last scanner backup
    */
-  private setBackupTimestamp(key: BackupKey): void {
-    this.client.run(
-      'insert or replace into backups (key, value) values (?, current_timestamp)',
-      key
-    );
+  getScannerBackupTimestamp(): DateTime | undefined {
+    const row = this.client.one(
+      'select scanner_backed_up_at as scannerBackedUpAt from election'
+    ) as { scannerBackedUpAt: string } | undefined;
+    if (!row?.scannerBackedUpAt) {
+      return undefined;
+    }
+
+    return dateTimeFromNoOffsetSqliteDate(row?.scannerBackedUpAt);
   }
 
   /**
-   * Gets a config value by key.
+   * Gets the timestamp for the last cvr export
    */
-  private getBackupTimestamp(key: BackupKey): Iso8601Timestamp | undefined {
-    const row = this.client.one<[Iso8601Timestamp]>(
-      'select value from backups where key = ?',
-      key
-    ) as { value: Iso8601Timestamp } | undefined;
-    return row?.value;
+  getCvrsBackupTimestamp(): DateTime | undefined {
+    const row = this.client.one(
+      'select cvrs_backed_up_at as cvrsBackedUpAt from election'
+    ) as { cvrsBackedUpAt: string } | undefined;
+    if (!row?.cvrsBackedUpAt) {
+      return undefined;
+    }
+
+    return dateTimeFromNoOffsetSqliteDate(row?.cvrsBackedUpAt);
+  }
+
+  getBallotsCounted(): number {
+    const row = this.client.one(`
+      select
+        count(sheets.id) as ballotsCounted
+      from
+        sheets inner join batches
+      on
+        sheets.batch_id = batches.id
+      and
+        sheets.deleted_at is null
+      where
+        batches.deleted_at is null
+    `) as { ballotsCounted: number } | undefined;
+
+    return row?.ballotsCounted ?? 0;
   }
 
   /**
    * Returns whether the appropriate backups have been completed and it is safe
-   * to unconfigure a machine/zero out data. Always returns true in test mode.
+   * to unconfigure a machine / reset the election session. Always returns
+   * true in test mode.
    */
   getCanUnconfigure(): boolean {
-    // Always allow unconfiguring a machine in test mode
+    // Always allow in test mode
     if (this.getTestMode()) {
       return true;
     }
 
-    const scannerBackedUpAt = this.getBackupTimestamp(BackupKey.Scanner);
-
-    if (!this.batchStatus().length) {
+    // Allow if no ballots have been counted
+    if (!this.getBallotsCounted()) {
       return true;
     }
+
+    const scannerBackedUpAt = this.getScannerBackupTimestamp();
 
     // Require that a scanner backup has taken place
     if (!scannerBackedUpAt) {
       return false;
     }
 
-    const { maxCvrsCreatedAt, maxCvrsDeletedAt } = this.client.one(
-      'select max(created_at) as maxCvrsCreatedAt, max(deleted_at) as maxCvrsDeletedAt from sheets'
-    ) as {
-      maxCvrsCreatedAt: Iso8601Timestamp;
-      maxCvrsDeletedAt: Iso8601Timestamp;
-    };
-    const { maxBatchesStartedAt, maxBatchesDeletedAt } = this.client.one(
-      'select max(started_at) as maxBatchesStartedAt, max(deleted_at) as maxBatchesDeletedAt from batches'
-    ) as {
-      maxBatchesStartedAt: Iso8601Timestamp;
-      maxBatchesDeletedAt: Iso8601Timestamp;
+    // Adding or deleting sheets would have updated the CVR count
+    const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
+        select
+          max(created_at) as maxSheetsCreatedAt, 
+          max(deleted_at) as maxSheetsDeletedAt
+        from sheets
+      `) as {
+      maxSheetsCreatedAt: string;
+      maxSheetsDeletedAt: string;
     };
 
-    const cvrsLastUpdatedAt = [maxCvrsCreatedAt, maxCvrsDeletedAt]
-      .filter(Boolean)
-      .reduce((max, curr) => (max > curr ? max : curr), '');
-    const batchesLastUpdatedAt = [maxBatchesStartedAt, maxBatchesDeletedAt]
-      .filter(Boolean)
-      .reduce((max, curr) => (max > curr ? max : curr), '');
+    // Deleting non-empty batches would have updated the CVR count
+    const { maxBatchesDeletedAt } = this.client.one(`
+      select
+        max(batches.deleted_at) as maxBatchesDeletedAt
+      from batches inner join sheets
+      on sheets.batch_id = batches.id
+      where sheets.deleted_at is null
+    `) as {
+      maxBatchesDeletedAt: string;
+    };
 
-    if (!batchesLastUpdatedAt) {
-      return true;
-    }
+    const cvrsLastUpdatedDates = [
+      maxBatchesDeletedAt,
+      maxSheetsCreatedAt,
+      maxSheetsDeletedAt,
+    ]
+      .filter(Boolean)
+      .map((noOffsetSqliteDate) =>
+        dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate)
+      );
 
-    const isBackupUpToDate =
-      scannerBackedUpAt >= cvrsLastUpdatedAt &&
-      scannerBackedUpAt >= batchesLastUpdatedAt;
-    return isBackupUpToDate;
+    return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
   }
 
   addBallotCard(batchId: string): string {
@@ -577,11 +753,19 @@ export class Store {
     );
   }
 
-  zero(): void {
+  resetElectionSession(): void {
+    if (this.hasElection()) {
+      this.client.transaction(() => {
+        this.setPollsState('polls_closed_initial');
+        this.setBallotCountWhenBallotBagLastReplaced(0);
+        this.setCvrsBackedUp(false);
+        this.setScannerBackedUp(false);
+      });
+    }
+    // delete batches, which will cascade delete sheets
     this.client.run('delete from batches');
     // reset autoincrementing key on "batches" table
     this.client.run("delete from sqlite_sequence where name = 'batches'");
-    this.setConfig(ConfigKey.PollsState, 'polls_closed_initial');
   }
 
   getBallotFilenames(

@@ -8,6 +8,8 @@ import {
   BallotPageLayoutWithImage,
   BallotType,
   InterpretedHmpbPage,
+  PageInterpretationWithFiles,
+  SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { BallotConfig, typedAs } from '@votingworks/utils';
@@ -33,7 +35,7 @@ let importer: jest.Mocked<Importer>;
 beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = createWorkspace(dirSync().name);
-  workspace.store.setElection(stateOfHamilton.electionDefinition);
+  workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
   workspace.store.setTestMode(false);
   workspace.store.addHmpbTemplate(
     Buffer.of(),
@@ -77,13 +79,74 @@ beforeEach(async () => {
   app = await buildCentralScannerApp({ importer, workspace });
 });
 
+const frontOriginal = stateOfHamilton.filledInPage1Flipped;
+const frontNormalized = stateOfHamilton.filledInPage1;
+const backOriginal = stateOfHamilton.filledInPage2;
+const backNormalized = stateOfHamilton.filledInPage2;
+const sheet: SheetOf<PageInterpretationWithFiles> = [
+  {
+    originalFilename: frontOriginal,
+    normalizedFilename: frontNormalized,
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        locales: { primary: 'en-US' },
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 1,
+      },
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+  {
+    originalFilename: backOriginal,
+    normalizedFilename: backNormalized,
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        locales: { primary: 'en-US' },
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 2,
+      },
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 0, height: 0 },
+        marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+];
+
 test('reloads configuration from the store', () => {
   // did we load everything from the store?
   expect(importer.restoreConfig).toHaveBeenCalled();
 });
 
 test('GET /config/election (application/octet-stream)', async () => {
-  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setElection(testElectionDefinition.electionData);
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -102,7 +165,7 @@ test('GET /config/election (application/octet-stream)', async () => {
 });
 
 test('GET /config/election (application/json)', async () => {
-  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setElection(testElectionDefinition.electionData);
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -129,7 +192,7 @@ test('GET /config/election (application/json)', async () => {
 });
 
 test('GET /config/testMode', async () => {
-  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setElection(testElectionDefinition.electionData);
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -142,7 +205,7 @@ test('GET /config/testMode', async () => {
 });
 
 test('GET /config/markThresholdOverrides', async () => {
-  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setElection(testElectionDefinition.electionData);
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides({
     definite: 0.5,
@@ -208,10 +271,12 @@ test('PATCH /config/election', async () => {
 });
 
 test('DELETE /config/election no-backup error', async () => {
-  importer.unconfigure.mockResolvedValue();
+  importer.unconfigure.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .delete('/central-scanner/config/election')
@@ -229,8 +294,8 @@ test('DELETE /config/election no-backup error', async () => {
 });
 
 test('DELETE /config/election', async () => {
-  importer.unconfigure.mockResolvedValue();
-  workspace.store.setScannerAsBackedUp();
+  importer.unconfigure.mockReturnValue();
+  workspace.store.setScannerBackedUp();
 
   await request(app)
     .delete('/central-scanner/config/election')
@@ -240,10 +305,12 @@ test('DELETE /config/election', async () => {
 });
 
 test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequirement=true is specified', async () => {
-  importer.unconfigure.mockResolvedValue();
+  importer.unconfigure.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .delete('/central-scanner/config/election?ignoreBackupRequirement=true')
@@ -374,10 +441,12 @@ test('POST /scan/export', async () => {
 });
 
 test('POST /scan/zero error', async () => {
-  importer.doZero.mockResolvedValue();
+  importer.doZero.mockReturnValue();
 
   // Add a new batch that hasn't been backed up yet
-  workspace.store.addBatch();
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, sheet);
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .post('/central-scanner/scan/zero')
@@ -395,8 +464,8 @@ test('POST /scan/zero error', async () => {
 });
 
 test('POST /scan/zero', async () => {
-  importer.doZero.mockResolvedValue();
-  workspace.store.setScannerAsBackedUp();
+  importer.doZero.mockReturnValue();
+  workspace.store.setScannerBackedUp();
 
   await request(app)
     .post('/central-scanner/scan/zero')
@@ -406,67 +475,8 @@ test('POST /scan/zero', async () => {
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
-  const frontOriginal = stateOfHamilton.filledInPage1Flipped;
-  const frontNormalized = stateOfHamilton.filledInPage1;
-  const backOriginal = stateOfHamilton.filledInPage2;
-  const backNormalized = stateOfHamilton.filledInPage2;
   const batchId = workspace.store.addBatch();
-  const sheetId = workspace.store.addSheet(uuid(), batchId, [
-    {
-      originalFilename: frontOriginal,
-      normalizedFilename: frontNormalized,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-    {
-      originalFilename: backOriginal,
-      normalizedFilename: backNormalized,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-  ]);
+  const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
   workspace.store.finishBatch({ batchId });
 
   await request(app)

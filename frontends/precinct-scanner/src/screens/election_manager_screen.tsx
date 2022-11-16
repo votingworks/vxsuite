@@ -56,7 +56,7 @@ export function ElectionManagerScreen({
   const {
     electionDefinition,
     precinctSelection,
-    currentMarkThresholds,
+    markThresholdOverrides,
     auth,
     isSoundMuted,
     logger,
@@ -179,7 +179,7 @@ export function ElectionManagerScreen({
         </p>
         <p>
           <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
-            {currentMarkThresholds === undefined
+            {markThresholdOverrides === undefined
               ? 'Override Mark Thresholds'
               : 'Reset Mark Thresholds'}
           </Button>
@@ -217,7 +217,7 @@ export function ElectionManagerScreen({
         <SetMarkThresholdsModal
           setMarkThresholdOverrides={setMarkThresholdOverrides}
           markThresholds={electionDefinition.election.markThresholds}
-          markThresholdOverrides={currentMarkThresholds}
+          markThresholdOverrides={markThresholdOverrides}
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
@@ -310,7 +310,7 @@ export function DefaultPreview(): JSX.Element {
         machineConfig,
         electionDefinition,
         precinctSelection,
-        currentMarkThresholds: undefined,
+        markThresholdOverrides: undefined,
         isSoundMuted,
         auth: {
           status: 'logged_in',

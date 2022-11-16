@@ -108,8 +108,11 @@ export enum LogEventId {
   PollsUnpaused = 'polls-unpaused',
   PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
+  BallotBagReplaced = 'ballot-bag-replaced',
   TallyReportClearedFromCard = 'tally-report-cleared-from-card',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
+  PrecinctScannerBatchStarted = 'precinct-scanner-batch-started',
+  PrecinctScannerBatchEnded = 'precinct-scanner-batch-ended',
   // VxScan service state machine logs
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
@@ -787,6 +790,13 @@ const ResetPollsToPaused: LogDetails = {
   ],
 };
 
+const BallotBagReplaced: LogDetails = {
+  eventId: LogEventId.BallotBagReplaced,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User confirmed that they replaced the ballot bag.',
+  restrictInDocumentationToApps: [LogSource.VxPrecinctScanFrontend],
+};
+
 const TallyReportClearedFromCard: LogDetails = {
   eventId: LogEventId.TallyReportClearedFromCard,
   eventType: LogEventType.ApplicationAction,
@@ -803,6 +813,22 @@ const PrecinctConfigurationChanged: LogDetails = {
     LogSource.VxBallotMarkingDeviceFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
+};
+
+const PrecinctScannerBatchStarted: LogDetails = {
+  eventId: LogEventId.PrecinctScannerBatchStarted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
+};
+
+const PrecinctScannerBatchEnded: LogDetails = {
+  eventId: LogEventId.PrecinctScannerBatchEnded,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
 };
 
 const ScannerEvent: LogDetails = {
@@ -991,10 +1017,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollsClosed;
     case LogEventId.ResetPollsToPaused:
       return ResetPollsToPaused;
+    case LogEventId.BallotBagReplaced:
+      return BallotBagReplaced;
     case LogEventId.TallyReportClearedFromCard:
       return TallyReportClearedFromCard;
     case LogEventId.PrecinctConfigurationChanged:
       return PrecinctConfigurationChanged;
+    case LogEventId.PrecinctScannerBatchEnded:
+      return PrecinctScannerBatchEnded;
+    case LogEventId.PrecinctScannerBatchStarted:
+      return PrecinctScannerBatchStarted;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:

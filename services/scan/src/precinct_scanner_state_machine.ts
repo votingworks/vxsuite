@@ -253,12 +253,13 @@ function storeInterpretedSheet(
   sheetId: Id,
   interpretation: SheetInterpretation
 ): Id {
-  // For now, we create one batch per ballot, since we don't use the concept of
-  // batches for precinct scanning. In the future, it might make more sense to
-  // have one batch per scanning session (e.g. from polls open to polls close).
-  const batchId = store.addBatch();
-  const addedSheetId = store.addSheet(sheetId, batchId, interpretation.pages);
-  store.finishBatch({ batchId });
+  const ongoingBatchId = store.getOngoingBatchId();
+  assert(typeof ongoingBatchId === 'string');
+  const addedSheetId = store.addSheet(
+    sheetId,
+    ongoingBatchId,
+    interpretation.pages
+  );
   return addedSheetId;
 }
 

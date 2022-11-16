@@ -454,13 +454,11 @@ export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
 export interface MarkThresholds {
   readonly marginal: number;
   readonly definite: number;
-  readonly writeInText?: number;
 }
 export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
   .object({
     marginal: z.number().min(0).max(1),
     definite: z.number().min(0).max(1),
-    writeInText: z.number().min(0).max(1).optional(),
   })
   .refine(
     ({ marginal, definite }) => marginal <= definite,

@@ -29,9 +29,9 @@ export interface Workspace {
   readonly store: Store;
 
   /**
-   * Zero out the data in the workspace, but leave the election configuration.
+   * Zero out the data in the workspace, but leave the configuration.
    */
-  zero(): void;
+  resetElectionSession(): void;
 
   /**
    * Reset the workspace, including the election configuration. This is the same
@@ -62,8 +62,8 @@ export function createWorkspace(root: string): Workspace {
     scannedImagesPath,
     uploadsPath,
     store,
-    zero() {
-      store.zero();
+    resetElectionSession() {
+      store.resetElectionSession();
       emptyDirSync(ballotImagesPath);
       emptyDirSync(scannedImagesPath);
       ensureDirSync(ballotImagesPath);

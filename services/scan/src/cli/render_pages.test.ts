@@ -164,7 +164,7 @@ test('render from db', async () => {
   const tmpDbPath = join(tmpDir, 'ballots.db');
   const store = Store.fileStore(tmpDbPath);
   const electionDefinition = asElectionDefinition(election);
-  store.setElection(electionDefinition);
+  store.setElection(electionDefinition.electionData);
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     ballotType: BallotType.Standard,

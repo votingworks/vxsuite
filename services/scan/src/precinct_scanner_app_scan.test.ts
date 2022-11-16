@@ -1,191 +1,25 @@
-import {
-  MockScannerClient,
-  MockScannerClientOptions,
-  ScannerClient,
-} from '@votingworks/plustek-sdk';
-import {
-  AdjudicationReason,
-  CastVoteRecord,
-  err,
-  ok,
-  PollsState,
-  PrecinctId,
-  Result,
-} from '@votingworks/types';
-import { dirSync } from 'tmp';
+import { AdjudicationReason, err, ok } from '@votingworks/types';
 import request from 'supertest';
-import { Application } from 'express';
-import {
-  electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-} from '@votingworks/fixtures';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BallotPackageEntry,
-  deferred,
-  readBallotPackageFromBuffer,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import waitForExpect from 'wait-for-expect';
 import { Scan } from '@votingworks/api';
-import { join } from 'path';
-import { fakeLogger, Logger } from '@votingworks/logging';
-import { buildPrecinctScannerApp } from './precinct_scanner_app';
+import { Logger } from '@votingworks/logging';
+import { MAX_FAILED_SCAN_ATTEMPTS } from './precinct_scanner_state_machine';
+import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import {
-  createPrecinctScannerStateMachine,
-  Delays,
-  MAX_FAILED_SCAN_ATTEMPTS,
-} from './precinct_scanner_state_machine';
-import { createWorkspace } from './util/workspace';
-import {
-  createInterpreter,
-  PrecinctScannerInterpreter,
-} from './precinct_scanner_interpreter';
+  ballotImages,
+  configureApp,
+  createApp,
+  expectStatus,
+  post,
+  postExportCvrs,
+  waitForStatus,
+} from '../test/helpers/precinct_scanner_app';
 
 jest.setTimeout(20_000);
 
-function get(app: Application, path: string) {
-  return request(app).get(path).accept('application/json').expect(200);
-}
-
-function patch(app: Application, path: string, body?: object | string) {
-  return request(app)
-    .patch(path)
-    .accept('application/json')
-    .set(
-      'Content-Type',
-      typeof body === 'string' ? 'application/octet-stream' : 'application/json'
-    )
-    .send(body)
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
-
-function put(app: Application, path: string, body?: object | string) {
-  return request(app)
-    .put(path)
-    .accept('application/json')
-    .set(
-      'Content-Type',
-      typeof body === 'string' ? 'application/octet-stream' : 'application/json'
-    )
-    .send(body)
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
-
-function post(app: Application, path: string, body?: object) {
-  return request(app)
-    .post(path)
-    .accept('application/json')
-    .send(body)
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
-
-function postTemplate(
-  app: Application,
-  path: string,
-  ballot: BallotPackageEntry
-) {
-  return request(app)
-    .post(path)
-    .accept('application/json')
-    .attach('ballots', Buffer.from(ballot.pdf), {
-      filename: ballot.ballotConfig.filename,
-      contentType: 'application/pdf',
-    })
-    .attach(
-      'metadatas',
-      Buffer.from(
-        new TextEncoder().encode(JSON.stringify(ballot.ballotConfig))
-      ),
-      { filename: 'ballot-config.json', contentType: 'application/json' }
-    )
-    .attach(
-      'layouts',
-      Buffer.from(new TextEncoder().encode(JSON.stringify(ballot.layout))),
-      {
-        filename: ballot.ballotConfig.layoutFilename,
-        contentType: 'application/json',
-      }
-    )
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
-
-function setAppPrecinct(app: Application, precinctId?: PrecinctId) {
-  return put(app, '/precinct-scanner/config/precinct', {
-    precinctSelection: precinctId
-      ? singlePrecinctSelectionFor(precinctId)
-      : ALL_PRECINCTS_SELECTION,
-  });
-}
-
-function setPollsState(app: Application, pollsState: PollsState) {
-  return put(app, '/precinct-scanner/config/polls', {
-    pollsState,
-  });
-}
-
-async function postExportCvrs(app: Application) {
-  const exportResponse = await request(app)
-    .post('/precinct-scanner/export')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  const cvrs: CastVoteRecord[] = exportResponse.text
-    .split('\n')
-    .filter((line) => line !== '')
-    .map((line) => JSON.parse(line));
-  return cvrs;
-}
-
-async function expectStatus(
-  app: Application,
-  status: {
-    state: Scan.PrecinctScannerState;
-  } & Partial<Scan.PrecinctScannerStatus>
-) {
-  const response = await get(app, '/precinct-scanner/scanner/status');
-  expect(response.body).toEqual({
-    ballotsCounted: 0,
-    // TODO canUnconfigure should probably not be part of this endpoint - it's
-    // only needed on the admin screen
-    canUnconfigure: !status?.ballotsCounted,
-    error: undefined,
-    interpretation: undefined,
-    ...status,
-  });
-}
-
-async function waitForStatus(
-  app: Application,
-  status: {
-    state: Scan.PrecinctScannerState;
-  } & Partial<Scan.PrecinctScannerStatus>
-) {
-  await waitForExpect(async () => {
-    await expectStatus(app, status);
-  }, 1_000);
-}
-
 // Basic checks for logging. We don't try to be exhaustive here because paper
 // status polling can be a bit non-deterministic, so logs can vary between runs.
-function checkLogs(logger: Logger) {
+export function checkLogs(logger: Logger): void {
   // Make sure we got a transition
   expect(logger.log).toHaveBeenCalledWith(
     'scanner-state-machine-transition',
@@ -214,83 +48,6 @@ function checkLogs(logger: Logger) {
     expect.any(Function)
   );
 }
-
-async function createApp(
-  delays: Partial<Delays> = {},
-  mockPlustekOptions: Partial<MockScannerClientOptions> = {}
-) {
-  const logger = fakeLogger();
-  const workspace = createWorkspace(dirSync().name);
-  const mockPlustek = new MockScannerClient({
-    toggleHoldDuration: 100,
-    passthroughDuration: 100,
-    ...mockPlustekOptions,
-  });
-  const deferredConnect = deferred<void>();
-  async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
-    await mockPlustek.connect();
-    await deferredConnect.promise;
-    return ok(mockPlustek);
-  }
-  const interpreter = createInterpreter();
-  const precinctScannerMachine = createPrecinctScannerStateMachine({
-    createPlustekClient,
-    workspace,
-    interpreter,
-    logger,
-    delays: {
-      DELAY_RECONNECT: 100,
-      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
-      DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
-      ...delays,
-    },
-  });
-  const app = await buildPrecinctScannerApp(
-    precinctScannerMachine,
-    interpreter,
-    workspace
-  );
-  await expectStatus(app, { state: 'connecting' });
-  deferredConnect.resolve();
-  await waitForStatus(app, { state: 'no_paper' });
-  return {
-    app,
-    mockPlustek,
-    workspace,
-    logger,
-    interpreter,
-  };
-}
-
-const sampleBallotImagesPath = join(__dirname, '../sample-ballot-images/');
-const ballotImages = {
-  completeHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asFilePath(),
-  ],
-  completeBmd: [
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-  unmarkedHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asFilePath(),
-  ],
-  wrongElection: [
-    // A BMD ballot front from a different election
-    join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-  // The interpreter expects two different image files, so we use two
-  // different blank page images
-  blankSheet: [
-    join(sampleBallotImagesPath, 'blank-page.png'),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-} as const;
 
 /**
  * Interpretation is generally the slowest part of tests in this file. To speed
@@ -328,48 +85,6 @@ function mockInterpretation(
     })
   );
 }
-
-async function configureApp(
-  app: Application,
-  {
-    addTemplates = false,
-    precinctId,
-  }: { addTemplates?: boolean; precinctId?: PrecinctId } = {
-    addTemplates: false,
-  }
-) {
-  const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-  );
-  await patch(
-    app,
-    '/precinct-scanner/config/election',
-    electionDefinition.electionData
-  );
-  if (addTemplates) {
-    // It takes about a second per template, so we only do some
-    for (const ballot of ballots.slice(0, 2)) {
-      await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
-    }
-  }
-  await setAppPrecinct(app, precinctId);
-  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
-  await setPollsState(app, 'polls_open');
-}
-
-test("setting the election also sets precinct if there's only one", async () => {
-  const { app } = await createApp();
-  await patch(
-    app,
-    '/precinct-scanner/config/election',
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData
-  );
-  const response = await get(app, '/precinct-scanner/config/precinct');
-  expect(response.body.precinctSelection).toMatchObject({
-    kind: 'SinglePrecinct',
-    precinctId: 'precinct-1',
-  });
-});
 
 test('configure and scan hmpb', async () => {
   const { app, mockPlustek, logger } = await createApp();
@@ -467,18 +182,15 @@ test('ballot needs review - return', async () => {
   await expectStatus(app, {
     state: 'returning',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'returned',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, {
     state: 'no_paper',
-    canUnconfigure: false,
   });
 
   // Check the CVR
@@ -545,16 +257,14 @@ test('invalid ballot rejected', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 
   // Check the CVR
   const cvrs = await postExportCvrs(app);
@@ -584,16 +294,14 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
@@ -634,16 +342,14 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
@@ -683,16 +389,14 @@ test('blank sheet ballot rejected', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('scanner powered off while waiting for paper', async () => {
@@ -806,14 +510,13 @@ test('scanner powered off while rejecting', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
+  await waitForStatus(app, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed', canUnconfigure: false });
+  await waitForStatus(app, { state: 'jammed' });
 });
 
 test('scanner powered off while returning', async () => {
@@ -834,14 +537,13 @@ test('scanner powered off while returning', async () => {
   await waitForStatus(app, {
     state: 'returning',
     interpretation,
-    canUnconfigure: false,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
+  await waitForStatus(app, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed', canUnconfigure: false });
+  await waitForStatus(app, { state: 'jammed' });
 });
 
 test('scanner powered off after returning', async () => {
@@ -862,22 +564,19 @@ test('scanner powered off after returning', async () => {
   await waitForStatus(app, {
     state: 'returning',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'returned',
     interpretation,
-    canUnconfigure: false,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
+  await waitForStatus(app, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('ready_to_scan');
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_front_after_reconnect',
-    canUnconfigure: false,
   });
 });
 
@@ -1023,30 +722,26 @@ test('insert second ballot while first ballot is rejecting', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('insert second ballot while first ballot is returning', async () => {
@@ -1071,24 +766,21 @@ test('insert second ballot while first ballot is returning', async () => {
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, {
     state: 'needs_review',
     interpretation,
-    canUnconfigure: false,
   });
   await post(app, '/precinct-scanner/scanner/return');
   await waitForStatus(app, {
     state: 'returned',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('jam on scan', async () => {
@@ -1136,17 +828,15 @@ test('jam on accept', async () => {
     state: 'rejecting',
     interpretation,
     error: 'paper_in_back_after_accept',
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_back_after_accept',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('jam on return', async () => {
@@ -1168,11 +858,10 @@ test('jam on return', async () => {
   await waitForStatus(app, {
     state: 'jammed',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('jam on reject', async () => {
@@ -1194,11 +883,10 @@ test('jam on reject', async () => {
   await waitForStatus(app, {
     state: 'jammed',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('calibrate', async () => {
@@ -1395,63 +1083,5 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
   await waitForStatus(app, {
     state: 'unrecoverable_error',
     error: 'paper_status_timed_out',
-  });
-});
-
-describe('POST /precinct-scanner/export', () => {
-  test('sets CVRs as backed up', async () => {
-    const { app, workspace } = await createApp();
-    const spySetCvrsAsBackedUp = jest.spyOn(
-      workspace.store,
-      'setCvrsAsBackedUp'
-    );
-
-    await configureApp(app);
-    await request(app)
-      .post('/precinct-scanner/export')
-      .set('Accept', 'application/json')
-      .set('Content-Type', 'application/json')
-      .send({ skipImages: true })
-      .expect(200);
-
-    expect(spySetCvrsAsBackedUp).toHaveBeenCalled();
-  });
-});
-
-describe('PUT /precinct-scanner/config/precinct', () => {
-  test('will return error status if ballots have been cast', async () => {
-    const { app, mockPlustek } = await createApp();
-    await configureApp(app);
-
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
-    await waitForStatus(app, { state: 'ready_to_scan' });
-
-    const interpretation: Scan.SheetInterpretation = {
-      type: 'ValidSheet',
-    };
-
-    await post(app, '/precinct-scanner/scanner/scan');
-    await waitForStatus(app, { state: 'ready_to_accept', interpretation });
-    await post(app, '/precinct-scanner/scanner/accept');
-    await waitForStatus(app, {
-      state: 'accepted',
-      interpretation,
-      ballotsCounted: 1,
-    });
-
-    await request(app)
-      .put('/precinct-scanner/config/precinct')
-      .set('Content-Type', 'application/json')
-      .send({ precinctSelection: singlePrecinctSelectionFor('whatever') })
-      .expect(400);
-  });
-
-  test('will reset polls to closed', async () => {
-    const { app, workspace } = await createApp();
-    await configureApp(app);
-
-    workspace.store.setPollsState('polls_open');
-    await setAppPrecinct(app, '21');
-    expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
   });
 });

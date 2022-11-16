@@ -64,7 +64,7 @@ test('exportCvrs', async () => {
   await copyFile(BlankJpegPath, backNormalizedFilePath);
 
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // No CVRs, export should be empty
   let stream = new streams.WritableStream();
@@ -192,7 +192,7 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
   await copyFile(BlankJpegPath, backNormalizedFilePath);
 
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // No CVRs, export should be empty
   let stream = new streams.WritableStream();
@@ -317,7 +317,7 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
   await copyFile(BlankJpegPath, backNormalizedFilePath);
 
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   let stream = new streams.WritableStream();
 
@@ -412,7 +412,7 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
   );
 
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // No CVRs, export should be empty
   let stream = new streams.WritableStream();
@@ -505,7 +505,7 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
 
 test('exportCvrs called with orderBySheetId actually orders by sheet ID', async () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   const metadata: BallotPageMetadata = {
     locales: { primary: 'en-US' },

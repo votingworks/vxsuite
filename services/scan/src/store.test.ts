@@ -11,7 +11,12 @@ import {
   SheetOf,
   YesNoContest,
 } from '@votingworks/types';
-import { sleep, typedAs } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+  sleep,
+  typedAs,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -26,11 +31,13 @@ test('get/set election', () => {
   const store = Store.memoryStore();
 
   expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.hasElection()).toBeFalsy();
 
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getElectionDefinition()?.election).toEqual(
     stateOfHamilton.election
   );
+  expect(store.hasElection()).toBeTruthy();
 
   store.setElection(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
@@ -39,6 +46,13 @@ test('get/set election', () => {
 test('get/set test mode', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
+  expect(store.getTestMode()).toBe(true);
+  expect(() => store.setTestMode(false)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
   expect(store.getTestMode()).toBe(true);
 
   store.setTestMode(false);
@@ -48,10 +62,92 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toBe(true);
 });
 
+test('get/set skip election hash check mode', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+  expect(() => store.setSkipElectionHashCheck(true)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+
+  store.setSkipElectionHashCheck(true);
+  expect(store.getSkipElectionHashCheck()).toBe(true);
+
+  store.setSkipElectionHashCheck(false);
+  expect(store.getSkipElectionHashCheck()).toBe(false);
+});
+
+test('get/set is sounds muted mode', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getIsSoundMuted()).toBe(false);
+  expect(() => store.setIsSoundMuted(true)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getIsSoundMuted()).toBe(false);
+
+  store.setIsSoundMuted(true);
+  expect(store.getIsSoundMuted()).toBe(true);
+
+  store.setIsSoundMuted(false);
+  expect(store.getIsSoundMuted()).toBe(false);
+});
+
+test('get/set ballot count when ballot bag last replaced', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+  expect(() =>
+    store.setBallotCountWhenBallotBagLastReplaced(1500)
+  ).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+
+  store.setBallotCountWhenBallotBagLastReplaced(1500);
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(1500);
+});
+
+test('get/set precinct selection', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getPrecinctSelection()).toBe(undefined);
+  expect(() =>
+    store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
+  ).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getPrecinctSelection()).toBe(undefined);
+
+  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  expect(store.getPrecinctSelection()).toEqual(ALL_PRECINCTS_SELECTION);
+
+  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
+  store.setPrecinctSelection(precinctSelection);
+  expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
+});
+
 test('get/set mark threshold overrides', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
   expect(store.getMarkThresholdOverrides()).toBe(undefined);
+  expect(() => store.setMarkThresholdOverrides()).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
   expect(store.getMarkThresholdOverrides()).toStrictEqual({
@@ -65,7 +161,7 @@ test('get/set mark threshold overrides', () => {
 
 test('get current mark thresholds falls back to election definition defaults', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -87,14 +183,40 @@ test('get current mark thresholds falls back to election definition defaults', (
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 
+  // Before setting an election
   expect(store.getPollsState()).toEqual('polls_closed_initial');
+  expect(() => store.setPollsState('polls_open')).toThrowError();
 
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
   store.setPollsState('polls_open');
   expect(store.getPollsState()).toEqual('polls_open');
 });
 
+test('get/set scanner as backed up', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  store.setScannerBackedUp();
+  expect(store.getScannerBackupTimestamp()).toBeTruthy();
+  store.setScannerBackedUp(false);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+});
+
+test('get/set cvrs as backed up', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+  store.setCvrsBackedUp();
+  expect(store.getCvrsBackupTimestamp()).toBeTruthy();
+  store.setCvrsBackedUp(false);
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+});
+
 test('HMPB template handling', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   const metadata: BallotMetadata = {
     electionHash: 'd34db33f',
     locales: { primary: 'en-US' },
@@ -278,6 +400,7 @@ test('batchStatus', () => {
 
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -287,6 +410,7 @@ test('canUnconfigure in test mode', () => {
 
 test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setTestMode(false);
 
   const frontMetadata: BallotPageMetadata = {
@@ -303,16 +427,16 @@ test('canUnconfigure not in test mode', async () => {
     pageNumber: 2,
   };
 
+  // Can unconfigure if no batches added
+  expect(store.getCanUnconfigure()).toBe(true);
+
   // Create a batch
   const batchId = store.addBatch();
 
-  // Pause so timestamps are not equal
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  // Can unconfigure if only empty batches added
   expect(store.getCanUnconfigure()).toBe(true);
 
-  await sleep(1000);
-  // Add a sheet to the batch and confirm that invalidates the backup/export
+  // Cannot unconfigure after new sheet added
   const sheetId = store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
@@ -332,27 +456,82 @@ test('canUnconfigure not in test mode', async () => {
     },
   ]);
   expect(store.getCanUnconfigure()).toBe(false);
-
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
-  // Delete the sheet, confirm that invalidates the backup/export
+  // Setup second batch with second sheet
+  await sleep(1000);
+  const batchId2 = store.addBatch();
+  store.addSheet(uuid(), batchId2, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Setup third batch with third sheet
+  await sleep(1000);
+  const batchId3 = store.addBatch();
+  const sheetId3 = store.addSheet(uuid(), batchId3, [
+    {
+      originalFilename: '/tmp/front-page3.png',
+      normalizedFilename: '/tmp/front-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page3.png',
+      normalizedFilename: '/tmp/back-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Cannot unconfigure after sheet deleted
   await sleep(1000);
   store.deleteSheet(sheetId);
   expect(store.getCanUnconfigure()).toBe(false);
-
-  // Add another batch, then mark as exported
-  const batchId2 = store.addBatch();
-  // Pause before marking as exported so timestamps are not equal
-  await sleep(1000);
-  store.setScannerAsBackedUp();
+  store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
-  // Delete the second batch, confirm that invalidates the backup/export
+  // Can unconfigure after empty batch deleted
+  await sleep(1000);
+  store.deleteBatch(batchId);
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Cannot unconfigure after non-empty batch deleted
   await sleep(1000);
   store.deleteBatch(batchId2);
   expect(store.getCanUnconfigure()).toBe(false);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Can unconfigure if no counted ballots
+  await sleep(1000);
+  store.deleteSheet(sheetId3);
+  expect(store.getCanUnconfigure()).toBe(true);
 });
 
 test('adjudication', () => {
@@ -373,7 +552,7 @@ test('adjudication', () => {
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
-  store.setElection(stateOfHamilton.electionDefinition);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.addHmpbTemplate(
     Buffer.of(),
     metadata,
@@ -508,36 +687,9 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('zero', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
-
-  store.addBatch();
-  store.addBatch();
-  expect(
-    store
-      .batchStatus()
-      .map((batch) => batch.label)
-      .sort((a, b) => a.localeCompare(b))
-  ).toEqual(['Batch 1', 'Batch 2']);
-
-  // zero should clear all batches
-  store.zero();
-  expect(store.batchStatus()).toEqual([]);
-
-  // zero should reset the autoincrement in the batch label
-  store.addBatch();
-  store.addBatch();
-  expect(
-    store
-      .batchStatus()
-      .map((batch) => batch.label)
-      .sort((a, b) => a.localeCompare(b))
-  ).toEqual(['Batch 1', 'Batch 2']);
-});
-
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // starts empty
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
@@ -645,4 +797,143 @@ test('iterating over all result sheets', () => {
     sheetWithFiles[1],
   ]);
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
+});
+
+test('resetElectionSession', () => {
+  const dbFile = tmp.fileSync();
+  const store = Store.fileStore(dbFile.name);
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  store.setPollsState('polls_open');
+  store.setBallotCountWhenBallotBagLastReplaced(1500);
+
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
+
+  store.setScannerBackedUp();
+  store.setCvrsBackedUp();
+
+  store.resetElectionSession();
+  // resetElectionSession should reset election session state
+  expect(store.getPollsState()).toEqual('polls_closed_initial');
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
+  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
+  // resetElectionSession should clear all batches
+  expect(store.batchStatus()).toEqual([]);
+
+  // resetElectionSession should reset the autoincrement in the batch label
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
+});
+
+test('getBallotsCounted', () => {
+  const store = Store.memoryStore();
+
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  };
+
+  expect(store.getBallotsCounted()).toEqual(0);
+
+  // Create a batch and add a sheet to it
+  const batchId = store.addBatch();
+  store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(1);
+  store.finishBatch({ batchId });
+  expect(store.getBallotsCounted()).toEqual(1);
+
+  // Create a second batch and add a second and third sheet
+  const batch2Id = store.addBatch();
+  store.addSheet(uuid(), batch2Id, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(2);
+
+  const sheetId3 = store.addSheet(uuid(), batch2Id, [
+    {
+      originalFilename: '/tmp/front-page3.png',
+      normalizedFilename: '/tmp/front-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page3.png',
+      normalizedFilename: '/tmp/back-normalized-page3.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  expect(store.getBallotsCounted()).toEqual(3);
+  store.finishBatch({ batchId: batch2Id });
+  expect(store.getBallotsCounted()).toEqual(3);
+
+  // Delete one of the sheets
+  store.deleteSheet(sheetId3);
+  expect(store.getBallotsCounted()).toEqual(2);
+
+  // Delete one of the batches
+  store.deleteBatch(batchId);
+  expect(store.getBallotsCounted()).toEqual(1);
 });

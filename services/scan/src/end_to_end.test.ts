@@ -42,27 +42,24 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
-  // Do this first so interpreter workers get initialized with the right value.
+  // try export before configure
   await request(app)
-    .patch('/central-scanner/config/skipElectionHashCheck')
-    .send({ skipElectionHashCheck: true })
-    .set('Content-Type', 'application/json')
+    .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
-
-  {
-    // try export before configure
-    const response = await request(app)
-      .post('/central-scanner/scan/export')
-      .set('Accept', 'application/json')
-      .expect(200);
-    expect(response.text).toBe('');
-  }
+    .expect(400);
 
   await request(app)
     .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
+  // sample ballot election hash does not match election hash for this test
+  await request(app)
+    .patch('/central-scanner/config/skipElectionHashCheck')
+    .send({ skipElectionHashCheck: true })
+    .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 

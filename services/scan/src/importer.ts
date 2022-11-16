@@ -136,14 +136,14 @@ export class Importer {
    * Sets the election information used to encode and decode ballots.
    */
   configure(electionDefinition: ElectionDefinition): void {
-    this.workspace.store.setElection(electionDefinition);
+    this.workspace.store.setElection(electionDefinition.electionData);
     // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode);
-    await this.doZero();
+    this.doZero();
     this.workspace.store.setTestMode(testMode);
     await this.restoreConfig();
   }
@@ -548,9 +548,8 @@ export class Importer {
   /**
    * Reset all the data, both in the store and the ballot images.
    */
-  async doZero(): Promise<void> {
-    this.workspace.zero();
-    await this.setMarkThresholdOverrides(undefined);
+  doZero(): void {
+    this.workspace.resetElectionSession();
   }
 
   /**
@@ -573,9 +572,9 @@ export class Importer {
   /**
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
-  async unconfigure(): Promise<void> {
+  unconfigure(): void {
     this.invalidateInterpreterConfig();
-    await this.doZero();
+    this.doZero();
     this.workspace.store.reset(); // destroy all data
   }
 }
