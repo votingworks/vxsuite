@@ -571,40 +571,55 @@ test('add a CVR file with unhandled validation errors', async () => {
   });
 });
 
-test('get CVR file metadata', async () => {
+test('getCvrFiles', async () => {
+  const { electionDefinition, partial1CvrFile, partial2CvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  const cvrFile =
-    electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
+  const electionId = store.addElection(electionDefinition.electionData);
 
-  expect(
-    store.getCastVoteRecordFileMetadata('not a CVR file ID')
-  ).toBeUndefined();
+  expect(store.getCvrFiles(electionId)).toHaveLength(0);
 
-  const { id } = (
+  const { id: file1Id } = (
     await store.addCastVoteRecordFile({
       electionId,
-      originalFilename: 'cvrs.jsonl',
-      filePath: cvrFile,
+      filePath: partial1CvrFile.asFilePath(),
+      originalFilename: 'cvrs-1.jsonl',
       exportedTimestamp: '2021-09-02T22:27:58.327Z',
     })
   ).unsafeUnwrap();
 
-  const cvrFileMetadata = store.getCastVoteRecordFileMetadata(id);
-  expect(cvrFileMetadata).toEqual(
-    typedAs<Admin.CastVoteRecordFileRecord>({
-      id,
+  const { id: file2Id } = (
+    await store.addCastVoteRecordFile({
       electionId,
-      filename: 'cvrs.jsonl',
-      exportTimestamp: '2021-09-02T22:27:58.327Z',
+      filePath: partial2CvrFile.asFilePath(),
+      originalFilename: 'cvrs-2.jsonl',
+      exportedTimestamp: '2021-10-24T00:30:14.513Z',
+    })
+  ).unsafeUnwrap();
+
+  expect(store.getCvrFiles(electionId)).toEqual<Admin.GetCvrFilesResponse>([
+    {
+      id: file2Id,
+      createdAt: expect.any(String),
+      electionId,
+      exportTimestamp: '2021-10-24T00:30:14.513Z',
+      filename: 'cvrs-2.jsonl',
       precinctIds: ['precinct-1', 'precinct-2'],
       scannerIds: ['scanner-1', 'scanner-2'],
       sha256Hash: expect.any(String),
+    },
+    {
+      id: file1Id,
       createdAt: expect.any(String),
-    })
-  );
+      electionId,
+      exportTimestamp: '2021-09-02T22:27:58.327Z',
+      filename: 'cvrs-1.jsonl',
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['scanner-1', 'scanner-2'],
+      sha256Hash: expect.any(String),
+    },
+  ]);
 });
 
 test('getCvrFileMode returns "unlocked" if no CVRs exist', () => {

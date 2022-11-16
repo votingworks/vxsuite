@@ -633,13 +633,11 @@ export class Store {
     return id;
   }
 
-  getCastVoteRecordFileMetadata(
-    cvrFileId: Id
-  ): Admin.CastVoteRecordFileRecord | undefined {
-    const result = this.client.one(
+  getCvrFiles(electionId: Id): Admin.CastVoteRecordFileRecord[] {
+    const results = this.client.all(
       `
       select
-        election_id as electionId,
+        id,
         filename,
         export_timestamp as exportTimestamp,
         precinct_ids as precinctIds,
@@ -647,35 +645,40 @@ export class Store {
         sha256_hash as sha256Hash,
         created_at as createdAt
       from cvr_files
-      where id = ?
+      where election_id = ?
+      order by export_timestamp desc
     `,
-      cvrFileId
-    ) as
-      | {
-          electionId: Id;
-          filename: string;
-          exportTimestamp: string;
-          precinctIds: string;
-          scannerIds: string;
-          sha256Hash: string;
-          createdAt: string;
-        }
-      | undefined;
+      electionId
+    ) as Array<{
+      id: Id;
+      filename: string;
+      exportTimestamp: string;
+      precinctIds: string;
+      scannerIds: string;
+      sha256Hash: string;
+      createdAt: string;
+    }>;
 
-    if (!result) {
-      return undefined;
-    }
-
-    return safeParse(Admin.CastVoteRecordFileRecordSchema, {
-      id: cvrFileId,
-      electionId: result.electionId,
-      sha256Hash: result.sha256Hash,
-      filename: result.filename,
-      exportTimestamp: convertSqliteTimestampToIso8601(result.exportTimestamp),
-      precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
-      scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
-      createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-    }).unsafeUnwrap();
+    return results
+      .map((result) =>
+        safeParse(Admin.CastVoteRecordFileRecordSchema, {
+          id: result.id,
+          electionId,
+          sha256Hash: result.sha256Hash,
+          filename: result.filename,
+          exportTimestamp: convertSqliteTimestampToIso8601(
+            result.exportTimestamp
+          ),
+          precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
+          scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
+          createdAt: convertSqliteTimestampToIso8601(result.createdAt),
+        }).unsafeUnwrap()
+      )
+      .map<Admin.CastVoteRecordFileRecord>((parsedResult) => ({
+        ...parsedResult,
+        precinctIds: [...parsedResult.precinctIds].sort(),
+        scannerIds: [...parsedResult.scannerIds].sort(),
+      }));
   }
 
   /**
