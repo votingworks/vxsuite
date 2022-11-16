@@ -63,6 +63,12 @@ export interface ResultSheet {
   readonly interpretation: SheetOf<PageInterpretation>;
 }
 
+function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
+  return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
+    zone: 'GMT',
+  });
+}
+
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
@@ -560,21 +566,29 @@ export class Store {
   /**
    * Gets the timestamp for the last scanner backup
    */
-  getScannerBackupTimestamp(): Iso8601Timestamp | undefined {
+  getScannerBackupTimestamp(): DateTime | undefined {
     const row = this.client.one(
       'select scanner_backed_up_at as scannerBackedUpAt from election'
-    ) as { scannerBackedUpAt: Iso8601Timestamp } | undefined;
-    return row?.scannerBackedUpAt;
+    ) as { scannerBackedUpAt: string } | undefined;
+    if (!row?.scannerBackedUpAt) {
+      return undefined;
+    }
+
+    return dateTimeFromNoOffsetSqliteDate(row?.scannerBackedUpAt);
   }
 
   /**
    * Gets the timestamp for the last cvr export
    */
-  getCvrsBackupTimestamp(): Iso8601Timestamp | undefined {
+  getCvrsBackupTimestamp(): DateTime | undefined {
     const row = this.client.one(
       'select cvrs_backed_up_at as cvrsBackedUpAt from election'
-    ) as { cvrsBackedUpAt: Iso8601Timestamp } | undefined;
-    return row?.cvrsBackedUpAt;
+    ) as { cvrsBackedUpAt: string } | undefined;
+    if (!row?.cvrsBackedUpAt) {
+      return undefined;
+    }
+
+    return dateTimeFromNoOffsetSqliteDate(row?.cvrsBackedUpAt);
   }
 
   getBallotsCounted(): number {
@@ -624,8 +638,8 @@ export class Store {
           max(deleted_at) as maxSheetsDeletedAt
         from sheets
       `) as {
-      maxSheetsCreatedAt: Iso8601Timestamp;
-      maxSheetsDeletedAt: Iso8601Timestamp;
+      maxSheetsCreatedAt: string;
+      maxSheetsDeletedAt: string;
     };
 
     // Deleting non-empty batches would have updated the CVR count
@@ -636,18 +650,20 @@ export class Store {
       on sheets.batch_id = batches.id
       where sheets.deleted_at is null
     `) as {
-      maxBatchesDeletedAt: Iso8601Timestamp;
+      maxBatchesDeletedAt: string;
     };
 
-    const cvrsLastUpdatedAt = [
+    const cvrsLastUpdatedDates = [
       maxBatchesDeletedAt,
       maxSheetsCreatedAt,
       maxSheetsDeletedAt,
     ]
       .filter(Boolean)
-      .reduce((max, curr) => (max > curr ? max : curr), '');
+      .map((noOffsetSqliteDate) =>
+        dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate)
+      );
 
-    return scannerBackedUpAt >= cvrsLastUpdatedAt;
+    return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
   }
 
   addBallotCard(batchId: string): string {
