@@ -183,8 +183,8 @@ export class CastVoteRecordFiles {
   }
 
   /**
-   * Parses the CVR files from `files` to determine the number of CVR entries
-   * in the file and the number of those entries that are duplicates.
+   * Parses the filenames for the given CVR {@link files} for information about
+   * the CVRs they contain.
    */
   parseAllFromFileSystemEntries(
     files: KioskBrowser.FileSystemEntry[]
@@ -192,12 +192,12 @@ export class CastVoteRecordFiles {
     const results: CastVoteRecordFilePreprocessedData[] = [];
     for (const file of files) {
       try {
-        const importedFile = [...this.files].find((f) => f.name === file.name);
+        const fileImported = [...this.files].some((f) => f.name === file.name);
         const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
         if (parsedFileInfo) {
           results.push({
             exportTimestamp: parsedFileInfo.timestamp,
-            fileImported: !!importedFile,
+            fileImported,
             cvrCount: parsedFileInfo.numberOfBallots,
             isTestModeResults: parsedFileInfo.isTestModeResults,
             name: file.name,
