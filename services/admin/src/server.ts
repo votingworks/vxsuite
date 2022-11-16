@@ -162,11 +162,29 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
 
         const { analyzeOnly } = parseQueryResult.ok();
 
+        const parseBodyResult = safeParse(
+          Admin.PostCvrFileRequestSchema,
+          request.body
+        );
+        if (parseBodyResult.isErr()) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: 'invalid-request-body',
+                message: parseBodyResult.err().message,
+              },
+            ],
+          });
+          return;
+        }
+
         const result = await store.addCastVoteRecordFile({
           electionId,
           filePath: file.path,
           originalFilename: file.originalname,
           analyzeOnly,
+          exportedTimestamp: parseBodyResult.ok().exportedTimestamp,
         });
 
         if (result.isErr()) {
@@ -184,13 +202,9 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
           return;
         }
 
-        const { id, wasExistingFile, newlyAdded, alreadyPresent } = result.ok();
         const body: Admin.PostCvrFileResponse = {
+          ...result.ok(),
           status: 'ok',
-          id,
-          wasExistingFile,
-          newlyAdded,
-          alreadyPresent,
         };
 
         response.json(body);

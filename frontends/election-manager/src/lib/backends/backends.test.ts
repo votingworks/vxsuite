@@ -122,6 +122,10 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
           wasExistingFile: result.wasExistingFile,
           newlyAdded: result.newlyAdded,
           alreadyPresent: result.alreadyPresent,
+          exportedTimestamp: result.exportedTimestamp,
+          fileMode: result.fileMode,
+          fileName: result.fileName,
+          scannerIds: result.scannerIds,
         }),
       };
     })

@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
+import { Admin } from '@votingworks/api';
 import { usbstick } from '@votingworks/utils';
 import {
   BallotIdSchema,
@@ -102,6 +103,11 @@ describe('Screens display properly when USB is mounted', () => {
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
+      exportedTimestamp: new Date().toISOString(),
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrs.jsonl',
+      id: 'cvr-file-1',
+      scannerIds: ['scanner-2', 'scanner-3'],
     });
 
     // You can still manually load files
@@ -186,6 +192,11 @@ describe('Screens display properly when USB is mounted', () => {
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
+      exportedTimestamp: new Date().toISOString(),
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrs.jsonl',
+      id: 'cvr-file-1',
+      scannerIds: ['scanner-2', 'scanner-3'],
     });
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     await screen.findByText('Loading');
@@ -290,6 +301,11 @@ describe('Screens display properly when USB is mounted', () => {
       wasExistingFile: true,
       newlyAdded: 0,
       alreadyPresent: 0,
+      exportedTimestamp: new Date().toISOString(),
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrs.jsonl',
+      id: 'cvr-file-1',
+      scannerIds: ['scanner-2', 'scanner-3'],
     });
     fireEvent.click(domGetByText(tableRows[1], 'Load'));
     await screen.findByText('Loading');
@@ -378,6 +394,11 @@ describe('Screens display properly when USB is mounted', () => {
       wasExistingFile: false,
       newlyAdded: 0,
       alreadyPresent: 0,
+      exportedTimestamp: new Date().toISOString(),
+      fileMode: Admin.CvrFileMode.Test,
+      fileName: 'cvrs.jsonl',
+      id: 'cvr-file-1',
+      scannerIds: ['scanner-2', 'scanner-3'],
     });
     expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
       false

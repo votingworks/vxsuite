@@ -1,8 +1,8 @@
 import { QueryKey, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { Admin } from '@votingworks/api';
 import { useContext } from 'react';
 
 import { ServicesContext } from '../contexts/services_context';
-import { AddCastVoteRecordFileResult } from '../lib/backends';
 
 /** Gets the query key for the CVR file analysis query. */
 export function getCvrFileAnalysisQueryKey(cvrFile: File): QueryKey {
@@ -12,7 +12,7 @@ export function getCvrFileAnalysisQueryKey(cvrFile: File): QueryKey {
 /** Returns a query for an analysis of the given CVR file. */
 export function useCvrFileAnalysisQuery(
   cvrFile: File
-): UseQueryResult<AddCastVoteRecordFileResult> {
+): UseQueryResult<Admin.CvrFileImportInfo> {
   const { backend } = useContext(ServicesContext);
 
   return useQuery(getCvrFileAnalysisQueryKey(cvrFile), () =>

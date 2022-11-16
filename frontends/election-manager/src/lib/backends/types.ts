@@ -50,7 +50,7 @@ export interface ElectionManagerStoreBackend {
   addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }
-  ): Promise<AddCastVoteRecordFileResult>;
+  ): Promise<Admin.CvrFileImportInfo>;
 
   /**
    * Resets all cast vote record files.

@@ -5,8 +5,9 @@ import {
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
-import { MemoryStorage, typedAs } from '@votingworks/utils';
+import { assert, MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
+import moment from 'moment';
 import {
   currentElectionIdStorageKey,
   ElectionManagerStoreAdminBackend,
@@ -145,24 +146,112 @@ test('addCastVoteRecordFile happy path', async () => {
   await storage.set(currentElectionIdStorageKey, 'test-election-2');
   fetchMock.get('/admin/elections', { body: getElectionsResponse });
 
+  const exportedTimestamp = '2021-09-02T22:27:58.327Z';
   const apiResponse: Admin.PostCvrFileResponse = {
     status: 'ok',
     id: 'cvr-file-1',
     alreadyPresent: 10,
+    exportedTimestamp,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
     newlyAdded: 450,
+    scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   };
-  fetchMock.post(`/admin/elections/test-election-2/cvr-files?`, apiResponse);
+  fetchMock.post(
+    '/admin/elections/test-election-2/cvr-files?',
+    (_url, mockRequest) => {
+      assert(mockRequest.body instanceof FormData);
+
+      const formData: FormData = mockRequest.body;
+      expect(formData.get('exportedTimestamp')).toBe(exportedTimestamp);
+
+      return apiResponse;
+    }
+  );
 
   await expect(backend.loadCastVoteRecordFiles()).resolves.toBeUndefined();
 
   await expect(
     backend.addCastVoteRecordFile(
-      new File([partial1CvrFile.asBuffer()], 'cvrs.jsonl')
+      new File([partial1CvrFile.asBuffer()], 'cvrs.jsonl', {
+        lastModified: new Date(exportedTimestamp).valueOf(),
+      })
     )
-  ).resolves.toEqual({
+  ).resolves.toEqual<Admin.CvrFileImportInfo>({
     alreadyPresent: 10,
+    exportedTimestamp,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    id: 'cvr-file-1',
     newlyAdded: 450,
+    scannerIds: ['scanner-4', 'scanner-6'],
+    wasExistingFile: false,
+  });
+
+  const cvrFilesFromStorage = await backend.loadCastVoteRecordFiles();
+  expect(cvrFilesFromStorage).not.toBeUndefined();
+  expect(cvrFilesFromStorage?.fileList.length).toBeGreaterThan(0);
+});
+
+test('addCastVoteRecordFile prioritizes export timestamp in filename', async () => {
+  const { partial1CvrFile } = electionMinimalExhaustiveSampleFixtures;
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+  const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
+
+  await storage.set(currentElectionIdStorageKey, 'test-election-2');
+  fetchMock.get('/admin/elections', { body: getElectionsResponse });
+
+  const timestampFromFileInfo = '2022-01-01T00:00:00.000Z';
+  const timestampFromFilename = '2021-09-12_08-11-25';
+  const vxFormattedFilename = `TEST__machine_0000__1_ballots__${timestampFromFilename}`;
+  const timestampFromFilenameIsoString = moment(
+    timestampFromFilename,
+    'YYYY-MM-DD_HH-mm-ss'
+  )
+    .toDate()
+    .toISOString();
+
+  const apiResponse: Admin.PostCvrFileResponse = {
+    status: 'ok',
+    id: 'cvr-file-1',
+    alreadyPresent: 10,
+    exportedTimestamp: timestampFromFilenameIsoString,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: vxFormattedFilename,
+    newlyAdded: 450,
+    scannerIds: ['scanner-4', 'scanner-6'],
+    wasExistingFile: false,
+  };
+  fetchMock.post(
+    '/admin/elections/test-election-2/cvr-files?',
+    (_url, mockRequest) => {
+      assert(mockRequest.body instanceof FormData);
+
+      const formData: FormData = mockRequest.body;
+      expect(formData.get('exportedTimestamp')).toBe(
+        timestampFromFilenameIsoString
+      );
+
+      return apiResponse;
+    }
+  );
+
+  await expect(
+    backend.addCastVoteRecordFile(
+      new File([partial1CvrFile.asBuffer()], vxFormattedFilename, {
+        lastModified: new Date(timestampFromFileInfo).valueOf(),
+      })
+    )
+  ).resolves.toEqual<Admin.CvrFileImportInfo>({
+    alreadyPresent: 10,
+    exportedTimestamp: timestampFromFilenameIsoString,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: vxFormattedFilename,
+    id: 'cvr-file-1',
+    newlyAdded: 450,
+    scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   });
 
@@ -179,11 +268,16 @@ test('addCastVoteRecordFile analyze only', async () => {
 
   await storage.set(currentElectionIdStorageKey, 'test-election-2');
 
+  const exportedTimestamp = '2021-09-02T22:27:58.327Z';
   const apiResponse: Admin.PostCvrFileResponse = {
     status: 'ok',
     id: 'cvr-file-1',
     alreadyPresent: 10,
+    exportedTimestamp,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
     newlyAdded: 450,
+    scannerIds: ['scanner-2', 'scanner-3'],
     wasExistingFile: false,
   };
   fetchMock.post(
@@ -198,9 +292,14 @@ test('addCastVoteRecordFile analyze only', async () => {
       new File([partial1CvrFile.asBuffer()], 'cvrs.jsonl'),
       { analyzeOnly: true }
     )
-  ).resolves.toEqual({
+  ).resolves.toEqual<Admin.CvrFileImportInfo>({
     alreadyPresent: 10,
+    exportedTimestamp,
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    id: 'cvr-file-1',
     newlyAdded: 450,
+    scannerIds: ['scanner-2', 'scanner-3'],
     wasExistingFile: false,
   });
 

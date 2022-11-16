@@ -69,13 +69,18 @@ test('add a CVR file', async () => {
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
+        exportedTimestamp: '2021-09-02T22:27:58.327Z',
       })
     ).unsafeUnwrap()
-  ).toEqual({
+  ).toEqual<Admin.CvrFileImportInfo>({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 3000,
     alreadyPresent: 0,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
 
   const writeInCount = (await fs.readFile(cvrFile, 'utf-8'))
@@ -111,13 +116,18 @@ test('add a CVR file with empty lines', async () => {
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
+        exportedTimestamp: '2021-09-02T22:27:58.327Z',
       })
     ).unsafeUnwrap()
-  ).toEqual({
+  ).toEqual<Admin.CvrFileImportInfo>({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 3000,
     alreadyPresent: 0,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
 
   const writeInCount = (await fs.readFile(cvrFile, 'utf-8'))
@@ -144,22 +154,40 @@ test('add a duplicate CVR file', async () => {
   const cvrFile =
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   const originalResult = (
-    await store.addCastVoteRecordFile({ electionId, filePath: cvrFile })
+    await store.addCastVoteRecordFile({
+      electionId,
+      filePath: cvrFile,
+      originalFilename: 'cvrs.jsonl',
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    })
   ).unsafeUnwrap();
-  expect(originalResult).toEqual({
+  expect(originalResult).toEqual<Admin.CvrFileImportInfo>({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 3000,
     alreadyPresent: 0,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
   const duplicateResult = (
-    await store.addCastVoteRecordFile({ electionId, filePath: cvrFile })
+    await store.addCastVoteRecordFile({
+      electionId,
+      filePath: cvrFile,
+      originalFilename: 'cvrs.jsonl',
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    })
   ).unsafeUnwrap();
-  expect(duplicateResult).toEqual({
+  expect(duplicateResult).toEqual<Admin.CvrFileImportInfo>({
     id: originalResult.id,
     wasExistingFile: true,
     newlyAdded: 0,
     alreadyPresent: 3000,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: [],
   });
 });
 
@@ -173,22 +201,40 @@ test('partially duplicate CVR files', async () => {
   const partial2CvrFile =
     electionMinimalExhaustiveSampleFixtures.partial2CvrFile.asFilePath();
   const addPartial1Result = (
-    await store.addCastVoteRecordFile({ electionId, filePath: partial1CvrFile })
+    await store.addCastVoteRecordFile({
+      electionId,
+      filePath: partial1CvrFile,
+      originalFilename: 'cvrs.jsonl',
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    })
   ).unsafeUnwrap();
-  expect(addPartial1Result).toEqual({
+  expect(addPartial1Result).toEqual<Admin.CvrFileImportInfo>({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 101,
     alreadyPresent: 0,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
   const addPartial2Result = (
-    await store.addCastVoteRecordFile({ electionId, filePath: partial2CvrFile })
+    await store.addCastVoteRecordFile({
+      electionId,
+      filePath: partial2CvrFile,
+      originalFilename: 'cvrs-2.jsonl',
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    })
   ).unsafeUnwrap();
-  expect(addPartial2Result).toEqual({
+  expect(addPartial2Result).toEqual<Admin.CvrFileImportInfo>({
     id: expect.stringMatching(/^[-0-9a-f]+$/),
     wasExistingFile: false,
     newlyAdded: 20,
     alreadyPresent: 21,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs-2.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
 
   const partial1WriteInCount = 42;
@@ -213,13 +259,19 @@ test('analyze a CVR file', async () => {
         electionId,
         filePath: cvrFile,
         analyzeOnly: true,
+        originalFilename: 'cvrs.jsonl',
+        exportedTimestamp: '2021-09-02T22:27:58.327Z',
       })
     ).unsafeUnwrap()
-  ).toEqual({
+  ).toEqual<Admin.CvrFileImportInfo>({
     id: expect.any(String),
     wasExistingFile: false,
     newlyAdded: 3000,
     alreadyPresent: 0,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+    fileMode: Admin.CvrFileMode.Test,
+    fileName: 'cvrs.jsonl',
+    scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
 
   // analyzing does not add to the store
@@ -244,6 +296,7 @@ test('adding a CVR file if adding an entry fails', async () => {
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
+        exportedTimestamp: '2021-09-02T22:27:58.327Z',
       })
     ).unsafeUnwrap()
   ).rejects.toThrowError('oops');
@@ -267,6 +320,7 @@ test('add a CVR file entry without a ballot ID', async () => {
     electionId,
     originalFilename: 'cvrs.jsonl',
     filePath: tmpfile.name,
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.unsafeUnwrapErr()).toEqual(
@@ -284,6 +338,8 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
   await store.addCastVoteRecordFile({
     electionId,
     filePath: standardCvrFile.asFilePath(),
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   // Create modified CVR file with ballot data changed slightly:
@@ -296,6 +352,8 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
   const result = await store.addCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toMatchObject({
@@ -316,6 +374,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
     electionId,
     filePath: standardCvrFile.asFilePath(),
     originalFilename: 'test-cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   const liveCvr: CastVoteRecord = {
@@ -334,6 +393,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'live-cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toEqual({
@@ -354,6 +414,7 @@ test('add a test CVR file after adding a live CVR file', async () => {
     electionId,
     filePath: standardLiveCvrFile.asFilePath(),
     originalFilename: 'live-cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   const testCvr: CastVoteRecord = {
@@ -372,6 +433,7 @@ test('add a test CVR file after adding a live CVR file', async () => {
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'test-cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toEqual({
@@ -400,6 +462,7 @@ test('add a CVR file with mixed live and test CVRs', async () => {
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'mixed-cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toEqual({
@@ -421,6 +484,8 @@ test('add a CVR file with an invalid election id', async () => {
   const result = await store.addCastVoteRecordFile({
     electionId: 'not-a-real-election-id',
     filePath: cvrFile.asFilePath(),
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toEqual({ kind: 'InvalidElectionId' });
@@ -437,6 +502,8 @@ test('add a CVR file with mismatched election details', async () => {
   const result = await store.addCastVoteRecordFile({
     electionId,
     filePath: cvrFile.asFilePath(),
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toMatchObject({
@@ -462,6 +529,8 @@ test('add a CVR file with an invalid vote', async () => {
   const result = await store.addCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.err()).toMatchObject({
@@ -489,6 +558,8 @@ test('add a CVR file with unhandled validation errors', async () => {
   const result = await store.addCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
+    originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(result.isErr()).toBe(true);
@@ -517,6 +588,7 @@ test('get CVR file metadata', async () => {
       electionId,
       originalFilename: 'cvrs.jsonl',
       filePath: cvrFile,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
     })
   ).unsafeUnwrap();
 
@@ -557,6 +629,7 @@ test('getCvrFileMode returns "test" if test CVRs previously imported', async () 
     filePath:
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath(),
     originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
@@ -575,6 +648,7 @@ test('getCvrFileMode returns "live" if official CVRs previously imported', async
     filePath:
       electionMinimalExhaustiveSampleFixtures.standardLiveCvrFile.asFilePath(),
     originalFilename: 'cvrs.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
   expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
@@ -600,6 +674,7 @@ test('get write-in adjudication records', async () => {
       originalFilename: 'cvrs.jsonl',
       // add the first two CVRs, which do not have write-ins
       filePath: tmpfile.name,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
     })
   ).unsafeUnwrap();
 
@@ -710,6 +785,7 @@ test('write-in adjudication lifecycle', async () => {
       electionId,
       originalFilename: 'cvrs.jsonl',
       filePath: tmpfile.name,
+      exportedTimestamp: '2021-09-02T22:27:58.327Z',
     })
   ).unsafeUnwrap();
 

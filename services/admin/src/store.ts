@@ -26,7 +26,7 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import * as fs from 'fs';
-import { basename, join } from 'path';
+import { join } from 'path';
 import * as readline from 'readline';
 import { v4 as uuid } from 'uuid';
 import { getWriteInsFromCastVoteRecord } from './util/cvrs';
@@ -81,15 +81,7 @@ export type AddCastVoteRecordError = {
     }
 );
 
-type AddCastVoteResult = Result<
-  {
-    id: Id;
-    wasExistingFile: boolean;
-    newlyAdded: number;
-    alreadyPresent: number;
-  },
-  AddCastVoteRecordError
->;
+type AddCvrFileResult = Result<Admin.CvrFileImportInfo, AddCastVoteRecordError>;
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -272,12 +264,14 @@ export class Store {
     filePath,
     originalFilename,
     analyzeOnly,
+    exportedTimestamp,
   }: {
     electionId: Id;
     filePath: string;
-    originalFilename?: string;
+    originalFilename: string;
     analyzeOnly?: boolean;
-  }): Promise<AddCastVoteResult> {
+    exportedTimestamp: Iso8601Timestamp;
+  }): Promise<AddCvrFileResult> {
     const election = this.getElection(electionId)?.electionDefinition.election;
     if (!election) {
       return err({ kind: 'InvalidElectionId' });
@@ -285,10 +279,15 @@ export class Store {
 
     const sha256Hash = await sha256File(filePath);
 
-    const transactionFn = async (): Promise<AddCastVoteResult> => {
+    const transactionFn = async (): Promise<AddCvrFileResult> => {
       let id = uuid();
       let newlyAdded = 0;
       let alreadyPresent = 0;
+
+      const currentCvrFileMode =
+        this.getCurrentCvrFileModeForElection(electionId);
+      let newCvrFileMode: Admin.CvrFileMode;
+      const scannerIds = new Set<string>();
 
       const existing = this.client.one(
         `
@@ -313,7 +312,11 @@ export class Store {
           ) as { alreadyPresent: number }
         ).alreadyPresent;
         id = existing.id;
+        newCvrFileMode = currentCvrFileMode;
       } else {
+        // TODO(https://github.com/votingworks/vxsuite/issues/2716): store the
+        // export timestamp and scanner IDs as well and expose in the read path,
+        // since they're needed client-side.
         this.client.run(
           `
             insert into cvr_files (
@@ -327,14 +330,11 @@ export class Store {
           `,
           id,
           electionId,
-          originalFilename ?? basename(filePath),
+          originalFilename,
           sha256Hash
         );
 
         const lines = readline.createInterface(fs.createReadStream(filePath));
-
-        const currentCvrFileMode =
-          this.getCurrentCvrFileModeForElection(electionId);
         let containsTestBallots = false;
         let containsLiveBallots = false;
 
@@ -378,6 +378,8 @@ export class Store {
             return result;
           }
 
+          scannerIds.add(cvr._scannerId);
+
           this.addWriteInsFromCvr(result.ok().id, cvr);
 
           if (result.ok().isNew) {
@@ -387,19 +389,19 @@ export class Store {
           }
         }
 
+        newCvrFileMode = containsLiveBallots
+          ? Admin.CvrFileMode.Official
+          : Admin.CvrFileMode.Test;
+
         // Ensure CVR mode matches previous file imports, if any:
         if (
-          (currentCvrFileMode === Admin.CvrFileMode.Test &&
-            containsLiveBallots) ||
-          (currentCvrFileMode === Admin.CvrFileMode.Official &&
-            containsTestBallots)
+          currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
+          newCvrFileMode !== currentCvrFileMode
         ) {
           return err({
             kind: 'InvalidCvrFileMode',
             userFriendlyMessage:
-              `this file contains ${
-                containsLiveBallots ? 'live' : 'test'
-              } ballots, ` +
+              `this file contains ${newCvrFileMode} ballots, ` +
               `but you are currently in ${currentCvrFileMode} mode`,
           });
         }
@@ -407,13 +409,17 @@ export class Store {
 
       return ok({
         id,
-        wasExistingFile: !!existing,
-        newlyAdded,
         alreadyPresent,
+        exportedTimestamp,
+        fileMode: newCvrFileMode,
+        fileName: originalFilename,
+        newlyAdded,
+        scannerIds: [...scannerIds],
+        wasExistingFile: !!existing,
       });
     };
 
-    function shouldCommit(result: AddCastVoteResult): boolean {
+    function shouldCommit(result: AddCvrFileResult): boolean {
       if (analyzeOnly) {
         return false;
       }
