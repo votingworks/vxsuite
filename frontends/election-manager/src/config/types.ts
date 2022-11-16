@@ -135,13 +135,12 @@ export interface CastVoteRecordFile {
 }
 export interface CastVoteRecordFilePreprocessedData {
   readonly name: string;
-  readonly newCvrCount: number;
-  readonly importedCvrCount: number;
+  readonly path: string;
+  readonly cvrCount: number;
   readonly scannerIds: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
   readonly fileImported: boolean;
-  readonly fileContent: string;
 }
 
 export type VoteCounts = Dictionary<Dictionary<number>>;

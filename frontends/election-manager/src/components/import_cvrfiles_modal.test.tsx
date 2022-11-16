@@ -173,7 +173,6 @@ describe('Screens display properly when USB is mounted', () => {
     expect(domGetByText(tableRows[2], 'Load').closest('button')!.disabled).toBe(
       false
     );
-    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'election_manager',
@@ -189,85 +188,15 @@ describe('Screens display properly when USB is mounted', () => {
       alreadyPresent: 0,
     });
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
-    getByText('Loading');
+    await screen.findByText('Loading');
     await waitFor(() => {
       expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
-      // We should not need to read the file another time since it was already read.
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
+      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
       getByText('0 new CVRs Loaded');
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrLoaded,
         'election_manager',
         expect.objectContaining({ disposition: 'success' })
-      );
-    });
-  });
-
-  test('Can handle errors appropriately', async () => {
-    const closeFn = jest.fn();
-    const logger = fakeLogger();
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-        path: 'live1',
-      },
-      {
-        name: TEST_FILE1,
-        type: 1,
-        path: 'test1',
-      },
-      {
-        name: TEST_FILE2,
-        type: 1,
-        path: 'test2',
-      },
-    ];
-    window.kiosk!.getFileSystemEntries = jest
-      .fn()
-      .mockResolvedValue(fileEntries);
-    window.kiosk!.readFile = jest
-      .fn()
-      .mockResolvedValueOnce('invalid-file-contents');
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
-    });
-    const { getByText, getByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDriveStatus: UsbDriveStatus.mounted,
-        logger,
-        backend,
-      }
-    );
-    await screen.findByText('Load CVR Files');
-    // If the files can not be parsed properly they are not automatically shown to load.
-    getByText(
-      /There were no new CVR files automatically found on this USB drive./
-    );
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.CvrFilesReadFromUsb,
-      'election_manager',
-      expect.objectContaining({ disposition: 'success' })
-    );
-    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
-
-    jest
-      .spyOn(backend, 'addCastVoteRecordFile')
-      .mockRejectedValueOnce(new Error('test error'));
-    fireEvent.change(getByTestId('manual-input'), {
-      target: { files: [new File(['invalid-file-contents'], 'file.jsonl')] },
-    });
-    getByText('Loading');
-    await waitFor(() => {
-      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
-      // There should be an error loading the file.
-      getByText('Error');
-      getByText(/There was an error reading the content of the file/);
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrLoaded,
-        'election_manager',
-        expect.objectContaining({ disposition: 'failure' })
       );
     });
   });
@@ -342,29 +271,18 @@ describe('Screens display properly when USB is mounted', () => {
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(2);
     domGetByText(tableRows[0], '12/09/2020 03:49:32 PM');
-    domGetByText(tableRows[0], 'abc');
+    domGetByText(tableRows[0], '0001');
     expect(
       domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
     ).toBe(true);
-    expect(domGetByTestId(tableRows[0], 'new-cvr-count')).toHaveTextContent(
-      '0'
-    );
-    expect(
-      domGetByTestId(tableRows[0], 'imported-cvr-count')
-    ).toHaveTextContent('1');
+    expect(domGetByTestId(tableRows[0], 'cvr-count')).toHaveTextContent('0');
     domGetByText(tableRows[1], '12/07/2020 03:49:32 PM');
-    domGetByText(tableRows[1], 'abc');
-    expect(domGetByTestId(tableRows[1], 'new-cvr-count')).toHaveTextContent(
-      '0'
-    );
-    expect(
-      domGetByTestId(tableRows[1], 'imported-cvr-count')
-    ).toHaveTextContent('1');
+    domGetByText(tableRows[1], '0003');
+    expect(domGetByTestId(tableRows[1], 'cvr-count')).toHaveTextContent('5');
     expect(domGetByText(tableRows[1], 'Load').closest('button')!.disabled).toBe(
       false
     );
 
-    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(2);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
@@ -374,7 +292,7 @@ describe('Screens display properly when USB is mounted', () => {
       alreadyPresent: 0,
     });
     fireEvent.click(domGetByText(tableRows[1], 'Load'));
-    getByText('Loading');
+    await screen.findByText('Loading');
     await waitFor(() => {
       expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       // There should be a message about loading a duplicate file displayed.
@@ -418,7 +336,7 @@ describe('Screens display properly when USB is mounted', () => {
       _ballotType: 'standard',
       _precinctId: '6522',
       _testBallot: false,
-      _scannerId: 'abc',
+      _scannerId: '0002',
       _batchId: 'batch-1',
       _batchLabel: 'Batch 1',
     };
@@ -465,12 +383,11 @@ describe('Screens display properly when USB is mounted', () => {
       false
     );
 
-    expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
-    getByText('Loading');
+    await screen.findByText('Loading');
     await waitFor(() => {
       expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
       getByText('0 new CVRs Loaded');
@@ -524,7 +441,7 @@ describe('Screens display properly when USB is mounted', () => {
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
-    domGetByText(tableRows[0], 'abc');
+    domGetByText(tableRows[0], '0002');
     expect(
       domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
     ).toBe(true);

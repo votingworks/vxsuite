@@ -143,7 +143,14 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   async function importSelectedFile(
     fileData: CastVoteRecordFilePreprocessedData
   ) {
-    await importCvrFile(new File([fileData.fileContent], fileData.name));
+    assert(window.kiosk);
+    // TODO: To avoid unnecessarily loading potentially large CVR files into
+    // memory, we might want to add a file streaming API to kiosk-browser, or
+    // update the backend API to support importing files with just a file path
+    // instead of file attachments.
+    const fileContent = await window.kiosk.readFile(fileData.path, 'utf-8');
+
+    await importCvrFile(new File([fileContent], fileData.name));
   }
 
   const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
@@ -178,14 +185,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (f) => f.type === 1 && f.name.endsWith('.jsonl')
       );
       assert(electionDefinition !== undefined);
-      const parsedFileInformation = (
-        await castVoteRecordFiles.parseAllFromFileSystemEntries(
-          newFoundFiles,
-          electionDefinition.election
-        )
-      ).sort(
-        (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
-      );
+      const parsedFileInformation = castVoteRecordFiles
+        .parseAllFromFileSystemEntries(newFoundFiles)
+        .sort(
+          (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
+        );
       setFoundFiles(parsedFileInformation);
       await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
         message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to load.`,
@@ -348,8 +352,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         isTestModeResults,
         scannerIds,
         exportTimestamp,
-        newCvrCount,
-        importedCvrCount,
+        cvrCount,
         name,
         fileImported,
       } = file;
@@ -362,8 +365,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         <tr key={name} data-testid="table-row">
           <td>{moment(exportTimestamp).format(TIME_FORMAT)}</td>
           <td>{scannerIds.join(', ')}</td>
-          <td data-testid="new-cvr-count">{newCvrCount}</td>
-          <td data-testid="imported-cvr-count">{importedCvrCount}</td>
+          <td data-testid="cvr-count">{cvrCount}</td>
           {!fileModeLocked && (
             <td>
               <LabelText>
@@ -440,8 +442,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
                   <tr>
                     <th>Saved At</th>
                     <th>Scanner ID</th>
-                    <th>New CVRs</th>
-                    <th>Loaded CVRs</th>
+                    <th>CVR Count</th>
                     {!fileModeLocked && <th>Ballot Type</th>}
                     <th />
                   </tr>

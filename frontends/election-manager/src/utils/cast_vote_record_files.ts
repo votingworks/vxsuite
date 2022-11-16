@@ -183,41 +183,27 @@ export class CastVoteRecordFiles {
   }
 
   /**
-   * Parses the CVR files from `files` to determine the number of CVR entries
-   * in the file and the number of those entries that are duplicates.
+   * Parses the filenames for the given CVR {@link files} for information about
+   * the CVRs they contain.
    */
-  async parseAllFromFileSystemEntries(
-    files: KioskBrowser.FileSystemEntry[],
-    election: Election
-  ): Promise<CastVoteRecordFilePreprocessedData[]> {
+  parseAllFromFileSystemEntries(
+    files: KioskBrowser.FileSystemEntry[]
+  ): CastVoteRecordFilePreprocessedData[] {
     const results: CastVoteRecordFilePreprocessedData[] = [];
     for (const file of files) {
       try {
-        const importedFile = [...this.files].find((f) => f.name === file.name);
-        if (importedFile) {
+        const fileImported = [...this.files].some((f) => f.name === file.name);
+        const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
+        if (parsedFileInfo) {
           results.push({
-            fileImported: true,
-            newCvrCount: 0,
-            importedCvrCount: importedFile.importedCvrCount,
-            scannerIds: importedFile.scannerIds,
-            exportTimestamp: importedFile.exportTimestamp,
-            isTestModeResults:
-              !!importedFile.allCastVoteRecords[0]?._testBallot,
-            fileContent: '',
+            exportTimestamp: parsedFileInfo.timestamp,
+            fileImported,
+            cvrCount: parsedFileInfo.numberOfBallots,
+            isTestModeResults: parsedFileInfo.isTestModeResults,
             name: file.name,
+            path: file.path,
+            scannerIds: [parsedFileInfo.machineId],
           });
-        } else {
-          assert(window.kiosk);
-          const fileContent = await window.kiosk.readFile(file.path, 'utf-8');
-          const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
-          const parsedFile = this.parseFromFileContent(
-            fileContent,
-            file.name,
-            parsedFileInfo?.timestamp || new Date(file.mtime),
-            parsedFileInfo?.machineId || '',
-            election
-          );
-          results.push(parsedFile);
         }
       } catch (error) {
         // The file isn't able to be read or isn't a valid CVR file for loading and could not be processed.
@@ -254,53 +240,6 @@ export class CastVoteRecordFiles {
         this.deduplicatedCastVoteRecords
       );
     }
-  }
-
-  private parseFromFileContent(
-    fileContent: string,
-    fileName: string,
-    exportTimestamp: Date,
-    scannerId: string,
-    election: Election
-  ): CastVoteRecordFilePreprocessedData {
-    const fileCastVoteRecords: CastVoteRecord[] = [];
-    let testBallotSeen = false;
-    let liveBallotSeen = false;
-
-    for (const { cvr } of parseCvrs(fileContent, election)) {
-      fileCastVoteRecords.push(cvr);
-      if (cvr._testBallot) {
-        testBallotSeen = true;
-      } else {
-        liveBallotSeen = true;
-      }
-      if (testBallotSeen && liveBallotSeen) {
-        throw new Error(
-          'These CVRs cannot be tabulated together because they mix live and test ballots'
-        );
-      }
-    }
-
-    const scannerIds = arrayUnique(
-      fileCastVoteRecords.map((cvr) => cvr._scannerId)
-    );
-
-    const [
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      deduplicatedCastVoteRecords,
-      duplicateCount,
-    ] = this.addUniqueCastVoteRecordsToCurrentCollection(fileCastVoteRecords);
-
-    return {
-      name: fileName,
-      newCvrCount: fileCastVoteRecords.length - duplicateCount,
-      importedCvrCount: duplicateCount,
-      scannerIds: scannerIds.length > 0 ? scannerIds : [scannerId],
-      exportTimestamp,
-      isTestModeResults: testBallotSeen,
-      fileContent,
-      fileImported: false,
-    };
   }
 
   private addFromFileContent(
