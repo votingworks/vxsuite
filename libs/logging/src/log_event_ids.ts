@@ -104,8 +104,8 @@ export enum LogEventId {
   RebootMachine = 'reboot-machine',
   // Precinct Machine (VxMark + VxScan) State
   PollsOpened = 'polls-opened',
-  PollsPaused = 'polls-paused',
-  PollsUnpaused = 'polls-unpaused',
+  VotingPaused = 'voting-paused',
+  VotingResumed = 'voting-resumed',
   PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
   BallotBagReplaced = 'ballot-bag-replaced',
@@ -750,20 +750,20 @@ const PollsOpened: LogDetails = {
   ],
 };
 
-const PollsPaused: LogDetails = {
-  eventId: LogEventId.PollsPaused,
+const VotingPaused: LogDetails = {
+  eventId: LogEventId.VotingPaused,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'User has paused the polls.',
+  documentationMessage: 'User has paused voting and polls are now paused.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
 
-const PollsUnpaused: LogDetails = {
-  eventId: LogEventId.PollsUnpaused,
+const VotingResumed: LogDetails = {
+  eventId: LogEventId.VotingResumed,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'User has unpaused the polls.',
+  documentationMessage: 'User has resumed voting and polls are now open.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
     LogSource.VxPrecinctScanFrontend,
@@ -1009,10 +1009,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return RebootMachine;
     case LogEventId.PollsOpened:
       return PollsOpened;
-    case LogEventId.PollsPaused:
-      return PollsPaused;
-    case LogEventId.PollsUnpaused:
-      return PollsUnpaused;
+    case LogEventId.VotingPaused:
+      return VotingPaused;
+    case LogEventId.VotingResumed:
+      return VotingResumed;
     case LogEventId.PollsClosed:
       return PollsClosed;
     case LogEventId.ResetPollsToPaused:

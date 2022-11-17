@@ -338,13 +338,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has opened the polls.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
-### polls-paused
+### voting-paused
 **Type:** [user-action](#user-action)  
-**Description:** User has paused the polls.  
+**Description:** User has paused voting and polls are now paused.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
-### polls-unpaused
+### voting-resumed
 **Type:** [user-action](#user-action)  
-**Description:** User has unpaused the polls.  
+**Description:** User has resumed voting and polls are now open.  
 **Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
 ### polls-closed
 **Type:** [user-action](#user-action)  

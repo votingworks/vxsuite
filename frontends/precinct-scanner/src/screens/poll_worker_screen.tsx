@@ -28,7 +28,6 @@ import {
   throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
-  getPollsTransitionAction,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -361,12 +360,12 @@ export function PollWorkerScreen({
     return transitionPolls('close_polls');
   }
 
-  function pausePolls() {
-    return transitionPolls('pause_polls');
+  function pauseVoting() {
+    return transitionPolls('pause_voting');
   }
 
-  function unpausePolls() {
-    return transitionPolls('unpause_polls');
+  function resumeVoting() {
+    return transitionPolls('resume_voting');
   }
 
   async function reprintReport() {
@@ -394,17 +393,20 @@ export function PollWorkerScreen({
 
   if (pollWorkerFlowState === 'open_polls_prompt') {
     const pollsTransition: PollsTransition =
-      pollsState === 'polls_closed_initial' ? 'open_polls' : 'unpause_polls';
+      pollsState === 'polls_closed_initial' ? 'open_polls' : 'resume_voting';
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <p>
-            Do you want to{' '}
-            {getPollsTransitionAction(pollsTransition).toLowerCase()} the polls?
+            {pollsTransition === 'open_polls'
+              ? 'Do you want to open the polls?'
+              : 'Do you want to resume voting?'}
           </p>
           <p>
             <Button primary onPress={() => transitionPolls(pollsTransition)}>
-              Yes, {getPollsTransitionAction(pollsTransition)} the Polls
+              {pollsTransition === 'open_polls'
+                ? 'Yes, Open the Polls'
+                : 'Yes, Resume Voting'}
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
           </p>
@@ -437,10 +439,10 @@ export function PollWorkerScreen({
           return 'Closing Polls…';
         case 'open_polls':
           return 'Opening Polls…';
-        case 'pause_polls':
-          return 'Pausing Polls…';
-        case 'unpause_polls':
-          return 'Reopening Polls…';
+        case 'pause_voting':
+          return 'Pausing Voting…';
+        case 'resume_voting':
+          return 'Resuming Voting…';
         /* istanbul ignore next - compile-time check for completeness */
         default:
           throwIllegalValue(currentPollsTransition);
@@ -465,10 +467,10 @@ export function PollWorkerScreen({
           return 'Polls are closed.';
         case 'open_polls':
           return 'Polls are open.';
-        case 'unpause_polls':
-          return 'Polls are open.';
-        case 'pause_polls':
-          return 'Polls are paused.';
+        case 'resume_voting':
+          return 'Voting resumed.';
+        case 'pause_voting':
+          return 'Voting paused.';
         /* istanbul ignore next - compile-time check for completeness */
         default:
           throwIllegalValue(currentPollsTransition);
@@ -531,8 +533,8 @@ export function PollWorkerScreen({
               </Button>
             </p>
             <p>
-              <Button large onPress={pausePolls}>
-                Pause Polls
+              <Button large onPress={pauseVoting}>
+                Pause Voting
               </Button>
             </p>
           </React.Fragment>
@@ -540,10 +542,10 @@ export function PollWorkerScreen({
       case 'polls_paused':
         return (
           <React.Fragment>
-            <p>The polls are currently paused.</p>
+            <p>Voting is currently paused.</p>
             <p>
-              <Button primary large onPress={unpausePolls}>
-                Reopen Polls
+              <Button primary large onPress={resumeVoting}>
+                Resume Voting
               </Button>
             </p>
             <p>

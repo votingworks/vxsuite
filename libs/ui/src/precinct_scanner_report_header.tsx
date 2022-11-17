@@ -130,7 +130,7 @@ export function PrecinctScannerReportHeader({
         <p>
           <HeaderData>
             <strong>
-              Polls {getPollsTransitionActionPastTense(pollsTransition)}:{' '}
+              {getPollsTransitionActionPastTense(pollsTransition)}:{' '}
             </strong>
             {formatFullDateTimeZone(
               DateTime.fromMillis(pollsTransitionedTime),

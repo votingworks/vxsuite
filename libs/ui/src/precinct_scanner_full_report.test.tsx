@@ -138,7 +138,7 @@ test('polls paused: includes ballot count page only', () => {
       precinctSelection={ALL_PRECINCTS_SELECTION}
       hasPrecinctSubTallies={false}
       subTallies={subTallies}
-      pollsTransition="pause_polls"
+      pollsTransition="pause_voting"
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
       currentTime={new Date().getTime()}
@@ -148,7 +148,7 @@ test('polls paused: includes ballot count page only', () => {
     />
   );
 
-  screen.getByText('Official Polls Paused Report for All Precincts');
+  screen.getByText('Official Voting Paused Report for All Precincts');
   screen.getByText('Ballots Scanned Count');
   expect(
     screen.queryByText('Automatic Election Results Reporting')

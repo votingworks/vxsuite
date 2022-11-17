@@ -15,13 +15,13 @@ export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
 
 export type PollsTransition =
   | 'open_polls'
-  | 'pause_polls'
-  | 'unpause_polls'
+  | 'pause_voting'
+  | 'resume_voting'
   | 'close_polls';
 
 export const PollsTransitionSchema: z.ZodSchema<PollsTransition> = z.union([
   z.literal('open_polls'),
-  z.literal('pause_polls'),
-  z.literal('unpause_polls'),
+  z.literal('pause_voting'),
+  z.literal('resume_voting'),
   z.literal('close_polls'),
 ]);

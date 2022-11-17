@@ -39,7 +39,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   totalBallotsScanned: number;
-  pollsTransition: 'pause_polls' | 'unpause_polls';
+  pollsTransition: 'pause_voting' | 'resume_voting';
   pollsTransitionedTime: number;
   currentTime: number;
   isLiveMode: boolean;
@@ -85,8 +85,7 @@ export function PrecinctScannerBallotCountReport({
               </div>
               <div>
                 <dt>
-                  Time Polls{' '}
-                  {getPollsTransitionActionPastTense(pollsTransition)}
+                  Time {getPollsTransitionActionPastTense(pollsTransition)}
                 </dt>
                 <dd>
                   {formatFullDateTimeZone(

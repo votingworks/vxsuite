@@ -962,24 +962,24 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
-  // Pause Polls Flow
+  // Pause Voting Flow
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   mockPollsChange('polls_paused');
-  userEvent.click(await screen.findByText('Pause Polls'));
-  await screen.findByText('Pausing Polls…');
+  userEvent.click(await screen.findByText('Pause Voting'));
+  await screen.findByText('Pausing Voting…');
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
   card.removeCard();
   await screen.findByText('Polls Paused');
 
-  // Unpause Polls Flow
+  // Resume Voting Flow
   card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to reopen the polls?');
+  await screen.findByText('Do you want to resume voting?');
   mockPollsChange('polls_open');
-  userEvent.click(await screen.findByText('Yes, Reopen the Polls'));
+  userEvent.click(await screen.findByText('Yes, Resume Voting'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );

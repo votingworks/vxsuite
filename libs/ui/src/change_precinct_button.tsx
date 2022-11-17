@@ -163,7 +163,7 @@ export function ChangePrecinctButton({
               <p>
                 WARNING: The polls are open on this machine. Changing the
                 precinct will reset the polls to closed. To resume voting, the
-                polls must be reopened. Please select a precinct and confirm
+                polls must be opened again. Please select a precinct and confirm
                 below.
               </p>
               <Prose textCenter>{precinctSelectDropdown}</Prose>

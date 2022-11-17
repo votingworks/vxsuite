@@ -15,26 +15,26 @@ test('getPollsTransitionDestinationState', () => {
   expect(getPollsTransitionDestinationState('open_polls')).toEqual(
     'polls_open'
   );
-  expect(getPollsTransitionDestinationState('unpause_polls')).toEqual(
+  expect(getPollsTransitionDestinationState('resume_voting')).toEqual(
     'polls_open'
   );
-  expect(getPollsTransitionDestinationState('pause_polls')).toEqual(
+  expect(getPollsTransitionDestinationState('pause_voting')).toEqual(
     'polls_paused'
   );
 });
 
 test('getPollsTransitionAction', () => {
-  expect(getPollsTransitionAction('close_polls')).toEqual('Close');
-  expect(getPollsTransitionAction('open_polls')).toEqual('Open');
-  expect(getPollsTransitionAction('unpause_polls')).toEqual('Reopen');
-  expect(getPollsTransitionAction('pause_polls')).toEqual('Pause');
+  expect(getPollsTransitionAction('close_polls')).toEqual('Close Polls');
+  expect(getPollsTransitionAction('open_polls')).toEqual('Open Polls');
+  expect(getPollsTransitionAction('resume_voting')).toEqual('Resume Voting');
+  expect(getPollsTransitionAction('pause_voting')).toEqual('Pause Voting');
 });
 
 test('getPollsReportTitle', () => {
   expect(getPollsReportTitle('close_polls')).toEqual('Polls Closed Report');
   expect(getPollsReportTitle('open_polls')).toEqual('Polls Opened Report');
-  expect(getPollsReportTitle('unpause_polls')).toEqual('Polls Reopened Report');
-  expect(getPollsReportTitle('pause_polls')).toEqual('Polls Paused Report');
+  expect(getPollsReportTitle('resume_voting')).toEqual('Voting Resumed Report');
+  expect(getPollsReportTitle('pause_voting')).toEqual('Voting Paused Report');
 });
 
 test('getPollsStateName', () => {
@@ -99,10 +99,10 @@ test('isValidPollsStateChange', () => {
 test('getPollTransitionsFromState', () => {
   expect(getPollTransitionsFromState('polls_open')).toMatchObject([
     'close_polls',
-    'pause_polls',
+    'pause_voting',
   ]);
   expect(getPollTransitionsFromState('polls_paused')).toMatchObject([
-    'unpause_polls',
+    'resume_voting',
     'close_polls',
   ]);
   expect(getPollTransitionsFromState('polls_closed_initial')).toMatchObject([
@@ -112,10 +112,16 @@ test('getPollTransitionsFromState', () => {
 });
 
 test('getPollsTransitionActionPastTense', () => {
-  expect(getPollsTransitionActionPastTense('close_polls')).toEqual('Closed');
-  expect(getPollsTransitionActionPastTense('open_polls')).toEqual('Opened');
-  expect(getPollsTransitionActionPastTense('unpause_polls')).toEqual(
-    'Reopened'
+  expect(getPollsTransitionActionPastTense('close_polls')).toEqual(
+    'Polls Closed'
   );
-  expect(getPollsTransitionActionPastTense('pause_polls')).toEqual('Paused');
+  expect(getPollsTransitionActionPastTense('open_polls')).toEqual(
+    'Polls Opened'
+  );
+  expect(getPollsTransitionActionPastTense('resume_voting')).toEqual(
+    'Voting Resumed'
+  );
+  expect(getPollsTransitionActionPastTense('pause_voting')).toEqual(
+    'Voting Paused'
+  );
 });

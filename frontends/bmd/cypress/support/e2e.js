@@ -87,7 +87,7 @@ beforeEach(() => {
   // Open polls
   insertCard(POLL_WORKER_CARD_DATA);
   cy.contains('Open Polls').click();
-  cy.contains('Open VxMark Now').click();
+  cy.contains('Open Polls on VxMark Now').click();
 
   // Activate ballot
   cy.contains('Center Springfield').click();

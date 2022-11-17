@@ -161,7 +161,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open VxMark Now'));
+  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
   screen.getByText('Select Ballot Style');
   // Force refresh
   userEvent.click(screen.getByText('View Other Actions'));
@@ -367,7 +367,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('View Other Actions'));
   fireEvent.click(screen.getByText('Close Polls'));
-  fireEvent.click(screen.getByText('Close VxMark Now'));
+  fireEvent.click(screen.getByText('Close Polls on VxMark Now'));
 
   // Remove card
   card.removeCard();
