@@ -8,5 +8,7 @@ install:
 build: FORCE
 	pnpm install && pnpm build
 
+bootstrap: install build
+
 run:
 	cd prodserver && node index.js

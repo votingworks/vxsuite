@@ -8,6 +8,8 @@ install:
 build: FORCE
 	pnpm install && pnpm build
 
+bootstrap: install build
+
 run:
 	pnpm start
 

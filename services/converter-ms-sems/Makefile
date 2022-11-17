@@ -16,6 +16,8 @@ install-dev-dependencies:
 
 build: install-dependencies
 
+bootstrap: install build install-dev-dependencies
+
 test:
 	python3.9 -m pipenv run python -m pytest
 

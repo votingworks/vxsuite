@@ -14,6 +14,8 @@ build:
 	python3.9 -m pip install pipenv
 	python3.9 -m pipenv install
 
+bootstrap: install build
+
 build-dev:
 	python3.9 -m pipenv install --dev
 
