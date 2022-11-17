@@ -86,8 +86,16 @@ node -v # this should return 16.x.x
 pnpm -v # this should return 5.x.x
 ```
 
-Automatically install all dependencies in the vxsuite repo with the following
-command
+NOTE: The initial bootstrap will take some time. You may be prompted for your
+`sudo` password during the run. To minimize the chance of it happening, you can
+reset the timer by running a quick sudo command before the bootstrap:
+
+```sh
+sudo whoami
+```
+
+Automatically install and build all dependencies in the vxsuite repo with the 
+following command
 
 ```sh
 ./script/bootstrap
