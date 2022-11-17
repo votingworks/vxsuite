@@ -6,6 +6,7 @@ import {
   within,
 } from '@testing-library/react';
 import {
+  advanceTimersAndPromises,
   expectPrint,
   getZeroCompressedTally,
   hasTextAcrossElements,
@@ -119,7 +120,7 @@ jest.setTimeout(15000);
 function checkPollsOpenedReport(printedElement: RenderResult) {
   const generalReport = printedElement.getByTestId('tally-report-undefined-23');
   within(generalReport).getByText(
-    'TEST Polls Opened Report for Center Springfield'
+    'Official Polls Opened Report for Center Springfield'
   );
   expectEmptyContestResultsInReport(generalReport, 'president');
   expectEmptyContestResultsInReport(generalReport, 'senator');
@@ -148,7 +149,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'open_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [0, 0],
@@ -218,7 +219,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     timeSaved: pollsPausedTime,
     timePollsTransitioned: pollsPausedTime,
     precinctSelection,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'pause_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [3, 0],
@@ -234,7 +235,9 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Printing polls paused report');
   function checkPollsPausedReport(printedElement: RenderResult) {
     // Check heading
-    printedElement.getByText('TEST Polls Paused Report for Center Springfield');
+    printedElement.getByText(
+      'Official Polls Paused Report for Center Springfield'
+    );
     printedElement.getByText('Polls Paused:');
     // Check contents
     printedElement.getByText(hasTextAcrossElements('Ballots Scanned Count3'));
@@ -288,7 +291,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     timeSaved: pollsUnpausedTime,
     timePollsTransitioned: pollsUnpausedTime,
     precinctSelection,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'unpause_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [3, 0],
@@ -305,7 +308,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   function checkPollsUnpausedReport(printedElement: RenderResult) {
     // Check heading
     printedElement.getByText(
-      'TEST Polls Reopened Report for Center Springfield'
+      'Official Polls Reopened Report for Center Springfield'
     );
     printedElement.getByText('Polls Reopened:');
     // Check contents
@@ -369,7 +372,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: singlePrecinctSelectionFor('23'),
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [20, 5],
@@ -388,7 +391,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
       'tally-report-undefined-23'
     );
     within(generalReport).getByText(
-      'TEST Polls Closed Report for Center Springfield'
+      'Official Polls Closed Report for Center Springfield'
     );
     expectBallotCountsInReport(generalReport, 20, 5, 25);
     expectContestResultsInReport(
@@ -465,7 +468,7 @@ test('tally report: as expected with all precinct combined data for general elec
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
@@ -549,7 +552,7 @@ test('tally report: as expected with all precinct specific data for general elec
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [20, 5],
@@ -783,7 +786,7 @@ test('tally report: as expected with a single precinct for primary election', as
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
@@ -822,7 +825,7 @@ test('tally report: as expected with all precinct combined data for primary elec
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
@@ -941,7 +944,7 @@ test('tally report: as expected with all precinct specific data for primary elec
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'close_polls',
     ballotCounts: {
       '0,__ALL_PRECINCTS': [1, 1],
@@ -1181,7 +1184,7 @@ test('tally report: will print but not update polls state appropriate', async ()
     timeSaved: new Date('2020-10-31').getTime(),
     timePollsTransitioned: new Date('2020-10-31').getTime(),
     precinctSelection,
-    isLiveMode: false,
+    isLiveMode: true,
     pollsTransition: 'open_polls',
     ballotCounts: {
       'undefined,__ALL_PRECINCTS': [0, 0],
@@ -1357,4 +1360,44 @@ test('can reset polls to paused with system administrator card', async () => {
 
   card.removeCard();
   await screen.findByText('Polls Paused');
+});
+
+test('will not try to print report or change polls if report on card is in wrong mode', async () => {
+  const { renderApp, card, storage } = buildApp();
+  await setElectionInStorage(storage, electionSampleDefinition);
+  await setStateInStorage(storage, {
+    pollsState: 'polls_closed_initial',
+    isLiveMode: true,
+  });
+  renderApp();
+  await screen.findByText('Polls Closed');
+  screen.getByText('Insert Poll Worker card to open.');
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  );
+  const precinctSelection = singlePrecinctSelectionFor('23');
+
+  // Closed polls report from L&A left on card
+  const pollsOpenCardTallyReport: PrecinctScannerCardTally = {
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: getZeroCompressedTally(electionSample),
+    totalBallotsScanned: 0,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    precinctSelection,
+    isLiveMode: false,
+    pollsTransition: 'close_polls',
+    ballotCounts: {
+      'undefined,__ALL_PRECINCTS': [0, 0],
+      'undefined,23': [0, 0],
+    },
+  };
+
+  card.insertCard(pollWorkerCard, JSON.stringify(pollsOpenCardTallyReport));
+  await screen.findByText('Poll Worker Actions');
+
+  // Must advance timers to allow time for card tally to load
+  await advanceTimersAndPromises(1);
+  expect(screen.queryByRole('alertdialog')).toBeFalsy();
 });
