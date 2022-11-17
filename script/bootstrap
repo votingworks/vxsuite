@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# pixman-1 is effectively a dependency in all pnpm calls, go ahead and install it 
+sudo apt install -y libsane libpng-dev libjpeg-dev libx11-dev libpixman-1-dev libcairo2-dev libpango1.0-dev libgif-dev
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 for app in ${DIR}/../frontends/* ${DIR}/../services/*; do
