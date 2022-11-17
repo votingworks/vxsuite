@@ -723,18 +723,19 @@ export function PollWorkerScreen({
           />
         )}
       </Screen>
-      {precinctScannerTally && (
-        <PrecinctScannerTallyReportModal
-          pollworkerAuth={pollworkerAuth}
-          precinctScannerTally={precinctScannerTally}
-          electionDefinition={electionDefinition}
-          machineConfig={machineConfig}
-          pollsState={pollsState}
-          updatePollsState={updatePollsState}
-          onClose={() => setPrecinctScannerTally(undefined)}
-          logger={logger}
-        />
-      )}
+      {precinctScannerTally &&
+        precinctScannerTally.isLiveMode === isLiveMode && (
+          <PrecinctScannerTallyReportModal
+            pollworkerAuth={pollworkerAuth}
+            precinctScannerTally={precinctScannerTally}
+            electionDefinition={electionDefinition}
+            machineConfig={machineConfig}
+            pollsState={pollsState}
+            updatePollsState={updatePollsState}
+            onClose={() => setPrecinctScannerTally(undefined)}
+            logger={logger}
+          />
+        )}
     </React.Fragment>
   );
 }
