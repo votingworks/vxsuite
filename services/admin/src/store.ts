@@ -323,19 +323,17 @@ export class Store {
               election_id,
               filename,
               export_timestamp,
-              num_cvrs_imported,
               precinct_ids,
               scanner_ids,
               sha256_hash
             ) values (
-              ?, ?, ?, ?, ?, ?, ?, ?
+              ?, ?, ?, ?, ?, ?, ?
             )
           `,
           id,
           electionId,
           originalFilename,
           exportedTimestamp,
-          0,
           JSON.stringify([]),
           JSON.stringify([]),
           sha256Hash
@@ -401,12 +399,10 @@ export class Store {
           `
             update cvr_files
             set
-              num_cvrs_imported = ?,
               precinct_ids = ?,
               scanner_ids = ?
             where id = ?
           `,
-          newlyAdded,
           JSON.stringify([...precinctIds]),
           JSON.stringify([...scannerIds]),
           id
@@ -641,17 +637,32 @@ export class Store {
     const results = this.client.all(
       `
       select
-        id,
+        cvr_file_id as id,
         filename,
         export_timestamp as exportTimestamp,
-        num_cvrs_imported as numCvrsImported,
+        count(cvr_id) as numCvrsImported,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
         datetime(created_at, 'localtime') as createdAt
-      from cvr_files
-      where election_id = ?
-      order by export_timestamp desc
+      from (
+        select
+          cvr_file_entries.cvr_file_id,
+          cvr_file_entries.cvr_id,
+          filename,
+          export_timestamp,
+          precinct_ids,
+          scanner_ids,
+          sha256_hash,
+          min(cvr_files.created_at) as created_at
+        from cvr_file_entries
+        join cvr_files on cvr_files.id = cvr_file_entries.cvr_file_id
+        where
+          cvr_files.election_id = ?
+        group by cvr_file_entries.cvr_id
+        order by export_timestamp desc
+      )
+      group by id
     `,
       electionId
     ) as Array<{
