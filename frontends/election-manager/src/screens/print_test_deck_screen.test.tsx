@@ -6,6 +6,7 @@ import {
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import {
+  expectPrint,
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
@@ -20,7 +21,6 @@ import {
   TWO_SIDED_PAGE_PRINT_TIME_MS,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { loadBallotSealImages } from '../../test/util/load_ballot_seal_images';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -50,15 +50,15 @@ afterAll(() => {
 test('Printing L&A package for one precinct', async () => {
   renderInAppContext(<PrintTestDeckScreen />, {
     logger: mockLogger,
-    printBallotRef: mockPrintBallotRef,
-    printer: mockPrinter,
   });
 
   userEvent.click(screen.getByText('District 5'));
 
   await screen.findByText('Printing L&A Package for District 5');
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(1));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText('Test Deck Precinct Tally Report for: District 5');
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
+  });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
@@ -67,9 +67,13 @@ test('Printing L&A package for one precinct', async () => {
   jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText('Printing L&A Package for District 5');
-  loadBallotSealImages();
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+  await expectPrint((printedElement, printOptions) => {
+    expect(printedElement.getAllByText('Unofficial TEST Ballot')).toHaveLength(
+      4
+    );
+    expect(printedElement.getAllByText('District 5')).toHaveLength(4);
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
+  });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -81,9 +85,10 @@ test('Printing L&A package for one precinct', async () => {
   jest.advanceTimersByTime(4 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText('Printing L&A Package for District 5');
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({
-    sides: 'two-sided-long-edge',
+  await expectPrint((printedElement, printOptions) => {
+    expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
+    expect(printedElement.getAllByText(`Precinct: District 5`)).toHaveLength(7);
+    expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
   });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
@@ -128,10 +133,12 @@ test('Printing L&A packages for all precincts', async () => {
   for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 1)
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+    await expectPrint((printedElement, printOptions) => {
+      printedElement.getByText(
+        `Test Deck Precinct Tally Report for: ${precinct}`
+      );
+      expect(printOptions).toMatchObject({ sides: 'one-sided' });
+    });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
         expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
@@ -141,11 +148,13 @@ test('Printing L&A packages for all precincts', async () => {
 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
-    loadBallotSealImages();
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 2)
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+    await expectPrint((printedElement, printOptions) => {
+      expect(
+        printedElement.getAllByText('Unofficial TEST Ballot')
+      ).toHaveLength(4);
+      expect(printedElement.getAllByText(precinct)).toHaveLength(4);
+      expect(printOptions).toMatchObject({ sides: 'one-sided' });
+    });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
         expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -158,11 +167,12 @@ test('Printing L&A packages for all precincts', async () => {
 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 3)
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({
-      sides: 'two-sided-long-edge',
+    await expectPrint((printedElement, printOptions) => {
+      expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
+      expect(printedElement.getAllByText(`Precinct: ${precinct}`)).toHaveLength(
+        7
+      );
+      expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
     });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
@@ -202,8 +212,10 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(1));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText('Test Deck Precinct Tally Report for: District 5');
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
+  });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
@@ -213,9 +225,13 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
-  loadBallotSealImages();
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+  await expectPrint((printedElement, printOptions) => {
+    expect(printedElement.getAllByText('Unofficial TEST Ballot')).toHaveLength(
+      4
+    );
+    expect(printedElement.getAllByText('District 5')).toHaveLength(4);
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
+  });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -232,9 +248,10 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing legal-size pages.');
-  await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
-  expect(mockPrinter.print).toHaveBeenLastCalledWith({
-    sides: 'two-sided-long-edge',
+  await expectPrint((printedElement, printOptions) => {
+    expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
+    expect(printedElement.getAllByText('Precinct: District 5')).toHaveLength(7);
+    expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
   });
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
@@ -288,10 +305,12 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
     await screen.findByText('Currently printing letter-size pages.');
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(2 * i + 1)
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+    await expectPrint((printedElement, printOptions) => {
+      printedElement.getByText(
+        `Test Deck Precinct Tally Report for: ${precinct}`
+      );
+      expect(printOptions).toMatchObject({ sides: 'one-sided' });
+    });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
         expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
@@ -302,11 +321,13 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
     await screen.findByText('Currently printing letter-size pages.');
-    loadBallotSealImages();
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(2 * i + 2)
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
+    await expectPrint((printedElement, printOptions) => {
+      expect(
+        printedElement.getAllByText('Unofficial TEST Ballot')
+      ).toHaveLength(4);
+      expect(printedElement.getAllByText(precinct)).toHaveLength(4);
+      expect(printOptions).toMatchObject({ sides: 'one-sided' });
+    });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
         expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -326,13 +347,12 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
     await screen.findByText('Currently printing legal-size pages.');
-    await waitFor(() =>
-      expect(mockPrinter.print).toHaveBeenCalledTimes(
-        2 * precinctsInAlphabeticalOrder.length + i + 1
-      )
-    );
-    expect(mockPrinter.print).toHaveBeenLastCalledWith({
-      sides: 'two-sided-long-edge',
+    await expectPrint((printedElement, printOptions) => {
+      expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
+      expect(printedElement.getAllByText(`Precinct: ${precinct}`)).toHaveLength(
+        7
+      );
+      expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
     });
     await waitFor(() =>
       expect(mockKiosk.log).toHaveBeenLastCalledWith(
