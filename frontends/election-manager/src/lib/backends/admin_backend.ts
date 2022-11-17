@@ -316,6 +316,14 @@ export class ElectionManagerStoreAdminBackend
     return response.cvrFileMode;
   }
 
+  async getCvrFiles(): Promise<Admin.CastVoteRecordFileRecord[]> {
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
+
+    return (await fetchJson(
+      `/admin/elections/${currentElectionId}/cvr-files`
+    )) as Admin.CastVoteRecordFileRecord[];
+  }
+
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }

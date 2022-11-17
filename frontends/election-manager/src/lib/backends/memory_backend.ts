@@ -178,6 +178,32 @@ export class ElectionManagerStoreMemoryBackend
     return newWriteIns;
   }
 
+  getCvrFiles(): Promise<Admin.CastVoteRecordFileRecord[]> {
+    if (!this.electionDefinition) {
+      throw new Error('Election definition must be configured first');
+    }
+
+    if (!this.castVoteRecordFiles) {
+      return Promise.resolve([]);
+    }
+
+    return Promise.resolve(
+      this.castVoteRecordFiles.fileList.map<Admin.CastVoteRecordFileRecord>(
+        (f) => ({
+          createdAt: f.exportTimestamp.toISOString(),
+          electionId: this.electionId,
+          exportTimestamp: f.exportTimestamp.toISOString(),
+          filename: f.name,
+          numCvrsImported: f.importedCvrCount,
+          id: uuid(),
+          precinctIds: [...f.precinctIds],
+          scannerIds: [...f.scannerIds],
+          sha256Hash: '',
+        })
+      )
+    );
+  }
+
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }

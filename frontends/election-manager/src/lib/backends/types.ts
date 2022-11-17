@@ -40,6 +40,11 @@ export interface ElectionManagerStoreBackend {
   getCurrentCvrFileMode(): Promise<Admin.CvrFileMode>;
 
   /**
+   * Returns all imported CVR files for the current election.
+   */
+  getCvrFiles(): Promise<Admin.CastVoteRecordFileRecord[]>;
+
+  /**
    * Loads the existing cast vote record files.
    */
   loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined>;

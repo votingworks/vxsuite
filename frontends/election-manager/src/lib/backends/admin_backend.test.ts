@@ -137,6 +137,62 @@ test('configure errors response', async () => {
   ).rejects.toThrowError('invalid election, I do not like you');
 });
 
+test('getCvrFiles happy path', async () => {
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+  const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
+
+  await storage.set(currentElectionIdStorageKey, 'test-election-2');
+  fetchMock.get('/admin/elections', getElectionsResponse);
+
+  const getCvrFilesResponse: Admin.GetCvrFilesResponse = [
+    {
+      id: 'cvr-file-2',
+      createdAt: new Date().toISOString(),
+      electionId: 'test-election-2',
+      exportTimestamp: new Date().toISOString(),
+      filename: 'cvr-file-2.jsonl',
+      numCvrsImported: 20,
+      precinctIds: ['precinct-2'],
+      scannerIds: ['scanner-4', 'scanner-6'],
+      sha256Hash: 'file-2-hash',
+    },
+    {
+      id: 'cvr-file-1',
+      createdAt: new Date().toISOString(),
+      electionId: 'test-election-2',
+      exportTimestamp: new Date().toISOString(),
+      filename: 'cvr-file-1.jsonl',
+      numCvrsImported: 101,
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['scanner-1', 'scanner-2'],
+      sha256Hash: 'file-1-hash',
+    },
+  ];
+
+  fetchMock.get(
+    '/admin/elections/test-election-2/cvr-files',
+    getCvrFilesResponse
+  );
+
+  await expect(backend.getCvrFiles()).resolves.toEqual<
+    Admin.CastVoteRecordFileRecord[]
+  >(getCvrFilesResponse);
+});
+
+test('getCvrFiles throws on fetch error', async () => {
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+  const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
+
+  await storage.set(currentElectionIdStorageKey, 'test-election-2');
+  fetchMock.get('/admin/elections', getElectionsResponse);
+
+  fetchMock.get('/admin/elections/test-election-2/cvr-files', { status: 500 });
+
+  await expect(backend.getCvrFiles()).rejects.toThrowError();
+});
+
 test('addCastVoteRecordFile happy path', async () => {
   const { partial1CvrFile } = electionMinimalExhaustiveSampleFixtures;
   const storage = new MemoryStorage();
