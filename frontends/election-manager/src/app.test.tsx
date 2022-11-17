@@ -458,11 +458,10 @@ test('printing ballots and printed ballots report', async () => {
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrinterConnected(false);
   const logger = fakeLogger();
-  const { getByText, getAllByText, queryAllByText, getAllByTestId } =
-    renderRootElement(
-      <App printer={printer} card={card} hardware={hardware} />,
-      { backend, logger }
-    );
+  const { getByText, getAllByText } = renderRootElement(
+    <App printer={printer} card={card} hardware={hardware} />,
+    { backend, logger }
+  );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithElectionManagerCard(
     card,
@@ -525,17 +524,21 @@ test('printing ballots and printed ballots report', async () => {
     '3 ballots have been printed.'
   );
   fireEvent.click(getByText('Printed Ballots Report'));
-  expect(getAllByText(/2 absentee ballots/).length).toBe(2);
-  expect(getAllByText(/1 precinct ballot/).length).toBe(2);
-  const tableRow = getAllByTestId('row-6538-4')[0]; // Row in the printed ballot report for the Bywy ballots printed earlier
+  getByText(/2 absentee ballots/);
+  getByText(/1 precinct ballot/);
+  const tableRow = screen.getByTestId('row-6538-4'); // Row in the printed ballot report for the Bywy ballots printed earlier
   expect(
     domGetAllByRole(tableRow, 'cell', { hidden: true })!.map(
       (column) => column.textContent
     )
   ).toStrictEqual(['Bywy', '4', '2', '1', '3']);
-  fireEvent.click(queryAllByText('Print Report')[0]);
+  fireEvent.click(getByText('Print Report'));
 
   await waitFor(() => getByText('Printing'));
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText('Printed Ballots Report');
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
+  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrintedBallotReportPrinted,
     expect.any(String),

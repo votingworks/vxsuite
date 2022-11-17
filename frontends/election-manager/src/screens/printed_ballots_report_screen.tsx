@@ -8,6 +8,7 @@ import { assert, format, find } from '@votingworks/utils';
 import {
   isElectionManagerAuth,
   LogoMark,
+  printElement,
   Prose,
   Table,
   TD,
@@ -19,10 +20,10 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 
-import { DeprecatedPrintButton } from '../components/deprecated_print_button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
+import { PrintButton } from '../components/print_button';
 
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
@@ -119,22 +120,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
   const generatedAt = format.localeLongDateAndTime(new Date());
 
-  function logAfterPrint() {
-    void logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
-      message: 'Printed ballot report successfully printed.',
-      disposition: 'success',
-    });
-  }
-
-  function logAfterPrintError(errorMessage: string) {
-    void logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
-      message: `Error printing Printed ballot Report: ${errorMessage}`,
-      disposition: 'failure',
-      result: 'Printed Ballot Report not printed, error message shown to user.',
-    });
-  }
-
-  const reportContent = (
+  const printedBallotsReportHeaderAndMetadata = (
     <Prose maxWidth={false}>
       <h1>Printed Ballots Report</h1>
       <p>
@@ -160,23 +146,11 @@ export function PrintedBallotsReportScreen(): JSX.Element {
         </strong>{' '}
         {pluralize('have', totalBallotsPrinted)} been printed.
       </p>
+    </Prose>
+  );
 
-      <p className="no-print">
-        <DeprecatedPrintButton
-          primary
-          sides="one-sided"
-          afterPrint={logAfterPrint}
-          afterPrintError={logAfterPrintError}
-        >
-          Print Report
-        </DeprecatedPrintButton>
-      </p>
-      <p className="no-print">
-        <LinkButton small to={routerPaths.reports}>
-          Back to Reports
-        </LinkButton>
-      </p>
-
+  const printedBallotsReportTable = (
+    <Prose maxWidth={false}>
       <Table>
         <tbody>
           <tr>
@@ -228,13 +202,48 @@ export function PrintedBallotsReportScreen(): JSX.Element {
       </Table>
     </Prose>
   );
+
+  const printedBallotsReport = (
+    <div>
+      <LogoMark />
+      {printedBallotsReportHeaderAndMetadata}
+      <br />
+      {printedBallotsReportTable}
+    </div>
+  );
+
+  async function printPrintedBallotsReport() {
+    try {
+      await printElement(printedBallotsReport, { sides: 'one-sided' });
+      await logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
+        message: 'Printed Ballots Report successfully printed.',
+        disposition: 'success',
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      await logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
+        message: `Error printing Printed Ballots Report: ${error.message}`,
+        disposition: 'failure',
+        result:
+          'Printed Ballots Report not printed, error message shown to user.',
+      });
+    }
+  }
+
   return (
-    <React.Fragment>
-      <NavigationScreen>{reportContent}</NavigationScreen>
-      <div className="print-only">
-        <LogoMark />
-        {reportContent}
-      </div>
-    </React.Fragment>
+    <NavigationScreen>
+      {printedBallotsReportHeaderAndMetadata}
+      <p>
+        <PrintButton primary print={printPrintedBallotsReport}>
+          Print Report
+        </PrintButton>
+      </p>
+      <p>
+        <LinkButton small to={routerPaths.reports}>
+          Back to Reports
+        </LinkButton>
+      </p>
+      {printedBallotsReportTable}
+    </NavigationScreen>
   );
 }
