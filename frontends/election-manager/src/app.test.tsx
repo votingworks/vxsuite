@@ -28,6 +28,7 @@ import {
   fakePrinterInfo,
   fakeUsbDrive,
   makeElectionManagerCard,
+  ReactTestingLibraryQueryable,
 } from '@votingworks/test-utils';
 import {
   ElectionManagerCardData,
@@ -581,19 +582,18 @@ test('tabulating CVRs', async () => {
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
-  // Report title should be rendered 3 times - app, preview, and printed
+  // Report title should be rendered 2 times - app and preview
   await waitFor(() => {
     expect(
       getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
         .length
-    ).toBe(3);
+    ).toBe(2);
   });
 
-  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
-  const printableArea1 = getByTestId('printable-area');
-  expect(
-    within(printableArea1).getByTestId('election-full-tally-report')
-  ).toMatchSnapshot();
+  userEvent.click(screen.getByText('Print Report'));
+  await screen.findByText('Printing');
+  // Snapshot printed report to detect changes in results or formatting
+  await expectPrintToMatchSnapshot();
 
   fireEvent.click(getByText('Reports'));
 
@@ -628,8 +628,8 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
-  const printableArea2 = getByTestId('printable-area');
-  const totalRow = within(printableArea2).getByTestId('total');
+  const reportPreview = getByTestId('report-preview');
+  const totalRow = within(reportPreview).getByTestId('total');
   expect(totalRow).toHaveTextContent('4');
 
   fireEvent.click(getByText('Back to Reports'));
@@ -641,17 +641,14 @@ test('tabulating CVRs', async () => {
   getByText(
     'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
   );
-  // Test that each precinct has a tally report generated and
-  // rendered twice: once for preview and once for printing
+  // Test that each precinct has a tally report generated in the preview
   for (const p of eitherNeitherElectionDefinition.election.precincts) {
-    expect(
-      getAllByText(`Official Precinct Tally Report for: ${p.name}`).length
-    ).toBe(2);
+    getByText(`Official Precinct Tally Report for: ${p.name}`);
   }
-  // The election title is written once for each precinct the preview, once for each
-  // precinct in the printed report, and one extra time in the footer of the page.
+  // The election title is written once for each precinct the preview, and in
+  // the footer of the page
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
-    eitherNeitherElectionDefinition.election.precincts.length * 2 + 1
+    eitherNeitherElectionDefinition.election.precincts.length + 1
   );
 
   // Save SEMS file
@@ -724,8 +721,8 @@ test('tabulating CVRs', async () => {
   fireEvent.click(
     await screen.findByText('Unofficial Full Election Tally Report')
   );
-  const printableArea3 = getByTestId('printable-area');
-  expect(within(printableArea3).getAllByText('0').length).toBe(40);
+  const reportPreview2 = getByTestId('report-preview');
+  expect(within(reportPreview2).getAllByText('0').length).toBe(40);
 });
 
 test('tabulating CVRs with SEMS file', async () => {
@@ -768,29 +765,38 @@ test('tabulating CVRs with SEMS file', async () => {
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
 
-  // Report title should be rendered 3 times - app, preview, and printed
+  // Report title should be rendered 2 times - app and preview
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(3);
-  const printableArea1 = getByTestId('printable-area');
-  const absenteeRow = within(printableArea1).getByTestId('absentee');
-  domGetByText(absenteeRow, 'Absentee');
-  domGetByText(absenteeRow, '50');
+  ).toBe(2);
 
-  const precinctRow = within(printableArea1).getByTestId('standard');
-  domGetByText(precinctRow, 'Precinct');
-  domGetByText(precinctRow, '150');
+  function checkTallyReport(queryable: ReactTestingLibraryQueryable) {
+    queryable.getByText(
+      'Unofficial Mock General Election Choctaw 2020 Tally Report'
+    );
+    const absenteeRow = queryable.getByTestId('absentee');
+    within(absenteeRow).getByText('Absentee');
+    within(absenteeRow).getByText('50');
 
-  const totalRow = within(printableArea1).getByTestId('total');
-  domGetByText(totalRow, 'Total Ballots Cast');
-  domGetByText(totalRow, '200');
+    const precinctRow = queryable.getByTestId('standard');
+    within(precinctRow).getByText('Precinct');
+    within(precinctRow).getByText('150');
 
-  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
-  const printableArea2 = getByTestId('printable-area');
-  expect(
-    within(printableArea2).getByTestId('election-full-tally-report')
-  ).toMatchSnapshot();
+    const totalRow = queryable.getByTestId('total');
+    within(totalRow).getByText('Total Ballots Cast');
+    within(totalRow).getByText('200');
+  }
+
+  const reportPreview = screen.getByTestId('report-preview');
+  checkTallyReport(within(reportPreview));
+
+  userEvent.click(screen.getByText('Print Report'));
+  await screen.findByText('Printing');
+  await expectPrint((printedElement) => {
+    // Confirm our printed report matches our preview at a very basic level
+    checkTallyReport(printedElement);
+  });
   fireEvent.click(getByText('Back to Reports'));
 
   // Test saving the final results
@@ -913,24 +919,27 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   expect(getByTestId('total-ballot-count').textContent).toEqual('300');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-  // Report title should be rendered 3 times - app, preview, and printed
+  // Report title should be rendered 2 times - app and preview
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(3);
-  const printableArea1 = getByTestId('printable-area');
+  ).toBe(2);
 
-  const absenteeRow1 = within(printableArea1).getByTestId('absentee');
-  domGetByText(absenteeRow1, 'Absentee');
-  domGetByText(absenteeRow1, '50');
+  const reportPreview = screen.getByTestId('report-preview');
+  within(reportPreview).getByText(
+    'Unofficial Mock General Election Choctaw 2020 Tally Report'
+  );
+  const absenteeRow = within(reportPreview).getByTestId('absentee');
+  within(absenteeRow).getByText('Absentee');
+  within(absenteeRow).getByText('50');
 
-  const precinctRow1 = within(printableArea1).getByTestId('standard');
-  domGetByText(precinctRow1, 'Precinct');
-  domGetByText(precinctRow1, '250');
+  const precinctRow = within(reportPreview).getByTestId('standard');
+  within(precinctRow).getByText('Precinct');
+  within(precinctRow).getByText('250');
 
-  const totalRow1 = within(printableArea1).getByTestId('total');
-  domGetByText(totalRow1, 'Total Ballots Cast');
-  domGetByText(totalRow1, '300');
+  const totalRow = within(reportPreview).getByTestId('total');
+  within(totalRow).getByText('Total Ballots Cast');
+  within(totalRow).getByText('300');
 
   // Now edit the manual data
   fireEvent.click(getByText('Tally'));
@@ -982,24 +991,26 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   getByText('External Results (Manually Added Data)');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-  // Report title should be rendered 3 times - app, preview, and printed
+  // Report title should be rendered 2 times - app and preview
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(3);
-  const printableArea2 = getByTestId('printable-area');
+  ).toBe(2);
+  const reportPreview2 = screen.getByTestId('report-preview');
+  within(reportPreview).getByText(
+    'Unofficial Mock General Election Choctaw 2020 Tally Report'
+  );
+  const absenteeRow2 = within(reportPreview2).getByTestId('absentee');
+  within(absenteeRow2).getByText('Absentee');
+  within(absenteeRow2).getByText('250');
 
-  const absenteeRow2 = within(printableArea2).getByTestId('absentee');
-  domGetByText(absenteeRow2, 'Absentee');
-  domGetByText(absenteeRow2, '250');
+  const precinctRow2 = within(reportPreview2).getByTestId('standard');
+  within(precinctRow2).getByText('Precinct');
+  within(precinctRow2).getByText('150');
 
-  const precinctRow2 = within(printableArea2).getByTestId('standard');
-  domGetByText(precinctRow2, 'Precinct');
-  domGetByText(precinctRow2, '150');
-
-  const totalRow2 = within(printableArea2).getByTestId('total');
-  domGetByText(totalRow2, 'Total Ballots Cast');
-  domGetByText(totalRow2, '400');
+  const totalRow2 = within(reportPreview2).getByTestId('total');
+  within(totalRow2).getByText('Total Ballots Cast');
+  within(totalRow2).getByText('400');
 
   // Remove the manual data
   fireEvent.click(getByText('Tally'));

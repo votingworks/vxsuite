@@ -78,7 +78,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
         : [precinctIdFromProps];
 
     return (
-      <TallyReport className="print-only" ref={ref}>
+      <TallyReport ref={ref}>
         {ballotStylePartyIds.map((partyId) =>
           precinctIds.map((precinctId) => {
             const party = election.parties.find((p) => p.id === partyId);

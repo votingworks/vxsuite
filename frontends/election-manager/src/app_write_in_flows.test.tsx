@@ -209,14 +209,14 @@ test('manual write-in data end-to-end test', async () => {
   // Check that results are appropriately incorporated into the main report
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
-  const printableArea = await screen.findByTestId('printable-area');
-  within(printableArea).getByText(
+  const mainReportPreview = await screen.findByTestId('report-preview');
+  within(mainReportPreview).getByText(
     'Unofficial Mammal Party Example Primary Election Tally Report'
   );
-  const zooCouncilMammal = within(printableArea).getByTestId(
+  const zooCouncilMammal = within(mainReportPreview).getByTestId(
     'results-table-zoo-council-mammal'
   );
-  const zooCouncilFish = within(printableArea).getByTestId(
+  const zooCouncilFish = within(mainReportPreview).getByTestId(
     'results-table-aquarium-council-fish'
   );
   // Added write-in candidates should not appear in the report

@@ -9,6 +9,7 @@ export * from './has_text_across_elements';
 export * from './observable';
 export * from './smartcards';
 export * from './smartcard_auth';
+export * from './types';
 export * from './zip';
 export * from './mock_of';
 export * from './expect_print';
