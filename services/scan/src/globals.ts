@@ -79,3 +79,9 @@ export const SCAN_WORKSPACE =
  */
 export const SCAN_ALWAYS_HOLD_ON_REJECT =
   process.env.SCAN_ALWAYS_HOLD_ON_REJECT !== '0';
+
+/**
+ * Where are exported files allowed to be written to?
+ */
+export const SCAN_ALLOWED_EXPORT_PATTERNS =
+  process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ?? ['/media/**/*'];

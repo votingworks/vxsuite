@@ -1,0 +1,77 @@
+{
+  "name": "@votingworks/data",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Data manipulation utilities for NodeJS",
+  "license": "GPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage -- --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:coverage": "TZ=UTC jest --coverage",
+    "test:watch": "TZ=UTC jest --watch",
+    "type-check": "tsc --build"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "buffer": "^6.0.3",
+    "debug": "^4.3.2",
+    "micromatch": "^4.0.5",
+    "readline": "^1.3.0",
+    "stream-chopper": "^3.0.1",
+    "zod": "3.14.4"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/jest": "^27.0.3",
+    "@types/micromatch": "^4.0.2",
+    "@types/node": "16.11.29",
+    "@types/stream-chopper": "workspace:*",
+    "@types/tmp": "^0.2.3",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vx": "workspace:*",
+    "fast-check": "^2.18.0",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^27.3.1",
+    "jest-junit": "^14.0.1",
+    "jest-watch-typeahead": "^0.6.4",
+    "lint-staged": "^11.0.0",
+    "memory-streams": "^0.1.3",
+    "prettier": "^2.6.2",
+    "sort-package-json": "^1.50.0",
+    "tmp": "^0.2.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "4.6.3"
+  },
+  "packageManager": "pnpm@5.18.10"
+}

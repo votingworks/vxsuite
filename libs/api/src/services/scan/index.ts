@@ -19,6 +19,7 @@ import {
   PollsStateSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
+  Result,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {
@@ -586,6 +587,119 @@ export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
   z.string(),
   ErrorsResponseSchema,
 ]);
+
+/**
+ * Possible errors when exporting a file.
+ */
+export type ExportFileError =
+  | { type: 'relative-file-path'; message: string }
+  | { type: 'permission-denied'; message: string }
+  | { type: 'file-system-error'; message: string }
+  | { type: 'missing-usb-drive'; message: string };
+
+/**
+ * Schema for {@link ExportFileError}.
+ */
+export const ExportFileErrorSchema: z.ZodSchema<ExportFileError> =
+  z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('relative-file-path'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('permission-denied'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('file-system-error'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('missing-usb-drive'),
+      message: z.string(),
+    }),
+  ]);
+
+/**
+ * Result of exporting a file to the file system.
+ */
+export type ExportFileResult = Result<string[], ExportFileError>;
+
+/**
+ * Possible errors when backing up the scan service.
+ */
+export type BackupError =
+  | ExportFileError
+  | { type: 'no-election'; message: string };
+
+export const BackupErrorSchema: z.ZodSchema<BackupError> = z.discriminatedUnion(
+  'type',
+  [
+    z.object({
+      type: z.literal('relative-file-path'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('permission-denied'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('file-system-error'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('missing-usb-drive'),
+      message: z.string(),
+    }),
+    z.object({
+      type: z.literal('no-election'),
+      message: z.string(),
+    }),
+  ]
+);
+
+/**
+ * Result of backing up the scan service: either a list of files that were
+ * written to a USB drive, or an error.
+ */
+export type BackupResult = Result<string[], BackupError>;
+
+/**
+ * @url /scan/backup-to-usb
+ * @method POST
+ */
+export type BackupToUsbRequest = never;
+
+/**
+ * @url /scan/backup-to-usb
+ * @method POST
+ */
+export const BackupToUsbRequestSchema: z.ZodSchema<BackupToUsbRequest> =
+  z.never();
+
+/**
+ * @url /scan/backup-to-usb
+ * @method POST
+ */
+export type BackupToUsbResponse =
+  | OkResponse<{ readonly paths: string[] }>
+  | { status: 'error'; errors: BackupError[] };
+
+/**
+ * @url /scan/backup-to-usb
+ * @method POST
+ */
+export const BackupToUsbResponseSchema: z.ZodSchema<BackupToUsbResponse> =
+  z.union([
+    z.object({
+      status: z.literal('ok'),
+      paths: z.array(z.string()),
+    }),
+    z.object({
+      status: z.literal('error'),
+      errors: z.array(BackupErrorSchema),
+    }),
+  ]);
 
 /**
  * This is `never` because there is no request data.

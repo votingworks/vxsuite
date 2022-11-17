@@ -3,8 +3,11 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   Card,
   ElectionDefinition,
+  err,
   MarkThresholds,
+  ok,
   Optional,
+  Result,
   safeParseJson,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -49,7 +52,6 @@ import { AdminActionsScreen } from './screens/admin_actions_screen';
 
 import 'normalize.css';
 import './App.css';
-import { download } from './util/download';
 import * as config from './api/config';
 import { LinkButton } from './components/link_button';
 import { MainNav } from './components/main_nav';
@@ -391,13 +393,25 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     }
   }, [history, logger, userRole, currentNumberOfBallots, refreshConfig]);
 
-  const backup = useCallback(async () => {
-    await download('/central-scanner/scan/backup');
-    if (window.kiosk) {
-      // Backups can take several minutes. Ensure the data is flushed to the
-      // usb before prompting the user to eject it.
-      await usbstick.doSync();
+  const backup = useCallback(async (): Promise<
+    Result<string[], Scan.BackupError | Error>
+  > => {
+    const httpResponse = await fetch(
+      '/central-scanner/scan/backup-to-usb-drive',
+      { method: 'POST' }
+    );
+
+    const httpResult = safeParseJson(
+      await httpResponse.text(),
+      Scan.BackupToUsbResponseSchema
+    );
+
+    if (httpResult.isErr()) {
+      return httpResult;
     }
+
+    const result = httpResult.ok();
+    return result.status === 'ok' ? ok(result.paths) : err(result.errors[0]);
   }, []);
 
   const toggleTestMode = useCallback(async () => {
