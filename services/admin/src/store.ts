@@ -660,9 +660,9 @@ export class Store {
         where
           cvr_files.election_id = ?
         group by cvr_file_entries.cvr_id
-        order by export_timestamp desc
       )
       group by id
+      order by export_timestamp desc
     `,
       electionId
     ) as Array<{
