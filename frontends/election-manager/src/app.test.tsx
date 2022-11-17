@@ -7,7 +7,6 @@ import {
   getByTestId as domGetByTestId,
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
-  getAllByText as domGetAllByText,
   act,
   within,
 } from '@testing-library/react';
@@ -392,6 +391,10 @@ test('L&A (logic and accuracy) flow', async () => {
   );
 
   // Test printing full test deck tally
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+
+  await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
     '104': 10,
     '52': 12,
@@ -400,20 +403,15 @@ test('L&A (logic and accuracy) flow', async () => {
     '8': 3,
     '4': 2,
   };
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
-  await waitFor(() => {
-    const fullTestDeckTallyReport = screen.getByTestId(
-      'full-test-deck-tally-report'
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText(
+      'Test Deck Mock General Election Choctaw 2020 Tally Report'
     );
     for (const [tally, times] of Object.entries(expectedTallies)) {
-      expect(domGetAllByText(fullTestDeckTallyReport, tally).length).toEqual(
-        times
-      );
+      expect(printedElement.getAllByText(tally).length).toEqual(times);
     }
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
   });
-  await screen.findByText('Printing');
-  expect(printer.print).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TestDeckTallyReportPrinted,
     expect.any(String),
