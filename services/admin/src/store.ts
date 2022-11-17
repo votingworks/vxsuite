@@ -131,7 +131,7 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt,
+        datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
       where deleted_at is null
@@ -160,7 +160,7 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt,
+        datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
       where deleted_at is null AND id = ?
@@ -643,7 +643,7 @@ export class Store {
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
-        created_at as createdAt
+        datetime(created_at, 'localtime') as createdAt
       from cvr_files
       where election_id = ?
       order by export_timestamp desc
@@ -693,7 +693,7 @@ export class Store {
           id,
           ballot_id as ballotId,
           data,
-          created_at as createdAt
+          datetime(created_at, 'localtime') as createdAt
         from cvrs
         where election_id = ?
       `,
@@ -893,7 +893,7 @@ export class Store {
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
           write_ins.transcribed_value as transcribedValue,
-          write_ins.transcribed_at as transcribedAt
+          datetime(write_ins.transcribed_at, 'localtime') as transcribedAt
         from write_ins
         inner join
           cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
@@ -1256,7 +1256,7 @@ export class Store {
           ballot_type as ballotType,
           ballot_mode as ballotMode,
           num_copies as numCopies,
-          created_at as createdAt
+          datetime(created_at, 'localtime') as createdAt
         from printed_ballots
         where ${whereParts.join(' and ')}
       `,
