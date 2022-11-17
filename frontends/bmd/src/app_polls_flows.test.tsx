@@ -1401,3 +1401,39 @@ test('will not try to print report or change polls if report on card is in wrong
   await advanceTimersAndPromises(1);
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 });
+
+test('cannot close polls from closed report on card if polls have not been opened', async () => {
+  const { renderApp, card, storage } = buildApp();
+  await setElectionInStorage(storage, electionSampleDefinition);
+  await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
+  renderApp();
+  await screen.findByText('Polls Closed');
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  );
+  const precinctSelection = singlePrecinctSelectionFor('23');
+
+  // Polls closed report on card
+  const pollsClosedCardTallyReport: PrecinctScannerCardTally = {
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: getZeroCompressedTally(electionSample),
+    totalBallotsScanned: 0,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    precinctSelection,
+    isLiveMode: true,
+    pollsTransition: 'close_polls',
+    ballotCounts: {
+      'undefined,__ALL_PRECINCTS': [0, 0],
+      'undefined,23': [0, 0],
+    },
+  };
+
+  card.insertCard(pollWorkerCard, JSON.stringify(pollsClosedCardTallyReport));
+  await screen.findByText('Polls Closed Report on Card');
+  screen.getByRole('button', { name: 'Print Report' });
+  expect(
+    screen.queryByRole('button', { name: 'Print Report and Close Polls' })
+  ).not.toBeInTheDocument();
+});
