@@ -89,7 +89,7 @@ export const ElectionManagerWriteInTallyReport = forwardRef<
     );
 
     return (
-      <TallyReport className="print-only" ref={ref}>
+      <TallyReport ref={ref}>
         {ballotStylePartyIds.map((partyId) => {
           const writeInCountsFilteredByParty = filterWriteInCountsByParty(
             writeInCounts,

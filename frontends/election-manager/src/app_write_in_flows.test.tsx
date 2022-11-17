@@ -242,14 +242,14 @@ test('manual write-in data end-to-end test', async () => {
   // Check that results are appropriately incorporated into scatter report
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
-  const printableArea2 = await screen.findByTestId('printable-area');
-  within(printableArea2).getByText(
+  const writeInReportPreview = await screen.findByTestId('report-preview');
+  within(writeInReportPreview).getByText(
     'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
   );
-  const zooCouncilMammal2 = within(printableArea2).getByTestId(
+  const zooCouncilMammal2 = within(writeInReportPreview).getByTestId(
     'results-table-zoo-council-mammal'
   );
-  const zooCouncilFish2 = within(printableArea2).getByTestId(
+  const zooCouncilFish2 = within(writeInReportPreview).getByTestId(
     'results-table-aquarium-council-fish'
   );
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera10'));

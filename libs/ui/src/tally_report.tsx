@@ -22,6 +22,16 @@ export const TallyReport = styled.div`
   }
 `;
 
+export const TallyReportPreview = styled.div`
+  section {
+    margin: 1rem 0 2rem;
+    background: #ffffff;
+    width: 8.5in;
+    min-height: 11in;
+    padding: 0.5in;
+  }
+`;
+
 export const PrintableContainer = styled.div`
   margin: 0;
   page-break-after: always;

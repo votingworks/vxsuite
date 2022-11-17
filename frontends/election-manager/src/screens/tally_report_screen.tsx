@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import styled from 'styled-components';
 import { useLocation, useParams } from 'react-router-dom';
 import {
   assert,
@@ -16,6 +15,7 @@ import {
   printElementToPdf,
   Prose,
   TallyReportMetadata,
+  TallyReportPreview,
   Text,
 } from '@votingworks/ui';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
@@ -40,16 +40,6 @@ import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
-
-const TallyReportPreview = styled.div`
-  section {
-    margin: 1rem 0 2rem;
-    background: #ffffff;
-    width: 8.5in;
-    min-height: 11in;
-    padding: 0.5in;
-  }
-`;
 
 export function TallyReportScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
