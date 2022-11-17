@@ -42,13 +42,12 @@ the following commands.
 
 ```sh
 su - # this will prompt for the root password
-usermod -aG sudo <USERNAME> # use your user account username
+echo "USERNAME ALL=(ALL:ALL) ALL" > /etc/sudoers.d/USERNAME # use your user account username
 exit
 ```
 
-Restart your machine or open a new terminal for the changes to take effect. You
-can verify it worked after restart by entering `sudo whoami` in the terminal and
-you should see `root`.
+Verify your account has sudo privileges by running `sudo whoami` in the terminal.
+You should see `root`.
 
 Next install git, and create an SSH key following the
 [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
