@@ -47,6 +47,7 @@ create table cvr_files (
   election_id varchar(36) not null,
   filename text not null,
   export_timestamp timestamp not null,
+  num_cvrs_imported integer not null,
   precinct_ids text not null,
   scanner_ids text not null,
   sha256_hash text not null,

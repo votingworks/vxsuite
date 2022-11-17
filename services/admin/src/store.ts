@@ -323,17 +323,19 @@ export class Store {
               election_id,
               filename,
               export_timestamp,
+              num_cvrs_imported,
               precinct_ids,
               scanner_ids,
               sha256_hash
             ) values (
-              ?, ?, ?, ?, ?, ?, ?
+              ?, ?, ?, ?, ?, ?, ?, ?
             )
           `,
           id,
           electionId,
           originalFilename,
           exportedTimestamp,
+          0,
           JSON.stringify([]),
           JSON.stringify([]),
           sha256Hash
@@ -399,10 +401,12 @@ export class Store {
           `
             update cvr_files
             set
+              num_cvrs_imported = ?,
               precinct_ids = ?,
               scanner_ids = ?
             where id = ?
           `,
+          newlyAdded,
           JSON.stringify([...precinctIds]),
           JSON.stringify([...scannerIds]),
           id
@@ -640,6 +644,7 @@ export class Store {
         id,
         filename,
         export_timestamp as exportTimestamp,
+        num_cvrs_imported as numCvrsImported,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
@@ -653,6 +658,7 @@ export class Store {
       id: Id;
       filename: string;
       exportTimestamp: string;
+      numCvrsImported: number;
       precinctIds: string;
       scannerIds: string;
       sha256Hash: string;
@@ -669,6 +675,7 @@ export class Store {
           exportTimestamp: convertSqliteTimestampToIso8601(
             result.exportTimestamp
           ),
+          numCvrsImported: result.numCvrsImported,
           precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
           scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),
