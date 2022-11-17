@@ -13,7 +13,7 @@ import {
   hasTextAcrossElements,
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
-import { BallotStyleId, PrecinctId } from '@votingworks/types';
+import { BallotStyleId } from '@votingworks/types';
 import {
   renderInAppContext,
   renderRootElement,
@@ -111,24 +111,24 @@ test('print sequence proceeds as expected', async () => {
     )
   );
 
-  const expectedBallotStyles: Array<[string, PrecinctId, BallotStyleId]> = [
-    ['Precinct 1', 'precinct-1', '1M'],
-    ['Precinct 1', 'precinct-1', '2F'],
-    ['Precinct 2', 'precinct-2', '1M'],
-    ['Precinct 2', 'precinct-2', '2F'],
+  const expectedBallotStyles: Array<[string, BallotStyleId]> = [
+    ['Precinct 1', '1M'],
+    ['Precinct 1', '2F'],
+    ['Precinct 2', '1M'],
+    ['Precinct 2', '2F'],
   ];
 
   for (const [i, expectedBallotStyle] of expectedBallotStyles.entries()) {
     await within(modal).findByText(`Printing Official Ballot (${i + 1} of 4)`);
     within(modal).getByText(
       hasTextAcrossElements(
-        `Precinct: ${expectedBallotStyle[0]}, Ballot Style: ${expectedBallotStyle[2]}`
+        `Precinct: ${expectedBallotStyle[0]}, Ballot Style: ${expectedBallotStyle[1]}`
       )
     );
     await expectPrint((printedElement, printOptions) => {
       printedElement.getByText('Mocked HMPB');
-      printedElement.getByText(`Ballot Style: ${expectedBallotStyle[2]}`);
-      printedElement.getByText(`Precinct: ${expectedBallotStyle[1]}`);
+      printedElement.getByText(`Ballot Style: ${expectedBallotStyle[1]}`);
+      printedElement.getByText(`Precinct: ${expectedBallotStyle[0]}`);
       expect(printOptions).toMatchObject({
         sides: 'two-sided-long-edge',
         copies: 1,
