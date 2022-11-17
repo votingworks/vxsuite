@@ -1,15 +1,22 @@
-import React from 'react';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-import MockDate from 'mockdate';
+import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { err, ok } from '@votingworks/types';
+import { deferred } from '@votingworks/utils';
+import MockDate from 'mockdate';
+import React from 'react';
+import { act } from 'react-dom/test-utils';
+import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   AdminActionScreenProps,
   AdminActionsScreen,
 } from './admin_actions_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
+
+type BackupFn = AdminActionScreenProps['backup'];
+type BackupResult = BackupFn extends (...args: any[]) => Promise<infer R>
+  ? R
+  : never;
 
 function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
   return renderInAppContext(
@@ -31,15 +38,11 @@ function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
 }
 
 test('clicking "Save Backup" shows progress', async () => {
-  const backup = jest.fn();
+  const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
-  let resolve!: () => void;
-  backup.mockReturnValueOnce(
-    new Promise<void>((res) => {
-      resolve = res;
-    })
-  );
+  const { resolve, promise } = deferred<BackupResult>();
+  backup.mockReturnValueOnce(promise);
 
   await act(async () => {
     // Click to backup, verify we got called.
@@ -56,7 +59,7 @@ test('clicking "Save Backup" shows progress', async () => {
     });
 
     // Trigger backup finished, verify back to normal.
-    resolve();
+    resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
     await waitFor(() => screen.getByText('Save Backup'));
     expect(screen.queryAllByRole('alertdialog').length).toBe(0);
   });
@@ -173,15 +176,11 @@ test('clicking "Delete Ballot Data" shows progress', async () => {
 });
 
 test('backup error shows message', async () => {
-  const backup = jest.fn();
+  const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
-  let reject!: (reason?: unknown) => void;
-  backup.mockReturnValueOnce(
-    new Promise((_res, rej) => {
-      reject = rej;
-    })
-  );
+  const { resolve, promise } = deferred<BackupResult>();
+  backup.mockReturnValueOnce(promise);
 
   await act(async () => {
     // Click to backup, verify we got called.
@@ -194,9 +193,9 @@ test('backup error shows message', async () => {
     await waitFor(() => screen.getByText('Saving…'));
 
     // Trigger backup error, verify back to normal with error.
-    reject(new Error('two is one and one is none'));
+    resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
     await waitFor(() => screen.getByText('Save Backup'));
-    await waitFor(() => screen.getByText('Error: two is one and one is none'));
+    await waitFor(() => screen.getByText('Permission Denied'));
   });
 });
 

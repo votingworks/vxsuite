@@ -413,6 +413,28 @@ jobs:
       - store_test_results:
           path: libs/cvr-fixture-generator/reports/
 
+  test-libs-data:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/data build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/data lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/data test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/data/reports/
+
   test-libs-db:
     executor: nodejs
     resource_class: xlarge
@@ -773,6 +795,7 @@ workflows:
       - test-libs-cdf-types-cast-vote-records
       - test-libs-cdf-types-election-event-logging
       - test-libs-cvr-fixture-generator
+      - test-libs-data
       - test-libs-db
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures

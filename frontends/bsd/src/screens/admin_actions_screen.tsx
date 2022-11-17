@@ -1,4 +1,4 @@
-import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
+import { ElectionDefinition, MarkThresholds, Result } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
@@ -11,6 +11,7 @@ import {
   SetClockButton,
   Text,
 } from '@votingworks/ui';
+import { Scan } from '@votingworks/api';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { MainNav } from '../components/main_nav';
@@ -23,7 +24,7 @@ import { ExportLogsModal } from '../components/export_logs_modal';
 export interface AdminActionScreenProps {
   unconfigureServer: () => Promise<void>;
   zeroData: () => Promise<void>;
-  backup: () => Promise<void>;
+  backup: () => Promise<Result<string[], Scan.BackupError | Error>>;
   hasBatches: boolean;
   isTestMode: boolean;
   isTogglingTestMode: boolean;
@@ -71,25 +72,24 @@ export function AdminActionsScreen({
     return setIsConfirmingZero((s) => !s);
   }
   const exportBackup = useCallback(async () => {
-    try {
-      setBackupError('');
-      setIsBackingUp(true);
-      await backup();
-      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
-        disposition: 'success',
-        message: 'User successfully saved ballot data backup files.',
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      setBackupError(error.toString());
+    setBackupError('');
+    setIsBackingUp(true);
+    const result = await backup();
+    if (result.isErr()) {
+      const error = result.err();
+      setBackupError(error.message);
       await logger.log(LogEventId.SavedScanImageBackup, userRole, {
         disposition: 'failure',
         message: `Error saving ballot data backup: ${error.message}`,
         result: 'No backup saved.',
       });
-    } finally {
-      setIsBackingUp(false);
+    } else {
+      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
+        disposition: 'success',
+        message: 'User successfully saved ballot data backup files.',
+      });
     }
+    setIsBackingUp(false);
   }, [backup, logger, userRole]);
 
   const deleteBallotData = useCallback(async () => {

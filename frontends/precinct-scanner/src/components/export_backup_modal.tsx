@@ -1,4 +1,5 @@
-import { Result } from '@votingworks/types';
+import { Scan } from '@votingworks/api';
+import { safeParse } from '@votingworks/types';
 import {
   Button,
   isElectionManagerAuth,
@@ -9,18 +10,10 @@ import {
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
-import {
-  assert,
-  generateElectionBasedSubfolderName,
-  SCANNER_BACKUPS_FOLDER,
-  throwIllegalValue,
-  usbstick,
-} from '@votingworks/utils';
-import { join } from 'path';
+import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
-import { download, DownloadError, DownloadErrorKind } from '../utils/download';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -39,6 +32,8 @@ enum ModalState {
   INIT = 'init',
 }
 
+const DEFAULT_ERROR = 'Failed to save backup.';
+
 export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,67 +43,42 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
-  const exportBackup = useCallback(
-    async (openDialog: boolean) => {
-      setCurrentState(ModalState.SAVING);
+  const exportBackup = useCallback(async () => {
+    setCurrentState(ModalState.SAVING);
 
-      let result: Result<void, DownloadError>;
-      if (window.kiosk && !openDialog) {
-        const usbPath = await usbstick.getDevicePath();
-        if (!usbPath) {
-          setErrorMessage('No USB drive found.');
-          setCurrentState(ModalState.ERROR);
-          return;
-        }
-        const electionFolderName = generateElectionBasedSubfolderName(
-          electionDefinition.election,
-          electionDefinition.electionHash
-        );
-        const pathToFolder = join(
-          usbPath,
-          SCANNER_BACKUPS_FOLDER,
-          electionFolderName
-        );
-        result = await download('/precinct-scanner/backup', {
-          directory: pathToFolder,
-        });
-      } else {
-        result = await download('/precinct-scanner/backup');
-      }
+    const usbPath = await usbstick.getDevicePath();
+    if (!usbPath) {
+      setErrorMessage('No USB drive found.');
+      setCurrentState(ModalState.ERROR);
+      return;
+    }
+    const httpResponse = await fetch('/precinct-scanner/backup-to-usb-drive', {
+      method: 'POST',
+    });
 
-      if (window.kiosk) {
-        // Backups can take several minutes. Ensure the data is flushed to the
-        // usb before prompting the user to eject it.
-        await usbstick.doSync();
-      }
+    if (!httpResponse.ok) {
+      setErrorMessage(DEFAULT_ERROR);
+      setCurrentState(ModalState.ERROR);
+      return;
+    }
 
-      if (result.isOk()) {
+    const body = await httpResponse.json();
+    const result = safeParse(Scan.BackupToUsbResponseSchema, body);
+
+    if (result.isErr()) {
+      setErrorMessage(DEFAULT_ERROR);
+      setCurrentState(ModalState.ERROR);
+    } else {
+      const response = result.ok();
+
+      if (response.status === 'ok') {
         setCurrentState(ModalState.DONE);
       } else {
-        const error = result.err();
-        switch (error.kind) {
-          case DownloadErrorKind.FetchFailed:
-          case DownloadErrorKind.FileMissing:
-            setErrorMessage(
-              `Unable to get backup: ${error.kind} (status=${error.response.statusText})`
-            );
-            break;
-
-          case DownloadErrorKind.OpenFailed:
-            setErrorMessage(
-              `Unable to write file to save location: ${error.path}`
-            );
-            break;
-
-          default:
-            // nothing to do
-            break;
-        }
+        setErrorMessage(response.errors[0].message ?? DEFAULT_ERROR);
         setCurrentState(ModalState.ERROR);
       }
-    },
-    [electionDefinition.election, electionDefinition.electionHash]
-  );
+    }
+  }, []);
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -190,30 +160,12 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
               <h1>No USB Drive Detected</h1>
               <p>
                 Please insert a USB drive to save the backup.
-                <UsbImage
-                  src="/assets/usb-drive.svg"
-                  alt="Insert USB Image"
-                  // hidden feature to save with file dialog by double-clicking
-                  onDoubleClick={() => exportBackup(true)}
-                />
+                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               </p>
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              {!window.kiosk && (
-                <Button
-                  data-testid="manual-export"
-                  onPress={() => exportBackup(true)}
-                  primary
-                >
-                  Save
-                </Button>
-              )}
-              <Button onPress={onClose}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case usbstick.UsbDriveStatus.ejecting:
@@ -231,26 +183,20 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           content={
             <Prose>
               <h1>Save Backup</h1>
-              <UsbImage
-                src="/assets/usb-drive.svg"
-                onDoubleClick={() => exportBackup(true)}
-                alt="Insert USB Image"
-              />
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <p>
                 A ZIP file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom save
-                location.
+                on the mounted USB drive.
               </p>
             </Prose>
           }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportBackup(false)}>
+              <Button primary onPress={() => exportBackup()}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>
-              <Button onPress={() => exportBackup(true)}>Custom</Button>
             </React.Fragment>
           }
         />

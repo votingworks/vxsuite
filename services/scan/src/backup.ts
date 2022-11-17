@@ -1,4 +1,7 @@
+import { Scan } from '@votingworks/api';
 import { FULL_LOG_PATH } from '@votingworks/logging';
+import { err } from '@votingworks/types';
+import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
@@ -8,6 +11,7 @@ import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
+import { buildExporter } from './util/exporter';
 
 const debug = makeDebug('scan:backup');
 
@@ -196,11 +200,43 @@ export function backup(
   const zip = new ZipStream();
 
   process.nextTick(() => {
-    new Backup(zip, store).backup(options).catch((error) => {
-      zip.emit('error', error);
-      zip.destroy();
-    });
+    new Backup(zip, store)
+      .backup(options)
+      .then(() => {
+        store.setScannerBackedUp();
+      })
+      .catch((error) => {
+        zip.emit('error', error);
+        zip.destroy();
+      });
   });
 
   return zip;
+}
+
+/**
+ * Back up the store and all referenced files into a zip archive on a USB drive.
+ */
+export async function backupToUsbDrive(
+  store: Store,
+  options: BackupOptions = {}
+): Promise<Scan.BackupResult> {
+  const electionDefinition = store.getElectionDefinition();
+
+  if (!electionDefinition) {
+    return err({
+      type: 'no-election',
+      message: 'Cannot backup without election configuration',
+    });
+  }
+
+  const exporter = buildExporter();
+  return await exporter.exportDataToUsbDrive(
+    'scanner-backups',
+    `${generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.electionHash
+    )}/${new Date().toISOString().replace(/[^-a-z0-9]+/gi, '-')}-backup.zip`,
+    backup(store, options)
+  );
 }

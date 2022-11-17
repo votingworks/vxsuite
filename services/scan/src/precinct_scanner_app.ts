@@ -22,7 +22,7 @@ import * as fs from 'fs/promises';
 import multer from 'multer';
 import { pipeline } from 'stream/promises';
 import { z } from 'zod';
-import { backup } from './backup';
+import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
@@ -572,58 +572,22 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get('/precinct-scanner/backup', (_request, response) => {
-    const electionDefinition = store.getElectionDefinition();
+  app.post<NoParams, Scan.BackupToUsbResponse, Scan.BackupToUsbRequest>(
+    '/precinct-scanner/backup-to-usb-drive',
+    async (_request, response) => {
+      const result = await backupToUsbDrive(store);
 
-    if (!electionDefinition) {
-      response.status(500).json({
-        errors: [
-          {
-            type: 'unconfigured',
-            message: 'cannot backup an unconfigured server',
-          },
-        ],
-      });
-      return;
-    }
-
-    response
-      .header('Content-Type', 'application/zip')
-      .header(
-        'Content-Disposition',
-        `attachment; filename="election-${electionDefinition.electionHash.slice(
-          0,
-          10
-        )}-${new Date()
-          .toISOString()
-          .replace(/[^-a-z0-9]+/gi, '-')}-backup.zip"`
-      )
-      .flushHeaders();
-
-    backup(store, {
-      /**
-       * At greater than this number of scanned sheets, if we store original scan images, we run
-       * the risk of the precinct scanner backup zip being larger than 4GB, the max file size on
-       * FAT32 formatted USB drives
-       */
-      saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: 1000,
-    })
-      .on('error', (error: Error) => {
-        debug('backup error: %s', error.stack);
+      if (result.isErr()) {
         response.status(500).json({
-          errors: [
-            {
-              type: 'error',
-              message: error.toString(),
-            },
-          ],
+          status: 'error',
+          errors: [result.err()],
         });
-      })
-      .on('end', () => {
-        store.setScannerBackedUp();
-      })
-      .pipe(response);
-  });
+        return;
+      }
+
+      response.json({ status: 'ok', paths: result.ok() });
+    }
+  );
 
   app.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
     '/precinct-scanner/scanner/status',
