@@ -89,10 +89,19 @@ export function isValidPollsStateChange(
   prevState: PollsState,
   newState: PollsState
 ): boolean {
-  if (prevState === newState) return false; // no change an invalid change
-  if (prevState === 'polls_closed_final') return false; // cannot change if voting complete
-  if (newState === 'polls_closed_initial') return false; // cannot revert to initial closed
-  return true;
+  switch (prevState) {
+    case 'polls_closed_initial':
+      return newState === 'polls_open';
+    case 'polls_open':
+      return newState === 'polls_paused' || newState === 'polls_closed_final';
+    case 'polls_paused':
+      return newState === 'polls_open' || newState === 'polls_closed_final';
+    case 'polls_closed_final':
+      return false;
+    /* istanbul ignore next */
+    default:
+      throwIllegalValue(prevState);
+  }
 }
 export function getPollsTransitionActionPastTense(
   transition: PollsTransition
