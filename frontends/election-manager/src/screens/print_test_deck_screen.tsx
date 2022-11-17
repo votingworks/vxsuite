@@ -38,6 +38,7 @@ import {
   getBallotLayoutPageSize,
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
+import { PrintButton } from '../components/print_button';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -449,14 +450,13 @@ export function PrintTestDeckScreen(): JSX.Element {
           <HorizontalRule />
         </Prose>
         <p>
-          <Button
-            onPress={() =>
-              printLetterComponentsOfLogicAndAccuracyPackage('all')
-            }
+          <PrintButton
+            print={() => printLetterComponentsOfLogicAndAccuracyPackage('all')}
+            useDefaultProgressModal={false}
             fullWidth
           >
             <strong>Print Packages for All Precincts</strong>
-          </Button>
+          </PrintButton>
         </p>
         <ButtonList>
           {[...election.precincts]
@@ -466,15 +466,16 @@ export function PrintTestDeckScreen(): JSX.Element {
               })
             )
             .map((p) => (
-              <Button
+              <PrintButton
                 key={p.id}
-                onPress={() =>
+                print={() =>
                   printLetterComponentsOfLogicAndAccuracyPackage(p.id)
                 }
+                useDefaultProgressModal={false}
                 fullWidth
               >
                 {p.name}
-              </Button>
+              </PrintButton>
             ))}
         </ButtonList>
       </NavigationScreen>
