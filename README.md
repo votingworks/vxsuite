@@ -95,7 +95,7 @@ sudo whoami
 ```
 
 Automatically install and build all dependencies in the vxsuite repo with the 
-following command
+following command:
 
 ```sh
 ./script/bootstrap
