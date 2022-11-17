@@ -4,7 +4,7 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { unsafeParse } from '@votingworks/types';
+import { Id, unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
@@ -144,6 +144,71 @@ test('DELETE /admin/elections/:electionId', async () => {
   await request(app).get('/admin/elections').expect(200, []);
 });
 
+test('GET /admin/elections/:electionId/cvr-files happy path', async () => {
+  const cvrFiles: Admin.CastVoteRecordFileRecord[] = [
+    {
+      id: 'cvr-file-2',
+      createdAt: new Date().toISOString(),
+      electionId: 'test-election-2',
+      exportTimestamp: '2021-10-24T00:30:14.513Z',
+      filename: 'cvrs-2.jsonl',
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['scanner-1', 'scanner-2'],
+      sha256Hash: 'file-2-hash',
+    },
+    {
+      id: 'cvr-file-1',
+      createdAt: new Date().toISOString(),
+      electionId: 'test-election-2',
+      exportTimestamp: '2021-09-02T22:27:58.327Z',
+      filename: 'cvrs-1.jsonl',
+      precinctIds: ['precinct-2'],
+      scannerIds: ['scanner-1'],
+      sha256Hash: 'file-1-hash',
+    },
+  ];
+
+  jest
+    .spyOn(workspace.store, 'getCvrFiles')
+    .mockImplementationOnce((electionId: Id) => {
+      expect(electionId).toEqual('test-election-2');
+
+      return cvrFiles;
+    });
+
+  const response = await request(app)
+    .get(`/admin/elections/test-election-2/cvr-files`)
+    .expect(200);
+
+  const parsedResponse = unsafeParse(
+    Admin.GetCvrFilesResponseSchema,
+    response.body
+  );
+
+  expect(parsedResponse).toEqual<Admin.GetCvrFilesResponse>(cvrFiles);
+});
+
+test('GET /admin/elections/:electionId/cvr-files empty response', async () => {
+  jest
+    .spyOn(workspace.store, 'getCvrFiles')
+    .mockImplementationOnce((electionId: Id) => {
+      expect(electionId).toEqual('test-election-1');
+
+      return [];
+    });
+
+  const response = await request(app)
+    .get(`/admin/elections/test-election-1/cvr-files`)
+    .expect(200);
+
+  const parsedResponse = unsafeParse(
+    Admin.GetCvrFilesResponseSchema,
+    response.body
+  );
+
+  expect(parsedResponse).toEqual<Admin.GetCvrFilesResponse>([]);
+});
+
 test('POST /admin/elections/:electionId/cvr-files', async () => {
   const electionId = workspace.store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
@@ -165,15 +230,13 @@ test('POST /admin/elections/:electionId/cvr-files', async () => {
 
   assert(response.status === 'ok');
 
-  expect(
-    workspace.store.getCastVoteRecordFileMetadata(response.id)
-  ).toMatchObject(
-    typedAs<Partial<Admin.CastVoteRecordFileRecord>>({
+  expect(workspace.store.getCvrFiles(electionId)).toEqual([
+    expect.objectContaining<Partial<Admin.CastVoteRecordFileRecord>>({
       id: response.id,
       electionId,
       filename: 'cvrFile.json',
-    })
-  );
+    }),
+  ]);
 
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(
     3000

@@ -114,6 +114,13 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
+  app.get<{ electionId: Id }, Admin.GetCvrFilesResponse>(
+    '/admin/elections/:electionId/cvr-files',
+    (request, response) => {
+      response.json(store.getCvrFiles(request.params.electionId));
+    }
+  );
+
   app.post<
     { electionId: Id },
     Admin.PostCvrFileResponse,

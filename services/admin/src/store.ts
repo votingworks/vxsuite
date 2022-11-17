@@ -131,7 +131,7 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt,
+        datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
       where deleted_at is null
@@ -160,7 +160,7 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt,
+        datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
       where deleted_at is null AND id = ?
@@ -633,49 +633,52 @@ export class Store {
     return id;
   }
 
-  getCastVoteRecordFileMetadata(
-    cvrFileId: Id
-  ): Admin.CastVoteRecordFileRecord | undefined {
-    const result = this.client.one(
+  getCvrFiles(electionId: Id): Admin.CastVoteRecordFileRecord[] {
+    const results = this.client.all(
       `
       select
-        election_id as electionId,
+        id,
         filename,
         export_timestamp as exportTimestamp,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
-        created_at as createdAt
+        datetime(created_at, 'localtime') as createdAt
       from cvr_files
-      where id = ?
+      where election_id = ?
+      order by export_timestamp desc
     `,
-      cvrFileId
-    ) as
-      | {
-          electionId: Id;
-          filename: string;
-          exportTimestamp: string;
-          precinctIds: string;
-          scannerIds: string;
-          sha256Hash: string;
-          createdAt: string;
-        }
-      | undefined;
+      electionId
+    ) as Array<{
+      id: Id;
+      filename: string;
+      exportTimestamp: string;
+      precinctIds: string;
+      scannerIds: string;
+      sha256Hash: string;
+      createdAt: string;
+    }>;
 
-    if (!result) {
-      return undefined;
-    }
-
-    return safeParse(Admin.CastVoteRecordFileRecordSchema, {
-      id: cvrFileId,
-      electionId: result.electionId,
-      sha256Hash: result.sha256Hash,
-      filename: result.filename,
-      exportTimestamp: convertSqliteTimestampToIso8601(result.exportTimestamp),
-      precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
-      scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
-      createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-    }).unsafeUnwrap();
+    return results
+      .map((result) =>
+        safeParse(Admin.CastVoteRecordFileRecordSchema, {
+          id: result.id,
+          electionId,
+          sha256Hash: result.sha256Hash,
+          filename: result.filename,
+          exportTimestamp: convertSqliteTimestampToIso8601(
+            result.exportTimestamp
+          ),
+          precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
+          scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
+          createdAt: convertSqliteTimestampToIso8601(result.createdAt),
+        }).unsafeUnwrap()
+      )
+      .map<Admin.CastVoteRecordFileRecord>((parsedResult) => ({
+        ...parsedResult,
+        precinctIds: [...parsedResult.precinctIds].sort(),
+        scannerIds: [...parsedResult.scannerIds].sort(),
+      }));
   }
 
   /**
@@ -690,7 +693,7 @@ export class Store {
           id,
           ballot_id as ballotId,
           data,
-          created_at as createdAt
+          datetime(created_at, 'localtime') as createdAt
         from cvrs
         where election_id = ?
       `,
@@ -890,7 +893,7 @@ export class Store {
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
           write_ins.transcribed_value as transcribedValue,
-          write_ins.transcribed_at as transcribedAt
+          datetime(write_ins.transcribed_at, 'localtime') as transcribedAt
         from write_ins
         inner join
           cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
@@ -1253,7 +1256,7 @@ export class Store {
           ballot_type as ballotType,
           ballot_mode as ballotMode,
           num_copies as numCopies,
-          created_at as createdAt
+          datetime(created_at, 'localtime') as createdAt
         from printed_ballots
         where ${whereParts.join(' and ')}
       `,

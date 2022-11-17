@@ -265,13 +265,13 @@ export const GetCvrFilesRequestSchema: z.ZodSchema<GetCvrFilesRequest> =
  * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
-export type GetCvrFileResponse = CastVoteRecordFileRecord[];
+export type GetCvrFilesResponse = CastVoteRecordFileRecord[];
 
 /**
  * @url /admin/elections/:electionId/cvr-files
  * @method GET
  */
-export const GetCvrFileResponseSchema: z.ZodSchema<GetCvrFileResponse> =
+export const GetCvrFilesResponseSchema: z.ZodSchema<GetCvrFilesResponse> =
   z.array(CastVoteRecordFileRecordSchema);
 
 /**
