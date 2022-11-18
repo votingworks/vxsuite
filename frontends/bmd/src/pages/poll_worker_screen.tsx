@@ -52,6 +52,7 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
+import styled from 'styled-components';
 import { MachineConfig, ScreenReader } from '../config/types';
 
 import { Sidebar, SidebarProps } from '../components/sidebar';
@@ -313,6 +314,16 @@ function PrecinctScannerTallyReportModal({
   );
 }
 
+const UpdatePollsDirectlyActionsSpan = styled.span`
+  display: flex;
+  width: 100%;
+
+  & > * {
+    flex-grow: 1;
+    margin: 0.25rem;
+  }
+`;
+
 function UpdatePollsDirectlyButton({
   pollsTransition,
   updatePollsState,
@@ -362,12 +373,12 @@ function UpdatePollsDirectlyButton({
             </Prose>
           }
           actions={
-            <React.Fragment>
+            <UpdatePollsDirectlyActionsSpan>
               <Button onPress={confirmUpdate}>{action} on VxMark Now</Button>
               <Button primary onPress={closeModal}>
                 Cancel
               </Button>
-            </React.Fragment>
+            </UpdatePollsDirectlyActionsSpan>
           }
           onOverlayClick={closeModal}
         />
