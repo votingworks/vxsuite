@@ -294,11 +294,11 @@ export function AppRoot({
   async function updatePrecinctSelection(
     newPrecinctSelection: PrecinctSelection
   ) {
-    await config.setPrecinctSelection(newPrecinctSelection);
     dispatchAppState({
       type: 'updatePrecinctSelection',
       precinctSelection: newPrecinctSelection,
     });
+    await config.setPrecinctSelection(newPrecinctSelection);
     await refreshConfig();
   }
 
