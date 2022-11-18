@@ -16,6 +16,7 @@ import { Select } from './select';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { Loading } from './loading';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
@@ -24,6 +25,8 @@ export type ChangePrecinctMode =
   | 'default'
   | 'confirmation_required'
   | 'disabled';
+
+type ModalShown = 'none' | 'confirmation' | 'changing_precinct';
 
 export interface ChangePrecinctButtonProps {
   appPrecinctSelection?: PrecinctSelection;
@@ -42,17 +45,12 @@ export function ChangePrecinctButton({
   mode,
   logger,
 }: ChangePrecinctButtonProps): JSX.Element {
-  const [isConfirmationModalShowing, setIsConfirmationModalShowing] =
-    useState(false);
+  const [modalShown, setModalShown] = useState<ModalShown>('none');
   const [unconfirmedPrecinctSelection, setUnconfirmedPrecinctSelection] =
     useState<PrecinctSelection>();
 
-  function openModal() {
-    setIsConfirmationModalShowing(true);
-  }
-
-  function closeModal() {
-    setIsConfirmationModalShowing(false);
+  function closeConfirmationModal() {
+    setModalShown('none');
     setUnconfirmedPrecinctSelection(undefined);
   }
 
@@ -77,7 +75,11 @@ export function ChangePrecinctButton({
     event
   ) => {
     const { value } = event.currentTarget;
-    if (!value) return; // in case of blur on placeholder option
+    // In case of a blur on the placeholder option
+    if (!value) return;
+    // When there is a re-render right after a select option, the event can
+    // refire. To avoid responding to that event, check if we have already
+    if (modalShown === 'changing_precinct') return;
 
     const newPrecinctSelection =
       value === ALL_PRECINCTS_OPTION_VALUE
@@ -87,14 +89,17 @@ export function ChangePrecinctButton({
     if (mode === 'confirmation_required') {
       setUnconfirmedPrecinctSelection(newPrecinctSelection);
     } else {
+      setModalShown('changing_precinct');
       await updatePrecinctSelectionAndLog(newPrecinctSelection);
+      setModalShown('none');
     }
   };
 
   async function confirmPrecinctChange() {
     assert(unconfirmedPrecinctSelection);
+    setModalShown('changing_precinct');
     await updatePrecinctSelectionAndLog(unconfirmedPrecinctSelection);
-    closeModal();
+    closeConfirmationModal();
   }
 
   const dropdownPrecinctSelection =
@@ -114,7 +119,7 @@ export function ChangePrecinctButton({
       onBlur={handlePrecinctSelectionChange}
       onChange={handlePrecinctSelectionChange}
       large
-      disabled={mode === 'disabled'}
+      disabled={mode === 'disabled' || modalShown === 'changing_precinct'}
     >
       {mode === 'default' && (
         <option value="" disabled>
@@ -148,14 +153,17 @@ export function ChangePrecinctButton({
     </Select>
   );
 
-  return mode === 'default' || mode === 'disabled' ? (
-    precinctSelectDropdown
-  ) : (
+  return (
     <React.Fragment>
-      <Button onPress={openModal} large>
-        Change Precinct
-      </Button>
-      {isConfirmationModalShowing && (
+      {mode === 'default' || mode === 'disabled' ? (
+        precinctSelectDropdown
+      ) : (
+        <Button onPress={() => setModalShown('confirmation')} large>
+          Change Precinct
+        </Button>
+      )}
+      {modalShown === 'changing_precinct' && <Modal content={<Loading />} />}
+      {modalShown === 'confirmation' && (
         <Modal
           content={
             <Prose>
@@ -178,10 +186,10 @@ export function ChangePrecinctButton({
               >
                 Confirm
               </Button>
-              <Button onPress={closeModal}>Cancel</Button>
+              <Button onPress={closeConfirmationModal}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeModal}
+          onOverlayClick={closeConfirmationModal}
         />
       )}
     </React.Fragment>

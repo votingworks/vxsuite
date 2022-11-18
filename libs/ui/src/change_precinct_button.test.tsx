@@ -41,6 +41,7 @@ test('default mode: set precinct from unset', async () => {
 
   // Updates app state
   userEvent.selectOptions(dropdown, 'precinct-1');
+  await screen.findByRole('alertdialog');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-1'))
@@ -55,6 +56,7 @@ test('default mode: set precinct from unset', async () => {
       })
     );
   });
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // Prompt is still disabled
   expect(
@@ -82,11 +84,11 @@ test('default mode: switch precinct', async () => {
   expect(screen.getByRole('option', { name: 'All Precincts' })).toBeDisabled();
 
   userEvent.selectOptions(dropdown, 'precinct-2');
+  await screen.findByRole('alertdialog');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-2'))
   );
-
   await waitFor(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PrecinctConfigurationChanged,
@@ -97,6 +99,7 @@ test('default mode: switch precinct', async () => {
       })
     );
   });
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 test('confirmation required mode', async () => {
@@ -146,16 +149,13 @@ test('confirmation required mode', async () => {
   );
   screen.getByRole('option', { name: 'All Precincts', selected: true });
   userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-  await waitFor(() => {
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
+  await screen.findByText('Loading');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenLastCalledWith(
     expect.objectContaining({
       kind: 'AllPrecincts',
     })
   );
-
   await waitFor(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PrecinctConfigurationChanged,
@@ -166,6 +166,7 @@ test('confirmation required mode', async () => {
       })
     );
   });
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   expect(logger.log).toHaveBeenCalledTimes(1);
 });
 
