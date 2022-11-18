@@ -42,13 +42,12 @@ the following commands.
 
 ```sh
 su - # this will prompt for the root password
-usermod -aG sudo <USERNAME> # use your user account username
+echo "USERNAME ALL=(ALL:ALL) ALL" > /etc/sudoers.d/USERNAME # use your user account username
 exit
 ```
 
-Restart your machine or open a new terminal for the changes to take effect. You
-can verify it worked after restart by entering `sudo whoami` in the terminal and
-you should see `root`.
+Verify your account has sudo privileges by running `sudo whoami` in the terminal.
+You should see `root`.
 
 Next install git, and create an SSH key following the
 [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
@@ -87,8 +86,16 @@ node -v # this should return 16.x.x
 pnpm -v # this should return 5.x.x
 ```
 
-Automatically install all dependencies in the vxsuite repo with the following
-command
+NOTE: The initial bootstrap will take some time. You may be prompted for your
+`sudo` password during the run. To minimize the chance of it happening, you can
+reset the timer by running a quick sudo command before the bootstrap:
+
+```sh
+sudo whoami
+```
+
+Automatically install and build all dependencies in the vxsuite repo with the 
+following command:
 
 ```sh
 ./script/bootstrap
@@ -98,11 +105,7 @@ Test that you can run the code
 
 ```sh
 # try out BMD:
-make -C services/smartcards build
-# ^ wait for this to settle, then…
 cd frontends/bmd
-pnpm install
-pnpm build
 pnpm start
 # if it worked, go to http://localhost:3000/ in your VM
 ```
