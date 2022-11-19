@@ -12,7 +12,7 @@ import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { fakeKiosk, Inserted } from '@votingworks/test-utils';
+import { advancePromises, fakeKiosk, Inserted } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -113,6 +113,8 @@ test('option to set precinct if more than one', async () => {
     1,
     expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
   );
+
+  await advancePromises(); // avoid memory leak warning
 });
 
 test('no option to change precinct if there is only one precinct', async () => {

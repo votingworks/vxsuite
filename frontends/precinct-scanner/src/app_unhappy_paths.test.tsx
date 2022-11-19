@@ -78,7 +78,7 @@ test('services/scan fails to unconfigure', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
 
-  await screen.findByText('Loading');
+  await screen.findByText('Deleting Election Data');
 });
 
 test('Show invalid card screen when unsupported cards are given', async () => {

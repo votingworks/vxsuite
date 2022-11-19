@@ -66,7 +66,7 @@ export function ElectionManagerScreen({
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingText, setIsLoadingText] = useState<string>();
 
   const [
     isShowingToggleLiveModeWarningModal,
@@ -110,14 +110,18 @@ export function ElectionManagerScreen({
     if (!isTestMode && !scannerStatus.canUnconfigure) {
       openToggleLiveModeWarningModal();
     } else {
-      setIsLoading(true);
+      setIsLoadingText(
+        isTestMode
+          ? 'Switching to Live Election Mode'
+          : 'Switching to Testing Mode'
+      );
       await toggleLiveMode();
-      setIsLoading(false);
+      setIsLoadingText(undefined);
     }
   }
 
   async function handleUnconfigure() {
-    setIsLoading(true);
+    setIsLoadingText('Deleting Election Data');
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === usbstick.UsbDriveStatus.mounted) {
       await usbDrive.eject(userRole);
@@ -277,7 +281,7 @@ export function ElectionManagerScreen({
           onCancel={closeCalibrateScannerModal}
         />
       )}
-      {isLoading && <Modal content={<Loading />} />}
+      {isLoadingText && <Modal content={<Loading>{isLoadingText}</Loading>} />}
       {isExportingResults && (
         <ExportResultsModal
           onClose={() => setIsExportingResults(false)}

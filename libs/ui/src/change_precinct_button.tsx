@@ -162,7 +162,9 @@ export function ChangePrecinctButton({
           Change Precinct
         </Button>
       )}
-      {modalShown === 'changing_precinct' && <Modal content={<Loading />} />}
+      {modalShown === 'changing_precinct' && (
+        <Modal content={<Loading>Changing Precinct</Loading>} />
+      )}
       {modalShown === 'confirmation' && (
         <Modal
           content={

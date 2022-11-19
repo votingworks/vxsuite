@@ -149,7 +149,7 @@ test('confirmation required mode', async () => {
   );
   screen.getByRole('option', { name: 'All Precincts', selected: true });
   userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-  await screen.findByText('Loading');
+  await screen.findByText('Changing Precinct');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenLastCalledWith(
     expect.objectContaining({

@@ -282,7 +282,7 @@ test('election manager and poll worker configuration', async () => {
   // Change mode as Election Manager
   mockTestModeChange(false);
   userEvent.click(await screen.findByText('Live Election Mode'));
-  await screen.findByText('Loading');
+  await screen.findByText('Switching to Live Election Mode');
   await advanceTimersAndPromises(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
@@ -400,7 +400,7 @@ test('election manager and poll worker configuration', async () => {
     await screen.findByText('Delete All Election Data from VxScan')
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
-  await screen.findByText('Loading');
+  await screen.findByText('Deleting Election Data');
   await waitFor(() =>
     expect(
       fetchMock.calls('./precinct-scanner/config/election', {
