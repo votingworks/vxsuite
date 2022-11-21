@@ -153,9 +153,9 @@ test('requires confirmation to open polls if no report on card', () => {
   fireEvent.click(screen.getByText('Cancel'));
   screen.getByText('Open Polls');
 
-  // Clicking Open VxMark Now should open/close polls anyway
+  // Clicking Open Polls on VxMark Now should open/close polls anyway
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open VxMark Now'));
+  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
   expect(updatePollsState).toHaveBeenCalled();
 });
 

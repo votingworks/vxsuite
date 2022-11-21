@@ -130,7 +130,7 @@ test('ballot batching', async () => {
       expect.objectContaining({
         disposition: 'success',
         message:
-          'Current scanning batch ended due to polls being closed or paused.',
+          'Current scanning batch ended due to polls being closed or voting being paused.',
         batchId: batch1Id,
       })
     );
@@ -145,7 +145,7 @@ test('ballot batching', async () => {
       expect.objectContaining({
         disposition: 'success',
         message:
-          'New scanning batch started due to polls being opened or reopened.',
+          'New scanning batch started due to polls being opened or voting being resumed.',
         batchId: expect.not.stringMatching(batch1Id),
       })
     );

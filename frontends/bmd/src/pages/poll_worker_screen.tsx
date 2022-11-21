@@ -52,6 +52,7 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
+import styled from 'styled-components';
 import { MachineConfig, ScreenReader } from '../config/types';
 
 import { Sidebar, SidebarProps } from '../components/sidebar';
@@ -228,9 +229,6 @@ function PrecinctScannerTallyReportModal({
   let modalActions: React.ReactNode = null;
 
   const reportTitle = getPollsReportTitle(precinctScannerTally.pollsTransition);
-  const pollsAction = getPollsTransitionAction(
-    precinctScannerTally.pollsTransition
-  );
   const newPollsStateName = getPollsStateName(precinctScannerPollsState);
 
   switch (modalState) {
@@ -254,7 +252,8 @@ function PrecinctScannerTallyReportModal({
       );
       modalActions = willUpdatePollsToMatchScanner ? (
         <Button primary onPress={printReportsAndUpdatePolls}>
-          {pollsAction} Polls and Print Report
+          {getPollsTransitionAction(precinctScannerTally.pollsTransition)} and
+          Print Report
         </Button>
       ) : (
         <Button primary onPress={printReportsAndUpdatePolls}>
@@ -315,6 +314,16 @@ function PrecinctScannerTallyReportModal({
   );
 }
 
+const UpdatePollsDirectlyActionsSpan = styled.span`
+  display: flex;
+  width: 100%;
+
+  & > * {
+    flex-grow: 1;
+    margin: 0.25rem;
+  }
+`;
+
 function UpdatePollsDirectlyButton({
   pollsTransition,
   updatePollsState,
@@ -335,31 +344,41 @@ function UpdatePollsDirectlyButton({
 
   const action = getPollsTransitionAction(pollsTransition);
   const reportTitle = getPollsReportTitle(pollsTransition);
+  const suggestVxScanText = (() => {
+    switch (pollsTransition) {
+      case 'open_polls':
+        return `Open polls on VxScan to save the ${reportTitle.toLowerCase()} before opening polls on VxMark.`;
+      case 'pause_voting':
+        return `Pause voting on VxScan to save the ${reportTitle.toLowerCase()} before pausing voting on VxMark.`;
+      case 'resume_voting':
+        return `Resume voting on VxScan to save the ${reportTitle.toLowerCase()} before resuming voting on VxMark.`;
+      case 'close_polls':
+        return `Close polls on VxScan to save the ${reportTitle.toLowerCase()} before closing polls on VxMark.`;
+      /* istanbul ignore next */
+      default:
+        throwIllegalValue(pollsTransition);
+    }
+  })();
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsConfirmationModalOpen(true)}>
-        {action} Polls
-      </Button>
+      <Button onPress={() => setIsConfirmationModalOpen(true)}>{action}</Button>
       {isConfirmationModalOpen && (
         <Modal
           centerContent
           content={
             <Prose textCenter id="modalaudiofocus">
               <h1>No {reportTitle} on Card</h1>
-              <p>
-                {action} polls on VxScan to save the {reportTitle.toLowerCase()}{' '}
-                before closing polls on VxMark.
-              </p>
+              <p>{suggestVxScanText}</p>
             </Prose>
           }
           actions={
-            <React.Fragment>
+            <UpdatePollsDirectlyActionsSpan>
+              <Button onPress={confirmUpdate}>{action} on VxMark Now</Button>
               <Button primary onPress={closeModal}>
                 Cancel
               </Button>
-              <Button onPress={confirmUpdate}>{action} VxMark Now</Button>
-            </React.Fragment>
+            </UpdatePollsDirectlyActionsSpan>
           }
           onOverlayClick={closeModal}
         />

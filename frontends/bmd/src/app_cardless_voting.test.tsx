@@ -102,7 +102,7 @@ test('Cardless Voting Flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open VxMark Now'));
+  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
 
   // Remove card
   card.removeCard();
@@ -347,7 +347,7 @@ test('poll worker must select a precinct first', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open VxMark Now'));
+  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
 
   // Remove card
   card.removeCard();

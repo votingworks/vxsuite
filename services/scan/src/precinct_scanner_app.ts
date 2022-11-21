@@ -361,7 +361,7 @@ export async function buildPrecinctScannerApp(
       await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
         disposition: 'success',
         message:
-          'New scanning batch started due to polls being opened or reopened.',
+          'New scanning batch started due to polls being opened or voting being resumed.',
         batchId,
       });
     } else if (
@@ -374,7 +374,7 @@ export async function buildPrecinctScannerApp(
       await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
         disposition: 'success',
         message:
-          'Current scanning batch ended due to polls being closed or paused.',
+          'Current scanning batch ended due to polls being closed or voting being paused.',
         batchId: ongoingBatchId,
       });
     }

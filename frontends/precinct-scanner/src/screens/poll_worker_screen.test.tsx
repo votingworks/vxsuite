@@ -172,9 +172,9 @@ describe('transitions from polls open', () => {
 
   test('pause polls', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Pause Polls'));
-    await screen.findByText('Pausing Polls…');
-    await screen.findByText('Polls are paused.');
+    userEvent.click(await screen.findByText('Pause Voting'));
+    await screen.findByText('Pausing Voting…');
+    await screen.findByText('Voting paused.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_paused');
   });
 });
@@ -193,21 +193,21 @@ describe('transitions from polls paused', () => {
         auth: readableFakePollWorkerAuth(),
       },
     });
-    await screen.findByText('Do you want to reopen the polls?');
+    await screen.findByText('Do you want to resume voting?');
   });
 
   test('open polls happy path', async () => {
-    userEvent.click(screen.getByText('Yes, Reopen the Polls'));
-    await screen.findByText('Reopening Polls…');
-    await screen.findByText('Polls are open.');
+    userEvent.click(screen.getByText('Yes, Resume Voting'));
+    await screen.findByText('Resuming Voting…');
+    await screen.findByText('Voting resumed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
   });
 
   test('open polls from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
-    userEvent.click(await screen.findByText('Reopen Polls'));
-    await screen.findByText('Reopening Polls…');
-    await screen.findByText('Polls are open.');
+    userEvent.click(await screen.findByText('Resume Voting'));
+    await screen.findByText('Resuming Voting…');
+    await screen.findByText('Voting resumed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
   });
 

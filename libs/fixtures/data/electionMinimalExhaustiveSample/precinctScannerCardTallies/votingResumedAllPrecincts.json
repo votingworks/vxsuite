@@ -2,7 +2,7 @@
   "tallyMachineType": "precinct_scanner",
   "totalBallotsScanned": 0,
   "isLiveMode": false,
-  "pollsTransition": "unpause_polls",
+  "pollsTransition": "resume_voting",
   "machineId": "0000",
   "timeSaved": 1665616069769,
   "timePollsTransitioned": 1665616069769,

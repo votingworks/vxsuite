@@ -14,7 +14,7 @@ test('renders info properly', () => {
       electionDefinition={electionSampleDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       totalBallotsScanned={23}
-      pollsTransition="pause_polls"
+      pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       isLiveMode={false}
@@ -23,14 +23,14 @@ test('renders info properly', () => {
   );
 
   // Check header
-  screen.getByText('TEST Polls Paused Report for All Precincts');
+  screen.getByText('TEST Voting Paused Report for All Precincts');
   const electionTitle = screen.getByText('General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
     'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
   );
-  const eventDate = screen.getByText('Polls Paused:');
+  const eventDate = screen.getByText('Voting Paused:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Polls Paused: Sep 19, 2021, 11:05 AM'
+    'Voting Paused: Sep 19, 2021, 11:05 AM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
@@ -48,8 +48,8 @@ test('renders info properly', () => {
   const pollsStatus = screen.getByText('Polls Status');
   expect(pollsStatus.parentElement).toHaveTextContent('Polls StatusPaused');
 
-  const timePollsPaused = screen.getByText('Time Polls Paused');
+  const timePollsPaused = screen.getByText('Time Voting Paused');
   expect(timePollsPaused.parentElement).toHaveTextContent(
-    'Time Polls PausedSun, Sep 19, 2021, 11:05 AM'
+    'Time Voting PausedSun, Sep 19, 2021, 11:05 AM'
   );
 });

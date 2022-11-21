@@ -6,9 +6,9 @@ export function getPollsTransitionDestinationState(
 ): PollsState {
   switch (transition) {
     case 'open_polls':
-    case 'unpause_polls':
+    case 'resume_voting':
       return 'polls_open';
-    case 'pause_polls':
+    case 'pause_voting':
       return 'polls_paused';
     case 'close_polls':
       return 'polls_closed_final';
@@ -21,13 +21,13 @@ export function getPollsTransitionDestinationState(
 export function getPollsTransitionAction(transition: PollsTransition): string {
   switch (transition) {
     case 'open_polls':
-      return 'Open';
-    case 'unpause_polls':
-      return 'Reopen';
-    case 'pause_polls':
-      return 'Pause';
+      return 'Open Polls';
+    case 'pause_voting':
+      return 'Pause Voting';
+    case 'resume_voting':
+      return 'Resume Voting';
     case 'close_polls':
-      return 'Close';
+      return 'Close Polls';
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(transition);
@@ -38,10 +38,10 @@ export function getPollsReportTitle(transition: PollsTransition): string {
   switch (transition) {
     case 'open_polls':
       return 'Polls Opened Report';
-    case 'unpause_polls':
-      return 'Polls Reopened Report';
-    case 'pause_polls':
-      return 'Polls Paused Report';
+    case 'resume_voting':
+      return 'Voting Resumed Report';
+    case 'pause_voting':
+      return 'Voting Paused Report';
     case 'close_polls':
       return 'Polls Closed Report';
     /* istanbul ignore next - compile-time check for completeness */
@@ -70,9 +70,9 @@ export function getPollTransitionsFromState(
 ): PollsTransition[] {
   switch (state) {
     case 'polls_open':
-      return ['close_polls', 'pause_polls'];
+      return ['close_polls', 'pause_voting'];
     case 'polls_paused':
-      return ['unpause_polls', 'close_polls'];
+      return ['resume_voting', 'close_polls'];
     case 'polls_closed_initial':
       return ['open_polls'];
     case 'polls_closed_final':
@@ -108,13 +108,13 @@ export function getPollsTransitionActionPastTense(
 ): string {
   switch (transition) {
     case 'close_polls':
-      return 'Closed';
+      return 'Polls Closed';
     case 'open_polls':
-      return 'Opened';
-    case 'unpause_polls':
-      return 'Reopened';
-    case 'pause_polls':
-      return 'Paused';
+      return 'Polls Opened';
+    case 'resume_voting':
+      return 'Voting Resumed';
+    case 'pause_voting':
+      return 'Voting Paused';
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(transition);

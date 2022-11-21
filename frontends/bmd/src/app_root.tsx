@@ -506,12 +506,12 @@ export function AppRoot({
           case 'polls_closed_final':
             return LogEventId.PollsClosed;
           case 'polls_paused':
-            return LogEventId.PollsPaused;
+            return LogEventId.VotingPaused;
           case 'polls_open':
             if (pollsState === 'polls_closed_initial') {
               return LogEventId.PollsOpened;
             }
-            return LogEventId.PollsUnpaused;
+            return LogEventId.VotingResumed;
           /* istanbul ignore next */
           default:
             throwIllegalValue(newPollsState);

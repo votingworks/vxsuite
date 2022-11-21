@@ -54,8 +54,8 @@ export function InsertCardScreen({
       case 'polls_paused':
         return (
           <React.Fragment>
-            <h1>Polls Paused</h1>
-            <p>Insert Poll Worker card to open.</p>
+            <h1>Voting Paused</h1>
+            <p>Insert Poll Worker card to resume voting.</p>
           </React.Fragment>
         );
       case 'polls_closed_final':

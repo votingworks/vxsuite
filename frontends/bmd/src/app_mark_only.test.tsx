@@ -107,7 +107,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open VxMark Now'));
+  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
   screen.getByText('Close Polls');
 
   // Remove card
@@ -198,7 +198,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Close Polls'));
-  fireEvent.click(screen.getByText('Close VxMark Now'));
+  fireEvent.click(screen.getByText('Close Polls on VxMark Now'));
 
   // Remove card
   card.removeCard();
