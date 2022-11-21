@@ -233,6 +233,10 @@ test('election manager must set precinct', async () => {
   screen.getByText(SELECT_PRECINCT_TEXT);
   mockPrecinctChange(singlePrecinctSelectionFor('23'));
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  await screen.findByText('Changing Precinct');
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
   card.removeCard();
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
@@ -293,6 +297,10 @@ test('election manager and poll worker configuration', async () => {
   // Change precinct as Election Manager
   mockPrecinctChange(singlePrecinctSelectionFor('23'));
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  await screen.findByText('Changing Precinct');
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
   await waitFor(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PrecinctConfigurationChanged,
@@ -335,6 +343,7 @@ test('election manager and poll worker configuration', async () => {
   mockPollsChange('polls_closed_initial');
   userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '20');
   userEvent.click(screen.getByText('Confirm'));
+  await screen.findByText('Changing Precinct');
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
