@@ -54,10 +54,10 @@ test('isValidPollsStateChange', () => {
   );
   expect(
     isValidPollsStateChange('polls_closed_initial', 'polls_paused')
-  ).toEqual(true);
+  ).toEqual(false);
   expect(
     isValidPollsStateChange('polls_closed_initial', 'polls_closed_final')
-  ).toEqual(true);
+  ).toEqual(false);
 
   // from polls open
   expect(isValidPollsStateChange('polls_open', 'polls_closed_initial')).toEqual(
