@@ -9,6 +9,7 @@ import {
   getAllByRole as domGetAllByRole,
   act,
   within,
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
@@ -494,7 +495,7 @@ test('printing ballots and printed ballots report', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
   // Printing should now continue normally
-  await waitFor(() => getByText('Printing'));
+  await screen.findByText('Printing');
   await expectPrint((printedElement, printOptions) => {
     printedElement.getByText('Mocked HMPB');
     printedElement.getByText('Ballot Mode: live');
@@ -509,14 +510,16 @@ test('printing ballots and printed ballots report', async () => {
     expect.any(String),
     expect.anything()
   );
+  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
   fireEvent.click(getByText('Print 1', { exact: false }));
-  await waitFor(() => getByText('Printing'));
+  await screen.findByText('Printing');
   await expectPrint();
+  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
   fireEvent.click(getByText('Precinct'));
   fireEvent.click(getByText('Print 1', { exact: false }));
-  await waitFor(() => getByText('Printing'));
+  await screen.findByText('Printing');
   await expectPrint();
-  await waitFor(() => !getByText('Printing'));
+  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('3 ballots', { exact: false });
@@ -724,8 +727,11 @@ test('tabulating CVRs', async () => {
   fireEvent.click(
     await screen.findByText('Unofficial Full Election Tally Report')
   );
+
   const reportPreview2 = getByTestId('report-preview');
   expect(within(reportPreview2).getAllByText('0').length).toBe(40);
+  // useQuery's in AppRoot are refetching data, and there's no change to wait on
+  await advanceTimersAndPromises();
 });
 
 test('tabulating CVRs with SEMS file', async () => {
@@ -1100,6 +1106,11 @@ test('changing election resets sems, cvr, and manual data files', async () => {
 
   fireEvent.click(await screen.findByText('Tally'));
   getByText('No CVR files loaded.');
+  await screen.findByText('Currently tallying live ballots.');
+  // We're waiting on a query for isOfficialResults. It has a default value,
+  // so there is no change on the page to wait for before test ends.
+  // Await promises to avoid test warning.
+  await advanceTimersAndPromises();
 });
 
 test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
@@ -1246,6 +1257,10 @@ test('election manager UI has expected nav', async () => {
   await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
+  // We're waiting on a query for the file mode (live vs. test).
+  // It has a default value, so there is no change on the page when loaded.
+  // Await promises to avoid test warning.
+  await advanceTimersAndPromises();
   userEvent.click(screen.getByText('Tally'));
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',
