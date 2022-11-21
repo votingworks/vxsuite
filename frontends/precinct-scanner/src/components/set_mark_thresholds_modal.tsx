@@ -233,6 +233,7 @@ export function SetMarkThresholdsModal({
           }
         />
       );
+    /* istanbul ignore next */
     default:
       throwIllegalValue(currentState);
   }

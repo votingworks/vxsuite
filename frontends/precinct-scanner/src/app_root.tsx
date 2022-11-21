@@ -165,6 +165,7 @@ function appReducer(state: State, action: AppAction): State {
         machineConfig:
           action.machineConfig ?? initialHardwareState.machineConfig,
       };
+    /* istanbul ignore next */
     default:
       throwIllegalValue(action);
   }

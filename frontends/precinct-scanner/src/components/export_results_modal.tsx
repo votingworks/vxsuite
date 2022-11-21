@@ -217,6 +217,7 @@ export function ExportResultsModal({
           }
         />
       );
+    /* istanbul ignore next */
     default:
       throwIllegalValue(usbDrive.status);
   }

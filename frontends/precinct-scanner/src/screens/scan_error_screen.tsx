@@ -56,6 +56,7 @@ export function ScanErrorScreen({
         // These cases require restart, so we don't need to show an error
         // message, since that's handled below.
         return undefined;
+      /* istanbul ignore next */
       default:
         throwIllegalValue(error);
     }

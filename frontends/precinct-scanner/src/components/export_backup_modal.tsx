@@ -201,6 +201,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           }
         />
       );
+    /* istanbul ignore next */
     default:
       throwIllegalValue(usbDrive.status);
   }
