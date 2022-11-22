@@ -1,8 +1,9 @@
 export const PRECINCT_SCANNER_FOLDER = 'ballot-packages';
 
 export const FONT_SIZES = [22, 28, 36, 56];
-export const DEFAULT_FONT_SIZE = 1;
-export const LARGE_DISPLAY_FONT_SIZE = 3;
+export const DEFAULT_FONT_SIZE = 'M';
+export const LARGE_DISPLAY_FONT_SIZE = 'L';
+export const DEFAULT_CONTRAST_THEME = 'black';
 
 export const POLLING_INTERVAL_FOR_SCANNER_STATUS_MS = 500;
 export const POLLING_INTERVAL_FOR_USB = 2000;

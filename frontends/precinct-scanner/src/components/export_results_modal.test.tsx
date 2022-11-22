@@ -166,6 +166,8 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         isSoundMuted: false,
         machineConfig,
         auth,
+        userSettings: { sizeTheme: 'M', contrastTheme: 'black' },
+        setUserSettings: () => undefined,
         logger: new Logger(LogSource.VxPrecinctScanFrontend),
       }}
     >

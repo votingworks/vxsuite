@@ -26,6 +26,11 @@ export function renderInAppContext(
         isSoundMuted: false,
         auth: Inserted.fakeLoggedOutAuth(),
         logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        userSettings: {
+          sizeTheme: 'M',
+          contrastTheme: 'black',
+        },
+        setUserSettings: () => undefined,
         ...context,
       }}
     >

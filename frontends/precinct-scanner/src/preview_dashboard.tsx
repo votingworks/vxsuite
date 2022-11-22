@@ -10,6 +10,7 @@ import { assert } from '@votingworks/utils';
 import React, { useCallback, useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
+import { PartialUserSettings, UserSettings } from './config/types';
 import { AppContext } from './contexts/app_context';
 
 const PreviewColumns = styled.div`
@@ -146,6 +147,15 @@ export function PreviewDashboard({
       }
     }, []);
 
+  const [userSettings, setUserSettings] = useState<UserSettings>({
+    sizeTheme: 'M',
+    contrastTheme: 'black',
+  });
+
+  function fooUserSettings(partialUserSettings: PartialUserSettings): void {
+    setUserSettings({ ...userSettings, ...partialUserSettings });
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -157,6 +167,8 @@ export function PreviewDashboard({
         auth: { status: 'logged_out', reason: 'no_card' },
         isSoundMuted: false,
         logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        userSettings,
+        setUserSettings: fooUserSettings,
       }}
     >
       <BrowserRouter>

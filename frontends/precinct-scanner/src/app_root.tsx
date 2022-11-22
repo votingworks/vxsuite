@@ -134,8 +134,11 @@ const initialFrontendState: Readonly<FrontendState> = {
   isScannerConfigLoaded: false,
 };
 
-const initialVoterState: Readonly<UserState> = {
-  userSettings: { textSize: GLOBALS.DEFAULT_FONT_SIZE },
+export const initialVoterState: Readonly<UserState> = {
+  userSettings: {
+    sizeTheme: GLOBALS.DEFAULT_FONT_SIZE,
+    contrastTheme: GLOBALS.DEFAULT_CONTRAST_THEME,
+  },
 };
 
 const initialState: Readonly<State> = {
@@ -222,7 +225,7 @@ function appReducer(state: State, action: AppAction): State {
       };
     case 'setUserSettings':
       /* istanbul ignore next */
-      if (Object.keys(action.userSettings).join(',') !== 'textSize') {
+      if (Object.keys(action.userSettings).join(',') !== 'sizeTheme') {
         throw new Error('unknown userSetting key');
       }
       return {

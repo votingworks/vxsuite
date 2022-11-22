@@ -6,12 +6,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import { createContext } from 'react';
-import {
-  MachineConfig,
-  TextSizeSetting,
-  SetUserSettings,
-  UserSettings,
-} from '../config/types';
+import { MachineConfig, SetUserSettings, UserSettings } from '../config/types';
 import * as GLOBALS from '../config/globals';
 
 export interface AppContextInterface {
@@ -37,7 +32,10 @@ const appContext: AppContextInterface = {
   },
   auth: { status: 'logged_out', reason: 'no_card' },
   logger: new Logger(LogSource.VxPrecinctScanFrontend),
-  userSettings: { textSize: GLOBALS.DEFAULT_FONT_SIZE as TextSizeSetting },
+  userSettings: {
+    sizeTheme: GLOBALS.DEFAULT_FONT_SIZE,
+    contrastTheme: GLOBALS.DEFAULT_CONTRAST_THEME,
+  },
   setUserSettings: () => undefined,
 };
 

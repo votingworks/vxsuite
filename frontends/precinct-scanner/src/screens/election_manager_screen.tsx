@@ -329,6 +329,8 @@ export function DefaultPreview(): JSX.Element {
           },
         },
         logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        userSettings: { sizeTheme: 'M', contrastTheme: 'black' },
+        setUserSettings: () => undefined,
       }}
     >
       <ElectionManagerScreen
