@@ -637,31 +637,26 @@ export class Store {
     const results = this.client.all(
       `
       select
-        cvr_file_id as id,
+        cvr_files.id as id,
         filename,
         export_timestamp as exportTimestamp,
         count(cvr_id) as numCvrsImported,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
-        datetime(created_at, 'localtime') as createdAt
-      from (
+        datetime(cvr_files.created_at, 'localtime') as createdAt
+      from cvr_files
+      join (
         select
-          cvr_file_entries.cvr_file_id,
           cvr_file_entries.cvr_id,
-          filename,
-          export_timestamp,
-          precinct_ids,
-          scanner_ids,
-          sha256_hash,
-          min(cvr_files.created_at) as created_at
-        from cvr_file_entries
-        join cvr_files on cvr_files.id = cvr_file_entries.cvr_file_id
-        where
-          cvr_files.election_id = ?
+          min(cvr_files.created_at) as min_import_date,
+          cvr_file_entries.cvr_file_id
+        from cvr_file_entries, cvr_files
         group by cvr_file_entries.cvr_id
-      )
-      group by id
+      ) cvrs_by_min_import_date on
+        cvrs_by_min_import_date.cvr_file_id = cvr_files.id
+      where cvr_files.election_id = ?
+      group by cvr_files.id
       order by export_timestamp desc
     `,
       electionId
