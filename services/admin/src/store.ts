@@ -637,15 +637,26 @@ export class Store {
     const results = this.client.all(
       `
       select
-        id,
+        cvr_files.id as id,
         filename,
         export_timestamp as exportTimestamp,
+        count(cvr_id) as numCvrsImported,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
-        datetime(created_at, 'localtime') as createdAt
+        datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
-      where election_id = ?
+      join (
+        select
+          cvr_file_entries.cvr_id,
+          min(cvr_files.created_at) as min_import_date,
+          cvr_file_entries.cvr_file_id
+        from cvr_file_entries, cvr_files
+        group by cvr_file_entries.cvr_id
+      ) cvrs_by_min_import_date on
+        cvrs_by_min_import_date.cvr_file_id = cvr_files.id
+      where cvr_files.election_id = ?
+      group by cvr_files.id
       order by export_timestamp desc
     `,
       electionId
@@ -653,6 +664,7 @@ export class Store {
       id: Id;
       filename: string;
       exportTimestamp: string;
+      numCvrsImported: number;
       precinctIds: string;
       scannerIds: string;
       sha256Hash: string;
@@ -669,6 +681,7 @@ export class Store {
           exportTimestamp: convertSqliteTimestampToIso8601(
             result.exportTimestamp
           ),
+          numCvrsImported: result.numCvrsImported,
           precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
           scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),

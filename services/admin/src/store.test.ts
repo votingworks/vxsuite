@@ -572,51 +572,101 @@ test('add a CVR file with unhandled validation errors', async () => {
 });
 
 test('getCvrFiles', async () => {
-  const { electionDefinition, partial1CvrFile, partial2CvrFile } =
-    electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
   const store = Store.memoryStore();
   const electionId = store.addElection(electionDefinition.electionData);
 
   expect(store.getCvrFiles(electionId)).toHaveLength(0);
 
-  const { id: file1Id } = (
+  const cvr1: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+  };
+  const cvr2: CastVoteRecord = {
+    ...cvr1,
+    _ballotId: 'id-9999991' as BallotId,
+    _precinctId: 'precinct-2',
+    _scannerId: 'scanner-1',
+  };
+  const cvr3: CastVoteRecord = {
+    ...cvr1,
+    _ballotId: 'id-9999992' as BallotId,
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-2',
+  };
+
+  const fileWithCvrs1And2 = fileSync();
+  await fs.writeFile(
+    fileWithCvrs1And2.name,
+    [cvr1, cvr2].map((c) => JSON.stringify(c)).join('\n')
+  );
+
+  const fileWithCvrs2And3 = fileSync();
+  await fs.writeFile(
+    fileWithCvrs2And3.name,
+    [cvr2, cvr3].map((c) => JSON.stringify(c)).join('\n')
+  );
+
+  const { id: IdFileWithCvrs1And2 } = (
     await store.addCastVoteRecordFile({
       electionId,
-      filePath: partial1CvrFile.asFilePath(),
-      originalFilename: 'cvrs-1.jsonl',
+      filePath: fileWithCvrs1And2.name,
+      originalFilename: 'fileWithCvrs1And2.jsonl',
       exportedTimestamp: '2021-09-02T22:27:58.327Z',
     })
   ).unsafeUnwrap();
 
-  const { id: file2Id } = (
+  expect(store.getCvrFiles(electionId)).toEqual<Admin.GetCvrFilesResponse>([
+    {
+      id: IdFileWithCvrs1And2,
+      createdAt: expect.any(String),
+      electionId,
+      exportTimestamp: '2021-09-02T22:27:58.327Z',
+      filename: 'fileWithCvrs1And2.jsonl',
+      numCvrsImported: 2,
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['scanner-1'],
+      sha256Hash: expect.any(String),
+    },
+  ]);
+
+  const { id: IdFileWithCvrs2And3 } = (
     await store.addCastVoteRecordFile({
       electionId,
-      filePath: partial2CvrFile.asFilePath(),
-      originalFilename: 'cvrs-2.jsonl',
+      filePath: fileWithCvrs2And3.name,
+      originalFilename: 'fileWithCvrs2And3.jsonl',
       exportedTimestamp: '2021-10-24T00:30:14.513Z',
     })
   ).unsafeUnwrap();
 
   expect(store.getCvrFiles(electionId)).toEqual<Admin.GetCvrFilesResponse>([
     {
-      id: file2Id,
+      id: IdFileWithCvrs2And3,
       createdAt: expect.any(String),
       electionId,
       exportTimestamp: '2021-10-24T00:30:14.513Z',
-      filename: 'cvrs-2.jsonl',
+      filename: 'fileWithCvrs2And3.jsonl',
+      numCvrsImported: 1, // Should ignore duplicate from previous import
       precinctIds: ['precinct-1', 'precinct-2'],
       scannerIds: ['scanner-1', 'scanner-2'],
       sha256Hash: expect.any(String),
     },
     {
-      id: file1Id,
+      id: IdFileWithCvrs1And2,
       createdAt: expect.any(String),
       electionId,
       exportTimestamp: '2021-09-02T22:27:58.327Z',
-      filename: 'cvrs-1.jsonl',
+      filename: 'fileWithCvrs1And2.jsonl',
+      numCvrsImported: 2,
       precinctIds: ['precinct-1', 'precinct-2'],
-      scannerIds: ['scanner-1', 'scanner-2'],
+      scannerIds: ['scanner-1'],
       sha256Hash: expect.any(String),
     },
   ]);
