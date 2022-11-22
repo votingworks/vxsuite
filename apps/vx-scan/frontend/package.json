@@ -1,0 +1,22 @@
+{
+  "name": "@votingworks/vx-scan-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "vite"
+  },
+  "dependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "buffer": "^6.0.3",
+    "path": "^0.12.7",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^1.3.2",
+    "prettier": "^2.7.1",
+    "vite": "^2.9.15"
+  },
+  "packageManager": "pnpm@5.18.10"
+}
