@@ -7,7 +7,6 @@ import {
   getByTestId as domGetByTestId,
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
-  getAllByText as domGetAllByText,
   act,
   within,
 } from '@testing-library/react';
@@ -23,6 +22,7 @@ import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
   expectPrint,
+  expectPrintToMatchSnapshot,
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
@@ -38,7 +38,6 @@ import {
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 
 import { App } from './app';
-import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import {
   eitherNeitherElectionDefinition,
   renderRootElement,
@@ -321,10 +320,10 @@ test('L&A (logic and accuracy) flow', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
   const logger = fakeLogger();
-  const { container, getByTestId } = renderRootElement(
-    <App card={card} hardware={hardware} printer={printer} />,
-    { backend, logger }
-  );
+  renderRootElement(<App card={card} hardware={hardware} printer={printer} />, {
+    backend,
+    logger,
+  });
   await authenticateWithElectionManagerCard(
     card,
     eitherNeitherElectionDefinition
@@ -340,7 +339,7 @@ test('L&A (logic and accuracy) flow', async () => {
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(1);
+  await expectPrintToMatchSnapshot();
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.TestDeckTallyReportPrinted,
@@ -348,15 +347,13 @@ test('L&A (logic and accuracy) flow', async () => {
       expect.anything()
     )
   );
-  expect(container).toMatchSnapshot();
   jest.advanceTimersByTime(5000);
 
   // L&A package: BMD test deck
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  loadBallotSealImages();
-  await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(2));
+  await expectPrintToMatchSnapshot();
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.TestDeckPrinted,
@@ -371,14 +368,13 @@ test('L&A (logic and accuracy) flow', async () => {
       message: expect.stringContaining('BMD paper ballot test deck'),
     })
   );
-  expect(container).toMatchSnapshot();
   jest.advanceTimersByTime(30000);
 
   // L&A package: HMPB test deck
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(3);
+  await expectPrintToMatchSnapshot();
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.TestDeckPrinted,
@@ -393,9 +389,12 @@ test('L&A (logic and accuracy) flow', async () => {
       message: expect.stringContaining('Hand-marked paper ballot test deck'),
     })
   );
-  expect(container).toMatchSnapshot();
 
   // Test printing full test deck tally
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+
+  await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
     '104': 10,
     '52': 12,
@@ -404,18 +403,15 @@ test('L&A (logic and accuracy) flow', async () => {
     '8': 3,
     '4': 2,
   };
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
-  await waitFor(() => {
-    const fullTestDeckTallyReport = getByTestId('full-test-deck-tally-report');
+  await expectPrint((printedElement, printOptions) => {
+    printedElement.getByText(
+      'Test Deck Mock General Election Choctaw 2020 Tally Report'
+    );
     for (const [tally, times] of Object.entries(expectedTallies)) {
-      expect(domGetAllByText(fullTestDeckTallyReport, tally).length).toEqual(
-        times
-      );
+      expect(printedElement.getAllByText(tally).length).toEqual(times);
     }
+    expect(printOptions).toMatchObject({ sides: 'one-sided' });
   });
-  await screen.findByText('Printing');
-  expect(printer.print).toHaveBeenCalledTimes(4);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TestDeckTallyReportPrinted,
     expect.any(String),
