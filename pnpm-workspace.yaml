@@ -18,4 +18,4 @@ packages:
   - 'script'
 
   # include all the apps
-  - 'apps/*'
+  - 'apps/*/*'

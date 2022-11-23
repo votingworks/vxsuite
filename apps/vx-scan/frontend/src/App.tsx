@@ -1,32 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import type {
-  ApiDefinition,
-  Config,
-  Api,
-  AnyRoutes,
-} from '@votingworks/vx-scan-backend';
+import type { VxScanApi, Config } from '@votingworks/vx-scan-backend';
+import grout from '@votingworks/grout';
 
-type AnyApi = Api<AnyRoutes>;
-
-type inferApiRoutes<TApi extends AnyApi> = TApi extends Api<infer TRoutes>
-  ? TRoutes
-  : never;
-
-type Client<TApi extends AnyApi> = inferApiRoutes<TApi>;
-
-function buildClient<TApi extends AnyApi>(): Client<TApi> {
-  return new Proxy({} as Client<TApi>, {
-    get(_target, methodName: string) {
-      return async (...args: any[]) => {
-        console.log({ methodName, args });
-        const response = await fetch(`/api/${methodName}`);
-        return await response.json();
-      };
-    },
-  });
-}
-
-const apiClient = buildClient<ApiDefinition>();
+const apiClient = grout.buildClient<VxScanApi>();
 
 export function App(): JSX.Element {
   const [config, setConfig] = React.useState<Config | undefined>();

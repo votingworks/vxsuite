@@ -113,12 +113,20 @@
       "path": "libs/utils"
     },
     {
+      "name": "libs/grout",
+      "path": "libs/grout"
+    },
+    {
       "name": "integration-testing/bsd",
       "path": "integration-testing/bsd"
     },
     {
       "name": "integration-testing/election-manager",
       "path": "integration-testing/election-manager"
+    },
+    {
+      "name": "apps/vx-scan",
+      "path": "apps/vx-scan"
     }
   ],
   "settings": {

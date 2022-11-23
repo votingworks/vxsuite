@@ -1,5 +1,5 @@
 import express, { Application, RequestHandler, response } from 'express';
-import { Api, createApi, mutationHandler, queryHandler } from './api-spec-lib';
+import grout from '@votingworks/grout';
 
 export interface Config {
   electionName: string;
@@ -13,21 +13,21 @@ let store: { config: Config | undefined } = {
   },
 };
 
-const api = createApi({
-  getConfig: queryHandler(async (): Promise<Config | undefined> => {
+const api = grout.createApi({
+  getConfig: grout.query(async (): Promise<Config | undefined> => {
     return store.config;
   }),
 
-  updateConfig: mutationHandler(async (newConfig: Config): Promise<void> => {
+  updateConfig: grout.mutation(async (newConfig: Config): Promise<void> => {
     store.config = newConfig;
   }),
 });
 
-export type ApiDefinition = typeof api;
+export type VxScanApi = typeof api;
 
 export async function start() {
   const app: Application = express();
   app.use(express.json());
-  api.registerRoutes(app);
+  grout.express.registerRoutes(api, app);
   app.listen(3001);
 }

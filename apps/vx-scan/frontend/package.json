@@ -6,10 +6,11 @@
     "start": "vite"
   },
   "dependencies": {
-    "@votingworks/vx-scan-backend": "workspace:*",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
+    "@votingworks/vx-scan-backend": "workspace:*",
     "buffer": "^6.0.3",
+    "@votingworks/grout": "workspace:*",
     "path": "^0.12.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"

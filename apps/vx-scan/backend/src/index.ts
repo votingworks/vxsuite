@@ -4,5 +4,4 @@ if (require.main === module) {
   server.start();
 }
 
-export type { Config, ApiDefinition } from './server';
-export type { Api, AnyApi, AnyRoutes } from './api-spec-lib';
+export type { Config, VxScanApi } from './server';
