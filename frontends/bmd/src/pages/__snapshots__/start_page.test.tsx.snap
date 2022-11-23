@@ -127,7 +127,7 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-cNKpQo hPGGjl"
+  class="sc-AjmZR hhHPDf"
 >
   <main
     class="sc-ezbkgU jjwGyL"
@@ -431,7 +431,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-cNKpQo hPGGjl"
+  class="sc-AjmZR hhHPDf"
 >
   <main
     class="sc-ezbkgU jjwGyL"
@@ -893,7 +893,7 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-cNKpQo hPGGjl"
+  class="sc-AjmZR hhHPDf"
 >
   <main
     class="sc-ezbkgU jjwGyL"

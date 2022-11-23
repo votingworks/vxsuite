@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
@@ -26,7 +26,6 @@ jest.mock('../components/hand_marked_paper_ballot');
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let mockLogger: Logger;
-let mockPrintBallotRef: RefObject<HTMLElement>;
 let mockPrinter: jest.Mocked<Printer>;
 
 beforeEach(() => {
@@ -37,9 +36,6 @@ beforeEach(() => {
   ]);
   window.kiosk = mockKiosk;
   mockLogger = new Logger(LogSource.VxAdminFrontend, mockKiosk);
-  mockPrintBallotRef = {
-    current: document.createElement('div'),
-  };
   mockPrinter = fakePrinter();
 });
 
@@ -107,7 +103,6 @@ test('Printing L&A package for one precinct', async () => {
 test('Printing L&A packages for all precincts', async () => {
   renderInAppContext(<PrintTestDeckScreen />, {
     logger: mockLogger,
-    printBallotRef: mockPrintBallotRef,
     printer: mockPrinter,
   });
 
@@ -204,7 +199,6 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
     logger: mockLogger,
-    printBallotRef: mockPrintBallotRef,
     printer: mockPrinter,
   });
 
@@ -278,7 +272,6 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
     logger: mockLogger,
-    printBallotRef: mockPrintBallotRef,
     printer: mockPrinter,
   });
 

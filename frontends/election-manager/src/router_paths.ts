@@ -51,7 +51,6 @@ export const routerPaths = {
     `/reports/tally-reports/batches/${batchId}`,
   tallyFullReport: '/reports/tally-reports/full',
   tallyWriteInReport: '/reports/tally-reports/writein',
-  overvoteCombinationReport: '/tally/pairs',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',
   writeIns: '/write-ins',

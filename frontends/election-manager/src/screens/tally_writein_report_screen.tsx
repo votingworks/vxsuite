@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useContext, useState, useMemo } from 'react';
 
 import { useParams } from 'react-router-dom';
 import {
@@ -16,15 +15,14 @@ import {
 import {
   isElectionManagerAuth,
   Prose,
-  TallyReport,
+  TallyReportPreview,
   TallyReportMetadata,
   Text,
   Button,
+  printElement,
+  printElementToPdf,
 } from '@votingworks/ui';
-import {
-  generateDefaultReportFilename,
-  generateFileContentToSaveAsPdf,
-} from '../utils/save_as_pdf';
+import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
   PrecinctReportScreenProps,
@@ -35,7 +33,6 @@ import {
 } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
-import { DeprecatedPrintButton } from '../components/deprecated_print_button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 
@@ -43,7 +40,6 @@ import { routerPaths } from '../router_paths';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerWriteInTallyReport } from '../components/election_manager_writein_tally_report';
-import { PrintableArea } from '../components/printable_area';
 
 import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import {
@@ -51,20 +47,9 @@ import {
   getScreenAdjudicatedWriteInCounts,
   writeInCountsAreEmpty,
 } from '../utils/write_ins';
-
-const TallyReportPreview = styled(TallyReport)`
-  section {
-    margin: 1rem 0 2rem;
-    background: #ffffff;
-    width: 8.5in;
-    min-height: 11in;
-    padding: 0.5in;
-  }
-`;
+import { PrintButton } from '../components/print_button';
 
 export function TallyWriteInReportScreen(): JSX.Element {
-  const printReportRef = useRef<HTMLDivElement>(null);
-  const previewReportRef = useRef<HTMLDivElement>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
@@ -98,11 +83,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const manualWriteInCounts = manualData
     ? getManualWriteInCounts(manualData.overallTally)
     : undefined;
-  useEffect(() => {
-    if (previewReportRef?.current && printReportRef?.current) {
-      previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
-    }
-  }, [previewReportRef, printReportRef, screenAdjudicatedWriteInCounts]);
 
   const precinctName =
     (precinctId &&
@@ -187,22 +167,43 @@ export function TallyWriteInReportScreen(): JSX.Element {
     precinctName,
   ]);
 
-  function afterPrint() {
-    void logger.log(LogEventId.TallyReportPrinted, userRole, {
-      message: `User printed ${reportDisplayTitle}`,
-      disposition: 'success',
-      tallyReportTitle: reportDisplayTitle,
-    });
-  }
+  const generatedAtTime = new Date();
 
-  function afterPrintError(errorMessage: string) {
-    void logger.log(LogEventId.TallyReportPrinted, userRole, {
-      message: `Error in attempting to print ${reportDisplayTitle}: ${errorMessage}`,
-      disposition: 'failure',
-      tallyReportTitle: reportDisplayTitle,
-      errorMessage,
-      result: 'User shown error.',
-    });
+  const writeInTallyReport = (
+    <ElectionManagerWriteInTallyReport
+      batchId={batchId}
+      batchLabel={batchLabel}
+      election={election}
+      screenAdjudicatedWriteInCounts={screenAdjudicatedWriteInCounts}
+      manualWriteInCounts={manualWriteInCounts}
+      generatedAtTime={generatedAtTime}
+      isOfficialResults={isOfficialResults}
+      partyId={partyId}
+      precinctId={precinctId}
+      scannerId={scannerId}
+      votingMethod={votingMethod}
+    />
+  );
+
+  async function printWriteInTallyReport() {
+    try {
+      await printElement(writeInTallyReport, {
+        sides: 'one-sided',
+      });
+      await logger.log(LogEventId.TallyReportPrinted, userRole, {
+        message: `User printed ${reportDisplayTitle}`,
+        disposition: 'success',
+        tallyReportTitle: reportDisplayTitle,
+      });
+    } catch (error) {
+      assert(error instanceof Error);
+      await logger.log(LogEventId.TallyReportPrinted, userRole, {
+        message: `Error in attempting to print ${reportDisplayTitle}: ${error.message}`,
+        disposition: 'failure',
+        tallyReportTitle: reportDisplayTitle,
+        result: 'User shown error.',
+      });
+    }
   }
 
   const defaultReportFilename = generateDefaultReportFilename(
@@ -210,8 +211,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
     election,
     fileSuffix
   );
-
-  const generatedAtTime = new Date();
 
   if (isTabulationRunning || !screenAdjudicatedWriteInCounts) {
     return (
@@ -240,14 +239,9 @@ export function TallyWriteInReportScreen(): JSX.Element {
                 election={election}
               />
               <p>
-                <DeprecatedPrintButton
-                  afterPrint={afterPrint}
-                  afterPrintError={afterPrintError}
-                  primary
-                  sides="one-sided"
-                >
+                <PrintButton print={printWriteInTallyReport} primary>
                   Print Report
-                </DeprecatedPrintButton>{' '}
+                </PrintButton>{' '}
                 {window.kiosk && (
                   <Button onPress={() => setIsSaveModalOpen(true)}>
                     Save Report as PDF
@@ -278,32 +272,18 @@ export function TallyWriteInReportScreen(): JSX.Element {
             </React.Fragment>
           )}
         </Prose>
-        <TallyReportPreview ref={previewReportRef} />
+        <TallyReportPreview data-testid="report-preview">
+          {writeInTallyReport}
+        </TallyReportPreview>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={generateFileContentToSaveAsPdf}
+          generateFileContent={() => printElementToPdf(writeInTallyReport)}
           defaultFilename={defaultReportFilename}
           fileType={FileType.TallyReport}
         />
       )}
-      <PrintableArea data-testid="printable-area">
-        <ElectionManagerWriteInTallyReport
-          batchId={batchId}
-          batchLabel={batchLabel}
-          election={election}
-          screenAdjudicatedWriteInCounts={screenAdjudicatedWriteInCounts}
-          manualWriteInCounts={manualWriteInCounts}
-          generatedAtTime={generatedAtTime}
-          isOfficialResults={isOfficialResults}
-          partyId={partyId}
-          precinctId={precinctId}
-          ref={printReportRef}
-          scannerId={scannerId}
-          votingMethod={votingMethod}
-        />
-      </PrintableArea>
     </React.Fragment>
   );
 }

@@ -1,5 +1,5 @@
 import { createMemoryHistory, MemoryHistory } from 'history';
-import React, { RefObject } from 'react';
+import React from 'react';
 import { Router } from 'react-router-dom';
 import { render as testRender, RenderResult } from '@testing-library/react';
 
@@ -50,7 +50,6 @@ interface RenderInAppContextParams {
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
-  printBallotRef?: RefObject<HTMLElement>;
   saveElection?: SaveElection;
   resetElection?: ResetElection;
   resetFiles?: () => Promise<void>;
@@ -108,7 +107,6 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
-    printBallotRef = undefined,
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     resetFiles = jest.fn(),
@@ -143,7 +141,6 @@ export function renderInAppContext(
         configuredAt,
         isOfficialResults,
         printer,
-        printBallotRef,
         saveElection,
         resetElection,
         resetFiles,
