@@ -1,6 +1,5 @@
 import React, {
   useState,
-  useRef,
   useEffect,
   useCallback,
   useMemo,
@@ -62,7 +61,6 @@ export function AppRoot({
   converter,
 }: Props): JSX.Element {
   const { logger } = useContext(ServicesContext);
-  const printBallotRef = useRef<HTMLDivElement>(null);
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
@@ -228,7 +226,6 @@ export function AppRoot({
         converter,
         isOfficialResults: currentElection.data?.isOfficialResults ?? false,
         printer,
-        printBallotRef,
         saveElection,
         resetElection,
         resetFiles,
@@ -250,7 +247,6 @@ export function AppRoot({
       }}
     >
       <ElectionManager />
-      <div ref={printBallotRef} />
     </AppContext.Provider>
   );
 }

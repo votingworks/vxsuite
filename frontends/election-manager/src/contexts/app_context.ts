@@ -1,4 +1,4 @@
-import { createContext, RefObject } from 'react';
+import { createContext } from 'react';
 import {
   ElectionDefinition,
   FullElectionTally,
@@ -33,7 +33,6 @@ export interface AppContextInterface {
   converter?: ConverterClientType;
   isOfficialResults: boolean;
   printer: Printer;
-  printBallotRef?: RefObject<HTMLElement>;
   saveElection: SaveElection;
   resetElection: ResetElection;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
@@ -63,7 +62,6 @@ const appContext: AppContextInterface = {
   configuredAt: undefined,
   isOfficialResults: false,
   printer: new NullPrinter(),
-  printBallotRef: undefined,
   saveElection: async () => undefined,
   resetElection: async () => undefined,
   resetFiles: async () => undefined,
