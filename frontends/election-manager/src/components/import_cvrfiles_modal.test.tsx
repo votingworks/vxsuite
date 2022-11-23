@@ -268,7 +268,6 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
         logger,
         backend,
       }
@@ -380,7 +379,6 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
         backend,
       }
     );
@@ -450,7 +448,6 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
         backend,
       }
     );

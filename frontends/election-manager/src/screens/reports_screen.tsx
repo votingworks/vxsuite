@@ -31,12 +31,12 @@ import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
 import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
 
   const {
-    castVoteRecordFiles,
     electionDefinition,
     converter,
     isOfficialResults,
@@ -48,6 +48,8 @@ export function ReportsScreen(): JSX.Element {
     logger,
     auth,
   } = useContext(AppContext);
+  const cvrFilesQuery = useCvrFilesQuery();
+  const cvrFiles = cvrFilesQuery.data || [];
   const printedBallotsQuery = usePrintedBallotsQuery({
     ballotMode: Admin.BallotMode.Official,
   });
@@ -193,7 +195,7 @@ export function ReportsScreen(): JSX.Element {
             <LinkButton primary to={routerPaths.tallyFullReport}>
               {statusPrefix} Full Election Tally Report
             </LinkButton>{' '}
-            {castVoteRecordFiles.wereAdded && (
+            {cvrFiles.length > 0 && (
               <React.Fragment>
                 {converterName !== '' && (
                   <React.Fragment>

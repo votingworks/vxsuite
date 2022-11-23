@@ -19,6 +19,7 @@ import { useWriteInsQuery } from '../hooks/use_write_ins_query';
 import { useTranscribeWriteInMutation } from '../hooks/use_transcribe_write_in_mutation';
 import { useAdjudicateTranscriptionMutation } from '../hooks/use_adjudicate_transcription_mutation';
 import { useUpdateWriteInAdjudicationMutation } from '../hooks/use_update_write_in_adjudication_mutation';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 
 const ContentWrapper = styled.div`
   display: inline-block;
@@ -32,8 +33,7 @@ const ResultsFinalizedNotice = styled.p`
 `;
 
 export function WriteInsScreen(): JSX.Element {
-  const { castVoteRecordFiles, electionDefinition, isOfficialResults } =
-    useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   const [contestBeingTranscribed, setContestBeingTranscribed] =
     useState<CandidateContest>();
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
@@ -44,6 +44,7 @@ export function WriteInsScreen(): JSX.Element {
   const updateWriteInAdjudicationMutation =
     useUpdateWriteInAdjudicationMutation();
   const writeInsQuery = useWriteInsQuery();
+  const cvrFilesQuery = useCvrFilesQuery();
 
   // Get write-in counts grouped by contest
   const writeInCountsByContest = useMemo(() => {
@@ -137,7 +138,8 @@ export function WriteInsScreen(): JSX.Element {
       );
     }
 
-    if (!castVoteRecordFiles.wereAdded) {
+    const cvrFiles = cvrFilesQuery.data || [];
+    if (cvrFiles.length === 0) {
       return (
         <p>
           <em>

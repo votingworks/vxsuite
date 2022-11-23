@@ -185,19 +185,20 @@ export class CastVoteRecordFiles {
   /**
    * Parses the filenames for the given CVR {@link files} for information about
    * the CVRs they contain.
+   *
+   * TODO: After a few rounds of refactoring, this is now mostly just a proxy to
+   * {@link parseCvrFileInfoFromFilename} - should consolidate at some point.
    */
-  parseAllFromFileSystemEntries(
+  static parseAllFromFileSystemEntries(
     files: KioskBrowser.FileSystemEntry[]
   ): CastVoteRecordFilePreprocessedData[] {
     const results: CastVoteRecordFilePreprocessedData[] = [];
     for (const file of files) {
       try {
-        const fileImported = [...this.files].some((f) => f.name === file.name);
         const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
         if (parsedFileInfo) {
           results.push({
             exportTimestamp: parsedFileInfo.timestamp,
-            fileImported,
             cvrCount: parsedFileInfo.numberOfBallots,
             isTestModeResults: parsedFileInfo.isTestModeResults,
             name: file.name,

@@ -33,6 +33,8 @@ import { TIME_FORMAT } from '../config/globals';
 import { useAddCastVoteRecordFileMutation } from '../hooks/use_add_cast_vote_record_file_mutation';
 import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 import { AddCastVoteRecordFileResult } from '../lib/backends';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -73,14 +75,10 @@ function throwBadStatus(s: never): never {
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
-  const {
-    usbDriveStatus,
-    castVoteRecordFiles,
-    electionDefinition,
-    auth,
-    logger,
-  } = useContext(AppContext);
+  const { usbDriveStatus, electionDefinition, auth, logger } =
+    useContext(AppContext);
   const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
+  const cvrFiles = useCvrFilesQuery().data || [];
   const fileMode = useCvrFileModeQuery().data;
 
   assert(electionDefinition);
@@ -189,9 +187,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (f) => f.type === 1 && f.name.endsWith('.jsonl')
       );
       assert(electionDefinition !== undefined);
-      const parsedFileInformation = castVoteRecordFiles
-        .parseAllFromFileSystemEntries(newFoundFiles)
-        .sort(
+      const parsedFileInformation =
+        CastVoteRecordFiles.parseAllFromFileSystemEntries(newFoundFiles).sort(
           (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
         );
       setFoundFiles(parsedFileInformation);
@@ -351,15 +348,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
+    const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
     for (const file of foundFiles) {
-      const {
-        isTestModeResults,
-        scannerIds,
-        exportTimestamp,
-        cvrCount,
-        name,
-        fileImported,
-      } = file;
+      const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =
+        file;
+      const fileImported = importedFileNames.has(name);
       const inProperFileMode =
         !fileModeLocked ||
         (isTestModeResults && fileMode === Admin.CvrFileMode.Test) ||

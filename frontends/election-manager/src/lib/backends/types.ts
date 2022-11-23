@@ -9,7 +9,6 @@ import {
   FullElectionExternalTally,
   Id,
 } from '@votingworks/types';
-import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 
 export interface AddCastVoteRecordFileResult {
   readonly wasExistingFile: boolean;
@@ -49,11 +48,6 @@ export interface ElectionManagerStoreBackend {
    * Returns all CVRs for the current election.
    */
   getCvrs(): Promise<CastVoteRecord[]>;
-
-  /**
-   * Loads the existing cast vote record files.
-   */
-  loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined>;
 
   /**
    * Adds a new cast vote record file.

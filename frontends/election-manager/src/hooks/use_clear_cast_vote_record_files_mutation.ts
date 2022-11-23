@@ -6,7 +6,6 @@ import {
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
-import { cvrsStorageKey } from './use_election_manager_store';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
@@ -38,7 +37,6 @@ export function useClearCastVoteRecordFilesMutation(): UseClearCastVoteRecordFil
     },
     {
       onSuccess() {
-        void queryClient.invalidateQueries([cvrsStorageKey]);
         void queryClient.invalidateQueries(getWriteInImageQueryKey());
         void queryClient.invalidateQueries(getWriteInsQueryKey());
         void queryClient.invalidateQueries(getWriteInSummaryQueryKey());

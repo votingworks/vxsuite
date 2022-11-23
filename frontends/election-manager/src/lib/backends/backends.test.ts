@@ -96,10 +96,34 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
 
       return { body: typedAs<Admin.PatchElectionResponse>({ status: 'ok' }) };
     })
+    .delete('glob:/admin/elections/*/cvr-files', async (url) => {
+      const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
+      const electionId = match?.[1] as Id;
+
+      const dbEntry = electionId && db.get(electionId);
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      await dbEntry.memoryBackend.clearCastVoteRecordFiles();
+
+      return { body: { status: 'ok' } };
+    })
     .delete('glob:/admin/elections/*', (url) => {
       const match = url.match(/^\/admin\/elections\/(.+)$/);
       db.delete(match?.[1] ?? '');
       return { body: typedAs<Admin.DeleteElectionResponse>({ status: 'ok' }) };
+    })
+    .get('glob:/admin/elections/*/cvr-files', async (url) => {
+      const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
+      const electionId = match?.[1] as Id;
+
+      const dbEntry = electionId && db.get(electionId);
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      return { body: await dbEntry.memoryBackend.getCvrFiles() };
     })
     .post('glob:/admin/elections/*/cvr-files', async (url, request) => {
       const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
@@ -423,20 +447,20 @@ describe.each([
     await backend.configure(
       electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
     );
-    expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
+    expect(await backend.getCvrFiles()).toHaveLength(0);
     await backend.addCastVoteRecordFile(
       new File(
         [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],
         'standard.jsonl'
       )
     );
-    expect((await backend.loadCastVoteRecordFiles())?.fileList).toHaveLength(1);
+    expect(await backend.getCvrFiles()).toHaveLength(1);
     expect(await backend.loadWriteIns()).toHaveLength(1187);
     expect(
       await backend.loadWriteIns({ contestId: 'zoo-council-mammal' })
     ).toHaveLength(649);
     await backend.clearCastVoteRecordFiles();
-    expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
+    expect(await backend.getCvrFiles()).toHaveLength(0);
   });
 
   test('full election tallies', async () => {
@@ -492,7 +516,7 @@ describe.each([
     await backend.configure(
       electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
     );
-    expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
+    expect(await backend.getCvrFiles()).toHaveLength(0);
     await backend.addCastVoteRecordFile(
       new File(
         [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],

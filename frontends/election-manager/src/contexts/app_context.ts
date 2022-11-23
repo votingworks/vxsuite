@@ -23,11 +23,9 @@ import {
   ConverterClientType,
   ResetElection,
 } from '../config/types';
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
 export interface AppContextInterface {
-  castVoteRecordFiles: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
   configuredAt?: Iso8601Timestamp;
   converter?: ConverterClientType;
@@ -57,7 +55,6 @@ export interface AppContextInterface {
 
 /* eslint-disable @typescript-eslint/require-await */
 const appContext: AppContextInterface = {
-  castVoteRecordFiles: CastVoteRecordFiles.empty,
   electionDefinition: undefined,
   configuredAt: undefined,
   isOfficialResults: false,

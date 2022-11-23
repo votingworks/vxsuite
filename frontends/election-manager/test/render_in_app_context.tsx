@@ -32,7 +32,6 @@ import {
   MachineConfig,
   ResetElection,
 } from '../src/config/types';
-import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
   ElectionManagerStoreBackend,
@@ -45,7 +44,6 @@ export const eitherNeitherElectionDefinition =
 interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
-  castVoteRecordFiles?: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
@@ -102,7 +100,6 @@ export function renderInAppContext(
   {
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
-    castVoteRecordFiles = CastVoteRecordFiles.empty,
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
@@ -135,7 +132,6 @@ export function renderInAppContext(
   return renderRootElement(
     <AppContext.Provider
       value={{
-        castVoteRecordFiles,
         electionDefinition:
           electionDefinition === 'NONE' ? undefined : electionDefinition,
         configuredAt,

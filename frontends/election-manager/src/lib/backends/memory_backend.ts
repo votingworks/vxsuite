@@ -158,10 +158,6 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve([...this.castVoteRecordFiles.castVoteRecords]);
   }
 
-  loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {
-    return Promise.resolve(this.castVoteRecordFiles);
-  }
-
   getWriteInsFromCastVoteRecords(
     castVoteRecordFile: CastVoteRecordFile
   ): Admin.WriteInRecord[] {

@@ -583,7 +583,9 @@ test('tabulating CVRs', async () => {
     expect.anything()
   );
 
-  fireEvent.click(getByText('Mark Tally Results as Official'));
+  const markOfficialButton = getByText('Mark Tally Results as Official');
+  await waitFor(expect(markOfficialButton).toBeEnabled);
+  fireEvent.click(markOfficialButton);
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
@@ -711,7 +713,12 @@ test('tabulating CVRs', async () => {
 
   // Clear results
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Clear All Tallies and Results'));
+
+  const clearTalliesButton = await screen.findByText(
+    'Clear All Tallies and Results'
+  );
+  expect(clearTalliesButton).toBeEnabled();
+  fireEvent.click(clearTalliesButton);
   fireEvent.click(getByText('Remove All Data'));
   await waitFor(() => expect(getByText('No CVR files loaded.')));
   expect(logger.log).toHaveBeenCalledWith(
@@ -767,7 +774,7 @@ test('tabulating CVRs with SEMS file', async () => {
   );
 
   fireEvent.click(getByText('Tally'));
-  getByText('External Results (sems-results.csv)');
+  await screen.findByText('External Results (sems-results.csv)');
 
   fireEvent.click(getByText('Reports'));
   getByText('External Results (sems-results.csv)');
@@ -847,7 +854,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
   // Test removing the SEMS file
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Remove External Results File'));
+  fireEvent.click(await screen.findByText('Remove External Results File'));
   fireEvent.click(getByText('Remove External Files'));
   await waitFor(() =>
     expect(getByTestId('total-cvr-count').textContent).toEqual('100')
@@ -886,7 +893,8 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   );
 
   fireEvent.click(getByText('Tally'));
-  expect(getByTestId('total-cvr-count').textContent).toEqual('200');
+  await advanceTimersAndPromises(5); // Allow async queries to resolve first.
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('200');
 
   fireEvent.click(getByText('Add Manually Entered Results'));
   getByText('Manually Entered Precinct Results');
@@ -914,7 +922,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('100');
   });
   fireEvent.click(getByText('Back to Tally'));
-  expect(getByTestId('total-cvr-count').textContent).toEqual('300');
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
 
   const fileTable = getByTestId('loaded-file-table');
   const manualRow = domGetByText(
@@ -953,7 +961,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   // Now edit the manual data
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Edit Manually Entered Results'));
+  fireEvent.click(await screen.findByText('Edit Manually Entered Results'));
 
   // Existing data is still there
   const district5Row = getByText('District 5').closest('tr')!;
@@ -987,7 +995,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   });
 
   fireEvent.click(getByText('Back to Tally'));
-  expect(getByTestId('total-cvr-count').textContent).toEqual('400');
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('400');
   const fileTable2 = getByTestId('loaded-file-table');
   const manualRow2 = domGetByText(
     fileTable2,
@@ -1024,7 +1032,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   // Remove the manual data
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Remove Manual Data'));
+  fireEvent.click(await screen.findByText('Remove Manual Data'));
 
   getByText('Do you want to remove the manually entered data?');
   const modal = await screen.findByRole('alertdialog');
@@ -1106,7 +1114,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   );
 
   fireEvent.click(await screen.findByText('Tally'));
-  getByText('No CVR files loaded.');
+  await screen.findByText('No CVR files loaded.');
   await screen.findByText('Currently tallying live ballots.');
   // We're waiting on a query for isOfficialResults. It has a default value,
   // so there is no change on the page to wait for before test ends.
@@ -1165,7 +1173,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   );
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-  fireEvent.click(getByText('Mark Tally Results as Official'));
+  const markOfficialButton = getByText('Mark Tally Results as Official');
+  await waitFor(expect(markOfficialButton).toBeEnabled);
+  fireEvent.click(markOfficialButton);
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
@@ -1175,7 +1185,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   });
 
   fireEvent.click(getByText('Tally'));
-  expect(getByText('Load CVR Files').closest('button')).toBeDisabled();
+  expect(
+    (await screen.findByText('Load CVR Files')).closest('button')
+  ).toBeDisabled();
   expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
   expect(
     getByText('Edit Manually Entered Results').closest('button')

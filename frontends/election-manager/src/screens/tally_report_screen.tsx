@@ -39,6 +39,7 @@ import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 import { PrintButton } from '../components/print_button';
 
 export function TallyReportScreen(): JSX.Element {
@@ -52,7 +53,6 @@ export function TallyReportScreen(): JSX.Element {
     useParams<VotingMethodReportScreenProps>();
   const votingMethod = votingMethodFromProps as VotingMethod;
   const {
-    castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
@@ -68,6 +68,9 @@ export function TallyReportScreen(): JSX.Element {
   const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
   const screenAdjudicatedOfficialCandidateWriteInCounts =
     getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
+
+  const cvrFilesQuery = useCvrFilesQuery();
+  const cvrFiles = cvrFilesQuery.data || [];
 
   const location = useLocation();
 
@@ -255,7 +258,7 @@ export function TallyReportScreen(): JSX.Element {
           {location.pathname === routerPaths.tallyFullReport && (
             <p>
               <Button
-                disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
+                disabled={cvrFiles.length === 0 || isOfficialResults}
                 onPress={openMarkOfficialModal}
               >
                 Mark Tally Results as Official
