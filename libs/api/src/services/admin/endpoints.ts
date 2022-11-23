@@ -1,4 +1,5 @@
 import {
+  CastVoteRecord,
   ContestId,
   ContestIdSchema,
   ContestOptionId,
@@ -273,6 +274,12 @@ export type GetCvrFilesResponse = CastVoteRecordFileRecord[];
  */
 export const GetCvrFilesResponseSchema: z.ZodSchema<GetCvrFilesResponse> =
   z.array(CastVoteRecordFileRecordSchema);
+
+/**
+ * @url /admin/elections/:electionId/cvrs
+ * @method GET
+ */
+export type GetCvrsResponse = CastVoteRecord[];
 
 /**
  * @url /admin/elections/:electionId/cvr-file-mode

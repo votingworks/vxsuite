@@ -4,13 +4,14 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { Id, unsafeParse } from '@votingworks/types';
+import { BallotId, CastVoteRecord, Id, unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
+import { promises as fs } from 'fs';
 import { Server } from 'http';
 import request from 'supertest';
-import { dirSync } from 'tmp';
+import { dirSync, fileSync } from 'tmp';
 import { buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 
@@ -209,6 +210,89 @@ test('GET /admin/elections/:electionId/cvr-files empty response', async () => {
   );
 
   expect(parsedResponse).toEqual<Admin.GetCvrFilesResponse>([]);
+});
+
+test('GET /admin/elections/:electionId/cvrs happy path', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+
+  const electionId = workspace.store.addElection(
+    electionDefinition.electionData
+  );
+
+  const emptyResponse = await request(app)
+    .get(`/admin/elections/${electionId}/cvrs`)
+    .expect(200);
+  expect(emptyResponse.body).toEqual([]);
+
+  const cvr1: CastVoteRecord = {
+    _ballotId: 'id-9999999' as BallotId,
+    _ballotStyleId: '1M',
+    _ballotType: 'absentee',
+    _batchId: 'batch-id',
+    _batchLabel: 'batch-label',
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-1',
+    _testBallot: false,
+  };
+  const cvr2: CastVoteRecord = {
+    ...cvr1,
+    _ballotId: 'id-9999991' as BallotId,
+    _precinctId: 'precinct-2',
+    _scannerId: 'scanner-1',
+  };
+  const cvr3: CastVoteRecord = {
+    ...cvr1,
+    _ballotId: 'id-9999992' as BallotId,
+    _precinctId: 'precinct-1',
+    _scannerId: 'scanner-2',
+  };
+
+  const fileWithCvrs1And2 = fileSync();
+  await fs.writeFile(
+    fileWithCvrs1And2.name,
+    [cvr1, cvr2].map((c) => JSON.stringify(c)).join('\n')
+  );
+
+  const fileWithCvrs2And3 = fileSync();
+  await fs.writeFile(
+    fileWithCvrs2And3.name,
+    [cvr2, cvr3].map((c) => JSON.stringify(c)).join('\n')
+  );
+
+  await workspace.store.addCastVoteRecordFile({
+    electionId,
+    filePath: fileWithCvrs1And2.name,
+    originalFilename: 'fileWithCvrs1And2.jsonl',
+    exportedTimestamp: '2021-09-02T22:27:58.327Z',
+  });
+
+  await workspace.store.addCastVoteRecordFile({
+    electionId,
+    filePath: fileWithCvrs2And3.name,
+    originalFilename: 'fileWithCvrs2And3.jsonl',
+    exportedTimestamp: '2021-10-24T00:30:14.513Z',
+  });
+
+  const nonEmptyResponse = await request(app)
+    .get(`/admin/elections/${electionId}/cvrs`)
+    .expect(200);
+  expect(nonEmptyResponse.body).toEqual<Admin.GetCvrsResponse>([
+    cvr1,
+    cvr2,
+    cvr3,
+  ]);
+});
+
+test('GET /admin/elections/:electionId/cvrs error response', async () => {
+  jest
+    .spyOn(workspace.store, 'getCastVoteRecordEntries')
+    .mockImplementationOnce(() => {
+      throw new Error('something went wrong');
+    });
+
+  await request(app)
+    .get('/admin/elections/invalid-election-id/cvrs')
+    .expect(500);
 });
 
 test('POST /admin/elections/:electionId/cvr-files', async () => {

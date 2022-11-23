@@ -709,6 +709,7 @@ export class Store {
           datetime(created_at, 'localtime') as createdAt
         from cvrs
         where election_id = ?
+        order by created_at asc
       `,
       electionId
     ) as Array<{

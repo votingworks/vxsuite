@@ -3,12 +3,14 @@ import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   BallotPageLayout,
   CandidateContest,
+  CastVoteRecord,
   getBallotStyle,
   getContests,
   Id,
   InlineBallotImage,
   Rect,
   safeParse,
+  safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
@@ -118,6 +120,20 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     '/admin/elections/:electionId/cvr-files',
     (request, response) => {
       response.json(store.getCvrFiles(request.params.electionId));
+    }
+  );
+
+  app.get<{ electionId: Id }, Admin.GetCvrsResponse>(
+    '/admin/elections/:electionId/cvrs',
+    (request, response) => {
+      response.json(
+        store
+          .getCastVoteRecordEntries(request.params.electionId)
+          .map(
+            (entry) =>
+              safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
+          )
+      );
     }
   );
 

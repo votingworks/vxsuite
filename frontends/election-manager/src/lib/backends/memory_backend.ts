@@ -150,6 +150,18 @@ export class ElectionManagerStoreMemoryBackend
     );
   }
 
+  getCvrs(): Promise<CastVoteRecord[]> {
+    if (!this.electionDefinition) {
+      throw new Error('Election definition must be configured first');
+    }
+
+    if (!this.castVoteRecordFiles) {
+      return Promise.resolve([]);
+    }
+
+    return Promise.resolve([...this.castVoteRecordFiles.castVoteRecords]);
+  }
+
   loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {
     return Promise.resolve(this.castVoteRecordFiles);
   }

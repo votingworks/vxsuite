@@ -13,6 +13,7 @@ import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 import { getCvrFilesQueryKey } from './use_cvr_files_query';
+import { getCvrsQueryKey } from './use_cvrs_query';
 
 /**
  * The result of calling {@link useClearCastVoteRecordFilesMutation}.
@@ -48,6 +49,7 @@ export function useClearCastVoteRecordFilesMutation(): UseClearCastVoteRecordFil
           getCurrentElectionMetadataResultsQueryKey()
         );
         void queryClient.invalidateQueries(getCvrFilesQueryKey());
+        void queryClient.invalidateQueries(getCvrsQueryKey());
         void queryClient.invalidateQueries(getCvrFileModeQueryKey());
       },
     }
