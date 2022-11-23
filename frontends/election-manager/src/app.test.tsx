@@ -774,19 +774,19 @@ test('tabulating CVRs with SEMS file', async () => {
       .length
   ).toBe(2);
 
-  function checkTallyReport(queryable: ReactTestingLibraryQueryable) {
-    queryable.getByText(
+  function checkTallyReport(reportContent: ReactTestingLibraryQueryable) {
+    reportContent.getByText(
       'Unofficial Mock General Election Choctaw 2020 Tally Report'
     );
-    const absenteeRow = queryable.getByTestId('absentee');
+    const absenteeRow = reportContent.getByTestId('absentee');
     within(absenteeRow).getByText('Absentee');
     within(absenteeRow).getByText('50');
 
-    const precinctRow = queryable.getByTestId('standard');
+    const precinctRow = reportContent.getByTestId('standard');
     within(precinctRow).getByText('Precinct');
     within(precinctRow).getByText('150');
 
-    const totalRow = queryable.getByTestId('total');
+    const totalRow = reportContent.getByTestId('total');
     within(totalRow).getByText('Total Ballots Cast');
     within(totalRow).getByText('200');
   }
