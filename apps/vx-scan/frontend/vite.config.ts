@@ -93,5 +93,11 @@ export default defineConfig(async (env) => {
 
     // Pass some environment variables to the client in `import.meta.env`.
     envPrefix,
+
+    server: {
+      proxy: {
+        '/api': 'http://localhost:3001',
+      },
+    },
   };
 });

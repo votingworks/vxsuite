@@ -2,8 +2,14 @@
   "name": "@votingworks/vx-scan-backend",
   "version": "0.1.0",
   "private": true,
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "build": "tsc --build tsconfig.build.json"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
