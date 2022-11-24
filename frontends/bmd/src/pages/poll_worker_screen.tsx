@@ -51,7 +51,8 @@ import {
   PrecinctScannerCardReport,
   PrecinctScannerCardTallyReport,
   PrecinctScannerCardReportSchema,
-  isPrecinctScannerCardBallotCountReport,
+  isPollsSuspensionTransition,
+  PrecinctScannerCardBallotCountReport,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -116,6 +117,12 @@ function parsePrecinctScannerCardReportTally(
   };
 }
 
+function isPrecinctScannerBallotCountReport(
+  precinctScannerCardReport: PrecinctScannerCardReport
+): precinctScannerCardReport is PrecinctScannerCardBallotCountReport {
+  return isPollsSuspensionTransition(precinctScannerCardReport.pollsTransition);
+}
+
 type PrecinctScannerReportModalState = 'initial' | 'printing' | 'reprint';
 
 function PrecinctScannerReportModal({
@@ -149,7 +156,7 @@ function PrecinctScannerReportModal({
 
   async function printReport(copies: number) {
     const report = await (async () => {
-      if (isPrecinctScannerCardBallotCountReport(precinctScannerReport)) {
+      if (isPrecinctScannerBallotCountReport(precinctScannerReport)) {
         return (
           <PrecinctScannerBallotCountReport
             electionDefinition={electionDefinition}

@@ -4,10 +4,6 @@ import {
   PollsTransition,
 } from '@votingworks/types';
 import { throwIllegalValue } from './assert';
-import {
-  PrecinctScannerCardBallotCountReport,
-  PrecinctScannerCardReport,
-} from './types';
 
 export function getPollsTransitionDestinationState(
   transition: PollsTransition
@@ -143,10 +139,4 @@ export function isPollsSuspensionTransition(
     default:
       throwIllegalValue(transition);
   }
-}
-
-export function isPrecinctScannerCardBallotCountReport(
-  precinctScannerCardReport: PrecinctScannerCardReport
-): precinctScannerCardReport is PrecinctScannerCardBallotCountReport {
-  return isPollsSuspensionTransition(precinctScannerCardReport.pollsTransition);
 }
