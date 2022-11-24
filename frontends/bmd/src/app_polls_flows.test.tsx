@@ -212,18 +212,22 @@ test('full polls flow with tally reports - general, single precinct', async () =
 
   // Pausing Voting
   const votingPausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
-  const votingPausedCardTallyReport: PrecinctScannerCardBallotCountReport = {
-    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-    totalBallotsScanned: 3,
-    machineId: '001',
-    timeSaved: votingPausedTime,
-    timePollsTransitioned: votingPausedTime,
-    precinctSelection,
-    isLiveMode: true,
-    pollsTransition: 'pause_voting',
-  };
+  const votingPausedCardBallotCountReport: PrecinctScannerCardBallotCountReport =
+    {
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 3,
+      machineId: '001',
+      timeSaved: votingPausedTime,
+      timePollsTransitioned: votingPausedTime,
+      precinctSelection,
+      isLiveMode: true,
+      pollsTransition: 'pause_voting',
+    };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(votingPausedCardTallyReport));
+  card.insertCard(
+    pollWorkerCard,
+    JSON.stringify(votingPausedCardBallotCountReport)
+  );
   await screen.findByText('Voting Paused Report on Card');
   screen.getByText(/contains a voting paused report/);
   screen.getByText(/the polls will be paused on VxMark/);
@@ -279,18 +283,22 @@ test('full polls flow with tally reports - general, single precinct', async () =
 
   // Resuming Voting
   const votingResumedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
-  const votingResumedCardTallyReport: PrecinctScannerCardBallotCountReport = {
-    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-    totalBallotsScanned: 3,
-    machineId: '001',
-    timeSaved: votingResumedTime,
-    timePollsTransitioned: votingResumedTime,
-    precinctSelection,
-    isLiveMode: true,
-    pollsTransition: 'resume_voting',
-  };
+  const votingResumedCardBallotCountReport: PrecinctScannerCardBallotCountReport =
+    {
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 3,
+      machineId: '001',
+      timeSaved: votingResumedTime,
+      timePollsTransitioned: votingResumedTime,
+      precinctSelection,
+      isLiveMode: true,
+      pollsTransition: 'resume_voting',
+    };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(votingResumedCardTallyReport));
+  card.insertCard(
+    pollWorkerCard,
+    JSON.stringify(votingResumedCardBallotCountReport)
+  );
   await screen.findByText('Voting Resumed Report on Card');
   screen.getByText(/contains a voting resumed report/);
   screen.getByText(/the polls will be open on VxMark/);
