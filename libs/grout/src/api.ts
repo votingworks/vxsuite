@@ -1,14 +1,20 @@
+/* eslint-disable vx/gts-identifiers */
+/* eslint-disable vx/gts-type-parameters */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export type AsyncFunction = (...args: any[]) => Promise<any>;
 
-export type QueryHandler<THandler extends AsyncFunction> = {
+export interface QueryHandler<THandler extends AsyncFunction> {
   type: 'query';
   handler: THandler;
-};
+}
+export type AnyQueryHandler = QueryHandler<AsyncFunction>;
 
-export type MutationHandler<THandler extends AsyncFunction> = {
+export interface MutationHandler<THandler extends AsyncFunction> {
   type: 'mutation';
   handler: THandler;
-};
+}
+export type AnyMutationHandler = MutationHandler<AsyncFunction>;
 
 export type Handler<THandler extends AsyncFunction> =
   | QueryHandler<THandler>
@@ -28,9 +34,9 @@ export function mutation<THandler extends AsyncFunction>(
   return { type: 'mutation', handler };
 }
 
-export type AnyRoutes = {
+export interface AnyRoutes {
   [methodName: string]: AsyncFunction;
-};
+}
 
 export function methodPath(methodName: string): string {
   return `/api/${methodName}`;
