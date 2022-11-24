@@ -5,6 +5,7 @@ import {
   getPollsTransitionActionPastTense,
   getPollsTransitionDestinationState,
   getPollTransitionsFromState,
+  isPollsSuspensionTransition,
   isValidPollsStateChange,
 } from './polls';
 
@@ -124,4 +125,11 @@ test('getPollsTransitionActionPastTense', () => {
   expect(getPollsTransitionActionPastTense('pause_voting')).toEqual(
     'Voting Paused'
   );
+});
+
+test('isPollsSuspensionTransition', () => {
+  expect(isPollsSuspensionTransition('close_polls')).toEqual(false);
+  expect(isPollsSuspensionTransition('open_polls')).toEqual(false);
+  expect(isPollsSuspensionTransition('resume_voting')).toEqual(true);
+  expect(isPollsSuspensionTransition('pause_voting')).toEqual(true);
 });

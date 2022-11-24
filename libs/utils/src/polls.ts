@@ -1,5 +1,13 @@
-import { PollsState, PollsTransition } from '@votingworks/types';
+import {
+  PollsState,
+  PollsSuspensionTransition,
+  PollsTransition,
+} from '@votingworks/types';
 import { throwIllegalValue } from './assert';
+import {
+  PrecinctScannerCardBallotCountReport,
+  PrecinctScannerCardReport,
+} from './types';
 
 export function getPollsTransitionDestinationState(
   transition: PollsTransition
@@ -119,4 +127,26 @@ export function getPollsTransitionActionPastTense(
     default:
       throwIllegalValue(transition);
   }
+}
+
+export function isPollsSuspensionTransition(
+  transition: PollsTransition
+): transition is PollsSuspensionTransition {
+  switch (transition) {
+    case 'close_polls':
+    case 'open_polls':
+      return false;
+    case 'resume_voting':
+    case 'pause_voting':
+      return true;
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(transition);
+  }
+}
+
+export function isPrecinctScannerCardBallotCountReport(
+  precinctScannerCardReport: PrecinctScannerCardReport
+): precinctScannerCardReport is PrecinctScannerCardBallotCountReport {
+  return isPollsSuspensionTransition(precinctScannerCardReport.pollsTransition);
 }

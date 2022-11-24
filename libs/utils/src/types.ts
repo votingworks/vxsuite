@@ -3,50 +3,83 @@ import {
   CompressedTallySchema,
   Dictionary,
   MachineId,
-  PollsTransition,
-  PollsTransitionSchema,
+  PollsSuspensionTransition,
+  PollsSuspensionTransitionSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
+  StandardPollsTransition,
+  StandardPollsTransitionSchema,
 } from '@votingworks/types';
 import { z } from 'zod';
 
-// Currently we only support precinct scanner tallies but this enum exists for future ability to specify different types
-export enum TallySourceMachineType {
+// Currently we only support precinct scanner reports but this enum exists for future ability to specify different types
+export enum ReportSourceMachineType {
   PRECINCT_SCANNER = 'precinct_scanner',
 }
-export const TallySourceMachineTypeSchema = z.nativeEnum(
-  TallySourceMachineType
+export const ReportSourceMachineTypeSchema = z.nativeEnum(
+  ReportSourceMachineType
 );
 
 export type BallotCountDetails = [precinct: number, absentee: number];
 
-export interface PrecinctScannerCardTally {
-  readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER;
+export const BallotCountDetailsSchema: z.ZodSchema<BallotCountDetails> =
+  z.tuple([z.number(), z.number()]);
+
+export interface PrecinctScannerCardReportBase {
+  readonly tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER;
   readonly machineId: string;
+  readonly isLiveMode: boolean;
+  readonly precinctSelection: PrecinctSelection;
+  readonly totalBallotsScanned: number;
   readonly timeSaved: number;
   readonly timePollsTransitioned: number;
-  readonly totalBallotsScanned: number;
-  readonly isLiveMode: boolean;
-  readonly pollsTransition: PollsTransition;
+}
+
+export const PrecinctScannerCardReportBaseSchema = z.object({
+  tallyMachineType: z.literal(ReportSourceMachineType.PRECINCT_SCANNER),
+  machineId: MachineId,
+  isLiveMode: z.boolean(),
+  precinctSelection: PrecinctSelectionSchema,
+  totalBallotsScanned: z.number(),
+  timeSaved: z.number(),
+  timePollsTransitioned: z.number(),
+});
+
+export interface PrecinctScannerCardTallyReport
+  extends PrecinctScannerCardReportBase {
+  readonly pollsTransition: StandardPollsTransition;
   readonly ballotCounts: Dictionary<BallotCountDetails>;
-  readonly precinctSelection: PrecinctSelection;
   readonly talliesByPrecinct?: Dictionary<CompressedTally>;
   readonly tally: CompressedTally;
 }
-export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
-  z.object({
-    tallyMachineType: z.literal(TallySourceMachineType.PRECINCT_SCANNER),
+
+export const PrecinctScannerCardTallyReportSchema: z.ZodSchema<PrecinctScannerCardTallyReport> =
+  PrecinctScannerCardReportBaseSchema.extend({
+    pollsTransition: StandardPollsTransitionSchema,
     tally: CompressedTallySchema,
-    machineId: MachineId,
-    timeSaved: z.number(),
-    timePollsTransitioned: z.number(),
-    totalBallotsScanned: z.number(),
-    isLiveMode: z.boolean(),
-    pollsTransition: PollsTransitionSchema,
-    precinctSelection: PrecinctSelectionSchema,
     talliesByPrecinct: z.object({}).catchall(CompressedTallySchema).optional(),
-    ballotCounts: z.object({}).catchall(z.tuple([z.number(), z.number()])),
+    ballotCounts: z.object({}).catchall(BallotCountDetailsSchema),
   });
+
+export interface PrecinctScannerCardBallotCountReport
+  extends PrecinctScannerCardReportBase {
+  pollsTransition: PollsSuspensionTransition;
+}
+
+export const PrecinctScannerCardBallotCountReportSchema: z.ZodSchema<PrecinctScannerCardBallotCountReport> =
+  PrecinctScannerCardReportBaseSchema.extend({
+    pollsTransition: PollsSuspensionTransitionSchema,
+  });
+
+export type PrecinctScannerCardReport =
+  | PrecinctScannerCardBallotCountReport
+  | PrecinctScannerCardTallyReport;
+
+export const PrecinctScannerCardReportSchema: z.ZodSchema<PrecinctScannerCardReport> =
+  z.union([
+    PrecinctScannerCardTallyReportSchema,
+    PrecinctScannerCardBallotCountReportSchema,
+  ]);
 
 /**
  * Identity function useful for asserting the type of the argument/return value.
