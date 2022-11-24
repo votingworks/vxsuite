@@ -1,4 +1,5 @@
 import React from 'react';
+import MockDate from 'mockdate';
 import { render, screen } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
@@ -9,6 +10,7 @@ const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 
 test('renders info properly', () => {
+  MockDate.set(currentTime);
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionSampleDefinition}
@@ -16,7 +18,6 @@ test('renders info properly', () => {
       totalBallotsScanned={23}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
       isLiveMode={false}
       precinctScannerMachineId="SC-01-000"
     />

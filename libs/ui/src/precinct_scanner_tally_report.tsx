@@ -2,6 +2,7 @@ import {
   ElectionDefinition,
   PartyId,
   PrecinctSelection,
+  StandardPollsTransition,
   Tally,
 } from '@votingworks/types';
 import React from 'react';
@@ -20,13 +21,17 @@ interface Props {
   partyId?: PartyId;
   precinctSelection: PrecinctSelection;
   tally: Tally;
-  pollsTransition: 'open_polls' | 'close_polls';
+  pollsTransition: StandardPollsTransition;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
   currentTime: number;
   precinctScannerMachineId: string;
 }
 
+/**
+ * A single tally report representing a single precinct selection and party
+ * selection, which could be "All Precincts" and "No Party" respectively.
+ */
 export function PrecinctScannerTallyReport({
   electionDefinition,
   partyId,
