@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { Scan } from '@votingworks/api';
 import {
   ALL_PRECINCTS_SELECTION,
-  TallySourceMachineType,
+  ReportSourceMachineType,
   readBallotPackageFromFilePointer,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -483,7 +483,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
       machineId: '0002',
       timeSaved: expect.anything(),
@@ -911,7 +911,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
       machineId: '0002',
       timeSaved: expect.anything(),

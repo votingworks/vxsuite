@@ -9,7 +9,7 @@ import {
 
 import { fireEvent, screen } from '@testing-library/react';
 import {
-  PrecinctScannerCardTally,
+  PrecinctScannerCardReport,
   singlePrecinctSelectionFor,
   MemoryHardware,
 } from '@votingworks/utils';
@@ -43,7 +43,7 @@ beforeEach(() => {
 
 function fakePollworkerAuth(
   electionDefinition: ElectionDefinition,
-  tally?: PrecinctScannerCardTally
+  tally?: PrecinctScannerCardReport
 ): InsertedSmartcardAuth.PollWorkerLoggedIn {
   return Inserted.fakePollWorkerAuth(
     fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
