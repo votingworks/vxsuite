@@ -1,5 +1,6 @@
 import { Admin } from '@votingworks/api';
 import {
+  CastVoteRecord,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -43,6 +44,11 @@ export interface ElectionManagerStoreBackend {
    * Returns all imported CVR files for the current election.
    */
   getCvrFiles(): Promise<Admin.CastVoteRecordFileRecord[]>;
+
+  /**
+   * Returns all CVRs for the current election.
+   */
+  getCvrs(): Promise<CastVoteRecord[]>;
 
   /**
    * Loads the existing cast vote record files.

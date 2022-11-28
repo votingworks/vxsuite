@@ -3,16 +3,19 @@ import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   BallotPageLayout,
   CandidateContest,
+  CastVoteRecord,
   getBallotStyle,
   getContests,
   Id,
   InlineBallotImage,
   Rect,
   safeParse,
+  safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
+import compression from 'compression';
 import * as fs from 'fs/promises';
 import multer from 'multer';
 import { ADMIN_WORKSPACE, PORT } from './globals';
@@ -39,6 +42,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
   app.use(express.raw());
   app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
+  app.use(compression());
 
   app.get<NoParams>('/admin/elections', (_request, response) => {
     response.json(store.getElections());
@@ -118,6 +122,30 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     '/admin/elections/:electionId/cvr-files',
     (request, response) => {
       response.json(store.getCvrFiles(request.params.electionId));
+    }
+  );
+
+  // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
+  // can be removed once we've moved tally computation to the server - it's
+  // currently only used as a stopgap while we migrate all app state to the
+  // server.
+  app.get<{ electionId: Id }, Admin.GetCvrsResponse>(
+    '/admin/elections/:electionId/cvrs',
+    (request, response) => {
+      response.json(
+        store
+          .getCastVoteRecordEntries(request.params.electionId)
+          .map(
+            (entry) =>
+              safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
+          )
+          .map((cvr) => ({
+            ...cvr,
+            // Strip out ballot images to keep the response size low, since
+            // they're not needed client-side.
+            _ballotImages: undefined,
+          }))
+      );
     }
   );
 

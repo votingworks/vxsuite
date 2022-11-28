@@ -5,6 +5,7 @@ import {
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
+import { BallotId, CastVoteRecord } from '@votingworks/types';
 import { assert, MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import moment from 'moment';
@@ -191,6 +192,57 @@ test('getCvrFiles throws on fetch error', async () => {
   fetchMock.get('/admin/elections/test-election-2/cvr-files', { status: 500 });
 
   await expect(backend.getCvrFiles()).rejects.toThrowError();
+});
+
+test('getCvrs happy path', async () => {
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+  const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
+
+  await storage.set(currentElectionIdStorageKey, 'test-election-1');
+  fetchMock.get('/admin/elections', getElectionsResponse);
+
+  const getCvrsResponse: Admin.GetCvrsResponse = [
+    {
+      _ballotId: 'id-222222' as BallotId,
+      _ballotStyleId: '1M',
+      _ballotType: 'absentee',
+      _batchId: 'batch-id-1',
+      _batchLabel: 'batch-label',
+      _precinctId: 'precinct-1',
+      _scannerId: 'scanner-1',
+      _testBallot: false,
+    },
+    {
+      _ballotId: 'id-777777' as BallotId,
+      _ballotStyleId: '1M',
+      _ballotType: 'standard',
+      _batchId: 'batch-id-2',
+      _batchLabel: 'batch-label',
+      _precinctId: 'precinct-2',
+      _scannerId: 'scanner-2',
+      _testBallot: false,
+    },
+  ];
+
+  fetchMock.get('/admin/elections/test-election-1/cvrs', getCvrsResponse);
+
+  await expect(backend.getCvrs()).resolves.toEqual<CastVoteRecord[]>(
+    getCvrsResponse
+  );
+});
+
+test('getCvrs throws on fetch error', async () => {
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+  const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
+
+  await storage.set(currentElectionIdStorageKey, 'test-election-2');
+  fetchMock.get('/admin/elections', getElectionsResponse);
+
+  fetchMock.get('/admin/elections/test-election-2/cvrs', { status: 500 });
+
+  await expect(backend.getCvrs()).rejects.toThrowError();
 });
 
 test('addCastVoteRecordFile happy path', async () => {

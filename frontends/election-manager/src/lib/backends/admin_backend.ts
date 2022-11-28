@@ -1,6 +1,7 @@
 import { Admin, fetchWithSchema } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
+  CastVoteRecord,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -322,6 +323,14 @@ export class ElectionManagerStoreAdminBackend
     return (await fetchJson(
       `/admin/elections/${currentElectionId}/cvr-files`
     )) as Admin.CastVoteRecordFileRecord[];
+  }
+
+  async getCvrs(): Promise<CastVoteRecord[]> {
+    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
+
+    return (await fetchJson(
+      `/admin/elections/${currentElectionId}/cvrs`
+    )) as CastVoteRecord[];
   }
 
   async addCastVoteRecordFile(

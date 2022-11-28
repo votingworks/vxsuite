@@ -6,6 +6,7 @@ import {
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { AddCastVoteRecordFileResult } from '../lib/backends';
+import { getCvrsQueryKey } from './use_cvrs_query';
 import { getCvrFilesQueryKey } from './use_cvr_files_query';
 import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
 import { cvrsStorageKey } from './use_election_manager_store';
@@ -34,6 +35,7 @@ export function useAddCastVoteRecordFileMutation(): UseAddCastVoteRecordFileMuta
       onSuccess() {
         void queryClient.invalidateQueries([cvrsStorageKey]);
         void queryClient.invalidateQueries(getCvrFilesQueryKey());
+        void queryClient.invalidateQueries(getCvrsQueryKey());
         void queryClient.invalidateQueries(getCvrFileModeQueryKey());
       },
     }
