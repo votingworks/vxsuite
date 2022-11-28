@@ -125,6 +125,10 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
+  // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
+  // can be removed once we've moved tally computation to the server - it's
+  // currently only used as a stopgap while we migrate all app state to the
+  // server.
   app.get<{ electionId: Id }, Admin.GetCvrsResponse>(
     '/admin/elections/:electionId/cvrs',
     (request, response) => {
@@ -135,6 +139,12 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
             (entry) =>
               safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
           )
+          .map((cvr) => ({
+            ...cvr,
+            // Strip out ballot images to keep the response size low, since
+            // they're not needed client-side.
+            _ballotImages: undefined,
+          }))
       );
     }
   );
