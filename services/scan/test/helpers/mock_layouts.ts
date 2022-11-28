@@ -1,4 +1,5 @@
 import {
+  BallotMetadata,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
@@ -30,4 +31,17 @@ export function getMockBallotPageLayoutWithImage(
     imageData: getMockImageData(),
     ballotPageLayout: getMockBallotPageLayout(metadata),
   };
+}
+
+export function getMockBallotPageLayoutsWithImages(
+  metadata: BallotMetadata,
+  numPages: number
+): BallotPageLayoutWithImage[] {
+  const mockBallotPageLayoutsWithImages: BallotPageLayoutWithImage[] = [];
+  for (let i = 1; i <= numPages; i += 1) {
+    mockBallotPageLayoutsWithImages.push(
+      getMockBallotPageLayoutWithImage({ ...metadata, pageNumber: i })
+    );
+  }
+  return mockBallotPageLayoutsWithImages;
 }

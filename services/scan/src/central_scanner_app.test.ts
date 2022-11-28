@@ -25,7 +25,7 @@ import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
-import { getMockBallotPageLayoutWithImage } from '../test/helpers/mock_layouts';
+import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
 
 jest.mock('./importer');
 jest.mock('@votingworks/plustek-sdk');
@@ -47,16 +47,11 @@ beforeEach(async () => {
     precinctId: '23',
     isTestMode: false,
   };
-  workspace.store.addHmpbTemplate(Buffer.of(), ballotMetadata, [
-    getMockBallotPageLayoutWithImage({
-      ...ballotMetadata,
-      pageNumber: 1,
-    }),
-    getMockBallotPageLayoutWithImage({
-      ...ballotMetadata,
-      pageNumber: 2,
-    }),
-  ]);
+  workspace.store.addHmpbTemplate(
+    Buffer.of(),
+    ballotMetadata,
+    getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
+  );
   app = await buildCentralScannerApp({ importer, workspace });
 });
 
