@@ -13,6 +13,7 @@ import { pipeline } from 'stream/promises';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../../test/fixtures/state-of-hamilton';
+import { getMockBallotPageLayoutWithImage } from '../../test/helpers/mock_layouts';
 import { Store } from '../store';
 import * as buildCastVoteRecord from './build';
 import { exportCastVoteRecordsAsNdJson } from './export';
@@ -82,22 +83,14 @@ test('exportCvrs', async () => {
   };
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   // Create CVRs, confirm that they are exported should work
@@ -210,22 +203,14 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
   };
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   // Create CVRs, confirm that they are exported should work
@@ -332,22 +317,14 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
   };
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   // Create CVRs, confirm that they are exported should work
@@ -428,22 +405,14 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
   };
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   const frontNormalizedFile = tmp.fileSync();
@@ -518,22 +487,14 @@ test('exportCvrs called with orderBySheetId actually orders by sheet ID', async 
   };
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   // Create CVRs, confirm that they are exported should work

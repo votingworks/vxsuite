@@ -4,13 +4,16 @@
 
 import { Scan } from '@votingworks/api';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Bindable, Client as DbClient } from '@votingworks/db';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   AnyContest,
   BallotMetadata,
   BallotMetadataSchema,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
@@ -75,6 +78,7 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
  */
 export class Store {
   private constructor(private readonly client: DbClient) {}
+  private cachedLayouts: BallotPageLayoutWithImage[] = [];
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -167,10 +171,11 @@ export class Store {
   }
 
   /**
-   * Resets the database.
+   * Resets the database and any cached data in the store.
    */
   reset(): void {
     this.client.reset();
+    this.cachedLayouts = [];
   }
 
   /**
@@ -1047,9 +1052,13 @@ export class Store {
   addHmpbTemplate(
     pdf: Buffer,
     metadata: BallotMetadata,
-    layouts: readonly BallotPageLayout[]
+    layoutsWithImages: readonly BallotPageLayoutWithImage[]
   ): string {
     debug('storing HMPB template: %O', metadata);
+    // remove page image for storage, but we need the image here to cache
+    const layouts = layoutsWithImages.map(
+      ({ ballotPageLayout }) => ballotPageLayout
+    );
 
     this.client.run(
       `
@@ -1084,6 +1093,8 @@ export class Store {
       JSON.stringify(metadata),
       JSON.stringify(layouts)
     );
+    // cache our layouts so they can be immediately used by the interpreter
+    this.cachedLayouts.push(...layoutsWithImages);
     return id;
   }
 
@@ -1129,6 +1140,33 @@ export class Store {
     }
 
     return results;
+  }
+
+  async loadLayouts(): Promise<BallotPageLayoutWithImage[] | undefined> {
+    const electionDefinition = this.getElectionDefinition();
+    if (!electionDefinition) return;
+
+    if (this.cachedLayouts.length > 0) return this.cachedLayouts;
+
+    const templates = this.getHmpbTemplates();
+    const loadedLayouts: BallotPageLayoutWithImage[] = [];
+
+    for (const [pdf, layouts] of templates) {
+      for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
+        const ballotPageLayout = layouts[pageNumber - 1];
+        loadedLayouts.push(
+          await interpretTemplate({
+            electionDefinition,
+            imageData: page,
+            metadata: ballotPageLayout.metadata,
+          })
+        );
+      }
+    }
+
+    // These computations are expensive so we cache the loaded layouts
+    this.cachedLayouts = loadedLayouts;
+    return loadedLayouts;
   }
 
   getBallotPageLayoutForMetadata(

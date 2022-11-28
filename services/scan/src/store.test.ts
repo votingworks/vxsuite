@@ -22,6 +22,10 @@ import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
+import {
+  getMockBallotPageLayoutWithImage,
+  getMockImageData,
+} from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -229,22 +233,14 @@ test('HMPB template handling', () => {
   expect(store.getHmpbTemplates()).toEqual([]);
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 1,
+    }),
+    getMockBallotPageLayoutWithImage({
+      ...metadata,
+      pageNumber: 2,
+    }),
   ]);
 
   expect(store.getHmpbTemplates()).toEqual(
@@ -557,49 +553,52 @@ test('adjudication', () => {
     Buffer.of(),
     metadata,
     [1, 2].map((pageNumber) => ({
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber,
+      imageData: getMockImageData(),
+      ballotPageLayout: {
+        pageSize: { width: 1, height: 1 },
+        metadata: {
+          ...metadata,
+          pageNumber,
+        },
+        contests: [
+          {
+            bounds: zeroRect,
+            corners: [
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+            ],
+            options: [
+              {
+                bounds: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
+              },
+            ],
+          },
+          {
+            bounds: zeroRect,
+            corners: [
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+            ],
+            options: [
+              {
+                bounds: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
+              },
+            ],
+          },
+        ],
       },
-      contests: [
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-      ],
     }))
   );
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
