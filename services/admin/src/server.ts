@@ -15,6 +15,7 @@ import {
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
+import compression from 'compression';
 import * as fs from 'fs/promises';
 import multer from 'multer';
 import { ADMIN_WORKSPACE, PORT } from './globals';
@@ -41,6 +42,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
   app.use(express.raw());
   app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
+  app.use(compression());
 
   app.get<NoParams>('/admin/elections', (_request, response) => {
     response.json(store.getElections());

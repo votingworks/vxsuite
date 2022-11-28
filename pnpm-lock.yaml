@@ -2850,6 +2850,7 @@ importers:
       '@votingworks/types': link:../../libs/types
       '@votingworks/utils': link:../../libs/utils
       better-sqlite3: 7.5.3
+      compression: 1.7.4
       debug: 4.3.4
       express: 4.18.0
       fs-extra: 10.1.0
@@ -2860,6 +2861,7 @@ importers:
     devDependencies:
       '@jest/types': 28.1.1
       '@types/better-sqlite3': 7.5.0
+      '@types/compression': 1.7.2
       '@types/debug': 4.1.7
       '@types/express': 4.17.13
       '@types/fs-extra': 9.0.13
@@ -2898,6 +2900,7 @@ importers:
     specifiers:
       '@jest/types': ^28.1.1
       '@types/better-sqlite3': ^7.5.0
+      '@types/compression': ^1.7.2
       '@types/debug': ^4.1.7
       '@types/express': ^4.17.13
       '@types/fs-extra': ^9.0.13
@@ -2917,6 +2920,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       better-sqlite3: ^7.5.3
+      compression: ^1.7.4
       debug: ^4.3.4
       esbuild: ^0.14.29
       esbuild-runner: ^2.2.1
@@ -11282,6 +11286,12 @@ packages:
       '@types/responselike': 1.0.0
     resolution:
       integrity: sha512-ykFq2zmBGOCbpIXtoVbz4SKY5QriWPh3AjyU4G74RYbtt5yOc5OfaY75ftjg7mikMOla1CTGpX3lLbuJh8DTrQ==
+  /@types/compression/1.7.2:
+    dependencies:
+      '@types/express': 4.17.14
+    dev: true
+    resolution:
+      integrity: sha512-lwEL4M/uAGWngWFLSG87ZDr2kLrbuR8p7X+QZB1OQlT+qkHsCPDVFnHPyXf4Vyl4yDDorNY+mAhosxkCvppatg==
   /@types/connect/3.4.35:
     dependencies:
       '@types/node': 17.0.36
@@ -11351,6 +11361,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==
+  /@types/express-serve-static-core/4.17.31:
+    dependencies:
+      '@types/node': 18.8.0
+      '@types/qs': 6.9.7
+      '@types/range-parser': 1.2.4
+    dev: true
+    resolution:
+      integrity: sha512-DxMhY+NAsTwMMFHBTtJFNp5qiHKJ7TeqOo23zVEM9alT1Ml27Q3xcTH0xwxn7Q0BbMcVEJOs/7aQtUWupUQN3Q==
   /@types/express/4.17.13:
     dependencies:
       '@types/body-parser': 1.19.2
@@ -11360,6 +11378,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-6bSZTPaTIACxn48l50SR+axgrqm6qXFIxrdAKaG6PaJk3+zuUr35hBlgT7vOmJcum+OEaIBLtHV/qloEAFITeA==
+  /@types/express/4.17.14:
+    dependencies:
+      '@types/body-parser': 1.19.2
+      '@types/express-serve-static-core': 4.17.31
+      '@types/qs': 6.9.7
+      '@types/serve-static': 1.15.0
+    dev: true
+    resolution:
+      integrity: sha512-TEbt+vaPFQ+xpxFLFssxUDXj5cWCxZJjIcB7Yg0k0GMHGtgtQgpvx/MUQUeAkNbA9AAGrwkAsoeItdTgS7FMyg==
   /@types/fast-text-encoding/1.0.1:
     dev: true
     resolution:
@@ -11599,6 +11626,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==
+  /@types/mime/3.0.1:
+    dev: true
+    resolution:
+      integrity: sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
   /@types/minimatch/3.0.5:
     resolution:
       integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
@@ -11878,6 +11909,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==
+  /@types/serve-static/1.15.0:
+    dependencies:
+      '@types/mime': 3.0.1
+      '@types/node': 18.8.0
+    dev: true
+    resolution:
+      integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==
   /@types/setimmediate/1.0.2:
     dev: true
     resolution:
@@ -14719,7 +14757,7 @@ packages:
     engines:
       node: '>= 0.8'
     resolution:
-      integrity: sha1-0ygVQE1olpn4Wk6k+odV3ROpYEg=
+      integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==
   /bytes/3.1.0:
     dev: false
     engines:
