@@ -12,7 +12,7 @@ import {
   ballotPdf,
 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { main } from './render_pages';
-import { getMockBallotPageLayoutWithImage } from '../../test/helpers/mock_layouts';
+import { getMockBallotPageLayoutsWithImages } from '../../test/helpers/mock_layouts';
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;
@@ -174,16 +174,11 @@ test('render from db', async () => {
     locales: { primary: 'en-US' },
     precinctId: '6538',
   };
-  store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
-    getMockBallotPageLayoutWithImage({
-      ...metadata,
-      pageNumber: 1,
-    }),
-    getMockBallotPageLayoutWithImage({
-      ...metadata,
-      pageNumber: 2,
-    }),
-  ]);
+  store.addHmpbTemplate(
+    await fs.readFile(ballotPdf),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
 
   const stdout = fakeOutput();
   const stderr = fakeOutput();

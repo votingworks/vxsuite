@@ -23,7 +23,7 @@ import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import {
-  getMockBallotPageLayoutWithImage,
+  getMockBallotPageLayoutsWithImages,
   getMockImageData,
 } from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
@@ -232,16 +232,11 @@ test('HMPB template handling', () => {
 
   expect(store.getHmpbTemplates()).toEqual([]);
 
-  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    getMockBallotPageLayoutWithImage({
-      ...metadata,
-      pageNumber: 1,
-    }),
-    getMockBallotPageLayoutWithImage({
-      ...metadata,
-      pageNumber: 2,
-    }),
-  ]);
+  store.addHmpbTemplate(
+    Buffer.of(1, 2, 3),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
 
   expect(store.getHmpbTemplates()).toEqual(
     typedAs<Array<[Buffer, BallotPageLayout[]]>>([
