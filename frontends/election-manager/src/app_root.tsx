@@ -44,6 +44,7 @@ import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
 import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
 import { useCurrentElectionMetadata } from './hooks/use_current_election_metadata';
+import { useCvrsQuery } from './hooks/use_cvrs_query';
 
 export interface Props {
   printer: Printer;
@@ -75,6 +76,7 @@ export function AppRoot({
 
   const store = useElectionManagerStore();
   const currentElection = useCurrentElectionMetadata();
+  const cvrs = useCvrsQuery().data;
 
   const electionDefinition = currentElection.data?.electionDefinition;
 
@@ -91,14 +93,17 @@ export function AppRoot({
   // Recomputed as needed based on the cast vote record files. Uses `useMemo`
   // because it can be slow with a lot of CVRs.
   const fullElectionTally = useMemo(() => {
-    if (!electionDefinition) return getEmptyFullElectionTally();
+    if (!electionDefinition || !cvrs) {
+      return getEmptyFullElectionTally();
+    }
+
     void logger.log(LogEventId.RecomputingTally, currentUserRole);
     const fullTally = computeFullElectionTally(
       electionDefinition.election,
-      new Set(store.castVoteRecordFiles.castVoteRecords)
+      new Set(cvrs)
     );
     return fullTally;
-  }, [currentUserRole, electionDefinition, logger, store]);
+  }, [currentUserRole, electionDefinition, logger, cvrs]);
 
   // Handle Machine Config
   useEffect(() => {

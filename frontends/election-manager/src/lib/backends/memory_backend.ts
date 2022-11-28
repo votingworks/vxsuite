@@ -151,11 +151,7 @@ export class ElectionManagerStoreMemoryBackend
   }
 
   getCvrs(): Promise<CastVoteRecord[]> {
-    if (!this.electionDefinition) {
-      throw new Error('Election definition must be configured first');
-    }
-
-    if (!this.castVoteRecordFiles) {
+    if (!this.electionDefinition || !this.castVoteRecordFiles) {
       return Promise.resolve([]);
     }
 
