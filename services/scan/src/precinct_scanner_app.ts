@@ -1,5 +1,4 @@
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -26,42 +25,11 @@ import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
-import { Store } from './store';
 import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:precinct-scanner:app');
 
 type NoParams = never;
-
-/**
- * Loads ballot layouts from the {@link Store} to be used by the interpreter.
- * The results may be cached and used again as long as the underlying HMPB
- * templates are not modified.
- */
-async function loadLayouts(
-  store: Store
-): Promise<BallotPageLayoutWithImage[] | undefined> {
-  const electionDefinition = store.getElectionDefinition();
-  if (!electionDefinition) return;
-
-  const templates = store.getHmpbTemplates();
-  const loadedLayouts: BallotPageLayoutWithImage[] = [];
-
-  for (const [pdf, layouts] of templates) {
-    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const ballotPageLayout = layouts[pageNumber - 1];
-      loadedLayouts.push(
-        await interpretTemplate({
-          electionDefinition,
-          imageData: page,
-          metadata: ballotPageLayout.metadata,
-        })
-      );
-    }
-  }
-
-  return loadedLayouts;
-}
 
 /**
  * Loads all of the relevant configuration from the workspace store and
@@ -78,7 +46,7 @@ async function updateInterpreterConfig(
   if (!electionDefinition || !precinctSelection) {
     interpreter.unconfigure();
   } else {
-    const layouts = await loadLayouts(store);
+    const layouts = await store.loadLayouts();
     assert(layouts);
     interpreter.configure({
       electionDefinition,
@@ -517,8 +485,7 @@ export async function buildPrecinctScannerApp(
           store.addHmpbTemplate(
             pdf,
             result[0].ballotPageLayout.metadata,
-            // remove ballot image for storage
-            result.map(({ ballotPageLayout }) => ballotPageLayout)
+            result
           );
         }
 
