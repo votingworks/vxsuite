@@ -366,6 +366,13 @@ importers:
       vite: ^2.9.12
       web-vitals: ^1.0.1
       zod: 3.14.4
+  apps/vx-scan/frontend/prodserver:
+    dependencies:
+      express: 4.18.1
+      http-proxy-middleware: 1.0.6
+    specifiers:
+      express: ^4.17.1
+      http-proxy-middleware: 1.0.6
   codemods:
     dependencies:
       '@babel/core': 7.18.2
@@ -11640,7 +11647,7 @@ packages:
       integrity: sha512-c3Xy026kOF7QOTn00hbIllV1dLR9hG9NkSrLQgCVs8NF6sBU+VGWjD3wLPhmh1TYAc7ugCFsvHYMN4VcBN1U1A==
   /@types/http-proxy/1.17.6:
     dependencies:
-      '@types/node': 15.12.2
+      '@types/node': 18.8.0
     dev: false
     resolution:
       integrity: sha512-+qsjqR75S/ib0ig0R9WN+CDoZeOBU6F2XLewgC4KVgdXiNHiKKHFEMRHOrs5PbYE97D5vataw5wPj4KLYfUkuQ==
@@ -13815,7 +13822,7 @@ packages:
       integrity: sha512-32+ub6kkdhhWick/UjvEwRchgoetXqTK14INLqbGm5U2TzBkBNF3nQtLYm8ovxSkQWArjEQvftCKryjZaATu3w==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.4
+      follow-redirects: 1.14.1_debug@4.3.1
     dev: false
     peerDependencies:
       debug: '*'
@@ -15744,7 +15751,7 @@ packages:
       integrity: sha512-+OQdjP49zViI/6i7nIJpA8rAl4sV/JdPfU9nZs3VqOwGIgizICvuN2ru6fMd+4llL0tar18UYJXfZ/TWtmhUjA==
   /cookie-signature/1.0.6:
     resolution:
-      integrity: sha1-4wOogrNCzD7oylE6eZmXNNqzriw=
+      integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==
   /cookie/0.4.0:
     dev: false
     engines:
@@ -21403,7 +21410,9 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.14.1:
+  /follow-redirects/1.14.1_debug@4.3.1:
+    dependencies:
+      debug: 4.3.1
     dev: false
     engines:
       node: '>=4.0'
@@ -21590,7 +21599,7 @@ packages:
     engines:
       node: '>= 0.6'
     resolution:
-      integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
+      integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==
   /from/0.1.7:
     resolution:
       integrity: sha512-twe20eF1OxVxp/ML/kq2p1uc6KvFK/+vs8WjEbeKmV2He22MKm7YF2ANIt+EOqhJ5L3K/SuuPhk0hWQDjOM23g==
@@ -22496,9 +22505,9 @@ packages:
     dependencies:
       '@types/http-proxy': 1.17.6
       http-proxy: 1.18.1
-      is-glob: 4.0.1
+      is-glob: 4.0.3
       lodash: 4.17.21
-      micromatch: 4.0.4
+      micromatch: 4.0.5
     dev: false
     engines:
       node: '>=8.0.0'
@@ -22508,9 +22517,9 @@ packages:
     dependencies:
       '@types/http-proxy': 1.17.6
       http-proxy: 1.18.1_debug@4.3.2
-      is-glob: 4.0.1
+      is-glob: 4.0.3
       lodash: 4.17.21
-      micromatch: 4.0.4
+      micromatch: 4.0.5
     dev: false
     engines:
       node: '>=8.0.0'
@@ -22522,9 +22531,9 @@ packages:
     dependencies:
       '@types/http-proxy': 1.17.6
       http-proxy: 1.18.1_debug@4.3.4
-      is-glob: 4.0.1
+      is-glob: 4.0.3
       lodash: 4.17.21
-      micromatch: 4.0.4
+      micromatch: 4.0.5
     dev: false
     engines:
       node: '>=8.0.0'
@@ -22535,7 +22544,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1
+      follow-redirects: 1.14.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -23110,6 +23119,7 @@ packages:
   /is-glob/4.0.1:
     dependencies:
       is-extglob: 2.1.1
+    dev: true
     engines:
       node: '>=0.10.0'
     resolution:
@@ -27758,7 +27768,7 @@ packages:
     engines:
       node: '>= 0.6'
     resolution:
-      integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=
+      integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==
   /memfs/3.4.7:
     dependencies:
       fs-monkey: 1.0.3
@@ -27824,7 +27834,7 @@ packages:
       integrity: sha512-l5XlriUDJKQT12bH+rVhAHjwIuXWdAIecGwsYjv2LJo+dA1AeRTmeQS+3QBpO6lEthBMDi2IUMpLC1yyRvGlwQ==
   /merge-descriptors/1.0.1:
     resolution:
-      integrity: sha1-sAqqVW3YtEVoFQ7J0blT8/kMu2E=
+      integrity: sha512-cCi6g3/Zr1iqQi6ySbseM1Xvooa98N0w31jzUYrXPX2xqObmFGHJ0tQ5u74H3mVh7wLouTseZyYIq39g8cNp1w==
   /merge-stream/2.0.0:
     resolution:
       integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==
@@ -34519,7 +34529,7 @@ packages:
     engines:
       node: '>= 0.4.0'
     resolution:
-      integrity: sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
+      integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
   /uuid/3.4.0:
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
     dev: false
@@ -34593,7 +34603,7 @@ packages:
     engines:
       node: '>= 0.8'
     resolution:
-      integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+      integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
   /vendors/1.0.4:
     dev: false
     resolution:
