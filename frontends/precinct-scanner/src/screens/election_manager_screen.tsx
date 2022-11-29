@@ -111,7 +111,11 @@ export function ElectionManagerScreen({
       openToggleLiveModeWarningModal();
     } else {
       setIsLoading(true);
+      const minimumDelay = new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
       await toggleLiveMode();
+      await minimumDelay;
       setIsLoading(false);
     }
   }
