@@ -1,16 +1,17 @@
 import react from '@vitejs/plugin-react';
 import { join } from 'path';
 import { Alias, defineConfig, loadEnv } from 'vite';
-import { getWorkspacePackageInfo } from '../../script/src/validate-monorepo/pnpm';
+import { getWorkspacePackageInfo } from '../../../script/src/validate-monorepo/pnpm';
 import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig(async (env) => {
+  const workspaceRootPath = join(__dirname, '../../..');
   const workspacePackages = await getWorkspacePackageInfo(
-    join(__dirname, '../..')
+    workspaceRootPath
   );
 
   const envPrefix = 'REACT_APP_';
-  const rootDotenvValues = loadEnv(env.mode, join(__dirname, '../..'), envPrefix);
+  const rootDotenvValues = loadEnv(env.mode, workspaceRootPath, envPrefix);
   const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix)
   const processEnvDefines = [...Object.entries(rootDotenvValues), ...Object.entries(coreDotenvValues)].reduce<
     Record<string, string>
