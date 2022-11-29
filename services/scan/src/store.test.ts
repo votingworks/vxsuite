@@ -19,6 +19,7 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
+import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
@@ -27,6 +28,7 @@ import {
   getMockImageData,
 } from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
+import { ballotPdf } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -273,6 +275,68 @@ test('HMPB template handling', () => {
       ],
     ])
   );
+});
+
+test('loading layouts', async () => {
+  const dbFile = tmp.fileSync();
+  const initialStore = Store.fileStore(dbFile.name);
+  initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
+
+  const metadata: BallotMetadata = {
+    electionHash: 'd34db33f',
+    locales: { primary: 'en-US' },
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    ballotType: BallotType.Standard,
+  };
+
+  initialStore.addHmpbTemplate(
+    await fs.readFile(ballotPdf),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
+
+  // The layouts should be cached after adding, and we should not be retrieving
+  // templates from the DB.
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+  let layouts = await initialStore.loadLayouts();
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+
+  expect(layouts).toMatchObject([
+    {
+      imageData: expect.anything(),
+      ballotPageLayout: {
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+      },
+    },
+    {
+      imageData: expect.anything(),
+      ballotPageLayout: {
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+      },
+    },
+  ]);
+
+  // If we reload the store from the DB, it will no longer be cached
+  const loadedStore = Store.fileStore(dbFile.name);
+  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+  layouts = await loadedStore.loadLayouts();
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(1);
+
+  // if we reset and reload templates, it should not load from cache
+  loadedStore.reset();
+  loadedStore.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(loadedStore.getHmpbTemplates()).toMatchObject([]);
 });
 
 test('batch cleanup works correctly', () => {
