@@ -16,6 +16,7 @@ test('successful MarkOnly fetch from /machine-config', async () => {
       appModeKey: 'MarkOnly',
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
@@ -23,6 +24,7 @@ test('successful MarkOnly fetch from /machine-config', async () => {
       appMode: MarkOnly,
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
 });
@@ -34,6 +36,7 @@ test('successful PrintOnly fetch from /machine-config', async () => {
       appModeKey: 'PrintOnly',
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
@@ -41,6 +44,7 @@ test('successful PrintOnly fetch from /machine-config', async () => {
       appMode: PrintOnly,
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
 });
@@ -52,6 +56,7 @@ test('successful MarkAndPrint fetch from /machine-config', async () => {
       appModeKey: 'MarkAndPrint',
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
   expect(await machineConfigProvider.get()).toEqual(
@@ -59,6 +64,7 @@ test('successful MarkAndPrint fetch from /machine-config', async () => {
       appMode: MarkAndPrint,
       machineId: '1',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
 });
@@ -81,6 +87,7 @@ test('overrides', async () => {
     REACT_APP_VX_APP_MODE: 'MarkOnly',
     REACT_APP_VX_MACHINE_ID: '2',
     REACT_APP_VX_CODE_VERSION: 'test-override',
+    REACT_APP_VX_SCREEN_ORIENTATION: 'landscape',
   };
 
   try {
@@ -90,6 +97,7 @@ test('overrides', async () => {
         appModeKey: 'PrintOnly',
         machineId: '1',
         codeVersion: 'test',
+        screenOrientation: 'portrait',
       })
     );
 
@@ -98,6 +106,7 @@ test('overrides', async () => {
         appMode: MarkOnly,
         machineId: '2',
         codeVersion: 'test-override',
+        screenOrientation: 'landscape',
       })
     );
   } finally {
@@ -113,6 +122,7 @@ test('overrides without appMode', async () => {
     NODE_ENV: 'development',
     REACT_APP_VX_MACHINE_ID: '2',
     REACT_APP_VX_CODE_VERSION: 'test-override',
+    REACT_APP_VX_SCREEN_ORIENTATION: 'landscape',
   };
 
   try {
@@ -122,6 +132,7 @@ test('overrides without appMode', async () => {
         appModeKey: 'PrintOnly',
         machineId: '1',
         codeVersion: 'test',
+        screenOrientation: 'portrait',
       })
     );
 
@@ -130,6 +141,7 @@ test('overrides without appMode', async () => {
         appMode: PrintOnly,
         machineId: '2',
         codeVersion: 'test-override',
+        screenOrientation: 'landscape',
       })
     );
   } finally {

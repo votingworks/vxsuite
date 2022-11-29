@@ -139,7 +139,12 @@ const initialVoterState: Readonly<UserState> = {
 };
 
 const initialHardwareState: Readonly<HardwareState> = {
-  machineConfig: { appMode: MarkOnly, machineId: '0000', codeVersion: 'dev' },
+  machineConfig: {
+    appMode: MarkOnly,
+    machineId: '0000',
+    codeVersion: 'dev',
+    screenOrientation: 'portrait',
+  },
 };
 
 const initialSharedState: Readonly<SharedState> = {

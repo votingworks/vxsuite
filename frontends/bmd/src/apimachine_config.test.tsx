@@ -21,6 +21,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
       appModeKey: MarkOnly.key,
       machineId: '99',
       codeVersion: 'test',
+      screenOrientation: 'portrait',
     })
   );
 
@@ -61,7 +62,12 @@ test('machineId is empty', async () => {
   const machineConfig: Provider<MachineConfig> = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async get() {
-      return { appMode: MarkOnly, machineId: '', codeVersion: 'test' };
+      return {
+        appMode: MarkOnly,
+        machineId: '',
+        codeVersion: 'test',
+        screenOrientation: 'portrait',
+      };
     },
   };
 
