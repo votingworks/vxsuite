@@ -12,7 +12,7 @@ import {
   getSubTalliesByPartyAndPrecinct,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { PrecinctScannerFullReport } from './precinct_scanner_full_report';
+import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
 
 test('polls closed: tally reports for each party in primary, single precinct', () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
@@ -27,14 +27,13 @@ test('polls closed: tally reports for each party in primary, single precinct', (
     precinctSelection,
   });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={precinctSelection}
       subTallies={subTallies}
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qr code page
       signedQuickResultsReportingUrl="https://voting.works"
@@ -64,7 +63,7 @@ test('polls closed: tally reports for each precinct when there is data for all p
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={electionDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       hasPrecinctSubTallies
@@ -72,7 +71,6 @@ test('polls closed: tally reports for each precinct when there is data for all p
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0}
       signedQuickResultsReportingUrl="https://voting.works"
@@ -100,7 +98,7 @@ test('polls closed: tally report for "All Precincts" when there is only data for
     tally,
   });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={electionDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       hasPrecinctSubTallies={false}
@@ -108,7 +106,6 @@ test('polls closed: tally report for "All Precincts" when there is only data for
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0}
       signedQuickResultsReportingUrl="https://voting.works"
@@ -116,40 +113,6 @@ test('polls closed: tally report for "All Precincts" when there is only data for
   );
 
   screen.getByText('Official Polls Closed Report for All Precincts');
-  expect(
-    screen.queryByText('Automatic Election Results Reporting')
-  ).not.toBeInTheDocument();
-});
-
-test('polls paused: includes ballot count page only', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  const tally: FullElectionTally = {
-    overallTally: getEmptyTally(),
-    resultsByCategory: new Map(),
-  };
-  const subTallies = getSubTalliesByPartyAndPrecinct({
-    election,
-    tally,
-  });
-  render(
-    <PrecinctScannerFullReport
-      electionDefinition={electionDefinition}
-      precinctSelection={ALL_PRECINCTS_SELECTION}
-      hasPrecinctSubTallies={false}
-      subTallies={subTallies}
-      pollsTransition="pause_voting"
-      isLiveMode
-      pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
-      precinctScannerMachineId="SC-01-000"
-      totalBallotsScanned={0}
-      signedQuickResultsReportingUrl="https://voting.works"
-    />
-  );
-
-  screen.getByText('Official Voting Paused Report for All Precincts');
-  screen.getByText('Ballots Scanned Count');
   expect(
     screen.queryByText('Automatic Election Results Reporting')
   ).not.toBeInTheDocument();
@@ -167,7 +130,7 @@ test('includes quick results page under right conditions', () => {
     tally,
   });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
@@ -176,7 +139,6 @@ test('includes quick results page under right conditions', () => {
       pollsTransition="close_polls" // to trigger qrcode
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qrcode
       signedQuickResultsReportingUrl="https://voting.works"
@@ -195,7 +157,7 @@ test('does not include quick results page if ballot count is 0', () => {
   };
   const subTallies = getSubTalliesByPartyAndPrecinct({ election, tally });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
@@ -204,7 +166,6 @@ test('does not include quick results page if ballot count is 0', () => {
       pollsTransition="close_polls" // to trigger qrcode
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={0} // to disable qrcode
       signedQuickResultsReportingUrl="https://voting.works"
@@ -228,7 +189,7 @@ test('does not include quick results page if polls are being opened', () => {
     tally,
   });
   render(
-    <PrecinctScannerFullReport
+    <PrecinctScannerTallyReports
       electionDefinition={
         electionMinimalExhaustiveSampleWithReportingUrlDefinition
       }
@@ -237,7 +198,6 @@ test('does not include quick results page if polls are being opened', () => {
       pollsTransition="open_polls" // to disable qrcode
       isLiveMode
       pollsTransitionedTime={new Date().getTime()}
-      currentTime={new Date().getTime()}
       precinctScannerMachineId="SC-01-000"
       totalBallotsScanned={1} // to trigger qrcode
       signedQuickResultsReportingUrl="https://voting.works"

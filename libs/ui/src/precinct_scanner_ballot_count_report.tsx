@@ -1,4 +1,8 @@
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PollsSuspensionTransition,
+  PrecinctSelection,
+} from '@votingworks/types';
 import {
   formatFullDateTimeZone,
   getPollsStateName,
@@ -39,9 +43,8 @@ interface Props {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   totalBallotsScanned: number;
-  pollsTransition: 'pause_voting' | 'resume_voting';
+  pollsTransition: PollsSuspensionTransition;
   pollsTransitionedTime: number;
-  currentTime: number;
   isLiveMode: boolean;
   precinctScannerMachineId: string;
 }
@@ -52,10 +55,11 @@ export function PrecinctScannerBallotCountReport({
   totalBallotsScanned,
   pollsTransition,
   pollsTransitionedTime,
-  currentTime,
   isLiveMode,
   precinctScannerMachineId,
 }: Props): JSX.Element {
+  const currentTime = Date.now();
+
   return (
     <PrintableContainer data-testid="ballot-count-report">
       <TallyReport>

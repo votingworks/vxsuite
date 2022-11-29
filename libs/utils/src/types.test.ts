@@ -1,6 +1,6 @@
-import { TallySourceMachineType } from './types';
+import { ReportSourceMachineType } from './types';
 
 // Enums act weirdly with jest coverage, this is needed to get to 100% coverage
-test('TallySourceMachineType', () => {
-  expect(Object.values(TallySourceMachineType)).toHaveLength(1);
+test('ReportSourceMachineType', () => {
+  expect(Object.values(ReportSourceMachineType)).toHaveLength(1);
 });

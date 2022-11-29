@@ -3,50 +3,98 @@ import {
   CompressedTallySchema,
   Dictionary,
   MachineId,
-  PollsTransition,
-  PollsTransitionSchema,
+  PollsSuspensionTransition,
+  PollsSuspensionTransitionSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
+  StandardPollsTransition,
+  StandardPollsTransitionSchema,
 } from '@votingworks/types';
 import { z } from 'zod';
 
-// Currently we only support precinct scanner tallies but this enum exists for future ability to specify different types
-export enum TallySourceMachineType {
+// Currently we only support precinct scanner reports but this enum exists for future ability to specify different types
+export enum ReportSourceMachineType {
   PRECINCT_SCANNER = 'precinct_scanner',
 }
-export const TallySourceMachineTypeSchema = z.nativeEnum(
-  TallySourceMachineType
+export const ReportSourceMachineTypeSchema = z.nativeEnum(
+  ReportSourceMachineType
 );
 
 export type BallotCountDetails = [precinct: number, absentee: number];
 
-export interface PrecinctScannerCardTally {
-  readonly tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER;
+export const BallotCountDetailsSchema: z.ZodSchema<BallotCountDetails> =
+  z.tuple([z.number(), z.number()]);
+
+export interface ScannerReportDataBase {
+  readonly tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER;
   readonly machineId: string;
+  readonly isLiveMode: boolean;
+  readonly precinctSelection: PrecinctSelection;
+  readonly totalBallotsScanned: number;
   readonly timeSaved: number;
   readonly timePollsTransitioned: number;
-  readonly totalBallotsScanned: number;
-  readonly isLiveMode: boolean;
-  readonly pollsTransition: PollsTransition;
+}
+
+export const ScannerReportDataBaseSchema = z.object({
+  tallyMachineType: z.literal(ReportSourceMachineType.PRECINCT_SCANNER),
+  machineId: MachineId,
+  isLiveMode: z.boolean(),
+  precinctSelection: PrecinctSelectionSchema,
+  totalBallotsScanned: z.number(),
+  timeSaved: z.number(),
+  timePollsTransitioned: z.number(),
+});
+
+/**
+ * Data representing a precinct scanner tally report for when polls are opened
+ * or closed.
+ */
+export interface ScannerTallyReportData extends ScannerReportDataBase {
+  readonly pollsTransition: StandardPollsTransition;
   readonly ballotCounts: Dictionary<BallotCountDetails>;
-  readonly precinctSelection: PrecinctSelection;
   readonly talliesByPrecinct?: Dictionary<CompressedTally>;
   readonly tally: CompressedTally;
 }
-export const PrecinctScannerCardTallySchema: z.ZodSchema<PrecinctScannerCardTally> =
-  z.object({
-    tallyMachineType: z.literal(TallySourceMachineType.PRECINCT_SCANNER),
+
+export const ScannerTallyReportDataSchema: z.ZodSchema<ScannerTallyReportData> =
+  ScannerReportDataBaseSchema.extend({
+    pollsTransition: StandardPollsTransitionSchema,
     tally: CompressedTallySchema,
-    machineId: MachineId,
-    timeSaved: z.number(),
-    timePollsTransitioned: z.number(),
-    totalBallotsScanned: z.number(),
-    isLiveMode: z.boolean(),
-    pollsTransition: PollsTransitionSchema,
-    precinctSelection: PrecinctSelectionSchema,
     talliesByPrecinct: z.object({}).catchall(CompressedTallySchema).optional(),
-    ballotCounts: z.object({}).catchall(z.tuple([z.number(), z.number()])),
+    ballotCounts: z.object({}).catchall(BallotCountDetailsSchema),
   });
+
+/**
+ * Data representing a precinct scanner ballot count report for when voting is
+ * paused or resumed. Unlike the tally reports used for polls opening and
+ * closing, ballot count reports omit any tally data in accordance with
+ * VVSG 2.0 1.1.9-K which disallows extracting vote tally data while the polls
+ * are open.
+ */
+export interface ScannerBallotCountReportData extends ScannerReportDataBase {
+  pollsTransition: PollsSuspensionTransition;
+}
+
+export const ScannerBallotCountReportDataSchema: z.ZodSchema<ScannerBallotCountReportData> =
+  ScannerReportDataBaseSchema.extend({
+    pollsTransition: PollsSuspensionTransitionSchema,
+  });
+
+/**
+ * Data representing a precinct scanner report for polls opening, polls
+ * closing, voting paused, or voting resumed. In order to be allow printing
+ * a precinct scanner's report on a ballot-marking device, we export the
+ * formatted data onto a smartcard which will then be loaded on the
+ * ballot-marking device.
+ */
+export type ScannerReportData =
+  | ScannerBallotCountReportData
+  | ScannerTallyReportData;
+
+export const ScannerReportDataSchema: z.ZodSchema<ScannerReportData> = z.union([
+  ScannerTallyReportDataSchema,
+  ScannerBallotCountReportDataSchema,
+]);
 
 /**
  * Identity function useful for asserting the type of the argument/return value.

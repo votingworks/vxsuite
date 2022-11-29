@@ -24,23 +24,22 @@ import {
   Loading,
   Main,
   Modal,
-  PrecinctScannerFullReport,
+  PrecinctScannerTallyReports,
   printElement,
   Prose,
   Screen,
   Text,
+  PrecinctScannerBallotCountReport,
 } from '@votingworks/ui';
 
 import {
   assert,
-  TallySourceMachineType,
+  ReportSourceMachineType,
   find,
   readCompressedTally,
   getPrecinctSelectionName,
   getTallyIdentifier,
   Hardware,
-  PrecinctScannerCardTallySchema,
-  PrecinctScannerCardTally,
   sleep,
   throwIllegalValue,
   getPollsTransitionDestinationState,
@@ -49,6 +48,11 @@ import {
   getPollsTransitionAction,
   isValidPollsStateChange,
   getPollTransitionsFromState,
+  ScannerReportData,
+  ScannerTallyReportData,
+  ScannerReportDataSchema,
+  isPollsSuspensionTransition,
+  ScannerBallotCountReportData,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -62,20 +66,20 @@ import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
-function parsePrecinctScannerTally(
-  precinctScannerTally: PrecinctScannerCardTally,
+function parseScannerReportTallyData(
+  scannerTallyReportData: ScannerTallyReportData,
   election: Election
 ) {
   assert(
-    precinctScannerTally.tallyMachineType ===
-      TallySourceMachineType.PRECINCT_SCANNER
+    scannerTallyReportData.tallyMachineType ===
+      ReportSourceMachineType.PRECINCT_SCANNER
   );
   const parties = getPartyIdsInBallotStyles(election);
   const newSubTallies = new Map<string, Tally>();
   // Read the tally for each precinct and each party
-  if (precinctScannerTally.talliesByPrecinct) {
+  if (scannerTallyReportData.talliesByPrecinct) {
     for (const [precinctId, compressedTally] of Object.entries(
-      precinctScannerTally.talliesByPrecinct
+      scannerTallyReportData.talliesByPrecinct
     )) {
       assert(compressedTally);
       // partyId may be undefined in the case of a ballot style without a party in the election
@@ -84,7 +88,7 @@ function parsePrecinctScannerTally(
         const tally = readCompressedTally(
           election,
           compressedTally,
-          precinctScannerTally.ballotCounts[key] ?? [0, 0],
+          scannerTallyReportData.ballotCounts[key] ?? [0, 0],
           partyId
         );
         newSubTallies.set(key, tally);
@@ -94,30 +98,36 @@ function parsePrecinctScannerTally(
     for (const partyId of parties) {
       const key = getTallyIdentifier(
         partyId,
-        precinctScannerTally.precinctSelection.kind === 'SinglePrecinct'
-          ? precinctScannerTally.precinctSelection.precinctId
+        scannerTallyReportData.precinctSelection.kind === 'SinglePrecinct'
+          ? scannerTallyReportData.precinctSelection.precinctId
           : undefined
       );
       const tally = readCompressedTally(
         election,
-        precinctScannerTally.tally,
-        precinctScannerTally.ballotCounts[key] ?? [0, 0],
+        scannerTallyReportData.tally,
+        scannerTallyReportData.ballotCounts[key] ?? [0, 0],
         partyId
       );
       newSubTallies.set(key, tally);
     }
   }
   return {
-    overallTally: precinctScannerTally.tally,
+    overallTally: scannerTallyReportData.tally,
     subTallies: newSubTallies,
   };
 }
 
-type PrecinctScannerTallyReportModalState = 'initial' | 'printing' | 'reprint';
+function isScannerBallotCountReportData(
+  scannerReportData: ScannerReportData
+): scannerReportData is ScannerBallotCountReportData {
+  return isPollsSuspensionTransition(scannerReportData.pollsTransition);
+}
 
-function PrecinctScannerTallyReportModal({
+type ScannerReportModalState = 'initial' | 'printing' | 'reprint';
+
+function ScannerReportModal({
   electionDefinition,
-  precinctScannerTally,
+  scannerReportData,
   pollworkerAuth,
   machineConfig,
   pollsState,
@@ -126,7 +136,7 @@ function PrecinctScannerTallyReportModal({
   logger,
 }: {
   electionDefinition: ElectionDefinition;
-  precinctScannerTally: PrecinctScannerCardTally;
+  scannerReportData: ScannerReportData;
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   machineConfig: MachineConfig;
   pollsState: PollsState;
@@ -135,65 +145,76 @@ function PrecinctScannerTallyReportModal({
   logger: Logger;
 }) {
   const [modalState, setModalState] =
-    useState<PrecinctScannerTallyReportModalState>('initial');
+    useState<ScannerReportModalState>('initial');
 
-  const precinctScannerTallyInformation =
-    precinctScannerTally &&
-    parsePrecinctScannerTally(
-      precinctScannerTally,
-      electionDefinition.election
-    );
   const precinctScannerPollsState = getPollsTransitionDestinationState(
-    precinctScannerTally.pollsTransition
+    scannerReportData.pollsTransition
   );
   const [willUpdatePollsToMatchScanner] = useState(
     isValidPollsStateChange(pollsState, precinctScannerPollsState)
   );
-  const currentTime = Date.now();
 
   async function printReport(copies: number) {
-    const signedQuickResultsReportingUrl =
-      await getSignedQuickResultsReportingUrl({
-        electionDefinition,
-        isLiveMode: precinctScannerTally.isLiveMode,
-        compressedTally: precinctScannerTallyInformation.overallTally,
-        signingMachineId: machineConfig.machineId,
-      });
-
-    await printElement(
-      <PrecinctScannerFullReport
-        electionDefinition={electionDefinition}
-        precinctSelection={precinctScannerTally.precinctSelection}
-        subTallies={precinctScannerTallyInformation.subTallies}
-        hasPrecinctSubTallies={Boolean(precinctScannerTally.talliesByPrecinct)}
-        pollsTransition={precinctScannerTally.pollsTransition}
-        isLiveMode={precinctScannerTally.isLiveMode}
-        currentTime={currentTime}
-        pollsTransitionedTime={precinctScannerTally.timePollsTransitioned}
-        totalBallotsScanned={precinctScannerTally.totalBallotsScanned}
-        precinctScannerMachineId={precinctScannerTally.machineId}
-        signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
-      />,
-      {
-        sides: 'one-sided',
-        copies,
+    const report = await (async () => {
+      if (isScannerBallotCountReportData(scannerReportData)) {
+        return (
+          <PrecinctScannerBallotCountReport
+            electionDefinition={electionDefinition}
+            precinctSelection={scannerReportData.precinctSelection}
+            pollsTransition={scannerReportData.pollsTransition}
+            totalBallotsScanned={scannerReportData.totalBallotsScanned}
+            isLiveMode={scannerReportData.isLiveMode}
+            pollsTransitionedTime={scannerReportData.timePollsTransitioned}
+            precinctScannerMachineId={scannerReportData.machineId}
+          />
+        );
       }
-    );
+
+      const parsedScannerTallyReportData = parseScannerReportTallyData(
+        scannerReportData,
+        electionDefinition.election
+      );
+      const signedQuickResultsReportingUrl =
+        await getSignedQuickResultsReportingUrl({
+          electionDefinition,
+          isLiveMode: scannerReportData.isLiveMode,
+          compressedTally: parsedScannerTallyReportData.overallTally,
+          signingMachineId: machineConfig.machineId,
+        });
+      return (
+        <PrecinctScannerTallyReports
+          electionDefinition={electionDefinition}
+          precinctSelection={scannerReportData.precinctSelection}
+          subTallies={parsedScannerTallyReportData.subTallies}
+          hasPrecinctSubTallies={Boolean(scannerReportData.talliesByPrecinct)}
+          pollsTransition={scannerReportData.pollsTransition}
+          isLiveMode={scannerReportData.isLiveMode}
+          pollsTransitionedTime={scannerReportData.timePollsTransitioned}
+          totalBallotsScanned={scannerReportData.totalBallotsScanned}
+          precinctScannerMachineId={scannerReportData.machineId}
+          signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
+        />
+      );
+    })();
+
+    await printElement(report, {
+      sides: 'one-sided',
+      copies,
+    });
     const reportTitle = getPollsReportTitle(
-      precinctScannerTally.pollsTransition
+      scannerReportData.pollsTransition
     ).toLowerCase();
     const reportPrecinctName = getPrecinctSelectionName(
       electionDefinition.election.precincts,
-      precinctScannerTally.precinctSelection
+      scannerReportData.precinctSelection
     );
     await logger.log(LogEventId.TallyReportPrinted, 'poll_worker', {
       disposition: 'success',
-      message: `Printed ${copies} copies of a ${reportTitle} for ${reportPrecinctName} exported from scanner ${precinctScannerTally.machineId}.`,
-      scannerPollsTransition: precinctScannerTally.pollsTransition,
-      timePollsTransitionedOnScanner:
-        precinctScannerTally.timePollsTransitioned,
-      timeReportSavedToCard: precinctScannerTally.timeSaved,
-      totalBallotsScanned: precinctScannerTally.totalBallotsScanned,
+      message: `Printed ${copies} copies of a ${reportTitle} for ${reportPrecinctName} exported from scanner ${scannerReportData.machineId}.`,
+      scannerPollsTransition: scannerReportData.pollsTransition,
+      timePollsTransitionedOnScanner: scannerReportData.timePollsTransitioned,
+      timeReportSavedToCard: scannerReportData.timeSaved,
+      totalBallotsScanned: scannerReportData.totalBallotsScanned,
     });
     await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
@@ -223,12 +244,10 @@ function PrecinctScannerTallyReportModal({
     }
   }
 
-  assert(precinctScannerTallyInformation);
-
   let modalContent: React.ReactNode = null;
   let modalActions: React.ReactNode = null;
 
-  const reportTitle = getPollsReportTitle(precinctScannerTally.pollsTransition);
+  const reportTitle = getPollsReportTitle(scannerReportData.pollsTransition);
   const newPollsStateName = getPollsStateName(precinctScannerPollsState);
 
   switch (modalState) {
@@ -252,7 +271,7 @@ function PrecinctScannerTallyReportModal({
       );
       modalActions = willUpdatePollsToMatchScanner ? (
         <Button primary onPress={printReportsAndUpdatePolls}>
-          {getPollsTransitionAction(precinctScannerTally.pollsTransition)} and
+          {getPollsTransitionAction(scannerReportData.pollsTransition)} and
           Print Report
         </Button>
       ) : (
@@ -458,22 +477,20 @@ export function PollWorkerScreen({
     return setIsConfirmingEnableLiveMode(false);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
-  const [precinctScannerTally, setPrecinctScannerTally] =
-    useState<PrecinctScannerCardTally>();
+  const [scannerReportData, setScannerReportData] =
+    useState<ScannerReportData>();
   useEffect(() => {
-    if (precinctScannerTally) return;
+    if (scannerReportData) return;
     if (!pollworkerAuth.card.hasStoredData) return;
     async function loadTallyFromCard() {
-      setPrecinctScannerTally(
+      setScannerReportData(
         (
-          await pollworkerAuth.card.readStoredObject(
-            PrecinctScannerCardTallySchema
-          )
+          await pollworkerAuth.card.readStoredObject(ScannerReportDataSchema)
         ).ok()
       );
     }
     void loadTallyFromCard();
-  }, [pollworkerAuth, precinctScannerTally]);
+  }, [pollworkerAuth, scannerReportData]);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -481,10 +498,10 @@ export function PollWorkerScreen({
    * add a new modal to this component add it's state parameter as a dependency here.
    */
   useEffect(() => {
-    if (!isConfirmingEnableLiveMode && !precinctScannerTally) {
+    if (!isConfirmingEnableLiveMode && !scannerReportData) {
       triggerAudioFocus();
     }
-  }, [isConfirmingEnableLiveMode, precinctScannerTally]);
+  }, [isConfirmingEnableLiveMode, scannerReportData]);
 
   const isPrintMode = machineConfig.appMode.isPrint;
   const isMarkAndPrintMode =
@@ -742,19 +759,18 @@ export function PollWorkerScreen({
           />
         )}
       </Screen>
-      {precinctScannerTally &&
-        precinctScannerTally.isLiveMode === isLiveMode && (
-          <PrecinctScannerTallyReportModal
-            pollworkerAuth={pollworkerAuth}
-            precinctScannerTally={precinctScannerTally}
-            electionDefinition={electionDefinition}
-            machineConfig={machineConfig}
-            pollsState={pollsState}
-            updatePollsState={updatePollsState}
-            onClose={() => setPrecinctScannerTally(undefined)}
-            logger={logger}
-          />
-        )}
+      {scannerReportData && scannerReportData.isLiveMode === isLiveMode && (
+        <ScannerReportModal
+          pollworkerAuth={pollworkerAuth}
+          scannerReportData={scannerReportData}
+          electionDefinition={electionDefinition}
+          machineConfig={machineConfig}
+          pollsState={pollsState}
+          updatePollsState={updatePollsState}
+          onClose={() => setScannerReportData(undefined)}
+          logger={logger}
+        />
+      )}
     </React.Fragment>
   );
 }

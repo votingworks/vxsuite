@@ -8,9 +8,10 @@ import {
   isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   fontSizeTheme,
-  PrecinctScannerFullReport,
+  PrecinctScannerTallyReports,
   printElement,
   getSignedQuickResultsReportingUrl,
+  PrecinctScannerBallotCountReport,
 } from '@votingworks/ui';
 import {
   assert,
@@ -21,13 +22,17 @@ import {
   getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
-  PrecinctScannerCardTally,
-  PrecinctScannerCardTallySchema,
+  ScannerReportData,
+  ScannerReportDataSchema,
   sleep,
-  TallySourceMachineType,
+  ReportSourceMachineType,
   throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
+  ScannerBallotCountReportData,
+  isPollsSuspensionTransition,
+  ScannerTallyReportData,
+  ScannerReportDataBase,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -65,15 +70,15 @@ type PollWorkerFlowState =
   | 'polls_transition_complete'
   | 'reprinting_report';
 
-async function saveTallyToCard(
+async function saveReportDataToCard(
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
-  cardTally: PrecinctScannerCardTally
+  reportData: ScannerReportData
 ): Promise<boolean> {
-  await auth.card.writeStoredData(cardTally);
+  await auth.card.writeStoredData(reportData);
   const possibleTally = await auth.card.readStoredObject(
-    PrecinctScannerCardTallySchema
+    ScannerReportDataSchema
   );
-  return possibleTally.ok()?.timeSaved === cardTally.timeSaved;
+  return possibleTally.ok()?.timeSaved === reportData.timeSaved;
 }
 
 async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
@@ -181,14 +186,35 @@ export function PollWorkerScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function saveTally(
+  async function exportReportDataToCard(
     pollsTransition: PollsTransition,
     timePollsTransitioned: number
   ) {
+    assert(precinctSelection);
+    assert(isPollWorkerAuth(auth));
+    const reportBasicData: ScannerReportDataBase = {
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+      machineId: machineConfig.machineId,
+      isLiveMode,
+      precinctSelection,
+      totalBallotsScanned: scannedBallotCount,
+      timeSaved: Date.now(),
+      timePollsTransitioned,
+    };
+
+    if (isPollsSuspensionTransition(pollsTransition)) {
+      const ballotCountReportData: ScannerBallotCountReportData = {
+        ...reportBasicData,
+        pollsTransition,
+      };
+      await saveReportDataToCard(auth, ballotCountReportData);
+      return;
+    }
+
     assert(currentTally);
+    assert(currentCompressedTally);
     let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
     // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
-    assert(precinctSelection);
     if (precinctSelection.kind === 'AllPrecincts') {
       const talliesByPrecinct = currentTally.resultsByCategory.get(
         TallyCategory.Precinct
@@ -239,31 +265,23 @@ export function PollWorkerScreen({
         subTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
       ];
     }
-    assert(currentCompressedTally);
 
-    const fullTallyInformation: PrecinctScannerCardTally = {
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: scannedBallotCount,
-      isLiveMode,
+    const tallyReportData: ScannerTallyReportData = {
+      ...reportBasicData,
       pollsTransition,
-      machineId: machineConfig.machineId,
-      timeSaved: Date.now(),
-      timePollsTransitioned,
-      precinctSelection,
-      ballotCounts: ballotCountBreakdowns,
-      talliesByPrecinct: compressedTalliesByPrecinct,
       tally: currentCompressedTally,
+      talliesByPrecinct: compressedTalliesByPrecinct,
+      ballotCounts: ballotCountBreakdowns,
     };
 
-    assert(isPollWorkerAuth(auth));
-    const success = await saveTallyToCard(auth, fullTallyInformation);
+    const success = await saveReportDataToCard(auth, tallyReportData);
     if (!success) {
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
       // TODO show an error message if this attempt also fails.
-      await saveTallyToCard(auth, {
-        ...fullTallyInformation,
+      await saveReportDataToCard(auth, {
+        ...tallyReportData,
         talliesByPrecinct: undefined,
         timeSaved: Date.now(),
       });
@@ -274,7 +292,7 @@ export function PollWorkerScreen({
     return setPollWorkerFlowState(undefined);
   }
 
-  async function printTallyReport(
+  async function printReport(
     pollsTransition: PollsTransition,
     timePollsTransitioned: number,
     copies: number
@@ -284,33 +302,49 @@ export function PollWorkerScreen({
     assert(currentCompressedTally);
     assert(currentSubTallies);
 
-    const signedQuickResultsReportingUrl =
-      await getSignedQuickResultsReportingUrl({
-        electionDefinition,
-        isLiveMode,
-        compressedTally: currentCompressedTally,
-        signingMachineId: machineConfig.machineId,
-      });
-
-    await printElement(
-      <PrecinctScannerFullReport
-        electionDefinition={electionDefinition}
-        precinctSelection={precinctSelection}
-        subTallies={currentSubTallies}
-        hasPrecinctSubTallies
-        pollsTransition={pollsTransition}
-        isLiveMode={isLiveMode}
-        pollsTransitionedTime={timePollsTransitioned}
-        currentTime={Date.now()}
-        precinctScannerMachineId={machineConfig.machineId}
-        totalBallotsScanned={scannedBallotCount}
-        signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
-      />,
-      {
-        sides: 'one-sided',
-        copies,
+    const report = await (async () => {
+      if (isPollsSuspensionTransition(pollsTransition)) {
+        return (
+          <PrecinctScannerBallotCountReport
+            electionDefinition={electionDefinition}
+            precinctSelection={precinctSelection}
+            totalBallotsScanned={scannedBallotCount}
+            pollsTransition={pollsTransition}
+            pollsTransitionedTime={timePollsTransitioned}
+            isLiveMode={isLiveMode}
+            precinctScannerMachineId={machineConfig.machineId}
+          />
+        );
       }
-    );
+
+      const signedQuickResultsReportingUrl =
+        await getSignedQuickResultsReportingUrl({
+          electionDefinition,
+          isLiveMode,
+          compressedTally: currentCompressedTally,
+          signingMachineId: machineConfig.machineId,
+        });
+
+      return (
+        <PrecinctScannerTallyReports
+          electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
+          subTallies={currentSubTallies}
+          hasPrecinctSubTallies
+          pollsTransition={pollsTransition}
+          isLiveMode={isLiveMode}
+          pollsTransitionedTime={timePollsTransitioned}
+          precinctScannerMachineId={machineConfig.machineId}
+          totalBallotsScanned={scannedBallotCount}
+          signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
+        />
+      );
+    })();
+
+    await printElement(report, {
+      sides: 'one-sided',
+      copies,
+    });
   }
 
   async function dispatchReport(
@@ -318,13 +352,13 @@ export function PollWorkerScreen({
     timePollsTransitioned: number
   ) {
     if (hasPrinterAttached) {
-      await printTallyReport(
+      await printReport(
         pollsTransition,
         timePollsTransitioned,
         DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
     } else {
-      await saveTally(pollsTransition, timePollsTransitioned);
+      await exportReportDataToCard(pollsTransition, timePollsTransitioned);
     }
   }
 
@@ -372,11 +406,7 @@ export function PollWorkerScreen({
     assert(typeof currentPollsTransition === 'string');
     assert(typeof currentPollsTransitionTime === 'number');
     setPollWorkerFlowState('reprinting_report');
-    await printTallyReport(
-      currentPollsTransition,
-      currentPollsTransitionTime,
-      1
-    );
+    await printReport(currentPollsTransition, currentPollsTransitionTime, 1);
     await sleep(REPRINT_REPORT_TIMEOUT_SECONDS * 1000);
     setPollWorkerFlowState('polls_transition_complete');
   }

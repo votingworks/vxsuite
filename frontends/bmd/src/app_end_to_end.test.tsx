@@ -20,7 +20,7 @@ import {
   MemoryStorage,
   MemoryCard,
   MemoryHardware,
-  TallySourceMachineType,
+  ReportSourceMachineType,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
@@ -379,7 +379,7 @@ it('MarkAndPrint end-to-end flow', async () => {
     pollWorkerCard,
     JSON.stringify({
       tally: getZeroCompressedTally(electionDefinition.election),
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),
       timePollsTransitioned: new Date('2020-10-31').getTime(),

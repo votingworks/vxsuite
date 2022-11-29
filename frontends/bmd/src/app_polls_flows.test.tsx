@@ -15,10 +15,11 @@ import {
 } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
-  PrecinctScannerCardTally,
   singlePrecinctSelectionFor,
-  TallySourceMachineType,
+  ReportSourceMachineType,
   typedAs,
+  ScannerBallotCountReportData,
+  ScannerTallyReportData,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import {
@@ -141,8 +142,8 @@ test('full polls flow with tally reports - general, single precinct', async () =
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Opening Polls
-  const pollsOpenCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const pollsOpenCardTallyReport: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 0,
     machineId: '001',
@@ -211,9 +212,8 @@ test('full polls flow with tally reports - general, single precinct', async () =
 
   // Pausing Voting
   const votingPausedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
-  const votingPausedCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-    tally: getZeroCompressedTally(electionSample),
+  const votingPausedCardBallotCountReport: ScannerBallotCountReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: votingPausedTime,
@@ -221,13 +221,12 @@ test('full polls flow with tally reports - general, single precinct', async () =
     precinctSelection,
     isLiveMode: true,
     pollsTransition: 'pause_voting',
-    ballotCounts: {
-      'undefined,__ALL_PRECINCTS': [3, 0],
-      'undefined,23': [3, 0],
-    },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(votingPausedCardTallyReport));
+  card.insertCard(
+    pollWorkerCard,
+    JSON.stringify(votingPausedCardBallotCountReport)
+  );
   await screen.findByText('Voting Paused Report on Card');
   screen.getByText(/contains a voting paused report/);
   screen.getByText(/the polls will be paused on VxMark/);
@@ -283,9 +282,8 @@ test('full polls flow with tally reports - general, single precinct', async () =
 
   // Resuming Voting
   const votingResumedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
-  const votingResumedCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
-    tally: getZeroCompressedTally(electionSample),
+  const votingResumedCardBallotCountReport: ScannerBallotCountReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: votingResumedTime,
@@ -293,13 +291,12 @@ test('full polls flow with tally reports - general, single precinct', async () =
     precinctSelection,
     isLiveMode: true,
     pollsTransition: 'resume_voting',
-    ballotCounts: {
-      'undefined,__ALL_PRECINCTS': [3, 0],
-      'undefined,23': [3, 0],
-    },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(votingResumedCardTallyReport));
+  card.insertCard(
+    pollWorkerCard,
+    JSON.stringify(votingResumedCardBallotCountReport)
+  );
   await screen.findByText('Voting Resumed Report on Card');
   screen.getByText(/contains a voting resumed report/);
   screen.getByText(/the polls will be open on VxMark/);
@@ -363,8 +360,8 @@ test('full polls flow with tally reports - general, single precinct', async () =
     6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
     3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
   ]);
-  const pollsClosedCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const pollsClosedCardTallyReport: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
     talliesByPrecinct: { '23': existingTally },
     totalBallotsScanned: 25,
@@ -460,8 +457,8 @@ test('tally report: as expected with all precinct combined data for general elec
     6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
     3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
   ]);
-  const tallyOnCard: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
     totalBallotsScanned: 25,
     machineId: '001',
@@ -539,8 +536,8 @@ test('tally report: as expected with all precinct specific data for general elec
     2 /* for 'court-blumhardt' */, 2 /* for 'boone-lian' */,
     1 /* for 'hildebrand-garritty' */, 1 /* for 'patterson-lariviere' */,
   ]);
-  const tallyOnCard: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: combinedTally,
     talliesByPrecinct: {
       23: centerSpringfield,
@@ -778,8 +775,8 @@ function checkPrimaryElectionOverallTallyReports(printedElement: RenderResult) {
 test('tally report: as expected with a single precinct for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 
-  const tallyOnCard: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: primaryElectionOverallTally,
     totalBallotsScanned: 3,
     machineId: '001',
@@ -817,8 +814,8 @@ test('tally report: as expected with a single precinct for primary election', as
 test('tally report: as expected with all precinct combined data for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 
-  const tallyOnCard: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: primaryElectionOverallTally,
     totalBallotsScanned: 3,
     machineId: '001',
@@ -935,8 +932,8 @@ test('tally report: as expected with all precinct specific data for primary elec
     ],
   };
 
-  const tallyOnCard: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: primaryElectionOverallTally,
     talliesByPrecinct,
     totalBallotsScanned: 3,
@@ -1176,8 +1173,8 @@ test('tally report: will print but not update polls state appropriate', async ()
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Opening Polls
-  const pollsOpenCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const pollsOpenCardTallyReport: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 0,
     machineId: '001',
@@ -1378,8 +1375,8 @@ test('will not try to print report or change polls if report on card is in wrong
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Closed polls report from L&A left on card
-  const pollsOpenCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const pollsOpenCardTallyReport: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 0,
     machineId: '001',
@@ -1414,8 +1411,8 @@ test('cannot close polls from closed report on card if polls have not been opene
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Polls closed report on card
-  const pollsClosedCardTallyReport: PrecinctScannerCardTally = {
-    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+  const pollsClosedCardTallyReport: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
     tally: getZeroCompressedTally(electionSample),
     totalBallotsScanned: 0,
     machineId: '001',

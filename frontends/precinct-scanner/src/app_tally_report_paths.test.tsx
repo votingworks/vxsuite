@@ -24,7 +24,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   BallotCountDetails,
   singlePrecinctSelectionFor,
-  TallySourceMachineType,
+  ReportSourceMachineType,
 } from '@votingworks/utils';
 import {
   CompressedTally,
@@ -236,7 +236,7 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     1,
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -253,7 +253,7 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     2,
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -583,7 +583,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -822,7 +822,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -1011,7 +1011,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -1164,7 +1164,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
@@ -1247,23 +1247,16 @@ test('saving to card: polls paused', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
 
-  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
-    'undefined,__ALL_PRECINCTS': [1, 1],
-    'undefined,23': [1, 1],
-  };
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
-      tally: expect.anything(),
-      talliesByPrecinct: expect.anything(),
-      ballotCounts: expectedBallotCounts,
       pollsTransition: 'pause_voting',
     })
   );
@@ -1335,23 +1328,16 @@ test('saving to card: polls unpaused', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
 
-  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
-    'undefined,__ALL_PRECINCTS': [1, 1],
-    'undefined,23': [1, 1],
-  };
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
-      tally: expect.anything(),
-      talliesByPrecinct: expect.anything(),
-      ballotCounts: expectedBallotCounts,
       pollsTransition: 'resume_voting',
     })
   );
@@ -1471,7 +1457,7 @@ test('saving to card: polls closed from paused, general election, single precinc
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
       isLiveMode: false,
-      tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
       machineId: '0002',
       timePollsTransitioned: expect.anything(),
