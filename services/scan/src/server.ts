@@ -83,7 +83,7 @@ export async function start({
       interpreter: precinctScannerInterpreter,
       logger,
     });
-    resolvedApp = await buildPrecinctScannerApp(
+    resolvedApp = buildPrecinctScannerApp(
       precinctScannerMachine,
       precinctScannerInterpreter,
       resolvedWorkspace,

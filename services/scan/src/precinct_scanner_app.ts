@@ -31,16 +31,13 @@ const debug = makeDebug('scan:precinct-scanner:app');
 
 type NoParams = never;
 
-export async function buildPrecinctScannerApp(
+export function buildPrecinctScannerApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   logger: Logger
-): Promise<Application> {
+): Application {
   const { store } = workspace;
-
-  // Trigger the layouts to be cached in the store
-  await store.loadLayouts();
 
   const app: Application = express();
   const upload = multer({

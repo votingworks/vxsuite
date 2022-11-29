@@ -212,7 +212,7 @@ export async function createApp(
       ...delays,
     },
   });
-  const app = await buildPrecinctScannerApp(
+  const app = buildPrecinctScannerApp(
     precinctScannerMachine,
     interpreter,
     workspace,
