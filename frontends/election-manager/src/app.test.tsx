@@ -1174,7 +1174,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   const markOfficialButton = getByText('Mark Tally Results as Official');
-  await waitFor(expect(markOfficialButton).toBeEnabled);
+  await waitFor(() => expect(markOfficialButton).toBeEnabled());
   fireEvent.click(markOfficialButton);
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
