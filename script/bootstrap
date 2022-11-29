@@ -7,7 +7,7 @@ sudo apt install -y libsane libpng-dev libjpeg-dev libx11-dev libpixman-1-dev li
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-for app in ${DIR}/../frontends/* ${DIR}/../services/*; do
+for app in ${DIR}/../frontends/* ${DIR}/../services/* ${DIR}/../apps/*/frontend ${DIR}/../apps/*/backend; do
   if [ -d "${app}" ]; then
     make -C "${app}" bootstrap
   fi
