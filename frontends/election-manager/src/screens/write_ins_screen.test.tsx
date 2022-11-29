@@ -12,7 +12,8 @@ const abbreviatedCvrData = cvrData.split('\n').slice(0, 20).join('\n');
 
 afterEach(async () => {
   // Several tests on this page create test warnings because hooks run after
-  // the end of the test, and there is no specific change on the page to check
+  // the end of the test, and there is no specific change on the page to check.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
   await act(async () => {
     await sleep(1);
   });

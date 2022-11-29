@@ -730,7 +730,8 @@ test('tabulating CVRs', async () => {
 
   const reportPreview2 = getByTestId('report-preview');
   expect(within(reportPreview2).getAllByText('0').length).toBe(40);
-  // useQuery's in AppRoot are refetching data, and there's no change to wait on
+  // useQuery's in AppRoot are refetching data, and there's no change to wait on.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
   await advanceTimersAndPromises();
 });
 
@@ -1109,7 +1110,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   await screen.findByText('Currently tallying live ballots.');
   // We're waiting on a query for isOfficialResults. It has a default value,
   // so there is no change on the page to wait for before test ends.
-  // Await promises to avoid test warning.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
   await advanceTimersAndPromises();
 });
 
@@ -1259,7 +1260,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
   // We're waiting on a query for the file mode (live vs. test).
   // It has a default value, so there is no change on the page when loaded.
-  // Await promises to avoid test warning.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('Tally'));
   await screen.findByRole('heading', {

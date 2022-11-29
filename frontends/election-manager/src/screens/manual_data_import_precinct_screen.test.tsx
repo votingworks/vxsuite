@@ -46,6 +46,7 @@ test('displays error screen for invalid precinct', async () => {
   screen.getByText('Back to Index');
   // There's no change in the invalid precinct case after the writeInQuery
   // fires, so we just have to wait to avoid a test warning.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
   await act(async () => {
     await sleep(1);
   });
