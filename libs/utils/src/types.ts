@@ -25,7 +25,7 @@ export type BallotCountDetails = [precinct: number, absentee: number];
 export const BallotCountDetailsSchema: z.ZodSchema<BallotCountDetails> =
   z.tuple([z.number(), z.number()]);
 
-export interface PrecinctScannerCardReportBase {
+export interface ScannerReportDataBase {
   readonly tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER;
   readonly machineId: string;
   readonly isLiveMode: boolean;
@@ -35,7 +35,7 @@ export interface PrecinctScannerCardReportBase {
   readonly timePollsTransitioned: number;
 }
 
-export const PrecinctScannerCardReportBaseSchema = z.object({
+export const ScannerReportDataBaseSchema = z.object({
   tallyMachineType: z.literal(ReportSourceMachineType.PRECINCT_SCANNER),
   machineId: MachineId,
   isLiveMode: z.boolean(),
@@ -45,41 +45,38 @@ export const PrecinctScannerCardReportBaseSchema = z.object({
   timePollsTransitioned: z.number(),
 });
 
-export interface PrecinctScannerCardTallyReport
-  extends PrecinctScannerCardReportBase {
+export interface ScannerTallyReportData extends ScannerReportDataBase {
   readonly pollsTransition: StandardPollsTransition;
   readonly ballotCounts: Dictionary<BallotCountDetails>;
   readonly talliesByPrecinct?: Dictionary<CompressedTally>;
   readonly tally: CompressedTally;
 }
 
-export const PrecinctScannerCardTallyReportSchema: z.ZodSchema<PrecinctScannerCardTallyReport> =
-  PrecinctScannerCardReportBaseSchema.extend({
+export const ScannerTallyReportDataSchema: z.ZodSchema<ScannerTallyReportData> =
+  ScannerReportDataBaseSchema.extend({
     pollsTransition: StandardPollsTransitionSchema,
     tally: CompressedTallySchema,
     talliesByPrecinct: z.object({}).catchall(CompressedTallySchema).optional(),
     ballotCounts: z.object({}).catchall(BallotCountDetailsSchema),
   });
 
-export interface PrecinctScannerCardBallotCountReport
-  extends PrecinctScannerCardReportBase {
+export interface ScannerBallotCountReportData extends ScannerReportDataBase {
   pollsTransition: PollsSuspensionTransition;
 }
 
-export const PrecinctScannerCardBallotCountReportSchema: z.ZodSchema<PrecinctScannerCardBallotCountReport> =
-  PrecinctScannerCardReportBaseSchema.extend({
+export const ScannerBallotCountReportDataSchema: z.ZodSchema<ScannerBallotCountReportData> =
+  ScannerReportDataBaseSchema.extend({
     pollsTransition: PollsSuspensionTransitionSchema,
   });
 
-export type PrecinctScannerCardReport =
-  | PrecinctScannerCardBallotCountReport
-  | PrecinctScannerCardTallyReport;
+export type ScannerReportData =
+  | ScannerBallotCountReportData
+  | ScannerTallyReportData;
 
-export const PrecinctScannerCardReportSchema: z.ZodSchema<PrecinctScannerCardReport> =
-  z.union([
-    PrecinctScannerCardTallyReportSchema,
-    PrecinctScannerCardBallotCountReportSchema,
-  ]);
+export const ScannerReportDataSchema: z.ZodSchema<ScannerReportData> = z.union([
+  ScannerTallyReportDataSchema,
+  ScannerBallotCountReportDataSchema,
+]);
 
 /**
  * Identity function useful for asserting the type of the argument/return value.

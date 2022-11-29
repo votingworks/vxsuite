@@ -22,17 +22,17 @@ import {
   getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
-  PrecinctScannerCardReport,
-  PrecinctScannerCardReportSchema,
+  ScannerReportData,
+  ScannerReportDataSchema,
   sleep,
   ReportSourceMachineType,
   throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
-  PrecinctScannerCardBallotCountReport,
+  ScannerBallotCountReportData,
   isPollsSuspensionTransition,
-  PrecinctScannerCardTallyReport,
-  PrecinctScannerCardReportBase,
+  ScannerTallyReportData,
+  ScannerReportDataBase,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -70,15 +70,15 @@ type PollWorkerFlowState =
   | 'polls_transition_complete'
   | 'reprinting_report';
 
-async function saveReportToCard(
+async function saveReportDataToCard(
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
-  cardReport: PrecinctScannerCardReport
+  reportData: ScannerReportData
 ): Promise<boolean> {
-  await auth.card.writeStoredData(cardReport);
+  await auth.card.writeStoredData(reportData);
   const possibleTally = await auth.card.readStoredObject(
-    PrecinctScannerCardReportSchema
+    ScannerReportDataSchema
   );
-  return possibleTally.ok()?.timeSaved === cardReport.timeSaved;
+  return possibleTally.ok()?.timeSaved === reportData.timeSaved;
 }
 
 async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
@@ -186,13 +186,13 @@ export function PollWorkerScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function saveReport(
+  async function exportReportDataToCard(
     pollsTransition: PollsTransition,
     timePollsTransitioned: number
   ) {
     assert(precinctSelection);
     assert(isPollWorkerAuth(auth));
-    const reportBasicInformation: PrecinctScannerCardReportBase = {
+    const reportBasicData: ScannerReportDataBase = {
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: machineConfig.machineId,
       isLiveMode,
@@ -203,11 +203,11 @@ export function PollWorkerScreen({
     };
 
     if (isPollsSuspensionTransition(pollsTransition)) {
-      const cardBallotCountReport: PrecinctScannerCardBallotCountReport = {
-        ...reportBasicInformation,
+      const ballotCountReportData: ScannerBallotCountReportData = {
+        ...reportBasicData,
         pollsTransition,
       };
-      await saveReportToCard(auth, cardBallotCountReport);
+      await saveReportDataToCard(auth, ballotCountReportData);
       return;
     }
 
@@ -266,22 +266,22 @@ export function PollWorkerScreen({
       ];
     }
 
-    const cardTallyReport: PrecinctScannerCardTallyReport = {
-      ...reportBasicInformation,
+    const tallyReportData: ScannerTallyReportData = {
+      ...reportBasicData,
       pollsTransition,
       tally: currentCompressedTally,
       talliesByPrecinct: compressedTalliesByPrecinct,
       ballotCounts: ballotCountBreakdowns,
     };
 
-    const success = await saveReportToCard(auth, cardTallyReport);
+    const success = await saveReportDataToCard(auth, tallyReportData);
     if (!success) {
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
       // TODO show an error message if this attempt also fails.
-      await saveReportToCard(auth, {
-        ...cardTallyReport,
+      await saveReportDataToCard(auth, {
+        ...tallyReportData,
         talliesByPrecinct: undefined,
         timeSaved: Date.now(),
       });
@@ -358,7 +358,7 @@ export function PollWorkerScreen({
         DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
     } else {
-      await saveReport(pollsTransition, timePollsTransitioned);
+      await exportReportDataToCard(pollsTransition, timePollsTransitioned);
     }
   }
 
