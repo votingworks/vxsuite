@@ -1,6 +1,14 @@
 {
   "folders": [
     {
+      "name": "apps/vx-scan/frontend",
+      "path": "apps/vx-scan/frontend"
+    },
+    {
+      "name": "apps/vx-scan/backend",
+      "path": "apps/vx-scan/backend"
+    },
+    {
       "name": "frontends/bas",
       "path": "frontends/bas"
     },
@@ -15,10 +23,6 @@
     {
       "name": "frontends/election-manager",
       "path": "frontends/election-manager"
-    },
-    {
-      "name": "frontends/precinct-scanner",
-      "path": "frontends/precinct-scanner"
     },
     {
       "name": "services/admin",
