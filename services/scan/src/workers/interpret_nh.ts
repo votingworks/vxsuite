@@ -36,7 +36,7 @@ let isTestMode: boolean | undefined;
 export async function call(input: Input): Promise<Output> {
   switch (input.action) {
     case 'configure': {
-      const store = Store.fileStore(input.dbPath);
+      const store = await Store.fileStore(input.dbPath);
       electionDefinition = store.getElectionDefinition();
       isTestMode = store.getTestMode();
       return;

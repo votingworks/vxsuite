@@ -116,8 +116,7 @@ export class Importer {
     this.workspace.store.addHmpbTemplate(
       pdf,
       result[0].ballotPageLayout.metadata,
-      // remove ballot image for storage
-      result.map(({ ballotPageLayout }) => ballotPageLayout)
+      result
     );
 
     this.invalidateInterpreterConfig();

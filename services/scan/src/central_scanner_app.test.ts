@@ -4,6 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  BallotMetadata,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   BallotType,
@@ -24,6 +25,7 @@ import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
+import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
 
 jest.mock('./importer');
 jest.mock('@votingworks/plustek-sdk');
@@ -34,47 +36,21 @@ let importer: jest.Mocked<Importer>;
 
 beforeEach(async () => {
   importer = makeMock(Importer);
-  workspace = createWorkspace(dirSync().name);
+  workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
   workspace.store.setTestMode(false);
+  const ballotMetadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+  };
   workspace.store.addHmpbTemplate(
     Buffer.of(),
-    {
-      locales: { primary: 'en-US' },
-      electionHash: stateOfHamilton.electionDefinition.electionHash,
-      ballotType: BallotType.Standard,
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestMode: false,
-    },
-    [
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-        contests: [],
-      },
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-        },
-        contests: [],
-      },
-    ]
+    ballotMetadata,
+    getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
   app = await buildCentralScannerApp({ importer, workspace });
 });
