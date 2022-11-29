@@ -326,7 +326,10 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async getCvrs(): Promise<CastVoteRecord[]> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
+    const currentElectionId = await this.loadCurrentElectionId();
+    if (!currentElectionId) {
+      return [];
+    }
 
     return (await fetchJson(
       `/admin/elections/${currentElectionId}/cvrs`
