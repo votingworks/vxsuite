@@ -43,7 +43,10 @@ import {
   PollsTransition,
   Optional,
 } from '@votingworks/types';
-import { LogEventId } from '@votingworks/logging';
+import {
+  getLogEventIdForPollsTransition,
+  LogEventId,
+} from '@votingworks/logging';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -382,6 +385,13 @@ export function PollWorkerScreen({
     }
     setCurrentPollsTransitionTime(timePollsTransitioned);
     updatePollsState(getPollsTransitionDestinationState(pollsTransition));
+    await logger.log(
+      getLogEventIdForPollsTransition(pollsTransition),
+      'poll_worker',
+      {
+        disposition: 'success',
+      }
+    );
     setPollWorkerFlowState('polls_transition_complete');
   }
 

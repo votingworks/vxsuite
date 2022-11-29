@@ -108,8 +108,10 @@ describe('shows Livecheck button only when enabled', () => {
 
 describe('transitions from polls closed', () => {
   let updatePollsState = jest.fn();
+  let logger = fakeLogger();
   beforeEach(async () => {
     updatePollsState = jest.fn();
+    logger = fakeLogger();
     renderScreen({
       pollWorkerScreenProps: {
         scannedBallotCount: 0,
@@ -118,6 +120,7 @@ describe('transitions from polls closed', () => {
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
+        logger,
       },
     });
     await screen.findByText('Do you want to open the polls?');
@@ -128,6 +131,11 @@ describe('transitions from polls closed', () => {
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollsOpened,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
   test('open polls from landing screen', async () => {
@@ -136,12 +144,19 @@ describe('transitions from polls closed', () => {
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollsOpened,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 });
 
 describe('transitions from polls open', () => {
   let updatePollsState = jest.fn();
+  let logger = fakeLogger();
   beforeEach(async () => {
+    logger = fakeLogger();
     updatePollsState = jest.fn();
     renderScreen({
       pollWorkerScreenProps: {
@@ -151,6 +166,7 @@ describe('transitions from polls open', () => {
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
+        logger,
       },
     });
     await screen.findByText('Do you want to close the polls?');
@@ -161,6 +177,11 @@ describe('transitions from polls open', () => {
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollsClosed,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
   test('close polls from landing screen', async () => {
@@ -169,21 +190,33 @@ describe('transitions from polls open', () => {
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollsClosed,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
-  test('pause polls', async () => {
+  test('pause voting', async () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting paused.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_paused');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.VotingPaused,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 });
 
 describe('transitions from polls paused', () => {
   let updatePollsState = jest.fn();
+  let logger = fakeLogger();
   beforeEach(async () => {
     updatePollsState = jest.fn();
+    logger = fakeLogger();
     renderScreen({
       pollWorkerScreenProps: {
         scannedBallotCount: 0,
@@ -192,24 +225,35 @@ describe('transitions from polls paused', () => {
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
+        logger,
       },
     });
     await screen.findByText('Do you want to resume voting?');
   });
 
-  test('open polls happy path', async () => {
+  test('resume voting happy path', async () => {
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.VotingResumed,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
-  test('open polls from landing screen', async () => {
+  test('resume voting from landing screen', async () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.VotingResumed,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
   test('close polls from landing screen', async () => {
@@ -218,6 +262,11 @@ describe('transitions from polls paused', () => {
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
     expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.PollsClosed,
+      'poll_worker',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 });
 
