@@ -49,6 +49,10 @@ import {
   Optional,
 } from '@votingworks/types';
 import {
+  getLogEventIdForPollsTransition,
+  LogEventId,
+} from '@votingworks/logging';
+import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
@@ -56,7 +60,7 @@ import {
 import { LiveCheckModal } from '../components/live_check_modal';
 
 import { AppContext } from '../contexts/app_context';
-import { IndeterminateProgressBar } from '../components/graphics';
+import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
@@ -93,6 +97,21 @@ async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 
+const BallotsAlreadyScannedScreen = (
+  <ScreenMainCenterChild infoBarMode="pollworker">
+    <TimesCircle />
+    <CenteredLargeProse>
+      <h1>Ballots Already Scanned</h1>
+      <p>
+        Ballots were scanned on this machine before polls were opened. This may
+        indicate an internal error or tampering. The polls can no longer be
+        opened on this machine. Please report this issue to an election
+        administrator.
+      </p>
+    </CenteredLargeProse>
+  </ScreenMainCenterChild>
+);
+
 export interface PollWorkerScreenProps {
   scannedBallotCount: number;
   pollsState: PollsState;
@@ -108,7 +127,7 @@ export function PollWorkerScreen({
   isLiveMode,
   hasPrinterAttached: printerFromProps,
 }: PollWorkerScreenProps): JSX.Element {
-  const { electionDefinition, precinctSelection, machineConfig, auth } =
+  const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
   assert(precinctSelection);
@@ -118,6 +137,10 @@ export function PollWorkerScreen({
     ReadonlyMap<string, Tally>
   >(new Map());
   const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
+  const [
+    isShowingBallotsAlreadyScannedScreen,
+    setIsShowingBallotsAlreadyScannedScreen,
+  ] = useState(false);
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
@@ -374,6 +397,20 @@ export function PollWorkerScreen({
   }
 
   async function transitionPolls(pollsTransition: PollsTransition) {
+    // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
+    // ballots before opening polls, even though this should be an impossible
+    // state in production.
+    if (pollsTransition === 'open_polls' && scannedBallotCount > 0) {
+      setIsShowingBallotsAlreadyScannedScreen(true);
+      await logger.log(LogEventId.PollsOpened, 'poll_worker', {
+        disposition: 'failure',
+        message:
+          'Non-zero ballots scanned count detected upon attempt to open polls.',
+        scannedBallotCount,
+      });
+      return;
+    }
+
     const timePollsTransitioned = Date.now();
     setCurrentPollsTransition(pollsTransition);
     setPollWorkerFlowState('polls_transition_processing');
@@ -383,6 +420,14 @@ export function PollWorkerScreen({
     }
     setCurrentPollsTransitionTime(timePollsTransitioned);
     updatePollsState(getPollsTransitionDestinationState(pollsTransition));
+    await logger.log(
+      getLogEventIdForPollsTransition(pollsTransition),
+      'poll_worker',
+      {
+        disposition: 'success',
+        scannedBallotCount,
+      }
+    );
     setPollWorkerFlowState('polls_transition_complete');
   }
 
@@ -419,6 +464,10 @@ export function PollWorkerScreen({
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
+  }
+
+  if (isShowingBallotsAlreadyScannedScreen) {
+    return BallotsAlreadyScannedScreen;
   }
 
   if (pollWorkerFlowState === 'open_polls_prompt') {
@@ -612,4 +661,9 @@ export function PollWorkerScreen({
       )}
     </ScreenMainCenterChild>
   );
+}
+
+/* istanbul ignore next */
+export function BallotsAlreadyScannedScreenPreview(): JSX.Element {
+  return BallotsAlreadyScannedScreen;
 }
