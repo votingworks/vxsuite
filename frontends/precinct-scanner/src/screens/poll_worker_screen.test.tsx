@@ -10,6 +10,7 @@ import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
@@ -231,4 +232,28 @@ test('no transitions from polls closed final', async () => {
     'Voting is complete and the polls cannot be reopened.'
   );
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+// confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
+test('there is a warning if we attempt to polls with ballots scanned', async () => {
+  const logger = fakeLogger();
+  renderScreen({
+    pollWorkerScreenProps: {
+      scannedBallotCount: 1,
+      pollsState: 'polls_closed_initial',
+    },
+    appContextProps: {
+      logger,
+    },
+  });
+  await screen.findByText('Do you want to open the polls?');
+  userEvent.click(screen.getByText('Yes, Open the Polls'));
+  await screen.findByText('Ballots Already Scanned');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PollsOpened,
+    'poll_worker',
+    expect.objectContaining({
+      disposition: 'failure',
+    })
+  );
 });

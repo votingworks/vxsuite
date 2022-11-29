@@ -718,9 +718,8 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   const { mockPollsChange } = mockConfig();
 
   fetchMock
-    // Set up the status endpoint with 15 ballots scanned
     .get('/precinct-scanner/scanner/status', {
-      body: scannerStatus({ state: 'ready_to_scan', ballotsCounted: 15 }),
+      body: scannerStatus({ state: 'ready_to_scan' }),
     })
     // Mock the scan endpoint just so we can check that we don't hit it
     .post('/precinct-scanner/scanner/scan', { status: 500 });
@@ -730,12 +729,9 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
-  // We should see 15 ballots were scanned
-  userEvent.click(screen.getAllByText('No')[0]);
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
   // Open Polls
   mockPollsChange('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
   // Once we remove the poll worker card, scanning should start
