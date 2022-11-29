@@ -22,6 +22,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
+jest.mock('../utils/save_cvr_export_to_usb');
+
 MockDate.set('2020-10-31T00:00:00.000Z');
 
 beforeEach(() => {
@@ -134,7 +136,10 @@ describe('transitions from polls closed', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 0,
+      })
     );
   });
 
@@ -147,7 +152,10 @@ describe('transitions from polls closed', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 0,
+      })
     );
   });
 });
@@ -160,7 +168,7 @@ describe('transitions from polls open', () => {
     updatePollsState = jest.fn();
     renderScreen({
       pollWorkerScreenProps: {
-        scannedBallotCount: 0,
+        scannedBallotCount: 7,
         pollsState: 'polls_open',
         updatePollsState,
       },
@@ -180,7 +188,10 @@ describe('transitions from polls open', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 
@@ -193,7 +204,10 @@ describe('transitions from polls open', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 
@@ -206,7 +220,10 @@ describe('transitions from polls open', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingPaused,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 });
@@ -219,7 +236,7 @@ describe('transitions from polls paused', () => {
     logger = fakeLogger();
     renderScreen({
       pollWorkerScreenProps: {
-        scannedBallotCount: 0,
+        scannedBallotCount: 7,
         pollsState: 'polls_paused',
         updatePollsState,
       },
@@ -239,7 +256,10 @@ describe('transitions from polls paused', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 
@@ -252,7 +272,10 @@ describe('transitions from polls paused', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 
@@ -265,7 +288,10 @@ describe('transitions from polls paused', () => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',
-      expect.objectContaining({ disposition: 'success' })
+      expect.objectContaining({
+        disposition: 'success',
+        scannedBallotCount: 7,
+      })
     );
   });
 });
@@ -303,6 +329,7 @@ test('there is a warning if we attempt to polls with ballots scanned', async () 
     'poll_worker',
     expect.objectContaining({
       disposition: 'failure',
+      scannedBallotCount: 1,
     })
   );
 });

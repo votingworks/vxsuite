@@ -372,6 +372,7 @@ export function PollWorkerScreen({
         disposition: 'failure',
         message:
           'Non-zero ballots scanned count detected upon attempt to open polls.',
+        scannedBallotCount,
       });
       return;
     }
@@ -390,6 +391,7 @@ export function PollWorkerScreen({
       'poll_worker',
       {
         disposition: 'success',
+        scannedBallotCount,
       }
     );
     setPollWorkerFlowState('polls_transition_complete');
