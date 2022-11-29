@@ -48,7 +48,7 @@ let importer: Importer;
 let app: Application;
 
 beforeEach(async () => {
-  workspace = createWorkspace(dirSync().name);
+  workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
   app = await buildCentralScannerApp({ importer, workspace });

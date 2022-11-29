@@ -121,7 +121,7 @@ export async function interpret(
 export async function call(input: Input): Promise<Output> {
   switch (input.action) {
     case 'configure': {
-      const store = Store.fileStore(input.dbPath);
+      const store = await Store.fileStore(input.dbPath);
       return await configure(store);
     }
 

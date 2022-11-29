@@ -36,7 +36,7 @@ let importer: jest.Mocked<Importer>;
 
 beforeEach(async () => {
   importer = makeMock(Importer);
-  workspace = createWorkspace(dirSync().name);
+  workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
   workspace.store.setTestMode(false);
   const ballotMetadata: BallotMetadata = {

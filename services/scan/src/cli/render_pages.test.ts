@@ -163,7 +163,7 @@ test('render from db', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = Store.fileStore(tmpDbPath);
+  const store = await Store.fileStore(tmpDbPath);
   const electionDefinition = asElectionDefinition(election);
   store.setElection(electionDefinition.electionData);
   const metadata: BallotMetadata = {
@@ -226,7 +226,7 @@ test('db without an election', async () => {
   const stderr = fakeOutput();
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
-  const store = Store.fileStore(join(tmpDir, 'ballots.db'));
+  const store = await Store.fileStore(join(tmpDir, 'ballots.db'));
 
   expect(await main([store.getDbPath()], { stdout, stderr })).toEqual(1);
   expect(stderr.toString()).toEqual(

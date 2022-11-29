@@ -17,7 +17,7 @@ test('configure', async () => {
 test('interpret', async () => {
   const dbPath = fileSync().name;
   const ballotImagesPath = dirSync().name;
-  const store = Store.fileStore(dbPath);
+  const store = await Store.fileStore(dbPath);
 
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   store.setElection(electionDefinition.electionData);

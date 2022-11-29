@@ -277,12 +277,10 @@ test('HMPB template handling', () => {
   );
 });
 
-test('loading layouts', async () => {
+test('layout caching', async () => {
   const dbFile = tmp.fileSync();
-  const initialStore = Store.fileStore(dbFile.name);
+  const initialStore = await Store.fileStore(dbFile.name);
   initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
-
-  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
 
   const metadata: BallotMetadata = {
     electionHash: 'd34db33f',
@@ -299,13 +297,7 @@ test('loading layouts', async () => {
     getMockBallotPageLayoutsWithImages(metadata, 2)
   );
 
-  // The layouts should be cached after adding, and we should not be retrieving
-  // templates from the DB.
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-  let layouts = await initialStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-
-  expect(layouts).toMatchObject([
+  const expectedLayouts = [
     {
       imageData: expect.anything(),
       ballotPageLayout: {
@@ -324,24 +316,30 @@ test('loading layouts', async () => {
         },
       },
     },
-  ]);
+  ];
 
-  // If we reload the store from the DB, it will no longer be cached
-  const loadedStore = Store.fileStore(dbFile.name);
-  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
+  // The layouts should be cached after adding, and we should not be retrieving
+  // templates from the DB.
+  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
+  let layouts = await initialStore.loadLayouts();
   expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-  layouts = await loadedStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(1);
+  expect(layouts).toMatchObject(expectedLayouts);
 
-  // if we reset and reload templates, it should not load from cache
+  // If we reload the store from the DB, it caches on reload and use cache
+  const loadedStore = await Store.fileStore(dbFile.name);
+  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
+  layouts = await loadedStore.loadLayouts();
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+
+  // if we reset and reload templates, the cache should be clear
   loadedStore.reset();
   loadedStore.setElection(stateOfHamilton.electionDefinition.electionData);
-  expect(loadedStore.getHmpbTemplates()).toMatchObject([]);
+  expect(await loadedStore.loadLayouts()).toMatchObject([]);
 });
 
-test('batch cleanup works correctly', () => {
+test('batch cleanup works correctly', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = await Store.fileStore(dbFile.name);
 
   store.reset();
 
@@ -857,9 +855,9 @@ test('iterating over all result sheets', () => {
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
 });
 
-test('resetElectionSession', () => {
+test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = await Store.fileStore(dbFile.name);
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.setPollsState('polls_open');

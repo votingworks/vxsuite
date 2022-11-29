@@ -141,7 +141,7 @@ test('query with sheet ids', () => {
 });
 
 (process.env.CI ? test.skip : test)('full rescan', async () => {
-  const inputWorkspace = createWorkspace(dirSync().name);
+  const inputWorkspace = await createWorkspace(dirSync().name);
   const { store } = inputWorkspace;
 
   store.setElection(fixtures.electionDefinition.electionData);
@@ -227,8 +227,8 @@ test('query with sheet ids', () => {
 (process.env.CI ? test.skip : test)(
   'writing output to another database',
   async () => {
-    const inputWorkspace = createWorkspace(dirSync().name);
-    const outputWorkspace = createWorkspace(dirSync().name);
+    const inputWorkspace = await createWorkspace(dirSync().name);
+    const outputWorkspace = await createWorkspace(dirSync().name);
     const inputDb = inputWorkspace.store;
 
     inputDb.setElection(fixtures.electionDefinition.electionData);

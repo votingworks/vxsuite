@@ -102,8 +102,13 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+  static async fileStore(dbPath: string): Promise<Store> {
+    const newStore = new Store(DbClient.fileClient(dbPath, SchemaPath));
+
+    // If there are already templates, force caching of the layouts with image
+    await newStore.loadLayouts();
+
+    return newStore;
   }
 
   /**
