@@ -121,7 +121,11 @@ export async function main(
   }
 
   const monorepoRoot = join(__dirname, '../../..');
-  const frontendRoot = join(monorepoRoot, 'frontends', frontend);
+  let frontendRoot = join(monorepoRoot, 'apps', frontend, 'frontend');
+  // Support our old file structure while we transition to the new apps/ structure.
+  if (!fs.existsSync(frontendRoot)) {
+    frontendRoot = join(monorepoRoot, 'frontends', frontend);
+  }
 
   if (!fs.existsSync(frontendRoot)) {
     stderr.write(`Frontend not found: ${frontend}\n`);
