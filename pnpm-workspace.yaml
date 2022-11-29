@@ -1,4 +1,8 @@
 packages:
+  # include all the apps
+  - 'apps/*/frontend'
+  - 'apps/*/backend'
+
   # include all the frontends and their prodservers
   - 'frontends/*'
   - 'frontends/*/prodserver'

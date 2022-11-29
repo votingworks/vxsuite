@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/precinct-scanner",
+  "name": "@votingworks/vx-scan-frontend",
   "version": "0.1.0",
   "private": true,
   "files": [
@@ -8,21 +8,21 @@
     "prodserver"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "pnpm type-check && vite build",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts os:src/stubs/os.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
+    "pre-commit": "lint-staged",
     "start": "pnpm -w run-dev -- precinct-scanner",
     "start:core": "pnpm -w run-dev -- precinct-scanner --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
     "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=7",
-    "pre-commit": "lint-staged"
+    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
+    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
