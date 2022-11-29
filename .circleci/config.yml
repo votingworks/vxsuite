@@ -134,7 +134,7 @@ jobs:
       - store_artifacts:
           path: frontends/election-manager/cypress/videos
 
-  test-frontends-precinct-scanner:
+  test-apps-vx-scan-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -142,19 +142,41 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir frontends/precinct-scanner build
+            pnpm --dir apps/vx-scan/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir frontends/precinct-scanner lint
+            pnpm --dir apps/vx-scan/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir frontends/precinct-scanner test
+            pnpm --dir apps/vx-scan/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: frontends/precinct-scanner/reports/
+          path: apps/vx-scan/frontend/reports/
+
+  test-apps-vx-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/vx-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/vx-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/vx-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/vx-scan/backend/reports/
 
   test-integration-testing-bmd:
     executor: nodejs-browsers
@@ -779,11 +801,12 @@ workflows:
   test:
     jobs:
       - test-codemods
+      - test-apps-vx-scan-frontend
+      - test-apps-vx-scan-backend
       - test-frontends-bas
       - test-frontends-bmd
       - test-frontends-bsd
       - test-frontends-election-manager
-      - test-frontends-precinct-scanner
       - test-integration-testing-bmd
       - test-integration-testing-bsd
       - test-integration-testing-election-manager

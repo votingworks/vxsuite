@@ -107,7 +107,7 @@ export function* checkConfig(
     }
 
     const expectedJobName = packageName
-      ? `test-${packageType}-${packageName}`
+      ? `test-${packageType}-${packageName.replace('/', '-')}`
       : `test-${packageType}`;
 
     if (!(expectedJobName in config.jobs)) {
