@@ -1,0 +1,13 @@
+node_modules
+dev-workspace/
+test-output-dir
+hmpb-templates
+!hmpb-templates/.gitkeep
+*~
+*.log
+coverage/
+.DS_Store
+debug-dump*.zip
+/*.png
+/*.jpeg
+/*.jpg
