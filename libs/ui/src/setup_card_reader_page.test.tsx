@@ -9,7 +9,6 @@ describe('renders SetupCardReaderPage', () => {
     screen.getByText('Card Reader Not Detected');
     screen.getByText('Please ask a poll worker to connect card reader.');
     expect(container.firstChild).toMatchSnapshot();
-    expect(container.firstChild).toMatchSnapshot();
   });
 
   test('triggers useEffect property', () => {

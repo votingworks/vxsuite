@@ -11,14 +11,13 @@ beforeEach(() => {
 });
 
 test('renders without a USB drive as expected.', async () => {
-  const { container } = render(
+  render(
     <RebootFromUsbButton
       usbDriveStatus={usbstick.UsbDriveStatus.absent}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
   // Initially should just contain the button
-  expect(container).toMatchSnapshot();
   fireEvent.click(screen.getByText('Reboot from USB'));
   await screen.findByText('No USB Drive Detected');
 });
