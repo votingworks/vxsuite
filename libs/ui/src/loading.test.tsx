@@ -9,12 +9,15 @@ test('Renders Loading with defaults', () => {
   expect(container.firstChild).toMatchSnapshot();
 });
 
-test('Renders Loading fullscreen with tag and label', () => {
+test('Renders Loading with: fullscreen, tag, and label', () => {
   const { container } = render(
     <Loading isFullscreen as="p">
       Printing
     </Loading>
   );
-  screen.getByText('Printing');
-  expect(container.firstChild).toMatchSnapshot();
+  expect(container.firstChild).toHaveStyleRule('display', 'flex');
+  expect(container.firstChild).toHaveStyleRule('flex', '1');
+
+  const progressEllipsis = screen.getByText('Printing');
+  expect(progressEllipsis.tagName).toEqual('P');
 });
