@@ -10,6 +10,7 @@ import {
   hasTextAcrossElements,
   parseCvrsFileContents,
 } from '@votingworks/test-utils';
+import cloneDeep from 'lodash.clonedeep';
 import { render, screen, within } from '@testing-library/react';
 
 import { ContestTally } from './contest_tally';
@@ -164,4 +165,50 @@ test('specifies number of seats if relevant', () => {
   within(zooCouncil).getByText('(2 seats)');
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
   expect(within(bestAnimalFish).queryAllByText(/seat/)).toHaveLength(0);
+});
+
+// We're not sure if we actually have places in the codebase where there could
+// be undefined tallies for specific options, but our typing allows for it and
+// we handle it.
+const scannedTallyMissingTallies = cloneDeep(scannedTally);
+scannedTallyMissingTallies.contestTallies['best-animal-fish']!.tallies[
+  'seahorse'
+] = undefined;
+scannedTallyMissingTallies.contestTallies['fishing']!.tallies['yes'] =
+  undefined;
+
+test('shows X when missing tally for option', () => {
+  render(
+    <ContestTally
+      election={election}
+      scannedTally={scannedTallyMissingTallies}
+    />
+  );
+
+  const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
+  within(bestAnimalFish).getByText(hasTextAcrossElements('SeahorseX'));
+
+  const fishing = screen.getByTestId('results-table-fishing');
+  within(fishing).getByText(hasTextAcrossElements('YesX'));
+});
+
+// This case is probably impossible, including a test here for coverage. It
+// requires a specific tally option having no defined results in the scanned
+// results and that entire contest having no manual tally, yet manualTally
+// being defined.
+test('assumes scanned tally is 0 if it is missing and there is manual data', () => {
+  const externalTallyMissingTallies = cloneDeep(externalTally);
+  externalTallyMissingTallies.contestTallies['best-animal-fish'] = undefined;
+  externalTallyMissingTallies.contestTallies['fishing'] = undefined;
+
+  render(
+    <ContestTally
+      election={election}
+      scannedTally={scannedTallyMissingTallies}
+      manualTally={externalTallyMissingTallies}
+    />
+  );
+
+  const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
+  within(bestAnimalFish).getByText(hasTextAcrossElements('Seahorse000'));
 });

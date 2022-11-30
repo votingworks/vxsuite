@@ -2748,6 +2748,7 @@ importers:
   libs/ui:
     dependencies:
       '@types/dompurify': 2.3.3
+      '@types/lodash.clonedeep': 4.5.7
       '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@votingworks/ballot-encoder': link:../ballot-encoder
@@ -2812,6 +2813,7 @@ importers:
       jest-styled-components: 7.0.8_styled-components@5.2.3
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 11.0.0
+      lodash.clonedeep: 4.5.0
       mockdate: 3.0.5
       prettier: 2.6.2
       react: 17.0.1
@@ -2836,6 +2838,7 @@ importers:
       '@types/history': '4'
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
+      '@types/lodash.clonedeep': ^4.5.7
       '@types/luxon': ^1.26.5
       '@types/node': 16.11.29
       '@types/pluralize': ^0.0.29
@@ -2879,6 +2882,7 @@ importers:
       jest-styled-components: ^7.0.8
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
+      lodash.clonedeep: ^4.5.0
       luxon: 1.26.0
       mockdate: ^3.0.5
       pluralize: ^8.0.0
@@ -11796,6 +11800,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==
+  /@types/lodash.clonedeep/4.5.7:
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: false
+    resolution:
+      integrity: sha512-ccNqkPptFIXrpVqUECi60/DFxjNKsfoQxSQsgcBJCX/fuX1wgyQieojkcWH/KpE3xzLoWN/2k+ZeGqIN3paSvw==
   /@types/lodash/4.14.167:
     dev: false
     resolution:
@@ -11804,6 +11814,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
+  /@types/lodash/4.14.191:
+    dev: false
+    resolution:
+      integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
   /@types/luxon/1.26.2:
     dev: true
     resolution:
@@ -27480,7 +27494,7 @@ packages:
   /lodash.clonedeep/4.5.0:
     dev: true
     resolution:
-      integrity: sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+      integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
   /lodash.debounce/4.0.8:
     resolution:
       integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==

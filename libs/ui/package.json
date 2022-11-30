@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@types/dompurify": "^2.0.3",
+    "@types/lodash.clonedeep": "^4.5.7",
     "@types/react-modal": "^3.13.1",
     "@types/react-router-dom": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
@@ -102,6 +103,7 @@
     "jest-styled-components": "^7.0.8",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "mockdate": "^3.0.5",
     "prettier": "^2.6.2",
     "react": "^17.0.1",
