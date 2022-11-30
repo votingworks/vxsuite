@@ -19,10 +19,16 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
+import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
+import {
+  getMockBallotPageLayoutsWithImages,
+  getMockImageData,
+} from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
+import { ballotPdf } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -228,24 +234,11 @@ test('HMPB template handling', () => {
 
   expect(store.getHmpbTemplates()).toEqual([]);
 
-  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 2,
-      },
-      contests: [],
-    },
-  ]);
+  store.addHmpbTemplate(
+    Buffer.of(1, 2, 3),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
 
   expect(store.getHmpbTemplates()).toEqual(
     typedAs<Array<[Buffer, BallotPageLayout[]]>>([
@@ -284,9 +277,69 @@ test('HMPB template handling', () => {
   );
 });
 
-test('batch cleanup works correctly', () => {
+test('layout caching', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const initialStore = await Store.fileStore(dbFile.name);
+  initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  const metadata: BallotMetadata = {
+    electionHash: 'd34db33f',
+    locales: { primary: 'en-US' },
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    ballotType: BallotType.Standard,
+  };
+
+  initialStore.addHmpbTemplate(
+    await fs.readFile(ballotPdf),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
+
+  const expectedLayouts = [
+    {
+      imageData: expect.anything(),
+      ballotPageLayout: {
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+      },
+    },
+    {
+      imageData: expect.anything(),
+      ballotPageLayout: {
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+      },
+    },
+  ];
+
+  // The layouts should be cached after adding, and we should not be retrieving
+  // templates from the DB.
+  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
+  let layouts = await initialStore.loadLayouts();
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+  expect(layouts).toMatchObject(expectedLayouts);
+
+  // If we reload the store from the DB, it caches on reload and use cache
+  const loadedStore = await Store.fileStore(dbFile.name);
+  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
+  layouts = await loadedStore.loadLayouts();
+  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
+
+  // if we reset and reload templates, the cache should be clear
+  loadedStore.reset();
+  loadedStore.setElection(stateOfHamilton.electionDefinition.electionData);
+  expect(await loadedStore.loadLayouts()).toMatchObject([]);
+});
+
+test('batch cleanup works correctly', async () => {
+  const dbFile = tmp.fileSync();
+  const store = await Store.fileStore(dbFile.name);
 
   store.reset();
 
@@ -557,49 +610,52 @@ test('adjudication', () => {
     Buffer.of(),
     metadata,
     [1, 2].map((pageNumber) => ({
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber,
+      imageData: getMockImageData(),
+      ballotPageLayout: {
+        pageSize: { width: 1, height: 1 },
+        metadata: {
+          ...metadata,
+          pageNumber,
+        },
+        contests: [
+          {
+            bounds: zeroRect,
+            corners: [
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+            ],
+            options: [
+              {
+                bounds: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
+              },
+            ],
+          },
+          {
+            bounds: zeroRect,
+            corners: [
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+              { x: 0, y: 0 },
+            ],
+            options: [
+              {
+                bounds: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
+              },
+            ],
+          },
+        ],
       },
-      contests: [
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-      ],
     }))
   );
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
@@ -799,9 +855,9 @@ test('iterating over all result sheets', () => {
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
 });
 
-test('resetElectionSession', () => {
+test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = await Store.fileStore(dbFile.name);
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.setPollsState('polls_open');

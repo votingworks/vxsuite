@@ -1,5 +1,4 @@
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -26,81 +25,19 @@ import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
-import { Store } from './store';
 import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:precinct-scanner:app');
 
 type NoParams = never;
 
-/**
- * Loads ballot layouts from the {@link Store} to be used by the interpreter.
- * The results may be cached and used again as long as the underlying HMPB
- * templates are not modified.
- */
-async function loadLayouts(
-  store: Store
-): Promise<BallotPageLayoutWithImage[] | undefined> {
-  const electionDefinition = store.getElectionDefinition();
-  if (!electionDefinition) return;
-
-  const templates = store.getHmpbTemplates();
-  const loadedLayouts: BallotPageLayoutWithImage[] = [];
-
-  for (const [pdf, layouts] of templates) {
-    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const ballotPageLayout = layouts[pageNumber - 1];
-      loadedLayouts.push(
-        await interpretTemplate({
-          electionDefinition,
-          imageData: page,
-          metadata: ballotPageLayout.metadata,
-        })
-      );
-    }
-  }
-
-  return loadedLayouts;
-}
-
-/**
- * Loads all of the relevant configuration from the workspace store and
- * configures the interpreter. Should be called anytime one of these config
- * values is changed in order to update the interpreter's config.
- */
-async function updateInterpreterConfig(
-  interpreter: PrecinctScannerInterpreter,
-  workspace: Workspace
-) {
-  const { store } = workspace;
-  const electionDefinition = store.getElectionDefinition();
-  const precinctSelection = store.getPrecinctSelection();
-  if (!electionDefinition || !precinctSelection) {
-    interpreter.unconfigure();
-  } else {
-    const layouts = await loadLayouts(store);
-    assert(layouts);
-    interpreter.configure({
-      electionDefinition,
-      precinctSelection,
-      layouts,
-      testMode: store.getTestMode(),
-      markThresholdOverrides: store.getMarkThresholdOverrides(),
-      ballotImagesPath: workspace.ballotImagesPath,
-    });
-  }
-}
-
-export async function buildPrecinctScannerApp(
+export function buildPrecinctScannerApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   logger: Logger
-): Promise<Application> {
+): Application {
   const { store } = workspace;
-
-  // Try loading interpreter configuration from the store on startup
-  await updateInterpreterConfig(interpreter, workspace);
 
   const app: Application = express();
   const upload = multer({
@@ -133,7 +70,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
-  >('/precinct-scanner/config/election', async (request, response) => {
+  >('/precinct-scanner/config/election', (request, response) => {
     const { body } = request;
 
     if (!Buffer.isBuffer(body)) {
@@ -176,7 +113,6 @@ export async function buildPrecinctScannerApp(
       store.setPrecinctSelection(
         singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
       );
-      await updateInterpreterConfig(interpreter, workspace);
     }
     response.json({ status: 'ok' });
   });
@@ -211,7 +147,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchPrecinctSelectionConfigResponse,
     Scan.PatchPrecinctSelectionConfigRequest
-  >('/precinct-scanner/config/precinct', async (request, response) => {
+  >('/precinct-scanner/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchPrecinctSelectionConfigRequestSchema,
       request.body
@@ -242,7 +178,6 @@ export async function buildPrecinctScannerApp(
 
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
     workspace.resetElectionSession();
-    await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -250,37 +185,32 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
-  >(
-    '/precinct-scanner/config/markThresholdOverrides',
-    async (request, response) => {
-      const bodyParseResult = safeParse(
-        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-        request.body
-      );
+  >('/precinct-scanner/config/markThresholdOverrides', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+      request.body
+    );
 
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        });
-        return;
-      }
-
-      store.setMarkThresholdOverrides(
-        bodyParseResult.ok().markThresholdOverrides
-      );
-      await updateInterpreterConfig(interpreter, workspace);
-
-      response.json({ status: 'ok' });
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
     }
-  );
+
+    store.setMarkThresholdOverrides(
+      bodyParseResult.ok().markThresholdOverrides
+    );
+
+    response.json({ status: 'ok' });
+  });
 
   app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
     '/precinct-scanner/config/markThresholdOverrides',
-    async (_request, response) => {
+    (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
-      await updateInterpreterConfig(interpreter, workspace);
       response.json({ status: 'ok' });
     }
   );
@@ -312,7 +242,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
-  >('/precinct-scanner/config/testMode', async (request, response) => {
+  >('/precinct-scanner/config/testMode', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchTestModeConfigRequestSchema,
       request.body
@@ -329,7 +259,6 @@ export async function buildPrecinctScannerApp(
 
     workspace.resetElectionSession();
     store.setTestMode(bodyParseResult.ok().testMode);
-    await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -517,12 +446,10 @@ export async function buildPrecinctScannerApp(
           store.addHmpbTemplate(
             pdf,
             result[0].ballotPageLayout.metadata,
-            // remove ballot image for storage
-            result.map(({ ballotPageLayout }) => ballotPageLayout)
+            result
           );
         }
 
-        await updateInterpreterConfig(interpreter, workspace);
         response.json({ status: 'ok' });
       } catch (error) {
         assert(error instanceof Error);
@@ -605,7 +532,7 @@ export async function buildPrecinctScannerApp(
 
   app.post<NoParams, OkResponse | ErrorsResponse>(
     '/precinct-scanner/scanner/scan',
-    (_request, response) => {
+    async (_request, response) => {
       if (store.getPollsState() !== 'polls_open') {
         response.status(400).json({
           status: 'error',
@@ -618,6 +545,22 @@ export async function buildPrecinctScannerApp(
         });
         return;
       }
+
+      const electionDefinition = store.getElectionDefinition();
+      const precinctSelection = store.getPrecinctSelection();
+      const layouts = await store.loadLayouts();
+      assert(electionDefinition);
+      assert(precinctSelection);
+      assert(layouts);
+      interpreter.configure({
+        electionDefinition,
+        precinctSelection,
+        layouts,
+        testMode: store.getTestMode(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        ballotImagesPath: workspace.ballotImagesPath,
+      });
+
       machine.scan();
       response.json({ status: 'ok' });
     }

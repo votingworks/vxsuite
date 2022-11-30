@@ -137,7 +137,7 @@ export async function main(
     if (ext === '.pdf') {
       queue.push({ pdf: await fs.readFile(path), base });
     } else if (ext === '.db') {
-      const store = Store.fileStore(path);
+      const store = await Store.fileStore(path);
       const electionDefinition = store.getElectionDefinition();
 
       if (!electionDefinition) {

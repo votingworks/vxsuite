@@ -67,7 +67,7 @@ export async function start({
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
     }
-    resolvedWorkspace = createWorkspace(workspacePath);
+    resolvedWorkspace = await createWorkspace(workspacePath);
   }
 
   // clear any cached data
@@ -83,7 +83,7 @@ export async function start({
       interpreter: precinctScannerInterpreter,
       logger,
     });
-    resolvedApp = await buildPrecinctScannerApp(
+    resolvedApp = buildPrecinctScannerApp(
       precinctScannerMachine,
       precinctScannerInterpreter,
       resolvedWorkspace,

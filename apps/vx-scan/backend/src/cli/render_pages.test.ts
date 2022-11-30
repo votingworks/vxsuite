@@ -12,6 +12,7 @@ import {
   ballotPdf,
 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { main } from './render_pages';
+import { getMockBallotPageLayoutsWithImages } from '../../test/helpers/mock_layouts';
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;
@@ -162,7 +163,7 @@ test('render from db', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = Store.fileStore(tmpDbPath);
+  const store = await Store.fileStore(tmpDbPath);
   const electionDefinition = asElectionDefinition(election);
   store.setElection(electionDefinition.electionData);
   const metadata: BallotMetadata = {
@@ -173,18 +174,11 @@ test('render from db', async () => {
     locales: { primary: 'en-US' },
     precinctId: '6538',
   };
-  store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: { ...metadata, pageNumber: 1 },
-      contests: [],
-    },
-    {
-      pageSize: { width: 1, height: 1 },
-      metadata: { ...metadata, pageNumber: 2 },
-      contests: [],
-    },
-  ]);
+  store.addHmpbTemplate(
+    await fs.readFile(ballotPdf),
+    metadata,
+    getMockBallotPageLayoutsWithImages(metadata, 2)
+  );
 
   const stdout = fakeOutput();
   const stderr = fakeOutput();
@@ -232,7 +226,7 @@ test('db without an election', async () => {
   const stderr = fakeOutput();
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
-  const store = Store.fileStore(join(tmpDir, 'ballots.db'));
+  const store = await Store.fileStore(join(tmpDir, 'ballots.db'));
 
   expect(await main([store.getDbPath()], { stdout, stderr })).toEqual(1);
   expect(stderr.toString()).toEqual(
