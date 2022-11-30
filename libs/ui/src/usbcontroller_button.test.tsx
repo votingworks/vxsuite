@@ -23,7 +23,7 @@ test('shows nothing if USB not available', () => {
     />
   );
 
-  expect(container.firstChild).toMatchInlineSnapshot('null');
+  expect(container.firstChild).toEqual(null);
 });
 
 test('shows No USB if usb available but absent', () => {
@@ -35,7 +35,7 @@ test('shows No USB if usb available but absent', () => {
     />
   );
 
-  expect(container.firstChild!.firstChild).toMatchInlineSnapshot('No USB');
+  expect(container.firstChild).toHaveTextContent('No USB');
   fireEvent.click(getByText('No USB'));
   expect(eject).not.toHaveBeenCalled();
 });
@@ -49,7 +49,7 @@ test('shows eject if mounted', () => {
     />
   );
 
-  expect(container.firstChild!.firstChild).toMatchInlineSnapshot('Eject USB');
+  expect(container.firstChild).toHaveTextContent('Eject USB');
   fireEvent.click(getByText('Eject USB'));
   expect(eject).toHaveBeenCalled();
 });
@@ -63,7 +63,7 @@ test('shows ejected if recently ejected', () => {
     />
   );
 
-  expect(container.firstChild!.firstChild).toMatchInlineSnapshot('Ejected');
+  expect(container.firstChild).toHaveTextContent('Ejected');
   fireEvent.click(getByText('Ejected'));
   expect(eject).not.toHaveBeenCalled();
 });
@@ -77,7 +77,7 @@ test('shows connecting while mounting', () => {
     />
   );
 
-  expect(container.firstChild!.firstChild).toMatchInlineSnapshot('Connecting…');
+  expect(container.firstChild).toHaveTextContent('Connecting…');
   fireEvent.click(getByText('Connecting…'));
   expect(eject).not.toHaveBeenCalled();
 });
@@ -91,7 +91,7 @@ test('shows ejecting while ejecting', () => {
     />
   );
 
-  expect(container.firstChild!.firstChild).toMatchInlineSnapshot('Ejecting…');
+  expect(container.firstChild).toHaveTextContent('Ejecting…');
   fireEvent.click(getByText('Ejecting…'));
   expect(eject).not.toHaveBeenCalled();
 });
