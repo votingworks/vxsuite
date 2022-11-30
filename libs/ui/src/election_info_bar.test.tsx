@@ -5,7 +5,6 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionInfoBar } from './election_info_bar';
 
 test('Renders ElectionInfoBar with appropriate information', () => {
@@ -21,9 +20,15 @@ test('Renders ElectionInfoBar with appropriate information', () => {
   screen.getByText('Nov 3, 2020');
   screen.getByText('Franklin County,');
   screen.getByText('State of Hamilton');
-  screen.getByText(hasTextAcrossElements('Software VersionDEV'));
-  screen.getByText(hasTextAcrossElements('Machine ID0000'));
-  screen.getByText(hasTextAcrossElements(/^Election ID.{10}$/));
+
+  const versionLabel = screen.getByText('Software Version');
+  expect(versionLabel.parentElement?.lastChild).toHaveTextContent('DEV');
+
+  const machineIdLabel = screen.getByText('Machine ID');
+  expect(machineIdLabel.parentElement?.lastChild).toHaveTextContent('0000');
+
+  const electionIdLabel = screen.getByText('Election ID');
+  expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(/^.{10}$/);
   expect(container).toMatchSnapshot();
 });
 
