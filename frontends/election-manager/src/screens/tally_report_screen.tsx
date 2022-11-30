@@ -258,7 +258,7 @@ export function TallyReportScreen(): JSX.Element {
             <p>
               <Button
                 disabled={
-                  cvrFilesQuery.isFetching ||
+                  cvrFilesQuery.isLoading ||
                   !cvrFilesQuery.data ||
                   cvrFilesQuery.data.length === 0 ||
                   isOfficialResults

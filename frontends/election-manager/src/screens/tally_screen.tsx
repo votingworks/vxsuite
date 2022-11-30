@@ -155,7 +155,7 @@ export function TallyScreen(): JSX.Element {
             </Button>{' '}
             <Button
               disabled={
-                cvrFilesQuery.isFetching ||
+                cvrFilesQuery.isLoading ||
                 castVoteRecordFileList.length === 0 ||
                 isOfficialResults
               }
@@ -184,7 +184,7 @@ export function TallyScreen(): JSX.Element {
                       Precinct
                     </TD>
                   </tr>
-                  {cvrFilesQuery.isFetching ? (
+                  {cvrFilesQuery.isLoading ? (
                     <tr>
                       <TD>
                         <Loading />

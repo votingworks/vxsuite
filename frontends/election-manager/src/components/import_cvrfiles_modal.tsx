@@ -289,7 +289,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   if (
-    cvrFilesQuery.isFetching ||
+    cvrFilesQuery.isLoading ||
     currentState.state === 'loading' ||
     usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
     usbDriveStatus === usbstick.UsbDriveStatus.present

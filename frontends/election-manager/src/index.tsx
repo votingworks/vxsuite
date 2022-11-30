@@ -18,7 +18,10 @@ import { ServicesContext } from './contexts/services_context';
 const queryClient = new QueryClient({
   defaultOptions: {
     mutations: { networkMode: 'always' },
-    queries: { networkMode: 'always' },
+    queries: {
+      networkMode: 'always',
+      staleTime: Infinity,
+    },
   },
 });
 const storage = window.kiosk

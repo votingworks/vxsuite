@@ -1107,6 +1107,10 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     fireEvent.click(getByText('Load Demo Election Definition'));
   });
 
+  await backend.configure(
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+
   userEvent.click(screen.getByText('Lock Machine'));
   await authenticateWithElectionManagerCard(
     card,

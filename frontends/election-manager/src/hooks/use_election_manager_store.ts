@@ -109,7 +109,12 @@ export function useElectionManagerStore(): ElectionManagerStore {
     await queryClient.invalidateQueries(
       getCurrentElectionMetadataResultsQueryKey()
     );
-    await queryClient.invalidateQueries(getCvrFilesQueryKey());
+    await queryClient.invalidateQueries(getCvrFilesQueryKey(), {
+      // TODO(kofi): This is a pattern we're potentially adopting across the
+      // repo and will be make sweeping updates for soon. This specific case is
+      // needed to enable a test to pass after a recent change.
+      refetchType: 'all',
+    });
     await queryClient.invalidateQueries(getCvrsQueryKey());
     await queryClient.invalidateQueries(getCvrFileModeQueryKey());
   }, [backend, logger, queryClient]);

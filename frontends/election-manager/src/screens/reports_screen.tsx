@@ -185,7 +185,7 @@ export function ReportsScreen(): JSX.Element {
   );
 
   const canSaveResults =
-    !cvrFilesQuery.isFetching &&
+    !cvrFilesQuery.isLoading &&
     !!cvrFilesQuery.data &&
     cvrFilesQuery.data.length > 0;
 
