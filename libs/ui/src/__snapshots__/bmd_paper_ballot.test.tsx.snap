@@ -1,13 +1,350 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
+.c12 {
+  color: gray;
+  font-style: italic;
+}
+
+.c13 {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c6 {
+  white-space: nowrap;
+}
+
+.c3 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c3 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c3 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c3 h3 {
+  font-size: 1.17em;
+}
+
+.c3 h4 {
+  font-size: 1em;
+}
+
+.c3 h5 {
+  font-size: 0.9em;
+}
+
+.c3 h3,
+.c3 h4,
+.c3 h5,
+.c3 p,
+.c3 ol,
+.c3 ul,
+.c3 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c3 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c3 h1 + p,
+.c3 h2 + p,
+.c3 h1 + ol,
+.c3 h2 + ol,
+.c3 h1 + ul,
+.c3 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c3 h3 + p,
+.c3 h4 + p,
+.c3 h5 + p,
+.c3 h3 + ol,
+.c3 h4 + ol,
+.c3 h5 + ol,
+.c3 h3 + ul,
+.c3 h4 + ul,
+.c3 h5 + ul {
+  margin-top: -1em;
+}
+
+.c3 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c3 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c3 dl {
+  margin: 1em 0;
+}
+
+.c3 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c10 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c10 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c10 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c10 h3 {
+  font-size: 1.17em;
+}
+
+.c10 h4 {
+  font-size: 1em;
+}
+
+.c10 h5 {
+  font-size: 0.9em;
+}
+
+.c10 h3,
+.c10 h4,
+.c10 h5,
+.c10 p,
+.c10 ol,
+.c10 ul,
+.c10 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c10 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c10 h1 + p,
+.c10 h2 + p,
+.c10 h1 + ol,
+.c10 h2 + ol,
+.c10 h1 + ul,
+.c10 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c10 h3 + p,
+.c10 h4 + p,
+.c10 h5 + p,
+.c10 h3 + ol,
+.c10 h4 + ol,
+.c10 h5 + ol,
+.c10 h3 + ul,
+.c10 h4 + ul,
+.c10 h5 + ul {
+  margin-top: 0;
+}
+
+.c10 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c10 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1em 0;
+}
+
+.c10 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c5 > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.c0 {
+  background: #ffffff;
+  line-height: 1;
+  font-family: 'Vx Helvetica Neue','Noto Emoji','Helvetica Neue',sans-serif;
+  font-size: 16px;
+  page-break-after: always;
+}
+
+.c2 {
+  max-width: 1in;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-bottom: 0.2em solid #000000;
+}
+
+.c1 > .seal {
+  margin: 0.25em 0;
+  width: 1in;
+}
+
+.c1 h2 {
+  margin-bottom: 0;
+}
+
+.c1 h3 {
+  margin-top: 0;
+}
+
+.c1 > .ballot-header-content {
+  -webkit-flex: 4;
+  -ms-flex: 4;
+  flex: 4;
+  margin: 0 1em;
+  max-width: 100%;
+}
+
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 3;
+  -ms-flex: 3;
+  flex: 3;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-self: flex-end;
+  -ms-flex-item-align: end;
+  align-self: flex-end;
+  border: 0.2em solid #000000;
+  border-bottom: 0;
+  max-width: 50%;
+  padding: 0.25em;
+}
+
+.c4 > div:first-child {
+  margin-right: 0.25em;
+  width: 1.1in;
+}
+
+.c4 > div:last-child {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c4 > div:last-child > div {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  font-size: 0.8em;
+}
+
+.c4 > div:last-child > div > div {
+  margin-bottom: 0.9375em;
+}
+
+.c4 > div:last-child > div > div:last-child {
+  margin-bottom: 0;
+}
+
+.c4 > div:last-child > div strong {
+  font-size: 1.25em;
+  word-break: break-word;
+}
+
+.c7 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c8 {
+  -webkit-columns: 2;
+  columns: 2;
+  -webkit-column-gap: 2em;
+  column-gap: 2em;
+}
+
+.c9 {
+  border-bottom: 0.01em solid #000000;
+  padding: 0.5em 0;
+  -webkit-break-inside: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.c11 > h3 {
+  font-size: 0.875em;
+  font-weight: 400;
+}
+
+@media print {
+  .c12 {
+    color: black;
+  }
+}
+
+@media print {
+
+}
+
+@media screen {
+  .c0 {
+    display: none;
+  }
+}
+
 <div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="c0"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="c1"
     >
       <div
         class="seal"
@@ -16,13 +353,13 @@ exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
       >
         <img
           alt=""
-          class="sc-gKckTs hLVAuh"
+          class="c2"
           data-testid="printed-ballot-seal-image"
           src="/seals/Seal_of_Mississippi_BW.svg"
         />
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="c3 ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -41,10 +378,10 @@ exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="c4"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="c5"
         >
           <svg
             height="128"
@@ -85,7 +422,7 @@ exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="c6"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -95,143 +432,143 @@ exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="c7"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="c8"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               President
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Election Commissioner 04
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c12"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c9"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c10 c11"
           >
             <h3>
               Ballot Measure 1
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="c13"
             >
               •
                
               FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
             </p>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="c13"
             >
               •
                
@@ -246,13 +583,362 @@ House Bill 1796 - Flag Referendum
 `;
 
 exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests 1`] = `
+.c11 {
+  word-break: break-word;
+}
+
+.c12 {
+  font-weight: 600;
+}
+
+.c13 {
+  color: gray;
+  font-style: italic;
+}
+
+.c14 {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.c5 {
+  white-space: nowrap;
+}
+
+.c2 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c9 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c9 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c9 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c9 h3 {
+  font-size: 1.17em;
+}
+
+.c9 h4 {
+  font-size: 1em;
+}
+
+.c9 h5 {
+  font-size: 0.9em;
+}
+
+.c9 h3,
+.c9 h4,
+.c9 h5,
+.c9 p,
+.c9 ol,
+.c9 ul,
+.c9 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c9 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c9 h1 + p,
+.c9 h2 + p,
+.c9 h1 + ol,
+.c9 h2 + ol,
+.c9 h1 + ul,
+.c9 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c9 h3 + p,
+.c9 h4 + p,
+.c9 h5 + p,
+.c9 h3 + ol,
+.c9 h4 + ol,
+.c9 h5 + ol,
+.c9 h3 + ul,
+.c9 h4 + ul,
+.c9 h5 + ul {
+  margin-top: 0;
+}
+
+.c9 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c9 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c9 dl {
+  margin: 1em 0;
+}
+
+.c9 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c4 > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.c0 {
+  background: #ffffff;
+  line-height: 1;
+  font-family: 'Vx Helvetica Neue','Noto Emoji','Helvetica Neue',sans-serif;
+  font-size: 16px;
+  page-break-after: always;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-bottom: 0.2em solid #000000;
+}
+
+.c1 > .seal {
+  margin: 0.25em 0;
+  width: 1in;
+}
+
+.c1 h2 {
+  margin-bottom: 0;
+}
+
+.c1 h3 {
+  margin-top: 0;
+}
+
+.c1 > .ballot-header-content {
+  -webkit-flex: 4;
+  -ms-flex: 4;
+  flex: 4;
+  margin: 0 1em;
+  max-width: 100%;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 3;
+  -ms-flex: 3;
+  flex: 3;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-self: flex-end;
+  -ms-flex-item-align: end;
+  align-self: flex-end;
+  border: 0.2em solid #000000;
+  border-bottom: 0;
+  max-width: 50%;
+  padding: 0.25em;
+}
+
+.c3 > div:first-child {
+  margin-right: 0.25em;
+  width: 1.1in;
+}
+
+.c3 > div:last-child {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c3 > div:last-child > div {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  font-size: 0.8em;
+}
+
+.c3 > div:last-child > div > div {
+  margin-bottom: 0.9375em;
+}
+
+.c3 > div:last-child > div > div:last-child {
+  margin-bottom: 0;
+}
+
+.c3 > div:last-child > div strong {
+  font-size: 1.25em;
+  word-break: break-word;
+}
+
+.c6 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c7 {
+  -webkit-columns: 2;
+  columns: 2;
+  -webkit-column-gap: 2em;
+  column-gap: 2em;
+}
+
+.c8 {
+  border-bottom: 0.01em solid #000000;
+  padding: 0.5em 0;
+  -webkit-break-inside: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.c10 > h3 {
+  font-size: 0.875em;
+  font-weight: 400;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+  .c13 {
+    color: black;
+  }
+}
+
+@media print {
+
+}
+
+@media screen {
+  .c0 {
+    display: none;
+  }
+}
+
 <div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="c0"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="c1"
     >
       <div
         class="seal"
@@ -423,7 +1109,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         </svg>
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="c2 ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -442,10 +1128,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="c3"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="c4"
         >
           <svg
             height="128"
@@ -486,7 +1172,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="c5"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -496,25 +1182,25 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="c6"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="c7"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               President and Vice-President
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="c11"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="c12"
               >
                 Joseph Barchi and Joseph Hallaren
               </span>
@@ -524,35 +1210,35 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Representative, District 6
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Lieutenant Governor
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="c11"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="c12"
               >
                 Chris Norberg
               </span>
@@ -562,80 +1248,80 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Senator, District 31
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Assembly Member, District 54
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Registrar of Wills
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Question A: Recovery of Property Damages
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="c14"
             >
               Yes
                
@@ -644,16 +1330,16 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Question B: Separation of Powers
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="c14"
             >
               No
                
@@ -662,32 +1348,32 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="c8"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="c9 c10"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
             </h3>
             <p
-              class="sc-bdvvaa kCcYMa"
+              class="c13"
             >
               [no selection]
             </p>

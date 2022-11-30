@@ -34,16 +34,83 @@ describe('Modal', () => {
 
     const modal = screen.getByRole('alertdialog');
     expect(modal).toMatchInlineSnapshot(`
+      .c0 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        outline: none;
+        background: #ffffff;
+        width: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .c1 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-align-items: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        overflow: auto;
+        padding: 2rem;
+      }
+
+      @media (min-width:480px) {
+        .c0 {
+          position: static;
+          border-radius: 0.25rem;
+          max-width: 30rem;
+          height: auto;
+        }
+      }
+
+      @media print {
+        .c0 {
+          display: none;
+        }
+      }
+
+      @media (min-width:480px) {
+
+      }
+
+      @media print {
+
+      }
+
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp izKgnL ReactModal__Content _"
+        class="c0 ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD bNJKkA"
+          class="c1"
         >
           Do you want to do the thing?
         </div>
@@ -66,16 +133,75 @@ describe('Modal', () => {
 
     const modal = screen.getByRole('alertdialog');
     expect(modal).toMatchInlineSnapshot(`
+      .c0 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        outline: none;
+        background: #ffffff;
+        width: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .c1 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        overflow: auto;
+        padding: 2rem;
+      }
+
+      @media (min-width:480px) {
+        .c0 {
+          position: static;
+          border-radius: 0.25rem;
+          max-width: 55rem;
+          height: auto;
+        }
+      }
+
+      @media print {
+        .c0 {
+          display: none;
+        }
+      }
+
+      @media (min-width:480px) {
+
+      }
+
+      @media print {
+
+      }
+
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp iYIygY ReactModal__Content _"
+        class="c0 ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD gghqgk"
+          class="c1"
         >
           Do you want to do the thing?
         </div>
@@ -88,16 +214,74 @@ describe('Modal', () => {
 
     const modal = screen.getByRole('alertdialog');
     expect(modal).toMatchInlineSnapshot(`
+      .c0 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        outline: none;
+        background: #ffffff;
+        width: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .c1 {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        overflow: auto;
+      }
+
+      @media (min-width:480px) {
+        .c0 {
+          position: static;
+          border-radius: 0;
+          max-width: 100%;
+          height: 100%;
+        }
+      }
+
+      @media print {
+        .c0 {
+          display: none;
+        }
+      }
+
+      @media (min-width:480px) {
+
+      }
+
+      @media print {
+
+      }
+
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp ySjSS ReactModal__Content _"
+        class="c0 ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD cZPwiQ"
+          class="c1"
         >
           Do you want to do the thing?
         </div>

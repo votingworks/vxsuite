@@ -1,66 +1,113 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`snapshot 1`] = `
+.c1 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
+.c1:hover,
+.c1:active {
+  outline: none;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.c0 > button {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  margin: 2px;
+  width: 26%;
+}
+
 <div
-  class="sc-eCImvq lhLApJ"
+  class="c0"
   tabindex="0"
 >
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     1
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     2
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     3
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     4
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     5
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     6
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     7
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     8
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     9
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     <span
@@ -71,13 +118,13 @@ exports[`snapshot 1`] = `
     </span>
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     0
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     <span

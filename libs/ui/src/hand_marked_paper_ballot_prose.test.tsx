@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import 'jest-styled-components';
 
 import { HandMarkedPaperBallotProse } from './hand_marked_paper_ballot_prose';
 

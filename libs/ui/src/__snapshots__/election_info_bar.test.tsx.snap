@@ -1,13 +1,204 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
+.c1 {
+  line-height: 1.2;
+}
+
+.c1 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c1 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c1 h3 {
+  font-size: 1.17em;
+}
+
+.c1 h4 {
+  font-size: 1em;
+}
+
+.c1 h5 {
+  font-size: 0.9em;
+}
+
+.c1 h3,
+.c1 h4,
+.c1 h5,
+.c1 p,
+.c1 ol,
+.c1 ul,
+.c1 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c1 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h1 + ol,
+.c1 h2 + ol,
+.c1 h1 + ul,
+.c1 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c1 h3 + p,
+.c1 h4 + p,
+.c1 h5 + p,
+.c1 h3 + ol,
+.c1 h4 + ol,
+.c1 h5 + ol,
+.c1 h3 + ul,
+.c1 h4 + ul,
+.c1 h5 + ul {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c1 dl {
+  margin: 1em 0;
+}
+
+.c1 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c4 {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.c4 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c4 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c4 h3 {
+  font-size: 1.17em;
+}
+
+.c4 h4 {
+  font-size: 1em;
+}
+
+.c4 h5 {
+  font-size: 0.9em;
+}
+
+.c4 h3,
+.c4 h4,
+.c4 h5,
+.c4 p,
+.c4 ol,
+.c4 ul,
+.c4 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h3 + p,
+.c4 h4 + p,
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c4 dl {
+  margin: 1em 0;
+}
+
+.c4 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c3 {
+  font-size: 0.8em;
+}
+
+.c2 {
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: end;
+  background: #455a64;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  gap: 1rem;
+}
+
+@media print {
+
+}
+
 <div>
   <div
-    class="sc-eCImvq gZAahg"
+    class="c0"
     data-testid="electionInfoBar"
   >
     <div
-      class="sc-bdvvaa fLugxj"
+      class="c1"
       style="flex: 1;"
     >
       <strong>
@@ -16,39 +207,39 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
        —
        
       <span
-        class="sc-dkPtyc gbBfTJ"
+        class="c2"
       >
         Nov 3, 2020
       </span>
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           All Precincts
           ,
         </span>
          
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           Franklin County
           ,
         </span>
          
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           State of Hamilton
         </span>
       </div>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         Election ID
       </div>
@@ -61,13 +252,213 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
 `;
 
 exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
+.c1 {
+  line-height: 1.2;
+}
+
+.c1 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c1 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c1 h3 {
+  font-size: 1.17em;
+}
+
+.c1 h4 {
+  font-size: 1em;
+}
+
+.c1 h5 {
+  font-size: 0.9em;
+}
+
+.c1 h3,
+.c1 h4,
+.c1 h5,
+.c1 p,
+.c1 ol,
+.c1 ul,
+.c1 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c1 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h1 + ol,
+.c1 h2 + ol,
+.c1 h1 + ul,
+.c1 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c1 h3 + p,
+.c1 h4 + p,
+.c1 h5 + p,
+.c1 h3 + ol,
+.c1 h4 + ol,
+.c1 h5 + ol,
+.c1 h3 + ul,
+.c1 h4 + ul,
+.c1 h5 + ul {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c1 dl {
+  margin: 1em 0;
+}
+
+.c1 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c4 {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.c4 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c4 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c4 h3 {
+  font-size: 1.17em;
+}
+
+.c4 h4 {
+  font-size: 1em;
+}
+
+.c4 h5 {
+  font-size: 0.9em;
+}
+
+.c4 h3,
+.c4 h4,
+.c4 h5,
+.c4 p,
+.c4 ol,
+.c4 ul,
+.c4 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h3 + p,
+.c4 h4 + p,
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c4 dl {
+  margin: 1em 0;
+}
+
+.c4 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c3 {
+  font-size: 0.8em;
+}
+
+.c5 {
+  white-space: nowrap;
+  font-size: 0.8em;
+}
+
+.c2 {
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: end;
+  background: #455a64;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  gap: 1rem;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <div
-    class="sc-eCImvq gZAahg"
+    class="c0"
     data-testid="electionInfoBar"
   >
     <div
-      class="sc-bdvvaa fLugxj"
+      class="c1"
       style="flex: 1;"
     >
       <strong>
@@ -76,32 +467,32 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
        —
        
       <span
-        class="sc-dkPtyc gbBfTJ"
+        class="c2"
       >
         Nov 3, 2020
       </span>
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           Franklin County
           ,
         </span>
          
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           State of Hamilton
         </span>
       </div>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp iwrhML"
+        class="c5"
       >
         Software Version
       </div>
@@ -110,10 +501,10 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
       </strong>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp iwrhML"
+        class="c5"
       >
         Machine ID
       </div>
@@ -122,10 +513,10 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
       </strong>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         Election ID
       </div>
@@ -138,13 +529,213 @@ exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
 `;
 
 exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
+.c1 {
+  line-height: 1.2;
+}
+
+.c1 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c1 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c1 h3 {
+  font-size: 1.17em;
+}
+
+.c1 h4 {
+  font-size: 1em;
+}
+
+.c1 h5 {
+  font-size: 0.9em;
+}
+
+.c1 h3,
+.c1 h4,
+.c1 h5,
+.c1 p,
+.c1 ol,
+.c1 ul,
+.c1 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c1 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c1 h1 + p,
+.c1 h2 + p,
+.c1 h1 + ol,
+.c1 h2 + ol,
+.c1 h1 + ul,
+.c1 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c1 h3 + p,
+.c1 h4 + p,
+.c1 h5 + p,
+.c1 h3 + ol,
+.c1 h4 + ol,
+.c1 h5 + ol,
+.c1 h3 + ul,
+.c1 h4 + ul,
+.c1 h5 + ul {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c1 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c1 dl {
+  margin: 1em 0;
+}
+
+.c1 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c4 {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.c4 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c4 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c4 h3 {
+  font-size: 1.17em;
+}
+
+.c4 h4 {
+  font-size: 1em;
+}
+
+.c4 h5 {
+  font-size: 0.9em;
+}
+
+.c4 h3,
+.c4 h4,
+.c4 h5,
+.c4 p,
+.c4 ol,
+.c4 ul,
+.c4 hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h3 + p,
+.c4 h4 + p,
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c4 dl {
+  margin: 1em 0;
+}
+
+.c4 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c3 {
+  font-size: 0.8em;
+}
+
+.c5 {
+  white-space: nowrap;
+  font-size: 0.8em;
+}
+
+.c2 {
+  white-space: nowrap;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: end;
+  background: #455a64;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  gap: 1rem;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <div
-    class="sc-eCImvq gZAahg"
+    class="c0"
     data-testid="electionInfoBar"
   >
     <div
-      class="sc-bdvvaa fLugxj"
+      class="c1"
       style="flex: 1;"
     >
       <strong>
@@ -153,39 +744,39 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
        —
        
       <span
-        class="sc-dkPtyc gbBfTJ"
+        class="c2"
       >
         Nov 3, 2020
       </span>
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           Center Springfield
           ,
         </span>
          
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           Franklin County
           ,
         </span>
          
         <span
-          class="sc-dkPtyc gbBfTJ"
+          class="c2"
         >
           State of Hamilton
         </span>
       </div>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp iwrhML"
+        class="c5"
       >
         Software Version
       </div>
@@ -194,10 +785,10 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </strong>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp iwrhML"
+        class="c5"
       >
         Machine ID
       </div>
@@ -206,10 +797,10 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
       </strong>
     </div>
     <div
-      class="sc-bdvvaa iOQknX"
+      class="c4"
     >
       <div
-        class="sc-gsDJrp hIGrZm"
+        class="c3"
       >
         Election ID
       </div>

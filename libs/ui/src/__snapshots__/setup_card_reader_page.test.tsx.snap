@@ -1,14 +1,137 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWorkerLanguage set to false 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.c2 {
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.2;
+  font-size: 56px;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  background-color: white;
+  height: 100%;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
 <div
-  class="sc-dkPtyc ftEvXz"
+  class="c0"
 >
   <main
-    class="sc-bdvvaa jnfvZB"
+    class="c1"
   >
     <div
-      class="sc-gsDJrp fCJDVu"
+      class="c2"
     >
       <h1>
         Card Reader Not Detected
@@ -22,14 +145,137 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
 `;
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.c2 {
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.2;
+  font-size: 56px;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  background-color: white;
+  height: 100%;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
 <div
-  class="sc-dkPtyc ftEvXz"
+  class="c0"
 >
   <main
-    class="sc-bdvvaa jnfvZB"
+    class="c1"
   >
     <div
-      class="sc-gsDJrp fCJDVu"
+      class="c2"
     >
       <h1>
         Card Reader Not Detected
@@ -43,14 +289,137 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 `;
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.c2 {
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.2;
+  font-size: 56px;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  background-color: white;
+  height: 100%;
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
 <div
-  class="sc-dkPtyc ftEvXz"
+  class="c0"
 >
   <main
-    class="sc-bdvvaa jnfvZB"
+    class="c1"
   >
     <div
-      class="sc-gsDJrp fCJDVu"
+      class="c2"
     >
       <h1>
         Card Reader Not Detected
