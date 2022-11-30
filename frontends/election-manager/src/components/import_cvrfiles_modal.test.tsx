@@ -30,7 +30,11 @@ const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
 const { UsbDriveStatus } = usbstick;
 
-test('No USB screen shows when there is no USB drive', () => {
+test('No USB screen shows when there is no USB drive', async () => {
+  const backend = new ElectionManagerStoreMemoryBackend({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.recentlyEjected,
@@ -41,9 +45,9 @@ test('No USB screen shows when there is no USB drive', () => {
     const closeFn = jest.fn();
     const { unmount, getByText } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
-      { usbDriveStatus: usbStatus }
+      { backend, usbDriveStatus: usbStatus }
     );
-    getByText('No USB Drive Detected');
+    await screen.findByText('No USB Drive Detected');
 
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
