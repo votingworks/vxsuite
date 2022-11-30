@@ -113,31 +113,6 @@ describe('renders Text', () => {
         text={'I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.'}
       />
     );
-    expect(container).toMatchInlineSnapshot(`
-      @media print {
-
-      }
-
-      <div>
-        <p
-          class=""
-        >
-          <span>
-            I’m a paragraph.
-          </span>
-        </p>
-        <p
-          class=""
-        >
-          <span>
-            And I’m a paragraph with a
-          </span>
-          <br />
-          <span>
-            line break.
-          </span>
-        </p>
-      </div>
-    `);
+    expect(container).toMatchSnapshot();
   });
 });

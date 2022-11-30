@@ -15,36 +15,7 @@ test('renders as expected.', async () => {
     <RebootToBiosButton logger={new Logger(LogSource.VxAdminFrontend)} />
   );
   // Initially should just contain the button
-  expect(container).toMatchInlineSnapshot(`
-    .c0 {
-      display: inline-block;
-      border: none;
-      border-radius: 0.25em;
-      box-shadow: 0 0 0 0 rgba(71,167,75,1);
-      box-sizing: border-box;
-      background: rgb(211,211,211);
-      cursor: pointer;
-      padding: 0.75em 1em;
-      text-align: center;
-      line-height: 1.25;
-      color: black;
-      touch-action: manipulation;
-    }
-
-    .c0:hover,
-    .c0:active {
-      outline: none;
-    }
-
-    <div>
-      <button
-        class="c0"
-        type="button"
-      >
-        Reboot to BIOS
-      </button>
-    </div>
-  `);
+  expect(container).toMatchSnapshot(``);
 
   userEvent.click(screen.getByText('Reboot to BIOS'));
   await screen.findByText(/Rebooting/);
