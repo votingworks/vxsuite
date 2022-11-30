@@ -6,7 +6,13 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
 import {
   ExternalTallySourceType,
@@ -16,7 +22,7 @@ import {
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { assert } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyExternalTalliesByPrecinct,
@@ -26,8 +32,8 @@ import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_sc
 import { buildExternalTally } from '../../test/helpers/build_external_tally';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
-test('displays error screen for invalid precinct', () => {
-  const { getByText } = renderInAppContext(
+test('displays error screen for invalid precinct', async () => {
+  renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
@@ -36,8 +42,14 @@ test('displays error screen for invalid precinct', () => {
       electionDefinition: electionWithMsEitherNeitherDefinition,
     }
   );
-  getByText('Error: Could not find precinct 12345.');
-  getByText('Back to Index');
+  await screen.findByText('Error: Could not find precinct 12345.');
+  screen.getByText('Back to Index');
+  // There's no change in the invalid precinct case after the writeInQuery
+  // fires, so we just have to wait to avoid a test warning.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
+  await act(async () => {
+    await sleep(1);
+  });
 });
 
 test('displays correct contests for each precinct', async () => {

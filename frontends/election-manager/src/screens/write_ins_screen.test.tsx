@@ -1,6 +1,7 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { sleep } from '@votingworks/utils';
 import React from 'react';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
@@ -8,6 +9,15 @@ import { WriteInsScreen } from './write_ins_screen';
 
 const { electionDefinition, cvrData } = electionMinimalExhaustiveSampleFixtures;
 const abbreviatedCvrData = cvrData.split('\n').slice(0, 20).join('\n');
+
+afterEach(async () => {
+  // Several tests on this page create test warnings because hooks run after
+  // the end of the test, and there is no specific change on the page to check.
+  // TODO: Remove after upgrade to React 18, which does not warn in this case.
+  await act(async () => {
+    await sleep(1);
+  });
+});
 
 test('No CVRs loaded', async () => {
   renderInAppContext(<WriteInsScreen />, { electionDefinition });
