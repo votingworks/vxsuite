@@ -33,7 +33,6 @@ describe('Modal', () => {
     render(<Modal content="Do you want to do the thing?" centerContent />);
 
     const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchSnapshot();
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).toHaveStyle(`
       align-items: center;
