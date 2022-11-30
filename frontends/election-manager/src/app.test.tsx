@@ -584,7 +584,7 @@ test('tabulating CVRs', async () => {
   );
 
   const markOfficialButton = getByText('Mark Tally Results as Official');
-  await waitFor(expect(markOfficialButton).toBeEnabled);
+  await waitFor(() => expect(markOfficialButton).toBeEnabled());
   fireEvent.click(markOfficialButton);
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
