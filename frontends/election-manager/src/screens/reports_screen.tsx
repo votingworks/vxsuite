@@ -49,7 +49,6 @@ export function ReportsScreen(): JSX.Element {
     auth,
   } = useContext(AppContext);
   const cvrFilesQuery = useCvrFilesQuery();
-  const cvrFiles = cvrFilesQuery.data || [];
   const printedBallotsQuery = usePrintedBallotsQuery({
     ballotMode: Admin.BallotMode.Official,
   });
@@ -185,6 +184,11 @@ export function ReportsScreen(): JSX.Element {
     </p>
   );
 
+  const canSaveResults =
+    !cvrFilesQuery.isFetching &&
+    !!cvrFilesQuery.data &&
+    cvrFilesQuery.data.length > 0;
+
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -195,7 +199,7 @@ export function ReportsScreen(): JSX.Element {
             <LinkButton primary to={routerPaths.tallyFullReport}>
               {statusPrefix} Full Election Tally Report
             </LinkButton>{' '}
-            {cvrFiles.length > 0 && (
+            {canSaveResults && (
               <React.Fragment>
                 {converterName !== '' && (
                   <React.Fragment>

@@ -138,8 +138,7 @@ export function WriteInsScreen(): JSX.Element {
       );
     }
 
-    const cvrFiles = cvrFilesQuery.data || [];
-    if (cvrFiles.length === 0) {
+    if (cvrFilesQuery.data?.length === 0) {
       return (
         <p>
           <em>

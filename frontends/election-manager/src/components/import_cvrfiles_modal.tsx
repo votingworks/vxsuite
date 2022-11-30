@@ -78,7 +78,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const { usbDriveStatus, electionDefinition, auth, logger } =
     useContext(AppContext);
   const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
-  const cvrFiles = useCvrFilesQuery().data || [];
+  const cvrFilesQuery = useCvrFilesQuery();
   const fileMode = useCvrFileModeQuery().data;
 
   assert(electionDefinition);
@@ -289,6 +289,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   if (
+    cvrFilesQuery.isFetching ||
     currentState.state === 'loading' ||
     usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
     usbDriveStatus === usbstick.UsbDriveStatus.present
@@ -348,6 +349,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
+    const cvrFiles = cvrFilesQuery.data || [];
     const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
     for (const file of foundFiles) {
       const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =

@@ -70,7 +70,6 @@ export function TallyReportScreen(): JSX.Element {
     getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
 
   const cvrFilesQuery = useCvrFilesQuery();
-  const cvrFiles = cvrFilesQuery.data || [];
 
   const location = useLocation();
 
@@ -258,7 +257,12 @@ export function TallyReportScreen(): JSX.Element {
           {location.pathname === routerPaths.tallyFullReport && (
             <p>
               <Button
-                disabled={cvrFiles.length === 0 || isOfficialResults}
+                disabled={
+                  cvrFilesQuery.isFetching ||
+                  !cvrFilesQuery.data ||
+                  cvrFilesQuery.data.length === 0 ||
+                  isOfficialResults
+                }
                 onPress={openMarkOfficialModal}
               >
                 Mark Tally Results as Official
