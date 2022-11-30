@@ -1,9 +1,13 @@
 import { Matcher } from '@testing-library/react';
 
-export function hasTextAcrossElements(text: string): Matcher {
+export function hasTextAcrossElements(text: string | RegExp): Matcher {
   return (content: string, node: Element | null) => {
     function hasText(n: Element) {
-      return n.textContent === text;
+      if (typeof text === 'string') {
+        return n.textContent === text;
+      }
+
+      return text.test(n.textContent || '');
     }
     const nodeHasText = !!node && hasText(node);
     const childrenDontHaveText = Array.from(node?.children || []).every(
