@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
 import {
   AdjudicationReason,
