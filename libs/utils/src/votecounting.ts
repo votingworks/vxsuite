@@ -4,14 +4,12 @@ import {
   CastVoteRecord,
   Contest,
   Election,
-  Vote,
   VotesDict,
   getBallotStyle,
   getContests,
   Dictionary,
   expandEitherNeitherContests,
   Optional,
-  ContestTallyMetaDictionary,
   FullElectionTally,
   TallyCategory,
   VotingMethod,
@@ -216,60 +214,6 @@ export function* parseCvrs(
       yield { cvr, errors, lineNumber: lineOffset + 1 };
     }
   }
-}
-
-export interface GetContestTallyMetaParams {
-  election: Election;
-  castVoteRecords: CastVoteRecord[];
-  precinctId?: PrecinctId;
-  scannerId?: string;
-}
-
-export function getContestTallyMeta({
-  election,
-  castVoteRecords,
-  precinctId,
-  scannerId,
-}: GetContestTallyMetaParams): ContestTallyMetaDictionary {
-  const filteredCvrs = castVoteRecords
-    .filter((cvr) => precinctId === undefined || cvr._precinctId === precinctId)
-    .filter((cvr) => scannerId === undefined || cvr._scannerId === scannerId);
-
-  return expandEitherNeitherContests(
-    election.contests
-  ).reduce<ContestTallyMetaDictionary>((dictionary, contest) => {
-    const contestCvrs = filteredCvrs.filter(
-      (cvr) => cvr[contest.id] !== undefined
-    );
-
-    const contestVotes = contestCvrs.map(
-      (cvr) => cvr[contest.id] as unknown as Vote
-    );
-    const overvotes = contestVotes.filter((vote) => {
-      if (contest.type === 'candidate') {
-        return vote.length > contest.seats;
-      }
-      return vote.length > 1;
-    });
-    const numberOfUndervotes = contestVotes.reduce((undervotes, vote) => {
-      if (contest.type === 'candidate') {
-        const numVotesMarked = vote.length;
-        if (numVotesMarked < contest.seats) {
-          return undervotes + contest.seats - numVotesMarked;
-        }
-        return undervotes;
-      }
-      return vote.length === 0 ? undervotes + 1 : undervotes;
-    }, 0);
-    return {
-      ...dictionary,
-      [contest.id]: {
-        ballots: contestCvrs.length,
-        overvotes: overvotes.length,
-        undervotes: numberOfUndervotes,
-      },
-    };
-  }, {});
 }
 
 export function computeFullElectionTally(
