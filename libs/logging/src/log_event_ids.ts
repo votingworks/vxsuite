@@ -111,9 +111,8 @@ export enum LogEventId {
   BallotBagReplaced = 'ballot-bag-replaced',
   TallyReportClearedFromCard = 'tally-report-cleared-from-card',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
-  PrecinctScannerBatchStarted = 'precinct-scanner-batch-started',
-  PrecinctScannerBatchEnded = 'precinct-scanner-batch-ended',
-  // VxScan service state machine logs
+  ScannerBatchStarted = 'scanner-batch-started',
+  ScannerBatchEnded = 'scanner-batch-ended',
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
 }
@@ -476,7 +475,7 @@ const ClearingBallotData: LogDetails = {
   defaultMessage: 'User is clearing ballot data...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -487,7 +486,7 @@ const ClearedBallotData: LogDetails = {
     'User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -499,7 +498,7 @@ const OverridingMarkThresholds: LogDetails = {
   defaultMessage: 'User is overriding mark thresholds...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -510,7 +509,7 @@ const OverrodeMarkThresholds: LogDetails = {
     'User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const SavedScanImageBackup: LogDetails = {
@@ -520,7 +519,7 @@ const SavedScanImageBackup: LogDetails = {
     'User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -532,7 +531,7 @@ const ConfigureFromBallotPackageInit: LogDetails = {
   defaultMessage: 'Loading ballot package from USB and configuring machine...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const BallotPackagedLoadedFromUsb: LogDetails = {
@@ -542,7 +541,7 @@ const BallotPackagedLoadedFromUsb: LogDetails = {
     'The ballot package has been read from the USB drive. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const BallotConfiguredOnMachine: LogDetails = {
@@ -552,7 +551,7 @@ const BallotConfiguredOnMachine: LogDetails = {
     'The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const ScannerConfigured: LogDetails = {
@@ -562,7 +561,7 @@ const ScannerConfigured: LogDetails = {
     'The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const BallotPackageFilesReadFromUsb: LogDetails = {
@@ -572,7 +571,7 @@ const BallotPackageFilesReadFromUsb: LogDetails = {
     'List of ballot packages read from usb and displayed to user to load to machine.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const SaveCvrInit: LogDetails = {
@@ -582,7 +581,7 @@ const SaveCvrInit: LogDetails = {
   defaultMessage: 'Saving CVR file to USB...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const SaveCvrComplete: LogDetails = {
@@ -592,7 +591,7 @@ const SaveCvrComplete: LogDetails = {
     'User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 const DeleteScanBatchInit: LogDetails = {
@@ -651,7 +650,7 @@ const ScannerConfigReloaded: LogDetails = {
     'Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -681,7 +680,7 @@ const ScanServiceConfigurationMessage: LogDetails = {
     'Message from the scanning service about how it is configured while starting up.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -746,7 +745,7 @@ const PollsOpened: LogDetails = {
   documentationMessage: 'User has opened the polls.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -756,7 +755,7 @@ const VotingPaused: LogDetails = {
   documentationMessage: 'User has paused voting and polls are now paused.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -766,7 +765,7 @@ const VotingResumed: LogDetails = {
   documentationMessage: 'User has resumed voting and polls are now open.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -776,7 +775,7 @@ const PollsClosed: LogDetails = {
   documentationMessage: 'User has closed the polls.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -786,7 +785,7 @@ const ResetPollsToPaused: LogDetails = {
   documentationMessage: 'User has reset the polls from closed to paused.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
@@ -794,7 +793,7 @@ const BallotBagReplaced: LogDetails = {
   eventId: LogEventId.BallotBagReplaced,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User confirmed that they replaced the ballot bag.',
-  restrictInDocumentationToApps: [LogSource.VxPrecinctScanFrontend],
+  restrictInDocumentationToApps: [LogSource.VxScanFrontend],
 };
 
 const TallyReportClearedFromCard: LogDetails = {
@@ -811,38 +810,38 @@ const PrecinctConfigurationChanged: LogDetails = {
   documentationMessage: 'User has changed the precinct setting.',
   restrictInDocumentationToApps: [
     LogSource.VxBallotMarkingDeviceFrontend,
-    LogSource.VxPrecinctScanFrontend,
+    LogSource.VxScanFrontend,
   ],
 };
 
-const PrecinctScannerBatchStarted: LogDetails = {
-  eventId: LogEventId.PrecinctScannerBatchStarted,
+const ScannerBatchStarted: LogDetails = {
+  eventId: LogEventId.ScannerBatchStarted,
   eventType: LogEventType.SystemAction,
   documentationMessage:
     'The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.',
-  restrictInDocumentationToApps: [LogSource.VxScanService],
+  restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
-const PrecinctScannerBatchEnded: LogDetails = {
-  eventId: LogEventId.PrecinctScannerBatchEnded,
+const ScannerBatchEnded: LogDetails = {
+  eventId: LogEventId.ScannerBatchEnded,
   eventType: LogEventType.SystemAction,
   documentationMessage:
     'The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.',
-  restrictInDocumentationToApps: [LogSource.VxScanService],
+  restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
 const ScannerEvent: LogDetails = {
   eventId: LogEventId.ScannerEvent,
   eventType: LogEventType.ApplicationAction,
   documentationMessage: 'Precinct scanner state machine received an event.',
-  restrictInDocumentationToApps: [LogSource.VxScanService],
+  restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
 const ScannerStateChanged: LogDetails = {
   eventId: LogEventId.ScannerStateChanged,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage: 'Precinct scanner state machine transitioned states.',
-  restrictInDocumentationToApps: [LogSource.VxScanService],
+  restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
@@ -1023,10 +1022,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TallyReportClearedFromCard;
     case LogEventId.PrecinctConfigurationChanged:
       return PrecinctConfigurationChanged;
-    case LogEventId.PrecinctScannerBatchEnded:
-      return PrecinctScannerBatchEnded;
-    case LogEventId.PrecinctScannerBatchStarted:
-      return PrecinctScannerBatchStarted;
+    case LogEventId.ScannerBatchEnded:
+      return ScannerBatchEnded;
+    case LogEventId.ScannerBatchStarted:
+      return ScannerBatchStarted;
     case LogEventId.ScannerEvent:
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:

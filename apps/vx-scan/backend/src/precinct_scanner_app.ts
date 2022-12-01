@@ -287,7 +287,7 @@ export function buildPrecinctScannerApp(
     // Start new batch if opening polls, end batch if pausing or closing polls
     if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
       const batchId = store.addBatch();
-      await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+      await logger.log(LogEventId.ScannerBatchStarted, 'system', {
         disposition: 'success',
         message:
           'New scanning batch started due to polls being opened or voting being resumed.',
@@ -300,7 +300,7 @@ export function buildPrecinctScannerApp(
       const ongoingBatchId = store.getOngoingBatchId();
       assert(typeof ongoingBatchId === 'string');
       store.finishBatch({ batchId: ongoingBatchId });
-      await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+      await logger.log(LogEventId.ScannerBatchEnded, 'system', {
         disposition: 'success',
         message:
           'Current scanning batch ended due to polls being closed or voting being paused.',
@@ -320,7 +320,7 @@ export function buildPrecinctScannerApp(
         const ongoingBatchId = store.getOngoingBatchId();
         assert(typeof ongoingBatchId === 'string');
         store.finishBatch({ batchId: ongoingBatchId });
-        await logger.log(LogEventId.PrecinctScannerBatchEnded, 'system', {
+        await logger.log(LogEventId.ScannerBatchEnded, 'system', {
           disposition: 'success',
           message:
             'Current scanning batch ended due to ballot bag replacement.',
@@ -328,7 +328,7 @@ export function buildPrecinctScannerApp(
         });
 
         const batchId = store.addBatch();
-        await logger.log(LogEventId.PrecinctScannerBatchStarted, 'system', {
+        await logger.log(LogEventId.ScannerBatchStarted, 'system', {
           disposition: 'success',
           message: 'New scanning batch started due to ballot bag replacement.',
           batchId,

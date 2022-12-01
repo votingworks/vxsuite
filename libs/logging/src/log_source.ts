@@ -4,8 +4,8 @@ export enum LogSource {
   VxAdminService = 'vx-admin-service',
   VxCentralScanFrontend = 'vx-central-scan-frontend',
   VxCentralScanService = 'vx-central-scan-service',
-  VxPrecinctScanFrontend = 'vx-precinct-scan-frontend',
-  VxPrecinctScanService = 'vx-precinct-scan-service',
+  VxScanFrontend = 'vx-scan-frontend',
+  VxScanBackend = 'vx-scan-backend',
   VxBallotMarkingDeviceFrontend = 'vx-ballot-marking-device-frontend',
   VxBallotMarkingDeviceService = 'vx-ballot-marking-device-service',
   VxBallotActivationFrontend = 'vx-ballot-activation-frontend',
@@ -18,7 +18,7 @@ export enum LogSource {
 export const CLIENT_SIDE_LOG_SOURCES = [
   LogSource.VxAdminFrontend,
   LogSource.VxCentralScanFrontend,
-  LogSource.VxPrecinctScanFrontend,
+  LogSource.VxScanFrontend,
   LogSource.VxBallotMarkingDeviceFrontend,
   LogSource.VxBallotActivationFrontend,
 ];

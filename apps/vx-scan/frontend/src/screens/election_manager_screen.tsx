@@ -332,7 +332,7 @@ export function DefaultPreview(): JSX.Element {
             clearStoredData: () => Promise.resolve(ok()),
           },
         },
-        logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
       <ElectionManagerScreen

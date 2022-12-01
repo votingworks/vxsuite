@@ -27,7 +27,7 @@ export function App({
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   machineConfig = machineConfigProvider,
-  logger = new Logger(LogSource.VxPrecinctScanFrontend, window.kiosk),
+  logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
 }: Props): JSX.Element {
   return (
     <BrowserRouter>
