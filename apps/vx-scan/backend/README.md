@@ -39,7 +39,7 @@ First configure the scanner with the election definition by running
 `services/smartcards` with:
 
 ```
-./mockCardReader.py enable --admin ../scan/test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
+./mockCardReader.py enable --admin test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
 ```
 
 Then run the mock scanner with:
