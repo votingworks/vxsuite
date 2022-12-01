@@ -1,11 +1,6 @@
-import { safeParse, unsafeParse } from '@votingworks/types';
+import { unsafeParse } from '@votingworks/types';
 import { join } from 'path';
 import { z } from 'zod';
-
-const MachineTypeSchema = z.union([
-  z.literal('bsd'),
-  z.literal('precinct-scanner'),
-]);
 
 const NodeEnvSchema = z.union([
   z.literal('development'),
@@ -33,24 +28,6 @@ export const { MOCK_SCANNER_FILES } = process.env;
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3002);
-
-/**
- * Which machine type is this?
- */
-export const VX_MACHINE_TYPE = safeParse(
-  MachineTypeSchema,
-  process.env.VX_MACHINE_TYPE
-).ok();
-
-export enum ScannerLocation {
-  Central = 'Central',
-  Precinct = 'Precinct',
-}
-
-export const SCANNER_LOCATION =
-  VX_MACHINE_TYPE === 'bsd'
-    ? ScannerLocation.Central
-    : ScannerLocation.Precinct;
 
 /**
  * What's the unique ID for this machine?
