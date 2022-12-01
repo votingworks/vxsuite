@@ -19,11 +19,6 @@ export const MOCK_SCANNER_HTTP = process.env.MOCK_SCANNER_HTTP === '1';
 export const MOCK_SCANNER_PORT = 9999;
 
 /**
- * A list or pointer to a list of files to use for a mock scanner.
- */
-export const { MOCK_SCANNER_FILES } = process.env;
-
-/**
  * Default port for the scan API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
@@ -50,12 +45,6 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
-
-/**
- * Should the precinct scanner hold onto the paper on reject?
- */
-export const SCAN_ALWAYS_HOLD_ON_REJECT =
-  process.env.SCAN_ALWAYS_HOLD_ON_REJECT !== '0';
 
 /**
  * Where are exported files allowed to be written to?
