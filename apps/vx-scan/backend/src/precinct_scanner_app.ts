@@ -15,7 +15,6 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
@@ -25,9 +24,10 @@ import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
+import { rootDebug } from './util/debug';
 import { Workspace } from './util/workspace';
 
-const debug = makeDebug('scan:precinct-scanner:app');
+const debug = rootDebug.extend('app');
 
 type NoParams = never;
 

@@ -1,6 +1,6 @@
-import makeDebug from 'debug';
+import { rootDebug } from './debug';
 
-const debug = makeDebug('scan:perf');
+const debug = rootDebug.extend('perf');
 
 export function formatDurationNs(nanoseconds: bigint): string {
   if (nanoseconds < 1000) {

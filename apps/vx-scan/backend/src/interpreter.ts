@@ -1,8 +1,3 @@
-//
-// The Interpreter watches a directory where scanned ballot images will appear
-// and process/interpret them into a cast-vote record.
-//
-
 import {
   decodeBallot,
   decodeElectionHash,
@@ -35,13 +30,13 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
-import makeDebug from 'debug';
 import { BallotPageQrcode } from './types';
+import { rootDebug } from './util/debug';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
 import * as qrcodeWorker from './workers/qrcode';
 
-const debug = makeDebug('scan:interpreter');
+const debug = rootDebug.extend('interpreter');
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string;

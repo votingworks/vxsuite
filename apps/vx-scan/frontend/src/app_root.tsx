@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import 'normalize.css';
-import makeDebug from 'debug';
 
 import {
   Card,
@@ -59,8 +58,9 @@ import { ScanBusyScreen } from './screens/scan_busy_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
+import { rootDebug } from './utils/debug';
 
-const debug = makeDebug('precinct-scanner:app-root');
+const debug = rootDebug.extend('app-root');
 
 export interface Props {
   hardware: Hardware;

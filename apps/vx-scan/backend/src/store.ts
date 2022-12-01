@@ -39,7 +39,6 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -48,9 +47,10 @@ import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { sheetRequiresAdjudication } from './interpreter';
+import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
 
-const debug = makeDebug('scan:store');
+const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
