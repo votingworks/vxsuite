@@ -901,6 +901,7 @@ importers:
       events: 3.3.0
       fast-text-encoding: 1.0.3
       http-proxy-middleware: 1.0.6
+      jest-styled-components: 7.1.1_styled-components@5.2.1
       js-file-download: 0.4.12
       mockdate: 3.0.5
       moment: 2.29.1
@@ -1031,6 +1032,7 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-fetch-mock: ^3.0.3
       jest-junit: ^14.0.1
+      jest-styled-components: ^7.1.1
       jest-watch-typeahead: 0.6.4
       js-file-download: ^0.4.6
       lint-staged: ^10.2.3
@@ -1224,6 +1226,7 @@ importers:
       jest-environment-jsdom-sixteen: 1.0.3_canvas@2.9.1
       jest-junit: 14.0.1
       jest-resolve: 26.6.0
+      jest-styled-components: 7.1.1_styled-components@5.2.1
       jest-watch-typeahead: 0.6.1_jest@26.6.0
       lint-staged: 10.5.3
       prettier: 2.6.2
@@ -1339,6 +1342,7 @@ importers:
       jest-environment-jsdom-sixteen: ^1.0.3
       jest-junit: ^14.0.1
       jest-resolve: 26.6.0
+      jest-styled-components: ^7.1.1
       jest-watch-typeahead: 0.6.1
       js-file-download: ^0.4.12
       js-sha256: ^0.9.0
@@ -3293,6 +3297,9 @@ importers:
       zod: 3.14.4
 lockfileVersion: 5.2
 packages:
+  /@adobe/css-tools/4.0.1:
+    resolution:
+      integrity: sha512-+u76oB43nOHrF4DDWRLWDCtci7f3QJoEBigemIdIeTi1ODqjx6Tad9NCVnPRwewWlKkVab5PlK8DCtPTyX7S8g==
   /@ampproject/remapping/2.2.0:
     dependencies:
       '@jridgewell/gen-mapping': 0.1.1
@@ -8703,6 +8710,7 @@ packages:
   /@babel/runtime/7.14.6:
     dependencies:
       regenerator-runtime: 0.13.7
+    dev: false
     engines:
       node: '>=6.9.0'
     resolution:
@@ -21466,7 +21474,7 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.4:
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.4_supports-color@6.1.0
     dev: false
     engines:
       node: '>=4.0'
@@ -26145,6 +26153,16 @@ packages:
       styled-components: '>= 5'
     resolution:
       integrity: sha512-0KE54d0yIzKcvtOv8eikyjG3rFRtKYUyQovaoha3nondtZzXYGB3bhsvYgEegU08Iry0ndWx2+g9f5ZzD4I+0Q==
+  /jest-styled-components/7.1.1_styled-components@5.2.1:
+    dependencies:
+      '@adobe/css-tools': 4.0.1
+      styled-components: 5.2.1_react-dom@17.0.1+react@17.0.1
+    engines:
+      node: '>= 12'
+    peerDependencies:
+      styled-components: '>= 5'
+    resolution:
+      integrity: sha512-OUq31R5CivBF8oy81dnegNQrRW13TugMol/Dz6ZnFfEyo03exLASod7YGwyHGuayYlKmCstPtz0RQ1+NrAbIIA==
   /jest-util/25.5.0:
     dependencies:
       '@jest/types': 25.5.0
@@ -26367,7 +26385,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 26.6.3_canvas@2.9.1
+      jest: 26.6.3
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0

@@ -1,21 +1,216 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`calls out live ballot sheets in test mode 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -23,24 +218,24 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -56,14 +251,14 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             Remove the LIVE ballot before continuing.
           </p>
           <button
-            class="sc-gsTCUz bjydpm"
+            class="c7 c8"
             type="button"
           >
             The ballot has been removed
           </button>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -87,11 +282,11 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -100,32 +295,32 @@ exports[`calls out live ballot sheets in test mode 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -134,10 +329,10 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -146,10 +341,10 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
@@ -163,21 +358,216 @@ exports[`calls out live ballot sheets in test mode 1`] = `
 `;
 
 exports[`calls out test ballot sheets in live mode 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -185,24 +575,24 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -218,14 +608,14 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             Remove the TEST ballot before continuing.
           </p>
           <button
-            class="sc-gsTCUz bjydpm"
+            class="c7 c8"
             type="button"
           >
             The ballot has been removed
           </button>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -249,11 +639,11 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -262,32 +652,32 @@ exports[`calls out test ballot sheets in live mode 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -296,10 +686,10 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -308,10 +698,10 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
@@ -325,21 +715,216 @@ exports[`calls out test ballot sheets in live mode 1`] = `
 `;
 
 exports[`says the ballot sheet is blank if it is 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -347,24 +932,24 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -378,7 +963,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Remove to Adjudicate
@@ -386,7 +971,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Tabulate As Is
@@ -394,7 +979,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -418,11 +1003,11 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -431,32 +1016,32 @@ exports[`says the ballot sheet is blank if it is 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -465,10 +1050,10 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -477,10 +1062,10 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
@@ -494,21 +1079,216 @@ exports[`says the ballot sheet is blank if it is 1`] = `
 `;
 
 exports[`says the ballot sheet is overvoted if it is 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -516,24 +1296,24 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -547,7 +1327,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Remove to Adjudicate
@@ -555,7 +1335,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Tabulate As Is
@@ -563,7 +1343,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -587,11 +1367,11 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -600,32 +1380,32 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -634,10 +1414,10 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -646,10 +1426,10 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
@@ -663,21 +1443,216 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
 `;
 
 exports[`says the ballot sheet is undervoted if it is 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -685,24 +1660,24 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -716,7 +1691,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Remove to Adjudicate
@@ -724,7 +1699,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
           <p>
             <button
-              class="sc-gsTCUz bjydpm"
+              class="c7 c8"
               type="button"
             >
               Tabulate As Is
@@ -732,7 +1707,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -756,11 +1731,11 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -769,32 +1744,32 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -803,10 +1778,10 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -815,10 +1790,10 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
@@ -832,21 +1807,216 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
 `;
 
 exports[`says the sheet is unreadable if it is 1`] = `
+.c8 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  background: rgb(71,167,75);
+  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+body.using-keyboard .c7:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,1), 0 0 0 4px rgba(100,100,100,0.9);
+}
+
+.c8:focus {
+  outline: none;
+}
+
+.c8:hover,
+.c8:active {
+  outline: none;
+}
+
+.c0 {
+  background-color: #455a64;
+  -webkit-order: -1;
+  -ms-flex-order: -1;
+  order: -1;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c2 {
+  display: inline-block;
+  margin: 0.75rem 1rem;
+  white-space: nowrap;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.c2 span {
+  font-weight: 400;
+}
+
+.c3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.c4 {
+  margin-right: 1em;
+}
+
+.c4 button {
+  margin-left: 0.5em;
+}
+
+.c6 {
+  line-height: 1.2;
+}
+
+.c6 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c6 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c6 h3 {
+  font-size: 1.17em;
+}
+
+.c6 h4 {
+  font-size: 1em;
+}
+
+.c6 h5 {
+  font-size: 0.9em;
+}
+
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c6 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c6 h1 + p,
+.c6 h2 + p {
+  margin-top: -0.75em;
+}
+
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p {
+  margin-top: -1em;
+}
+
+.c6 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c6 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c6 dl {
+  margin: 1em 0;
+}
+
+.c6 hr {
+  border: 0;
+  border-top: 0.1em solid #000000;
+}
+
+.c5 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.c5 > div {
+  margin-right: 1em;
+}
+
+.c5 > div:first-child {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-left: 1em;
+}
+
+.c5 > div:last-child {
+  margin-right: 0;
+}
+
+.c9 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c9 > *:first-child {
+  margin-right: 1em;
+}
+
+.c9 img {
+  max-width: 100%;
+  max-height: 82vh;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    line-height: 1.3;
+  }
+}
+
 <div>
   <div
-    class="sc-AjmZR cBbBFP"
+    class="cBbBFP"
   >
     <div
-      class="sc-eCssSg jAJyXG"
+      class="c0"
     >
       <nav
-        class="sc-jSgupP dvPmoJ"
+        class="c1"
       >
         <div
-          class="sc-gKsewC iTtjkB"
+          class="c2"
         >
           <div
-            class="sc-iBPRYJ inGyxo"
+            class="c3"
           >
             Voting
             <span>
@@ -854,24 +2024,24 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-fubCfw"
+            class=""
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-pFZIQ fNwxur"
+          class="c4"
         />
       </nav>
     </div>
     <main
-      class="sc-ezbkgU fAKqMS"
+      class="fAKqMS"
     >
       <div
-        class="sc-iqHYGH jKykRi"
+        class="c5"
       >
         <div
-          class="sc-kEjbxe kKkrsc"
+          class="c6"
         >
           <h1>
             <span
@@ -890,14 +2060,14 @@ exports[`says the sheet is unreadable if it is 1`] = `
             If the error persists remove ballot and create a duplicate ballot for the Resolution Board to review.
           </p>
           <button
-            class="sc-gsTCUz bjydpm"
+            class="c7 c8"
             type="button"
           >
             The ballot has been removed
           </button>
         </div>
         <div
-          class="sc-crrsfI TwdhN"
+          class="c9"
         >
           <div
             style="position: relative;"
@@ -921,11 +2091,11 @@ exports[`says the sheet is unreadable if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-fKVsgm fFwtSv"
+      class="fFwtSv"
       data-testid="electionInfoBar"
     >
       <div
-        class="sc-hKwCoD gvrBrR"
+        class="gvrBrR"
         style="flex: 1;"
       >
         <strong>
@@ -934,32 +2104,32 @@ exports[`says the sheet is unreadable if it is 1`] = `
          —
          
         <span
-          class="sc-gsDJrp fUIxJs"
+          class="fUIxJs"
         >
           Nov 3, 2020
         </span>
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="sc-gsDJrp fUIxJs"
+            class="fUIxJs"
           >
             State of Hamilton
           </span>
         </div>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Software Version
         </div>
@@ -968,10 +2138,10 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa bmZoEB"
+          class="bmZoEB"
         >
           Machine ID
         </div>
@@ -980,10 +2150,10 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </strong>
       </div>
       <div
-        class="sc-hKwCoD fZQsN"
+        class="fZQsN"
       >
         <div
-          class="sc-bdvvaa iybVtA"
+          class="iybVtA"
         >
           Election ID
         </div>
