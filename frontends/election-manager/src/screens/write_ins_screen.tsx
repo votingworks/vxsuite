@@ -138,7 +138,7 @@ export function WriteInsScreen(): JSX.Element {
       );
     }
 
-    if (cvrFilesQuery.data?.length === 0) {
+    if (cvrFilesQuery.isSuccess && cvrFilesQuery.data.length === 0) {
       return (
         <p>
           <em>
