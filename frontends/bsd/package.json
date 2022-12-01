@@ -152,9 +152,6 @@
     "services": [
       "../../services/scan",
       "../../services/smartcards"
-    ],
-    "env": {
-      "VX_MACHINE_TYPE": "bsd"
-    }
+    ]
   }
 }
