@@ -1,4 +1,4 @@
-# Precinct Scanner (VxScan)
+# VxScan (Precinct Scanner)
 
 The user interface for a precinct scanner. This is intended to be used by
 election officials, poll workers, and voters to cast their ballot at a precinct.
@@ -11,7 +11,6 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the app like so:
 
 ```sh
-# in frontends/precinct-scanner
 pnpm start
 ```
 
@@ -25,7 +24,7 @@ that folder. You'll need to run the application inside
 [`kiosk-browser`](https://github.com/votingworks/kiosk-browser).
 
 To use a mock scanner, follow the directions from in
-[`services/scan`](../../services/scan#Single-sheet-scanner).
+[`vx-scan/backend`](../backend/#Mock-Scanning).
 
 ## Testing
 
