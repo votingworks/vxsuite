@@ -20,7 +20,11 @@ afterEach(async () => {
 });
 
 test('No CVRs loaded', async () => {
-  renderInAppContext(<WriteInsScreen />, { electionDefinition });
+  const backend = new ElectionManagerStoreMemoryBackend({
+    electionDefinition,
+  });
+
+  renderInAppContext(<WriteInsScreen />, { backend, electionDefinition });
   await screen.findByText(
     'Load CVRs to begin transcribing and adjudicating write-in votes.'
   );

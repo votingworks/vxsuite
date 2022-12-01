@@ -67,7 +67,7 @@ test('manual write-in data end-to-end test', async () => {
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(screen.getByText('Tally'));
-  userEvent.click(screen.getByText('Add Manually Entered Results'));
+  userEvent.click(await screen.findByText('Add Manually Entered Results'));
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
 
   // Navigate away, adjudicated a write-in, and return - to ensure the

@@ -225,7 +225,6 @@ export function AppRoot({
   return (
     <AppContext.Provider
       value={{
-        castVoteRecordFiles: store.castVoteRecordFiles,
         electionDefinition,
         configuredAt: currentElection.data?.createdAt,
         converter,

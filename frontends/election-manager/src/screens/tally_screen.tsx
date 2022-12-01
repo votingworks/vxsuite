@@ -26,10 +26,11 @@ import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_mo
 import { TIME_FORMAT } from '../config/globals';
 import { ImportExternalResultsModal } from '../components/import_external_results_modal';
 import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+import { Loading } from '../components/loading';
 
 export function TallyScreen(): JSX.Element {
   const {
-    castVoteRecordFiles,
     electionDefinition,
     converter,
     isOfficialResults,
@@ -63,9 +64,11 @@ export function TallyScreen(): JSX.Element {
       .join(', ');
   }
 
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
+  const cvrFilesQuery = useCvrFilesQuery();
+  const castVoteRecordFileList =
+    cvrFilesQuery.isLoading || cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
   const hasAnyFiles =
-    castVoteRecordFiles.wereAdded || fullElectionExternalTallies.size > 0;
+    castVoteRecordFileList.length > 0 || fullElectionExternalTallies.size > 0;
   const hasExternalSemsFile = fullElectionExternalTallies.has(
     ExternalTallySourceType.SEMS
   );
@@ -152,7 +155,11 @@ export function TallyScreen(): JSX.Element {
               Load CVR Files
             </Button>{' '}
             <Button
-              disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
+              disabled={
+                cvrFilesQuery.isLoading ||
+                castVoteRecordFileList.length === 0 ||
+                isOfficialResults
+              }
               onPress={() =>
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
               }
@@ -178,26 +185,34 @@ export function TallyScreen(): JSX.Element {
                       Precinct
                     </TD>
                   </tr>
-                  {castVoteRecordFileList.map(
-                    ({
-                      name,
-                      exportTimestamp,
-                      importedCvrCount,
-                      scannerIds,
-                      precinctIds,
-                    }) => (
-                      <tr key={name}>
-                        <TD narrow nowrap>
-                          {moment(exportTimestamp).format(
-                            'MM/DD/YYYY hh:mm:ss A'
-                          )}
-                        </TD>
-                        <TD nowrap>{format.count(importedCvrCount)} </TD>
-                        <TD narrow nowrap>
-                          {scannerIds.join(', ')}
-                        </TD>
-                        <TD>{getPrecinctNames(precinctIds)}</TD>
-                      </tr>
+                  {cvrFilesQuery.isLoading ? (
+                    <tr>
+                      <TD>
+                        <Loading />
+                      </TD>
+                    </tr>
+                  ) : (
+                    castVoteRecordFileList.map(
+                      ({
+                        filename,
+                        exportTimestamp,
+                        numCvrsImported,
+                        scannerIds,
+                        precinctIds,
+                      }) => (
+                        <tr key={filename}>
+                          <TD narrow nowrap>
+                            {moment(exportTimestamp).format(
+                              'MM/DD/YYYY hh:mm:ss A'
+                            )}
+                          </TD>
+                          <TD nowrap>{format.count(numCvrsImported)} </TD>
+                          <TD narrow nowrap>
+                            {scannerIds.join(', ')}
+                          </TD>
+                          <TD>{getPrecinctNames(precinctIds)}</TD>
+                        </tr>
+                      )
                     )
                   )}
                   {externalTallyRows}
@@ -208,7 +223,7 @@ export function TallyScreen(): JSX.Element {
                     <TD as="th" narrow data-testid="total-cvr-count">
                       {format.count(
                         castVoteRecordFileList.reduce(
-                          (prev, curr) => prev + curr.importedCvrCount,
+                          (prev, curr) => prev + curr.numCvrsImported,
                           0
                         ) + externalFileBallotCount
                       )}

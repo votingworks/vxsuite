@@ -6,6 +6,8 @@ import { Modal, Prose, Button } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';
+import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+import { Loading } from './loading';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;
@@ -18,8 +20,7 @@ export function ConfirmRemovingFileModal({
   onCancel,
   fileType,
 }: Props): JSX.Element {
-  const { castVoteRecordFiles, fullElectionExternalTallies } =
-    useContext(AppContext);
+  const { fullElectionExternalTallies } = useContext(AppContext);
 
   const semsFile = fullElectionExternalTallies.get(
     ExternalTallySourceType.SEMS
@@ -28,27 +29,34 @@ export function ConfirmRemovingFileModal({
     ExternalTallySourceType.Manual
   );
 
+  const cvrFilesQuery = useCvrFilesQuery();
+
+  const isLoading =
+    (fileType === ResultsFileType.CastVoteRecord ||
+      fileType === ResultsFileType.All) &&
+    cvrFilesQuery.isLoading;
+
   let mainContent: React.ReactNode = null;
   let fileTypeName = '';
   let singleFileRemoval = true;
   switch (fileType) {
     case ResultsFileType.CastVoteRecord: {
-      const { fileList } = castVoteRecordFiles;
+      if (isLoading) {
+        return <Loading />;
+      }
+
+      const fileList =
+        cvrFilesQuery.isLoading || cvrFilesQuery.isError
+          ? []
+          : cvrFilesQuery.data;
       singleFileRemoval = fileList.length <= 1;
       fileTypeName = 'CVR Files';
       mainContent = (
         <React.Fragment>
-          {fileList.length ? (
-            <p>
-              Do you want to remove the {fileList.length} loaded CVR{' '}
-              {pluralize('files', fileList.length)}?
-            </p>
-          ) : (
-            <p>
-              Do you want to remove the files causing errors:{' '}
-              {castVoteRecordFiles.lastError?.filename}?
-            </p>
-          )}
+          <p>
+            Do you want to remove the {fileList.length} loaded CVR{' '}
+            {pluralize('files', fileList.length)}?
+          </p>
           <p>All reports will be unavailable without CVR data.</p>
         </React.Fragment>
       );
@@ -72,9 +80,16 @@ export function ConfirmRemovingFileModal({
       break;
     }
     case ResultsFileType.All: {
+      if (isLoading) {
+        return <Loading />;
+      }
+
       fileTypeName = 'Data';
       singleFileRemoval = false;
-      const { fileList } = castVoteRecordFiles;
+      const fileList =
+        cvrFilesQuery.isLoading || cvrFilesQuery.isError
+          ? []
+          : cvrFilesQuery.data;
       let externalDetails = '';
       if (semsFile !== undefined && manualData !== undefined) {
         externalDetails = `, the external results file ${semsFile.inputSourceName}, and the manually entered data`;
@@ -105,7 +120,11 @@ export function ConfirmRemovingFileModal({
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={
         <React.Fragment>
-          <Button danger onPress={() => onConfirm(fileType)}>
+          <Button
+            danger
+            disabled={isLoading}
+            onPress={() => onConfirm(fileType)}
+          >
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
           <Button onPress={onCancel}>Cancel</Button>

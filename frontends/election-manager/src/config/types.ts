@@ -140,7 +140,6 @@ export interface CastVoteRecordFilePreprocessedData {
   readonly scannerIds: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
-  readonly fileImported: boolean;
 }
 
 export type VoteCounts = Dictionary<Dictionary<number>>;

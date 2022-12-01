@@ -278,8 +278,6 @@ test('addCastVoteRecordFile happy path', async () => {
     }
   );
 
-  await expect(backend.loadCastVoteRecordFiles()).resolves.toBeUndefined();
-
   await expect(
     backend.addCastVoteRecordFile(
       new File([partial1CvrFile.asBuffer()], 'cvrs.jsonl', {
@@ -296,10 +294,6 @@ test('addCastVoteRecordFile happy path', async () => {
     scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   });
-
-  const cvrFilesFromStorage = await backend.loadCastVoteRecordFiles();
-  expect(cvrFilesFromStorage).not.toBeUndefined();
-  expect(cvrFilesFromStorage?.fileList.length).toBeGreaterThan(0);
 });
 
 test('addCastVoteRecordFile prioritizes export timestamp in filename', async () => {
@@ -362,10 +356,6 @@ test('addCastVoteRecordFile prioritizes export timestamp in filename', async () 
     scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   });
-
-  const cvrFilesFromStorage = await backend.loadCastVoteRecordFiles();
-  expect(cvrFilesFromStorage).not.toBeUndefined();
-  expect(cvrFilesFromStorage?.fileList.length).toBeGreaterThan(0);
 });
 
 test('addCastVoteRecordFile analyze only', async () => {
@@ -393,8 +383,6 @@ test('addCastVoteRecordFile analyze only', async () => {
     apiResponse
   );
 
-  await expect(backend.loadCastVoteRecordFiles()).resolves.toBeUndefined();
-
   await expect(
     backend.addCastVoteRecordFile(
       new File([partial1CvrFile.asBuffer()], 'cvrs.jsonl'),
@@ -410,8 +398,6 @@ test('addCastVoteRecordFile analyze only', async () => {
     scannerIds: ['scanner-2', 'scanner-3'],
     wasExistingFile: false,
   });
-
-  await expect(backend.loadCastVoteRecordFiles()).resolves.toBeUndefined();
 });
 
 test('addCastVoteRecordFile handles api errors', async () => {

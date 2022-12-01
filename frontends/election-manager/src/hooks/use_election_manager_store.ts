@@ -13,7 +13,6 @@ import {
 import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
 import { getCvrsQueryKey } from './use_cvrs_query';
 import { getCvrFilesQueryKey } from './use_cvr_files_query';
@@ -29,11 +28,6 @@ export interface ElectionManagerStore {
    * The currently configured election definition.
    */
   readonly electionDefinition?: ElectionDefinition;
-
-  /**
-   * The current set of loaded cast vote record files.
-   */
-  readonly castVoteRecordFiles: CastVoteRecordFiles;
 
   /**
    * Tallies from external sources, e.g. SEMS or manually entered tallies.
@@ -78,7 +72,6 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-export const cvrsStorageKey = 'cvrFiles';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
@@ -89,16 +82,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
   const { backend, logger } = useContext(ServicesContext);
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
-
-  const getCastVoteRecordFilesQuery = useQuery<CastVoteRecordFiles>(
-    [cvrsStorageKey],
-    async () => {
-      return (
-        (await backend.loadCastVoteRecordFiles()) ?? CastVoteRecordFiles.empty
-      );
-    }
-  );
-  const castVoteRecordFiles = getCastVoteRecordFilesQuery.data;
 
   const getExternalElectionTalliesQuery = useQuery<FullElectionExternalTallies>(
     [externalVoteTalliesFileStorageKey],
@@ -117,7 +100,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
         disposition: LogDispositionStandardTypes.Success,
       }
     );
-    await queryClient.invalidateQueries([cvrsStorageKey]);
     await queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
     await queryClient.invalidateQueries(getPrintedBallotsQueryKey());
     await queryClient.invalidateQueries(getWriteInImageQueryKey());
@@ -127,7 +109,12 @@ export function useElectionManagerStore(): ElectionManagerStore {
     await queryClient.invalidateQueries(
       getCurrentElectionMetadataResultsQueryKey()
     );
-    await queryClient.invalidateQueries(getCvrFilesQueryKey());
+    await queryClient.invalidateQueries(getCvrFilesQueryKey(), {
+      // TODO(kofi): This is a pattern we're potentially adopting across the
+      // repo and will be make sweeping updates for soon. This specific case is
+      // needed to enable a test to pass after a recent change.
+      refetchType: 'all',
+    });
     await queryClient.invalidateQueries(getCvrsQueryKey());
     await queryClient.invalidateQueries(getCvrFileModeQueryKey());
   }, [backend, logger, queryClient]);
@@ -220,7 +207,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
   return useMemo(
     () =>
       typedAs<ElectionManagerStore>({
-        castVoteRecordFiles: castVoteRecordFiles ?? CastVoteRecordFiles.empty,
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
 
         clearFullElectionExternalTallies,
@@ -231,7 +217,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
         removeFullElectionExternalTally,
       }),
     [
-      castVoteRecordFiles,
       clearFullElectionExternalTallies,
       configure,
       fullElectionExternalTallies,

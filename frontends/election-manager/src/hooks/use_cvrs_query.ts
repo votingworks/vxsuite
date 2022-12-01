@@ -17,7 +17,5 @@ export function getCvrsQueryKey(): QueryKey {
  */
 export function useCvrsQuery(): UseQueryResult<CastVoteRecord[]> {
   const { backend } = useContext(ServicesContext);
-  return useQuery(getCvrsQueryKey(), () => backend.getCvrs(), {
-    staleTime: Infinity,
-  });
+  return useQuery(getCvrsQueryKey(), () => backend.getCvrs());
 }

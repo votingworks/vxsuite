@@ -188,7 +188,7 @@ test('can preprocess files to give information about expected duplicates', async
   const newFileName = `machine_abc__3_ballots__${moment(newFileDate).format(
     'YYYY-MM-DD_HH-mm-ss'
   )}`;
-  const parsedData = added.parseAllFromFileSystemEntries([
+  const parsedData = CastVoteRecordFiles.parseAllFromFileSystemEntries([
     {
       name: newFileName,
       path: 'this/is/a/path',
@@ -207,31 +207,6 @@ test('can preprocess files to give information about expected duplicates', async
       scannerIds: ['abc'],
       exportTimestamp: newFileDate,
       isTestModeResults: false,
-      fileImported: false,
-    },
-  ]);
-
-  // Can handle a previously loaded file properly
-  const parsedData2 = added.parseAllFromFileSystemEntries([
-    {
-      name: existingFileName,
-      path: 'this/is/a/path',
-      type: 1,
-      size: 0,
-      mtime: TEST_DATE,
-      atime: new Date(),
-      ctime: new Date(),
-    },
-  ]);
-  expect(parsedData2).toEqual<CastVoteRecordFilePreprocessedData[]>([
-    {
-      name: existingFileName,
-      path: 'this/is/a/path',
-      cvrCount: 1,
-      scannerIds: ['abc'],
-      exportTimestamp: TEST_DATE,
-      isTestModeResults: false,
-      fileImported: true,
     },
   ]);
 });
@@ -263,7 +238,7 @@ test('parseAllFromFileSystemEntries handles empty files', async () => {
   expect(added.lastError).toBeUndefined();
 
   expect(
-    added.parseAllFromFileSystemEntries([
+    CastVoteRecordFiles.parseAllFromFileSystemEntries([
       {
         name: existingFileName,
         path: 'this/is/a/path',
@@ -282,7 +257,6 @@ test('parseAllFromFileSystemEntries handles empty files', async () => {
       scannerIds: ['abc'],
       exportTimestamp: TEST_DATE,
       isTestModeResults: false,
-      fileImported: true,
     },
   ]);
 });

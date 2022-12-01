@@ -21,7 +21,6 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import { z } from 'zod';
-import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
@@ -30,8 +29,6 @@ import { ElectionManagerStoreBackend } from './types';
 
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 const CVR_FILE_TIMESTAMP_FIELD_NAME = 'exportedTimestamp';
-const cvrsStorageKey = 'cvrFiles';
-const isOfficialResultsKey = 'isOfficialResults';
 const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
 /** @visibleForTesting */
@@ -62,24 +59,6 @@ export class ElectionManagerStoreAdminBackend
     this.storage = storage;
     this.logger = logger;
     this.currentUserRole = currentUserRole ?? 'unknown';
-  }
-
-  async loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined> {
-    const serializedCvrFiles = safeParse(
-      z.string().optional(),
-      await this.storage.get(cvrsStorageKey)
-    ).ok();
-
-    if (serializedCvrFiles) {
-      const cvrs = CastVoteRecordFiles.import(serializedCvrFiles);
-      await this.logger.log(LogEventId.LoadFromStorage, this.currentUserRole, {
-        message:
-          'Cast vote records loaded into application from local storage.',
-        disposition: 'success',
-        numberOfCvrs: cvrs.fileList.length,
-      });
-      return cvrs;
-    }
   }
 
   private async loadCurrentElectionIdOrThrow(): Promise<Id> {
@@ -375,13 +354,6 @@ export class ElectionManagerStoreAdminBackend
       );
     }
 
-    if (!options?.analyzeOnly) {
-      // Also add to local storage if backend request was successful.
-      // (We're temporarily double-writing to both local storage and backend DB while we migrate stuff
-      // over to the backend. See https://github.com/votingworks/vxsuite/issues/2716)
-      await this.addCastVoteRecordFileToStorage(newCastVoteRecordFile);
-    }
-
     const {
       alreadyPresent,
       exportedTimestamp,
@@ -405,46 +377,12 @@ export class ElectionManagerStoreAdminBackend
     };
   }
 
-  private async addCastVoteRecordFileToStorage(
-    newCastVoteRecordFile: File
-  ): Promise<void> {
-    const loadElectionResult = await this.loadCurrentElectionMetadata();
-
-    if (!loadElectionResult) {
-      throw new Error('Cannot add CVR files without an election definition.');
-    }
-
-    const loadCastVoteRecordFilesResult =
-      (await this.loadCastVoteRecordFiles()) ?? CastVoteRecordFiles.empty;
-
-    const newCastVoteRecordFiles = await loadCastVoteRecordFilesResult.add(
-      newCastVoteRecordFile,
-      loadElectionResult.electionDefinition.election
-    );
-
-    await this.setStorageKeyAndLog(
-      cvrsStorageKey,
-      newCastVoteRecordFiles.export(),
-      'Cast vote records'
-    );
-  }
-
   async clearCastVoteRecordFiles(): Promise<void> {
-    await this.clearCastVoteRecordFilesFromStorage();
-
     const currentElectionId = await this.loadCurrentElectionIdOrThrow();
 
     await fetchJson(`/admin/elections/${currentElectionId}/cvr-files`, {
       method: 'DELETE',
     });
-  }
-
-  private async clearCastVoteRecordFilesFromStorage(): Promise<void> {
-    await this.removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
-    await this.removeStorageKeyAndLog(
-      isOfficialResultsKey,
-      'isOfficialResults flag'
-    );
   }
 
   async markResultsOfficial(): Promise<void> {
