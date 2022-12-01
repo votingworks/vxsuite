@@ -8,7 +8,7 @@
 * @votingworks/vxsuite-eng
 
 # More specific ownership rules for more knowledge-specific reviews.
-# It is recommended to continue to include the vxsuite-eng group in these so knowledge doesn't get too silod and people gain context on code outside of what they own.
+# It is recommended to continue to include the vxsuite-eng group in these so knowledge doesn't get too siloed and people gain context on code outside of what they own.
 services/scan/ @eventualbuddha @votingworks/vxsuite-eng
 libs/ballot-encoder/ @eventualbuddha @votingworks/vxsuite-eng
 libs/ballot-interpreter-nh/ @eventualbuddha @votingworks/vxsuite-eng
@@ -18,8 +18,7 @@ libs/eslint-plugin-vx/ @eventualbuddha @votingworks/vxsuite-eng
 libs/ui/**/*.tsx @beausmith @votingworks/vxsuite-eng
 
 libs/ui/src/hooks/use_*_smartcard_auth* @jonahkagan @votingworks/vxsuite-eng
-services/scan/src/precinct_scanner* @jonahkagan @votingworks/vxsuite-eng
-frontends/precinct-scanner/ @jonahkagan @votingworks/vxsuite-eng
+apps/vx-scan/backend/ @eventualbuddha @jonahkagan @votingworks/vxsuite-eng
 
 frontends/election-manager/src/utils/exportable_tallies* @carolinemodic @votingworks/vxsuite-eng 
 frontends/election-manager/src/utils/external_tallies* @carolinemodic @votingworks/vxsuite-eng
