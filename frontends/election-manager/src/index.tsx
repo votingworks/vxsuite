@@ -20,6 +20,9 @@ const queryClient = new QueryClient({
     mutations: { networkMode: 'always' },
     queries: {
       networkMode: 'always',
+
+      // Avoid re-fetching data unnecessarily on page navigation and rely on
+      // explicit cache invalidation calls when we mutate data:
       staleTime: Infinity,
     },
   },

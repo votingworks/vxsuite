@@ -349,7 +349,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
-    const cvrFiles = cvrFilesQuery.data || [];
+    const cvrFiles = cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
     const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
     for (const file of foundFiles) {
       const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =

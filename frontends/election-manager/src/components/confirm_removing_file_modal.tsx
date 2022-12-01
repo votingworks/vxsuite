@@ -45,7 +45,10 @@ export function ConfirmRemovingFileModal({
         return <Loading />;
       }
 
-      const fileList = cvrFilesQuery.data || [];
+      const fileList =
+        cvrFilesQuery.isLoading || cvrFilesQuery.isError
+          ? []
+          : cvrFilesQuery.data;
       singleFileRemoval = fileList.length <= 1;
       fileTypeName = 'CVR Files';
       mainContent = (
@@ -83,7 +86,10 @@ export function ConfirmRemovingFileModal({
 
       fileTypeName = 'Data';
       singleFileRemoval = false;
-      const fileList = cvrFilesQuery.data || [];
+      const fileList =
+        cvrFilesQuery.isLoading || cvrFilesQuery.isError
+          ? []
+          : cvrFilesQuery.data;
       let externalDetails = '';
       if (semsFile !== undefined && manualData !== undefined) {
         externalDetails = `, the external results file ${semsFile.inputSourceName}, and the manually entered data`;
