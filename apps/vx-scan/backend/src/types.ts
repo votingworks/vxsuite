@@ -1,12 +1,9 @@
 import {
-  BallotLocale,
-  BallotMark,
   BallotTargetMark,
   MarkStatus,
   MarkThresholds,
   PageInterpretation,
 } from '@votingworks/types';
-import { BallotStyleData } from '@votingworks/utils';
 
 export interface PageInterpretationWithAdjudication<
   T extends PageInterpretation = PageInterpretation
@@ -18,12 +15,6 @@ export interface PageInterpretationWithAdjudication<
 export interface BallotPageQrcode {
   data: Uint8Array;
   position: 'top' | 'bottom';
-}
-
-export interface BallotConfig extends BallotStyleData {
-  filename: string;
-  locales: BallotLocale;
-  isLiveMode: boolean;
 }
 
 export function getMarkStatus(
@@ -39,11 +30,4 @@ export function getMarkStatus(
   }
 
   return MarkStatus.Unmarked;
-}
-
-export function isMarginalMark(
-  mark: BallotMark,
-  markThresholds: MarkThresholds
-): boolean {
-  return getMarkStatus(mark, markThresholds) === MarkStatus.Marginal;
 }

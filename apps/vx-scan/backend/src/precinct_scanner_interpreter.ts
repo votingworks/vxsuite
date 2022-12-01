@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
 import {
   AdjudicationReason,
@@ -20,7 +19,6 @@ import { Scan } from '@votingworks/api';
 import * as qrcodeWorker from './workers/qrcode';
 import { Interpreter as VxInterpreter } from './interpreter';
 import { saveSheetImages } from './util/save_images';
-import { ScannerLocation, SCANNER_LOCATION } from './globals';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
@@ -283,8 +281,6 @@ async function vxInterpret(
  * configured and unconfigured with different election settings.
  */
 export function createInterpreter(): PrecinctScannerInterpreter {
-  assert(SCANNER_LOCATION === ScannerLocation.Precinct);
-
   let config: Optional<InterpreterConfig>;
 
   return {

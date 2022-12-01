@@ -1,19 +1,10 @@
-// Import the rest of our application.
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import { ok, Result } from '@votingworks/types';
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
-import {
-  MOCK_SCANNER_FILES,
-  MOCK_SCANNER_HTTP,
-  MOCK_SCANNER_PORT,
-  VX_MACHINE_TYPE,
-  NODE_ENV,
-} from './globals';
-import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { BatchScanner } from './fujitsu_scanner';
+import { MOCK_SCANNER_HTTP, MOCK_SCANNER_PORT, NODE_ENV } from './globals';
 import * as server from './server';
 import { plustekMockServer } from './plustek_mock_server';
 
@@ -62,27 +53,12 @@ async function createMockPlustekClient(): Promise<
   plustekMockServer(client).listen(port);
   return ok(client);
 }
-const createPlustekClient =
-  VX_MACHINE_TYPE === 'precinct-scanner' && MOCK_SCANNER_HTTP
-    ? createMockPlustekClient
-    : undefined;
-
-function getScanner(): BatchScanner | undefined {
-  if (VX_MACHINE_TYPE !== 'bsd') return undefined;
-
-  const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
-  if (!mockScannerFiles) return undefined;
-  process.stdout.write(
-    `Using mock scanner that scans ${mockScannerFiles.reduce(
-      (count, sheets) => count + sheets.length,
-      0
-    )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
-  );
-  return new LoopScanner(mockScannerFiles);
-}
+const createPlustekClient = MOCK_SCANNER_HTTP
+  ? createMockPlustekClient
+  : undefined;
 
 async function main(): Promise<number> {
-  await server.start({ batchScanner: getScanner(), createPlustekClient });
+  await server.start({ createPlustekClient });
   return 0;
 }
 
@@ -90,7 +66,7 @@ if (require.main === module) {
   void main()
     .catch((error) => {
       void logger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting Scan Service: ${error.stack}`,
+        message: `Error in starting VxScan backend: ${error.stack}`,
         disposition: 'failure',
       });
       return 1;
