@@ -2,7 +2,6 @@ import { pdfToImages } from '@votingworks/image-utils';
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { ScannerLocation, SCANNER_LOCATION } from '../globals';
 import { Interpreter } from '../interpreter';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
@@ -65,9 +64,8 @@ export async function configure(store: Store): Promise<void> {
     skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
-    adjudicationReasons: (SCANNER_LOCATION === ScannerLocation.Central
-      ? electionDefinition.election.centralScanAdjudicationReasons
-      : electionDefinition.election.precinctScanAdjudicationReasons) ?? [
+    adjudicationReasons: electionDefinition.election
+      .centralScanAdjudicationReasons ?? [
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.MarginalMark,
     ],
