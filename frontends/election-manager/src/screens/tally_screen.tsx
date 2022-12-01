@@ -65,7 +65,8 @@ export function TallyScreen(): JSX.Element {
   }
 
   const cvrFilesQuery = useCvrFilesQuery();
-  const castVoteRecordFileList = cvrFilesQuery.data ?? [];
+  const castVoteRecordFileList =
+    cvrFilesQuery.isLoading || cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
   const hasAnyFiles =
     castVoteRecordFileList.length > 0 || fullElectionExternalTallies.size > 0;
   const hasExternalSemsFile = fullElectionExternalTallies.has(
