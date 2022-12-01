@@ -1,23 +1,67 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Renders ButtonList with defaults 1`] = `
+.c1 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-shadow: 0 0 0 0 rgba(71,167,75,1);
+  box-sizing: border-box;
+  background: rgb(211,211,211);
+  cursor: pointer;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: black;
+  touch-action: manipulation;
+}
+
+.c1:hover,
+.c1:active {
+  outline: none;
+}
+
+.c0 {
+  -webkit-column-gap: 1rem;
+  column-gap: 1rem;
+}
+
+.c0 > button {
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+@media (min-width:1024px) {
+  .c0 {
+    -webkit-columns: 2;
+    columns: 2;
+  }
+}
+
+@media (min-width:1440px) {
+  .c0 {
+    -webkit-columns: 3;
+    columns: 3;
+  }
+}
+
 <p
-  class="sc-eCImvq hflinM"
+  class="c0"
 >
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     foo
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     foo
   </button>
   <button
-    class="sc-gsDJrp eHDFnB"
+    class="c1"
     type="button"
   >
     foo

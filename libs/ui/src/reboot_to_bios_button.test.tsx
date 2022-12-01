@@ -11,20 +11,7 @@ beforeEach(() => {
 });
 
 test('renders as expected.', async () => {
-  const { container } = render(
-    <RebootToBiosButton logger={new Logger(LogSource.VxAdminFrontend)} />
-  );
-  // Initially should just contain the button
-  expect(container).toMatchInlineSnapshot(`
-    <div>
-      <button
-        class="sc-gsDJrp eHDFnB"
-        type="button"
-      >
-        Reboot to BIOS
-      </button>
-    </div>
-  `);
+  render(<RebootToBiosButton logger={new Logger(LogSource.VxAdminFrontend)} />);
 
   userEvent.click(screen.getByText('Reboot to BIOS'));
   await screen.findByText(/Rebooting/);

@@ -33,22 +33,6 @@ describe('Modal', () => {
     render(<Modal content="Do you want to do the thing?" centerContent />);
 
     const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchInlineSnapshot(`
-      <div
-        aria-label="Alert Modal"
-        aria-modal="true"
-        class="sc-gsDJrp izKgnL ReactModal__Content _"
-        data-testid="modal"
-        role="alertdialog"
-        tabindex="-1"
-      >
-        <div
-          class="sc-hKwCoD bNJKkA"
-        >
-          Do you want to do the thing?
-        </div>
-      </div>
-    `);
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).toHaveStyle(`
       align-items: center;
@@ -65,44 +49,14 @@ describe('Modal', () => {
     );
 
     const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchInlineSnapshot(`
-      <div
-        aria-label="Alert Modal"
-        aria-modal="true"
-        class="sc-gsDJrp iYIygY ReactModal__Content _"
-        data-testid="modal"
-        role="alertdialog"
-        tabindex="-1"
-      >
-        <div
-          class="sc-hKwCoD gghqgk"
-        >
-          Do you want to do the thing?
-        </div>
-      </div>
-    `);
+    expect(modal).toMatchSnapshot();
   });
 
   it('can configure fullscreen', () => {
     render(<Modal fullscreen content="Do you want to do the thing?" />);
 
     const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchInlineSnapshot(`
-      <div
-        aria-label="Alert Modal"
-        aria-modal="true"
-        class="sc-gsDJrp ySjSS ReactModal__Content _"
-        data-testid="modal"
-        role="alertdialog"
-        tabindex="-1"
-      >
-        <div
-          class="sc-hKwCoD cZPwiQ"
-        >
-          Do you want to do the thing?
-        </div>
-      </div>
-    `);
+    expect(modal).toMatchSnapshot();
 
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).not.toHaveStyle({ padding: '2rem' });

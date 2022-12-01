@@ -2748,6 +2748,7 @@ importers:
   libs/ui:
     dependencies:
       '@types/dompurify': 2.3.3
+      '@types/lodash.clonedeep': 4.5.7
       '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@votingworks/ballot-encoder': link:../ballot-encoder
@@ -2776,6 +2777,7 @@ importers:
       '@types/base64-js': 1.3.0
       '@types/debug': 4.1.7
       '@types/deep-eql': link:../@types/deep-eql
+      '@types/history': 4.7.11
       '@types/jest': 27.0.3
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/luxon': 1.27.1
@@ -2804,12 +2806,14 @@ importers:
       eslint-plugin-react-hooks: 4.6.0_eslint@8.23.1
       eslint-plugin-vx: link:../eslint-plugin-vx
       fast-check: 2.18.0
+      history: 4.10.1
       is-ci-cli: 2.2.0
       jest: 27.3.1
       jest-junit: 14.0.1
       jest-styled-components: 7.0.8_styled-components@5.2.3
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 11.0.0
+      lodash.clonedeep: 4.5.0
       mockdate: 3.0.5
       prettier: 2.6.2
       react: 17.0.1
@@ -2831,8 +2835,10 @@ importers:
       '@types/debug': ^4.1.7
       '@types/deep-eql': workspace:*
       '@types/dompurify': ^2.0.3
+      '@types/history': '4'
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
+      '@types/lodash.clonedeep': ^4.5.7
       '@types/luxon': ^1.26.5
       '@types/node': 16.11.29
       '@types/pluralize': ^0.0.29
@@ -2869,12 +2875,14 @@ importers:
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-vx: workspace:*
       fast-check: 2.18.0
+      history: '4'
       is-ci-cli: ^2.2.0
       jest: ^27.3.1
       jest-junit: ^14.0.1
       jest-styled-components: ^7.0.8
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
+      lodash.clonedeep: ^4.5.0
       luxon: 1.26.0
       mockdate: ^3.0.5
       pluralize: ^8.0.0
@@ -8759,6 +8767,13 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-mrzLkl6U9YLF8qpqI7TB82PESyEGjm/0Ly91jG575eVxMMlb8fYfOXFZIJ8XfLrJZQbm7dlKry2bJmXBUEkdFg==
+  /@babel/runtime/7.20.6:
+    dependencies:
+      regenerator-runtime: 0.13.11
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-Q+8MqP7TiHMWzSfwiJwXCjyf4GYA4Dgw3emg/7xmwsdLJOZUp+nMqcOwOzzYheuM1rhDu8FSj2l0aoMygEuXuA==
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
@@ -11629,6 +11644,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-kSJPcLO1x+oolc0R89pUl2kozldQ/fVQ1C1p5mp8fPoLdF/ZcBvckaTC2M8xXh3GYendXvCpy5m/a2eSbfgNgw==
+  /@types/history/4.7.11:
+    dev: true
+    resolution:
+      integrity: sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==
   /@types/history/4.7.8:
     resolution:
       integrity: sha512-S78QIYirQcUoo6UJZx9CSP0O2ix9IaeAXwQi26Rhr/+mg7qqPy8TzaxHSUut7eGjL8WmLccT7/MXf304WjqHcA==
@@ -11781,6 +11800,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==
+  /@types/lodash.clonedeep/4.5.7:
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: false
+    resolution:
+      integrity: sha512-ccNqkPptFIXrpVqUECi60/DFxjNKsfoQxSQsgcBJCX/fuX1wgyQieojkcWH/KpE3xzLoWN/2k+ZeGqIN3paSvw==
   /@types/lodash/4.14.167:
     dev: false
     resolution:
@@ -11789,6 +11814,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
+  /@types/lodash/4.14.191:
+    dev: false
+    resolution:
+      integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
   /@types/luxon/1.26.2:
     dev: true
     resolution:
@@ -19880,7 +19909,7 @@ packages:
       integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==
   /eslint-plugin-jest/26.1.5_6beafd71cd5442bc06341fe494bbeb75:
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.37.0_0ca6a58f7ca50b82f29db32dd0c2d5d9
+      '@typescript-eslint/eslint-plugin': 5.37.0_12e0d3a13edabf2ba2a66fb9092035af
       '@typescript-eslint/utils': 5.22.0_eslint@8.23.1+typescript@4.6.3
       eslint: 8.23.1
       jest: 27.3.1
@@ -22267,10 +22296,10 @@ packages:
       integrity: sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
   /history/4.10.1:
     dependencies:
-      '@babel/runtime': 7.14.6
+      '@babel/runtime': 7.20.6
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
-      tiny-invariant: 1.1.0
+      tiny-invariant: 1.3.1
       tiny-warning: 1.0.3
       value-equal: 1.0.1
     resolution:
@@ -27465,7 +27494,7 @@ packages:
   /lodash.clonedeep/4.5.0:
     dev: true
     resolution:
-      integrity: sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+      integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
   /lodash.debounce/4.0.8:
     resolution:
       integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
@@ -31089,6 +31118,9 @@ packages:
   /regenerator-runtime/0.13.10:
     resolution:
       integrity: sha512-KepLsg4dU12hryUO7bp/axHAKvwGOCV0sGloQtpagJ12ai+ojVDqkeGSiRX1zlq+kjIMZ1t7gpze+26QqtdGqw==
+  /regenerator-runtime/0.13.11:
+    resolution:
+      integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
   /regenerator-runtime/0.13.7:
     resolution:
       integrity: sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
@@ -33291,8 +33323,12 @@ packages:
     resolution:
       integrity: sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
   /tiny-invariant/1.1.0:
+    dev: false
     resolution:
       integrity: sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==
+  /tiny-invariant/1.3.1:
+    resolution:
+      integrity: sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==
   /tiny-warning/1.0.3:
     resolution:
       integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==

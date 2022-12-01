@@ -4,6 +4,8 @@ import DomPurify from 'dompurify';
 
 import * as GLOBALS from './globals';
 
+export const successTextGreen = 'rgb(0,128,0)';
+
 interface Props {
   bold?: boolean;
   light?: boolean;
@@ -61,7 +63,7 @@ export const Text = styled('p')<Props>`
   color: ${({ error, muted, success, warning, white }) =>
     (error && 'red') ??
     (warning && 'darkorange') ??
-    (success && 'rgb(0, 128, 0)') ??
+    (success && successTextGreen) ??
     (muted && 'gray') ??
     (white && '#FFFFFF') ??
     undefined};

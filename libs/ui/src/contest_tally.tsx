@@ -272,6 +272,7 @@ export function ContestTally({
             }
             break;
           }
+          /* istanbul ignore next */
           default:
             throwIllegalValue(contest, 'type');
         }

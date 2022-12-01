@@ -5,11 +5,5 @@ import { ProgressEllipsis } from './progress_ellipsis';
 
 test('renders ProgressEllipsis', () => {
   const { container } = render(<ProgressEllipsis />);
-  expect(container).toMatchInlineSnapshot(`
-    <div>
-      <span
-        class="sc-bdvvaa etEPtU"
-      />
-    </div>
-  `);
+  expect(container).toMatchSnapshot();
 });
