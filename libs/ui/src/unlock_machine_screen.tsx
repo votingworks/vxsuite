@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
 import {
   assert,
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
@@ -66,7 +66,7 @@ export function UnlockMachineScreen({
   }, []);
 
   useEffect(() => {
-    if (isFeatureFlagEnabled(EnvironmentFlagName.SKIP_PIN_ENTRY)) {
+    if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
       auth.checkPasscode(auth.user.passcode);
       return;
     }

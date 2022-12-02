@@ -1,20 +1,40 @@
+import {
+  ConverterClientType,
+  ConverterClientTypeSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { asBoolean } from './as_boolean';
 import {
-  EnvironmentFlagName,
-  getFlag,
-  getFlagDetails,
-} from './environment_flag';
+  BooleanEnvironmentVariableName,
+  getEnvironmentVariable,
+  getBooleanEnvVarConfig,
+} from './environment_variable';
 
 export function isVxDev(): boolean {
   return asBoolean(process.env.REACT_APP_VX_DEV);
 }
 
-export function isFeatureFlagEnabled(flag: EnvironmentFlagName): boolean {
-  const flagInfo = getFlagDetails(flag);
+export function isFeatureFlagEnabled(
+  flag: BooleanEnvironmentVariableName
+): boolean {
+  const flagInfo = getBooleanEnvVarConfig(flag);
   return (
     (flagInfo.allowInProduction ||
       process.env.NODE_ENV === 'development' ||
       isVxDev()) &&
-    asBoolean(getFlag(flag))
+    asBoolean(getEnvironmentVariable(flag))
   );
+}
+
+/**
+ * Determines which converter client to use, if any.
+ */
+export function getConverterClientType(): ConverterClientType | undefined {
+  const rawConverterClientType = process.env.REACT_APP_VX_CONVERTER;
+
+  if (!rawConverterClientType) {
+    return;
+  }
+
+  return unsafeParse(ConverterClientTypeSchema, rawConverterClientType);
 }

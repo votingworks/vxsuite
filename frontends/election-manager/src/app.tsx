@@ -1,9 +1,13 @@
-import { getHardware, getPrinter, WebServiceCard } from '@votingworks/utils';
+import {
+  getHardware,
+  getPrinter,
+  WebServiceCard,
+  getConverterClientType,
+} from '@votingworks/utils';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { AppRoot, Props as AppRootProps } from './app_root';
-import { getConverterClientType } from './config/features';
 import { machineConfigProvider as defaultMachineConfigProvider } from './utils/machine_config';
 
 export type Props = Partial<AppRootProps>;

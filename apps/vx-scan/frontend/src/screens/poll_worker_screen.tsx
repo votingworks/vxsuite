@@ -18,7 +18,7 @@ import {
   BallotCountDetails,
   compressTally,
   computeTallyWithPrecomputedCategories,
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
   getSubTalliesByPartyAndPrecinct,
   getTallyIdentifier,
   isFeatureFlagEnabled,
@@ -647,7 +647,7 @@ export function PollWorkerScreen({
       <Prose textCenter>
         <h1>Poll Worker Actions</h1>
         {pollsTransitionActions}
-        {isFeatureFlagEnabled(EnvironmentFlagName.LIVECHECK) && (
+        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
           <p>
             <Button onPress={() => setIsShowingLiveCheck(true)}>
               Live Check

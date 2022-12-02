@@ -148,13 +148,6 @@ export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;
 
 export type Iso8601Timestamp = string;
 
-export type ConverterClientType = 'ms-sems' | 'nh-accuvote';
-
-export const ConverterClientTypeSchema = z.union([
-  z.literal('ms-sems'),
-  z.literal('nh-accuvote'),
-]);
-
 export type SmartcardType = 'election' | 'system-administrator';
 export const SmartcardTypeRegExPattern = '(election|system-administrator)';
 

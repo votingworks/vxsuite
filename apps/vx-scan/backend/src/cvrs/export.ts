@@ -11,7 +11,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import {
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   mapAsync,
 } from '@votingworks/utils';
@@ -78,8 +78,9 @@ export async function* exportCastVoteRecords({
     const frontImage: InlineBallotImage = { normalized: '' };
     const backImage: InlineBallotImage = { normalized: '' };
     const includeImages =
-      isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
-      !skipImages;
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+      ) && !skipImages;
 
     const cvr = buildCastVoteRecord(
       id,

@@ -14,6 +14,7 @@ import {
   Provider,
   Printer,
   VotingMethod,
+  ConverterClientType,
 } from '@votingworks/types';
 import {
   assert,
@@ -35,7 +36,6 @@ import {
   SaveElection,
   ResultsFileType,
   MachineConfig,
-  ConverterClientType,
   ExportableTallies,
   ResetElection,
 } from './config/types';

@@ -1,7 +1,10 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Dipped, mockOf } from '@votingworks/test-utils';
-import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import React from 'react';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
@@ -63,8 +66,8 @@ test('If passcode is incorrect, error message is shown', () => {
 
 test('If SKIP_PIN_ENTRY flag is on in development, submits correct PIN immediately', async () => {
   mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag: EnvironmentFlagName) => {
-      return flag === EnvironmentFlagName.SKIP_PIN_ENTRY;
+    (flag: BooleanEnvironmentVariableName) => {
+      return flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY;
     }
   );
   const fakeAuth = Dipped.fakeCheckingPasscodeAuth();

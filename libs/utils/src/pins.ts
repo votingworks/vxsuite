@@ -1,5 +1,5 @@
 import randomBytes from 'randombytes';
-import { EnvironmentFlagName } from './environment_flag';
+import { BooleanEnvironmentVariableName } from './environment_variable';
 import { isFeatureFlagEnabled } from './features';
 
 /** See VVSG 2.0 - 11.3.2-B – Password complexity */
@@ -97,7 +97,9 @@ export function generatePin(length = MIN_PIN_LENGTH): string {
     );
   }
 
-  if (isFeatureFlagEnabled(EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN)) {
+  if (
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.ALL_ZERO_SMARTCARD_PIN)
+  ) {
     return '0'.repeat(length);
   }
 

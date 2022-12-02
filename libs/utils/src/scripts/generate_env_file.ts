@@ -3,7 +3,14 @@ import * as readline from 'readline';
 import * as fs from 'fs';
 import { join } from 'path';
 import yargs from 'yargs';
-import { EnvironmentFlagName, getFlagDetails } from '../environment_flag';
+import { ZodSchema } from 'zod';
+import { safeParse } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getBooleanEnvVarConfig,
+  getStringEnvVarConfig,
+  StringEnvironmentVariableName,
+} from '../environment_variable';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -17,7 +24,7 @@ interface GenerateEnvFileArguments {
 }
 
 const flagOptions: Map<string, boolean> = new Map();
-function question(flagName: string, enable: boolean) {
+function boolQuestion(flagName: string, enable: boolean) {
   return new Promise<void>((resolve) => {
     rl.question(
       `Enable ${flagName}? (${enable ? 'Y/n' : 'y/N'}):`,
@@ -35,10 +42,41 @@ function question(flagName: string, enable: boolean) {
   });
 }
 
+const stringVariableOptions: Map<string, string> = new Map();
+function stringQuestion(
+  varName: string,
+  defaultVal: string,
+  schema?: ZodSchema
+) {
+  return new Promise<void>((resolve) => {
+    rl.question(`Value for ${varName}? (Default: ${defaultVal}):`, (answer) => {
+      if (answer === '') {
+        stringVariableOptions.set(varName, defaultVal);
+      } else if (!schema) {
+        stringVariableOptions.set(varName, answer);
+      } else {
+        const parsed = safeParse(schema, answer);
+        if (parsed.isOk()) {
+          stringVariableOptions.set(varName, parsed.ok());
+        }
+        if (parsed.isErr()) {
+          // eslint-disable-next-line no-console
+          console.log('Invalid input, Please try again.');
+          process.exit(1);
+        }
+      }
+      resolve();
+    });
+  });
+}
+
 function getEnvFileContents(isVxDev: boolean): string {
   let output = '';
   for (const flagName of flagOptions.keys()) {
     output += `${flagName}=${flagOptions.get(flagName) ? 'TRUE' : 'FALSE'}\n`;
+  }
+  for (const varName of stringVariableOptions.keys()) {
+    output += `${varName}=${stringVariableOptions.get(varName)}\n`;
   }
   if (isVxDev) {
     output += 'REACT_APP_VX_DEV=true';
@@ -47,11 +85,21 @@ function getEnvFileContents(isVxDev: boolean): string {
 }
 
 async function generateEnvFile(filePath: string, isVexDev: boolean) {
-  const flagDetails = Object.values(EnvironmentFlagName).map((flag) =>
-    getFlagDetails(flag)
+  const flagDetails = Object.values(BooleanEnvironmentVariableName).map(
+    (flag) => getBooleanEnvVarConfig(flag)
   );
   for (const flag of flagDetails) {
-    await question(flag.name, flag.autoEnableInDevelopment);
+    await boolQuestion(flag.name, flag.autoEnableInDevelopment);
+  }
+  const stringDetails = Object.values(StringEnvironmentVariableName).map(
+    (variable) => getStringEnvVarConfig(variable)
+  );
+  for (const stringVar of stringDetails) {
+    await stringQuestion(
+      stringVar.name,
+      stringVar.defaultValue,
+      stringVar.zodSchema
+    );
   }
   fs.writeFileSync(filePath, getEnvFileContents(isVexDev));
   rl.close();

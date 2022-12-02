@@ -5,7 +5,7 @@ import './i18n';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   KioskStorage,
   LocalStorage,
@@ -34,7 +34,7 @@ ReactDom.render(
         <App />
       </ServicesContext.Provider>
       {isFeatureFlagEnabled(
-        EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS
+        BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
       ) && (
         <div className="no-print">
           <ReactQueryDevtools initialIsOpen={false} position="top-left" />
