@@ -1,5 +1,6 @@
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
+import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
 import {
   arbitraryImageData,
@@ -12,6 +13,7 @@ import {
   isGrayscale,
   isRgba,
   loadImage,
+  loadImageData,
   RGBA_CHANNEL_COUNT,
   RGB_CHANNEL_COUNT,
   toDataUrl,
@@ -88,6 +90,63 @@ test('loadImage/writeImageData', async () => {
         const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
         await writeImageData(filePath, imageData);
         const loadedImageData = toImageData(await loadImage(filePath));
+        expect({
+          width: loadedImageData.width,
+          height: loadedImageData.height,
+          dataLength: loadedImageData.data.length,
+        }).toEqual({
+          width: imageData.width,
+          height: imageData.height,
+          dataLength: imageData.data.length,
+        });
+      }
+    )
+  );
+});
+
+test('loadImage with invalid RAW filename', async () => {
+  await expect(loadImage('invalid.raw')).rejects.toThrowError(
+    'Invalid raw image filename'
+  );
+});
+
+test('loadImage/loadImageData with RAW format', async () => {
+  await fc.assert(
+    fc.asyncProperty(arbitraryImageData(), async (imageData) => {
+      const bitsPerPixel = getImageChannelCount(imageData) * 8;
+      const filePath = fileSync({
+        template: `tmp-XXXXXX-${imageData.width}x${imageData.height}-${bitsPerPixel}bpp.raw`,
+      }).name;
+      await writeFile(filePath, imageData.data);
+      const loadedImage = await loadImage(filePath);
+      const loadedImageData = await loadImageData(filePath);
+      expect({
+        width: loadedImageData.width,
+        height: loadedImageData.height,
+      }).toEqual({
+        width: imageData.width,
+        height: imageData.height,
+      });
+      expect({
+        width: loadedImage.width,
+        height: loadedImage.height,
+      }).toEqual({
+        width: imageData.width,
+        height: imageData.height,
+      });
+    })
+  );
+});
+
+test('loadImageData', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageDataRgba(),
+      fc.constantFrom('png', 'jpeg', 'jpg'),
+      async (imageData, format) => {
+        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
+        await writeImageData(filePath, imageData);
+        const loadedImageData = await loadImageData(filePath);
         expect({
           width: loadedImageData.width,
           height: loadedImageData.height,

@@ -1,5 +1,6 @@
-import { err, ok, Result } from '@votingworks/types';
-import { deferred } from '@votingworks/utils';
+import { err, ok, Result, safeParseInt } from '@votingworks/types';
+import { assert, deferred } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import {
   createCanvas,
   createImageData,
@@ -7,8 +8,9 @@ import {
   ImageData,
   loadImage as canvasLoadImage,
 } from 'canvas';
+import * as fs from 'fs/promises';
 import { createWriteStream } from 'fs';
-import { extname } from 'path';
+import { extname, parse } from 'path';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
 
@@ -102,10 +104,117 @@ export function isGrayscale(image: ImageData): boolean {
 }
 
 /**
+ * Loads a RAW image from a file.
+ */
+async function loadRawImage(
+  path: string,
+  width: number,
+  height: number,
+  channelCount: number
+): Promise<ImageData> {
+  assert(
+    channelCount === GRAY_CHANNEL_COUNT ||
+      channelCount === RGB_CHANNEL_COUNT ||
+      channelCount === RGBA_CHANNEL_COUNT
+  );
+
+  const imageData = createImageData(width, height);
+  const buffer = await fs.readFile(path);
+
+  for (
+    let srcOffset = 0, dstOffset = 0;
+    srcOffset < buffer.length;
+    srcOffset += channelCount, dstOffset += RGBA_CHANNEL_COUNT
+  ) {
+    imageData.data[dstOffset] = buffer[srcOffset] as number;
+    imageData.data[dstOffset + 1] = buffer[
+      channelCount > GRAY_CHANNEL_COUNT ? srcOffset + 1 : srcOffset
+    ] as number;
+    imageData.data[dstOffset + 2] = buffer[
+      channelCount > GRAY_CHANNEL_COUNT ? srcOffset + 2 : srcOffset
+    ] as number;
+    imageData.data[dstOffset + 3] = buffer[
+      channelCount > RGB_CHANNEL_COUNT ? srcOffset + 3 : srcOffset
+    ] as number;
+  }
+
+  return imageData;
+}
+
+/**
+ * Loads a RAW image from a file. The file name must be in the format
+ * `{label}-{width}x{height}-{bitsPerPixel}bpp.raw`. For example:
+ * `ballot-1700x2200-24bpp.raw` or `scan-1700x2200-8bpp.raw`.
+ */
+async function loadRawImageWithMetadataInFileName(
+  path: string
+): Promise<ImageData> {
+  const parts = parse(path);
+  const match = parts.name.match(/(\d+)x(\d+)-(\d+)bpp/);
+  if (!match) {
+    throw new Error(`Invalid raw image filename: ${parts.name}`);
+  }
+  const [, widthResult, heightResult, bitsPerPixelResult] = match.map((n) =>
+    safeParseInt(n, { min: 1 })
+  ) as [
+    Result<number, Error>,
+    Result<number, Error>,
+    Result<number, Error>,
+    Result<number, Error>
+  ];
+
+  // these should be valid because of the regex above
+  const width = widthResult.unsafeExpect('width is valid');
+  const height = heightResult.unsafeExpect('height is valid');
+  const bitsPerPixel = bitsPerPixelResult.unsafeExpect('bitsPerPixel is valid');
+  const srcBytesPerPixel = Math.round(bitsPerPixel / 8);
+  return await loadRawImage(path, width, height, srcBytesPerPixel);
+}
+
+/**
  * Loads an image from a file path.
  */
 export async function loadImage(path: string): Promise<Image> {
+  const parts = parse(path);
+  if (parts.ext === '.raw') {
+    const imageData = await loadRawImageWithMetadataInFileName(path);
+    const image = new Image();
+    const canvas = createCanvas(imageData.width, imageData.height);
+    const context = canvas.getContext('2d');
+    context.putImageData(imageData, 0, 0);
+    image.src = canvas.toDataURL();
+    return image;
+  }
+
   return await canvasLoadImage(path);
+}
+
+/**
+ * Loads an image from a file path.
+ */
+export async function loadImageData(path: string): Promise<ImageData>;
+/**
+ * Loads an image from a buffer.
+ */
+export async function loadImageData(data: Buffer): Promise<ImageData>;
+/**
+ * Loads an image from a file path or buffer.
+ */
+export async function loadImageData(
+  pathOrData: string | Buffer
+): Promise<ImageData> {
+  if (typeof pathOrData === 'string') {
+    const parts = parse(pathOrData);
+    if (parts.ext === '.raw') {
+      return loadRawImageWithMetadataInFileName(pathOrData);
+    }
+  }
+
+  const img = await canvasLoadImage(pathOrData);
+  const canvas = createCanvas(img.width, img.height);
+  const context = canvas.getContext('2d');
+  context.drawImage(img, 0, 0);
+  return context.getImageData(0, 0, img.width, img.height);
 }
 
 /**

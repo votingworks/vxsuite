@@ -5,8 +5,8 @@ import {
   detectQrCode,
   getQrCodeSearchAreas,
 } from '@votingworks/ballot-interpreter-vx';
+import { loadImageData } from '@votingworks/image-utils';
 import { BallotPageQrcode } from '../types';
-import { loadImageData } from '../util/images';
 import { Stats, stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
 
