@@ -1,4 +1,4 @@
-import { Output as QrCodeOutput } from '@votingworks/ballot-interpreter-vx';
+import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
@@ -19,7 +19,7 @@ export type Input =
       sheetId: string;
       imagePath: string;
       ballotImagesPath: string;
-      detectQrcodeResult: QrCodeOutput;
+      detectQrcodeResult: QrCodePageResult;
     };
 
 export interface InterpretOutput {
@@ -87,7 +87,7 @@ export async function interpret(
   ballotImagePath: string,
   sheetId: string,
   ballotImagesPath: string,
-  detectQrcodeResult: QrCodeOutput
+  detectQrcodeResult: QrCodePageResult
 ): Promise<InterpretOutput> {
   debug('interpret ballot image: %s', ballotImagePath);
   if (!interpreter) {

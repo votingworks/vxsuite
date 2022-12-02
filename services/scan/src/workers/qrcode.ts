@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import {
   detectQrcodeInFilePath,
-  Output as QrCodeOutput,
+  QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
 
 export const workerPath = __filename;
@@ -11,7 +11,7 @@ export interface Input {
   imagePath: string;
 }
 
-export type Output = QrCodeOutput;
+export type Output = QrCodePageResult;
 
 export const InputSchema = z.object({
   action: z.literal('detect-qrcode'),

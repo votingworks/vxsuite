@@ -1,7 +1,7 @@
 import { Scan } from '@votingworks/api';
 import {
   normalizeSheetOutput,
-  Output,
+  QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -312,8 +312,8 @@ export class Importer {
     });
     const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
       normalizeSheetOutput(electionDefinition, [
-        (await frontDetectQrcodePromise) as Output,
-        (await backDetectQrcodePromise) as Output,
+        (await frontDetectQrcodePromise) as QrCodePageResult,
+        (await backDetectQrcodePromise) as QrCodePageResult,
       ]);
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',

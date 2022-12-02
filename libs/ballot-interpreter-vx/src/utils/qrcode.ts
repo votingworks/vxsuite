@@ -288,18 +288,20 @@ export interface BallotPageQrcode {
   position: 'top' | 'bottom';
 }
 
-export type Output = BlankPageOutput | NonBlankPageOutput;
+export type QrCodePageResult = BlankPageResult | NonBlankPageResult;
 
-export interface BlankPageOutput {
+export interface BlankPageResult {
   blank: true;
 }
 
-export interface NonBlankPageOutput {
+export interface NonBlankPageResult {
   blank: false;
   qrcode?: BallotPageQrcode;
 }
 
-export async function detectInFilePath(imagePath: string): Promise<Output> {
+export async function detectInFilePath(
+  imagePath: string
+): Promise<QrCodePageResult> {
   const imageData = await loadImageData(imagePath);
   let foundDarkRegion = false;
   let darkestRegionStats: Stats | undefined;

@@ -11,5 +11,5 @@ export {
   getSearchAreas as getQrCodeSearchAreas,
 } from './utils/qrcode';
 export { normalizeSheetOutput } from './sheet';
-export type { Output } from './utils/qrcode';
+export type { QrCodePageResult } from './utils/qrcode';
 export * from './utils/images';

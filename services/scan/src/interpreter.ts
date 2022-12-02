@@ -13,7 +13,7 @@ import {
   Interpreter as HmpbInterpreter,
   loadImageData,
   metadataFromBytes,
-  Output,
+  QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
 import { imageDebugger } from '@votingworks/image-utils';
 import {
@@ -46,7 +46,7 @@ const debug = makeDebug('scan:interpreter');
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string;
-  readonly detectQrcodeResult: Output;
+  readonly detectQrcodeResult: QrCodePageResult;
 }
 
 export interface InterpretFileResult {

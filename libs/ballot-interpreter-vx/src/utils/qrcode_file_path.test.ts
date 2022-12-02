@@ -7,8 +7,8 @@ import { fromBytes } from '../metadata';
 import {
   BallotPageQrcode,
   detectInFilePath,
-  NonBlankPageOutput,
-  Output,
+  NonBlankPageResult,
+  QrCodePageResult,
 } from './qrcode';
 
 const fixturesPath = join(__dirname, '../../test/fixtures');
@@ -17,7 +17,7 @@ test('does not find QR codes when there are none to find', async () => {
   const filepath = join(fixturesPath, 'not-a-ballot.jpg');
   const detectResult = await detectInFilePath(filepath);
   expect(detectResult).toEqual(
-    typedAs<Output>({
+    typedAs<QrCodePageResult>({
       blank: false,
       qrcode: undefined,
     })
@@ -29,7 +29,7 @@ test('can read metadata encoded in a QR code with base64', async () => {
   const { electionDefinition } = fixtures;
   const detectResult = await detectInFilePath(fixtures.blankPage1.filePath());
   expect(detectResult).toEqual(
-    typedAs<Output>({
+    typedAs<QrCodePageResult>({
       blank: false,
       qrcode: {
         data: expect.any(Buffer),
@@ -37,7 +37,7 @@ test('can read metadata encoded in a QR code with base64', async () => {
       },
     })
   );
-  const qrcode = (detectResult as NonBlankPageOutput)
+  const qrcode = (detectResult as NonBlankPageResult)
     .qrcode as BallotPageQrcode;
 
   expect(fromBytes(electionDefinition, Buffer.from(qrcode.data)))
@@ -62,7 +62,7 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
   const fixtures = general2020Fixtures;
   const detectResult = await detectInFilePath(fixtures.skewedQrCodeBallotPage);
   expect(detectResult).toEqual(
-    typedAs<Output>({
+    typedAs<QrCodePageResult>({
       blank: false,
       qrcode: {
         data: Buffer.of(

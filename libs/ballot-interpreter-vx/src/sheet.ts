@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { ElectionDefinition, SheetOf } from '@votingworks/types';
 import { tryFromBytes } from './metadata';
-import { BallotPageQrcode, Output } from './utils/qrcode';
+import { BallotPageQrcode, QrCodePageResult } from './utils/qrcode';
 
 /**
  * Normalize sheet metadata as encoded using QR codes. Infers a single missing
@@ -47,8 +47,8 @@ export function normalizeSheetMetadata(
 
 export function normalizeSheetOutput(
   electionDefinition: ElectionDefinition,
-  output: SheetOf<Output>
-): SheetOf<Output> {
+  output: SheetOf<QrCodePageResult>
+): SheetOf<QrCodePageResult> {
   const [frontOutput, backOutput] = output;
   const [normalizedFrontMetadata, normalizedBackMetadata] =
     normalizeSheetMetadata(electionDefinition, [
