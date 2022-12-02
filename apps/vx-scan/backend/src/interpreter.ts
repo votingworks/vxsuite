@@ -13,7 +13,7 @@ import {
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
 } from '@votingworks/ballot-interpreter-vx';
-import { imageDebugger } from '@votingworks/image-utils';
+import { imageDebugger, loadImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -37,7 +37,6 @@ import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
 import { BallotPageQrcode } from './types';
-import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
 import * as qrcodeWorker from './workers/qrcode';
