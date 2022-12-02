@@ -23,9 +23,9 @@ module.exports = {
   // so when updating these thresholds, it should be based on CI.
   coverageThreshold: {
     global: {
-      statements: 89,
-      branches: 78,
-      functions: 92,
+      statements: 88,
+      branches: 72,
+      functions: 88,
       lines: 89,
     },
   },
