@@ -26,7 +26,7 @@ import {
 import { dirSync } from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
-import { buildPrecinctScannerApp } from '../../src/app';
+import { buildApp } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
@@ -212,12 +212,7 @@ export async function createApp(
       ...delays,
     },
   });
-  const app = buildPrecinctScannerApp(
-    precinctScannerMachine,
-    interpreter,
-    workspace,
-    logger
-  );
+  const app = buildApp(precinctScannerMachine, interpreter, workspace, logger);
   await expectStatus(app, { state: 'connecting' });
   deferredConnect.resolve();
   await waitForStatus(app, { state: 'no_paper' });

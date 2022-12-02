@@ -31,7 +31,7 @@ const debug = rootDebug.extend('app');
 
 type NoParams = never;
 
-export function buildPrecinctScannerApp(
+export function buildApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
