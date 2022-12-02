@@ -30,6 +30,16 @@ test('ok unsafeUnwrapErr', () => {
   expect(() => ok('value').unsafeUnwrapErr()).toThrowError();
 });
 
+test('ok unsafeExpect', () => {
+  expect(ok(0).unsafeExpect('a value')).toBe(0);
+});
+
+test('ok unsafeExpectErr', () => {
+  expect(() => ok('value').unsafeExpectErr('an error')).toThrowError(
+    'an error'
+  );
+});
+
 test('ok is Result', () => {
   expect(isResult(ok())).toBe(true);
 });
@@ -69,6 +79,16 @@ test('err unsafeUnwrap', () => {
 
 test('err unsafeUnwrapErr', () => {
   expect(err('error').unsafeUnwrapErr()).toBe('error');
+});
+
+test('err unsafeExpect', () => {
+  expect(() => err('error').unsafeExpect('an error!')).toThrowError(
+    'an error!'
+  );
+});
+
+test('err unsafeExpectErr', () => {
+  expect(err('error').unsafeExpectErr('what?')).toBe('error');
 });
 
 test('err is Result', () => {

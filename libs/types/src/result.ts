@@ -50,6 +50,21 @@ class Ok<T> {
   }
 
   /**
+   * Returns the contained value.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  unsafeExpect(message: string): T {
+    return this.value;
+  }
+
+  /**
+   * Throws the given error message.
+   */
+  unsafeExpectErr(message: string): never {
+    throw new Error(message);
+  }
+
+  /**
    * Provides a custom inspect function for `Ok` values so that `console.log`
    * and the node REPL will pretty-print the wrapper and value.
    */
@@ -112,6 +127,21 @@ class Err<E> {
    * Returns the contained error.
    */
   unsafeUnwrapErr(): E {
+    return this.error;
+  }
+
+  /**
+   * Throws the given error message.
+   */
+  unsafeExpect(message: string): never {
+    throw new Error(message);
+  }
+
+  /**
+   * Returns the contained error.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  unsafeExpectErr(message: string): E {
     return this.error;
   }
 
