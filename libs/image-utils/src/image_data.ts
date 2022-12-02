@@ -8,8 +8,7 @@ import {
   ImageData,
   loadImage as canvasLoadImage,
 } from 'canvas';
-import * as fs from 'fs/promises';
-import { createWriteStream } from 'fs';
+import { createWriteStream, promises as fs } from 'fs';
 import { extname, parse } from 'path';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
