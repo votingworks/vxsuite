@@ -46,7 +46,7 @@ import { dirname, join } from 'path';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { sheetRequiresAdjudication } from './interpreter';
+import { sheetRequiresAdjudication } from './vx_interpreter';
 import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
 

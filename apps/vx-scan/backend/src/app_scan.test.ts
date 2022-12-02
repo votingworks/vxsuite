@@ -3,8 +3,8 @@ import request from 'supertest';
 import waitForExpect from 'wait-for-expect';
 import { Scan } from '@votingworks/api';
 import { Logger } from '@votingworks/logging';
-import { MAX_FAILED_SCAN_ATTEMPTS } from './precinct_scanner_state_machine';
-import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
+import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
+import { PrecinctScannerInterpreter } from './interpret';
 import {
   ballotImages,
   configureApp,
@@ -13,7 +13,7 @@ import {
   post,
   postExportCvrs,
   waitForStatus,
-} from '../test/helpers/precinct_scanner_app';
+} from '../test/helpers/app_helpers';
 
 jest.setTimeout(20_000);
 

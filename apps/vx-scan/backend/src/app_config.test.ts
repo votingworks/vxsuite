@@ -17,7 +17,7 @@ import {
   setAppPrecinct,
   setPollsState,
   waitForStatus,
-} from '../test/helpers/precinct_scanner_app';
+} from '../test/helpers/app_helpers';
 
 jest.setTimeout(20_000);
 

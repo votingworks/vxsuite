@@ -22,8 +22,8 @@ import { pipeline } from 'stream/promises';
 import { z } from 'zod';
 import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
-import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
-import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
+import { PrecinctScannerInterpreter } from './interpret';
+import { PrecinctScannerStateMachine } from './state_machine';
 import { rootDebug } from './util/debug';
 import { Workspace } from './util/workspace';
 

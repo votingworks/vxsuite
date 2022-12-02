@@ -27,10 +27,7 @@ import { Scan } from '@votingworks/api';
 import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import { PLUSTEKCTL_PATH } from './globals';
-import {
-  SheetInterpretation,
-  PrecinctScannerInterpreter,
-} from './precinct_scanner_interpreter';
+import { SheetInterpretation, PrecinctScannerInterpreter } from './interpret';
 import { Store } from './store';
 import { Workspace } from './util/workspace';
 import { rootDebug } from './util/debug';

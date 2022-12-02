@@ -26,15 +26,15 @@ import {
 import { dirSync } from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
-import { buildPrecinctScannerApp } from '../../src/precinct_scanner_app';
+import { buildPrecinctScannerApp } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
-} from '../../src/precinct_scanner_state_machine';
+} from '../../src/state_machine';
 import {
   createInterpreter,
   PrecinctScannerInterpreter,
-} from '../../src/precinct_scanner_interpreter';
+} from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 
 export function get(app: Application, path: string): request.Test {

@@ -22,9 +22,9 @@ import { pdfToImages } from '@votingworks/image-utils';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
-import { Interpreter, sheetRequiresAdjudication } from './interpreter';
+import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
 import { detectQrcodeInFilePath } from './workers/qrcode';
-import { createInterpreter } from './precinct_scanner_interpreter';
+import { createInterpreter } from './interpret';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
