@@ -7,6 +7,8 @@ import {
 import {
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
+  Output,
+  loadImageData,
 } from '@votingworks/ballot-interpreter-vx';
 import { imageDebugger, loadImageData } from '@votingworks/image-utils';
 import {
@@ -34,13 +36,12 @@ import { BallotPageQrcode } from './types';
 import { rootDebug } from './util/debug';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
-import * as qrcodeWorker from './workers/qrcode';
 
 const debug = rootDebug.extend('interpreter');
 
 export interface InterpretFileParams {
   readonly ballotImagePath: string;
-  readonly detectQrcodeResult: qrcodeWorker.Output;
+  readonly detectQrcodeResult: Output;
 }
 
 export interface InterpretFileResult {

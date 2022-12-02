@@ -1,19 +1,18 @@
 import {
-  BallotMetadata,
-  BallotPageMetadata,
-  BallotType,
-} from '@votingworks/types';
-import {
   encodeBallot,
   encodeHmpbBallotPageMetadata,
 } from '@votingworks/ballot-encoder';
-import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { BallotPageQrcode } from '../types';
-import { normalizeSheetMetadata } from './metadata';
-
-const { election, electionHash } = electionDefinition;
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  BallotMetadata,
+  BallotType,
+  BallotPageMetadata,
+} from '@votingworks/types';
+import { normalizeSheetMetadata } from './sheet';
+import { BallotPageQrcode } from './utils/qrcode';
 
 test('normalizing sheet metadata', () => {
+  const { election, electionHash } = electionSampleDefinition;
   const metadata: BallotMetadata = {
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
@@ -52,7 +51,7 @@ test('normalizing sheet metadata', () => {
 
   // front HMPB / back HMPB
   expect(
-    normalizeSheetMetadata(electionDefinition, [
+    normalizeSheetMetadata(electionSampleDefinition, [
       frontHmpbQrcode,
       backHmpbQrcode,
     ])
@@ -60,12 +59,15 @@ test('normalizing sheet metadata', () => {
 
   // front HMPB / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [frontHmpbQrcode, undefined])
+    normalizeSheetMetadata(electionSampleDefinition, [
+      frontHmpbQrcode,
+      undefined,
+    ])
   ).toEqual([frontHmpbQrcode, backHmpbQrcode]);
 
   // front missing / back rotated HMPB
   expect(
-    normalizeSheetMetadata(electionDefinition, [
+    normalizeSheetMetadata(electionSampleDefinition, [
       undefined,
       { ...backHmpbQrcode, position: 'top' },
     ])
@@ -76,7 +78,7 @@ test('normalizing sheet metadata', () => {
 
   // front rotated HMPB / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [
+    normalizeSheetMetadata(electionSampleDefinition, [
       { ...backHmpbQrcode, position: 'top' },
       undefined,
     ])
@@ -87,27 +89,30 @@ test('normalizing sheet metadata', () => {
 
   // front missing / back HMPB
   expect(
-    normalizeSheetMetadata(electionDefinition, [undefined, backHmpbQrcode])
+    normalizeSheetMetadata(electionSampleDefinition, [
+      undefined,
+      backHmpbQrcode,
+    ])
   ).toEqual([frontHmpbQrcode, backHmpbQrcode]);
 
   // front missing / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [undefined, undefined])
+    normalizeSheetMetadata(electionSampleDefinition, [undefined, undefined])
   ).toEqual([undefined, undefined]);
 
   // front BMD / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [bmdQrcode, undefined])
+    normalizeSheetMetadata(electionSampleDefinition, [bmdQrcode, undefined])
   ).toEqual([bmdQrcode, undefined]);
 
   // front missing / back BMD
   expect(
-    normalizeSheetMetadata(electionDefinition, [undefined, bmdQrcode])
+    normalizeSheetMetadata(electionSampleDefinition, [undefined, bmdQrcode])
   ).toEqual([undefined, bmdQrcode]);
 
   // front rotated BMD / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [
+    normalizeSheetMetadata(electionSampleDefinition, [
       { ...bmdQrcode, position: 'bottom' },
       undefined,
     ])
@@ -115,7 +120,7 @@ test('normalizing sheet metadata', () => {
 
   // front rotated BMD / back missing
   expect(
-    normalizeSheetMetadata(electionDefinition, [
+    normalizeSheetMetadata(electionSampleDefinition, [
       undefined,
       { ...bmdQrcode, position: 'bottom' },
     ])

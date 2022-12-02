@@ -1,3 +1,4 @@
+import { Output as QrCodeOutput } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
@@ -5,7 +6,6 @@ import makeDebug from 'debug';
 import { Interpreter } from '../interpreter';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
-import * as qrcodeWorker from './qrcode';
 
 const debug = makeDebug('scan:worker:interpret');
 
@@ -19,7 +19,7 @@ export type Input =
       sheetId: string;
       imagePath: string;
       ballotImagesPath: string;
-      detectQrcodeResult: qrcodeWorker.Output;
+      detectQrcodeResult: QrCodeOutput;
     };
 
 export interface InterpretOutput {
@@ -87,7 +87,7 @@ export async function interpret(
   ballotImagePath: string,
   sheetId: string,
   ballotImagesPath: string,
-  detectQrcodeResult: qrcodeWorker.Output
+  detectQrcodeResult: QrCodeOutput
 ): Promise<InterpretOutput> {
   debug('interpret ballot image: %s', ballotImagePath);
   if (!interpreter) {

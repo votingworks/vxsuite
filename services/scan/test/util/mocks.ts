@@ -1,3 +1,4 @@
+import { writeImageData } from '@votingworks/ballot-interpreter-vx';
 import {
   FakeReadable,
   fakeReadable,
@@ -11,7 +12,6 @@ import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
 import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
-import { writeImageData } from '../../src/util/images';
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
 
 export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {

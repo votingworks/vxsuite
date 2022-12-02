@@ -1,23 +1,8 @@
-import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
-import {
-  BallotPageMetadata,
-  ElectionDefinition,
-  SheetOf,
-} from '@votingworks/types';
 import { Buffer } from 'buffer';
-import { BallotPageQrcode } from '../types';
-
-function tryMetadataFromBytes(
-  electionDefinition: ElectionDefinition,
-  bytes: Buffer
-): BallotPageMetadata | undefined {
-  try {
-    return metadataFromBytes(electionDefinition, bytes);
-  } catch {
-    return undefined;
-  }
-}
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { ElectionDefinition, SheetOf } from '@votingworks/types';
+import { tryFromBytes } from './metadata';
+import { BallotPageQrcode, Output } from './utils/qrcode';
 
 /**
  * Normalize sheet metadata as encoded using QR codes. Infers a single missing
@@ -34,7 +19,7 @@ export function normalizeSheetMetadata(
   const presentQrcode = frontQrcode ?? backQrcode;
 
   if (presentQrcode) {
-    const presentMetadata = tryMetadataFromBytes(
+    const presentMetadata = tryFromBytes(
       electionDefinition,
       Buffer.from(presentQrcode.data)
     );
@@ -58,4 +43,20 @@ export function normalizeSheetMetadata(
   }
 
   return [frontQrcode, backQrcode];
+}
+
+export function normalizeSheetOutput(
+  electionDefinition: ElectionDefinition,
+  output: SheetOf<Output>
+): SheetOf<Output> {
+  const [frontOutput, backOutput] = output;
+  const [normalizedFrontMetadata, normalizedBackMetadata] =
+    normalizeSheetMetadata(electionDefinition, [
+      frontOutput.blank ? undefined : frontOutput.qrcode,
+      backOutput.blank ? undefined : backOutput.qrcode,
+    ]);
+  return [
+    { blank: !normalizedFrontMetadata, qrcode: normalizedFrontMetadata },
+    { blank: !normalizedBackMetadata, qrcode: normalizedBackMetadata },
+  ];
 }

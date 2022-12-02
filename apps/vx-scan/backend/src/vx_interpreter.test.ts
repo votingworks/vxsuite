@@ -19,11 +19,11 @@ import {
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
+import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
-import { detectQrcodeInFilePath } from './workers/qrcode';
 import { createInterpreter } from './interpret';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');

@@ -1,4 +1,8 @@
 import { Scan } from '@votingworks/api';
+import {
+  normalizeSheetOutput,
+  Output,
+} from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   BallotPageLayout,
@@ -33,7 +37,6 @@ import * as workers from './workers/combined';
 import * as interpretNhWorker from './workers/interpret_nh';
 import * as interpretVxWorker from './workers/interpret_vx';
 import { inlinePool, WorkerPool } from './workers/pool';
-import * as qrcodeWorker from './workers/qrcode';
 
 const debug = makeDebug('scan:importer');
 
@@ -308,9 +311,9 @@ export class Importer {
       imagePath: backImagePath,
     });
     const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
-      qrcodeWorker.normalizeSheetOutput(electionDefinition, [
-        (await frontDetectQrcodePromise) as qrcodeWorker.Output,
-        (await backDetectQrcodePromise) as qrcodeWorker.Output,
+      normalizeSheetOutput(electionDefinition, [
+        (await frontDetectQrcodePromise) as Output,
+        (await backDetectQrcodePromise) as Output,
       ]);
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',
