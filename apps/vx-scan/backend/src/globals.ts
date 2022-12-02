@@ -51,3 +51,8 @@ export const SCAN_WORKSPACE =
  */
 export const SCAN_ALLOWED_EXPORT_PATTERNS =
   process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ?? ['/media/**/*'];
+
+/**
+ * Path to the `plustekctl` binary.
+ */
+export const { PLUSTEKCTL_PATH } = process.env;

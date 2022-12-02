@@ -3,6 +3,7 @@ declare namespace NodeJS {
     readonly CI?: string;
     readonly MOCK_SCANNER_HTTP?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
+    readonly PLUSTEKCTL_PATH?: string;
     readonly PORT?: string;
     readonly SCAN_ALWAYS_HOLD_ON_REJECT?: string;
     readonly SCAN_ALLOWED_EXPORT_PATTERNS?: string;

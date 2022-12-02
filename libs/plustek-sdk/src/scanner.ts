@@ -32,11 +32,13 @@ export class ClientDisconnectedError extends ClientError {}
 export class InvalidClientResponseError extends ClientError {}
 
 /**
- * A collection of callbacks that will be called by {@link ScannerClient} at
- * various points in its lifecycle. This is similar to using an
- * {@link EventEmitter}, but more type-safe and intentionally less flexible.
+ * Options for creating a scanner client, especially callbacks that will be
+ * called by {@link ScannerClient} at various points in its lifecycle. This is
+ * similar to using an {@link EventEmitter}, but more type-safe and
+ * intentionally less flexible.
  */
-export interface ScannerClientCallbacks {
+export interface ScannerClientOptions {
+  plustekctlPath?: string;
   onConfigResolved?(config: Config): void;
   onError?(error: Error): void;
   onConnecting?(): void;
@@ -163,13 +165,14 @@ export async function createClient(
   config = DEFAULT_CONFIG,
   /* istanbul ignore next */
   {
+    plustekctlPath = 'plustekctl',
     onConfigResolved = noop,
     onConnecting = noop,
     onConnected = noop,
     onDisconnected = noop,
     onError = noop,
     onWaitingForHandshake = noop,
-  }: ScannerClientCallbacks = {}
+  }: ScannerClientOptions = {}
 ): Promise<Result<ScannerClient, Error>> {
   const resolvedConfig: Config = {
     ...config,
@@ -181,7 +184,6 @@ export async function createClient(
     JSON.stringify(resolvedConfig, undefined, 2)
   );
   const args = ['--config', configFilePath, '--delimiter', CLI_DELIMITER];
-  const plustekctlPath = 'plustekctl';
   debug('spawning: %s %o', plustekctlPath, args);
   const plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' });
   const clientDebug = makeDebug(
