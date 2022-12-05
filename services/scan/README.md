@@ -1,18 +1,16 @@
 # Scan Module
 
-This web server component provides a web interface to a scanner for use by the
-VxSuite [Ballot Scanning Device (BSD)](../bsd) or the VxSuite
-[Precinct Scanner](../precinct-scanner).
+This web server component provides a web interface to the for use by the VxSuite
+[Ballot Scanning Device (BSD)](../bsd).
 
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then start up VxScan (`frontends/precinct-scanner`) or VxCentralScan
-(`frontends/bsd`) by running the appropriate frontend. You generally should not
-need to run this service directly. Instead, run like so:
+then start up the VxCentralScan (`frontends/bsd`) frontend. You generally should
+not need to run this service directly. Instead, run like so:
 
 ```sh
-cd frontends/bsd # or frontends/precinct-scanner
+cd frontends/bsd
 pnpm start
 ```
 
@@ -20,11 +18,6 @@ The commands to run the service below assume you'll be running them in a
 frontend, not this service directly.
 
 ## Mock Scanning
-
-There are a couple different modes the mock scanners operate in. Choose the one
-that's appropriate for you.
-
-### Multi-sheet scanner
 
 ```sh
 # single batch with single sheet
@@ -56,23 +49,6 @@ MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
 If you are seeing unhandled promise rejection errors you may have an issue with
 where your image files are located, try moving them into the local scope of the
 app.
-
-### Single-sheet scanner
-
-This mode is designed for use with `precinct-scanner`.
-
-```sh
-cd frontends/precinct-scanner
-
-# start the server with an HTTP-based mock
-MOCK_SCANNER_HTTP=1 pnpm start
-
-# in another terminal, simulate the user feeding paper into the scanner:
-./bin/mock-scanner load path/to/front.jpg path/to/back.jpg
-
-# simulate the user pulling the loaded paper out of the scanner:
-./bin/mock-scanner remove
-```
 
 ### Using Fixtures Data
 

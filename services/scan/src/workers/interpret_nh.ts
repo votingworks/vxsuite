@@ -8,7 +8,6 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
-import { VX_MACHINE_TYPE } from '../globals';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
 
@@ -56,9 +55,7 @@ export async function call(input: Input): Promise<Output> {
       }
 
       const adjudicationReasons =
-        VX_MACHINE_TYPE === 'bsd'
-          ? electionDefinition.election.centralScanAdjudicationReasons
-          : electionDefinition.election.precinctScanAdjudicationReasons;
+        electionDefinition.election.centralScanAdjudicationReasons;
       const result = await interpret(
         electionDefinition,
         [input.frontImagePath, input.backImagePath],
