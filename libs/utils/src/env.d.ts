@@ -9,5 +9,6 @@ declare namespace NodeJS {
     REACT_APP_VX_DISALLOW_CASTING_OVERVOTES?: string;
     REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS?: string;
     REACT_APP_VX_SKIP_PIN_ENTRY?: string;
+    REACT_APP_VX_CONVERTER?: string;
   }
 }

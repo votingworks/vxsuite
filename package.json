@@ -4,8 +4,8 @@
   "scripts": {
     "clean-all": "git clean -dfX",
     "prepare": "husky install",
-    "configure-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts",
-    "configure-vxdev-env": "pnpx ts-node --esm libs/utils/src/scripts/generate_env_file.ts --isVxDev -o /vx/config/.env.local",
+    "configure-env": "node libs/utils/build/scripts/generate_env_file.js",
+    "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
     "run-dev": "script/run-dev"
   },
   "lint-staged": {

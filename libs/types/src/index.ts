@@ -2,6 +2,7 @@
 export * from './hmpb';
 export * from './card';
 export * from './cast_vote_record';
+export * from './converter_client';
 export * from './dom';
 export * from './election';
 export * from './generic';

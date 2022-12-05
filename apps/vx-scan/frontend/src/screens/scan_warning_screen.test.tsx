@@ -6,7 +6,7 @@ import {
   integers,
   take,
   isFeatureFlagEnabled,
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import React from 'react';
 import fetchMock from 'fetch-mock';
@@ -65,8 +65,8 @@ test('overvote when casting overvotes is disallowed', () => {
     body: { status: 'ok' },
   });
   mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag: EnvironmentFlagName) => {
-      return flag === EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES;
+    (flag: BooleanEnvironmentVariableName) => {
+      return flag === BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES;
     }
   );
 

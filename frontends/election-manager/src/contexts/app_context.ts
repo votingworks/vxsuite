@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 import {
+  ConverterClientType,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -20,7 +21,6 @@ import {
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
-  ConverterClientType,
   ResetElection,
 } from '../config/types';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';

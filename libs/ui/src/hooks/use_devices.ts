@@ -1,6 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
   Hardware,
   isAccessibleController,
   isBatchScanner,
@@ -185,7 +185,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
   return {
     computer,
     cardReader: isFeatureFlagEnabled(
-      EnvironmentFlagName.DISABLE_CARD_READER_CHECK
+      BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
     )
       ? fakeCardReader
       : allDevices.find(isCardReader),

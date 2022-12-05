@@ -22,7 +22,7 @@ import {
   integers,
   take,
   isFeatureFlagEnabled,
-  EnvironmentFlagName,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
@@ -98,7 +98,7 @@ function OvervoteWarningScreen({
   overvotes,
 }: OvervoteWarningScreenProps): JSX.Element {
   const allowCastingOvervotes = !isFeatureFlagEnabled(
-    EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES
+    BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES
   );
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const contestNames = overvotes

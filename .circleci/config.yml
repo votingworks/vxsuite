@@ -116,6 +116,7 @@ jobs:
       - run:
           name: Build
           command: |
+            cp .env frontends/election-manager/.env
             pnpm --dir frontends/election-manager build
       - run:
           name: Lint

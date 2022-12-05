@@ -8,7 +8,10 @@ import {
   RemoveCardScreen,
 } from '@votingworks/ui';
 
-import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { PartyId } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
@@ -160,7 +163,9 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />
       </Route>
-      {isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && (
+      {isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+      ) && (
         <Route exact path={routerPaths.writeIns}>
           <WriteInsScreen />
         </Route>
