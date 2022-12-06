@@ -19,8 +19,6 @@ import { int, usize } from './types';
  */
 export enum ImageProcessingErrorKind {
   UnsupportedChannelCount = 'UnsupportedChannelCount',
-  UnsupportedImageFormat = 'UnsupportedImageFormat',
-  WriteError = 'WriteError',
 }
 
 /**
@@ -32,28 +30,9 @@ export interface UnsupportedChannelCountError {
 }
 
 /**
- * Error that occurs when an image has an unsupported format.
- */
-export interface UnsupportedImageFormatError {
-  readonly kind: ImageProcessingErrorKind.UnsupportedImageFormat;
-  readonly format: string;
-}
-
-/**
- * Error that occurs when writing an image to disk.
- */
-export interface WriteError {
-  readonly kind: ImageProcessingErrorKind.WriteError;
-  readonly error: Error;
-}
-
-/**
  * Errors that can occur during image processing.
  */
-export type ImageProcessingError =
-  | UnsupportedChannelCountError
-  | UnsupportedImageFormatError
-  | WriteError;
+export type ImageProcessingError = UnsupportedChannelCountError;
 
 /**
  * The number of channels a grayscale image has (1).

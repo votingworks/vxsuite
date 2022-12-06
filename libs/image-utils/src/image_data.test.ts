@@ -57,31 +57,12 @@ test('getImageChannelCount always returns an integer', () => {
 
 test('loadImage/writeImageData', async () => {
   expect(
-    (
-      await writeImageData('unsupported-format.bmp', createImageData(1, 1))
-    ).unsafeUnwrapErr()
-  ).toStrictEqual({
-    kind: ImageProcessingErrorKind.UnsupportedImageFormat,
-    format: '.bmp',
-  });
+    writeImageData('/path/does/not/exist.png', createImageData(1, 1))
+  ).rejects.toMatchObject({ code: 'ENOENT' });
 
   expect(
-    (
-      await writeImageData('/path/does/not/exist.png', createImageData(1, 1))
-    ).unsafeUnwrapErr()
-  ).toStrictEqual({
-    kind: ImageProcessingErrorKind.WriteError,
-    error: expect.objectContaining({ code: 'ENOENT' }),
-  });
-
-  expect(
-    (
-      await writeImageData('/path/does/not/exist.jpeg', createImageData(1, 1))
-    ).unsafeUnwrapErr()
-  ).toStrictEqual({
-    kind: ImageProcessingErrorKind.WriteError,
-    error: expect.objectContaining({ code: 'ENOENT' }),
-  });
+    writeImageData('/path/does/not/exist.jpeg', createImageData(1, 1))
+  ).rejects.toMatchObject({ code: 'ENOENT' });
 
   await fc.assert(
     fc.asyncProperty(
