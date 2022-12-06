@@ -1,4 +1,4 @@
-import { writeImageData } from '@votingworks/ballot-interpreter-vx';
+import { writeImageData } from '@votingworks/image-utils';
 import * as fsExtra from 'fs-extra';
 import { basename, join, parse } from 'path';
 import { rootDebug } from './debug';

@@ -1,7 +1,5 @@
-import {
-  detectQrCode,
-  loadImageData,
-} from '@votingworks/ballot-interpreter-vx';
+import { detectQrCode } from '@votingworks/ballot-interpreter-vx';
+import { loadImageData } from '@votingworks/image-utils';
 import chalk from 'chalk';
 import { basename } from 'path';
 

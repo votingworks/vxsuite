@@ -1,4 +1,9 @@
-import { getImageChannelCount, rotate180 } from '@votingworks/image-utils';
+import {
+  getImageChannelCount,
+  loadImageData,
+  rotate180,
+  writeImageData,
+} from '@votingworks/image-utils';
 import {
   BallotTargetMarkPosition,
   BallotTargetMarkPositionSchema,
@@ -18,7 +23,6 @@ import { ContestShape, findContests } from '../../hmpb/find_contests';
 import { findTargets } from '../../hmpb/find_targets';
 import { binarize, RGBA } from '../../utils/binarize';
 import { rectCenter } from '../../utils/geometry';
-import { loadImageData, writeImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
 import { Command, GlobalOptions } from '../types';
 

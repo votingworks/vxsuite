@@ -11,11 +11,10 @@ import {
 } from '@votingworks/ballot-encoder';
 import {
   Interpreter as HmpbInterpreter,
-  loadImageData,
   metadataFromBytes,
   QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
-import { imageDebugger } from '@votingworks/image-utils';
+import { imageDebugger, loadImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,

@@ -10,6 +10,7 @@ import {
 } from 'canvas';
 import { createWriteStream, promises as fs } from 'fs';
 import { extname, parse } from 'path';
+import { pipeline } from 'stream/promises';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
 
@@ -77,7 +78,7 @@ export function ensureImageData(imageData: ImageData): ImageData {
     return imageData;
   }
 
-  const { data, width, height } = imageData as ImageData;
+  const { data, width, height } = imageData;
   return createImageData(data, width, height);
 }
 
@@ -255,6 +256,24 @@ export function toDataUrl(
 }
 
 /**
+ * Writes an image to a file.
+ */
+export async function writeImageData(
+  path: string,
+  imageData: ImageData
+): Promise<void> {
+  const canvas = createCanvas(imageData.width, imageData.height);
+  const context = canvas.getContext('2d');
+  context.putImageData(ensureImageData(imageData), 0, 0);
+
+  const fileWriter = createWriteStream(path);
+  const imageStream = /\.png$/i.test(path)
+    ? canvas.createPNGStream()
+    : canvas.createJPEGStream();
+  await pipeline(imageStream, fileWriter);
+}
+
+/**
  * Extracts image data from an image.
  */
 export function toImageData(
@@ -344,59 +363,4 @@ export function toGrayscale(
   }
 
   return ok(output);
-}
-
-/**
- * Writes an image to a file.
- */
-export async function writeImageData(
-  path: string,
-  image: ImageData
-): Promise<Result<void, ImageProcessingError>> {
-  const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
-
-  if (path.endsWith('.png')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createPngStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createJpegStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else {
-    resolve(
-      err({
-        kind: ImageProcessingErrorKind.UnsupportedImageFormat,
-        format: extname(path),
-      })
-    );
-  }
-
-  return promise;
 }

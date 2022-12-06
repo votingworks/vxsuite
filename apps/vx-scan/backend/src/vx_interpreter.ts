@@ -8,7 +8,6 @@ import {
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
   QrCodePageResult,
-  loadImageData,
 } from '@votingworks/ballot-interpreter-vx';
 import { imageDebugger, loadImageData } from '@votingworks/image-utils';
 import {

@@ -1,4 +1,4 @@
-import { writeImageData } from '@votingworks/ballot-interpreter-vx';
+import { writeImageData } from '@votingworks/image-utils';
 import {
   FakeReadable,
   fakeReadable,

@@ -1,5 +1,4 @@
-import { writeImageData } from '@votingworks/ballot-interpreter-vx';
-import { pdfToImages } from '@votingworks/image-utils';
+import { writeImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   BallotType,
   getPrecinctById,
