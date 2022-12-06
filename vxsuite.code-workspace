@@ -81,6 +81,10 @@
       "path": "libs/db"
     },
     {
+      "name": "libs/grout",
+      "path": "libs/grout"
+    },
+    {
       "name": "libs/image-utils",
       "path": "libs/image-utils"
     },

@@ -1,0 +1,160 @@
+# Grout
+
+A library to create type-safe RPC glue code.
+
+Grout lets you define a server API as a plain TS object with async methods.
+Based on this API definition, Grout will create Express route handlers on the
+server side and a type-safe client on the client side, abstracting away the
+details of the underlying HTTP requests.
+
+## Installation
+
+Grout must be installed as a dependency in both your client and server projects.
+
+## Usage
+
+### Server
+
+```ts
+import * as grout from '@votingworks/grout';
+
+interface Person {
+  name: string;
+  age: number;
+}
+
+// Create an API definition by building an object with async methods.
+const api = grout.createApi({
+  // Each method should return a Promise. The data returned should be simple TS
+  // values - not fancy class instances. Values that can be easily serialized to
+  // JSON. More details on this below.
+  async getAllPeople(): Promise<Person[]> {
+    return store.getAllPeople(); // Assume this accesses the database, etc.
+  },
+
+  // Methods can take input, but it must be packaged into a single object.
+  // Think of it like using named parameters, or React component props.
+  async getPersonByName(input: { name: string }): Promise<Person | undefined> {
+    return store.getPersonByName(input.name);
+  },
+
+  // For known errors (e.g. invalid input), use a Result type so that the client
+  // forced to handle them explicitly.
+  async updatePersonAge(input: {
+    name: string;
+    age: number;
+  }): Promise<Result<void, Error>> {
+    if (age <= 0) {
+      return err(new Error('Age must be at least 1.'));
+    }
+    await store.updatePersonAge(input.name, input.age);
+    return ok();
+  },
+});
+
+const app = express();
+
+// When registering the API with an Express app, you must use a separate
+// Router. That way you can isolate the Grout API routes from other routes in
+// your app.
+const router = express.Router();
+
+// You must have the router use the `express.text()` middleware with type
+// `application/json` exactly as shown below.
+router.use(express.text({ type: 'application/json' }));
+
+// Then, simply register the API routes.
+grout.registerRoutes(router, api);
+
+// Finally, mount the router on your app. You can use any path prefix you want -
+// here we use `/api`. It's important that you don't use any other body-parsing
+// middleware upstream of the router - e.g. don't call `app.use(express.json())`
+// before this.
+app.use('/api', router);
+
+// Don't forget to export the API type - we'll need it for the client.
+export type MyApi = typeof api;
+```
+
+### Client
+
+```ts
+import * as grout from '@votingworks/grout';
+
+// First, we need to import the API type from the server. This will *not* import
+// any of the actual server code - just the type definition.
+import type { MyApi } from './server';
+
+// We need to set the base URL for the client. Make sure to include the path
+// prefix (in our case, /api).
+const baseUrl = 'http://localhost:1234/api';
+
+// Create the client using MyApi as a type parameter.
+const apiClient = grout.createClient<MyApi>({ baseUrl });
+
+// Now we can call the API methods we defined as normal functions.
+await apiClient.getAllPeople(); // => [{ name: 'Alice', age: 99 }, ...]
+await apiClient.getPersonByName({ name: 'Bob' }); // => { name: 'Bob', age: 42 }
+await apiClient.updatePersonAge({ name: 'Bob', age: 43 }); // => ok()
+
+// If we make a mistake, we'll get a type error, just like with normal typed functions
+await apiClient.getAllPeeple(); // => TS error: Property getAllPeeple does not exist
+await apiClient.getPersonByName({ nam: 'Bob' }); // => TS error: Argument of type '{ nam: string; }' is not assignable to parameter of type '{ name: string; }'.
+await apiClient.updatePersonAge({ name: 'Bob', age: '1' }); // => TS error: Argument of type '{ name: 'Bob'; age: '1'; }' is not assignable to parameter of type '{ name: string; age: number; }'.
+
+// Since we used the Result type, known error cases must be handled explicitly.
+const updateResult = await apiClient.updatePersonAge({ name: 'Bob', age: -1 });
+if (updateResult.isErr()) {
+  console.error(updateResult.error.message); // => 'Age must be at least 1.'
+}
+
+// If there's an unexpected server error (e.g. a crash or runtime exception),
+// the Promise returned by the client method will be rejected, so we still need
+// to handle exceptions.
+try {
+  await apiClient.getAllPeople();
+} catch (error) {
+  if (error instanceof grout.ServerError) {
+    console.error(error.message);
+  }
+}
+```
+
+## HTTP Transport Details
+
+Grout uses HTTP POST requests for all RPC method calls.
+
+Input is sent using a JSON request body and output is returned as a JSON
+response, both of which are serialized using Grout's serialization format. This
+allows requests to be human-readable while still supporting richer types than
+plain JSON.
+
+Grout supports the following data types:
+
+- `undefined`
+- `null`
+- `boolean`
+- `number`
+- `string`
+- `Array`
+- `Object` (plain objects)
+- `Error`
+- `Result` (from @votingworks/types)
+
+Data can compose and nest as much as you like using the above types.
+
+## Development
+
+See package.json for a full list of development commands. Here are a few common
+ones:
+
+```sh
+# Install dependencies
+pnpm install
+
+# Run tests
+pnpm test
+
+# Build the library
+pnpm build
+```
