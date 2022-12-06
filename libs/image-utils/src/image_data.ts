@@ -163,9 +163,9 @@ async function loadRawImageWithMetadataInFileName(
   ];
 
   // these should be valid because of the regex above
-  const width = widthResult.unsafeExpect('width is valid');
-  const height = heightResult.unsafeExpect('height is valid');
-  const bitsPerPixel = bitsPerPixelResult.unsafeExpect('bitsPerPixel is valid');
+  const width = widthResult.assertOk('width is valid');
+  const height = heightResult.assertOk('height is valid');
+  const bitsPerPixel = bitsPerPixelResult.assertOk('bitsPerPixel is valid');
   const srcBytesPerPixel = Math.round(bitsPerPixel / 8);
   return await loadRawImage(path, width, height, srcBytesPerPixel);
 }
