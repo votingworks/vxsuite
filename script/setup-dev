@@ -20,7 +20,7 @@ fi
 # get the node version to install
 NODE_VERSION=$(cat "${DIR}/../.node-version")
 
-if command node -v | grep -q "${NODE_VERSION}"; then
+if command node -v 2>/dev/null | grep -q "${NODE_VERSION}"; then
   echo "Node version ${NODE_VERSION} already installed"
   exit
 fi
