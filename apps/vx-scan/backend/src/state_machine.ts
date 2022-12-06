@@ -24,18 +24,15 @@ import {
   TransitionConfig,
 } from 'xstate';
 import { Scan } from '@votingworks/api';
-import makeDebug from 'debug';
 import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import { PLUSTEKCTL_PATH } from './globals';
-import {
-  SheetInterpretation,
-  PrecinctScannerInterpreter,
-} from './precinct_scanner_interpreter';
+import { SheetInterpretation, PrecinctScannerInterpreter } from './interpret';
 import { Store } from './store';
 import { Workspace } from './util/workspace';
+import { rootDebug } from './util/debug';
 
-const debug = makeDebug('scan:precinct-scanner');
+const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
 const debugEvents = debug.extend('events');
 

@@ -5,9 +5,9 @@ import { createWorkspace, Workspace } from './util/workspace';
 import {
   CreatePlustekClient,
   createPrecinctScannerStateMachine,
-} from './precinct_scanner_state_machine';
-import { buildPrecinctScannerApp } from './precinct_scanner_app';
-import { createInterpreter } from './precinct_scanner_interpreter';
+} from './state_machine';
+import { buildApp } from './app';
+import { createInterpreter } from './interpret';
 
 export interface StartOptions {
   port: number | string;
@@ -54,7 +54,7 @@ export async function start({
     interpreter: precinctScannerInterpreter,
     logger,
   });
-  const app = buildPrecinctScannerApp(
+  const app = buildApp(
     precinctScannerMachine,
     precinctScannerInterpreter,
     resolvedWorkspace,

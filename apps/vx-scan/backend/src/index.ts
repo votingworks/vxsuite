@@ -33,7 +33,7 @@ for (const dotenvFile of dotenvFiles) {
   }
 }
 
-const logger = new Logger(LogSource.VxScanService);
+const logger = new Logger(LogSource.VxScanBackend);
 
 async function createMockPlustekClient(): Promise<
   Result<ScannerClient, Error>

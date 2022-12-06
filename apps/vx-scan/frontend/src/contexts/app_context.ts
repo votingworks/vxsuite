@@ -28,7 +28,7 @@ const appContext: AppContextInterface = {
     codeVersion: '',
   },
   auth: { status: 'logged_out', reason: 'no_card' },
-  logger: new Logger(LogSource.VxPrecinctScanFrontend),
+  logger: new Logger(LogSource.VxScanFrontend),
 };
 
 export const AppContext = createContext(appContext);

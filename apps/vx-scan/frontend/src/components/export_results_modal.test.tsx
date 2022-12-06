@@ -166,7 +166,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         isSoundMuted: false,
         machineConfig,
         auth,
-        logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
       <ExportResultsModal

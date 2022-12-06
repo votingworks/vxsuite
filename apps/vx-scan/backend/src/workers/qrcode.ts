@@ -1,5 +1,4 @@
 import { ElectionDefinition, Rect, SheetOf } from '@votingworks/types';
-import makeDebug from 'debug';
 import * as z from 'zod';
 import {
   detectQrCode,
@@ -9,8 +8,9 @@ import { loadImageData } from '@votingworks/image-utils';
 import { BallotPageQrcode } from '../types';
 import { Stats, stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
+import { rootDebug } from '../util/debug';
 
-const debug = makeDebug('scan:workers:qrcode');
+const debug = rootDebug.extend('qrcode');
 
 export const workerPath = __filename;
 

@@ -17,7 +17,7 @@ import {
   setAppPrecinct,
   setPollsState,
   waitForStatus,
-} from '../test/helpers/precinct_scanner_app';
+} from '../test/helpers/app_helpers';
 
 jest.setTimeout(20_000);
 
@@ -125,7 +125,7 @@ test('ballot batching', async () => {
   await setPollsState(app, 'polls_paused');
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctScannerBatchEnded,
+      LogEventId.ScannerBatchEnded,
       'system',
       expect.objectContaining({
         disposition: 'success',
@@ -140,7 +140,7 @@ test('ballot batching', async () => {
   await setPollsState(app, 'polls_open');
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctScannerBatchStarted,
+      LogEventId.ScannerBatchStarted,
       'system',
       expect.objectContaining({
         disposition: 'success',
@@ -165,7 +165,7 @@ test('ballot batching', async () => {
   expect(workspace.store.getBallotCountWhenBallotBagLastReplaced()).toEqual(4);
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctScannerBatchEnded,
+      LogEventId.ScannerBatchEnded,
       'system',
       expect.objectContaining({
         disposition: 'success',
@@ -176,7 +176,7 @@ test('ballot batching', async () => {
   });
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctScannerBatchStarted,
+      LogEventId.ScannerBatchStarted,
       'system',
       expect.objectContaining({
         disposition: 'success',

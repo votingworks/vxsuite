@@ -17,7 +17,7 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import * as qrcodeWorker from './workers/qrcode';
-import { Interpreter as VxInterpreter } from './interpreter';
+import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 
 export interface InterpreterConfig {

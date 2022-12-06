@@ -209,51 +209,51 @@ IDs are logged with each log to identify the log being written.
 ### clear-ballot-data-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated clearing ballot data in the current application.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### clear-ballot-data-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### override-mark-threshold-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated overriding the thresholds of when to count marks seen by the scanning module. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### override-mark-thresholds-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### saved-scan-image-backup
 **Type:** [user-action](#user-action)  
 **Description:** User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### configure-from-ballot-package-init
 **Type:** [user-action](#user-action)  
 **Description:** User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### ballot-package-files-read-from-usb
 **Type:** [user-action](#user-action)  
 **Description:** List of ballot packages read from usb and displayed to user to load to machine.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### ballot-package-load-from-usb-complete
 **Type:** [user-action](#user-action)  
 **Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### ballot-configure-machine-complete
 **Type:** [user-action](#user-action)  
 **Description:** The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### scanner-configure-complete
 **Type:** [user-action](#user-action)  
 **Description:** The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### save-cvr-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated saving CVR file to the USB drive.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### save-cvr-complete
 **Type:** [user-action](#user-action)  
 **Description:** User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### delete-cvr-batch-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`  
@@ -285,7 +285,7 @@ IDs are logged with each log to identify the log being written.
 ### scanner-config-reloaded
 **Type:** [application-status](#application-status)  
 **Description:** Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### save-log-file-found
 **Type:** [application-status](#application-status)  
 **Description:** When the user is saving logs, indicates the success/failure of finding the expected log file on the machine.  
@@ -293,7 +293,7 @@ IDs are logged with each log to identify the log being written.
 ### scan-service-config
 **Type:** [application-status](#application-status)  
 **Description:** Message from the scanning service about how it is configured while starting up.  
-**Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### admin-service-config
 **Type:** [application-status](#application-status)  
 **Description:** Message from the admin service about how it is configured while starting up.  
@@ -337,27 +337,27 @@ IDs are logged with each log to identify the log being written.
 ### polls-opened
 **Type:** [user-action](#user-action)  
 **Description:** User has opened the polls.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
 ### voting-paused
 **Type:** [user-action](#user-action)  
 **Description:** User has paused voting and polls are now paused.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
 ### voting-resumed
 **Type:** [user-action](#user-action)  
 **Description:** User has resumed voting and polls are now open.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
 ### polls-closed
 **Type:** [user-action](#user-action)  
 **Description:** User has closed the polls.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
 ### reset-polls-to-paused
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
 ### ballot-bag-replaced
 **Type:** [user-action](#user-action)  
 **Description:** User confirmed that they replaced the ballot bag.  
-**Machines:** vx-precinct-scan-frontend
+**Machines:** vx-scan-frontend
 ### tally-report-cleared-from-card
 **Type:** [application-action](#application-action)  
 **Description:** The tally report has been cleared from the poll worker card.  
@@ -365,20 +365,20 @@ IDs are logged with each log to identify the log being written.
 ### precinct-configuration-changed
 **Type:** [user-action](#user-action)  
 **Description:** User has changed the precinct setting.  
-**Machines:** vx-ballot-marking-device-frontend, vx-precinct-scan-frontend
-### precinct-scanner-batch-started
+**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+### scanner-batch-started
 **Type:** [system-action](#system-action)  
 **Description:** The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.  
-**Machines:** vx-scan-service
-### precinct-scanner-batch-ended
+**Machines:** vx-scan-backend
+### scanner-batch-ended
 **Type:** [system-action](#system-action)  
 **Description:** The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.  
-**Machines:** vx-scan-service
+**Machines:** vx-scan-backend
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)  
 **Description:** Precinct scanner state machine received an event.  
-**Machines:** vx-scan-service
+**Machines:** vx-scan-backend
 ### scanner-state-machine-transition
 **Type:** [application-status](#application-status)  
 **Description:** Precinct scanner state machine transitioned states.  
-**Machines:** vx-scan-service
+**Machines:** vx-scan-backend

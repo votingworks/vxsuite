@@ -25,7 +25,7 @@ export function renderInAppContext(
         machineConfig,
         isSoundMuted: false,
         auth: Inserted.fakeLoggedOutAuth(),
-        logger: new Logger(LogSource.VxPrecinctScanFrontend),
+        logger: new Logger(LogSource.VxScanFrontend),
         ...context,
       }}
     >

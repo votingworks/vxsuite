@@ -154,9 +154,6 @@
     "services": [
       "../backend",
       "../../../services/smartcards"
-    ],
-    "env": {
-      "VX_MACHINE_TYPE": "precinct-scanner"
-    }
+    ]
   }
 }

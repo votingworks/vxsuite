@@ -1,9 +1,9 @@
 import { unsafeParse } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
-import makeDebug from 'debug';
+import { rootDebug } from '../utils/debug';
 
-const debug = makeDebug('precinct-scanner:api:scan');
+const debug = rootDebug.extend('api:scan');
 
 export async function getStatus(): Promise<Scan.PrecinctScannerStatus> {
   return unsafeParse(

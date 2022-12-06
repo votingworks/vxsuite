@@ -6,7 +6,7 @@ import {
 import { ALL_PRECINCTS_SELECTION, typedAs } from '@votingworks/utils';
 import * as fs from 'fs/promises';
 import { dirSync } from 'tmp';
-import { createInterpreter } from './precinct_scanner_interpreter';
+import { createInterpreter } from './interpret';
 
 if (process.env.CI) {
   jest.setTimeout(20_000);

@@ -4,16 +4,16 @@ import { err } from '@votingworks/types';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
-import makeDebug from 'debug';
 import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
+import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
 
-const debug = makeDebug('scan:backup');
+const debug = rootDebug.extend('backup');
 
 /**
  * Specifies what to include in the backup

@@ -1,9 +1,9 @@
-import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { basename, join, parse } from 'path';
+import { rootDebug } from './debug';
 import { writeImageData } from './images';
 
-const debug = makeDebug('scan:importer');
+const debug = rootDebug.extend('save-images');
 
 interface SaveImagesResult {
   original: string;

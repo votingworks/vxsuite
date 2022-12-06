@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import makeDebug from 'debug';
 
 import {
   Button,
@@ -64,6 +63,7 @@ import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
+import { rootDebug } from '../utils/debug';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -95,7 +95,7 @@ async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
   return cvrs.filter((cvr) => cvr._precinctId !== undefined);
 }
 
-const debug = makeDebug('precinct-scanner:pollworker-screen');
+const debug = rootDebug.extend('pollworker-screen');
 
 const BallotsAlreadyScannedScreen = (
   <ScreenMainCenterChild infoBarMode="pollworker">
