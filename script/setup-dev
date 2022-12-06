@@ -54,4 +54,4 @@ TMPFILE="${TMPDIR}/$(basename "${DOWNLOAD_URL}")"
   cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
 )
 
-corepack enable
+sudo corepack enable
