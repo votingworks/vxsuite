@@ -53,14 +53,14 @@ class Ok<T> {
    * Returns the contained value.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  unsafeExpect(message: string): T {
+  assertOk(message: string): T {
     return this.value;
   }
 
   /**
    * Throws the given error message.
    */
-  unsafeExpectErr(message: string): never {
+  assertErr(message: string): never {
     throw new Error(message);
   }
 
@@ -133,7 +133,7 @@ class Err<E> {
   /**
    * Throws the given error message.
    */
-  unsafeExpect(message: string): never {
+  assertOk(message: string): never {
     throw new Error(message);
   }
 
@@ -141,7 +141,7 @@ class Err<E> {
    * Returns the contained error.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  unsafeExpectErr(message: string): E {
+  assertErr(message: string): E {
     return this.error;
   }
 
