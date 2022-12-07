@@ -355,3 +355,39 @@ export function toRgba(
     channelCount: getImageChannelCount(imageData),
   });
 }
+
+/**
+ * Converts an image to grayscale.
+ */
+export function toGrayscale(
+  imageData: ImageData
+): Result<ImageData, ImageProcessingError> {
+  if (isGrayscale(imageData)) {
+    return ok(imageData);
+  }
+
+  if (!isRgba(imageData)) {
+    return err({
+      kind: ImageProcessingErrorKind.UnsupportedChannelCount,
+      channelCount: getImageChannelCount(imageData),
+    });
+  }
+
+  const dst = new Uint8ClampedArray(imageData.width * imageData.height);
+  const output = createImageData(dst, imageData.width, imageData.height);
+  const input32 = new Int32Array(imageData.data.buffer);
+
+  for (let offset = 0, size = input32.length; offset < size; offset += 1) {
+    const px = input32[offset] as number;
+    const r = px & 0xff;
+    const g = (px >>> 8) & 0xff;
+    const b = (px >>> 16) & 0xff;
+    const a = (px >>> 24) & 0xff;
+
+    // Luminosity grayscale formula.
+    const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0;
+    dst[offset] = luminosity;
+  }
+
+  return ok(output);
+}
