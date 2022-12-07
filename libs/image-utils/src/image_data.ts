@@ -10,7 +10,7 @@ import {
 } from 'canvas';
 import { createWriteStream, promises as fs } from 'fs';
 import { parse } from 'path';
-import { pipeline } from 'stream/promises';
+import { promises as stream } from 'stream';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
 
@@ -227,7 +227,7 @@ export async function writeImageData(
   const imageStream = /\.png$/i.test(path)
     ? canvas.createPNGStream()
     : canvas.createJPEGStream();
-  await pipeline(imageStream, fileWriter);
+  await stream.pipeline(imageStream, fileWriter);
 }
 
 /**
