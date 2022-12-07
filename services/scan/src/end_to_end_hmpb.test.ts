@@ -8,6 +8,7 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
+import { Scan } from '@votingworks/api';
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
@@ -155,12 +156,21 @@ test('going through the whole process works', async () => {
   }
 
   {
-    const exportResponse = await request(app)
+    const exportRequestBody: Scan.ExportRequest = {
+      directoryPath: join(workspace.path, 'export/dir'),
+      filename: 'cvrs_export.jsonl',
+    };
+    await request(app)
       .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
+      .send(exportRequestBody)
       .expect(200);
 
-    const cvrs: CastVoteRecord[] = exportResponse.text
+    const exportFileContents = fs.readFileSync(
+      join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      'utf-8'
+    );
+    const cvrs: CastVoteRecord[] = exportFileContents
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line));
@@ -271,15 +281,21 @@ test('ms-either-neither end-to-end', async () => {
   }
 
   {
-    const exportResponse = await request(app)
+    const exportRequestBody: Scan.ExportRequest = {
+      directoryPath: join(workspace.path, 'export/dir'),
+      filename: 'cvrs_export.jsonl',
+    };
+    await request(app)
       .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
+      .send(exportRequestBody)
       .expect(200);
 
-    // response is a few lines, each JSON.
-    // can't predict the order so can't compare
-    // to expected outcome as a string directly.
-    const cvrs: CastVoteRecord[] = exportResponse.text
+    const exportFileContents = fs.readFileSync(
+      join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      'utf-8'
+    );
+    const cvrs: CastVoteRecord[] = exportFileContents
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line));

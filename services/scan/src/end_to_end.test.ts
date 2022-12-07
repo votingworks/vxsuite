@@ -1,3 +1,4 @@
+import { Scan } from '@votingworks/api';
 import {
   asElectionDefinition,
   electionSample as election,
@@ -42,10 +43,16 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
+  const exportRequestBody: Scan.ExportRequest = {
+    directoryPath: path.join(workspace.path, 'export/dir'),
+    filename: 'cvrs_export.jsonl',
+  };
+
   // try export before configure
   await request(app)
     .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
+    .send(exportRequestBody)
     .expect(400);
 
   await request(app)
@@ -109,12 +116,17 @@ test('going through the whole process works', async () => {
   }
 
   {
-    const exportResponse = await request(app)
+    await request(app)
       .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
+      .send(exportRequestBody)
       .expect(200);
 
-    const cvrs: CastVoteRecord[] = exportResponse.text
+    const exportFileContents = fsExtra.readFileSync(
+      path.join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      'utf-8'
+    );
+    const cvrs: CastVoteRecord[] = exportFileContents
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line));
@@ -164,7 +176,14 @@ test('going through the whole process works', async () => {
   await request(app)
     .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
-    .expect(200, '');
+    .send(exportRequestBody)
+    .expect(200);
+
+  const exportFileContents = fsExtra.readFileSync(
+    path.join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+    'utf-8'
+  );
+  expect(exportFileContents).toEqual('');
 
   // clean up
   await request(app).delete('/central-scanner/config/election');

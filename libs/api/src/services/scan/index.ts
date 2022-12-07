@@ -14,7 +14,6 @@ import {
   Iso8601TimestampSchema,
   MarkThresholds,
   MarkThresholdsSchema,
-  Optional,
   PollsState,
   PollsStateSchema,
   PrecinctSelection,
@@ -559,19 +558,21 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
  * @url /scan/export
  * @method POST
  */
-export type ExportRequest = Optional<{
-  skipImages: boolean;
-}>;
+export interface ExportRequest {
+  directoryPath: string;
+  filename: string;
+  skipImages?: boolean;
+}
 
 /**
  * @url /scan/export
  * @method POST
  */
-export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z
-  .object({
-    skipImages: z.boolean(),
-  })
-  .optional();
+export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z.object({
+  directoryPath: z.string().min(1),
+  filename: z.string().min(1),
+  skipImages: z.boolean().optional(),
+});
 
 /**
  * @url /scan/export
@@ -587,6 +588,23 @@ export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
   z.string(),
   ErrorsResponseSchema,
 ]);
+
+/**
+ * @url /scan/export
+ * @method GET
+ */
+export interface DownloadQueryParams {
+  filename?: string;
+}
+
+/**
+ * @url /scan/export
+ * @method GET
+ */
+export const DownloadQueryParamsSchema: z.ZodSchema<DownloadQueryParams> =
+  z.object({
+    filename: z.string().optional(),
+  });
 
 /**
  * Possible errors when exporting a file.

@@ -7,8 +7,10 @@ import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
 import { Dipped, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { MemoryStorage, usbstick } from '@votingworks/utils';
+import { assert, MemoryStorage, usbstick } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { safeParseJson } from '@votingworks/types';
+import path from 'path';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -76,7 +78,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   mockKiosk.saveAs = saveAsFunction;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/central-scanner/scan/export', {
+  fetchMock.getOnce('/central-scanner/scan/export', {
     body: '',
   });
 
@@ -133,18 +135,28 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
-  await waitFor(() => {
-    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
-  });
-  expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
-    `fake mount point/cast-vote-records/franklin-county_general-election_${electionDefinition.electionHash.slice(
-      0,
-      10
-    )}`,
-    { recursive: true }
-  );
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
   expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
+
+  const lastRequestOptions = fetchMock.lastOptions();
+  assert(lastRequestOptions);
+  assert(lastRequestOptions.body);
+
+  // fetchMock.lastOptions().body appears to be incorrectly typed and actually
+  // returns the stringified JSON request body instead of the parsed object -
+  // forcing it into a string type here.
+  const requestBody = lastRequestOptions.body.toString();
+
+  expect(safeParseJson(requestBody).unsafeUnwrap()).toEqual({
+    directoryPath: path.join(
+      'fake mount point',
+      'cast-vote-records',
+      `franklin-county_general-election_${electionDefinition.electionHash.slice(
+        0,
+        10
+      )}`
+    ),
+    filename: expect.stringMatching(/^TEST__machine_0000__5_ballots__[\d-]+/),
+  });
 
   getByText('Eject USB');
   fireEvent.click(getByText('Cancel'));

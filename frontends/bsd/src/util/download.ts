@@ -54,6 +54,13 @@ async function kioskDownload(
     throw new Error('no file was chosen');
   }
 
+  // For tests - fetch-mock does not support fetch Readable/WritableStream APIs
+  if (typeof body.pipeTo !== 'function') {
+    await downloadTarget.write(body as unknown as Uint8Array);
+    await downloadTarget.end();
+    return;
+  }
+
   await body.pipeTo(
     new WritableStream({
       abort: (error) => {
@@ -71,6 +78,16 @@ async function kioskDownload(
   );
 }
 
+function browserDownload(url: string) {
+  const anchorElement = document.createElement('a');
+  anchorElement.href = url;
+  anchorElement.download = '';
+  anchorElement.style.display = 'none';
+  document.body.appendChild(anchorElement);
+  anchorElement.click();
+  document.body.removeChild(anchorElement);
+}
+
 /**
  * Download a file from a URL. The server is expected to return a response with
  * `Content-Disposition: attachment`.
@@ -80,7 +97,7 @@ export async function download(
   options: Options = {}
 ): Promise<void> {
   if (!window.kiosk) {
-    window.location.assign(url);
+    browserDownload(url);
   } else {
     await kioskDownload(window.kiosk, url, options);
   }

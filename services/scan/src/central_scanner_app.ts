@@ -12,6 +12,7 @@ import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
+import path from 'path';
 import { z } from 'zod';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
@@ -458,7 +459,7 @@ export async function buildCentralScannerApp({
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/central-scanner/scan/export',
-    async (_request, response) => {
+    async (request, response) => {
       if (!store.hasElection()) {
         response.status(400).json({
           status: 'error',
@@ -472,7 +473,57 @@ export async function buildCentralScannerApp({
         return;
       }
 
-      response.type('text/plain; charset=utf-8');
+      const parseBodyResult = safeParse(Scan.ExportRequestSchema, request.body);
+      if (parseBodyResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'invalid-request',
+              message: parseBodyResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      const { directoryPath, filename } = request.body;
+
+      await fs.mkdir(directoryPath, { recursive: true });
+      const file = await fs.open(path.join(directoryPath, filename), 'w');
+      const fileStream = file.createWriteStream();
+
+      await importer.doExport(fileStream);
+
+      fileStream.end();
+
+      store.setCvrsBackedUp();
+
+      response.sendStatus(200);
+    }
+  );
+
+  app.get<NoParams>(
+    '/central-scanner/scan/export',
+    async (request, response) => {
+      if (!store.hasElection()) {
+        response
+          .status(400)
+          .send('cannot download cvrs if no election is configured');
+        return;
+      }
+
+      const parseQueryResult = safeParse(
+        Scan.DownloadQueryParamsSchema,
+        request.query
+      );
+      if (parseQueryResult.isErr()) {
+        response.status(400).send(parseQueryResult.err().message);
+        return;
+      }
+      const { filename } = parseQueryResult.ok();
+
+      response.attachment(filename);
       await importer.doExport(response);
       store.setCvrsBackedUp();
       response.end();
