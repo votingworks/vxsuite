@@ -83,7 +83,7 @@ test('err assertOk', () => {
   expect(() => err('error').assertOk('an error!')).toThrowError('an error!');
 });
 
-test('err assertOkErr', () => {
+test('err assertErr', () => {
   expect(err('error').assertErr('what?')).toBe('error');
 });
 
