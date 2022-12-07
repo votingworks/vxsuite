@@ -255,61 +255,6 @@ export function toDataUrl(
 }
 
 /**
- * Writes an image to a file.
- */
-export async function writeImageData(
-  path: string,
-  image: ImageData
-): Promise<Result<void, ImageProcessingError>> {
-  const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
-
-  if (path.endsWith('.png')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createPngStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createJpegStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else {
-    resolve(
-      err({
-        kind: ImageProcessingErrorKind.UnsupportedImageFormat,
-        format: extname(path),
-      })
-    );
-  }
-
-  return promise;
-}
-
-/**
  * Extracts image data from an image.
  */
 export function toImageData(
@@ -392,7 +337,6 @@ export function toGrayscale(
     const r = px & 0xff;
     const g = (px >>> 8) & 0xff;
     const b = (px >>> 16) & 0xff;
-    const a = (px >>> 24) & 0xff;
 
     // Luminosity grayscale formula.
     const luminosity = (0.21 * r + 0.72 * g + 0.07 * b) | 0;
@@ -400,4 +344,59 @@ export function toGrayscale(
   }
 
   return ok(output);
+}
+
+/**
+ * Writes an image to a file.
+ */
+export async function writeImageData(
+  path: string,
+  image: ImageData
+): Promise<Result<void, ImageProcessingError>> {
+  const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
+
+  if (path.endsWith('.png')) {
+    const toRgbaResult = toRgba(image);
+    /* istanbul ignore next */
+    if (toRgbaResult.isErr()) {
+      return toRgbaResult;
+    }
+    createPngStream(toRgbaResult.ok())
+      .pipe(createWriteStream(path))
+      .on('finish', () => resolve(ok()))
+      .on('error', (error) =>
+        resolve(
+          err({
+            kind: ImageProcessingErrorKind.WriteError,
+            error,
+          })
+        )
+      );
+  } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+    const toRgbaResult = toRgba(image);
+    /* istanbul ignore next */
+    if (toRgbaResult.isErr()) {
+      return toRgbaResult;
+    }
+    createJpegStream(toRgbaResult.ok())
+      .pipe(createWriteStream(path))
+      .on('finish', () => resolve(ok()))
+      .on('error', (error) =>
+        resolve(
+          err({
+            kind: ImageProcessingErrorKind.WriteError,
+            error,
+          })
+        )
+      );
+  } else {
+    resolve(
+      err({
+        kind: ImageProcessingErrorKind.UnsupportedImageFormat,
+        format: extname(path),
+      })
+    );
+  }
+
+  return promise;
 }
