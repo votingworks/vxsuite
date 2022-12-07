@@ -264,7 +264,12 @@ export async function writeImageData(
   const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
 
   if (path.endsWith('.png')) {
-    createPngStream(image)
+    const toRgbaResult = toRgba(image);
+    /* istanbul ignore next */
+    if (toRgbaResult.isErr()) {
+      return toRgbaResult;
+    }
+    createPngStream(toRgbaResult.ok())
       .pipe(createWriteStream(path))
       .on('finish', () => resolve(ok()))
       .on('error', (error) =>
@@ -276,7 +281,12 @@ export async function writeImageData(
         )
       );
   } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-    createJpegStream(image)
+    const toRgbaResult = toRgba(image);
+    /* istanbul ignore next */
+    if (toRgbaResult.isErr()) {
+      return toRgbaResult;
+    }
+    createJpegStream(toRgbaResult.ok())
       .pipe(createWriteStream(path))
       .on('finish', () => resolve(ok()))
       .on('error', (error) =>
