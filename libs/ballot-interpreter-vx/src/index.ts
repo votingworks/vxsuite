@@ -7,5 +7,8 @@ export {
 export * from './types';
 export {
   detect as detectQrCode,
+  detectInFilePath as detectQrcodeInFilePath,
   getSearchAreas as getQrCodeSearchAreas,
 } from './utils/qrcode';
+export { normalizeSheetOutput } from './sheet';
+export type { QrCodePageResult } from './utils/qrcode';

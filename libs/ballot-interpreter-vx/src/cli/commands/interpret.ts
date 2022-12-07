@@ -11,12 +11,15 @@ import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { table } from 'table';
 import { basename } from 'path';
-import { imageDebugger, setDebug } from '@votingworks/image-utils';
+import {
+  imageDebugger,
+  loadImageData,
+  setDebug,
+} from '@votingworks/image-utils';
 import { Command, GlobalOptions } from '../types';
 import { Interpreter } from '../..';
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../interpreter';
 import { Input, Interpreted } from '../../types';
-import { loadImageData } from '../../utils/images';
 
 export const name = 'interpret';
 export const description = 'Interpret images of ballot pages';

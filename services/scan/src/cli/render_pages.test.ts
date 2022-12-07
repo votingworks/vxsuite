@@ -5,7 +5,7 @@ import { pathExists } from 'fs-extra';
 import { tmpNameSync } from 'tmp';
 import { BallotMetadata, BallotType } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { loadImageData } from '../util/images';
+import { loadImageData } from '@votingworks/image-utils';
 import { Store } from '../store';
 import {
   election,

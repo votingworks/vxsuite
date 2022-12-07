@@ -1,9 +1,9 @@
+import { loadImageData } from '@votingworks/image-utils';
 import { promises as fs } from 'fs';
 import { tmpNameSync } from 'tmp';
 import { parseGlobalOptions } from '..';
 import { blankPage1 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { runCli } from '../../../test/utils';
-import { loadImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
 import { parseOptions } from './layout';
 

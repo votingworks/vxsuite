@@ -82,6 +82,17 @@ export function fromBytes(
   return fromString(electionDefinition, new TextDecoder().decode(data));
 }
 
+export function tryFromBytes(
+  electionDefinition: ElectionDefinition,
+  bytes: Buffer
+): BallotPageMetadata | undefined {
+  try {
+    return fromBytes(electionDefinition, bytes);
+  } catch {
+    return undefined;
+  }
+}
+
 export async function detect(
   electionDefinition: ElectionDefinition,
   imageData: ImageData

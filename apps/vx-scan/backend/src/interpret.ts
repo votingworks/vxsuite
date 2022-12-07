@@ -16,7 +16,10 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import * as qrcodeWorker from './workers/qrcode';
+import {
+  detectQrcodeInFilePath,
+  normalizeSheetOutput,
+} from '@votingworks/ballot-interpreter-vx';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 
@@ -239,11 +242,10 @@ async function vxInterpret(
     vxInterpreter.addHmpbTemplate(layout);
   }
 
-  const [frontQrcodeOutput, backQrcodeOutput] =
-    qrcodeWorker.normalizeSheetOutput(
-      electionDefinition,
-      await mapSheet(sheet, qrcodeWorker.detectQrcodeInFilePath)
-    );
+  const [frontQrcodeOutput, backQrcodeOutput] = normalizeSheetOutput(
+    electionDefinition,
+    await mapSheet(sheet, detectQrcodeInFilePath)
+  );
   const [frontPath, backPath] = sheet;
   const pageInterpretations = await mapSheet(
     [

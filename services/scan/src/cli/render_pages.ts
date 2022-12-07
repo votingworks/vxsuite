@@ -1,4 +1,4 @@
-import { pdfToImages } from '@votingworks/image-utils';
+import { writeImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   BallotType,
   getPrecinctById,
@@ -11,7 +11,6 @@ import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { ScannerImageFormat } from '../fujitsu_scanner';
 import { Store } from '../store';
-import { writeImageData } from '../util/images';
 
 const DEFAULT_SCALE = 2;
 const DEFAULT_IMAGE_FORMAT = ScannerImageFormat.JPEG;

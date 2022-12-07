@@ -2,13 +2,14 @@ import {
   detectRawBytesBmdBallot as detectMetadata,
   isVxBallot,
 } from '@votingworks/ballot-encoder';
-import { crop } from '@votingworks/image-utils';
+import { crop, loadImageData } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 // import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';
 import { DetectQrCodeResult } from '../types';
+import { stats, Stats } from './luminosity';
 
 const LETTER_WIDTH_TO_HEIGHT_RATIO = 8.5 / 11;
 const LEGAL_WIDTH_TO_HEIGHT_RATIO = 8.5 / 14;
@@ -276,4 +277,85 @@ export async function detect(
   }
 
   return undefined;
+}
+
+const MINIMUM_BACKGROUND_COLOR_THRESHOLD = 200;
+const MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO = 0.007;
+
+export interface BallotPageQrcode {
+  data: Uint8Array;
+  position: 'top' | 'bottom';
+}
+
+export type QrCodePageResult = BlankPageResult | NonBlankPageResult;
+
+export interface BlankPageResult {
+  blank: true;
+}
+
+export interface NonBlankPageResult {
+  blank: false;
+  qrcode?: BallotPageQrcode;
+}
+
+export async function detectInFilePath(
+  imagePath: string
+): Promise<QrCodePageResult> {
+  const imageData = await loadImageData(imagePath);
+  let foundDarkRegion = false;
+  let darkestRegionStats: Stats | undefined;
+  let darkestRegion: Rect | undefined;
+
+  for (const { position, bounds } of getSearchAreas({
+    width: imageData.width,
+    height: imageData.height,
+  })) {
+    const regionStats = stats(imageData, {
+      threshold: MINIMUM_BACKGROUND_COLOR_THRESHOLD,
+      bounds,
+    });
+
+    if (
+      !darkestRegionStats ||
+      regionStats.foreground.ratio > darkestRegionStats.foreground.ratio
+    ) {
+      darkestRegionStats = regionStats;
+      darkestRegion = bounds;
+    }
+
+    if (
+      regionStats.foreground.ratio > MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
+    ) {
+      debug(
+        '[path=%s] found dark region in %s QR code search area (%o): %O',
+        imagePath,
+        position,
+        bounds,
+        regionStats
+      );
+      foundDarkRegion = true;
+      break;
+    }
+  }
+
+  if (!foundDarkRegion) {
+    debug(
+      '[path=%s] appears to be a blank page, skipping. darkest region: %o stats=%O',
+      imagePath,
+      darkestRegion,
+      darkestRegionStats
+    );
+    return { blank: true };
+  }
+
+  const result = await detect(imageData);
+  return {
+    blank: false,
+    qrcode: result
+      ? {
+          data: result.data,
+          position: result.position,
+        }
+      : undefined,
+  };
 }

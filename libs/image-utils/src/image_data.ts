@@ -1,5 +1,5 @@
 import { err, ok, Result, safeParseInt } from '@votingworks/types';
-import { assert, deferred } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import {
   createCanvas,
@@ -9,7 +9,8 @@ import {
   loadImage as canvasLoadImage,
 } from 'canvas';
 import { createWriteStream, promises as fs } from 'fs';
-import { extname, parse } from 'path';
+import { parse } from 'path';
+import { promises as stream } from 'stream';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
 
@@ -18,8 +19,6 @@ import { int, usize } from './types';
  */
 export enum ImageProcessingErrorKind {
   UnsupportedChannelCount = 'UnsupportedChannelCount',
-  UnsupportedImageFormat = 'UnsupportedImageFormat',
-  WriteError = 'WriteError',
 }
 
 /**
@@ -31,28 +30,9 @@ export interface UnsupportedChannelCountError {
 }
 
 /**
- * Error that occurs when an image has an unsupported format.
- */
-export interface UnsupportedImageFormatError {
-  readonly kind: ImageProcessingErrorKind.UnsupportedImageFormat;
-  readonly format: string;
-}
-
-/**
- * Error that occurs when writing an image to disk.
- */
-export interface WriteError {
-  readonly kind: ImageProcessingErrorKind.WriteError;
-  readonly error: Error;
-}
-
-/**
  * Errors that can occur during image processing.
  */
-export type ImageProcessingError =
-  | UnsupportedChannelCountError
-  | UnsupportedImageFormatError
-  | WriteError;
+export type ImageProcessingError = UnsupportedChannelCountError;
 
 /**
  * The number of channels a grayscale image has (1).
@@ -77,7 +57,7 @@ export function ensureImageData(imageData: ImageData): ImageData {
     return imageData;
   }
 
-  const { data, width, height } = imageData as ImageData;
+  const { data, width, height } = imageData;
   return createImageData(data, width, height);
 }
 
@@ -217,28 +197,6 @@ export async function loadImageData(
 }
 
 /**
- * Creates a PNG image stream from image data.
- */
-export function createPngStream(image: ImageData): NodeJS.ReadableStream {
-  const { width, height } = image;
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
-  return canvas.createPNGStream();
-}
-
-/**
- * Creates a JPEG image stream from image data.
- */
-export function createJpegStream(image: ImageData): NodeJS.ReadableStream {
-  const { width, height } = image;
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
-  return canvas.createJPEGStream();
-}
-
-/**
  * Creates a data URL from image data.
  */
 export function toDataUrl(
@@ -252,6 +210,24 @@ export function toDataUrl(
   return mimeType === 'image/jpeg'
     ? canvas.toDataURL(mimeType)
     : canvas.toDataURL(mimeType);
+}
+
+/**
+ * Writes an image to a file.
+ */
+export async function writeImageData(
+  path: string,
+  imageData: ImageData
+): Promise<void> {
+  const canvas = createCanvas(imageData.width, imageData.height);
+  const context = canvas.getContext('2d');
+  context.putImageData(ensureImageData(imageData), 0, 0);
+
+  const fileWriter = createWriteStream(path);
+  const imageStream = /\.png$/i.test(path)
+    ? canvas.createPNGStream()
+    : canvas.createJPEGStream();
+  await stream.pipeline(imageStream, fileWriter);
 }
 
 /**
@@ -344,59 +320,4 @@ export function toGrayscale(
   }
 
   return ok(output);
-}
-
-/**
- * Writes an image to a file.
- */
-export async function writeImageData(
-  path: string,
-  image: ImageData
-): Promise<Result<void, ImageProcessingError>> {
-  const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
-
-  if (path.endsWith('.png')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createPngStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-    const toRgbaResult = toRgba(image);
-    /* istanbul ignore next */
-    if (toRgbaResult.isErr()) {
-      return toRgbaResult;
-    }
-    createJpegStream(toRgbaResult.ok())
-      .pipe(createWriteStream(path))
-      .on('finish', () => resolve(ok()))
-      .on('error', (error) =>
-        resolve(
-          err({
-            kind: ImageProcessingErrorKind.WriteError,
-            error,
-          })
-        )
-      );
-  } else {
-    resolve(
-      err({
-        kind: ImageProcessingErrorKind.UnsupportedImageFormat,
-        format: extname(path),
-      })
-    );
-  }
-
-  return promise;
 }

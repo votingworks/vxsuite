@@ -1,7 +1,7 @@
 import { detectQrCode } from '@votingworks/ballot-interpreter-vx';
+import { loadImageData } from '@votingworks/image-utils';
 import chalk from 'chalk';
 import { basename } from 'path';
-import { loadImageData } from '../../util/images';
 
 export interface IO {
   readonly stdin: NodeJS.ReadableStream;

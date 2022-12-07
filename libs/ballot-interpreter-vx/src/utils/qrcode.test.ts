@@ -1,6 +1,6 @@
+import { loadImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import { hardQrCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
-import { loadImageData } from './images';
 import { detect as detectQrCode, getSearchAreas } from './qrcode';
 
 // disabling this test as we've disabled jsQR for now

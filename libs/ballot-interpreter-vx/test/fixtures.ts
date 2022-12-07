@@ -1,4 +1,4 @@
-import { rotate180 } from '@votingworks/image-utils';
+import { loadImageData, rotate180 } from '@votingworks/image-utils';
 import {
   BallotPageMetadata,
   BallotPageMetadataSchema,
@@ -7,7 +7,6 @@ import {
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { Input } from '../src';
-import { loadImageData } from '../src/utils/images';
 import { adjacentFile } from '../src/utils/path';
 
 export function adjacentMetadataFile(imagePath: string): string {

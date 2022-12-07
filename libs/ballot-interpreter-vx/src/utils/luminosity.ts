@@ -1,8 +1,8 @@
 import { otsu } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
-import { rootDebug } from './debug';
+import makeDebug from 'debug';
 
-const debug = rootDebug.extend('threshold');
+const debug = makeDebug('ballot-interpreter-vx:threshold');
 
 export interface Stats {
   threshold: number;
