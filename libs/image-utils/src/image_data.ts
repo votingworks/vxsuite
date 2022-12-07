@@ -1,5 +1,5 @@
 import { err, ok, Result, safeParseInt } from '@votingworks/types';
-import { assert, deferred } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import {
   createCanvas,
@@ -9,7 +9,7 @@ import {
   loadImage as canvasLoadImage,
 } from 'canvas';
 import { createWriteStream, promises as fs } from 'fs';
-import { extname, parse } from 'path';
+import { parse } from 'path';
 import { pipeline } from 'stream/promises';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';

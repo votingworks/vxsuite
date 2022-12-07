@@ -9,7 +9,6 @@ import {
 import {
   getImageChannelCount,
   GRAY_CHANNEL_COUNT,
-  ImageProcessingErrorKind,
   isGrayscale,
   isRgba,
   loadImage,
@@ -56,11 +55,11 @@ test('getImageChannelCount always returns an integer', () => {
 });
 
 test('loadImage/writeImageData', async () => {
-  expect(
+  await expect(
     writeImageData('/path/does/not/exist.png', createImageData(1, 1))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
-  expect(
+  await expect(
     writeImageData('/path/does/not/exist.jpeg', createImageData(1, 1))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
