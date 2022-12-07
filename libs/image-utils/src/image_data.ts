@@ -197,28 +197,6 @@ export async function loadImageData(
 }
 
 /**
- * Creates a PNG image stream from image data.
- */
-export function createPngStream(image: ImageData): NodeJS.ReadableStream {
-  const { width, height } = image;
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
-  return canvas.createPNGStream();
-}
-
-/**
- * Creates a JPEG image stream from image data.
- */
-export function createJpegStream(image: ImageData): NodeJS.ReadableStream {
-  const { width, height } = image;
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
-  return canvas.createJPEGStream();
-}
-
-/**
  * Creates a data URL from image data.
  */
 export function toDataUrl(
