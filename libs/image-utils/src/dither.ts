@@ -1,14 +1,10 @@
 import { ok, Result } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
 import { createImageData } from 'canvas';
 import {
-  getImageChannelCount,
   ImageProcessingError,
   isGrayscale,
-  isRgba,
   loadImageData,
   toGrayscale,
-  toRgba,
   writeImageData,
 } from './image_data';
 
