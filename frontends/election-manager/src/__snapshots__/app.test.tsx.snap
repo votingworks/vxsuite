@@ -1,20 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`L&A (logic and accuracy) flow 1`] = `
+@media (min-width:1024px) {
+
+}
+
+@media (min-width:1440px) {
+
+}
+
 <div>
   <div
-    class="sc-iAKVOt KcewZ"
+    class="KcewZ"
   >
     <section
-      class="sc-jcFkyM bRAhCP"
+      class="bRAhCP"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-giYgFv dQkBnD"
+        class="dQkBnD"
         src="/votingworks-wordmark-black.svg"
       />
       <div
-        class="sc-hKwCoD kuXZyB"
+        class="kuXZyB"
       >
         <h1>
           Test Deck
@@ -33,7 +41,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           State of Mississippi
           <br />
           <span
-            class="sc-bdvvaa iybVtA"
+            class="iybVtA"
           >
             This report was created on 
             Tuesday, November 3, 2020, 10:22:00 PM UTC
@@ -42,16 +50,16 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </p>
       </div>
       <div
-        class="sc-iUKrWq eTeJBo"
+        class="eTeJBo"
       >
         <div
-          class="sc-jObXwK EgfXu"
+          class="EgfXu"
         >
           <h3>
             Ballots by Voting Method
           </h3>
           <table
-            class="sc-fFehDp gyNoQG"
+            class="gyNoQG"
             data-testid="voting-method-table"
           >
             <tbody>
@@ -59,12 +67,12 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 data-testid="absentee"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   Absentee
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   0
                 </td>
@@ -73,12 +81,12 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 data-testid="standard"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   Precinct
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   8
                 </td>
@@ -87,14 +95,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 data-testid="total"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   <strong>
                     Total Ballots Cast
                   </strong>
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   <strong>
                     8
@@ -105,14 +113,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </table>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020876"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               United States
             </p>
@@ -120,17 +128,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               President
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -138,14 +146,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -201,14 +209,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020877"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               United States
             </p>
@@ -216,17 +224,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -234,14 +242,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -297,14 +305,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020872"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               US House Of Representatives
             </p>
@@ -312,17 +320,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -330,14 +338,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -381,14 +389,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020870"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               Northern District
             </p>
@@ -396,17 +404,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -414,14 +422,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -465,14 +473,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu hamhRS"
+          class="hamhRS"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020899"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               Election Commissioner 01
             </p>
@@ -480,17 +488,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               Election Commissioner  01
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 0 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -498,14 +506,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -533,27 +541,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu hamhRS"
+          class="hamhRS"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020900"
           >
             <h3>
               Election Commissioner 02
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 0 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -561,14 +569,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -606,27 +614,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu hamhRS"
+          class="hamhRS"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020901"
           >
             <h3>
               Election Commissioner 03
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 0 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -634,14 +642,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -669,27 +677,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu hamhRS"
+          class="hamhRS"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020902"
           >
             <h3>
               Election Commissioner 04
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 0 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -697,14 +705,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -742,27 +750,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020903"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -770,14 +778,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -821,14 +829,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020904"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               School Board District 5
             </p>
@@ -836,17 +844,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -854,14 +862,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -893,14 +901,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000017"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -909,17 +917,17 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -927,14 +935,14 @@ House Concurrent Resolution No. 47
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -966,14 +974,14 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000018"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -982,17 +990,17 @@ House Concurrent Resolution No. 47
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -1000,14 +1008,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -1039,14 +1047,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000015"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -1054,17 +1062,17 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Either/Neither
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -1072,14 +1080,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -1111,14 +1119,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000016"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -1126,17 +1134,17 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Pick One
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -1144,14 +1152,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -1189,13 +1197,21 @@ House Bill 1796 - Flag Referendum
 `;
 
 exports[`L&A (logic and accuracy) flow 2`] = `
+@media (min-width:1024px) {
+
+}
+
+@media (min-width:1440px) {
+
+}
+
 <div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="kQCdaK"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="cSkaik"
     >
       <div
         class="seal"
@@ -1204,13 +1220,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       >
         <img
           alt=""
-          class="sc-gKckTs hLVAuh"
+          class="hLVAuh"
           data-testid="printed-ballot-seal-image"
           src="/seals/Seal_of_Mississippi_BW.svg"
         />
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -1229,10 +1245,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="cfpKDm"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="gScWpb"
         >
           <svg
             height="128"
@@ -1273,7 +1289,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 Asdf1234Asdf12
               </strong>
@@ -1283,25 +1299,25 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="NVkwn"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="jgYCbw"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               President
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </span>
@@ -1311,19 +1327,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Mike Espy
               </span>
@@ -1333,19 +1349,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Antonia Eliason
               </span>
@@ -1355,19 +1371,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Josiah Dennis Coleman
               </span>
@@ -1377,19 +1393,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Ouida A Loper
               </span>
@@ -1399,19 +1415,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Michael D Thomas
               </span>
@@ -1420,17 +1436,17 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               Yes
                
@@ -1438,17 +1454,17 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               Yes
                
@@ -1456,23 +1472,23 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 1
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
               FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
             </p>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
@@ -1485,10 +1501,10 @@ House Bill 1796 - Flag Referendum
   </div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="kQCdaK"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="cSkaik"
     >
       <div
         class="seal"
@@ -1497,13 +1513,13 @@ House Bill 1796 - Flag Referendum
       >
         <img
           alt=""
-          class="sc-gKckTs hLVAuh"
+          class="hLVAuh"
           data-testid="printed-ballot-seal-image"
           src="/seals/Seal_of_Mississippi_BW.svg"
         />
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -1522,10 +1538,10 @@ House Bill 1796 - Flag Referendum
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="cfpKDm"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="gScWpb"
         >
           <svg
             height="128"
@@ -1566,7 +1582,7 @@ House Bill 1796 - Flag Referendum
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 Asdf1234Asdf12
               </strong>
@@ -1576,25 +1592,25 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="NVkwn"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="jgYCbw"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               President
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </span>
@@ -1604,19 +1620,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Cindy Hyde-Smith
               </span>
@@ -1626,19 +1642,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Trent Kelly
               </span>
@@ -1648,19 +1664,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Percy L. Lynchard
               </span>
@@ -1670,19 +1686,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Wayne McLeod
               </span>
@@ -1691,19 +1707,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -1713,17 +1729,17 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               No
                
@@ -1731,17 +1747,17 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               No
                
@@ -1749,23 +1765,23 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 1
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
               AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
             </p>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
@@ -1778,10 +1794,10 @@ House Bill 1796 - Flag Referendum
   </div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="kQCdaK"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="cSkaik"
     >
       <div
         class="seal"
@@ -1790,13 +1806,13 @@ House Bill 1796 - Flag Referendum
       >
         <img
           alt=""
-          class="sc-gKckTs hLVAuh"
+          class="hLVAuh"
           data-testid="printed-ballot-seal-image"
           src="/seals/Seal_of_Mississippi_BW.svg"
         />
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -1815,10 +1831,10 @@ House Bill 1796 - Flag Referendum
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="cfpKDm"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="gScWpb"
         >
           <svg
             height="128"
@@ -1859,7 +1875,7 @@ House Bill 1796 - Flag Referendum
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 Asdf1234Asdf12
               </strong>
@@ -1869,25 +1885,25 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="NVkwn"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="jgYCbw"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               President
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </span>
@@ -1897,19 +1913,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Jimmy Edwards
               </span>
@@ -1919,19 +1935,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -1941,19 +1957,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -1963,19 +1979,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -1985,19 +2001,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Michael D Thomas
               </span>
@@ -2006,17 +2022,17 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               Yes
                
@@ -2024,17 +2040,17 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               Yes
                
@@ -2042,23 +2058,23 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 1
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
               FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
             </p>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
@@ -2071,10 +2087,10 @@ House Bill 1796 - Flag Referendum
   </div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF kQCdaK"
+    class="kQCdaK"
   >
     <div
-      class="sc-iCfLBT cSkaik"
+      class="cSkaik"
     >
       <div
         class="seal"
@@ -2083,13 +2099,13 @@ House Bill 1796 - Flag Referendum
       >
         <img
           alt=""
-          class="sc-gKckTs hLVAuh"
+          class="hLVAuh"
           data-testid="printed-ballot-seal-image"
           src="/seals/Seal_of_Mississippi_BW.svg"
         />
       </div>
       <div
-        class="sc-hKwCoD gmiWky ballot-header-content"
+        class="gmiWky ballot-header-content"
       >
         <h2>
           Unofficial TEST Ballot
@@ -2108,10 +2124,10 @@ House Bill 1796 - Flag Referendum
         </p>
       </div>
       <div
-        class="sc-furvIG cfpKDm"
+        class="cfpKDm"
       >
         <div
-          class="sc-eCImvq gScWpb"
+          class="gScWpb"
         >
           <svg
             height="128"
@@ -2152,7 +2168,7 @@ House Bill 1796 - Flag Referendum
                 Ballot ID
               </div>
               <strong
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 Asdf1234Asdf12
               </strong>
@@ -2162,25 +2178,25 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-pVTma NVkwn"
+      class="NVkwn"
     >
       <div
-        class="sc-jrQzUz jgYCbw"
+        class="jgYCbw"
       >
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               President
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -2190,19 +2206,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -2212,19 +2228,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Antonia Eliason
               </span>
@@ -2234,19 +2250,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Josiah Dennis Coleman
               </span>
@@ -2256,19 +2272,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 Ouida A Loper
               </span>
@@ -2278,19 +2294,19 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa eSpfPW"
+              class="eSpfPW"
             >
               <span
-                class="sc-bdvvaa hsgYyE"
+                class="hsgYyE"
               >
                 WRITE-IN
               </span>
@@ -2300,17 +2316,17 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               No
                
@@ -2318,17 +2334,17 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               No
                
@@ -2336,23 +2352,23 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-kDThTU gkFLxJ"
+          class="gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="eDCLhO vjIZd"
           >
             <h3>
               Ballot Measure 1
             </h3>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
               AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
             </p>
             <p
-              class="sc-bdvvaa kdHchw"
+              class="kdHchw"
             >
               •
                
@@ -2367,6 +2383,14 @@ House Bill 1796 - Flag Referendum
 `;
 
 exports[`L&A (logic and accuracy) flow 3`] = `
+@media (min-width:1024px) {
+
+}
+
+@media (min-width:1440px) {
+
+}
+
 <div>
   <div>
     <h1>
@@ -2549,19 +2573,19 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 exports[`tabulating CVRs 1`] = `
 <div>
   <div
-    class="sc-iAKVOt KcewZ"
+    class="KcewZ"
   >
     <section
-      class="sc-jcFkyM bRAhCP"
+      class="bRAhCP"
       data-testid="election-full-tally-report"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-giYgFv dQkBnD"
+        class="dQkBnD"
         src="/votingworks-wordmark-black.svg"
       />
       <div
-        class="sc-hKwCoD kuXZyB"
+        class="kuXZyB"
       >
         <h1>
           Official
@@ -2577,7 +2601,7 @@ exports[`tabulating CVRs 1`] = `
           State of Mississippi
           <br />
           <span
-            class="sc-bdvvaa iybVtA"
+            class="iybVtA"
           >
             This report was created on 
             Tuesday, November 3, 2020, 10:22:00 PM UTC
@@ -2586,16 +2610,16 @@ exports[`tabulating CVRs 1`] = `
         </p>
       </div>
       <div
-        class="sc-iUKrWq eTeJBo"
+        class="eTeJBo"
       >
         <div
-          class="sc-jObXwK EgfXu"
+          class="EgfXu"
         >
           <h3>
             Ballots by Voting Method
           </h3>
           <table
-            class="sc-fFehDp gyNoQG"
+            class="gyNoQG"
             data-testid="voting-method-table"
           >
             <tbody>
@@ -2603,12 +2627,12 @@ exports[`tabulating CVRs 1`] = `
                 data-testid="absentee"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   Absentee
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   50
                 </td>
@@ -2617,12 +2641,12 @@ exports[`tabulating CVRs 1`] = `
                 data-testid="standard"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   Precinct
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   50
                 </td>
@@ -2631,14 +2655,14 @@ exports[`tabulating CVRs 1`] = `
                 data-testid="total"
               >
                 <td
-                  class="sc-bkkfTU crFDJf"
+                  class="crFDJf"
                 >
                   <strong>
                     Total Ballots Cast
                   </strong>
                 </td>
                 <td
-                  class="sc-bkkfTU dIqrGb"
+                  class="dIqrGb"
                 >
                   <strong>
                     100
@@ -2649,14 +2673,14 @@ exports[`tabulating CVRs 1`] = `
           </table>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020876"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               United States
             </p>
@@ -2664,17 +2688,17 @@ exports[`tabulating CVRs 1`] = `
               President
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 1 overvote
@@ -2682,14 +2706,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 7 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -2745,14 +2769,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020877"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               United States
             </p>
@@ -2760,17 +2784,17 @@ exports[`tabulating CVRs 1`] = `
               Senate 
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 4 overvotes
@@ -2778,14 +2802,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 4 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -2841,14 +2865,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020872"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               US House Of Representatives
             </p>
@@ -2856,17 +2880,17 @@ exports[`tabulating CVRs 1`] = `
               1st Congressional District
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 3 overvotes
@@ -2874,14 +2898,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 5 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -2925,14 +2949,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020870"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               Northern District
             </p>
@@ -2940,17 +2964,17 @@ exports[`tabulating CVRs 1`] = `
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -2958,14 +2982,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 5 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3009,14 +3033,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020899"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               Election Commissioner 01
             </p>
@@ -3024,17 +3048,17 @@ exports[`tabulating CVRs 1`] = `
               Election Commissioner  01
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 18 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -3042,14 +3066,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 1 undervote
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3081,27 +3105,27 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020900"
           >
             <h3>
               Election Commissioner 02
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 15 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -3109,14 +3133,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 1 undervote
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3160,27 +3184,27 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020901"
           >
             <h3>
               Election Commissioner 03
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 23 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -3188,14 +3212,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 1 undervote
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3227,27 +3251,27 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020902"
           >
             <h3>
               Election Commissioner 04
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 25 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 1 overvote
@@ -3255,14 +3279,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3306,27 +3330,27 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020903"
           >
             <h3>
               Election Commissioner 05
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 19 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 2 overvotes
@@ -3334,14 +3358,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 2 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3385,14 +3409,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-775020904"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               School Board District 5
             </p>
@@ -3400,17 +3424,17 @@ exports[`tabulating CVRs 1`] = `
               School Board 05
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 19 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 overvotes
@@ -3418,14 +3442,14 @@ exports[`tabulating CVRs 1`] = `
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3457,14 +3481,14 @@ exports[`tabulating CVRs 1`] = `
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000017"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -3473,17 +3497,17 @@ exports[`tabulating CVRs 1`] = `
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 2 overvotes
@@ -3491,14 +3515,14 @@ House Concurrent Resolution No. 47
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 5 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3530,14 +3554,14 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000018"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -3546,17 +3570,17 @@ House Concurrent Resolution No. 47
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 100 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 3 overvotes
@@ -3564,14 +3588,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 2 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3603,14 +3627,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000015"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -3618,17 +3642,17 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Either/Neither
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 98 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 3 overvotes
@@ -3636,14 +3660,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 3 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr
@@ -3675,14 +3699,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-dJjZJu dxhxtV"
+          class="dxhxtV"
         >
           <div
-            class="sc-hKwCoD kuXZyB"
+            class="kuXZyB"
             data-testid="results-table-750000016"
           >
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               State Of Mississippi
             </p>
@@ -3690,17 +3714,17 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Pick One
             </h3>
             <p
-              class="sc-bdvvaa iybVtA"
+              class="iybVtA"
             >
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                 98 ballots
                  cast /
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 4 overvotes
@@ -3708,14 +3732,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="sc-gsDJrp fUIxJs"
+                class="fUIxJs"
               >
                  
                 5 undervotes
               </span>
             </p>
             <table
-              class="sc-hGPAah fqMSrf"
+              class="fqMSrf"
             >
               <tbody>
                 <tr

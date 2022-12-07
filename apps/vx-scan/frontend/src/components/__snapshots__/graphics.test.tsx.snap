@@ -1,9 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Renders Absolute top right 1`] = `
+.c0 {
+  margin: 0 auto 1rem;
+  border-radius: 1rem;
+  background: #6638b6;
+  width: 250px;
+  height: 250px;
+}
+
 <div>
   <div
-    class="sc-bdvvaa fPyvOy"
+    class="c0"
   />
 </div>
 `;
