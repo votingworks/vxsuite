@@ -34,7 +34,7 @@ test('ok assertOk', () => {
   expect(ok(0).assertOk('a value')).toBe(0);
 });
 
-test('ok assertOkErr', () => {
+test('ok assertErr', () => {
   expect(() => ok('value').assertErr('an error')).toThrowError('an error');
 });
 
