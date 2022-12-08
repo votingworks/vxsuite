@@ -55,6 +55,10 @@ export class ServerError extends Error {}
 export function createClient<TApi extends AnyApi>(
   options: ClientOptions
 ): Client<TApi> {
+  // We use a Proxy to create a client object that fakes the type of the API but
+  // dynamically converts method calls into HTTP requests. When accessing
+  // client.doSomething(), the variable methodName will be "doSomething" -
+  // that's the magic of the Proxy!
   return new Proxy({} as unknown as Client<TApi>, {
     get(_target, methodName: string) {
       return async (input?: unknown) => {
@@ -62,11 +66,21 @@ export function createClient<TApi extends AnyApi>(
 
         debug(`Call: ${methodName}(${inputJson})`);
 
-        const response = await fetch(methodUrl(methodName, options.baseUrl), {
-          method: 'POST',
-          body: serialize(input),
-          headers: { 'Content-type': 'application/json' },
-        });
+        let response: Response;
+        try {
+          response = await fetch(methodUrl(methodName, options.baseUrl), {
+            method: 'POST',
+            body: serialize(input),
+            headers: { 'Content-type': 'application/json' },
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          debug(`Fetch error: ${message}`);
+          throw new ServerError(message, {
+            cause: error instanceof Error ? error : undefined,
+          });
+        }
 
         debug(`Response status code: ${response.status}`);
 
