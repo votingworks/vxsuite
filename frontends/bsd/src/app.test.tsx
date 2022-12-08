@@ -13,7 +13,6 @@ import {
   electionSampleDefinition,
   electionSample2Definition,
 } from '@votingworks/fixtures';
-import fileDownload from 'js-file-download';
 import {
   fakeKiosk,
   hasTextAcrossElements,
@@ -28,10 +27,11 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { download } from './util/download';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 
-jest.mock('js-file-download');
+jest.mock('./util/download');
 
 beforeEach(() => {
   fetchMock.config.fallbackToNetwork = true;
@@ -287,10 +287,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
       '/central-scanner/scan/status',
       { body: scanStatusResponseBody },
       { overwriteRoutes: true }
-    )
-    .postOnce('/central-scanner/scan/export', {
-      body: '',
-    });
+    );
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -312,9 +309,12 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
     fireEvent.click(getByText('Cancel'));
   });
 
-  expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
   expect(queryByText(exportingModalText)).toBe(null);
-  expect(fileDownload).toHaveBeenCalled();
+  expect(download).toHaveBeenCalledWith(
+    expect.stringContaining(
+      '/central-scanner/scan/export?filename=TEST__machine_0001__'
+    )
+  );
 });
 
 test('configuring election from usb ballot package works end to end', async () => {

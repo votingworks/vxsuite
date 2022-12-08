@@ -1,4 +1,4 @@
-import { Exporter } from '@votingworks/data';
+import { Exporter, getUsbDrives } from '@votingworks/data';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 
 /**
@@ -7,6 +7,7 @@ import { SCAN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 export function buildExporter(): Exporter {
   const exporter = new Exporter({
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+    getUsbDrives,
   });
   return exporter;
 }

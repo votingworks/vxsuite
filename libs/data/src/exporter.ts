@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 import { lstatSync } from 'fs';
 import { splitToFiles } from './split';
 import { execFile } from './utils/exec';
-import { getUsbDrives } from './get_usb_drives';
+import { UsbDrive } from './get_usb_drives';
 
 /**
  * The largest file size that can be exported to a USB drive formatted as FAT32.
@@ -53,23 +53,27 @@ export const ExportFileErrorSchema: z.ZodSchema<ExportDataError> =
  */
 export type ExportFileResult = Result<string[], ExportDataError>;
 
+/** Settings for the {@link Exporter}. */
+export interface ExporterSettings {
+  allowedExportPatterns: Iterable<string>;
+  getUsbDrives: () => Promise<UsbDrive[]>;
+}
+
 /**
  * Provides data export functionality for writing to the file system.
  */
 export class Exporter {
   private readonly allowedExportPatterns: readonly string[];
+  private readonly getUsbDrives: () => Promise<UsbDrive[]>;
 
   /**
    * Builds an exporter with the given allowed export patterns. To allow all
    * paths, use `['**']`. Ideally you should be as specific as possible to avoid
    * writing to unexpected locations.
    */
-  constructor({
-    allowedExportPatterns,
-  }: {
-    allowedExportPatterns: Iterable<string>;
-  }) {
+  constructor({ allowedExportPatterns, getUsbDrives }: ExporterSettings) {
     this.allowedExportPatterns = Array.from(allowedExportPatterns);
+    this.getUsbDrives = getUsbDrives;
   }
 
   /**
@@ -131,7 +135,7 @@ export class Exporter {
       maximumFileSize?: number;
     } = {}
   ): Promise<ExportFileResult> {
-    const [usbDrive] = await getUsbDrives();
+    const [usbDrive] = await this.getUsbDrives();
 
     if (!usbDrive?.mountPoint) {
       return err({

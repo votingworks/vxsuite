@@ -1,3 +1,4 @@
+import { Exporter } from '@votingworks/data';
 import {
   electionSampleDefinition as testElectionDefinition,
   electionFamousNames2021Fixtures,
@@ -13,13 +14,19 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { BallotConfig, typedAs } from '@votingworks/utils';
+import {
+  BallotConfig,
+  generateElectionBasedSubfolderName,
+  SCANNER_RESULTS_FOLDER,
+  typedAs,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
+import path from 'path';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -30,11 +37,18 @@ import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts
 jest.mock('./importer');
 jest.mock('@votingworks/plustek-sdk');
 
+const mockGetUsbDrives = jest.fn();
+const exporter = new Exporter({
+  allowedExportPatterns: ['/tmp/**'],
+  getUsbDrives: mockGetUsbDrives,
+});
+
 let app: Application;
 let workspace: Workspace;
 let importer: jest.Mocked<Importer>;
 
 beforeEach(async () => {
+  mockGetUsbDrives.mockReset();
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
@@ -52,7 +66,14 @@ beforeEach(async () => {
     ballotMetadata,
     getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
-  app = await buildCentralScannerApp({ importer, workspace });
+  app = await buildCentralScannerApp({ exporter, importer, workspace });
+});
+
+afterEach(async () => {
+  await fs.rm(workspace.path, {
+    force: true,
+    recursive: true,
+  });
 });
 
 const frontOriginal = stateOfHamilton.filledInPage1Flipped;
@@ -407,13 +428,56 @@ test('POST /scan/scanBatch errors', async () => {
   expect(importer.startImport).toBeCalled();
 });
 
-test('POST /scan/export', async () => {
-  importer.doExport.mockResolvedValue();
+test('POST /scan/export-to-usb-drive', async () => {
+  importer.doExport.mockImplementation((writeStream) => {
+    writeStream.write('cvr file contents\n');
+    return Promise.resolve();
+  });
+
+  const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
+  await fs.mkdir(mockUsbMountPoint, { recursive: true });
+  mockGetUsbDrives.mockResolvedValue([
+    { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
+  ]);
+
+  const requestBody: Scan.ExportToUsbDriveRequest = {
+    filename: 'new_cvr_export.jsonl',
+  };
   await request(app)
-    .post('/central-scanner/scan/export')
+    .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .expect(200, '');
-  expect(importer.doExport).toBeCalled();
+    .send(requestBody)
+    .expect(200);
+
+  const exportDirectoryPath = path.join(
+    workspace.path,
+    'mock-usb',
+    SCANNER_RESULTS_FOLDER,
+    generateElectionBasedSubfolderName(
+      stateOfHamilton.electionDefinition.election,
+      stateOfHamilton.electionDefinition.electionHash
+    )
+  );
+  await expect(
+    fs.readFile(path.join(exportDirectoryPath, 'new_cvr_export.jsonl'), 'utf-8')
+  ).resolves.toEqual('cvr file contents\n');
+});
+
+test('GET /scan/export', async () => {
+  importer.doExport.mockImplementation((writeStream) => {
+    writeStream.write('cvr file contents\n');
+    return Promise.resolve();
+  });
+
+  const response = await request(app)
+    .get('/central-scanner/scan/export?filename=new_cvr_export.jsonl')
+    .set('Accept', 'application/json')
+    .expect(200);
+
+  expect(response.get('Content-Disposition')).toBe(
+    'attachment; filename="new_cvr_export.jsonl"'
+  );
+  expect(Buffer.from(response.body).toString()).toEqual('cvr file contents\n');
 });
 
 test('POST /scan/zero error', async () => {

@@ -1,6 +1,7 @@
+import { Exporter, getUsbDrives } from '@votingworks/data';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { PORT, SCAN_WORKSPACE } from './globals';
+import { PORT, SCAN_ALLOWED_EXPORT_PATTERNS, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -11,6 +12,7 @@ import { buildCentralScannerApp } from './central_scanner_app';
 export interface StartOptions {
   port: number | string;
   batchScanner: BatchScanner;
+  exporter: Exporter;
   importer: Importer;
   app: Application;
   logger: Logger;
@@ -23,6 +25,7 @@ export interface StartOptions {
 export async function start({
   port = PORT,
   batchScanner,
+  exporter,
   importer,
   app,
   logger = new Logger(LogSource.VxScanService),
@@ -68,10 +71,17 @@ export async function start({
       scanner: resolvedBatchScanner,
       workerPoolProvider,
     });
+  const resolvedExporter =
+    exporter ??
+    new Exporter({
+      allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+      getUsbDrives,
+    });
 
   const resolvedApp =
     app ??
     (await buildCentralScannerApp({
+      exporter: resolvedExporter,
       importer: resolvedImporter,
       workspace: resolvedWorkspace,
     }));

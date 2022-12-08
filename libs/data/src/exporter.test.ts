@@ -6,20 +6,15 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { DirResult, dirSync } from 'tmp';
 import { Exporter, ExportFileResult } from './exporter';
-import { getUsbDrives, UsbDrive } from './get_usb_drives';
+import { UsbDrive } from './get_usb_drives';
 import { execFile } from './utils/exec';
-
-jest.mock('./get_usb_drives', (): typeof import('./get_usb_drives') => ({
-  ...jest.requireActual('./get_usb_drives'),
-  getUsbDrives: jest.fn(),
-}));
 
 jest.mock('./utils/exec', (): typeof import('./utils/exec') => ({
   ...jest.requireActual('./utils/exec'),
   execFile: jest.fn(),
 }));
 
-const getUsbDrivesMock = mockOf(getUsbDrives);
+const getUsbDrivesMock = jest.fn();
 const execFileMock = mockOf(execFile);
 const tmpDirs: DirResult[] = [];
 
@@ -28,6 +23,11 @@ function createTmpDir() {
   tmpDirs.push(tmpDir);
   return tmpDir.name;
 }
+
+const exporter = new Exporter({
+  allowedExportPatterns: ['/tmp/**'],
+  getUsbDrives: getUsbDrivesMock,
+});
 
 afterEach(() => {
   for (const tmpDir of tmpDirs) {
@@ -38,7 +38,6 @@ afterEach(() => {
 
 test('exportData with string', async () => {
   const tmpDir = createTmpDir();
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, 'bar');
   expect(result).toEqual(ok([path]));
@@ -46,21 +45,18 @@ test('exportData with string', async () => {
 });
 
 test('exportData relative path', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   expect((await exporter.exportData('test.txt', 'bar')).err()?.message).toMatch(
     /Path must be absolute/
   );
 });
 
 test('exportData disallowed path', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   expect(
     (await exporter.exportData('/etc/passwd', 'bar')).err()?.message
   ).toMatch(/Path is not allowed/);
 });
 
 test('exportData with stream', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(
@@ -72,7 +68,6 @@ test('exportData with stream', async () => {
 });
 
 test('exportData with stream and maximumFileSize', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(
@@ -88,7 +83,6 @@ test('exportData with stream and maximumFileSize', async () => {
 });
 
 test('exportData with a symbolic link', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const tmpDir = createTmpDir();
   const existingPath = join(tmpDir, 'test.txt');
   const linkPath = join(tmpDir, 'test-link.txt');
@@ -105,7 +99,6 @@ test('exportData with a symbolic link', async () => {
 
 test('exportDataToUsbDrive with no drives', async () => {
   getUsbDrivesMock.mockResolvedValueOnce([]);
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -116,7 +109,6 @@ test('exportDataToUsbDrive with no drives', async () => {
 });
 
 test('exportDataToUsbDrive happy path', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'bucket/test.txt');
   const drive: UsbDrive = {
@@ -135,7 +127,6 @@ test('exportDataToUsbDrive happy path', async () => {
 });
 
 test('exportDataToUsbDrive with maximumFileSize', async () => {
-  const exporter = new Exporter({ allowedExportPatterns: ['/tmp/**'] });
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'bucket/test.txt');
   const drive: UsbDrive = {

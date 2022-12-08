@@ -556,6 +556,36 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
   OkResponseSchema;
 
 /**
+ * @url /scan/export-to-usb-drive
+ * @method POST
+ */
+export interface ExportToUsbDriveRequest {
+  filename: string;
+}
+
+/**
+ * @url /scan/export-to-usb-drive
+ * @method POST
+ */
+export const ExportToUsbDriveRequestSchema: z.ZodSchema<ExportToUsbDriveRequest> =
+  z.object({
+    filename: z.string().min(1),
+  });
+
+/**
+ * @url /scan/export-to-usb-drive
+ * @method POST
+ */
+export type ExportToUsbDriveResponse = string | ErrorsResponse;
+
+/**
+ * @url /scan/export-to-usb-drive
+ * @method POST
+ */
+export const ExportToUsbDriveResponseSchema: z.ZodSchema<ExportToUsbDriveResponse> =
+  z.union([z.string(), ErrorsResponseSchema]);
+
+/**
  * @url /scan/export
  * @method POST
  */
@@ -587,6 +617,23 @@ export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
   z.string(),
   ErrorsResponseSchema,
 ]);
+
+/**
+ * @url /scan/export
+ * @method GET
+ */
+export interface DownloadExportQueryParams {
+  filename?: string;
+}
+
+/**
+ * @url /scan/export
+ * @method GET
+ */
+export const DownloadExportQueryParamsSchema: z.ZodSchema<DownloadExportQueryParams> =
+  z.object({
+    filename: z.string().optional(),
+  });
 
 /**
  * Possible errors when exporting a file.

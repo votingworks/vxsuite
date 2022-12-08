@@ -1,8 +1,7 @@
 import { ElectionDefinition } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import fileDownload from 'js-file-download';
-import { join } from 'path';
+import * as path from 'path';
 
 import {
   isElectionManagerAuth,
@@ -18,11 +17,13 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
+import { Scan } from '@votingworks/api';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
+import { download } from '../util/download';
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
@@ -67,26 +68,6 @@ export function ExportResultsModal({
 
     try {
       await logger.log(LogEventId.SaveCvrInit, userRole);
-      const response = await fetch('/central-scanner/scan/export', {
-        method: 'post',
-      });
-
-      const blob = await response.blob();
-
-      if (response.status !== 200) {
-        setErrorMessage(
-          `Failed to save results. Error retrieving CVRs from the VxCentralScan.`
-        );
-        setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.SaveCvrComplete, userRole, {
-          message:
-            'Error saving CVR file, could not retrieve CVRs from the VxCentralScan.',
-          error: 'Error retrieving CVRs from the VxCentralScan.',
-          result: 'User shown error, CVR file not saved.',
-          disposition: 'failure',
-        });
-        return;
-      }
 
       const cvrFilename = generateFilenameForScanningResults(
         machineConfig.machineId,
@@ -104,29 +85,33 @@ export function ExportResultsModal({
           electionDefinition.election,
           electionDefinition.electionHash
         );
-        const pathToFolder = join(
+        const pathToFolder = path.join(
           usbPath,
           SCANNER_RESULTS_FOLDER,
           electionFolderName
         );
-        const pathToFile = join(pathToFolder, cvrFilename);
         if (openDialog) {
-          const fileWriter = await window.kiosk.saveAs({
-            defaultPath: pathToFile,
+          await download(`/central-scanner/scan/export`, {
+            defaultPath: path.join(pathToFolder, cvrFilename),
           });
-
-          if (!fileWriter) {
-            throw new Error('could not save; no file was chosen');
-          }
-
-          await fileWriter.write(await blob.text());
-          await fileWriter.end();
         } else {
-          await window.kiosk.makeDirectory(pathToFolder, {
-            recursive: true,
-          });
-          await window.kiosk.writeFile(pathToFile, await blob.text());
+          const requestBody: Scan.ExportToUsbDriveRequest = {
+            filename: cvrFilename,
+          };
+          const response = await fetch(
+            '/central-scanner/scan/export-to-usb-drive',
+            {
+              method: 'post',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('unable to write to USB drive');
+          }
         }
+
         setCurrentState(ModalState.DONE);
         await logger.log(LogEventId.SaveCvrComplete, userRole, {
           message: `Successfully saved CVR file with ${numberOfBallots} ballots.`,
@@ -134,7 +119,7 @@ export function ExportResultsModal({
           numberOfBallots,
         });
       } else {
-        fileDownload(blob, cvrFilename, 'application/x-jsonlines');
+        await download(`/central-scanner/scan/export?filename=${cvrFilename}`);
         setCurrentState(ModalState.DONE);
       }
     } catch (error) {
