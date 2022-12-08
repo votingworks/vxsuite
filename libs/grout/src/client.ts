@@ -66,40 +66,37 @@ export function createClient<TApi extends AnyApi>(
 
         debug(`Call: ${methodName}(${inputJson})`);
 
-        let response: Response;
         try {
-          response = await fetch(methodUrl(methodName, options.baseUrl), {
+          const response = await fetch(methodUrl(methodName, options.baseUrl), {
             method: 'POST',
             body: serialize(input),
             headers: { 'Content-type': 'application/json' },
           });
+          debug(`Response status code: ${response.status}`);
+
+          if (
+            !response.headers.get('Content-type')?.includes('application/json')
+          ) {
+            throw new ServerError('Response is not JSON');
+          }
+
+          if (!response.ok) {
+            const message = (await response.json())?.message;
+            throw new ServerError(message ?? response.statusText);
+          }
+
+          const resultText = await response.text();
+          debug(`Result: ${resultText}`);
+          const result = deserialize(resultText);
+          return result;
         } catch (error) {
           const message =
             error instanceof Error ? error.message : String(error);
-          debug(`Fetch error: ${message}`);
+          debug(`Error: ${message}`);
           throw new ServerError(message, {
             cause: error instanceof Error ? error : undefined,
           });
         }
-
-        debug(`Response status code: ${response.status}`);
-
-        if (
-          !response.headers.get('Content-type')?.includes('application/json')
-        ) {
-          throw new ServerError('Response is not JSON');
-        }
-
-        if (!response.ok) {
-          const message = (await response.json())?.message;
-          debug(`Error: ${message}`);
-          throw new ServerError(message ?? response.statusText);
-        }
-
-        const resultText = await response.text();
-        debug(`Result: ${resultText}`);
-        const result = deserialize(resultText);
-        return result;
       };
     },
   });

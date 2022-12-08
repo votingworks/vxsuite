@@ -102,7 +102,9 @@ await apiClient.getAllPeeple(); // => TS error: Property getAllPeeple does not e
 await apiClient.getPersonByName({ nam: 'Bob' }); // => TS error: Argument of type '{ nam: string; }' is not assignable to parameter of type '{ name: string; }'.
 await apiClient.updatePersonAge({ name: 'Bob', age: '1' }); // => TS error: Argument of type '{ name: 'Bob'; age: '1'; }' is not assignable to parameter of type '{ name: string; age: number; }'.
 
-// Since we used the Result type, known error cases must be handled explicitly.
+// Since we used the Result type to handle a known error case, we should
+// explicitly check for errors. This is a strongly recommended pattern to help
+// us avoid forgetting to handle known errors.
 const updateResult = await apiClient.updatePersonAge({ name: 'Bob', age: -1 });
 if (updateResult.isErr()) {
   console.error(updateResult.error.message); // => 'Age must be at least 1.'
@@ -116,6 +118,22 @@ try {
 } catch (error) {
   if (error instanceof grout.ServerError) {
     console.error(error.message);
+  }
+}
+```
+
+### tsconfig settings
+
+Grout works out of the box with our default `tsconfig.json` settings. However,
+you can enable VS Code's "Go to Definition" feature by turning on
+`compilerOptions.declarationMap` in your server-side `tsconfig.build.json`. This
+will allow you to Cmd+Click on a method name in the client code and jump to the
+server-side implementation.
+
+```json
+{
+  "compilerOptions": {
+    "declarationMap": true
   }
 }
 ```
