@@ -54,14 +54,13 @@ function PrecinctTallyReport({
   precinctId,
 }: PrecinctTallyReportProps): JSX.Element {
   const ballots = generateTestDeckBallots({ election, precinctId });
-  const votes = ballots.map((b) => b.votes);
 
   // Precinct test deck tallies should be twice that of a single test
   // deck because it counts scanning 2 test decks (BMD + HMPB)
   return (
     <TestDeckTallyReport
       election={election}
-      votes={[...votes, ...votes]}
+      testDeckBallots={[...ballots, ...ballots]}
       precinctId={precinctId}
     />
   );

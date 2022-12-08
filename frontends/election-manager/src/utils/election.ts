@@ -22,7 +22,7 @@ import { LANGUAGES } from '../config/globals';
 
 import { sortBy } from './sort_by';
 
-export interface Ballot {
+export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   votes: VotesDict;
@@ -248,12 +248,12 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-}: GenerateTestDeckParams): Ballot[] {
+}: GenerateTestDeckParams): TestDeckBallot[] {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
 
-  const ballots: Ballot[] = [];
+  const ballots: TestDeckBallot[] = [];
 
   for (const currentPrecinctId of precincts) {
     const precinct = find(
@@ -313,8 +313,8 @@ export function generateBlankBallots({
   election: Election;
   precinctId: PrecinctId;
   numBlanks: number;
-}): Ballot[] {
-  const ballots: Ballot[] = [];
+}): TestDeckBallot[] {
+  const ballots: TestDeckBallot[] = [];
 
   const blankBallotStyle = election.ballotStyles.find((bs) =>
     bs.precincts.includes(precinctId)
@@ -344,7 +344,7 @@ export function generateOvervoteBallot({
 }: {
   election: Election;
   precinctId: PrecinctId;
-}): Ballot | undefined {
+}): TestDeckBallot | undefined {
   const precinctBallotStyles = election.ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
   );
