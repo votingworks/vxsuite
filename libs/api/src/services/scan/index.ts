@@ -14,6 +14,7 @@ import {
   Iso8601TimestampSchema,
   MarkThresholds,
   MarkThresholdsSchema,
+  Optional,
   PollsState,
   PollsStateSchema,
   PrecinctSelection,
@@ -560,7 +561,6 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
  */
 export interface ExportToUsbDriveRequest {
   filename: string;
-  skipImages?: boolean;
 }
 
 /**
@@ -570,7 +570,6 @@ export interface ExportToUsbDriveRequest {
 export const ExportToUsbDriveRequestSchema: z.ZodSchema<ExportToUsbDriveRequest> =
   z.object({
     filename: z.string().min(1),
-    skipImages: z.boolean().optional(),
   });
 
 /**
@@ -585,6 +584,39 @@ export type ExportToUsbDriveResponse = string | ErrorsResponse;
  */
 export const ExportToUsbDriveResponseSchema: z.ZodSchema<ExportToUsbDriveResponse> =
   z.union([z.string(), ErrorsResponseSchema]);
+
+/**
+ * @url /scan/export
+ * @method POST
+ */
+export type ExportRequest = Optional<{
+  skipImages: boolean;
+}>;
+
+/**
+ * @url /scan/export
+ * @method POST
+ */
+export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z
+  .object({
+    skipImages: z.boolean(),
+  })
+  .optional();
+
+/**
+ * @url /scan/export
+ * @method POST
+ */
+export type ExportResponse = string | ErrorsResponse;
+
+/**
+ * @url /scan/export
+ * @method POST
+ */
+export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
+  z.string(),
+  ErrorsResponseSchema,
+]);
 
 /**
  * @url /scan/export
