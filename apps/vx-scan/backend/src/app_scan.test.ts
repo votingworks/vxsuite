@@ -90,7 +90,9 @@ test('configure and scan hmpb', async () => {
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -127,7 +129,9 @@ test('configure and scan bmd ballot', async () => {
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -150,7 +154,9 @@ test('configure and scan bmd ballot', async () => {
   });
 
   // Test scanning again without first transitioning back to no_paper
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan', ballotsCounted: 1 });
 
   // Check the CVR
@@ -169,7 +175,9 @@ test('ballot needs review - return', async () => {
   const { app, mockPlustek, workspace, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -188,7 +196,7 @@ test('ballot needs review - return', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'no_paper',
   });
@@ -207,7 +215,9 @@ test('ballot needs review - accept', async () => {
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -244,7 +254,9 @@ test('invalid ballot rejected', async () => {
   const { app, mockPlustek, workspace, logger } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -263,7 +275,7 @@ test('invalid ballot rejected', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 
   // Check the CVR
@@ -281,7 +293,9 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await configureApp(app, { precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -300,7 +314,7 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -313,7 +327,9 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
     type: 'ValidSheet',
   };
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -329,7 +345,9 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   await configureApp(app, { addTemplates: true, precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -348,7 +366,7 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -361,7 +379,9 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
     type: 'ValidSheet',
   };
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -376,7 +396,7 @@ test('blank sheet ballot rejected', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -395,7 +415,7 @@ test('blank sheet ballot rejected', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -414,7 +434,9 @@ test('scanner powered off while scanning', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -430,7 +452,9 @@ test('scanner powered off while accepting', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -460,7 +484,9 @@ test('scanner powered off after accepting', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -496,7 +522,9 @@ test('scanner powered off while rejecting', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -523,7 +551,9 @@ test('scanner powered off while returning', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -550,7 +580,9 @@ test('scanner powered off after returning', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -587,16 +619,20 @@ test('insert second ballot while first ballot is scanning', async () => {
   );
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await expectStatus(app, { state: 'both_sides_have_paper' });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'rejecting',
     error: 'both_sides_have_paper',
@@ -606,7 +642,7 @@ test('insert second ballot while first ballot is scanning', async () => {
     error: 'both_sides_have_paper',
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -614,7 +650,9 @@ test('insert second ballot before first ballot accept', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -625,12 +663,14 @@ test('insert second ballot before first ballot accept', async () => {
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await post(app, '/precinct-scanner/scanner/accept');
 
   await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
   await post(app, '/precinct-scanner/scanner/accept');
   await expectStatus(app, { state: 'accepting', interpretation });
@@ -648,7 +688,9 @@ test('insert second ballot while first ballot is accepting', async () => {
   });
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -660,7 +702,9 @@ test('insert second ballot while first ballot is accepting', async () => {
   await expectStatus(app, { state: 'scanning' });
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
   await post(app, '/precinct-scanner/scanner/accept');
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
 
   await waitForStatus(app, {
     state: 'accepted',
@@ -677,7 +721,9 @@ test('insert second ballot while first ballot needs review', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -687,10 +733,12 @@ test('insert second ballot while first ballot needs review', async () => {
   await expectStatus(app, { state: 'scanning' });
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/precinct-scanner/scanner/accept');
@@ -708,7 +756,9 @@ test('insert second ballot while first ballot is rejecting', async () => {
   );
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -724,13 +774,15 @@ test('insert second ballot while first ballot is rejecting', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+  ).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
@@ -740,7 +792,7 @@ test('insert second ballot while first ballot is rejecting', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -751,7 +803,9 @@ test('insert second ballot while first ballot is returning', async () => {
   );
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -762,13 +816,15 @@ test('insert second ballot while first ballot is returning', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/precinct-scanner/scanner/return');
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'needs_review',
     interpretation,
@@ -779,7 +835,7 @@ test('insert second ballot while first ballot is returning', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -789,7 +845,9 @@ test('jam on scan', async () => {
   });
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   mockPlustek.simulateJamOnNextOperation();
@@ -807,7 +865,9 @@ test('jam on accept', async () => {
   });
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -835,7 +895,7 @@ test('jam on accept', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -843,7 +903,9 @@ test('jam on return', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
@@ -860,7 +922,7 @@ test('jam on return', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -868,7 +930,9 @@ test('jam on reject', async () => {
   const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -885,7 +949,7 @@ test('jam on reject', async () => {
     interpretation,
   });
 
-  await mockPlustek.simulateRemoveSheet();
+  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -893,7 +957,7 @@ test('calibrate', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   // Supertest won't actually start the request until you call .then()
@@ -910,7 +974,7 @@ test('jam on calibrate', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   mockPlustek.simulateJamOnNextOperation();
@@ -928,7 +992,9 @@ test('scan fails and retries', async () => {
   const { app, mockPlustek, logger, interpreter } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
@@ -960,7 +1026,9 @@ test('scan fails repeatedly and eventually gives up', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const scanSpy = jest.spyOn(mockPlustek, 'scan');
@@ -979,7 +1047,9 @@ test('scan fails due to plustek returning only one file instead of two', async (
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -1011,7 +1081,9 @@ test('scanning time out', async () => {
   });
   await configureApp(app);
 
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -1046,7 +1118,9 @@ test('kills plustekctl if it freezes', async () => {
   await configureApp(app);
 
   await waitForStatus(app, { state: 'no_paper' });
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');
@@ -1069,7 +1143,9 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
   await configureApp(app);
 
   await waitForStatus(app, { state: 'no_paper' });
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   await post(app, '/precinct-scanner/scanner/scan');

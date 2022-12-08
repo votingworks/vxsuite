@@ -78,7 +78,9 @@ async function saveReportDataToCard(
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
   reportData: ScannerReportData
 ): Promise<boolean> {
-  await auth.card.writeStoredData(reportData);
+  if ((await auth.card.writeStoredData(reportData)).isErr()) {
+    return false;
+  }
   const possibleTally = await auth.card.readStoredObject(
     ScannerReportDataSchema
   );

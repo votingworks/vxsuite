@@ -26,7 +26,9 @@ async function scanBallot(
   app: Application,
   initialBallotsCounted: number
 ) {
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  (
+    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+  ).unsafeUnwrap();
   await waitForStatus(app, {
     state: 'ready_to_scan',
     ballotsCounted: initialBallotsCounted,

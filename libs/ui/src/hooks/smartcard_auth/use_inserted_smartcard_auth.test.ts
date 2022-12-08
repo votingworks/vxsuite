@@ -762,7 +762,7 @@ describe('useInsertedSmartcardAuth', () => {
     );
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
-    await result.current.markCardVoided();
+    (await result.current.markCardVoided()).unsafeUnwrap();
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -814,7 +814,7 @@ describe('useInsertedSmartcardAuth', () => {
     );
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
-    await result.current.markCardPrinted();
+    (await result.current.markCardPrinted()).unsafeUnwrap();
     await waitForNextUpdate();
     // Shouldn't log out until card removed
     expect(result.current.status).toEqual('logged_in');
