@@ -465,7 +465,7 @@ test('freeze and kill', async () => {
   expect(closeFinished).toBe(true);
 
   // Only killing stops the madness
-  mock.kill();
+  mock.kill().unsafeUnwrap();
   await mock.connect();
   expectNoPaper((await mock.getPaperStatus()).ok());
 });

@@ -76,7 +76,9 @@ describe('Card interface', () => {
     ).toBeUndefined();
 
     // Try writing an object to the card
-    await result.current.card.writeStoredData(electionDefinition);
+    (
+      await result.current.card.writeStoredData(electionDefinition)
+    ).unsafeUnwrap();
     await waitForNextUpdate();
 
     // Now reading should return the written data
@@ -94,7 +96,9 @@ describe('Card interface', () => {
     );
 
     // Try writing a binary value to the card
-    await result.current.card.writeStoredData(Uint8Array.of(1, 2, 3));
+    (
+      await result.current.card.writeStoredData(Uint8Array.of(1, 2, 3))
+    ).unsafeUnwrap();
     await waitForNextUpdate();
 
     // Reading should return the written data
@@ -111,7 +115,7 @@ describe('Card interface', () => {
     );
 
     // Next, clear the data
-    await result.current.card.clearStoredData();
+    (await result.current.card.clearStoredData()).unsafeUnwrap();
     await waitForNextUpdate();
 
     // Data should read as undefined again

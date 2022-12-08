@@ -118,7 +118,7 @@ test('schema in sync', () => {
   const json = readFileSync(join(__dirname, '../data/schema.json'), 'utf-8');
   const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
   const out = fakeWritable();
-  buildSchema(xsd, json, out);
+  buildSchema(xsd, json, out).unsafeUnwrap();
   const expectedOutput = out.toString();
   expect(currentOutput).toEqual(expectedOutput);
 });

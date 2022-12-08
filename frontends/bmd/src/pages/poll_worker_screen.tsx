@@ -223,10 +223,16 @@ function ScannerReportModal({
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-      await pollworkerAuth.card.clearStoredData();
-      await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
-        disposition: 'success',
-      });
+      if ((await pollworkerAuth.card.clearStoredData()).isErr()) {
+        await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
+          disposition: 'failure',
+          message: 'Failed to clear report from card.',
+        });
+      } else {
+        await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
+          disposition: 'success',
+        });
+      }
       if (willUpdatePollsToMatchScanner) {
         updatePollsState(precinctScannerPollsState);
       }

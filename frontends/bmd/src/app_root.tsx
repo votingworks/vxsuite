@@ -632,7 +632,8 @@ export function AppRoot({
           ballotType: BallotType.Standard,
         };
         const longValue = encodeBallot(election, ballot);
-        await auth.card.writeStoredData(longValue);
+        // TODO: handle error
+        (await auth.card.writeStoredData(longValue)).unsafeUnwrap();
         dispatchAppState({ type: 'finishWritingLongValue' });
       }
     },
@@ -646,14 +647,18 @@ export function AppRoot({
       return true;
     }
     assert(isVoterAuth(auth));
-    await auth.card.clearStoredData();
+    if ((await auth.card.clearStoredData()).isErr()) {
+      return false;
+    }
     return (await auth.markCardVoided()).isOk();
   }, [auth]);
 
   const markVoterCardPrinted: MarkVoterCardFunction = useCallback(async () => {
     if (isCardlessVoterAuth(auth)) return true;
     assert(isVoterAuth(auth));
-    await auth.card.clearStoredData();
+    if ((await auth.card.clearStoredData()).isErr()) {
+      return false;
+    }
     return (await auth.markCardPrinted()).isOk();
   }, [auth]);
 

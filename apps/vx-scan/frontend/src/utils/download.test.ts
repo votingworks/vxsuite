@@ -83,7 +83,9 @@ test('download with fetch options', async () => {
   window.kiosk = kiosk;
 
   fetchMock.postOnce('/file.txt', {});
-  await download('/file.txt', { fetchOptions: { method: 'POST' } });
+  (
+    await download('/file.txt', { fetchOptions: { method: 'POST' } })
+  ).unsafeUnwrap();
 });
 
 test('download with kiosk-browser and no content-disposition filename', async () => {
