@@ -6,20 +6,15 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { DirResult, dirSync } from 'tmp';
 import { Exporter, ExportFileResult } from './exporter';
-import { getUsbDrives, UsbDrive } from './get_usb_drives';
+import { UsbDrive } from './get_usb_drives';
 import { execFile } from './utils/exec';
-
-jest.mock('./get_usb_drives', (): typeof import('./get_usb_drives') => ({
-  ...jest.requireActual('./get_usb_drives'),
-  getUsbDrives: jest.fn(),
-}));
 
 jest.mock('./utils/exec', (): typeof import('./utils/exec') => ({
   ...jest.requireActual('./utils/exec'),
   execFile: jest.fn(),
 }));
 
-const getUsbDrivesMock = mockOf(getUsbDrives);
+const getUsbDrivesMock = jest.fn();
 const execFileMock = mockOf(execFile);
 const tmpDirs: DirResult[] = [];
 
@@ -31,7 +26,7 @@ function createTmpDir() {
 
 const exporter = new Exporter({
   allowedExportPatterns: ['/tmp/**'],
-  getUsbDrives: jest.fn(),
+  getUsbDrives: getUsbDrivesMock,
 });
 
 afterEach(() => {
