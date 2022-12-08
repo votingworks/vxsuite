@@ -17,17 +17,13 @@ export function isArray(value: unknown): value is unknown[] {
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && !isArray(value) && value !== null;
 }
 
 export function isPlainObject(
   value: unknown
 ): value is Record<string, unknown> {
   return isObject(value) && value.constructor === Object;
-}
-
-export function isEmptyObject(value: unknown): value is Record<string, never> {
-  return isObject(value) && Object.keys(value).length === 0;
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types

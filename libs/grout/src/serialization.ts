@@ -130,6 +130,9 @@ function throwIfUnserializable(value: any): void {
   if (isObject(value) && isFunction(value['toJSON'])) {
     throw unserializableError(value);
   }
+  if (isNumber(value) && (isNaN(value) || !isFinite(value))) {
+    throw unserializableError(value);
+  }
   if (isJsonBuiltInValueShallow(value)) {
     return;
   }

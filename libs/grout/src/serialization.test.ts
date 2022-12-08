@@ -72,6 +72,9 @@ test('JSON serialization/deserialization', () => {
     expect(() => serialize(value)).toThrow(/Cannot serialize value to JSON/);
   }
 
+  expectToBeRejected(NaN);
+  expectToBeRejected(Infinity);
+  expectToBeRejected(-Infinity);
   expectToBeRejected(() => 1);
   expectToBeRejected({ method: () => 1 });
   // We could build in support for Dates if we wanted to, but starting out safe by rejecting.
