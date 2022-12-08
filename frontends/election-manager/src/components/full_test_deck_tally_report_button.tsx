@@ -17,7 +17,6 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const { election } = electionDefinition;
 
   const ballots = generateTestDeckBallots({ election });
-  const votes = ballots.map((b) => b.votes);
 
   const afterPrint = useCallback(() => {
     void logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
@@ -43,7 +42,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const fullTestDeckTallyReport = (
     <TestDeckTallyReport
       election={election}
-      votes={[...votes, ...votes, ...votes, ...votes]}
+      testDeckBallots={[...ballots, ...ballots, ...ballots, ...ballots]}
     />
   );
 
