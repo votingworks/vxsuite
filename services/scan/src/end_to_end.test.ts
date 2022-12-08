@@ -1,9 +1,14 @@
 import { Scan } from '@votingworks/api';
+import { Exporter } from '@votingworks/data';
 import {
   asElectionDefinition,
   electionSample as election,
 } from '@votingworks/fixtures';
 import { CastVoteRecord } from '@votingworks/types';
+import {
+  generateElectionBasedSubfolderName,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
@@ -23,6 +28,12 @@ const sampleBallotImagesPath = path.join(
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
 
+const mockGetUsbDrives = jest.fn();
+const exporter = new Exporter({
+  allowedExportPatterns: ['/tmp/**'],
+  getUsbDrives: mockGetUsbDrives,
+});
+
 let app: Application;
 let importer: Importer;
 let workspace: Workspace;
@@ -35,7 +46,7 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  app = await buildCentralScannerApp({ importer, workspace });
+  app = await buildCentralScannerApp({ exporter, importer, workspace });
 });
 
 afterEach(async () => {
@@ -43,16 +54,15 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
-  const exportRequestBody: Scan.ExportRequest = {
-    directoryPath: path.join(workspace.path, 'export/dir'),
-    filename: 'cvrs_export.jsonl',
+  const export1RequestBody: Scan.ExportToUsbDriveRequest = {
+    filename: 'cvrs_export_1.jsonl',
   };
 
   // try export before configure
   await request(app)
-    .post('/central-scanner/scan/export')
+    .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .send(exportRequestBody)
+    .send(export1RequestBody)
     .expect(400);
 
   await request(app)
@@ -116,14 +126,29 @@ test('going through the whole process works', async () => {
   }
 
   {
+    const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
+    await fsExtra.mkdir(mockUsbMountPoint, { recursive: true });
+    mockGetUsbDrives.mockResolvedValue([
+      { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
+    ]);
+
     await request(app)
-      .post('/central-scanner/scan/export')
+      .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
-      .send(exportRequestBody)
+      .send(export1RequestBody)
       .expect(200);
 
     const exportFileContents = fsExtra.readFileSync(
-      path.join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      path.join(
+        workspace.path,
+        'mock-usb',
+        SCANNER_RESULTS_FOLDER,
+        generateElectionBasedSubfolderName(
+          election,
+          asElectionDefinition(election).electionHash
+        ),
+        'cvrs_export_1.jsonl'
+      ),
       'utf-8'
     );
     const cvrs: CastVoteRecord[] = exportFileContents
@@ -173,17 +198,34 @@ test('going through the whole process works', async () => {
   }
 
   // no CVRs!
+  const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
+  await fsExtra.mkdir(mockUsbMountPoint, { recursive: true });
+  mockGetUsbDrives.mockResolvedValue([
+    { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
+  ]);
+  const export2RequestBody: Scan.ExportToUsbDriveRequest = {
+    filename: 'cvrs_export_2.jsonl',
+  };
   await request(app)
-    .post('/central-scanner/scan/export')
+    .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .send(exportRequestBody)
+    .send(export2RequestBody)
     .expect(200);
 
-  const exportFileContents = fsExtra.readFileSync(
-    path.join(workspace.path, 'export/dir/cvrs_export.jsonl'),
-    'utf-8'
-  );
-  expect(exportFileContents).toEqual('');
+  expect(
+    fsExtra.existsSync(
+      path.join(
+        workspace.path,
+        'mock-usb',
+        SCANNER_RESULTS_FOLDER,
+        generateElectionBasedSubfolderName(
+          election,
+          asElectionDefinition(election).electionHash
+        ),
+        'cvrs_export_2.jsonl'
+      )
+    )
+  ).toBe(false);
 
   // clean up
   await request(app).delete('/central-scanner/config/election');

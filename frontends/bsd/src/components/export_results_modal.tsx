@@ -95,15 +95,17 @@ export function ExportResultsModal({
             defaultPath: path.join(pathToFolder, cvrFilename),
           });
         } else {
-          const requestBody: Scan.ExportRequest = {
-            directoryPath: pathToFolder,
+          const requestBody: Scan.ExportToUsbDriveRequest = {
             filename: cvrFilename,
           };
-          const response = await fetch('/central-scanner/scan/export', {
-            method: 'post',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-          });
+          const response = await fetch(
+            '/central-scanner/scan/export-to-usb-drive',
+            {
+              method: 'post',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(requestBody),
+            }
+          );
 
           if (!response.ok) {
             throw new Error('unable to write to USB drive');

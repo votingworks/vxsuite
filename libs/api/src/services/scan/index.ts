@@ -555,45 +555,42 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
   OkResponseSchema;
 
 /**
- * @url /scan/export
+ * @url /scan/export-to-usb-drive
  * @method POST
  */
-export interface ExportRequest {
-  directoryPath: string;
+export interface ExportToUsbDriveRequest {
   filename: string;
   skipImages?: boolean;
 }
 
 /**
- * @url /scan/export
+ * @url /scan/export-to-usb-drive
  * @method POST
  */
-export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z.object({
-  directoryPath: z.string().min(1),
-  filename: z.string().min(1),
-  skipImages: z.boolean().optional(),
-});
+export const ExportToUsbDriveRequestSchema: z.ZodSchema<ExportToUsbDriveRequest> =
+  z.object({
+    filename: z.string().min(1),
+    skipImages: z.boolean().optional(),
+  });
 
 /**
- * @url /scan/export
+ * @url /scan/export-to-usb-drive
  * @method POST
  */
-export type ExportResponse = string | ErrorsResponse;
+export type ExportToUsbDriveResponse = string | ErrorsResponse;
 
 /**
- * @url /scan/export
+ * @url /scan/export-to-usb-drive
  * @method POST
  */
-export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
-  z.string(),
-  ErrorsResponseSchema,
-]);
+export const ExportToUsbDriveResponseSchema: z.ZodSchema<ExportToUsbDriveResponse> =
+  z.union([z.string(), ErrorsResponseSchema]);
 
 /**
  * @url /scan/export
  * @method GET
  */
-export interface DownloadQueryParams {
+export interface DownloadExportQueryParams {
   filename?: string;
 }
 
@@ -601,7 +598,7 @@ export interface DownloadQueryParams {
  * @url /scan/export
  * @method GET
  */
-export const DownloadQueryParamsSchema: z.ZodSchema<DownloadQueryParams> =
+export const DownloadExportQueryParamsSchema: z.ZodSchema<DownloadExportQueryParams> =
   z.object({
     filename: z.string().optional(),
   });

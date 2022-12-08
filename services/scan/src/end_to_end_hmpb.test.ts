@@ -1,6 +1,12 @@
+import { Exporter } from '@votingworks/data';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { CastVoteRecord } from '@votingworks/types';
-import { BallotPackageManifest, typedAs } from '@votingworks/utils';
+import {
+  BallotPackageManifest,
+  generateElectionBasedSubfolderName,
+  SCANNER_RESULTS_FOLDER,
+  typedAs,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { Application } from 'express';
@@ -43,6 +49,12 @@ jest.mock('./exec', () => ({
   },
 }));
 
+const mockGetUsbDrives = jest.fn();
+const exporter = new Exporter({
+  allowedExportPatterns: ['/tmp/**'],
+  getUsbDrives: mockGetUsbDrives,
+});
+
 let workspace: Workspace;
 let scanner: MockScanner;
 let importer: Importer;
@@ -52,7 +64,7 @@ beforeEach(async () => {
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  app = await buildCentralScannerApp({ importer, workspace });
+  app = await buildCentralScannerApp({ exporter, importer, workspace });
 });
 
 afterEach(async () => {
@@ -156,18 +168,32 @@ test('going through the whole process works', async () => {
   }
 
   {
-    const exportRequestBody: Scan.ExportRequest = {
-      directoryPath: join(workspace.path, 'export/dir'),
+    const mockUsbMountPoint = join(workspace.path, 'mock-usb');
+    await fs.mkdir(mockUsbMountPoint, { recursive: true });
+    mockGetUsbDrives.mockResolvedValue([
+      { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
+    ]);
+
+    const exportRequestBody: Scan.ExportToUsbDriveRequest = {
       filename: 'cvrs_export.jsonl',
     };
     await request(app)
-      .post('/central-scanner/scan/export')
+      .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
       .send(exportRequestBody)
       .expect(200);
 
     const exportFileContents = fs.readFileSync(
-      join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      join(
+        workspace.path,
+        'mock-usb',
+        SCANNER_RESULTS_FOLDER,
+        generateElectionBasedSubfolderName(
+          election,
+          asElectionDefinition(election).electionHash
+        ),
+        'cvrs_export.jsonl'
+      ),
       'utf-8'
     );
     const cvrs: CastVoteRecord[] = exportFileContents
@@ -281,18 +307,32 @@ test('ms-either-neither end-to-end', async () => {
   }
 
   {
-    const exportRequestBody: Scan.ExportRequest = {
-      directoryPath: join(workspace.path, 'export/dir'),
+    const mockUsbMountPoint = join(workspace.path, 'mock-usb');
+    await fs.mkdir(mockUsbMountPoint, { recursive: true });
+    mockGetUsbDrives.mockResolvedValue([
+      { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
+    ]);
+
+    const exportRequestBody: Scan.ExportToUsbDriveRequest = {
       filename: 'cvrs_export.jsonl',
     };
     await request(app)
-      .post('/central-scanner/scan/export')
+      .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
       .send(exportRequestBody)
       .expect(200);
 
     const exportFileContents = fs.readFileSync(
-      join(workspace.path, 'export/dir/cvrs_export.jsonl'),
+      join(
+        workspace.path,
+        'mock-usb',
+        SCANNER_RESULTS_FOLDER,
+        generateElectionBasedSubfolderName(
+          election,
+          asElectionDefinition(election).electionHash
+        ),
+        'cvrs_export.jsonl'
+      ),
       'utf-8'
     );
     const cvrs: CastVoteRecord[] = exportFileContents

@@ -1,4 +1,5 @@
 import { Scan } from '@votingworks/api';
+import { Exporter } from '@votingworks/data';
 import {
   BallotPageLayout,
   BallotPageLayoutSchema,
@@ -6,13 +7,19 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
+import {
+  assert,
+  generateElectionBasedSubfolderName,
+  readBallotPackageFromBuffer,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
 import path from 'path';
+import { PassThrough } from 'stream';
 import { z } from 'zod';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
@@ -23,6 +30,7 @@ const debug = makeDebug('scan:central-scanner');
 type NoParams = never;
 
 export interface AppOptions {
+  exporter: Exporter;
   importer: Importer;
   workspace: Workspace;
 }
@@ -32,6 +40,7 @@ export interface AppOptions {
  * lifting.
  */
 export async function buildCentralScannerApp({
+  exporter,
   importer,
   workspace,
 }: AppOptions): Promise<Application> {
@@ -457,51 +466,79 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
-    '/central-scanner/scan/export',
-    async (request, response) => {
-      if (!store.hasElection()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'no-election',
-              message: 'cannot export cvrs if no election is configured',
-            },
-          ],
-        });
-        return;
-      }
-
-      const parseBodyResult = safeParse(Scan.ExportRequestSchema, request.body);
-      if (parseBodyResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'invalid-request',
-              message: parseBodyResult.err().message,
-            },
-          ],
-        });
-        return;
-      }
-
-      const { directoryPath, filename } = request.body;
-
-      await fs.mkdir(directoryPath, { recursive: true });
-      const file = await fs.open(path.join(directoryPath, filename), 'w');
-      const fileStream = file.createWriteStream();
-
-      await importer.doExport(fileStream);
-
-      fileStream.end();
-
-      store.setCvrsBackedUp();
-
-      response.sendStatus(200);
+  app.post<
+    NoParams,
+    Scan.ExportToUsbDriveResponse,
+    Scan.ExportToUsbDriveRequest
+  >('/central-scanner/scan/export-to-usb-drive', async (request, response) => {
+    const electionDefinition = store.getElectionDefinition();
+    if (!electionDefinition) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'no-election',
+            message: 'cannot export cvrs if no election is configured',
+          },
+        ],
+      });
+      return;
     }
-  );
+
+    const parseBodyResult = safeParse(
+      Scan.ExportToUsbDriveRequestSchema,
+      request.body
+    );
+    if (parseBodyResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-request',
+            message: parseBodyResult.err().message,
+          },
+        ],
+      });
+      return;
+    }
+
+    const { filename } = request.body;
+
+    const exportStream = new PassThrough();
+    const exportResultPromise = exporter.exportDataToUsbDrive(
+      SCANNER_RESULTS_FOLDER,
+      path.join(
+        generateElectionBasedSubfolderName(
+          electionDefinition.election,
+          electionDefinition.electionHash
+        ),
+        filename
+      ),
+      exportStream
+    );
+
+    await importer.doExport(exportStream);
+    exportStream.end();
+
+    const exportResult = await exportResultPromise;
+    if (exportResult.isErr()) {
+      response.status(500).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'export-failed',
+            message: exportResult.err().message,
+          },
+        ],
+      });
+
+      return;
+    }
+
+    store.setCvrsBackedUp();
+
+    response.sendStatus(200);
+  });
 
   app.get<NoParams>(
     '/central-scanner/scan/export',
@@ -514,7 +551,7 @@ export async function buildCentralScannerApp({
       }
 
       const parseQueryResult = safeParse(
-        Scan.DownloadQueryParamsSchema,
+        Scan.DownloadExportQueryParamsSchema,
         request.query
       );
       if (parseQueryResult.isErr()) {
@@ -666,7 +703,7 @@ export async function buildCentralScannerApp({
   app.post<NoParams, Scan.BackupToUsbResponse, Scan.BackupToUsbRequest>(
     '/central-scanner/scan/backup-to-usb-drive',
     async (_request, response) => {
-      const result = await backupToUsbDrive(store);
+      const result = await backupToUsbDrive(exporter, store);
 
       if (result.isErr()) {
         response.status(500).json({
