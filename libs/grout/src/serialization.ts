@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { err, isResult, ok, Result } from '@votingworks/types';
 import {
   isArray,
@@ -20,7 +17,7 @@ type JsonBuiltInValue =
   | JsonBuiltInValue[]
   | { [key: string]: JsonBuiltInValue };
 
-function isJsonBuiltInValueShallow(value: any) {
+function isJsonBuiltInValueShallow(value: unknown): value is JsonBuiltInValue {
   return (
     value === null ||
     value === undefined ||
@@ -46,7 +43,7 @@ interface TaggedValue {
   __grout_value: JsonBuiltInValue;
 }
 
-function isTaggedValue(value: any): value is TaggedValue {
+function isTaggedValue(value: unknown): value is TaggedValue {
   return isObject(value) && '__grout_type' in value && '__grout_value' in value;
 }
 
@@ -57,12 +54,11 @@ function isTaggedValue(value: any): value is TaggedValue {
  * Grout could potentially be extended to allow custom taggers in the future,
  * but for now we just support a few useful types.
  */
-// eslint-disable-next-line vx/gts-type-parameters, vx/gts-identifiers
-interface Tagger<TValue, TSerialized> {
+interface Tagger<Value, Serialized> {
   tag: string;
-  shouldTag: (value: any) => value is TValue;
-  serialize: (value: TValue) => TSerialized;
-  deserialize: (value: TSerialized) => TValue;
+  shouldTag: (value: unknown) => value is Value;
+  serialize: (value: Value) => Serialized;
+  deserialize: (value: Serialized) => Value;
 }
 
 const undefinedTagger: Tagger<undefined, 'undefined'> = {
@@ -97,13 +93,14 @@ const resultTagger: Tagger<
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
   errorTagger,
   resultTagger,
 ];
 
-function tagValueIfNeeded(value: any): TaggedValue | any {
+function tagValueIfNeeded(value: unknown): TaggedValue | unknown {
   const tagger = taggers.find((t) => t.shouldTag(value));
   if (!tagger) return value;
   const taggedValue: TaggedValue = {
@@ -113,7 +110,8 @@ function tagValueIfNeeded(value: any): TaggedValue | any {
   return taggedValue;
 }
 
-function untagValueIfNeeded(value: any): any {
+/* eslint-disable no-underscore-dangle */
+function untagValueIfNeeded(value: JsonBuiltInValue): unknown {
   if (!isTaggedValue(value)) return value;
   const tagger = taggers.find((t) => t.tag === value.__grout_type);
   if (tagger) {
@@ -122,11 +120,11 @@ function untagValueIfNeeded(value: any): any {
   throw new Error(`Unknown tag: ${value.__grout_type}`);
 }
 
-function unserializableError(value: any) {
+function unserializableError(value: unknown) {
   return new Error(`Cannot serialize value to JSON: ${JSON.stringify(value)}`);
 }
 
-function throwIfUnserializable(value: any): void {
+function throwIfUnserializable(value: unknown): void {
   if (isObject(value) && isFunction(value['toJSON'])) {
     throw unserializableError(value);
   }
@@ -148,7 +146,7 @@ function throwIfUnserializable(value: any): void {
  * objects. Other types that are not built into JSON are not supported and will
  * throw an error.
  */
-export function serialize(rootValue: any): string {
+export function serialize(rootValue: unknown): string {
   throwIfUnserializable(rootValue);
   return JSON.stringify(rootValue, (_key, value) => {
     throwIfUnserializable(value);
@@ -159,6 +157,6 @@ export function serialize(rootValue: any): string {
 /**
  * Deserializes a value that was serialized by `serialize`.
  */
-export function deserialize(valueString: string): any {
+export function deserialize(valueString: string): unknown {
   return JSON.parse(valueString, (_key, value) => untagValueIfNeeded(value));
 }

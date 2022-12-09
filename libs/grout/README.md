@@ -44,8 +44,8 @@ const api = grout.createApi({
     name: string;
     age: number;
   }): Promise<Result<void, Error>> {
-    if (age <= 0) {
-      return err(new Error('Age must be at least 1.'));
+    if (age < 0) {
+      return err(new Error('Age must be at least 0.'));
     }
     await store.updatePersonAge(input.name, input.age);
     return ok();
@@ -107,7 +107,7 @@ await apiClient.updatePersonAge({ name: 'Bob', age: '1' }); // => TS error: Argu
 // us avoid forgetting to handle known errors.
 const updateResult = await apiClient.updatePersonAge({ name: 'Bob', age: -1 });
 if (updateResult.isErr()) {
-  console.error(updateResult.error.message); // => 'Age must be at least 1.'
+  console.error(updateResult.error.message); // => 'Age must be at least 0.'
 }
 
 // If there's an unexpected server error (e.g. a crash or runtime exception),

@@ -23,10 +23,15 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 export function isPlainObject(
   value: unknown
 ): value is Record<string, unknown> {
-  return isObject(value) && value.constructor === Object;
+  return (
+    isObject(value) &&
+    Object.getPrototypeOf(value) === Object.prototype &&
+    value.constructor.name === Object.name
+  );
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function isFunction(value: unknown): value is Function {
+export function isFunction(
+  value: unknown
+): value is (...args: unknown[]) => unknown {
   return typeof value === 'function';
 }
