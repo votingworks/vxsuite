@@ -59,7 +59,7 @@ test('JSON serialization/deserialization', () => {
     expect(deserialize(serialize(value))).toEqual(value);
   }
 
-  // JSON.stringify removes undefined values from objects by default. Since
+  // JSON.parse removes undefined values from objects by default. Since
   // that's semantically equivalent in TS, we're fine with that.
   expectToBePreservedSemantically({ a: undefined });
   // Our serialization/deserialization for an array with an undefined value in

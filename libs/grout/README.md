@@ -87,7 +87,7 @@ import type { MyApi } from './server';
 
 // We need to set the base URL for the client. Make sure to include the path
 // prefix (in our case, /api).
-const baseUrl = 'http://localhost:1234/api';
+const baseUrl = '/api';
 
 // Create the client using MyApi as a type parameter.
 const apiClient = grout.createClient<MyApi>({ baseUrl });

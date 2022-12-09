@@ -18,8 +18,9 @@ export type Client<TApi extends AnyApi> = inferApiMethods<TApi>;
 
 /**
  * Options for creating a Grout RPC client.
- *  - baseUrl: The base URL for the API, e.g. "http://localhost:1234/api". This
- *    must include any path prefix for the API (e.g. /api in this example).
+ *  - baseUrl: The base URL for the API, e.g. "/api" or
+ *  "http://localhost:1234/api". This must include any path prefix for the API
+ *  (e.g. /api in this example).
  */
 export interface ClientOptions {
   baseUrl: string;
@@ -27,8 +28,7 @@ export interface ClientOptions {
 
 function methodUrl(methodName: string, baseUrl: string) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const url = new URL(methodName, base);
-  return url.toString();
+  return `${base}${methodName}`;
 }
 
 /**
