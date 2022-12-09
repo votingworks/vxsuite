@@ -50,8 +50,14 @@ export function* checkTsconfig(
   tsconfigPath: string
 ): Generator<ValidationIssue> {
   const isBuild = basename(tsconfigPath) === 'tsconfig.build.json';
-  const { noEmit, rootDir, outDir, declaration, ...otherCompilerOptions } =
-    tsconfig.compilerOptions ?? {};
+  const {
+    noEmit,
+    rootDir,
+    outDir,
+    declaration,
+    declarationMap,
+    ...otherCompilerOptions
+  } = tsconfig.compilerOptions ?? {};
 
   if (noEmit !== !isBuild) {
     yield {
@@ -91,6 +97,16 @@ export function* checkTsconfig(
         propertyKeyPath: 'compilerOptions.declaration',
         actualValue: declaration,
         expectedValue: true,
+      };
+    }
+
+    if (!(declarationMap === true || declarationMap === undefined)) {
+      yield {
+        kind: ValidationIssueKind.InvalidPropertyValue,
+        tsconfigPath,
+        propertyKeyPath: 'compilerOptions.declarationMap',
+        actualValue: declarationMap,
+        expectedValue: 'true or undefined',
       };
     }
 
