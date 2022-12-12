@@ -21,15 +21,17 @@ function getOverrides(): Partial<MachineConfig> {
     appMode: appModeKey ? getAppMode(appModeKey) : undefined,
     machineId: process.env.REACT_APP_VX_MACHINE_ID,
     codeVersion: process.env.REACT_APP_VX_CODE_VERSION,
+    screenOrientation: process.env.REACT_APP_VX_SCREEN_ORIENTATION,
   };
 }
 
 export const machineConfigProvider: Provider<MachineConfig> = {
   async get() {
-    const { appModeKey, machineId, codeVersion } = unsafeParse(
-      MachineConfigResponseSchema,
-      await fetchJson('/machine-config')
-    );
+    const { appModeKey, machineId, codeVersion, screenOrientation } =
+      unsafeParse(
+        MachineConfigResponseSchema,
+        await fetchJson('/machine-config')
+      );
 
     const overrides =
       process.env.NODE_ENV === 'development' ? getOverrides() : {};
@@ -38,6 +40,7 @@ export const machineConfigProvider: Provider<MachineConfig> = {
       appMode: overrides.appMode ?? getAppMode(appModeKey),
       machineId: overrides.machineId ?? machineId,
       codeVersion: overrides.codeVersion ?? codeVersion,
+      screenOrientation: overrides.screenOrientation ?? screenOrientation,
     };
   },
 };

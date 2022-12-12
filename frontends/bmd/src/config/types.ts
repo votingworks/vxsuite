@@ -43,22 +43,27 @@ export const AppModeKeysSchema: z.ZodSchema<AppModeKeys> = z.union([
   z.literal(MarkAndPrint.key),
 ]);
 
+export type ScreenOrientation = 'portrait' | 'landscape';
+
 export interface MachineConfig {
   machineId: string;
   appMode: AppMode;
   codeVersion: string;
+  screenOrientation: ScreenOrientation;
 }
 
 export interface MachineConfigResponse {
   machineId: string;
   appModeKey: AppModeKeys;
   codeVersion: string;
+  screenOrientation: ScreenOrientation;
 }
 export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> =
   z.object({
     machineId: MachineId,
     appModeKey: AppModeKeysSchema,
     codeVersion: z.string().nonempty(),
+    screenOrientation: z.union([z.literal('portrait'), z.literal('landscape')]),
   });
 
 export function getAppMode(key: AppModeKeys): AppMode {

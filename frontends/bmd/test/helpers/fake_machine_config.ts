@@ -5,8 +5,9 @@ export function fakeMachineConfig({
   appMode = MarkOnly,
   machineId = '000',
   codeVersion = 'test',
+  screenOrientation = 'portrait',
 }: Partial<MachineConfig> = {}): MachineConfig {
-  return { appMode, machineId, codeVersion };
+  return { appMode, machineId, codeVersion, screenOrientation };
 }
 
 export function fakeMachineConfigProvider(

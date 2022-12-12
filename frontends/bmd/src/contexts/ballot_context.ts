@@ -8,7 +8,12 @@ import {
 } from '../config/types';
 
 const ballot: BallotContextInterface = {
-  machineConfig: { machineId: '000', appMode: MarkOnly, codeVersion: 'dev' },
+  machineConfig: {
+    machineId: '000',
+    appMode: MarkOnly,
+    codeVersion: 'dev',
+    screenOrientation: 'portrait',
+  },
   contests: [],
   isCardlessVoter: false,
   isLiveMode: false,

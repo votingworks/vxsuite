@@ -22,6 +22,7 @@ module.exports = function (app) {
           appModeKey: process.env.VX_APP_MODE || 'MarkAndPrint',
           machineId: process.env.VX_MACHINE_ID || '000',
           codeVersion: process.env.VX_CODE_VERSION || 'dev',
+          screenOrientation: process.env.VX_SCREEN_ORIENTATION || 'portrait',
         })
       );
     } else {
