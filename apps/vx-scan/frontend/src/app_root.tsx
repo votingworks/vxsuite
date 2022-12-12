@@ -269,7 +269,7 @@ export function AppRoot({
   }, [updatePollsState]);
 
   const toggleTestMode = useCallback(async () => {
-    await config.setTestMode(!isTestMode);
+    await apiClient.setTestMode({ isTestMode: !isTestMode });
     dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
     dispatchAppState({ type: 'resetElectionSession' });
     await refreshConfig();

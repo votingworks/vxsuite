@@ -36,15 +36,6 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
   }
 }
 
-export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>(
-    '/precinct-scanner/config/testMode',
-    {
-      testMode,
-    }
-  );
-}
-
 export async function setPollsState(pollsState: PollsState): Promise<void> {
   await patch<Scan.PatchPollsStateRequest>('/precinct-scanner/config/polls', {
     pollsState,

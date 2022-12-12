@@ -253,12 +253,12 @@ export class Store {
   /**
    * Sets the current test mode setting value.
    */
-  setTestMode(testMode: boolean): void {
+  setTestMode(isTestMode: boolean): void {
     if (!this.hasElection()) {
       throw new Error('Cannot set test mode without an election.');
     }
 
-    this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
+    this.client.run('update election set is_test_mode = ?', isTestMode ? 1 : 0);
   }
 
   /**

@@ -110,6 +110,12 @@ function buildApi(
     async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
       store.setIsSoundMuted(input.isSoundMuted);
     },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setTestMode(input: { isTestMode: boolean }): Promise<void> {
+      workspace.resetElectionSession();
+      store.setTestMode(input.isTestMode);
+    },
   });
 }
 
@@ -141,30 +147,6 @@ export function buildApp(
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchTestModeConfigResponse,
-    Scan.PatchTestModeConfigRequest
-  >('/precinct-scanner/config/testMode', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchTestModeConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    workspace.resetElectionSession();
-    store.setTestMode(bodyParseResult.ok().testMode);
-    response.json({ status: 'ok' });
-  });
 
   deprecatedApiRouter.patch<
     NoParams,
