@@ -223,14 +223,15 @@ function ScannerReportModal({
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-      if ((await pollworkerAuth.card.clearStoredData()).isErr()) {
+      /* istanbul ignore else */
+      if ((await pollworkerAuth.card.clearStoredData()).isOk()) {
         await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
-          disposition: 'failure',
-          message: 'Failed to clear report from card.',
+          disposition: 'success',
         });
       } else {
         await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
-          disposition: 'success',
+          disposition: 'failure',
+          message: 'Failed to clear report from card.',
         });
       }
       if (willUpdatePollsToMatchScanner) {
