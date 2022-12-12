@@ -15,7 +15,6 @@ import {
   generateFilenameForScanningResults,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
@@ -33,11 +32,8 @@ const debug = rootDebug.extend('app');
 type NoParams = never;
 
 function buildApi(
-  _machine: PrecinctScannerStateMachine,
-  _interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _logger: Logger
+  interpreter: PrecinctScannerInterpreter
 ) {
   const { store } = workspace;
   return grout.createApi({
@@ -54,6 +50,44 @@ function buildApi(
           store.getBallotCountWhenBallotBagLastReplaced(),
       };
     },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setElection({
+      electionData,
+    }: {
+      // We transmit and store the election definition as a string, not as a
+      // JSON object, since it will later be hashed to match the election hash
+      // in ballot QR codes. Since the original hash was made from the string,
+      // the most reliable way to get the same hash is to use the same string.
+      electionData: string;
+    }): Promise<void> {
+      const parseResult = safeParseElectionDefinition(electionData);
+      assert(parseResult.isOk(), 'Invalid election definition');
+      const electionDefinition = parseResult.ok();
+      store.setElection(electionDefinition.electionData);
+      // If the election has only one precinct, set it automatically
+      if (electionDefinition.election.precincts.length === 1) {
+        store.setPrecinctSelection(
+          singlePrecinctSelectionFor(
+            electionDefinition.election.precincts[0].id
+          )
+        );
+      }
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async unconfigureElection({
+      ignoreBackupRequirement,
+    }: {
+      ignoreBackupRequirement?: boolean;
+    }): Promise<void> {
+      assert(
+        store.getCanUnconfigure() || ignoreBackupRequirement,
+        'Attempt to unconfigure without backup'
+      );
+      interpreter.unconfigure();
+      workspace.reset();
+    },
   });
 }
 
@@ -69,11 +103,8 @@ export function buildApp(
 
   const app: Application = express();
 
-  const api = buildApi(machine, interpreter, workspace, logger);
-  const apiRouter = express.Router();
-  apiRouter.use(express.text({ type: 'application/json' }));
-  grout.registerRoutes(api, apiRouter);
-  app.use('/api', apiRouter);
+  const api = buildApi(workspace, interpreter);
+  app.use('/api', grout.buildRouter(api, express));
 
   const deprecatedApiRouter = express.Router();
 
@@ -88,83 +119,6 @@ export function buildApp(
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchElectionConfigResponse,
-    Scan.PatchElectionConfigRequest
-  >('/precinct-scanner/config/election', (request, response) => {
-    const { body } = request;
-
-    if (!Buffer.isBuffer(body)) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `expected content type to be application/octet-stream, got ${request.header(
-              'content-type'
-            )}`,
-          },
-        ],
-      });
-      return;
-    }
-
-    const bodyParseResult = safeParseElectionDefinition(
-      new TextDecoder('utf-8', { fatal: false }).decode(body)
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: error.name,
-            message: error.message,
-          },
-        ],
-      });
-      return;
-    }
-
-    const electionDefinition = bodyParseResult.ok();
-    store.setElection(electionDefinition.electionData);
-    // If the election has only one precinct, set it automatically
-    if (electionDefinition.election.precincts.length === 1) {
-      store.setPrecinctSelection(
-        singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-      );
-    }
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.delete<NoParams, Scan.DeleteElectionConfigResponse>(
-    '/precinct-scanner/config/election',
-    (request, response) => {
-      if (
-        !store.getCanUnconfigure() &&
-        request.query['ignoreBackupRequirement'] !== 'true'
-      ) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'no-backup',
-              message:
-                'cannot unconfigure an election that has not been backed up',
-            },
-          ],
-        });
-        return;
-      }
-
-      interpreter.unconfigure();
-      workspace.reset();
-      response.json({ status: 'ok' });
-    }
-  );
 
   deprecatedApiRouter.patch<
     NoParams,

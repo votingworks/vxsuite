@@ -7,6 +7,7 @@ import {
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
+import { apiClient } from './api';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
@@ -41,22 +42,6 @@ async function del(url: string): Promise<void> {
 
   if (body.status !== 'ok') {
     throw new Error(`DELETE ${url} failed: ${JSON.stringify(body.errors)}`);
-  }
-}
-
-export async function setElection(
-  electionData?: string,
-  { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
-): Promise<void> {
-  if (typeof electionData === 'undefined') {
-    let deletionUrl = '/precinct-scanner/config/election';
-    if (ignoreBackupRequirement) {
-      deletionUrl += '?ignoreBackupRequirement=true';
-    }
-    await del(deletionUrl);
-  } else {
-    // TODO(528) add proper typing here
-    await patch('/precinct-scanner/config/election', electionData);
   }
 }
 
@@ -168,7 +153,9 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
   setImmediate(async () => {
     try {
       result.emit('configuring', pkg, pkg.electionDefinition);
-      await setElection(pkg.electionDefinition.electionData);
+      await apiClient.setElection({
+        electionData: pkg.electionDefinition.electionData,
+      });
 
       for (const ballot of pkg.ballots) {
         result.emit('uploading', pkg, ballot);

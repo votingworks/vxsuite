@@ -283,7 +283,7 @@ export function AppRoot({
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
       try {
-        await config.setElection(undefined, options);
+        await apiClient.unconfigureElection(options);
         await refreshConfig();
       } catch (error) {
         debug('failed unconfigureServer()', error);
