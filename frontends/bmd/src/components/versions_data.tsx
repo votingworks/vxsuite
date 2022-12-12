@@ -3,13 +3,7 @@ import styled from 'styled-components';
 import { Prose, Text } from '@votingworks/ui';
 import { MachineConfig } from '../config/types';
 
-const HorizontalVersions = styled(Prose)`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
-
-const VerticalVersions = styled(Prose)`
+const StyledVersions = styled(Prose)`
   margin-top: 1rem;
   border-top: 1px solid #666666;
   padding-top: 0.5rem;
@@ -17,35 +11,25 @@ const VerticalVersions = styled(Prose)`
 
 interface Props {
   machineConfig: MachineConfig;
-  electionHash?: string;
+  electionHash: string;
 }
 
 export function VersionsData({
   machineConfig: { machineId, codeVersion },
   electionHash,
 }: Props): JSX.Element {
-  const electionId = electionHash?.substring(0, 10);
-  const content = (
-    <React.Fragment>
-      {electionId && (
-        <Text small noWrap>
-          Election ID: <strong>{electionId}</strong>
-        </Text>
-      )}
+  const electionId = electionHash.substring(0, 10);
+  return (
+    <StyledVersions compact maxWidth={false}>
+      <Text small noWrap>
+        Election ID: <strong>{electionId}</strong>
+      </Text>
       <Text small noWrap>
         Machine ID: <strong>{machineId}</strong>
       </Text>
-    </React.Fragment>
+      <Text small noWrap>
+        Software Version: <strong>{codeVersion}</strong>
+      </Text>
+    </StyledVersions>
   );
-  if (codeVersion) {
-    return (
-      <VerticalVersions compact>
-        {content}
-        <Text small noWrap>
-          Software Version: <strong>{codeVersion}</strong>
-        </Text>
-      </VerticalVersions>
-    );
-  }
-  return <HorizontalVersions compact>{content}</HorizontalVersions>;
 }

@@ -47,6 +47,8 @@ import { BallotContext } from '../contexts/ballot_context';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { SettingsTextSize } from '../components/settings_text_size';
+import { ButtonFooter } from '../components/button_footer';
+import { screenOrientation } from '../lib/screen_orientation';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -157,7 +159,7 @@ const ScrollContainer = styled.div`
 const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 5rem 2rem 3rem;
+  padding: 0.25rem 5rem 40px 20px;
   padding-right: ${({ isScrollable }) =>
     isScrollable
       ? /* istanbul ignore next: Tested by Cypress */ '11rem'
@@ -167,7 +169,7 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
 const Contest = styled.button`
   display: flex;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 20px;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
@@ -330,6 +332,7 @@ export function ReviewPage(): JSX.Element {
     setUserSettings,
   } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const { isLandscape, isPortrait } = screenOrientation(machineConfig);
 
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
@@ -409,8 +412,19 @@ export function ReviewPage(): JSX.Element {
   );
   const { election } = electionDefinition;
 
+  const printMyBallotButton = (
+    <LinkButton
+      large
+      primary
+      to={machineConfig.appMode.isPrint ? '/print' : '/save'}
+      id="next"
+    >
+      I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+    </LinkButton>
+  );
+
   return (
-    <Screen navRight>
+    <Screen navRight={isLandscape}>
       <Main flexColumn>
         <ContentHeader>
           <Prose id="audiofocus">
@@ -478,9 +492,7 @@ export function ReviewPage(): JSX.Element {
                     )}
                   </ContestProse>
                   <ContestActions aria-label="Press the select button to change your votes for this contest.">
-                    <DecoyButton primary aria-hidden>
-                      Change
-                    </DecoyButton>
+                    <DecoyButton aria-hidden>Change</DecoyButton>
                   </ContestActions>
                 </LinkButton>
               ))}
@@ -516,38 +528,46 @@ export function ReviewPage(): JSX.Element {
           }
         </VariableContentContainer>
       </Main>
-      <Sidebar
-        footer={
-          <React.Fragment>
-            <SettingsTextSize
-              userSettings={userSettings}
-              setUserSettings={setUserSettings}
-            />
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              horizontal
-            />
-          </React.Fragment>
-        }
-      >
-        <SidebarSpacer />
-        <Prose>
-          <h2 aria-hidden>Review Votes</h2>
-          <p>Confirm your votes are correct.</p>
-          <p>
-            <LinkButton
-              large
-              primary
-              to={machineConfig.appMode.isPrint ? '/print' : '/save'}
-              id="next"
-            >
-              I’m Ready to <NoWrap>Print My Ballot</NoWrap>
-            </LinkButton>
-          </p>
-        </Prose>
-      </Sidebar>
+      {isPortrait ? (
+        <ButtonFooter>
+          {printMyBallotButton}
+          {/* <Button large onPress={() => {}}>
+            English
+          </Button> */}
+          <Button
+            large
+            onPress={() => setUserSettings({ showSettingsModal: true })}
+            aria-label="Change Settings"
+          >
+            Settings
+          </Button>
+        </ButtonFooter>
+      ) : (
+        <Sidebar
+          footer={
+            <React.Fragment>
+              <SettingsTextSize
+                userSettings={userSettings}
+                setUserSettings={setUserSettings}
+                sidebarWrapper
+              />
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                ballotStyleId={ballotStyleId}
+                precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                horizontal
+              />
+            </React.Fragment>
+          }
+        >
+          <SidebarSpacer />
+          <Prose>
+            <h2 aria-hidden>Review Votes</h2>
+            <p>Confirm your votes are correct.</p>
+            <p>{printMyBallotButton}</p>
+          </Prose>
+        </Sidebar>
+      )}
     </Screen>
   );
 }

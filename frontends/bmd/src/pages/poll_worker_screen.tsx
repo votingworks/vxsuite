@@ -18,7 +18,6 @@ import {
   ButtonList,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   Devices,
-  fontSizeTheme,
   getSignedQuickResultsReportingUrl,
   HorizontalRule,
   Loading,
@@ -30,6 +29,9 @@ import {
   Screen,
   Text,
   PrecinctScannerBallotCountReport,
+  ElectionInfoBar,
+  TestMode,
+  NoWrap,
 } from '@votingworks/ui';
 
 import {
@@ -59,10 +61,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import styled from 'styled-components';
 import { MachineConfig, ScreenReader } from '../config/types';
 
-import { Sidebar, SidebarProps } from '../components/sidebar';
-import { ElectionInfo } from '../components/election_info';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
@@ -340,6 +339,19 @@ function ScannerReportModal({
   );
 }
 
+const VotingSession = styled.div`
+  margin: 30px 0 60px;
+  border: 2px solid #000000;
+  border-radius: 20px;
+  padding: 30px 40px;
+  & > *:first-child {
+    margin-top: 0;
+  }
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+`;
+
 const UpdatePollsDirectlyActionsSpan = styled.span`
   display: flex;
   width: 100%;
@@ -421,8 +433,6 @@ export interface PollworkerScreenProps {
   ) => void;
   resetCardlessVoterSession: () => void;
   appPrecinct: PrecinctSelection;
-  cardlessVoterSessionPrecinctId?: PrecinctId;
-  cardlessVoterSessionBallotStyleId?: BallotStyleId;
   electionDefinition: ElectionDefinition;
   enableLiveMode: () => void;
   hasVotes: boolean;
@@ -460,6 +470,7 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+  const canPrintBallots = machineConfig.appMode.isPrint;
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -557,25 +568,23 @@ export function PollWorkerScreen({
         <Main centerChild>
           <Prose id="audiofocus">
             <h1>
-              {appPrecinct.kind === 'AllPrecincts'
-                ? `Voter session activated: ${ballotStyleId} @ ${precinct.name}`
-                : `Voter session activated: ${ballotStyleId}`}
+              {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
             </h1>
             <ol>
-              <li>Remove the poll worker card.</li>
               <li>
                 Instruct the voter to press the{' '}
                 <Text as="span" bold noWrap>
                   Start Voting
                 </Text>{' '}
-                button.
+                button on the next screen.
               </li>
+              <li>Remove the poll worker card to continue.</li>
             </ol>
             <HorizontalRule>or</HorizontalRule>
             <Text center>Deactivate this voter session to start over.</Text>
             <Text center>
               <Button small onPress={resetCardlessVoterSession}>
-                Deactivate Voter Session
+                Deactivate Voting Session
               </Button>
             </Text>
           </Prose>
@@ -584,27 +593,6 @@ export function PollWorkerScreen({
     );
   }
 
-  const sidebarProps: SidebarProps = {
-    appName: machineConfig.appMode.productName,
-    centerContent: true,
-    title: 'Poll Worker Actions',
-    screenReaderInstructions:
-      'To navigate through the available actions, use the down arrow.',
-    footer: (
-      <React.Fragment>
-        <ElectionInfo
-          electionDefinition={electionDefinition}
-          precinctSelection={appPrecinct}
-          horizontal
-        />
-        <VersionsData
-          machineConfig={machineConfig}
-          electionHash={electionDefinition.electionHash}
-        />
-      </React.Fragment>
-    ),
-  };
-
   if (isDiagnosticsScreenOpen) {
     return (
       <DiagnosticsScreen
@@ -612,120 +600,145 @@ export function PollWorkerScreen({
         devices={devices}
         screenReader={screenReader}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
-        sidebarProps={sidebarProps}
       />
     );
   }
 
   return (
     <React.Fragment>
-      <Screen navLeft>
+      <Screen>
+        {!isLiveMode && <TestMode />}
         <Main padded>
-          <Prose theme={fontSizeTheme.medium} compact>
-            <p>
-              <strong>Polls:</strong> {getPollsStateName(pollsState)}
-            </p>
-            <p>
-              <strong>Mode:</strong> {isLiveMode ? 'Live Election' : 'Testing'}
-            </p>
-          </Prose>
-          <br />
-          {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
-            <Prose compact>
-              {appPrecinct.kind === 'AllPrecincts' && (
+          <Prose maxWidth={false}>
+            <h1>
+              VxMark{' '}
+              <Text as="span" light noWrap>
+                Poll Worker Actions
+              </Text>
+            </h1>
+            <h2>
+              {canPrintBallots && (
                 <React.Fragment>
-                  <h1>Select Precinct</h1>
-                  <ButtonList data-testid="precincts">
-                    {election.precincts.map((precinct) => (
-                      <Button
-                        fullWidth
-                        key={precinct.id}
-                        aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                        onPress={() =>
-                          setSelectedCardlessVoterPrecinctId(precinct.id)
-                        }
-                        primary={
-                          selectedCardlessVoterPrecinctId === precinct.id
-                        }
-                      >
-                        {precinct.name}
-                      </Button>
-                    ))}
-                  </ButtonList>
+                  <NoWrap>
+                    <Text light as="span">
+                      Ballots Printed:
+                    </Text>{' '}
+                    <strong>{ballotsPrintedCount}</strong>
+                  </NoWrap>
+                  <br />
                 </React.Fragment>
               )}
-              {selectedCardlessVoterPrecinctId && (
-                <React.Fragment>
-                  <h1>Select Ballot Style</h1>
-                  <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((ballotStyle) => (
+              <NoWrap>
+                <Text light as="span">
+                  Polls:
+                </Text>{' '}
+                <strong>{getPollsStateName(pollsState)}</strong>
+              </NoWrap>
+            </h2>
+            {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
+              <React.Fragment>
+                <VotingSession>
+                  <h1>Start a New Voting Session</h1>
+                  {appPrecinct.kind === 'AllPrecincts' && (
+                    <React.Fragment>
+                      <h2>1. Select Voter’s Precinct</h2>
+                      <ButtonList data-testid="precincts">
+                        {election.precincts.map((precinct) => (
+                          <Button
+                            fullWidth
+                            key={precinct.id}
+                            aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
+                            onPress={() =>
+                              setSelectedCardlessVoterPrecinctId(precinct.id)
+                            }
+                            primary={
+                              selectedCardlessVoterPrecinctId === precinct.id
+                            }
+                          >
+                            {precinct.name}
+                          </Button>
+                        ))}
+                      </ButtonList>
+                    </React.Fragment>
+                  )}
+                  <h2>
+                    {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
+                    Voter’s Ballot Style
+                  </h2>
+                  {selectedCardlessVoterPrecinctId ? (
+                    <ButtonList data-testid="ballot-styles">
+                      {precinctBallotStyles.map((ballotStyle) => (
+                        <Button
+                          fullWidth
+                          key={ballotStyle.id}
+                          aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
+                          onPress={() =>
+                            activateCardlessVoterSession(
+                              selectedCardlessVoterPrecinctId,
+                              ballotStyle.id
+                            )
+                          }
+                        >
+                          {ballotStyle.id}
+                        </Button>
+                      ))}
+                    </ButtonList>
+                  ) : (
+                    <Text italic>
+                      Select the voter’s precinct above to view ballot styles
+                      for the precinct.
+                    </Text>
+                  )}
+                </VotingSession>
+                <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
+                  View More Actions
+                </Button>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div /> {/* Enforces css margin from the following P tag. */}
+                {canSelectBallotStyle && (
+                  <React.Fragment>
+                    <p>
                       <Button
-                        fullWidth
-                        key={ballotStyle.id}
-                        aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
-                        onPress={() =>
-                          activateCardlessVoterSession(
-                            selectedCardlessVoterPrecinctId,
-                            ballotStyle.id
-                          )
-                        }
+                        primary
+                        onPress={() => setIsHidingSelectBallotStyle(false)}
                       >
-                        {ballotStyle.id}
+                        Back to Ballot Style Selection
                       </Button>
-                    ))}
-                  </ButtonList>
-                </React.Fragment>
-              )}
-              <h2>Other Actions</h2>
-              <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
-                View Other Actions
-              </Button>
-            </Prose>
-          ) : (
-            <Prose>
-              <p>
-                {getPollTransitionsFromState(pollsState).map(
-                  (pollsTransition, index) => {
-                    return (
-                      <React.Fragment
-                        key={`${pollsTransition}-directly-button`}
-                      >
-                        {index > 0 && ' or '}
-                        <UpdatePollsDirectlyButton
-                          pollsTransition={pollsTransition}
-                          updatePollsState={updatePollsState}
-                        />
-                      </React.Fragment>
-                    );
-                  }
+                    </p>
+                    <h1>More Actions</h1>
+                  </React.Fragment>
                 )}
-              </p>
-              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                System Diagnostics
-              </Button>
-              <p>
-                <Button onPress={reload}>Reset Accessible Controller</Button>
-              </p>
-            </Prose>
-          )}
-        </Main>
-        <Sidebar {...sidebarProps}>
-          <Prose>
-            <Text center>Remove card when finished.</Text>
-            {canSelectBallotStyle && isHidingSelectBallotStyle && (
-              <Button onPress={() => setIsHidingSelectBallotStyle(false)} small>
-                Back to Ballot Style Selection
-              </Button>
+                <p>
+                  {getPollTransitionsFromState(pollsState).map(
+                    (pollsTransition, index) => {
+                      return (
+                        <React.Fragment
+                          key={`${pollsTransition}-directly-button`}
+                        >
+                          {index > 0 && ' or '}
+                          <UpdatePollsDirectlyButton
+                            pollsTransition={pollsTransition}
+                            updatePollsState={updatePollsState}
+                          />
+                        </React.Fragment>
+                      );
+                    }
+                  )}
+                </p>
+                <p>
+                  <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                    System Diagnostics
+                  </Button>
+                </p>
+                <p>
+                  <Button onPress={reload}>Reset Accessible Controller</Button>
+                </p>
+              </React.Fragment>
             )}
           </Prose>
-          <Prose>
-            <br />
-            <Text center>Ballots Printed:</Text>
-          </Prose>
-          <Prose theme={{ fontSize: '3rem' }}>
-            <Text center>{ballotsPrintedCount}</Text>
-          </Prose>
-        </Sidebar>
+        </Main>
         {isConfirmingEnableLiveMode && (
           <Modal
             centerContent
@@ -733,22 +746,22 @@ export function PollWorkerScreen({
               <Prose textCenter id="modalaudiofocus">
                 {isPrintMode ? (
                   <h1>
-                    Switch to Live&nbsp;Election&nbsp;Mode and reset the tally
-                    of printed ballots?
+                    Switch to Live Election Mode and reset the Ballots Printed
+                    count?
                   </h1>
                 ) : (
-                  <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
+                  <h1>Switch to Live Election Mode?</h1>
                 )}
                 <p>
-                  Today is Election Day and this machine is in{' '}
-                  <strong>Testing&nbsp;Mode.</strong>
+                  Today is election day and this machine is in{' '}
+                  <strong>
+                    <NoWrap>Election Testing Mode.</NoWrap>
+                  </strong>
                 </p>
-                <p>
-                  <em>
-                    Note: Switching back to Testing&nbsp;Mode requires an
-                    Admin&nbsp;Card.
-                  </em>
-                </p>
+                <Text small italic>
+                  Note: Switching back to Testing Mode requires an{' '}
+                  <NoWrap>Election Manager Card.</NoWrap>
+                </Text>
               </Prose>
             }
             actions={
@@ -758,13 +771,20 @@ export function PollWorkerScreen({
                   danger={isPrintMode}
                   onPress={confirmEnableLiveMode}
                 >
-                  Switch to Live&nbsp;Mode
+                  Switch to Live Election Mode
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>
               </React.Fragment>
             }
           />
         )}
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+          precinctSelection={appPrecinct}
+        />
       </Screen>
       {scannerReportData && scannerReportData.isLiveMode === isLiveMode && (
         <ScannerReportModal

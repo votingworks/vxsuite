@@ -8,11 +8,11 @@ export interface SidebarProps {
   children?: React.ReactNode;
   footer?: React.ReactNode;
   title?: string;
-  screenReaderInstructions?: string;
 }
 
 const StyledSidebar = styled.nav`
   display: flex;
+  flex: 0 1;
   flex-direction: column;
   background-color: #333333;
   color: #ffffff;
@@ -44,23 +44,17 @@ export function Sidebar({
   footer,
   children,
   title,
-  screenReaderInstructions,
 }: SidebarProps): JSX.Element {
   return (
     <StyledSidebar>
       {title && (
         <Header>
           <Prose>
-            <Text as="h1" center id="audiofocus">
-              {appName} {appName && ' / '}
+            <Text as="h1" id="audiofocus">
+              {appName}{' '}
               <Text as="span" light noWrap>
                 {title}
               </Text>
-              {screenReaderInstructions && (
-                <span className="screen-reader-only">
-                  {screenReaderInstructions}
-                </span>
-              )}
             </Text>
           </Prose>
         </Header>

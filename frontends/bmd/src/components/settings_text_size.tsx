@@ -20,11 +20,13 @@ const Container = styled.div`
 `;
 const Center = styled.div`
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1em;
 `;
-const FontSizeButtons = styled.div`
+const TextSizeSegmentedButton = styled(SegmentedButton)`
   button {
-    min-width: ${FONT_SIZES[1] * 4}px;
+    min-width: ${FONT_SIZES[1] * 3.5}px;
     /* stylelint-disable declaration-no-important */
     &[data-size='0'] {
       font-size: ${FONT_SIZES[0]}px !important;
@@ -39,7 +41,7 @@ const FontSizeButtons = styled.div`
   }
 `;
 
-const Label = styled.div`
+const Label = styled.label`
   display: block;
   margin-bottom: 0.4rem;
 `;
@@ -47,11 +49,15 @@ const Label = styled.div`
 interface Props {
   userSettings: UserSettings;
   setUserSettings: SetUserSettings;
+  sidebarWrapper?: boolean;
 }
+
+const ariaLabels = ['Small', 'Medium', 'Large', 'Extra Large'];
 
 export function SettingsTextSize({
   userSettings,
   setUserSettings,
+  sidebarWrapper = false,
 }: Props): JSX.Element {
   const adjustFontSize: EventTargetFunction = (event) => {
     const target = event.currentTarget as HTMLButtonElement;
@@ -59,29 +65,32 @@ export function SettingsTextSize({
     const textSize = +target.value as TextSizeSetting;
     setUserSettings({ textSize });
   };
-  return (
-    <Container aria-hidden>
-      <Center>
-        <div>
-          <Label>Change Text Size</Label>
-          <FontSizeButtons>
-            <SegmentedButton data-testid="change-text-size-buttons">
-              {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
-                <Button
-                  key={v}
-                  data-size={i}
-                  small
-                  onPress={adjustFontSize}
-                  value={i}
-                  primary={userSettings.textSize === i}
-                >
-                  A
-                </Button>
-              ))}
-            </SegmentedButton>
-          </FontSizeButtons>
-        </div>
-      </Center>
-    </Container>
+  const textSizeSetting = (
+    <p>
+      <Label aria-hidden>Text Size</Label>
+      <TextSizeSegmentedButton data-testid="change-text-size-buttons">
+        {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
+          <Button
+            key={v}
+            data-size={i}
+            small
+            onPress={adjustFontSize}
+            value={i}
+            primary={userSettings.textSize === i}
+            aria-label={`${
+              userSettings.textSize === i ? 'Selected' : ''
+            } Text Size: ${ariaLabels[i]}`}
+          >
+            A
+          </Button>
+        ))}
+      </TextSizeSegmentedButton>
+    </p>
   );
+  if (sidebarWrapper) {
+    <Container aria-hidden>
+      <Center>{textSizeSetting}</Center>
+    </Container>;
+  }
+  return textSizeSetting;
 }

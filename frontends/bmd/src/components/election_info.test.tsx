@@ -1,11 +1,14 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { ElectionInfo } from './election_info';
-import { electionSampleWithSealDefinition as electionDefinition } from '../data';
+import {
+  electionSampleWithSealDefinition as electionDefinition,
+  electionSampleDefinition,
+} from '../data';
 
-it('renders horizontal ElectionInfo with hash when specified', () => {
+test('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
@@ -16,7 +19,7 @@ it('renders horizontal ElectionInfo with hash when specified', () => {
   expect(container).toMatchSnapshot();
 });
 
-it('renders horizontal ElectionInfo without hash by default', () => {
+test('renders horizontal ElectionInfo without hash by default', () => {
   const { container } = render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
@@ -27,7 +30,20 @@ it('renders horizontal ElectionInfo without hash by default', () => {
   expect(container).toMatchSnapshot();
 });
 
-it('renders vertical ElectionInfo with hash when specified', () => {
+test('renders with ballot style id', () => {
+  render(
+    <ElectionInfo
+      electionDefinition={electionSampleDefinition}
+      precinctSelection={singlePrecinctSelectionFor('23')}
+      ballotStyleId="12"
+      horizontal
+    />
+  );
+  screen.getByText(/Center Springfield/);
+  screen.getByText('ballot style 12');
+});
+
+test('renders vertical ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
@@ -37,7 +53,7 @@ it('renders vertical ElectionInfo with hash when specified', () => {
   expect(container).toMatchSnapshot();
 });
 
-it('renders vertical ElectionInfo without hash by default', () => {
+test('renders vertical ElectionInfo without hash by default', () => {
   const { container } = render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
@@ -46,3 +62,11 @@ it('renders vertical ElectionInfo without hash by default', () => {
   );
   expect(container).toMatchSnapshot();
 });
+
+// test.only('renders vertical without precinct name', () => {
+//   render(<ElectionInfo electionDefinition={electionSampleDefinition} />);
+//   screen.debug();
+//   screen.getByLabelText(
+//     'November 3, 2020. State of Hamilton, Franklin County.'
+//   );
+// });

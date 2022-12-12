@@ -149,6 +149,7 @@ export interface Scrollable {
 export type TextSizeSetting = 0 | 1 | 2 | 3;
 
 export interface UserSettings {
+  showSettingsModal: boolean;
   textSize: TextSizeSetting;
 }
 export type SetUserSettings = (partial: PartialUserSettings) => void;

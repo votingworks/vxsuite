@@ -122,6 +122,7 @@ export const SegmentedButton = styled.span`
   display: inline-flex;
   white-space: nowrap;
   & > button {
+    flex: 1;
     box-shadow: inset 1px 0 0 rgb(190, 190, 190);
   }
   & > button:first-child {

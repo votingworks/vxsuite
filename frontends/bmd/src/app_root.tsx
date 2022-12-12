@@ -58,9 +58,9 @@ import {
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
-  MarkOnly,
   MachineConfig,
   PostVotingInstructions,
+  MarkAndPrint,
 } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
@@ -133,17 +133,18 @@ export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
 const initialVoterState: Readonly<UserState> = {
-  userSettings: { textSize: GLOBALS.TEXT_SIZE },
+  userSettings: GLOBALS.DEFAULT_USER_SETTINGS,
   votes: undefined,
   showPostVotingInstructions: undefined,
 };
 
 const initialHardwareState: Readonly<HardwareState> = {
   machineConfig: {
-    appMode: MarkOnly,
+    appMode: MarkAndPrint,
     machineId: '0000',
     codeVersion: 'dev',
     screenOrientation: 'portrait',
+    // screenOrientation: 'landscape',
   },
 };
 
@@ -242,9 +243,9 @@ function appReducer(state: State, action: AppAction): State {
       };
     case 'setUserSettings':
       /* istanbul ignore next */
-      if (Object.keys(action.userSettings).join(',') !== 'textSize') {
-        throw new Error('unknown userSetting key');
-      }
+      // if (Object.keys(action.userSettings).join(',') !== 'textSize') {
+      //   throw new Error('unknown userSetting key');
+      // }
       return {
         ...state,
         userSettings: {
@@ -431,8 +432,10 @@ export function AppRoot({
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
+    // if (false) {
     if (isCardlessVoterAuth(auth)) auth.logOut();
     dispatchAppState({ type: 'resetBallot' });
+    // }
   }, [auth]);
 
   // Hide Verify and Scan Instructions
@@ -991,7 +994,6 @@ export function AppRoot({
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={isLiveMode}
           pollsState={pollsState}
-          machineConfig={machineConfig}
         />
       </IdleTimer>
     );

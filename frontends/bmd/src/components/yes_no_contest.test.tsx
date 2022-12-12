@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import {
   DistrictIdSchema,
   unsafeParse,
@@ -31,10 +31,13 @@ describe('supports yes/no contest', () => {
     );
     expect(container).toMatchSnapshot();
 
-    fireEvent.click(screen.getByText('Yes').closest('button')!);
+    const contestChoices = screen.queryByTestId('contest-choices');
+    fireEvent.click(
+      within(contestChoices!).getByText('Yes').closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByText('No').closest('button')!);
+    fireEvent.click(within(contestChoices!).getByText('No').closest('button')!);
     expect(updateVote).toHaveBeenCalledTimes(2);
   });
 
@@ -44,7 +47,8 @@ describe('supports yes/no contest', () => {
       <YesNoContest contest={contest} vote={['yes']} updateVote={updateVote} />
     );
     expect(container).toMatchSnapshot();
-    fireEvent.click(screen.getByText('No').closest('button')!);
+    const contestChoices = screen.queryByTestId('contest-choices');
+    fireEvent.click(within(contestChoices!).getByText('No').closest('button')!);
     expect(
       screen.getAllByText(
         (_, element) =>

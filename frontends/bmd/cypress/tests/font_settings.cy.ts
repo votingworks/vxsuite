@@ -1,6 +1,6 @@
 describe('Font Settings', () => {
   const globalFontSizes = [22, 28, 36];
-  const label = 'Change Text Size';
+  const label = 'Text Size';
   const buttons = '[data-testid="change-text-size-buttons"]';
 
   it('Voter can adjust font settings', () => {

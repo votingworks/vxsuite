@@ -17,8 +17,8 @@ import * as GLOBALS from '../src/config/globals';
 import {
   MachineConfig,
   MarkVoterCardFunction,
-  TextSizeSetting,
   MarkOnly,
+  UserSettings,
 } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
@@ -44,7 +44,7 @@ export function render(
     updateTally = jest.fn(),
     updateVote = jest.fn(),
     forceSaveVote = jest.fn(),
-    userSettings = { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
+    userSettings = GLOBALS.DEFAULT_USER_SETTINGS,
     votes = {},
   }: {
     route?: string;
@@ -63,7 +63,7 @@ export function render(
     updateTally?(): void;
     updateVote?(): void;
     forceSaveVote?(): void;
-    userSettings?: { textSize: TextSizeSetting };
+    userSettings?: UserSettings;
     votes?: VotesDict;
   } = {}
 ): ReturnType<typeof testRender> {

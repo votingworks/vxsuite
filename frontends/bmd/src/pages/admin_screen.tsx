@@ -10,19 +10,17 @@ import {
   Button,
   ChangePrecinctButton,
   CurrentDateAndTime,
+  ElectionInfoBar,
   Main,
   Prose,
   Screen,
   SegmentedButton,
   SetClockButton,
+  TestMode,
   Text,
 } from '@votingworks/ui';
 import { Logger } from '@votingworks/logging';
 import { MachineConfig, ScreenReader } from '../config/types';
-
-import { Sidebar } from '../components/sidebar';
-import { ElectionInfo } from '../components/election_info';
-import { VersionsData } from '../components/versions_data';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -55,6 +53,8 @@ export function AdminScreen({
 }: AdminScreenProps): JSX.Element {
   const election = electionDefinition?.election;
 
+  const canPrintBallots = machineConfig.appMode.isPrint;
+
   const [isFetchingElection, setIsFetchingElection] = useState(false);
   function loadElection() {
     setIsFetchingElection(true);
@@ -69,35 +69,63 @@ export function AdminScreen({
   }, [screenReader]);
 
   return (
-    <Screen navLeft>
+    <Screen>
+      {election && !isLiveMode && <TestMode />}
       <Main padded>
         <Prose>
+          <h1>
+            VxMark{' '}
+            <Text as="span" light noWrap>
+              Election Manager Actions
+            </Text>
+          </h1>
+          <Text italic>Remove card when finished.</Text>
           {election && (
             <React.Fragment>
-              <h1>
-                <label htmlFor="selectPrecinct">Precinct</label>
-              </h1>
-              <ChangePrecinctButton
-                appPrecinctSelection={appPrecinct}
-                updatePrecinctSelection={makeAsync(updateAppPrecinct)}
-                election={election}
-                mode={
-                  pollsState === 'polls_closed_final' ||
-                  election.precincts.length === 1
-                    ? 'disabled'
-                    : 'default'
-                }
-                logger={logger}
-              />
-              {election.precincts.length === 1 && (
-                <p>
-                  <em>
-                    There is only one precinct in this election, so the precinct
-                    cannot be changed.
-                  </em>
-                </p>
+              {canPrintBallots && (
+                <React.Fragment>
+                  <h2>Stats</h2>
+                  <p>
+                    Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+                  </p>
+                </React.Fragment>
               )}
-              <h1>Testing Mode</h1>
+              <h2>
+                <label htmlFor="selectPrecinct">Precinct</label>
+              </h2>
+              <p>
+                <ChangePrecinctButton
+                  appPrecinctSelection={appPrecinct}
+                  updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                  election={election}
+                  mode={
+                    pollsState === 'polls_closed_final' ||
+                    election.precincts.length === 1
+                      ? 'disabled'
+                      : 'default'
+                  }
+                  logger={logger}
+                />
+                {canPrintBallots && (
+                  <React.Fragment>
+                    <br />
+                    <Text small italic as="span">
+                      Changing the precinct will reset the Ballots Printed
+                      count.
+                    </Text>
+                  </React.Fragment>
+                )}
+                {election.precincts.length === 1 && (
+                  <React.Fragment>
+                    <br />
+                    <Text small italic as="span">
+                      Precinct can not be changed because there is only one
+                      precinct configured for this election.
+                    </Text>
+                  </React.Fragment>
+                )}
+              </p>
+              <h2>Testing Mode</h2>
               <p>
                 <SegmentedButton>
                   <Button
@@ -115,25 +143,25 @@ export function AdminScreen({
                     Live Election Mode
                   </Button>
                 </SegmentedButton>
+                {canPrintBallots && (
+                  <React.Fragment>
+                    <br />
+                    <Text small italic as="span">
+                      Switching the mode will reset the Ballots Printed count.
+                    </Text>
+                  </React.Fragment>
+                )}
               </p>
-              {machineConfig.appMode.isPrint && (
-                <React.Fragment>
-                  <Text as="h1">Stats</Text>
-                  <Text>
-                    Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}
-                  </Text>
-                </React.Fragment>
-              )}
             </React.Fragment>
           )}
-          <h1>Current Date and Time</h1>
+          <h2>Current Date and Time</h2>
           <p>
             <CurrentDateAndTime />
           </p>
           <p>
             <SetClockButton>Update Date and Time</SetClockButton>
           </p>
-          <h1>Configuration</h1>
+          <h2>Configuration</h2>
           {election ? (
             <p>
               <Text as="span" voteIcon>
@@ -155,36 +183,15 @@ export function AdminScreen({
           )}
         </Prose>
       </Main>
-      <Sidebar
-        appName={election ? machineConfig.appMode.productName : ''}
-        centerContent
-        title="Election Manager Actions"
-        footer={
-          <React.Fragment>
-            {electionDefinition && (
-              <ElectionInfo
-                electionDefinition={electionDefinition}
-                precinctSelection={appPrecinct}
-                horizontal
-              />
-            )}
-            <VersionsData
-              machineConfig={machineConfig}
-              electionHash={electionDefinition?.electionHash}
-            />
-          </React.Fragment>
-        }
-      >
-        {election && (
-          <Prose>
-            <h2>Instructions</h2>
-            <p>
-              Switching Precinct or Live Mode will reset printed ballots count.
-            </p>
-            <p>Remove card when finished.</p>
-          </Prose>
-        )}
-      </Sidebar>
+      {election && (
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+          precinctSelection={appPrecinct}
+        />
+      )}
     </Screen>
   );
 }

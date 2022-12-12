@@ -98,7 +98,7 @@ test('PrintOnly flow', async () => {
       'Center Springfield'
     ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('Center Springfield');
+  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   // Remove card
   card.removeCard();
@@ -419,7 +419,9 @@ test('PrintOnly retains app mode when unconfigured', async () => {
         'Center Springfield'
       ).value;
     fireEvent.change(precinctSelect, { target: { value: precinctId } });
-    within(screen.getByTestId('election-info')).getByText('Center Springfield');
+    within(screen.getByTestId('electionInfoBar')).getByText(
+      /Center Springfield/
+    );
 
     // Remove card
     card.removeCard();
@@ -524,7 +526,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
       'Center Springfield'
     ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('Center Springfield');
+  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   // Remove card
   card.removeCard();
@@ -538,7 +540,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   screen.getByText(
-    'Switch to Live Election Mode and reset the tally of printed ballots?'
+    'Switch to Live Election Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Switch to Live Mode'));
+  fireEvent.click(screen.getByText('Switch to Live Election Mode'));
 });

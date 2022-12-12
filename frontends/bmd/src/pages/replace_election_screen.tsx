@@ -93,8 +93,8 @@ export function ReplaceElectionScreen({
             <React.Fragment>
               <p>
                 You may replace the Election Definition on this machine with the
-                one from the Election Manager card. Doing so will replace all
-                data on this machine.
+                one on the Election Manager card. Doing so will replace all data
+                on this machine.
               </p>
               <h3>Current Election Definition:</h3>
               <BriefElectionDefinitionInfo

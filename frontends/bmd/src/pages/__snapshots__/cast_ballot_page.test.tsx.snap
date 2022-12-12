@@ -11,7 +11,7 @@ exports[`renders CastBallotPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  padding: 1rem 1rem 1rem 2rem;
+  padding: 1rem;
   list-style: none;
   text-align: center;
 }
@@ -38,10 +38,10 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-AjmZR kpYKKs"
+  class="sc-hUpaWb jHEknX"
 >
   <main
-    class="sc-ezbkgU jjwGyL"
+    class="sc-kLwgWK cLOJKQ"
   >
     <div
       class="sc-hKwCoD NKPqV"
@@ -66,7 +66,9 @@ exports[`renders CastBallotPage 1`] = `
             src="/images/instructions-1-verify.svg"
             style="left: -0.75em;"
           />
-          <p>
+          <p
+            class="sc-bdvvaa bPbebj"
+          >
             1. Verify your official ballot.
           </p>
         </li>
@@ -77,7 +79,9 @@ exports[`renders CastBallotPage 1`] = `
             class="c1"
             src="/images/instructions-2-scan.svg"
           />
-          <p>
+          <p
+            class="sc-bdvvaa bPbebj"
+          >
             2. Scan your official ballot.
           </p>
         </li>

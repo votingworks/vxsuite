@@ -88,7 +88,7 @@ it('MarkOnly flow', async () => {
       'Center Springfield'
     ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('Center Springfield');
+  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
@@ -147,7 +147,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(makeVoterCard(electionDefinition.election));
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -164,7 +164,9 @@ it('MarkOnly flow', async () => {
     }
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
-      fireEvent.click(screen.getByText('Yes'));
+      fireEvent.click(
+        within(screen.getByTestId('contest-choices')).getByText('Yes')
+      );
     }
 
     fireEvent.click(screen.getByText('Next'));

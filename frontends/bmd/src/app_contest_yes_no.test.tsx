@@ -62,44 +62,44 @@ it('Single Seat Contest', async () => {
     await advanceTimersAndPromises();
   }
 
+  const contestChoices = within(screen.getByTestId('contest-choices'));
+
   // Select Yes
-  fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
-    'true'
-  );
+  fireEvent.click(contestChoices.getByText('Yes'));
+  expect(
+    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
+  ).toBe('true');
 
   // Unselect Yes
-  fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
-    'false'
-  );
+  fireEvent.click(contestChoices.getByText('Yes'));
+  expect(
+    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
+  ).toBe('false');
 
   // Check that the aria label was updated to be deselected properly and is then removed
-  expect(screen.getByText('Yes').getAttribute('aria-label')).toContain(
+  expect(contestChoices.getByText('Yes').getAttribute('aria-label')).toContain(
     'Deselected,'
   );
-  expect(screen.getByText('No').getAttribute('aria-label')).not.toContain(
-    'Deselected,'
-  );
+  expect(
+    contestChoices.getByText('No').getAttribute('aria-label')
+  ).not.toContain('Deselected,');
   act(() => {
     jest.advanceTimersByTime(101);
   });
-  expect(screen.getByText('Yes').getAttribute('aria-label')).not.toContain(
-    'Deselected,'
-  );
+  expect(
+    contestChoices.getByText('Yes').getAttribute('aria-label')
+  ).not.toContain('Deselected,');
 
   // Select Yes
-  fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
-    'true'
-  );
+  fireEvent.click(contestChoices.getByText('Yes'));
+  expect(
+    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
+  ).toBe('true');
 
   // Select No
-  fireEvent.click(screen.getByText('No'));
+  fireEvent.click(contestChoices.getByText('No'));
   expect(
-    within(screen.getByTestId('contest-choices'))
-      .getByText('No')
-      .closest('button')!.dataset['selected']
+    contestChoices.getByText('No').closest('button')!.dataset['selected']
   ).toBe('false');
 
   // Overvote modal is displayed

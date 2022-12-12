@@ -145,5 +145,7 @@ test('precinct selection disabled if single precinct election', async () => {
 
   await screen.findByText('Election Manager Actions');
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
-  screen.getByText(/the precinct cannot be changed/);
+  screen.getByText(
+    'Precinct can not be changed because there is only one precinct configured for this election.'
+  );
 });

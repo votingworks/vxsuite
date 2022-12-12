@@ -50,6 +50,14 @@ export function localeWeekdayAndDate(time?: number | Date): string {
   }).format(time);
 }
 
+export function localeLongDate(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(time);
+}
+
 export function localeDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     month: 'short',

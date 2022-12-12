@@ -127,11 +127,11 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Activate Voter Session for Cardless Voter
     card.insertCard(pollWorkerCard);
     await advanceTimersAndPromises();
-    screen.getByText('Select Ballot Style');
+    screen.getByText('Select Voter’s Ballot Style');
     fireEvent.click(
       within(screen.getByTestId('ballot-styles')).getByText('12')
     );
-    screen.getByText('Voter session activated: 12');
+    screen.getByText('Voting Session Active: 12 at Center Springfield');
 
     card.removeCard();
     await advanceTimersAndPromises(0.2);

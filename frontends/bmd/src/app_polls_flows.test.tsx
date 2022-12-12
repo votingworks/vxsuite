@@ -1243,7 +1243,7 @@ test('full polls flow without tally reports', async () => {
   // Pause Voting
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View Other Actions'));
+  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Pause Voting'));
   await screen.findByText('No Voting Paused Report on Card');
   userEvent.click(screen.getByText('Pause Voting on VxMark Now'));
@@ -1274,7 +1274,7 @@ test('full polls flow without tally reports', async () => {
   // Close Polls
   card.insertCard(pollWorkerCard);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View Other Actions'));
+  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   await screen.findByText('No Polls Closed Report on Card');
   userEvent.click(screen.getByText('Close Polls on VxMark Now'));

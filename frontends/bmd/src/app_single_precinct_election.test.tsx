@@ -45,7 +45,9 @@ test('loading election with a single precinct automatically sets precinct', asyn
   await screen.findByText('10edbc8d2c');
   // Should not be able to select a precinct
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
-  screen.getByText(/the precinct cannot be changed/);
+  screen.getByText(
+    'Precinct can not be changed because there is only one precinct configured for this election.'
+  );
   card.removeCard();
   await screen.findByText('Precinct 1');
 });

@@ -5,13 +5,16 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { Main, Screen, Prose, TestMode, Text } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  Prose,
+  TestMode,
+  Text,
+  ElectionInfoBar,
+} from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/utils';
-import { Sidebar } from '../components/sidebar';
-import { ElectionInfo } from '../components/election_info';
-import { MachineConfig } from '../config/types';
-import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 const InsertCardImage = styled.img`
@@ -26,7 +29,6 @@ interface Props {
   isLiveMode: boolean;
   pollsState: PollsState;
   showNoAccessibleControllerWarning: boolean;
-  machineConfig: MachineConfig;
 }
 
 export function InsertCardScreen({
@@ -36,7 +38,6 @@ export function InsertCardScreen({
   isLiveMode,
   pollsState,
   showNoAccessibleControllerWarning,
-  machineConfig,
 }: Props): JSX.Element {
   useEffect(triggerAudioFocus, []);
 
@@ -72,9 +73,9 @@ export function InsertCardScreen({
   })();
 
   return (
-    <Screen navRight white>
+    <Screen white>
+      {!isLiveMode && <TestMode />}
       <Main centerChild>
-        {!isLiveMode && <TestMode />}
         <Prose textCenter id="audiofocus">
           {showNoChargerAttachedWarning && (
             <Text warning small>
@@ -97,16 +98,10 @@ export function InsertCardScreen({
           )}
         </Prose>
       </Main>
-      <Sidebar>
-        <ElectionInfo
-          electionDefinition={electionDefinition}
-          precinctSelection={appPrecinct}
-        />
-        <VersionsData
-          machineConfig={machineConfig}
-          electionHash={electionDefinition.electionHash}
-        />
-      </Sidebar>
+      <ElectionInfoBar
+        electionDefinition={electionDefinition}
+        precinctSelection={appPrecinct}
+      />
     </Screen>
   );
 }

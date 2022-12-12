@@ -12,9 +12,26 @@ import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { SettingsTextSize } from '../components/settings_text_size';
+import { screenOrientation } from '../lib/screen_orientation';
 
 const SidebarSpacer = styled.div`
   height: 90px;
+`;
+
+const Footer = styled.nav`
+  background-color: #333333;
+  padding: 60px 40px;
+  color: #ffffff;
+`;
+
+const SettingsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  border: 1px solid #808080;
+  border-width: 1px 0;
+  padding: 1rem 0;
+  gap: 2em;
 `;
 
 export function StartPage(): JSX.Element {
@@ -23,6 +40,7 @@ export function StartPage(): JSX.Element {
     ballotStyleId,
     contests,
     electionDefinition,
+    machineConfig,
     precinctId,
     setUserSettings,
     userSettings,
@@ -41,6 +59,7 @@ export function StartPage(): JSX.Element {
     'ballotStyleId is required to render StartPage'
   );
   const audioFocus = useRef<HTMLDivElement>(null);
+  const { isLandscape, isPortrait } = screenOrientation(machineConfig);
   const { election } = electionDefinition;
   const { title } = election;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
@@ -59,59 +78,99 @@ export function StartPage(): JSX.Element {
   }, []);
 
   return (
-    <Screen navRight ref={audioFocus}>
-      <Main centerChild>
-        <Prose textCenter>
-          <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
-            {partyPrimaryAdjective} {title}
-          </h1>
-          <hr />
-          <p>
-            <span>
-              Your ballot has{' '}
-              <strong>{pluralize('contest', contests.length, true)}</strong>.
-            </span>
-            <span className="screen-reader-only">
-              When voting with the text-to-speech audio, use the accessible
-              controller to navigate your ballot. To navigate through the
-              contests, use the left and right buttons. To navigate through
-              contest choices, use the up and down buttons. To select or
-              unselect a contest choice as your vote, use the select button.
-            </span>
-          </p>
-        </Prose>
+    <Screen navRight={isLandscape} ref={audioFocus}>
+      <Main centerChild padded>
+        {isPortrait && (
+          <ElectionInfo
+            electionDefinition={electionDefinition}
+            ballotStyleId={ballotStyleId}
+            precinctSelection={singlePrecinctSelectionFor(precinctId)}
+            ariaHidden={false}
+            contestCount={contests.length}
+          />
+        )}
+        {isLandscape && (
+          <Prose textCenter>
+            <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
+              {partyPrimaryAdjective} {title}
+            </h1>
+            <hr />
+            <p>
+              <span>
+                Your ballot has{' '}
+                <strong>{pluralize('contest', contests.length, true)}</strong>.
+              </span>
+            </p>
+          </Prose>
+        )}
+        <p className="screen-reader-only">
+          When voting with the text-to-speech audio, use the accessible
+          controller to navigate your ballot. To navigate through the contests,
+          use the left and right buttons. To navigate through contest choices,
+          use the up and down buttons. To select or unselect a contest choice as
+          your vote, use the select button.
+        </p>
       </Main>
-      <Sidebar
-        footer={
-          <React.Fragment>
-            <SettingsTextSize
-              userSettings={userSettings}
-              setUserSettings={setUserSettings}
-            />
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              horizontal
-            />
-          </React.Fragment>
-        }
-      >
-        <Prose>
-          <SidebarSpacer />
-          <Wobble as="p">
-            <LinkButton
-              large
-              primary
-              onPress={onStart}
-              id="next"
-              aria-label="Press the right button to advance to the first contest."
-            >
-              Start Voting
-            </LinkButton>
-          </Wobble>
-        </Prose>
-      </Sidebar>
+      {isPortrait ? (
+        <Footer>
+          <Prose textCenter>
+            <Wobble as="p">
+              <LinkButton
+                large
+                primary
+                fullWidth
+                onPress={onStart}
+                id="next"
+                aria-label="Press the right button to advance to the first contest."
+              >
+                Start Voting
+              </LinkButton>
+            </Wobble>
+            <h1>Voter Settings</h1>
+            <SettingsContainer>
+              <SettingsTextSize
+                userSettings={userSettings}
+                setUserSettings={setUserSettings}
+              />
+            </SettingsContainer>
+          </Prose>
+        </Footer>
+      ) : (
+        <Sidebar
+          footer={
+            <React.Fragment>
+              <SettingsTextSize
+                userSettings={userSettings}
+                setUserSettings={setUserSettings}
+                sidebarWrapper
+              />
+              {isLandscape && (
+                <ElectionInfo
+                  electionDefinition={electionDefinition}
+                  ballotStyleId={ballotStyleId}
+                  precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                  horizontal
+                />
+              )}
+            </React.Fragment>
+          }
+        >
+          <Prose>
+            <SidebarSpacer />
+            <Wobble as="p">
+              <LinkButton
+                large
+                primary
+                onPress={onStart}
+                id="next"
+                aria-label="Press the right button to advance to the first contest."
+              >
+                Start Voting
+              </LinkButton>
+            </Wobble>
+          </Prose>
+        </Sidebar>
+      )}
     </Screen>
   );
 }

@@ -304,7 +304,7 @@ export function CandidateContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContentHeader isCandidateStyle id="contest-header">
+        <ContentHeader id="contest-header">
           <Prose id="audiofocus">
             <h1 aria-label={`${contest.section} ${contest.title}.`}>
               <ContestSection>{contest.section}</ContestSection>

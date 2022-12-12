@@ -24,6 +24,7 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -132,7 +133,7 @@ it('MarkAndPrint end-to-end flow', async () => {
       'Center Springfield'
     ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('Center Springfield');
+  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
@@ -156,15 +157,17 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
 
+  // ---------------
+
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   fireEvent.click(screen.getByText('Open Polls'));
   fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
-  screen.getByText('Select Ballot Style');
+  screen.getByText('Select Voter’s Ballot Style');
   // Force refresh
-  userEvent.click(screen.getByText('View Other Actions'));
+  userEvent.click(screen.getByText('View More Actions'));
   fireEvent.click(screen.getByText('Reset Accessible Controller'));
   expect(reload).toHaveBeenCalledTimes(1);
   await screen.findByText('Close Polls');
@@ -181,12 +184,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
   expect(screen.queryByText(expectedElectionHash)).toBeNull();
-  expect(
-    within(screen.getByTestId('election-info')).queryByText(
-      `Election ID: ${expectedElectionHash}`
-    )
-  ).toBeNull();
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
 
   // Remove card
@@ -215,24 +213,21 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(makeVoterCard(electionDefinition.election));
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
-  screen.getByText(/ballot style 12/);
-  expect(
-    within(screen.getByTestId('election-info')).queryByText(
-      `Election ID: ${expectedElectionHash}`
-    )
-  ).toBeNull();
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
 
-  // Adjust Text Size
-  const changeTextSize = within(screen.getByTestId('change-text-size-buttons'));
-  const textSizeButtons = changeTextSize.getAllByText('A');
-  expect(textSizeButtons.length).toBe(3);
-  fireEvent.click(textSizeButtons[0]); // html element has new font size
-  expect(window.document.documentElement.style.fontSize).toBe('22px');
-  fireEvent.click(textSizeButtons[1]); // html element has default font size
-  expect(window.document.documentElement.style.fontSize).toBe('28px');
-  fireEvent.click(textSizeButtons[2]); // html element has default font size
+  // Adjust Text Size on Start Page
+  expect(screen.getAllByLabelText('Text Size:', { exact: false }).length).toBe(
+    3
+  );
+  fireEvent.click(screen.getByLabelText('Text Size: Large'));
   expect(window.document.documentElement.style.fontSize).toBe('36px');
+  fireEvent.click(screen.getByLabelText('Selected Text Size: Large'));
+  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  fireEvent.click(screen.getByLabelText('Text Size: Medium'));
+  expect(window.document.documentElement.style.fontSize).toBe('28px');
+  fireEvent.click(screen.getByLabelText('Text Size: Small'));
+  expect(window.document.documentElement.style.fontSize).toBe('22px');
 
   // Start Voting
   fireEvent.click(screen.getByText('Start Voting'));
@@ -241,17 +236,43 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1);
 
+  // Adjust Text Size in Settings Modal
+  fireEvent.click(screen.getByText('Settings'));
+  screen.getByText('Voter Settings');
+  expect(screen.getAllByLabelText('Text Size:', { exact: false }).length).toBe(
+    3
+  );
+  act(() => void userEvent.keyboard('{ArrowRight}'));
+  expect(screen.getByLabelText('Selected Text Size: Small')).toHaveFocus();
+  act(() => void userEvent.keyboard('{ArrowRight}'));
+  expect(screen.getByLabelText('Text Size: Medium')).toHaveFocus();
+  act(() => void userEvent.keyboard('{ArrowLeft}'));
+  expect(screen.getByLabelText('Selected Text Size: Small')).toHaveFocus();
+  fireEvent.click(screen.getByLabelText('Text Size: Large'));
+  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  fireEvent.click(screen.getByText('Done'));
+  expect(screen.queryByText('Voter Settings')).not.toBeInTheDocument();
+  expect(window.document.documentElement.style.fontSize).toBe('36px');
+
+  // Use Default Settings
+  fireEvent.click(screen.getByText('Settings'));
+  fireEvent.click(screen.getByText('Use Default Settings'));
+  expect(screen.queryByText('Voter Settings')).not.toBeInTheDocument();
+  expect(window.document.documentElement.style.fontSize).toBe('28px');
+
+  // Update Settings to use non default text size for voting session
+  fireEvent.click(screen.getByText('Settings'));
+  screen.getByText('Voter Settings');
+  fireEvent.click(screen.getByLabelText('Text Size: Large'));
+  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  fireEvent.click(screen.getByText('Done'));
+
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
     await advanceTimersAndPromises();
     screen.getByText(title);
-    expect(
-      within(screen.getByTestId('election-info')).queryByText(
-        `Election ID: ${expectedElectionHash}`
-      )
-    ).toBeNull();
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
@@ -275,7 +296,9 @@ it('MarkAndPrint end-to-end flow', async () => {
 
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
-      fireEvent.click(screen.getByText('Yes'));
+      fireEvent.click(
+        within(screen.getByTestId('contest-choices')).getByText('Yes')
+      );
     }
 
     // Vote for MsEitherNeither contest
@@ -289,12 +312,14 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Review Screen
   await advanceTimersAndPromises();
-  screen.getByText('Review Votes');
-  expect(
-    within(screen.getByTestId('election-info')).queryByText(
-      `Election ID: ${expectedElectionHash}`
-    )
-  ).toBeNull();
+  screen.getByText('Review Your Votes');
+
+  // Review Screen has Voter Settings
+  fireEvent.click(screen.getByText('Settings'));
+  screen.getByText('Voter Settings');
+  fireEvent.click(screen.getByText('Done'));
+
+  // Check for votes
   screen.getByText(presidentContest.candidates[0].name);
   screen.getByText(`Yes on ${measure102Contest.shortTitle}`);
 
@@ -325,7 +350,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
-  screen.getByText('Printing Official Ballot');
+  screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
   // Mark card used and then read card again
@@ -340,7 +365,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Reset Ballot is called with instructions type "card"
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
-  screen.getByText('3. Return the card to a poll worker.');
+  screen.getByText('3. Return the card.');
 
   // Remove card
   card.removeCard();
@@ -365,7 +390,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Close Polls with Poll Worker Card
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('View Other Actions'));
+  userEvent.click(screen.getByText('View More Actions'));
   fireEvent.click(screen.getByText('Close Polls'));
   fireEvent.click(screen.getByText('Close Polls on VxMark Now'));
 

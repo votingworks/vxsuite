@@ -106,6 +106,7 @@ interface Props {
    */
   actions?: ReactNode;
   onAfterOpen?: () => void;
+  onAfterClose?: () => void;
   onOverlayClick?: () => void;
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
@@ -123,6 +124,17 @@ function focusModalAudio() {
   }, 10);
 }
 
+/* istanbul ignore next - unclear why this isn't covered */
+function focusScreenAudio() {
+  window.setTimeout(() => {
+    const element = document.getElementById('audiofocus');
+    if (element) {
+      element.focus();
+      element.click();
+    }
+  }, 10);
+}
+
 export function Modal({
   actions,
   ariaLabel = 'Alert Modal',
@@ -131,6 +143,7 @@ export function Modal({
   fullscreen = false,
   ariaHideApp = true,
   onAfterOpen = focusModalAudio,
+  onAfterClose = focusScreenAudio,
   onOverlayClick,
   modalWidth,
   theme,
@@ -149,6 +162,7 @@ export function Modal({
       isOpen
       contentLabel={ariaLabel}
       onAfterOpen={onAfterOpen}
+      onAfterClose={onAfterClose}
       onRequestClose={onOverlayClick}
       testId="modal"
       // eslint-disable-next-line react/no-unstable-nested-components

@@ -107,7 +107,7 @@ export function PrintPage(): JSX.Element {
           </p>
           <h1>
             <ProgressEllipsis aria-label="Printing your official ballot.">
-              Printing Official Ballot
+              Printing Your Official Ballot
             </ProgressEllipsis>
           </h1>
         </Prose>

@@ -1,11 +1,7 @@
 import { createContext } from 'react';
 import * as GLOBALS from '../config/globals';
 
-import {
-  BallotContextInterface,
-  TextSizeSetting,
-  MarkOnly,
-} from '../config/types';
+import { BallotContextInterface, MarkOnly } from '../config/types';
 
 const ballot: BallotContextInterface = {
   machineConfig: {
@@ -26,7 +22,7 @@ const ballot: BallotContextInterface = {
   updateTally: () => undefined,
   updateVote: () => undefined,
   forceSaveVote: () => undefined,
-  userSettings: { textSize: GLOBALS.TEXT_SIZE as TextSizeSetting },
+  userSettings: GLOBALS.DEFAULT_USER_SETTINGS,
   votes: {},
 };
 

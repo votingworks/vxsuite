@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose } from '@votingworks/ui';
+import { Button, Main, Screen, Prose, Text } from '@votingworks/ui';
 import { PostVotingInstructions } from '../config/types';
 
 const SingleGraphic = styled.img`
@@ -11,7 +11,7 @@ const SingleGraphic = styled.img`
 
 const Instructions = styled.ol`
   display: flex;
-  padding: 1rem 1rem 1rem 2rem;
+  padding: 1rem;
   list-style: none;
   text-align: center;
   > li {
@@ -41,6 +41,7 @@ export function CastBallotPage({
   hidePostVotingInstructions,
   showPostVotingInstructions,
 }: Props): JSX.Element {
+  const isUsingVoterCard = showPostVotingInstructions === 'card';
   return (
     <Screen white>
       <Main centerChild>
@@ -55,7 +56,9 @@ export function CastBallotPage({
                 src="/images/instructions-1-verify.svg"
                 style={{ left: '-0.75em' }}
               />
-              <p>1. Verify your official ballot.</p>
+              <Text noWrap={!isUsingVoterCard}>
+                1. Verify your official ballot.
+              </Text>
             </li>
             <li>
               <SingleGraphic
@@ -63,9 +66,11 @@ export function CastBallotPage({
                 alt="Scan Your Ballot"
                 src="/images/instructions-2-scan.svg"
               />
-              <p>2. Scan your official ballot.</p>
+              <Text noWrap={!isUsingVoterCard}>
+                2. Scan your official ballot.
+              </Text>
             </li>
-            {showPostVotingInstructions === 'card' && (
+            {isUsingVoterCard && (
               <li>
                 <SingleGraphic
                   aria-hidden
@@ -73,7 +78,7 @@ export function CastBallotPage({
                   src="/images/instructions-3-return-card.svg"
                   style={{ left: '0.5em' }}
                 />
-                <p>3. Return the card to a poll worker.</p>
+                <p>3. Return the card.</p>
               </li>
             )}
           </Instructions>
