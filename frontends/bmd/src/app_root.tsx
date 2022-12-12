@@ -647,6 +647,7 @@ export function AppRoot({
       return true;
     }
     assert(isVoterAuth(auth));
+    /* istanbul ignore next - this is unlikely to happen */
     if ((await auth.card.clearStoredData()).isErr()) {
       return false;
     }
@@ -656,6 +657,7 @@ export function AppRoot({
   const markVoterCardPrinted: MarkVoterCardFunction = useCallback(async () => {
     if (isCardlessVoterAuth(auth)) return true;
     assert(isVoterAuth(auth));
+    /* istanbul ignore next - this is unlikely to happen */
     if ((await auth.card.clearStoredData()).isErr()) {
       return false;
     }

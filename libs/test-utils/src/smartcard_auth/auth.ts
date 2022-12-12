@@ -6,17 +6,25 @@ import {
   PollWorkerUser,
   VoterUser,
   CardlessVoterUser,
+  ok,
 } from '@votingworks/types';
 
 export function fakeCardStorage(props: Partial<CardStorage> = {}): CardStorage {
   return {
     hasStoredData: false,
-    readStoredObject: jest.fn(),
-    readStoredString: jest.fn(),
-    readStoredUint8Array: jest.fn(),
-    writeStoredData: jest.fn(),
-    clearStoredData: jest.fn(),
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    // @ts-ignore
+    readStoredObject: jest.fn(() => Promise.resolve(ok())),
+    // @ts-ignore
+    readStoredString: jest.fn(() => Promise.resolve(ok())),
+    // @ts-ignore
+    readStoredUint8Array: jest.fn(() => Promise.resolve(ok())),
+    // @ts-ignore
+    writeStoredData: jest.fn(() => Promise.resolve(ok())),
+    // @ts-ignore
+    clearStoredData: jest.fn(() => Promise.resolve(ok())),
     ...props,
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
   };
 }
 
@@ -25,8 +33,8 @@ export function fakeCardProgramming(
 ): CardProgramming {
   return {
     programmedUser: undefined,
-    programUser: jest.fn(),
-    unprogramUser: jest.fn(),
+    programUser: jest.fn(() => Promise.resolve(ok())),
+    unprogramUser: jest.fn(() => Promise.resolve(ok())),
     ...props,
   };
 }
