@@ -5,6 +5,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
+  MarkThresholds,
   PrecinctSelection,
   safeParse,
   safeParseElectionDefinition,
@@ -97,6 +98,18 @@ function buildApi(
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
     },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setMarkThresholdOverrides(input: {
+      markThresholdOverrides?: MarkThresholds;
+    }): Promise<void> {
+      store.setMarkThresholdOverrides(input.markThresholdOverrides);
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
+      store.setIsSoundMuted(input.isSoundMuted);
+    },
   });
 }
 
@@ -128,63 +141,6 @@ export function buildApp(
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchMarkThresholdOverridesConfigResponse,
-    Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/precinct-scanner/config/markThresholdOverrides', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    store.setMarkThresholdOverrides(
-      bodyParseResult.ok().markThresholdOverrides
-    );
-
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.delete<
-    NoParams,
-    Scan.DeleteMarkThresholdOverridesConfigResponse
-  >('/precinct-scanner/config/markThresholdOverrides', (_request, response) => {
-    store.setMarkThresholdOverrides(undefined);
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchIsSoundMutedConfigResponse,
-    Scan.PatchIsSoundMutedConfigRequest
-  >('/precinct-scanner/config/isSoundMuted', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchIsSoundMutedConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    store.setIsSoundMuted(bodyParseResult.ok().isSoundMuted);
-    response.json({ status: 'ok' });
-  });
 
   deprecatedApiRouter.patch<
     NoParams,

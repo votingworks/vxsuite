@@ -277,7 +277,7 @@ export function AppRoot({
 
   const toggleIsSoundMuted = useCallback(async () => {
     dispatchAppState({ type: 'toggleIsSoundMuted' });
-    await config.setIsSoundMuted(!isSoundMuted);
+    await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
   }, [isSoundMuted]);
 
   const unconfigureServer = useCallback(
@@ -310,7 +310,9 @@ export function AppRoot({
       type: 'updateMarkThresholdOverrides',
       markThresholdOverrides: markThresholds,
     });
-    await config.setMarkThresholdOverrides(markThresholds);
+    await apiClient.setMarkThresholdOverrides({
+      markThresholdOverrides: markThresholds,
+    });
   }
 
   const scannerStatus = usePrecinctScannerStatus();

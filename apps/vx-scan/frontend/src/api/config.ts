@@ -1,6 +1,10 @@
 import {
   ElectionDefinition,
+<<<<<<< HEAD
   MarkThresholds,
+=======
+  safeParseJson,
+>>>>>>> 4726fd977 (Convert setMarkThresholdOverrides/setIsSoundMuted)
   PollsState,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
@@ -30,38 +34,6 @@ async function patch<Body extends string | ArrayBuffer | unknown>(
   if (body.status !== 'ok') {
     throw new Error(`PATCH ${url} failed: ${JSON.stringify(body.errors)}`);
   }
-}
-
-async function del(url: string): Promise<void> {
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  const body: OkResponse | ErrorsResponse = await response.json();
-
-  if (body.status !== 'ok') {
-    throw new Error(`DELETE ${url} failed: ${JSON.stringify(body.errors)}`);
-  }
-}
-
-export async function setMarkThresholdOverrides(
-  markThresholdOverrides?: MarkThresholds
-): Promise<void> {
-  if (typeof markThresholdOverrides === 'undefined') {
-    await del('/precinct-scanner/config/markThresholdOverrides');
-  } else {
-    await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
-      '/precinct-scanner/config/markThresholdOverrides',
-      { markThresholdOverrides }
-    );
-  }
-}
-
-export async function setIsSoundMuted(isSoundMuted: boolean): Promise<void> {
-  await patch<Scan.PatchIsSoundMutedConfigRequest>(
-    '/precinct-scanner/config/isSoundMuted',
-    { isSoundMuted }
-  );
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
