@@ -6,8 +6,8 @@ import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
   MarkThresholds,
+  PollsState,
   PrecinctSelection,
-  safeParse,
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
@@ -35,7 +35,8 @@ type NoParams = never;
 
 function buildApi(
   workspace: Workspace,
-  interpreter: PrecinctScannerInterpreter
+  interpreter: PrecinctScannerInterpreter,
+  logger: Logger
 ) {
   const { store } = workspace;
   return grout.createApi({
@@ -116,6 +117,40 @@ function buildApi(
       workspace.resetElectionSession();
       store.setTestMode(input.isTestMode);
     },
+
+    async setPollsState(input: { pollsState: PollsState }): Promise<void> {
+      const previousPollsState = store.getPollsState();
+      const newPollsState = input.pollsState;
+
+      // Start new batch if opening polls, end batch if pausing or closing polls
+      if (
+        newPollsState === 'polls_open' &&
+        previousPollsState !== 'polls_open'
+      ) {
+        const batchId = store.addBatch();
+        await logger.log(LogEventId.ScannerBatchStarted, 'system', {
+          disposition: 'success',
+          message:
+            'New scanning batch started due to polls being opened or voting being resumed.',
+          batchId,
+        });
+      } else if (
+        newPollsState !== 'polls_open' &&
+        previousPollsState === 'polls_open'
+      ) {
+        const ongoingBatchId = store.getOngoingBatchId();
+        assert(typeof ongoingBatchId === 'string');
+        store.finishBatch({ batchId: ongoingBatchId });
+        await logger.log(LogEventId.ScannerBatchEnded, 'system', {
+          disposition: 'success',
+          message:
+            'Current scanning batch ended due to polls being closed or voting being paused.',
+          batchId: ongoingBatchId,
+        });
+      }
+
+      store.setPollsState(newPollsState);
+    },
   });
 }
 
@@ -131,7 +166,7 @@ export function buildApp(
 
   const app: Application = express();
 
-  const api = buildApi(workspace, interpreter);
+  const api = buildApi(workspace, interpreter, logger);
   app.use('/api', grout.buildRouter(api, express));
 
   const deprecatedApiRouter = express.Router();
@@ -147,56 +182,6 @@ export function buildApp(
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchPollsStateResponse,
-    Scan.PatchPollsStateRequest
-  >('/precinct-scanner/config/polls', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchPollsStateRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    const previousPollsState = store.getPollsState();
-    const newPollsState = bodyParseResult.ok().pollsState;
-
-    // Start new batch if opening polls, end batch if pausing or closing polls
-    if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
-      const batchId = store.addBatch();
-      await logger.log(LogEventId.ScannerBatchStarted, 'system', {
-        disposition: 'success',
-        message:
-          'New scanning batch started due to polls being opened or voting being resumed.',
-        batchId,
-      });
-    } else if (
-      newPollsState !== 'polls_open' &&
-      previousPollsState === 'polls_open'
-    ) {
-      const ongoingBatchId = store.getOngoingBatchId();
-      assert(typeof ongoingBatchId === 'string');
-      store.finishBatch({ batchId: ongoingBatchId });
-      await logger.log(LogEventId.ScannerBatchEnded, 'system', {
-        disposition: 'success',
-        message:
-          'Current scanning batch ended due to polls being closed or voting being paused.',
-        batchId: ongoingBatchId,
-      });
-    }
-
-    store.setPollsState(bodyParseResult.ok().pollsState);
-    response.json({ status: 'ok' });
-  });
 
   deprecatedApiRouter.patch<NoParams, Scan.PatchBallotBagReplaced>(
     '/precinct-scanner/config/ballotBagReplaced',

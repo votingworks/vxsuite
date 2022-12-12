@@ -1,46 +1,11 @@
 import {
   ElectionDefinition,
-<<<<<<< HEAD
-  MarkThresholds,
-=======
-  safeParseJson,
->>>>>>> 4726fd977 (Convert setMarkThresholdOverrides/setIsSoundMuted)
   PollsState,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import { apiClient } from './api';
-
-async function patch<Body extends string | ArrayBuffer | unknown>(
-  url: string,
-  value: Body
-): Promise<void> {
-  const isJson =
-    typeof value !== 'string' &&
-    !(value instanceof ArrayBuffer) &&
-    !(value instanceof Uint8Array);
-  const response = await fetch(url, {
-    method: 'PATCH',
-    body: isJson ? JSON.stringify(value) : (value as BodyInit),
-    headers: {
-      'Content-Type': /* istanbul ignore next */ isJson
-        ? 'application/json'
-        : 'application/octet-stream',
-    },
-  });
-  const body: OkResponse | ErrorsResponse = await response.json();
-
-  if (body.status !== 'ok') {
-    throw new Error(`PATCH ${url} failed: ${JSON.stringify(body.errors)}`);
-  }
-}
-
-export async function setPollsState(pollsState: PollsState): Promise<void> {
-  await patch<Scan.PatchPollsStateRequest>('/precinct-scanner/config/polls', {
-    pollsState,
-  });
-}
 
 export async function setBallotBagReplaced(): Promise<void> {
   const response = await fetch('/precinct-scanner/config/ballotBagReplaced', {

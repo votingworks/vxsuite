@@ -257,7 +257,7 @@ export function AppRoot({
 
   const updatePollsState = useCallback(
     async (newPollsState: PollsState) => {
-      await config.setPollsState(newPollsState);
+      await apiClient.setPollsState({ pollsState: newPollsState });
       dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
       await refreshConfig();
     },
