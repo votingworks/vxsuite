@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 import { err, ok, Result } from '@votingworks/types';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
-import { AnyApi, createApi, registerRoutes } from './server';
+import { AnyApi, buildRouter, createApi } from './server';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -14,10 +14,8 @@ global.fetch = fetch;
 
 function createTestApp(api: AnyApi) {
   const app = express();
-  const router = express.Router();
-  router.use(express.text({ type: 'application/json' }));
-  registerRoutes(api, router);
-  app.use('/api', router);
+
+  app.use('/api', buildRouter(api, express));
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;

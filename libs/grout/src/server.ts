@@ -1,12 +1,7 @@
 /* eslint-disable vx/gts-type-parameters */
 /* eslint-disable vx/gts-identifiers */
-
-// Grout is designed to not depend on express values, just types, so client apps
-// don't have to install express. We could also make separate client/server
-// packages for grout and only have the server package depend on express, but
-// that seemed a bit overkill.
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type express from 'express';
+import type Express from 'express';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 import { isObject, isString } from './util';
@@ -89,23 +84,13 @@ export function createApi<TMethods extends AnyMethods>(
 export class GroutError extends Error {}
 
 /**
- * Registers route handlers for each RPC method in a Grout API on an Express
- * router. This allows you to easily mount the Grout API within a larger
- * Express app like so:
+ * Creates an express Router with a route handler for each RPC method in a Grout
+ * API. This allows you to easily mount the Grout API within a larger Express
+ * app like so:
  *
  *  const api = createApi({ ... methods ... });
  *  const app = express();
- *  router = express.Router();
- *
- *  // The router must use the text body parser middleware with content type
- *  // 'application/json'. Make sure you don't add any other body parsers
- *  // upstream of the Grout router (e.g. with app.use)
- *  router.use(express.text({ type: 'application/json' }));
- *
- *  registerRoutes(api, router);
- *
- *  // Here, we mount the Grout API at /api, but you can mount it anywhere.
- *  app.use('/api', groutRouter);
+ *  app.use('/api', buildRouter(api, express));
  *
  * All routes will use the POST HTTP method with a JSON body (for RPC input) and
  * return a JSON response (for RPC output), using Grout's serialization format
@@ -121,13 +106,16 @@ export class GroutError extends Error {}
  * ensures that consumers of the method will be forced to handle that error case
  * explicitly.
  */
-export function registerRoutes(api: AnyApi, router: express.Router): void {
-  if (!router.stack.some((layer) => layer.name === 'textParser')) {
-    throw new GroutError(
-      'Grout requires the router to use the text body parser middleware with content type application/json.' +
-        " Add it like so: app.use(express.text({ type: 'application/json' }))."
-    );
-  }
+export function buildRouter(
+  api: AnyApi,
+  // We take the Express module as an argument so that Grout doesn't depend on
+  // Express directly. This allows client packages to use Grout without having
+  // to install Express, and also makes sure we're using the exact same version
+  // of Express as the server package.
+  express: typeof Express
+): Express.Router {
+  const router = express.Router();
+  router.use(express.text({ type: 'application/json' }));
 
   for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
     const path = `/${methodName}`;
@@ -173,4 +161,6 @@ export function registerRoutes(api: AnyApi, router: express.Router): void {
       }
     });
   }
+
+  return router;
 }

@@ -54,23 +54,12 @@ const api = grout.createApi({
 
 const app = express();
 
-// When registering the API with an Express app, you must use a separate
-// Router. That way you can isolate the Grout API routes from other routes in
-// your app.
-const router = express.Router();
-
-// You must have the router use the `express.text()` middleware with type
-// `application/json` exactly as shown below.
-router.use(express.text({ type: 'application/json' }));
-
-// Then, simply register the API routes.
-grout.registerRoutes(router, api);
-
-// Finally, mount the router on your app. You can use any path prefix you want -
-// here we use `/api`. It's important that you don't use any other body-parsing
-// middleware upstream of the router - e.g. don't call `app.use(express.json())`
-// before this.
-app.use('/api', router);
+// When registering the API with an Express app, Grout creates an Express Router
+// to isolate the Grout API routes from other routes in your app. You can mount
+// this router using any path prefix you want - here we use `/api`. It's
+// important that you don't use any other body-parsing middleware upstream of
+// the router - e.g. don't call `app.use(express.json())` before this.
+app.use('/api', buildRouter(api, express));
 
 // Don't forget to export the API type - we'll need it for the client.
 export type MyApi = typeof api;
