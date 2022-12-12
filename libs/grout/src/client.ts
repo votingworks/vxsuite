@@ -81,8 +81,8 @@ export function createClient<TApi extends AnyApi>(
           }
 
           if (!response.ok) {
-            const message = (await response.json())?.message;
-            throw new ServerError(message ?? response.statusText);
+            const { message } = await response.json();
+            throw new ServerError(message);
           }
 
           const resultText = await response.text();
@@ -91,10 +91,17 @@ export function createClient<TApi extends AnyApi>(
           return result;
         } catch (error) {
           const message =
-            error instanceof Error ? error.message : String(error);
+            error instanceof Error
+              ? error.message
+              : /* istanbul ignore next - no easy way to test throwing a non-Error */
+                String(error);
           debug(`Error: ${message}`);
           throw new ServerError(message, {
-            cause: error instanceof Error ? error : undefined,
+            cause:
+              error instanceof Error
+                ? error
+                : /* istanbul ignore next - no easy way to test throwing a non-Error */
+                  undefined,
           });
         }
       };

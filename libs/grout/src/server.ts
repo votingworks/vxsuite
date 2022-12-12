@@ -133,7 +133,7 @@ export function buildRouter(
         if (!isString(request.body)) {
           throw new GroutError(
             'Request body was parsed as something other than a string.' +
-              ' Make sure you havent added any other body parsers upstream' +
+              " Make sure you haven't added any other body parsers upstream" +
               ' of the Grout router - e.g. app.use(express.json()).' +
               ` Body: ${JSON.stringify(request.body)}`
           );
@@ -144,7 +144,7 @@ export function buildRouter(
         if (!(isObject(input) || input === undefined)) {
           throw new GroutError(
             'Grout methods must be called with an object or undefined as the sole argument.' +
-              ` The argument received was: ${JSON.stringify(input)}.`
+              ` The argument received was: ${JSON.stringify(input)}`
           );
         }
 
