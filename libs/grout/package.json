@@ -1,0 +1,67 @@
+{
+  "name": "@votingworks/grout",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A library to create type-safe RPC glue code.",
+  "license": "GPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "rm -rf build *.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --build"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/express": "^4.17.14",
+    "@votingworks/types": "workspace:*",
+    "debug": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/node-fetch": "^2.6.0",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vx": "workspace:*",
+    "expect-type": "^0.15.0",
+    "express": "^4.18.2",
+    "fetch-mock": "^9.11.0",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^27.3.1",
+    "jest-fetch-mock": "^3.0.3",
+    "jest-junit": "^14.0.1",
+    "jest-watch-typeahead": "^0.6.4",
+    "lint-staged": "^11.0.0",
+    "node-fetch": "^2.6.0",
+    "prettier": "^2.6.2",
+    "sort-package-json": "^1.50.0",
+    "ts-jest": "^27.0.7",
+    "typescript": "4.6.3"
+  },
+  "packageManager": "pnpm@5.18.10"
+}
