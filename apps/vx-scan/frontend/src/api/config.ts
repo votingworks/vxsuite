@@ -1,7 +1,6 @@
 import {
   ElectionDefinition,
   MarkThresholds,
-  PrecinctSelection,
   PollsState,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
@@ -43,17 +42,6 @@ async function del(url: string): Promise<void> {
   if (body.status !== 'ok') {
     throw new Error(`DELETE ${url} failed: ${JSON.stringify(body.errors)}`);
   }
-}
-
-export async function setPrecinctSelection(
-  precinctSelection: PrecinctSelection
-): Promise<void> {
-  await patch<Scan.PatchPrecinctSelectionConfigRequest>(
-    '/precinct-scanner/config/precinct',
-    {
-      precinctSelection,
-    }
-  );
 }
 
 export async function setMarkThresholdOverrides(

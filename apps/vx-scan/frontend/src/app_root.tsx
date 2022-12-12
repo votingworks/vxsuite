@@ -295,7 +295,9 @@ export function AppRoot({
   async function updatePrecinctSelection(
     newPrecinctSelection: PrecinctSelection
   ) {
-    await config.setPrecinctSelection(newPrecinctSelection);
+    await apiClient.setPrecinctSelection({
+      precinctSelection: newPrecinctSelection,
+    });
     dispatchAppState({
       type: 'updatePrecinctSelection',
       precinctSelection: newPrecinctSelection,

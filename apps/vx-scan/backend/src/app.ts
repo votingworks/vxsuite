@@ -5,6 +5,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
+  PrecinctSelection,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -52,16 +53,14 @@ function buildApi(
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async setElection({
-      electionData,
-    }: {
+    async setElection(input: {
       // We transmit and store the election definition as a string, not as a
       // JSON object, since it will later be hashed to match the election hash
       // in ballot QR codes. Since the original hash was made from the string,
       // the most reliable way to get the same hash is to use the same string.
       electionData: string;
     }): Promise<void> {
-      const parseResult = safeParseElectionDefinition(electionData);
+      const parseResult = safeParseElectionDefinition(input.electionData);
       assert(parseResult.isOk(), 'Invalid election definition');
       const electionDefinition = parseResult.ok();
       store.setElection(electionDefinition.electionData);
@@ -76,17 +75,27 @@ function buildApi(
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async unconfigureElection({
-      ignoreBackupRequirement,
-    }: {
+    async unconfigureElection(input: {
       ignoreBackupRequirement?: boolean;
     }): Promise<void> {
       assert(
-        store.getCanUnconfigure() || ignoreBackupRequirement,
+        store.getCanUnconfigure() || input.ignoreBackupRequirement,
         'Attempt to unconfigure without backup'
       );
       interpreter.unconfigure();
       workspace.reset();
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): Promise<void> {
+      assert(
+        store.getBallotsCounted() === 0,
+        'Attempt to change precinct selection after ballots have been cast'
+      );
+      store.setPrecinctSelection(input.precinctSelection);
+      workspace.resetElectionSession();
     },
   });
 }
@@ -119,44 +128,6 @@ export function buildApp(
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchPrecinctSelectionConfigResponse,
-    Scan.PatchPrecinctSelectionConfigRequest
-  >('/precinct-scanner/config/precinct', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchPrecinctSelectionConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    if (store.getBallotsCounted() > 0) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'ballots-cast',
-            message:
-              'cannot change the precinct selection if ballots have been cast',
-          },
-        ],
-      });
-      return;
-    }
-
-    store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    workspace.resetElectionSession();
-    response.json({ status: 'ok' });
-  });
 
   deprecatedApiRouter.patch<
     NoParams,
