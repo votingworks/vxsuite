@@ -1,26 +1,7 @@
-import {
-  ElectionDefinition,
-  PollsState,
-} from '@votingworks/types';
-import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
+import { ElectionDefinition } from '@votingworks/types';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import { apiClient } from './api';
-
-export async function setBallotBagReplaced(): Promise<void> {
-  const response = await fetch('/precinct-scanner/config/ballotBagReplaced', {
-    method: 'PATCH',
-  });
-  const body: OkResponse | ErrorsResponse = await response.json();
-
-  if (body.status !== 'ok') {
-    throw new Error(
-      `PATCH /precinct-scanner/config/ballotBagReplaced failed: ${JSON.stringify(
-        body.errors
-      )}`
-    );
-  }
-}
 
 export interface AddTemplatesEvents extends EventEmitter {
   on(

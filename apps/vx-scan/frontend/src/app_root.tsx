@@ -34,7 +34,6 @@ import { UnconfiguredElectionScreen } from './screens/unconfigured_election_scre
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
 
-import * as config from './api/config';
 import * as scanner from './api/scan';
 
 import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
@@ -318,7 +317,7 @@ export function AppRoot({
   const scannerStatus = usePrecinctScannerStatus();
 
   const onBallotBagReplaced = useCallback(async () => {
-    await config.setBallotBagReplaced();
+    await apiClient.recordBallotBagReplaced();
     await refreshConfig();
     await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
       disposition: 'success',
