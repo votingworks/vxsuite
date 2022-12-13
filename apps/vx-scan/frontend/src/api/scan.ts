@@ -5,14 +5,6 @@ import { rootDebug } from '../utils/debug';
 
 const debug = rootDebug.extend('api:scan');
 
-export async function acceptBallot(): Promise<void> {
-  await fetchJson('/precinct-scanner/scanner/accept', { method: 'POST' });
-}
-
-export async function returnBallot(): Promise<void> {
-  await fetchJson('/precinct-scanner/scanner/return', { method: 'POST' });
-}
-
 export async function calibrate(): Promise<boolean> {
   const result = unsafeParse(
     Scan.CalibrateResponseSchema,

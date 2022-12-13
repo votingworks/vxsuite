@@ -34,8 +34,6 @@ import { UnconfiguredElectionScreen } from './screens/unconfigured_election_scre
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
 
-import * as scanner from './api/scan';
-
 import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -345,7 +343,7 @@ export function AppRoot({
       if (scannerStatus?.state === 'ready_to_scan') {
         await apiClient.scanBallot();
       } else if (scannerStatus?.state === 'ready_to_accept') {
-        await scanner.acceptBallot();
+        await apiClient.acceptBallot();
       }
     }
     void automaticallyScanAndAcceptBallots();

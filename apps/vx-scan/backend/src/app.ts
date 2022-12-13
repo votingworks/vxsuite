@@ -1,4 +1,4 @@
-import { OkResponse, Scan } from '@votingworks/api';
+import { Scan } from '@votingworks/api';
 import { pdfToImages } from '@votingworks/image-utils';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -215,6 +215,16 @@ function buildApi(
       });
       machine.scan();
     },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async acceptBallot(): Promise<void> {
+      machine.accept();
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async returnBallot(): Promise<void> {
+      machine.return();
+    },
   });
 }
 
@@ -407,22 +417,6 @@ export function buildApp(
       );
 
       store.setCvrsBackedUp();
-    }
-  );
-
-  deprecatedApiRouter.post<NoParams, OkResponse>(
-    '/precinct-scanner/scanner/accept',
-    (_request, response) => {
-      machine.accept();
-      response.json({ status: 'ok' });
-    }
-  );
-
-  deprecatedApiRouter.post<NoParams, OkResponse>(
-    '/precinct-scanner/scanner/return',
-    (_request, response) => {
-      machine.return();
-      response.json({ status: 'ok' });
     }
   );
 

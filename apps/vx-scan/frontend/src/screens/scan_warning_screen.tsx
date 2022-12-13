@@ -26,7 +26,7 @@ import {
 } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import * as scanner from '../api/scan';
+import { apiClient } from '../api/api';
 
 import { ExclamationTriangle } from '../components/graphics';
 import {
@@ -125,7 +125,7 @@ function OvervoteWarningScreen({
           {toSentence(contestNames)}.
         </Text>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={scanner.returnBallot}>
+          <Button primary onPress={() => apiClient.returnBallot()}>
             Return Ballot
           </Button>
           {allowCastingOvervotes && (
@@ -153,7 +153,7 @@ function OvervoteWarningScreen({
               </p>
             </Prose>
           }
-          onConfirm={scanner.acceptBallot}
+          onConfirm={() => apiClient.acceptBallot()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -218,7 +218,10 @@ function UndervoteWarningScreen({
           </p>
         )}
         <ResponsiveButtonParagraph>
-          <Button onPress={scanner.returnBallot}>Return Ballot</Button> or{' '}
+          <Button onPress={() => apiClient.returnBallot()}>
+            Return Ballot
+          </Button>{' '}
+          or{' '}
           <Button primary onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
@@ -259,7 +262,7 @@ function UndervoteWarningScreen({
               </Text>
             </Prose>
           }
-          onConfirm={scanner.acceptBallot}
+          onConfirm={() => apiClient.acceptBallot()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -276,7 +279,7 @@ function BlankBallotWarningScreen(): JSX.Element {
         <h1>Review Your Ballot</h1>
         <p>No votes were found when scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={scanner.returnBallot}>
+          <Button primary onPress={() => apiClient.returnBallot()}>
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -298,7 +301,7 @@ function BlankBallotWarningScreen(): JSX.Element {
               <p>No votes will be counted from this ballot.</p>
             </Prose>
           }
-          onConfirm={scanner.acceptBallot}
+          onConfirm={() => apiClient.acceptBallot()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -315,7 +318,7 @@ function OtherReasonWarningScreen(): JSX.Element {
         <h1>Scanning Failed</h1>
         <p>There was a problem scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={scanner.returnBallot}>
+          <Button primary onPress={() => apiClient.returnBallot()}>
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -335,7 +338,7 @@ function OtherReasonWarningScreen(): JSX.Element {
               <p>No votes will be recorded for this ballot.</p>
             </Prose>
           }
-          onConfirm={scanner.acceptBallot}
+          onConfirm={() => apiClient.acceptBallot()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
