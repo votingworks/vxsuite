@@ -1,4 +1,4 @@
-import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
+import { OkResponse, Scan } from '@votingworks/api';
 import { pdfToImages } from '@votingworks/image-utils';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -196,6 +196,25 @@ function buildApi(
         canUnconfigure,
       };
     },
+
+    async scanBallot(): Promise<void> {
+      assert(store.getPollsState() === 'polls_open');
+      const electionDefinition = store.getElectionDefinition();
+      const precinctSelection = store.getPrecinctSelection();
+      const layouts = await store.loadLayouts();
+      assert(electionDefinition);
+      assert(precinctSelection);
+      assert(layouts);
+      interpreter.configure({
+        electionDefinition,
+        precinctSelection,
+        layouts,
+        testMode: store.getTestMode(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        ballotImagesPath: workspace.ballotImagesPath,
+      });
+      machine.scan();
+    },
   });
 }
 
@@ -388,42 +407,6 @@ export function buildApp(
       );
 
       store.setCvrsBackedUp();
-    }
-  );
-
-  deprecatedApiRouter.post<NoParams, OkResponse | ErrorsResponse>(
-    '/precinct-scanner/scanner/scan',
-    async (_request, response) => {
-      if (store.getPollsState() !== 'polls_open') {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'polls-closed',
-              message: 'cannot scan ballots while polls are closed',
-            },
-          ],
-        });
-        return;
-      }
-
-      const electionDefinition = store.getElectionDefinition();
-      const precinctSelection = store.getPrecinctSelection();
-      const layouts = await store.loadLayouts();
-      assert(electionDefinition);
-      assert(precinctSelection);
-      assert(layouts);
-      interpreter.configure({
-        electionDefinition,
-        precinctSelection,
-        layouts,
-        testMode: store.getTestMode(),
-        markThresholdOverrides: store.getMarkThresholdOverrides(),
-        ballotImagesPath: workspace.ballotImagesPath,
-      });
-
-      machine.scan();
-      response.json({ status: 'ok' });
     }
   );
 

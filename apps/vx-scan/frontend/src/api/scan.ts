@@ -5,10 +5,6 @@ import { rootDebug } from '../utils/debug';
 
 const debug = rootDebug.extend('api:scan');
 
-export async function scanBallot(): Promise<void> {
-  await fetchJson('/precinct-scanner/scanner/scan', { method: 'POST' });
-}
-
 export async function acceptBallot(): Promise<void> {
   await fetchJson('/precinct-scanner/scanner/accept', { method: 'POST' });
 }

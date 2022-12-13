@@ -343,7 +343,7 @@ export function AppRoot({
       }
 
       if (scannerStatus?.state === 'ready_to_scan') {
-        await scanner.scanBallot();
+        await apiClient.scanBallot();
       } else if (scannerStatus?.state === 'ready_to_accept') {
         await scanner.acceptBallot();
       }
