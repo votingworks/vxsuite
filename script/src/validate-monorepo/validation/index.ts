@@ -13,7 +13,7 @@ export type ValidationIssue =
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const root = join(__dirname, '../../../..');
   const apps = await readdir(join(root, 'apps'));
-  const appPackages = flatten(await Promise.all(apps.map(readdir)));
+  const appPackages = (await Promise.all(apps.map(readdir))).flat();
   const services = await readdir(join(root, 'services'));
   const frontends = await readdir(join(root, 'frontends'));
   const libs = await readdir(join(root, 'libs'));

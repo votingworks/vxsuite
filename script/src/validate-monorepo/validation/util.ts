@@ -17,10 +17,6 @@ export async function readdir(directory: string): Promise<string[]> {
   return (await fs.readdir(directory)).map((entry) => join(directory, entry));
 }
 
-export function flatten<T>(array: T[][]): T[] {
-  return array.reduce((acc, val) => acc.concat(val), []);
-}
-
 export async function maybeReadPackageJson(
   filepath: string
 ): Promise<Package | undefined> {
