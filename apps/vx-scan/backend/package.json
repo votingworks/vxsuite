@@ -2,6 +2,8 @@
   "name": "@votingworks/vx-scan-backend",
   "version": "0.1.0",
   "private": true,
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build",
     "bin",
@@ -42,6 +44,7 @@
     "@votingworks/data": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/plustek-sdk": "workspace:*",

@@ -1,5 +1,6 @@
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { pdfToImages } from '@votingworks/image-utils';
+import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
@@ -31,6 +32,33 @@ const debug = rootDebug.extend('app');
 
 type NoParams = never;
 
+function buildApi(
+  _machine: PrecinctScannerStateMachine,
+  _interpreter: PrecinctScannerInterpreter,
+  workspace: Workspace,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _logger: Logger
+) {
+  const { store } = workspace;
+  return grout.createApi({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async getConfig(): Promise<Scan.PrecinctScannerConfig> {
+      return {
+        electionDefinition: store.getElectionDefinition(),
+        precinctSelection: store.getPrecinctSelection(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        isSoundMuted: store.getIsSoundMuted(),
+        isTestMode: store.getTestMode(),
+        pollsState: store.getPollsState(),
+        ballotCountWhenBallotBagLastReplaced:
+          store.getBallotCountWhenBallotBagLastReplaced(),
+      };
+    },
+  });
+}
+
+export type Api = ReturnType<typeof buildApi>;
+
 export function buildApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
@@ -40,33 +68,28 @@ export function buildApp(
   const { store } = workspace;
 
   const app: Application = express();
+
+  const api = buildApi(machine, interpreter, workspace, logger);
+  const apiRouter = express.Router();
+  apiRouter.use(express.text({ type: 'application/json' }));
+  grout.registerRoutes(api, apiRouter);
+  app.use('/api', apiRouter);
+
+  const deprecatedApiRouter = express.Router();
+
   const upload = multer({
     storage: multer.diskStorage({
       destination: workspace.uploadsPath,
     }),
   });
 
-  app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
-  app.use(express.urlencoded({ extended: false }));
-
-  app.get<NoParams, Scan.GetPrecinctScannerConfigResponse>(
-    '/precinct-scanner/config',
-    (_request, response) => {
-      response.json({
-        electionDefinition: store.getElectionDefinition(),
-        precinctSelection: store.getPrecinctSelection(),
-        markThresholdOverrides: store.getMarkThresholdOverrides(),
-        isSoundMuted: store.getIsSoundMuted(),
-        isTestMode: store.getTestMode(),
-        pollsState: store.getPollsState(),
-        ballotCountWhenBallotBagLastReplaced:
-          store.getBallotCountWhenBallotBagLastReplaced(),
-      });
-    }
+  deprecatedApiRouter.use(express.raw());
+  deprecatedApiRouter.use(
+    express.json({ limit: '5mb', type: 'application/json' })
   );
+  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
@@ -117,7 +140,7 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
+  deprecatedApiRouter.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/precinct-scanner/config/election',
     (request, response) => {
       if (
@@ -143,7 +166,7 @@ export function buildApp(
     }
   );
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchPrecinctSelectionConfigResponse,
     Scan.PatchPrecinctSelectionConfigRequest
@@ -181,7 +204,7 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
@@ -207,15 +230,15 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    (_request, response) => {
-      store.setMarkThresholdOverrides(undefined);
-      response.json({ status: 'ok' });
-    }
-  );
+  deprecatedApiRouter.delete<
+    NoParams,
+    Scan.DeleteMarkThresholdOverridesConfigResponse
+  >('/precinct-scanner/config/markThresholdOverrides', (_request, response) => {
+    store.setMarkThresholdOverrides(undefined);
+    response.json({ status: 'ok' });
+  });
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchIsSoundMutedConfigResponse,
     Scan.PatchIsSoundMutedConfigRequest
@@ -238,7 +261,7 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
@@ -262,7 +285,7 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchPollsStateResponse,
     Scan.PatchPollsStateRequest
@@ -312,7 +335,7 @@ export function buildApp(
     response.json({ status: 'ok' });
   });
 
-  app.patch<NoParams, Scan.PatchBallotBagReplaced>(
+  deprecatedApiRouter.patch<NoParams, Scan.PatchBallotBagReplaced>(
     '/precinct-scanner/config/ballotBagReplaced',
     async (_request, response) => {
       // If polls are open, we need to end current batch and start a new batch
@@ -340,7 +363,11 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.AddTemplatesResponse,
+    Scan.AddTemplatesRequest
+  >(
     '/precinct-scanner/config/addTemplates',
     upload.fields([
       { name: 'ballots' },
@@ -471,7 +498,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
+  deprecatedApiRouter.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
     async (request, response) => {
       const skipImages = request.body?.skipImages;
@@ -499,24 +526,25 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.BackupToUsbResponse, Scan.BackupToUsbRequest>(
-    '/precinct-scanner/backup-to-usb-drive',
-    async (_request, response) => {
-      const result = await backupToUsbDrive(store);
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.BackupToUsbResponse,
+    Scan.BackupToUsbRequest
+  >('/precinct-scanner/backup-to-usb-drive', async (_request, response) => {
+    const result = await backupToUsbDrive(store);
 
-      if (result.isErr()) {
-        response.status(500).json({
-          status: 'error',
-          errors: [result.err()],
-        });
-        return;
-      }
-
-      response.json({ status: 'ok', paths: result.ok() });
+    if (result.isErr()) {
+      response.status(500).json({
+        status: 'error',
+        errors: [result.err()],
+      });
+      return;
     }
-  );
 
-  app.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
+    response.json({ status: 'ok', paths: result.ok() });
+  });
+
+  deprecatedApiRouter.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
     '/precinct-scanner/scanner/status',
     (_request, response) => {
       const machineStatus = machine.status();
@@ -530,7 +558,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, OkResponse | ErrorsResponse>(
+  deprecatedApiRouter.post<NoParams, OkResponse | ErrorsResponse>(
     '/precinct-scanner/scanner/scan',
     async (_request, response) => {
       if (store.getPollsState() !== 'polls_open') {
@@ -566,7 +594,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, OkResponse>(
+  deprecatedApiRouter.post<NoParams, OkResponse>(
     '/precinct-scanner/scanner/accept',
     (_request, response) => {
       machine.accept();
@@ -574,7 +602,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, OkResponse>(
+  deprecatedApiRouter.post<NoParams, OkResponse>(
     '/precinct-scanner/scanner/return',
     (_request, response) => {
       machine.return();
@@ -582,7 +610,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.CalibrateResponse>(
+  deprecatedApiRouter.post<NoParams, Scan.CalibrateResponse>(
     '/precinct-scanner/scanner/calibrate',
     async (_request, response) => {
       const result = await machine.calibrate();
@@ -596,6 +624,8 @@ export function buildApp(
       }
     }
   );
+
+  app.use(deprecatedApiRouter);
 
   return app;
 }

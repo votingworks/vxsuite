@@ -1,7 +1,6 @@
 import {
   ElectionDefinition,
   MarkThresholds,
-  safeParseJson,
   PrecinctSelection,
   PollsState,
 } from '@votingworks/types';
@@ -43,17 +42,6 @@ async function del(url: string): Promise<void> {
   if (body.status !== 'ok') {
     throw new Error(`DELETE ${url} failed: ${JSON.stringify(body.errors)}`);
   }
-}
-
-export async function get(): Promise<Scan.PrecinctScannerConfig> {
-  return safeParseJson(
-    await (
-      await fetch('/precinct-scanner/config', {
-        headers: { Accept: 'application/json' },
-      })
-    ).text(),
-    Scan.GetPrecinctScannerConfigResponseSchema
-  ).unsafeUnwrap();
 }
 
 export async function setElection(

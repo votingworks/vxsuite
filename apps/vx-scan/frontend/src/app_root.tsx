@@ -59,6 +59,7 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
+import { apiClient } from './api/api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -216,7 +217,7 @@ export function AppRoot({
   const makeCancelable = useCancelablePromise();
 
   const refreshConfig = useCallback(async () => {
-    const scannerConfig = await makeCancelable(config.get());
+    const scannerConfig = await makeCancelable(apiClient.getConfig());
 
     dispatchAppState({
       type: 'refreshStateFromBackend',
