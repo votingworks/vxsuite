@@ -63,22 +63,35 @@ export function createClient<TApi extends AnyApi>(
         debug(`Call: ${methodName}(${inputJson})`);
 
         try {
-          const response = await fetch(methodUrl(methodName, options.baseUrl), {
+          const url = methodUrl(methodName, options.baseUrl);
+          const response = await fetch(url, {
             method: 'POST',
             body: serialize(input),
             headers: { 'Content-type': 'application/json' },
           });
           debug(`Response status code: ${response.status}`);
 
-          if (
-            !response.headers.get('Content-type')?.includes('application/json')
-          ) {
-            throw new ServerError('Response is not JSON');
-          }
+          const hasJsonBody = response.headers
+            .get('Content-type')
+            ?.includes('application/json');
 
           if (!response.ok) {
-            const { message } = await response.json();
-            throw new ServerError(message);
+            if (hasJsonBody) {
+              const { message } = await response.json();
+              throw new ServerError(message);
+            }
+            if (response.status === 404) {
+              throw new ServerError(
+                `Got 404 for ${url}. Are you sure the baseUrl is correct?`
+              );
+            }
+            throw new ServerError(`Got ${response.status} for ${url}`);
+          }
+
+          if (!hasJsonBody) {
+            throw new ServerError(
+              `Response content type is not JSON for ${url}`
+            );
           }
 
           const resultText = await response.text();
