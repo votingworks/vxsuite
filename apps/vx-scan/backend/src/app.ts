@@ -6,8 +6,10 @@ import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
   MarkThresholds,
+  ok,
   PollsState,
   PrecinctSelection,
+  Result,
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
@@ -174,6 +176,11 @@ function buildApi(
       }
 
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
+    },
+
+    async backupToUsbDrive(): Promise<Result<void, Scan.BackupError>> {
+      const result = await backupToUsbDrive(store);
+      return result.isErr() ? result : ok();
     },
   });
 }
@@ -369,24 +376,6 @@ export function buildApp(
       store.setCvrsBackedUp();
     }
   );
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.BackupToUsbResponse,
-    Scan.BackupToUsbRequest
-  >('/precinct-scanner/backup-to-usb-drive', async (_request, response) => {
-    const result = await backupToUsbDrive(store);
-
-    if (result.isErr()) {
-      response.status(500).json({
-        status: 'error',
-        errors: [result.err()],
-      });
-      return;
-    }
-
-    response.json({ status: 'ok', paths: result.ok() });
-  });
 
   deprecatedApiRouter.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
     '/precinct-scanner/scanner/status',

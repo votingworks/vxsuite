@@ -1,5 +1,3 @@
-import { Scan } from '@votingworks/api';
-import { safeParse } from '@votingworks/types';
 import {
   Button,
   isElectionManagerAuth,
@@ -14,6 +12,7 @@ import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
+import { apiClient } from '../api/api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -52,31 +51,18 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       setCurrentState(ModalState.ERROR);
       return;
     }
-    const httpResponse = await fetch('/precinct-scanner/backup-to-usb-drive', {
-      method: 'POST',
-    });
 
-    if (!httpResponse.ok) {
-      setErrorMessage(DEFAULT_ERROR);
-      setCurrentState(ModalState.ERROR);
-      return;
-    }
-
-    const body = await httpResponse.json();
-    const result = safeParse(Scan.BackupToUsbResponseSchema, body);
-
-    if (result.isErr()) {
-      setErrorMessage(DEFAULT_ERROR);
-      setCurrentState(ModalState.ERROR);
-    } else {
-      const response = result.ok();
-
-      if (response.status === 'ok') {
-        setCurrentState(ModalState.DONE);
-      } else {
-        setErrorMessage(response.errors[0].message ?? DEFAULT_ERROR);
+    try {
+      const result = await apiClient.backupToUsbDrive();
+      if (result.isErr()) {
+        setErrorMessage(result.err().message ?? DEFAULT_ERROR);
         setCurrentState(ModalState.ERROR);
+      } else {
+        setCurrentState(ModalState.DONE);
       }
+    } catch (error) {
+      setErrorMessage(DEFAULT_ERROR);
+      setCurrentState(ModalState.ERROR);
     }
   }, []);
 
