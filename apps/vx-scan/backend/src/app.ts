@@ -36,8 +36,9 @@ const debug = rootDebug.extend('app');
 type NoParams = never;
 
 function buildApi(
-  workspace: Workspace,
+  machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
+  workspace: Workspace,
   logger: Logger
 ) {
   const { store } = workspace;
@@ -65,8 +66,9 @@ function buildApi(
       electionData: string;
     }): Promise<void> {
       const parseResult = safeParseElectionDefinition(input.electionData);
-      assert(parseResult.isOk(), 'Invalid election definition');
-      const electionDefinition = parseResult.ok();
+      const electionDefinition = parseResult.assertOk(
+        'Invalid election definition'
+      );
       store.setElection(electionDefinition.electionData);
       // If the election has only one precinct, set it automatically
       if (electionDefinition.election.precincts.length === 1) {
@@ -83,7 +85,7 @@ function buildApi(
       ignoreBackupRequirement?: boolean;
     }): Promise<void> {
       assert(
-        store.getCanUnconfigure() || input.ignoreBackupRequirement,
+        input.ignoreBackupRequirement || store.getCanUnconfigure(),
         'Attempt to unconfigure without backup'
       );
       interpreter.unconfigure();
@@ -182,6 +184,18 @@ function buildApi(
       const result = await backupToUsbDrive(store);
       return result.isErr() ? result : ok();
     },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async getScannerStatus(): Promise<Scan.PrecinctScannerStatus> {
+      const machineStatus = machine.status();
+      const ballotsCounted = store.getBallotsCounted();
+      const canUnconfigure = store.getCanUnconfigure();
+      return {
+        ...machineStatus,
+        ballotsCounted,
+        canUnconfigure,
+      };
+    },
   });
 }
 
@@ -197,7 +211,7 @@ export function buildApp(
 
   const app: Application = express();
 
-  const api = buildApi(workspace, interpreter, logger);
+  const api = buildApi(machine, interpreter, workspace, logger);
   app.use('/api', grout.buildRouter(api, express));
 
   const deprecatedApiRouter = express.Router();
@@ -374,20 +388,6 @@ export function buildApp(
       );
 
       store.setCvrsBackedUp();
-    }
-  );
-
-  deprecatedApiRouter.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
-    '/precinct-scanner/scanner/status',
-    (_request, response) => {
-      const machineStatus = machine.status();
-      const ballotsCounted = store.getBallotsCounted();
-      const canUnconfigure = store.getCanUnconfigure();
-      response.json({
-        ...machineStatus,
-        ballotsCounted,
-        canUnconfigure,
-      });
     }
   );
 

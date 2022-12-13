@@ -3,7 +3,7 @@ import { Optional } from '@votingworks/types';
 import { useCancelablePromise } from '@votingworks/ui';
 import { useRef, useState } from 'react';
 import useInterval from 'use-interval';
-import { getStatus } from '../api/scan';
+import { apiClient } from '../api/api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 
 export function usePrecinctScannerStatus(
@@ -20,7 +20,7 @@ export function usePrecinctScannerStatus(
 
     try {
       isFetchingStatus.current = true;
-      const currentStatus = await makeCancelable(getStatus());
+      const currentStatus = await makeCancelable(apiClient.getScannerStatus());
       setStatus(currentStatus);
     } finally {
       isFetchingStatus.current = false;

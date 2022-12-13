@@ -5,13 +5,6 @@ import { rootDebug } from '../utils/debug';
 
 const debug = rootDebug.extend('api:scan');
 
-export async function getStatus(): Promise<Scan.PrecinctScannerStatus> {
-  return unsafeParse(
-    Scan.GetPrecinctScannerStatusResponseSchema,
-    await fetchJson('/precinct-scanner/scanner/status')
-  );
-}
-
 export async function scanBallot(): Promise<void> {
   await fetchJson('/precinct-scanner/scanner/scan', { method: 'POST' });
 }
