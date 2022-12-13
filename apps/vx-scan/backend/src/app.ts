@@ -225,6 +225,11 @@ function buildApi(
     async returnBallot(): Promise<void> {
       machine.return();
     },
+
+    async calibrate(): Promise<boolean> {
+      const result = await machine.calibrate();
+      return result.isOk();
+    },
   });
 }
 
@@ -417,21 +422,6 @@ export function buildApp(
       );
 
       store.setCvrsBackedUp();
-    }
-  );
-
-  deprecatedApiRouter.post<NoParams, Scan.CalibrateResponse>(
-    '/precinct-scanner/scanner/calibrate',
-    async (_request, response) => {
-      const result = await machine.calibrate();
-      if (result.isOk()) {
-        response.json({ status: 'ok' });
-      } else {
-        response.json({
-          status: 'error',
-          errors: [{ type: 'error', message: result.err() }],
-        });
-      }
     }
   );
 

@@ -1,17 +1,6 @@
-import { unsafeParse } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { fetchJson } from '@votingworks/utils';
 import { rootDebug } from '../utils/debug';
 
 const debug = rootDebug.extend('api:scan');
-
-export async function calibrate(): Promise<boolean> {
-  const result = unsafeParse(
-    Scan.CalibrateResponseSchema,
-    await fetchJson('/precinct-scanner/scanner/calibrate', { method: 'POST' })
-  );
-  return result.status === 'ok';
-}
 
 // Returns CVR file which does not include any write-in images
 export async function getExportWithoutImages(): Promise<string> {
