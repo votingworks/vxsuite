@@ -1,17 +1,20 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import { Buffer } from 'buffer';
 import * as config from './config';
+import { createApiMock } from '../../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 test('addTemplates configures the server with the contained election', async () => {
-  fetchMock.patchOnce('/precinct-scanner/config/election', {
-    body: { status: 'ok' },
-  });
+  apiMock.expectSetElection(testElectionDefinition);
 
   await new Promise<void>((resolve, reject) => {
     config
-      .addTemplates({ electionDefinition: testElectionDefinition, ballots: [] })
+      .addTemplates(apiMock.mockApiClient, {
+        electionDefinition: testElectionDefinition,
+        ballots: [],
+      })
       .on('error', (error) => {
         reject(error);
       })
@@ -22,9 +25,7 @@ test('addTemplates configures the server with the contained election', async () 
 });
 
 test('addTemplates emits an event each time a ballot begins uploading', async () => {
-  fetchMock.patchOnce('/precinct-scanner/config/election', {
-    body: { status: 'ok' },
-  });
+  apiMock.expectSetElection(testElectionDefinition);
   fetchMock.post('/precinct-scanner/config/addTemplates', {
     body: { status: 'ok' },
   });
@@ -33,7 +34,7 @@ test('addTemplates emits an event each time a ballot begins uploading', async ()
 
   await new Promise<void>((resolve, reject) => {
     config
-      .addTemplates({
+      .addTemplates(apiMock.mockApiClient, {
         electionDefinition: testElectionDefinition,
         ballots: [
           {
@@ -81,19 +82,16 @@ test('addTemplates emits an event each time a ballot begins uploading', async ()
 });
 
 test('addTemplates emits error on API failure', async () => {
-  const body: Scan.PatchElectionConfigResponse = {
-    status: 'error',
-    errors: [{ type: 'invalid-value', message: 'bad election!' }],
-  };
-  fetchMock.patchOnce('/precinct-scanner/config/election', {
-    status: 400,
-    body,
-  });
+  apiMock.mockApiClient.setElection
+    .expectCallWith({
+      electionData: testElectionDefinition.electionData,
+    })
+    .throws(new Error('bad election!'));
 
   await expect(
     new Promise<void>((resolve, reject) => {
       config
-        .addTemplates({
+        .addTemplates(apiMock.mockApiClient, {
           electionDefinition: testElectionDefinition,
           ballots: [],
         })

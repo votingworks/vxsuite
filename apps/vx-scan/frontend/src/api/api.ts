@@ -3,8 +3,6 @@ import type { Api } from '@votingworks/vx-scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 
-const baseUrl = '/api';
-
 export const ApiClientContext = React.createContext<
   grout.Client<Api> | undefined
 >(undefined);

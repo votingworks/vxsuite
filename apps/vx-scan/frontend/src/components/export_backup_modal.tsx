@@ -19,7 +19,7 @@ const UsbImage = styled.img`
   height: 200px;
 `;
 
-export interface Props {
+export interface ExportBackupModalProps {
   onClose: () => void;
   usbDrive: UsbDrive;
 }
@@ -33,7 +33,10 @@ enum ModalState {
 
 const DEFAULT_ERROR = 'Failed to save backup.';
 
-export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
+export function ExportBackupModal({
+  onClose,
+  usbDrive,
+}: ExportBackupModalProps): JSX.Element {
   const apiClient = useApiClient();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
@@ -65,7 +68,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       setErrorMessage(DEFAULT_ERROR);
       setCurrentState(ModalState.ERROR);
     }
-  }, []);
+  }, [apiClient]);
 
   if (currentState === ModalState.ERROR) {
     return (

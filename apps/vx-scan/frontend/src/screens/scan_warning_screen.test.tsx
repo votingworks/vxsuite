@@ -9,10 +9,11 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import React from 'react';
-import fetchMock from 'fetch-mock';
 import { mockOf } from '@votingworks/test-utils';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiClientContext } from '../api/api';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -21,14 +22,26 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
+const apiMock = createApiMock();
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
 function renderScreen(props: Props) {
-  return renderInAppContext(<ScanWarningScreen {...props} />);
+  return renderInAppContext(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <ScanWarningScreen {...props} />
+    </ApiClientContext.Provider>
+  );
 }
 
 test('overvote', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
@@ -57,13 +70,10 @@ test('overvote', () => {
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('overvote when casting overvotes is disallowed', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/return', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.returnBallot.expectCallWith().resolves();
   mockOf(isFeatureFlagEnabled).mockImplementation(
     (flag: BooleanEnvironmentVariableName) => {
       return flag === BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES;
@@ -97,13 +107,10 @@ test('overvote when casting overvotes is disallowed', () => {
   ).not.toBeInTheDocument();
 
   userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('blank ballot', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   renderScreen({
     adjudicationReasonInfo: [{ type: AdjudicationReason.BlankBallot }],
   });
@@ -118,13 +125,10 @@ test('blank ballot', () => {
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('undervote no votes', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
@@ -151,13 +155,10 @@ test('undervote no votes', () => {
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('undervote by 1', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   )!;
@@ -186,13 +187,10 @@ test('undervote by 1', () => {
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('multiple undervotes', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contests = electionSampleDefinition.election.contests
     .filter((c): c is CandidateContest => c.type === 'candidate')
     .slice(0, 2);
@@ -217,14 +215,10 @@ test('multiple undervotes', () => {
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('unreadable', () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
-    body: { status: 'ok' },
-  });
-
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   renderScreen({
     adjudicationReasonInfo: [
       { type: AdjudicationReason.UninterpretableBallot },
@@ -238,5 +232,4 @@ test('unreadable', () => {
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
-  expect(fetchMock.done()).toBe(true);
 });

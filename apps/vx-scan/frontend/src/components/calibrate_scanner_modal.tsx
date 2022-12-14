@@ -4,7 +4,7 @@ import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import { useApiClient } from '../api/api';
 
-export interface Props {
+export interface CalibrateScannerModalProps {
   scannerStatus: Scan.PrecinctScannerStatus;
   onCancel: VoidFunction;
 }
@@ -18,7 +18,7 @@ type CalibrationState = 'ready' | 'calibrating' | 'calibrated' | 'failed';
 export function CalibrateScannerModal({
   scannerStatus,
   onCancel,
-}: Props): JSX.Element {
+}: CalibrateScannerModalProps): JSX.Element {
   const apiClient = useApiClient();
   const [calibrationState, setCalibrationState] =
     useState<CalibrationState>('ready');

@@ -10,14 +10,14 @@ import {
   getHardware,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import * as grout from '@votingworks/grout';
+import { Api } from '@votingworks/vx-scan-backend';
 import { AppRoot, Props as AppRootProps } from './app_root';
 
 import { machineConfigProvider } from './utils/machine_config';
-import * as grout from '@votingworks/grout';
-import type { Api } from '@votingworks/vx-scan-backend';
 import { ApiClientContext } from './api/api';
 
-export interface Props {
+export interface AppProps {
   hardware?: AppRootProps['hardware'];
   card?: AppRootProps['card'];
   machineConfig?: AppRootProps['machineConfig'];
@@ -33,7 +33,7 @@ export function App({
   machineConfig = machineConfigProvider,
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
-}: Props): JSX.Element {
+}: AppProps): JSX.Element {
   return (
     <BrowserRouter>
       <ApiClientContext.Provider value={apiClient}>

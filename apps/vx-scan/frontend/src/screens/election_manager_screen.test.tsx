@@ -7,7 +7,6 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Scan } from '@votingworks/api';
 import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
@@ -16,29 +15,32 @@ import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
+import {
+  createApiMock,
+  statusNoPaper,
+} from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { ApiClientContext } from '../api/api';
 import { AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
 
+const apiMock = createApiMock();
+
 beforeEach(() => {
   MockDate.set('2020-10-31T00:00:00.000Z');
   jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
+  apiMock.mockApiClient.reset();
 });
 
 afterEach(() => {
   window.kiosk = undefined;
+  apiMock.mockApiClient.assertComplete();
 });
-
-const scannerStatus: Scan.PrecinctScannerStatus = {
-  state: 'no_paper',
-  ballotsCounted: 0,
-  canUnconfigure: false,
-};
 
 function renderScreen({
   appContextProps = {},
@@ -52,18 +54,20 @@ function renderScreen({
     ...appContextProps,
   };
   return renderInAppContext(
-    <ElectionManagerScreen
-      scannerStatus={scannerStatus}
-      isTestMode={false}
-      pollsState="polls_closed_initial"
-      updatePrecinctSelection={jest.fn()}
-      toggleLiveMode={jest.fn()}
-      setMarkThresholdOverrides={jest.fn()}
-      unconfigure={jest.fn()}
-      usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
-      toggleIsSoundMuted={jest.fn()}
-      {...electionManagerScreenProps}
-    />,
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <ElectionManagerScreen
+        scannerStatus={statusNoPaper}
+        isTestMode={false}
+        pollsState="polls_closed_initial"
+        updatePrecinctSelection={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        unconfigure={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
+        toggleIsSoundMuted={jest.fn()}
+        {...electionManagerScreenProps}
+      />
+    </ApiClientContext.Provider>,
     electionManagerScreenAppContextProps
   );
 }
@@ -139,7 +143,7 @@ test('unconfigure does not eject a usb drive that is not mounted', () => {
   const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
-      scannerStatus: { ...scannerStatus, canUnconfigure: true },
+      scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
       usbDrive: { status: usbstick.UsbDriveStatus.absent, eject: ejectFn },
     },
@@ -156,7 +160,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
-      scannerStatus: { ...scannerStatus, canUnconfigure: true },
+      scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
       usbDrive: { status: usbstick.UsbDriveStatus.mounted, eject: ejectFn },
     },

@@ -1,35 +1,53 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { Scan } from '@votingworks/api';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
-import { typedAs, usbstick } from '@votingworks/utils';
-import fetchMock from 'fetch-mock';
+import { err, ok } from '@votingworks/types';
+import { usbstick } from '@votingworks/utils';
 import jestFetchMock from 'jest-fetch-mock';
 import React from 'react';
+import { createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ExportBackupModal } from './export_backup_modal';
+import { ApiClientContext } from '../api/api';
+import {
+  ExportBackupModal,
+  ExportBackupModalProps,
+} from './export_backup_modal';
 
 const { UsbDriveStatus } = usbstick;
 
 const auth = Inserted.fakeElectionManagerAuth();
 
+const apiMock = createApiMock();
+
 beforeEach(() => {
   jestFetchMock.enableMocks();
-  fetchMock.reset();
-  fetchMock.mock();
+  apiMock.mockApiClient.reset();
 });
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
+function renderModal(props: Partial<ExportBackupModalProps> = {}) {
+  return renderInAppContext(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <ExportBackupModal
+        onClose={jest.fn()}
+        usbDrive={{ status: UsbDriveStatus.present, eject: jest.fn() }}
+        {...props}
+      />
+    </ApiClientContext.Provider>,
+    { auth }
+  );
+}
 
 test('renders loading screen when USB drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn();
-    const { unmount } = renderInAppContext(
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status, eject: jest.fn() }}
-      />,
-      { auth }
-    );
+    const { unmount } = renderModal({
+      usbDrive: { status, eject: jest.fn() },
+    });
     screen.getByText('Loading');
     unmount();
   }
@@ -43,20 +61,17 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
   ];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn();
-    const { unmount } = renderInAppContext(
-      <ExportBackupModal
-        onClose={closeFn}
-        usbDrive={{ status, eject: jest.fn() }}
-      />,
-      { auth }
-    );
+    const onClose = jest.fn();
+    const { unmount } = renderModal({
+      onClose,
+      usbDrive: { status, eject: jest.fn() },
+    });
     screen.getByText('No USB Drive Detected');
     screen.getByText('Please insert a USB drive to save the backup.');
     screen.getByAltText('Insert USB Image');
 
-    fireEvent.click(screen.getByText('Cancel'));
-    expect(closeFn).toHaveBeenCalled();
+    userEvent.click(screen.getByText('Cancel'));
+    expect(onClose).toHaveBeenCalled();
 
     unmount();
   }
@@ -67,82 +82,63 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  const closeFn = jest.fn();
+  const onClose = jest.fn();
   const ejectFn = jest.fn();
-  renderInAppContext(
-    <ExportBackupModal
-      onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
-    />,
-    { auth }
-  );
+  renderModal({
+    onClose,
+    usbDrive: { status: UsbDriveStatus.mounted, eject: ejectFn },
+  });
   screen.getByText('Save Backup');
 
-  fetchMock.postOnce('/precinct-scanner/backup-to-usb-drive', {
-    status: 200,
-    body: typedAs<Scan.BackupToUsbResponse>({
-      status: 'ok',
-      paths: ['/media/usb-drive-sdb1/backup.zip'],
-    }),
-  });
-  fireEvent.click(screen.getByText('Save'));
+  apiMock.mockApiClient.backupToUsbDrive.expectCallWith().resolves(ok());
+  userEvent.click(screen.getByText('Save'));
   await screen.findByText('Backup Saved');
 
-  fireEvent.click(screen.getByText('Eject USB'));
+  userEvent.click(screen.getByText('Eject USB'));
   expect(ejectFn).toHaveBeenCalled();
-  fireEvent.click(screen.getByText('Cancel'));
-  expect(closeFn).toHaveBeenCalled();
+  userEvent.click(screen.getByText('Cancel'));
+  expect(onClose).toHaveBeenCalled();
 });
 
 test('handles no USB drives', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  const closeFn = jest.fn();
-  const { getByText } = renderInAppContext(
-    <ExportBackupModal
-      onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-    />,
-    { auth }
-  );
-  getByText('Save Backup');
+  const onClose = jest.fn();
+  renderModal({
+    onClose,
+    usbDrive: { status: UsbDriveStatus.mounted, eject: jest.fn() },
+  });
+  screen.getByText('Save Backup');
 
   mockKiosk.getUsbDrives.mockResolvedValueOnce([]);
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Failed to Save Backup'));
-  getByText(/No USB drive found./);
+  userEvent.click(screen.getByText('Save'));
+  await screen.findByText('Failed to Save Backup');
+  screen.getByText(/No USB drive found./);
 
-  fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
+  userEvent.click(screen.getByText('Close'));
+  expect(onClose).toHaveBeenCalled();
 });
 
 test('shows errors from the backend', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  const closeFn = jest.fn();
-  renderInAppContext(
-    <ExportBackupModal
-      onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
-    />,
-    { auth }
-  );
+  const onClose = jest.fn();
+  renderModal({
+    onClose,
+    usbDrive: { status: UsbDriveStatus.mounted, eject: jest.fn() },
+  });
   screen.getByText('Save Backup');
 
   mockKiosk.getUsbDrives.mockResolvedValueOnce([fakeUsbDrive()]);
-  fetchMock.postOnce('/precinct-scanner/backup-to-usb-drive', {
-    status: 200,
-    body: typedAs<Scan.BackupToUsbResponse>({
-      status: 'error',
-      errors: [{ type: 'permission-denied', message: 'Permission denied' }],
-    }),
-  });
-  fireEvent.click(screen.getByText('Save'));
+  apiMock.mockApiClient.backupToUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'permission-denied', message: 'Permission denied' }));
+  userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to Save Backup');
   screen.getByText('Permission denied');
 
-  fireEvent.click(screen.getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
+  userEvent.click(screen.getByText('Close'));
+  expect(onClose).toHaveBeenCalled();
 });
