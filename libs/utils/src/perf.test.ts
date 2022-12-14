@@ -1,4 +1,19 @@
+import makeDebugger, {
+  disable as disableDebugger,
+  enable as enableDebugger,
+} from 'debug';
+
 import { formatDurationNs, time } from './perf';
+
+const debugLogger = makeDebugger('perf.test');
+
+beforeEach(() => {
+  enableDebugger('*');
+});
+
+afterEach(() => {
+  disableDebugger();
+});
 
 test('formatDurationNs as nanoseconds', () => {
   expect(formatDurationNs(BigInt(0))).toEqual('0ns');
@@ -23,10 +38,17 @@ test('formatDurationNs as seconds', () => {
 });
 
 test('time gets and logs duration in nanoseconds', () => {
-  const t = time('counting');
+  const t = time(debugLogger, 'counting');
 
   let c = 0;
-  for (let i = 0; i < 10_000; i += 1) {
+  for (let i = 0; i < 5_000; i += 1) {
+    c += 1;
+  }
+
+  expect(c).toEqual(5_000);
+  expect(typeof t.checkpoint('checkpoint1')).toEqual('bigint');
+
+  for (let i = 0; i < 5_000; i += 1) {
     c += 1;
   }
 

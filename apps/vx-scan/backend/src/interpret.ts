@@ -20,8 +20,10 @@ import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
+import { time } from '@votingworks/utils';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
+import { rootDebug } from './util/debug';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
@@ -174,6 +176,8 @@ async function nhInterpret(
   sheet: SheetOf<string>,
   config: InterpreterConfig
 ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
+  const timer = time(rootDebug, `nhInterpret: ${sheetId}`);
+
   const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
     config;
   const result = await interpretNh(electionDefinition, sheet, {
@@ -182,6 +186,8 @@ async function nhInterpret(
     adjudicationReasons:
       electionDefinition.election.precinctScanAdjudicationReasons ?? [],
   });
+
+  timer.checkpoint('finishedInterpretation');
 
   if (result.isErr()) {
     return result;
@@ -201,6 +207,11 @@ async function nhInterpret(
     sheet[1],
     backResult.normalizedImage
   );
+
+  timer.checkpoint('savedSheetImages');
+
+  timer.end();
+
   const pageInterpretations: SheetOf<PageInterpretationWithFiles> = [
     {
       interpretation: frontResult.interpretation,
@@ -229,6 +240,8 @@ async function vxInterpret(
     precinctSelection,
     testMode,
   } = config;
+  const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
+
   const vxInterpreter = new VxInterpreter({
     electionDefinition,
     testMode,
@@ -246,6 +259,9 @@ async function vxInterpret(
     electionDefinition,
     await mapSheet(sheet, detectQrcodeInFilePath)
   );
+
+  timer.checkpoint('extractedQrCodes');
+
   const [frontPath, backPath] = sheet;
   const pageInterpretations = await mapSheet(
     [
@@ -275,6 +291,11 @@ async function vxInterpret(
       };
     }
   );
+
+  timer.checkpoint('finishedInterpretation');
+
+  timer.end();
+
   return ok(pageInterpretations);
 }
 

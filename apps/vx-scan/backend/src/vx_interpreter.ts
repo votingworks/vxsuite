@@ -28,13 +28,14 @@ import {
   adjudicationReasonDescription,
   assert,
   ballotAdjudicationReasons,
+  time,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
+import path from 'path';
 import { BallotPageQrcode } from './types';
 import { rootDebug } from './util/debug';
 import { optionMarkStatus } from './util/option_mark_status';
-import { time } from './util/perf';
 
 const debug = rootDebug.extend('interpreter');
 
@@ -197,7 +198,10 @@ export class Interpreter {
     ballotImagePath,
     detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
-    const timer = time(`interpretFile: ${ballotImagePath}`);
+    const timer = time(
+      rootDebug,
+      `interpretFile: ${path.basename(ballotImagePath)}`
+    );
 
     if (detectQrcodeResult.blank) {
       return { interpretation: { type: 'BlankPage' } };
@@ -213,6 +217,8 @@ export class Interpreter {
     }
 
     const ballotImageData = await loadImageData(ballotImagePath);
+
+    timer.checkpoint('loadedImageData');
 
     if (!this.skipElectionHashCheck) {
       const actualElectionHash =
@@ -239,6 +245,8 @@ export class Interpreter {
     }
 
     const bmdResult = this.interpretBMDFile(detectQrcodeResult.qrcode);
+
+    timer.checkpoint('attemptedBmdImageInterpretation');
 
     if (bmdResult) {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
@@ -276,6 +284,8 @@ export class Interpreter {
         ballotImageData,
         detectQrcodeResult.qrcode
       );
+
+      timer.checkpoint('attemptedHmpbInterpretation');
 
       if (hmpbResult) {
         const { interpretation } = hmpbResult;

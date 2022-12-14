@@ -1,8 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { err, ok, Result, safeParse, SheetOf } from '@votingworks/types';
-import { deferred, throwIllegalValue } from '@votingworks/utils';
+import { deferred, throwIllegalValue, time } from '@votingworks/utils';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
+import path from 'path';
 import { createInterface } from 'readline';
 import { inspect } from 'util';
 import { Config, DEFAULT_CONFIG } from './config';
@@ -355,6 +356,8 @@ export async function createClient(
       onScanAttemptEnd,
       shouldRetry: shouldRetryPredicate,
     } = {}) => {
+      const timer = time(debug, 'scan');
+
       clientDebug(
         'scan starting (with retry predicate? %s)',
         shouldRetryPredicate ? 'yes' : 'no'
@@ -369,6 +372,8 @@ export async function createClient(
 
             if (match) {
               files.push(match[1]);
+
+              timer.checkpoint(`scannedFile:${path.basename(match[1])}`);
             } else {
               resolve(
                 err(
@@ -402,10 +407,14 @@ export async function createClient(
 
         onScanAttemptStart?.(attempt);
         const result = await resultPromise;
+
+        timer.checkpoint(`finishedScanAttempt:${attempt}`);
+
         onScanAttemptEnd?.(attempt, result);
 
         if (result.isOk()) {
           clientDebug('scan attempt #%d succeeded, returning result', attempt);
+          timer.end();
           return result;
         }
 
@@ -416,6 +425,7 @@ export async function createClient(
             attempt,
             result.err()
           );
+          timer.end();
           return result;
         }
 
