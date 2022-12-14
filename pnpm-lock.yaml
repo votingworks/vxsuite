@@ -2330,9 +2330,12 @@ importers:
   libs/grout:
     dependencies:
       '@types/debug': 4.1.7
+      '@types/deep-eql': 4.0.0
       '@types/express': 4.17.14
+      '@votingworks/test-utils': link:../test-utils
       '@votingworks/types': link:../types
       debug: 4.3.4
+      deep-eql: 4.1.3
     devDependencies:
       '@types/jest': 27.4.1
       '@types/node-fetch': 2.6.2
@@ -2361,13 +2364,16 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@types/debug': ^4.1.7
+      '@types/deep-eql': ^4.0.0
       '@types/express': ^4.17.14
       '@types/jest': ^27.0.3
       '@types/node-fetch': ^2.6.0
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       debug: ^4.3.4
+      deep-eql: ^4.1.3
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -2656,9 +2662,11 @@ importers:
   libs/test-utils:
     dependencies:
       '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
+      '@types/deep-eql': 4.0.0
       '@types/node': 16.11.29
       '@votingworks/types': link:../types
       buffer: 6.0.3
+      deep-eql: 4.1.3
       fast-check: 2.18.0
       js-sha256: 0.9.0
       luxon: 1.26.0
@@ -2691,6 +2699,7 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@testing-library/react': ^12.1.5
+      '@types/deep-eql': ^4.0.0
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -2701,6 +2710,7 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/types': workspace:*
       buffer: ^6.0.3
+      deep-eql: ^4.1.3
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -11563,6 +11573,10 @@ packages:
       '@types/ms': 0.7.31
     resolution:
       integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==
+  /@types/deep-eql/4.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-UkfTYLA64vGUyR4ez8ybIC01wtilS/ydOqKL1fSHOvnX1sVm1sI5btr7Q+bqpdaPGD+QNhOgBXq1HGjO+99e1A==
   /@types/dompurify/2.2.1:
     dependencies:
       '@types/trusted-types': 2.0.0
@@ -16605,6 +16619,14 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-GxJC5MOg2KyQlv6WiUF/VAnMj4MWnYiXo4oLgeptOELVoknyErb4Z8+5F/IM/K4g9/80YzzatxmWcyRwUseH0A==
+  /deep-eql/4.1.3:
+    dependencies:
+      type-detect: 4.0.8
+    dev: false
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==
   /deep-equal/1.1.1:
     dependencies:
       is-arguments: 1.1.1
