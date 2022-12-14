@@ -1,3 +1,5 @@
+import makeDebug from 'debug';
+
 import {
   imageDebugger,
   loadImage,
@@ -20,6 +22,7 @@ import {
   Result,
   SheetOf,
 } from '@votingworks/types';
+import { time } from '@votingworks/utils';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
 import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
@@ -28,6 +31,8 @@ import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
 import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 import { interpretOvalMarks } from './interpret_oval_marks';
+
+const debugLogger = makeDebug('ballot-interpreter-nh:interpret');
 
 /**
  * Default thresholds for interpreting marks on a ballot as votes.
@@ -63,6 +68,8 @@ export async function interpret(
     adjudicationReasons?: readonly AdjudicationReason[];
   }
 ): Promise<Result<SheetOf<InterpretFileResult>, Error>> {
+  const timer = time(debugLogger, 'interpret');
+
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 
   if (!paperSize) {
@@ -78,14 +85,21 @@ export async function interpret(
     })
   );
 
+  timer.checkpoint('loadedImages');
+
   const frontDebug = imageDebugger(frontPage, frontImageData);
   const backDebug = imageDebugger(backPage, backImageData);
   let frontLayout = frontDebug.capture('front-interpret', (debug) =>
     interpretBallotCardLayout(frontImageData, { geometry, debug })
   );
+
+  timer.checkpoint('interpretedFrontPageLayout');
+
   let backLayout = backDebug.capture('back-interpret', (debug) =>
     interpretBallotCardLayout(backImageData, { geometry, debug })
   );
+
+  timer.checkpoint('interpretedBackPageLayout');
 
   if (!frontLayout) {
     return err(new Error('could not interpret front page layout'));
@@ -163,6 +177,8 @@ export async function interpret(
     backLayout,
     gridLayout,
   });
+
+  timer.checkpoint('foundOvalMarks');
 
   const frontMarks = interpretedOvalMarks.filter(
     (m) => m.gridPosition.side === 'front'
@@ -263,6 +279,8 @@ export async function interpret(
     interpretation: backInterpretation,
     normalizedImage: backLayout.imageData,
   };
+
+  timer.end();
 
   return ok([frontPageInterpretationResult, backPageInterpretationResult]);
 }

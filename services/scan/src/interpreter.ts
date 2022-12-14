@@ -33,13 +33,13 @@ import {
   adjudicationReasonDescription,
   assert,
   ballotAdjudicationReasons,
+  time,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
 import { BallotPageQrcode } from './types';
 import { optionMarkStatus } from './util/option_mark_status';
-import { time } from './util/perf';
 
 const debug = makeDebug('scan:interpreter');
 
@@ -202,7 +202,7 @@ export class Interpreter {
     ballotImagePath,
     detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
-    const timer = time(`interpretFile: ${ballotImagePath}`);
+    const timer = time(debug, `interpretFile: ${ballotImagePath}`);
 
     if (detectQrcodeResult.blank) {
       return { interpretation: { type: 'BlankPage' } };
