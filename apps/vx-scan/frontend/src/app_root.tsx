@@ -56,7 +56,7 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
-import { apiClient } from './api/api';
+import { useApiClient } from './api/api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -175,6 +175,7 @@ export function AppRoot({
   machineConfig: machineConfigProvider,
   logger,
 }: Props): JSX.Element | null {
+  const apiClient = useApiClient();
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
     electionDefinition,

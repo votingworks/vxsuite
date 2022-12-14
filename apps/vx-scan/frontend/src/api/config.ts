@@ -1,7 +1,7 @@
 import { ElectionDefinition } from '@votingworks/types';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
-import { apiClient } from './api';
+import { useApiClient } from './api';
 
 export interface AddTemplatesEvents extends EventEmitter {
   on(
@@ -44,7 +44,10 @@ export interface AddTemplatesEvents extends EventEmitter {
   emit(event: 'error', error: Error): boolean;
 }
 
-export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
+export function addTemplates(
+  apiClient: ReturnType<typeof useApiClient>,
+  pkg: BallotPackage
+): AddTemplatesEvents {
   const result: AddTemplatesEvents = new EventEmitter();
 
   setImmediate(async () => {

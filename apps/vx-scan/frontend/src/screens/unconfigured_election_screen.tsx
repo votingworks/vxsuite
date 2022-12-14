@@ -16,6 +16,7 @@ import {
   QuestionCircle,
   IndeterminateProgressBar,
 } from '../components/graphics';
+import { useApiClient } from '../api/api';
 
 interface Props {
   usbDriveStatus: usbstick.UsbDriveStatus;
@@ -26,6 +27,7 @@ export function UnconfiguredElectionScreen({
   usbDriveStatus,
   refreshConfig,
 }: Props): JSX.Element {
+  const apiClient = useApiClient();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
 
@@ -74,7 +76,7 @@ export function UnconfiguredElectionScreen({
           // eslint-disable-next-line vx/gts-safe-number-parse
           [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
         );
-        addTemplates(ballotPackage)
+        addTemplates(apiClient, ballotPackage)
           .on('configuring', () => {
             setCurrentUploadingBallotIndex(0);
             setTotalTemplates(ballotPackage.ballots.length);

@@ -8,7 +8,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 
-const defaultConfig: Scan.PrecinctScannerConfig = {
+export const defaultConfig: Scan.PrecinctScannerConfig = {
   ...Scan.InitialPrecinctScannerConfig,
   electionDefinition: electionSampleDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,

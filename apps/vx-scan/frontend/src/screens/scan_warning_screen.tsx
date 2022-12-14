@@ -26,7 +26,6 @@ import {
 } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import { apiClient } from '../api/api';
 
 import { ExclamationTriangle } from '../components/graphics';
 import {
@@ -37,6 +36,7 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { useSound } from '../hooks/use_sound';
+import { useApiClient } from '../api/api';
 
 const ResponsiveButtonParagraph = styled.p`
   @media (orientation: portrait) {
@@ -97,6 +97,7 @@ function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
 }: OvervoteWarningScreenProps): JSX.Element {
+  const apiClient = useApiClient();
   const allowCastingOvervotes = !isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES
   );
@@ -170,6 +171,7 @@ function UndervoteWarningScreen({
   electionDefinition,
   undervotes,
 }: UndervoteWarningScreenProps): JSX.Element {
+  const apiClient = useApiClient();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;
@@ -271,6 +273,7 @@ function UndervoteWarningScreen({
 }
 
 function BlankBallotWarningScreen(): JSX.Element {
+  const apiClient = useApiClient();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
@@ -310,6 +313,7 @@ function BlankBallotWarningScreen(): JSX.Element {
 }
 
 function OtherReasonWarningScreen(): JSX.Element {
+  const apiClient = useApiClient();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>

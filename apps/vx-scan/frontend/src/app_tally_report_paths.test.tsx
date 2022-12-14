@@ -1,5 +1,5 @@
-import fetchMock from 'fetch-mock';
-import { screen, within } from '@testing-library/react';
+import fetchMock, { reset } from 'fetch-mock';
+import { render, screen, within } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
@@ -25,6 +25,9 @@ import {
   BallotCountDetails,
   singlePrecinctSelectionFor,
   ReportSourceMachineType,
+  MemoryCard,
+  MemoryHardware,
+  MemoryStorage,
 } from '@votingworks/utils';
 import {
   CompressedTally,
@@ -38,8 +41,11 @@ import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { MachineConfigResponse } from './config/types';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
-import { buildApp } from '../test/helpers/build_app';
-import { mockConfig } from '../test/helpers/mock_config';
+import { defaultConfig, mockConfig } from '../test/helpers/mock_config';
+import type { Api } from '@votingworks/vx-scan-backend';
+import { App } from './app';
+import { fakeLogger } from '@votingworks/logging';
+import * as grout from '@votingworks/grout';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -97,17 +103,32 @@ function expectContestResultsInReport(
   }
 }
 
+const mockApiClient = grout.createMockClient<Api>();
+
+function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.build({
+    connectPrinter,
+    connectCardReader: true,
+    connectPrecinctScanner: true,
+  });
+  const logger = fakeLogger();
+  const storage = new MemoryStorage();
+  const props = {
+    card,
+    hardware,
+    storage,
+    logger,
+    apiClient: mockApiClient,
+  };
+  render(<App {...props} />);
+  return { card, hardware, logger, storage };
+}
+
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/precinct-scanner/config/testMode', {
-      body: getTestModeConfigTrueResponseBody,
-    })
-    .get('/precinct-scanner/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    });
+  fetchMock.get('/machine-config', { body: getMachineConfigBody });
 
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
@@ -117,14 +138,20 @@ beforeEach(() => {
   window.kiosk = kiosk;
 });
 
-test('printing: polls open, All Precincts, primary election + check additional report', async () => {
+afterEach(() => {
+  mockApiClient.assertComplete();
+  mockApiClient.reset();
+});
+
+test.only('printing: polls open, All Precincts, primary election + check additional report', async () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
-  const { mockPollsChange } = mockConfig({
+  mockApiClient.getConfig.expectCallWith().resolves({
+    ...defaultConfig,
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  fetchMock.get('/precinct-scanner/scanner/status', { body: statusNoPaper });
-  const { card, renderApp } = buildApp(true);
-  renderApp();
+  mockApiClient.getScannerStatus.expectCallWith().resolves(statusNoPaper);
+  mockApiClient.getScannerStatus.expectCallWith().resolves(statusNoPaper);
+  const { card } = renderApp({ connectPrinter: true });
   await screen.findByText('Polls Closed');
 
   // Open the polls
@@ -134,7 +161,14 @@ test('printing: polls open, All Precincts, primary election + check additional r
   );
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
-  mockPollsChange('polls_open');
+  mockApiClient.setPollsState
+    .expectCallWith({ pollsState: 'polls_open' })
+    .resolves();
+  mockApiClient.getConfig.expectCallWith().resolves({
+    ...defaultConfig,
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    pollsState: 'polls_open',
+  });
   userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
@@ -163,6 +197,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
   await checkReport();
 
   userEvent.click(screen.getByText('Print Additional Polls Opened Report'));
+  mockApiClient.getScannerStatus.expectCallWith().resolves(statusNoPaper);
   await screen.findByText('Printing Report…');
   await advanceTimersAndPromises(4);
   await screen.findByText('Polls are open.');

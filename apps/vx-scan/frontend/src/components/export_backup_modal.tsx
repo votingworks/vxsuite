@@ -12,7 +12,7 @@ import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
-import { apiClient } from '../api/api';
+import { useApiClient } from '../api/api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -34,6 +34,7 @@ enum ModalState {
 const DEFAULT_ERROR = 'Failed to save backup.';
 
 export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
+  const apiClient = useApiClient();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
