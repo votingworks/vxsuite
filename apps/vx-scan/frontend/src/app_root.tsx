@@ -221,7 +221,7 @@ export function AppRoot({
       type: 'refreshStateFromBackend',
       scannerConfig,
     });
-  }, [makeCancelable]);
+  }, [makeCancelable, apiClient]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -259,7 +259,7 @@ export function AppRoot({
       dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
       await refreshConfig();
     },
-    [refreshConfig]
+    [refreshConfig, apiClient]
   );
 
   const resetPollsToPaused = useCallback(async () => {
@@ -271,12 +271,12 @@ export function AppRoot({
     dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
     dispatchAppState({ type: 'resetElectionSession' });
     await refreshConfig();
-  }, [refreshConfig, isTestMode]);
+  }, [refreshConfig, isTestMode, apiClient]);
 
   const toggleIsSoundMuted = useCallback(async () => {
     dispatchAppState({ type: 'toggleIsSoundMuted' });
     await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
-  }, [isSoundMuted]);
+  }, [isSoundMuted, apiClient]);
 
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
@@ -287,7 +287,7 @@ export function AppRoot({
         debug('failed unconfigureServer()', error);
       }
     },
-    [refreshConfig]
+    [refreshConfig, apiClient]
   );
 
   async function updatePrecinctSelection(
@@ -322,7 +322,7 @@ export function AppRoot({
       disposition: 'success',
       message: 'Poll worker confirmed that they replaced the ballot bag.',
     });
-  }, [logger, refreshConfig]);
+  }, [logger, refreshConfig, apiClient]);
 
   const needsToReplaceBallotBag =
     scannerStatus &&
