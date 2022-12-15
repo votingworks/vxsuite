@@ -51,8 +51,7 @@ test('asserts complete for all methods', async () => {
 
     Call #0
     Expected: sqrt({ num: 4 })
-    Actual: <none>
-    "
+    Actual: <none>"
   `);
 });
 
