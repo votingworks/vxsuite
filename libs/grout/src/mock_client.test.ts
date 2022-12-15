@@ -27,7 +27,7 @@ test('creates a mock client', () => {
   );
 });
 
-test('catches mock function errors and logs them', async () => {
+test('catches exceptions from mock function failures and logs them', async () => {
   const mockClient = createMockClient<typeof api>();
   const consoleErrorMock = jest.fn();
   // eslint-disable-next-line no-console
@@ -37,6 +37,20 @@ test('catches mock function errors and logs them', async () => {
   expect(consoleErrorMock.mock.calls[0][0]).toMatchInlineSnapshot(
     `"Unexpected call to mock function: add({ num1: 1, num2: 2 })"`
   );
+});
+
+test('doesnt catch intentional exceptions from mock functions', () => {
+  const mockClient = createMockClient<typeof api>();
+  const consoleErrorMock = jest.fn();
+  // eslint-disable-next-line no-console
+  console.error = consoleErrorMock;
+  mockClient.add
+    .expectCallWith({ num1: 1, num2: 2 })
+    .throws(new Error('intentional error'));
+  expect(() => mockClient.add({ num1: 1, num2: 2 })).toThrowError(
+    'intentional error'
+  );
+  expect(consoleErrorMock).not.toHaveBeenCalled();
 });
 
 test('asserts complete for all methods', async () => {

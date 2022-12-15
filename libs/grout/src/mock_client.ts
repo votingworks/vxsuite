@@ -1,4 +1,8 @@
-import { mockFunction, MockFunction } from '@votingworks/test-utils';
+import {
+  mockFunction,
+  MockFunction,
+  MockFunctionError,
+} from '@votingworks/test-utils';
 import { AnyApi, AnyMethods, inferApiMethods } from './server';
 
 type MockMethods<Methods extends AnyMethods> = {
@@ -29,17 +33,15 @@ function createMockMethod(methodName: string): AnyMockFunction {
       try {
         return Reflect.apply(target, thisArg, args);
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : /* istanbul ignore next - no easy way to test throwing a non-Error */
-              String(error);
-        // eslint-disable-next-line no-console
-        console.error(message);
-        // Return a best guess at a dummy value that won't cause exceptions
-        // in the consuming code.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return {} as unknown as any;
+        if (error instanceof MockFunctionError) {
+          // eslint-disable-next-line no-console
+          console.error(error.message);
+          // Return a best guess at a dummy value that won't cause exceptions
+          // in the consuming code.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return {} as unknown as any;
+        }
+        throw error;
       }
     },
   });

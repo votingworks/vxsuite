@@ -23,6 +23,8 @@ interface AsyncReturnHelpers<Func extends AnyFunc> {
   throws(error: unknown): void;
 }
 
+export class MockFunctionError extends Error {}
+
 export interface MockFunction<Func extends AnyFunc> {
   (...input: Parameters<Func>): ReturnType<Func>;
   expectCallWith(
@@ -121,7 +123,7 @@ export function mockFunction<Func extends AnyFunc>(
         name,
         input
       )}`;
-      throw new Error(message);
+      throw new MockFunctionError(message);
     }
     if (!deepEqual(input, expectedCall.input)) {
       const message = `Mismatched call to mock function:\n${formatExpectedAndActualCalls(
@@ -129,7 +131,7 @@ export function mockFunction<Func extends AnyFunc>(
         { input },
         expectedCall
       )}`;
-      throw new Error(message);
+      throw new MockFunctionError(message);
     }
 
     if ('error' in expectedCall) {
@@ -184,7 +186,7 @@ export function mockFunction<Func extends AnyFunc>(
           )}`;
         })
         .join('\n\n')}`;
-      throw new Error(message);
+      throw new MockFunctionError(message);
     }
   };
 
