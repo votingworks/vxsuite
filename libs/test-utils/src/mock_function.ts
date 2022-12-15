@@ -1,5 +1,6 @@
 import { inspect } from 'util';
 import deepEqual from 'deep-eql';
+import { diff } from 'jest-diff';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunc = (...args: any[]) => any;
@@ -42,6 +43,28 @@ function formatFunctionCall(name: string, input: unknown[]): string {
   return `${name}(${input
     .map((arg) => inspect(arg, { depth: null }))
     .join(', ')})`;
+}
+
+function formatExpectedAndActualCalls(
+  name: string,
+  actualCall?: Call<AnyFunc>,
+  expectedCall?: ExpectedCall<AnyFunc>
+): string {
+  const expectedStr = expectedCall
+    ? formatFunctionCall(name, expectedCall.input)
+    : '<none>';
+  const actualStr = actualCall
+    ? formatFunctionCall(name, actualCall.input)
+    : '<none>';
+  const diffStr =
+    expectedCall &&
+    actualCall &&
+    !deepEqual(actualCall.input, expectedCall.input)
+      ? diff(actualCall.input, expectedCall.input)
+      : undefined;
+  return [`Expected: ${expectedStr}`, `Actual: ${actualStr}`]
+    .concat(diffStr ? [`Input diff: ${diffStr}`] : [])
+    .join('\n');
 }
 
 /**
@@ -98,19 +121,14 @@ export function mockFunction<Func extends AnyFunc>(
         name,
         input
       )}`;
-      // Log to console since exceptions can be swallowed depending on how the mock function is used
-      // eslint-disable-next-line no-console
-      console.error(message);
       throw new Error(message);
     }
     if (!deepEqual(input, expectedCall.input)) {
-      const message =
-        `Mismatched call to mock function:\n` +
-        `Expected: ${formatFunctionCall(name, expectedCall.input)}\n` +
-        `Actual: ${formatFunctionCall(name, input)}`;
-      // Log to console since exceptions can be swallowed depending on how the mock function is used
-      // eslint-disable-next-line no-console
-      console.error(message);
+      const message = `Mismatched call to mock function:\n${formatExpectedAndActualCalls(
+        name,
+        { input },
+        expectedCall
+      )}`;
       throw new Error(message);
     }
 
@@ -159,17 +177,11 @@ export function mockFunction<Func extends AnyFunc>(
         .map((index) => {
           const expectedCall = state.expectedCalls[index];
           const actualCall = state.actualCalls[index];
-          return (
-            `Call #${index}\n` +
-            `Expected: ${
-              expectedCall
-                ? formatFunctionCall(name, expectedCall.input)
-                : '<none>'
-            }\n` +
-            `Actual: ${
-              actualCall ? formatFunctionCall(name, actualCall.input) : '<none>'
-            }`
-          );
+          return `Call #${index}\n${formatExpectedAndActualCalls(
+            name,
+            actualCall,
+            expectedCall
+          )}`;
         })
         .join('\n\n')}`;
       throw new Error(message);

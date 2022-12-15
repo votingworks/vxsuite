@@ -1,8 +1,8 @@
 import { mockFunction, MockFunction } from '@votingworks/test-utils';
-import { AnyApi } from './server';
+import { AnyApi, AnyMethods, inferApiMethods } from './server';
 
-type MockMethods<Api extends AnyApi> = {
-  [Method in keyof Api]: MockFunction<Api[Method]>;
+type MockMethods<Methods extends AnyMethods> = {
+  [Method in keyof Methods]: MockFunction<Methods[Method]>;
 };
 
 interface MockHelpers {
@@ -10,7 +10,40 @@ interface MockHelpers {
   reset(): void;
 }
 
-type MockClient<Api extends AnyApi> = MockMethods<Api> & MockHelpers;
+/**
+ * A mock Grout client with methods that are all MockFunctions.
+ */
+export type MockClient<Api extends AnyApi> = MockMethods<inferApiMethods<Api>> &
+  MockHelpers;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyMockFunction = MockFunction<any>;
+
+function createMockMethod(methodName: string): AnyMockFunction {
+  // API methods are sometimes called without exception handling, which can
+  // cause cause jest to exit early and swallow the error. So we wrap the
+  // mock method in a proxy that catches any exceptions and logs them to the
+  // console instead.
+  return new Proxy(mockFunction(methodName), {
+    apply: (target, thisArg, args) => {
+      try {
+        return Reflect.apply(target, thisArg, args);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : /* istanbul ignore next - no easy way to test throwing a non-Error */
+              String(error);
+        // eslint-disable-next-line no-console
+        console.error(message);
+        // Return a best guess at a dummy value that won't cause exceptions
+        // in the consuming code.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return {} as unknown as any;
+      }
+    },
+  });
+}
 
 /**
  * Creates a client with methods that are all mock functions.
@@ -18,7 +51,7 @@ type MockClient<Api extends AnyApi> = MockMethods<Api> & MockHelpers;
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function createMockClient<Api extends AnyApi>(): MockClient<Api> {
-  const mockMethods: Record<string, MockFunction<any>> = {};
+  const mockMethods: Record<string, AnyMockFunction> = {};
 
   const mockHelpers: MockHelpers = {
     assertComplete(): void {
@@ -34,12 +67,17 @@ export function createMockClient<Api extends AnyApi>(): MockClient<Api> {
     },
   };
 
+  // Simlar to how we build the real client, we use a Proxy to simulate having
+  // all the methods of the API, dynamically creating mock functions as needed
+  // and storing them in mockMethods.
   return new Proxy(mockHelpers as MockClient<Api>, {
     get: (_target, methodName: string) => {
+      // Bypass for special mock client helper methods
       if (methodName in mockHelpers) {
         return Reflect.get(mockHelpers, methodName);
       }
-      mockMethods[methodName] ??= mockFunction(methodName);
+
+      mockMethods[methodName] ??= createMockMethod(methodName);
       return mockMethods[methodName];
     },
   });

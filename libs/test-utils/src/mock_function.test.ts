@@ -1,20 +1,8 @@
+/* eslint-disable vx/gts-unicode-escapes */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import { mockFunction } from './mock_function';
 
 describe('mockFunction', () => {
-  beforeEach(() => {
-    // Ironically, we have to use jest mocks here to make these tests not rely
-    // on mockFunction being correct
-    jest.spyOn(console, 'error').mockImplementation(() => {
-      // Do nothing
-    });
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   function add(num1: number, num2: number): number {
     throw new Error('Not implemented');
   }
@@ -32,16 +20,12 @@ describe('mockFunction', () => {
     const expectedMessage =
       'Mismatched call to mock function:\nExpected: add(1, 2)\nActual: add(1, 3)';
     expect(() => addMock(1, 3)).toThrow(expectedMessage);
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(expectedMessage);
   });
 
   it('errors on unexpected calls', () => {
     const addMock = mockFunction<typeof add>('add');
     const expectedMessage = 'Unexpected call to mock function: add(1, 2)';
     expect(() => addMock(1, 2)).toThrow(expectedMessage);
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(expectedMessage);
   });
 
   it('handles multiple calls', () => {
@@ -69,7 +53,15 @@ describe('mockFunction', () => {
     expect(() => addMock(1, 3)).toThrowErrorMatchingInlineSnapshot(`
       "Mismatched call to mock function:
       Expected: add(1, 2)
-      Actual: add(1, 3)"
+      Actual: add(1, 3)
+      Input diff: \u001b[32m- Expected\u001b[39m
+      \u001b[31m+ Received\u001b[39m
+
+      \u001b[2m  Array [\u001b[22m
+      \u001b[2m    1,\u001b[22m
+      \u001b[32m-   3,\u001b[39m
+      \u001b[31m+   2,\u001b[39m
+      \u001b[2m  ]\u001b[22m"
     `);
   });
 
@@ -107,7 +99,25 @@ describe('mockFunction', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       "Mismatched call to mock function:
       Expected: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])
-      Actual: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'wrong' }, [ 1, 2 ])"
+      Actual: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'wrong' }, [ 1, 2 ])
+      Input diff: \u001b[32m- Expected\u001b[39m
+      \u001b[31m+ Received\u001b[39m
+
+      \u001b[2m  Array [\u001b[22m
+      \u001b[2m    \\"a\\",\u001b[22m
+      \u001b[2m    1,\u001b[22m
+      \u001b[2m    true,\u001b[22m
+      \u001b[2m    null,\u001b[22m
+      \u001b[2m    undefined,\u001b[22m
+      \u001b[2m    Object {\u001b[22m
+      \u001b[32m-     \\"foo\\": \\"wrong\\",\u001b[39m
+      \u001b[31m+     \\"foo\\": \\"bar\\",\u001b[39m
+      \u001b[2m    },\u001b[22m
+      \u001b[2m    Array [\u001b[22m
+      \u001b[2m      1,\u001b[22m
+      \u001b[2m      2,\u001b[22m
+      \u001b[2m    ],\u001b[22m
+      \u001b[2m  ]\u001b[22m"
     `);
   });
 
@@ -136,7 +146,6 @@ describe('mockFunction', () => {
     const error = new Error('Mock error');
     addMock.expectCallWith(1, 2).throws(error);
     expect(() => addMock(1, 2)).toThrow(error);
-    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('assertComplete errors if not all expected calls are used', () => {
@@ -187,10 +196,26 @@ describe('mockFunction', () => {
       Call #0
       Expected: add(1, 2)
       Actual: add(1, 3)
+      Input diff: \u001b[32m- Expected\u001b[39m
+      \u001b[31m+ Received\u001b[39m
+
+      \u001b[2m  Array [\u001b[22m
+      \u001b[2m    1,\u001b[22m
+      \u001b[32m-   3,\u001b[39m
+      \u001b[31m+   2,\u001b[39m
+      \u001b[2m  ]\u001b[22m
 
       Call #1
       Expected: add(1, 3)
-      Actual: add(1, 2)"
+      Actual: add(1, 2)
+      Input diff: \u001b[32m- Expected\u001b[39m
+      \u001b[31m+ Received\u001b[39m
+
+      \u001b[2m  Array [\u001b[22m
+      \u001b[2m    1,\u001b[22m
+      \u001b[32m-   2,\u001b[39m
+      \u001b[31m+   3,\u001b[39m
+      \u001b[2m  ]\u001b[22m"
     `);
   });
 
