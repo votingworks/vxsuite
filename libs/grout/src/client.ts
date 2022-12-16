@@ -2,14 +2,10 @@
 /* eslint-disable vx/gts-type-parameters */
 import { deserialize, serialize } from './serialization';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { AnyApi, Api } from './server';
+import type { AnyApi, inferApiMethods } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
-
-type inferApiMethods<TApi extends AnyApi> = TApi extends Api<infer TMethods>
-  ? TMethods
-  : never;
 
 /**
  * A Grout RPC client based on the type of an API definition.

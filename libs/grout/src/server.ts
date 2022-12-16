@@ -57,6 +57,15 @@ export type Api<TMethods extends AnyMethods> = TMethods;
 export type AnyApi = Api<AnyMethods>;
 
 /**
+ * Helper to extract the method type from an API definition type
+ */
+export type inferApiMethods<TApi extends AnyApi> = TApi extends Api<
+  infer TMethods
+>
+  ? TMethods
+  : never;
+
+/**
  * Creates a Grout API definition from a dictionary of methods.
  *
  * Example:

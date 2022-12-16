@@ -2330,9 +2330,12 @@ importers:
   libs/grout:
     dependencies:
       '@types/debug': 4.1.7
+      '@types/deep-eql': 4.0.0
       '@types/express': 4.17.14
+      '@votingworks/test-utils': link:../test-utils
       '@votingworks/types': link:../types
       debug: 4.3.4
+      deep-eql: 4.1.3
     devDependencies:
       '@types/jest': 27.4.1
       '@types/node-fetch': 2.6.2
@@ -2361,13 +2364,16 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@types/debug': ^4.1.7
+      '@types/deep-eql': ^4.0.0
       '@types/express': ^4.17.14
       '@types/jest': ^27.0.3
       '@types/node-fetch': ^2.6.0
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       debug: ^4.3.4
+      deep-eql: ^4.1.3
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -2656,10 +2662,13 @@ importers:
   libs/test-utils:
     dependencies:
       '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
+      '@types/deep-eql': 4.0.0
       '@types/node': 16.11.29
       '@votingworks/types': link:../types
       buffer: 6.0.3
+      deep-eql: 4.1.3
       fast-check: 2.18.0
+      jest-diff: 27.5.1
       js-sha256: 0.9.0
       luxon: 1.26.0
       zip-stream: 4.1.0
@@ -2691,6 +2700,7 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@testing-library/react': ^12.1.5
+      '@types/deep-eql': ^4.0.0
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -2701,6 +2711,7 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/types': workspace:*
       buffer: ^6.0.3
+      deep-eql: ^4.1.3
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -2711,6 +2722,7 @@ importers:
       fast-check: ^2.18.0
       is-ci-cli: ^2.2.0
       jest: ^27.3.1
+      jest-diff: ^27.3.1
       jest-junit: ^14.0.1
       jest-watch-typeahead: ^0.6.4
       js-sha256: ^0.9.0
@@ -10216,8 +10228,7 @@ packages:
       integrity: sha512-/l/VWsdt/aBXgjshLWOFyFt3IVdYypu5y2Wn2rOO1un6nkqIn8SLXzgIMYXFyYsRWDyF5EthmKJMIdJvk08grg==
   /@jest/schemas/29.0.0:
     dependencies:
-      '@sinclair/typebox': 0.24.37
-    dev: true
+      '@sinclair/typebox': 0.24.51
     engines:
       node: ^14.15.0 || ^16.10.0 || >=18.0.0
     resolution:
@@ -10544,6 +10555,7 @@ packages:
       '@types/node': 15.12.2
       '@types/yargs': 16.0.3
       chalk: 4.1.1
+    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -10926,6 +10938,9 @@ packages:
     dev: true
     resolution:
       integrity: sha512-8xuD57tNMHs7R0YUzFp0xqIVOTJDbFHnEN/JTej5d5o/dTx4OSsURKTT9dkWl6ghMk4zs3AYe1bi7UK0NnJ4oA==
+  /@sinclair/typebox/0.24.51:
+    resolution:
+      integrity: sha512-1P1OROm/rdubP5aFDSZQILU0vrLCJ4fvHt6EoqHEM+2D/G5MK3bIaymUKLit8Js9gbns5UyJnkP/TZROLw4tUA==
   /@sindresorhus/is/2.1.1:
     dev: true
     engines:
@@ -11563,6 +11578,10 @@ packages:
       '@types/ms': 0.7.31
     resolution:
       integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==
+  /@types/deep-eql/4.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-UkfTYLA64vGUyR4ez8ybIC01wtilS/ydOqKL1fSHOvnX1sVm1sI5btr7Q+bqpdaPGD+QNhOgBXq1HGjO+99e1A==
   /@types/dompurify/2.2.1:
     dependencies:
       '@types/trusted-types': 2.0.0
@@ -11712,7 +11731,7 @@ packages:
       integrity: sha512-c3mAZEuK0lvBp8tmuL74XRKn1+y2dcwOUpH7x4WrF6gk1GIgiluDRgMYQtw2OFcBvAJWlt6ASU3tSqxp0Uu0Aw==
   /@types/jest-diff/24.3.0:
     dependencies:
-      jest-diff: 27.0.2
+      jest-diff: 29.3.1
     deprecated: This is a stub types definition. jest-diff provides its own type definitions, so you do not need this installed.
     resolution:
       integrity: sha512-vx1CRDeDUwQ0Pc7v+hS61O1ETA81kD04IMEC0hS1kPyVtHDdZrokAvpF7MT9VI/fVSzicelUZNCepDvhRV1PeA==
@@ -11930,6 +11949,7 @@ packages:
     resolution:
       integrity: sha512-TMkXt0Ck1y0KKsGr9gJtWGjttxlZnnvDtphxUOSd0bfaR6Q1jle+sPvrzNR1urqYTWMinoKvjKfXUGsumaO1PA==
   /@types/node/15.12.2:
+    dev: true
     resolution:
       integrity: sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==
   /@types/node/15.3.0:
@@ -12313,6 +12333,7 @@ packages:
     resolution:
       integrity: sha512-7ZyTfxjCRwexh+EJFwRUM+CDB2XvgHl4vfuqf1ZKrgGvcS5BrNvPQqJh3tsZ0P6h6Aa1qClVHaJZszLPzpqHeA==
   /@types/yargs-parser/20.2.0:
+    dev: true
     resolution:
       integrity: sha512-37RSHht+gzzgYeobbG+KWryeAW8J33Nhr69cjTqSYymXVZEN9NbRYWoYlRtDhHKPVT1FyNKwaTPC1NynKZpzRA==
   /@types/yargs-parser/21.0.0:
@@ -12332,6 +12353,7 @@ packages:
   /@types/yargs/16.0.3:
     dependencies:
       '@types/yargs-parser': 20.2.0
+    dev: true
     resolution:
       integrity: sha512-YlFfTGS+zqCgXuXNV26rOIeETOkXnGQXP/pjjL9P0gO/EP9jTmc7pUBhx+jVEIxpq41RX33GQ7N3DzOSfZoglQ==
   /@types/yargs/16.0.4:
@@ -16605,6 +16627,14 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-GxJC5MOg2KyQlv6WiUF/VAnMj4MWnYiXo4oLgeptOELVoknyErb4Z8+5F/IM/K4g9/80YzzatxmWcyRwUseH0A==
+  /deep-eql/4.1.3:
+    dependencies:
+      type-detect: 4.0.8
+    dev: false
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-WaEtAOpRA1MQ0eohqZjpGD8zdI0Ovsm8mmFhaDN8dvDZzyoUMcYDnf5Y6iu7HTXxf8JDS23qWa4a+hKCDyOPzw==
   /deep-equal/1.1.1:
     dependencies:
       is-arguments: 1.1.1
@@ -16813,11 +16843,6 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-Mv/TDa3nZ9sbc5soK+OoA74BsS3mL37yixCvUAQkiuA4Wz6YtwP/K47n2rv2ovzHZvoiQeA5FTQOschKkEwB0Q==
-  /diff-sequences/27.0.1:
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    resolution:
-      integrity: sha512-XPLijkfJUh/PIBnfkcSHgvD6tlYixmcMAn3osTk6jt+H0v/mgURto1XUiD9DKuGX5NDoVS6dSlA23gd9FUaCFg==
   /diff-sequences/27.0.6:
     dev: true
     engines:
@@ -16847,6 +16872,11 @@ packages:
       node: ^14.15.0 || ^16.10.0 || >=18.0.0
     resolution:
       integrity: sha512-7Qe/zd1wxSDL4D/X/FPjOMB+ZMDt71W94KYaq05I2l0oQqgXgs7s4ftYYmV38gBSrPz2vcygxfs1xn0FT+rKNA==
+  /diff-sequences/29.3.1:
+    engines:
+      node: ^14.15.0 || ^16.10.0 || >=18.0.0
+    resolution:
+      integrity: sha512-hlM3QR272NXCi4pq+N4Kok4kOp6EsgOM3ZSpJI7Da3UAs+Ttsi8MRmB6trM/lhyzUxGfOgnpkHtgqm5Q/CTcfQ==
   /diffie-hellman/5.0.3:
     dependencies:
       bn.js: 4.11.9
@@ -19946,7 +19976,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0_12e0d3a13edabf2ba2a66fb9092035af
       '@typescript-eslint/utils': 5.22.0_eslint@8.23.1+typescript@4.6.3
       eslint: 8.23.1
-      jest: 26.6.3_canvas@2.9.1
+      jest: 26.6.3
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -24413,16 +24443,6 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-6m+9Z3Gv9wN0WFVasqjCL/06+EFCMTqDEUl/b87HYK2rAPTyfz4ZIuSlPhY51PIQRWx5TaxeF1qmXKe9gfN3sA==
-  /jest-diff/27.0.2:
-    dependencies:
-      chalk: 4.1.1
-      diff-sequences: 27.0.1
-      jest-get-type: 27.0.1
-      pretty-format: 27.0.2
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    resolution:
-      integrity: sha512-BFIdRb0LqfV1hBt8crQmw6gGQHVDhM87SpMIZ45FPYKReZYG5er1+5pIn2zKqvrJp6WNox0ylR8571Iwk2Dmgw==
   /jest-diff/27.3.1:
     dependencies:
       chalk: 4.1.2
@@ -24477,6 +24497,16 @@ packages:
       node: ^14.15.0 || ^16.10.0 || >=18.0.0
     resolution:
       integrity: sha512-b9l9970sa1rMXH1owp2Woprmy42qIwwll/htsw4Gf7+WuSp5bZxNhkKHDuCGKL+HoHn1KhcC+tNEeAPYBkD2Jg==
+  /jest-diff/29.3.1:
+    dependencies:
+      chalk: 4.1.2
+      diff-sequences: 29.3.1
+      jest-get-type: 29.2.0
+      pretty-format: 29.3.1
+    engines:
+      node: ^14.15.0 || ^16.10.0 || >=18.0.0
+    resolution:
+      integrity: sha512-vU8vyiO7568tmin2lA3r2DP8oRvzhvRcD4DjpXc6uGveQodyk7CKLhQlCSiwgx3g0pFaE88/KLZ0yaTWMc4Uiw==
   /jest-docblock/26.0.0:
     dependencies:
       detect-newline: 3.1.0
@@ -24806,11 +24836,6 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-TpfaviN1R2pQWkIihlfEanwOXK0zcxrKEE4MlU6Tn7keoXdN6/3gK/xl0yEh8DOunn5pOVGKf8hB4R9gVh04ig==
-  /jest-get-type/27.0.1:
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    resolution:
-      integrity: sha512-9Tggo9zZbu0sHKebiAijyt1NM77Z0uO4tuWOxUCujAiSeXv30Vb5D4xVF4UR4YWNapcftj+PbByU54lKD7/xMg==
   /jest-get-type/27.3.1:
     dev: true
     engines:
@@ -24840,6 +24865,11 @@ packages:
       node: ^14.15.0 || ^16.10.0 || >=18.0.0
     resolution:
       integrity: sha512-83X19z/HuLKYXYHskZlBAShO7UfLFXu/vWajw9ZNJASN32li8yHMaVGAQqxFW1RCFOkB7cubaL6FaJVQqqJLSw==
+  /jest-get-type/29.2.0:
+    engines:
+      node: ^14.15.0 || ^16.10.0 || >=18.0.0
+    resolution:
+      integrity: sha512-uXNJlg8hKFEnDgFsrCjznB+sTxdkuqiCL6zMgA75qEbAJjJYTs9XPrvDctrEig2GDow22T/LvHgO57iJhXB/UA==
   /jest-haste-map/26.6.2:
     dependencies:
       '@jest/types': 26.6.2
@@ -30349,6 +30379,7 @@ packages:
       ansi-regex: 5.0.0
       ansi-styles: 5.2.0
       react-is: 17.0.2
+    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
@@ -30416,6 +30447,15 @@ packages:
       node: ^14.15.0 || ^16.10.0 || >=18.0.0
     resolution:
       integrity: sha512-wp3CdtUa3cSJVFn3Miu5a1+pxc1iPIQTenOAn+x5erXeN1+ryTcLesV5pbK/rlW5EKwp27x38MoYfNGaNXDDhg==
+  /pretty-format/29.3.1:
+    dependencies:
+      '@jest/schemas': 29.0.0
+      ansi-styles: 5.2.0
+      react-is: 18.2.0
+    engines:
+      node: ^14.15.0 || ^16.10.0 || >=18.0.0
+    resolution:
+      integrity: sha512-FyLnmb1cYJV8biEIiRyzRFvs2lry7PPIvOqKVe1GCUEYg4YGmlx1qG9EJNMxArYm7piII4qb8UV1Pncq5dxmcg==
   /private/0.1.8:
     dev: true
     engines:
@@ -30952,7 +30992,6 @@ packages:
     resolution:
       integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
   /react-is/18.2.0:
-    dev: true
     resolution:
       integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
   /react-lifecycles-compat/3.0.4:
