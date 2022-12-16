@@ -198,6 +198,22 @@ test('client accepts baseUrl with a trailing slash', async () => {
   server.close();
 });
 
+test('client errors on incorrect baseUrl', async () => {
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({
+    baseUrl: `${baseUrl}wrong`,
+  });
+  await expect(client.getStuff()).rejects.toThrow(
+    `Got 404 for ${baseUrl}wrong/getStuff. Are you sure the baseUrl is correct?`
+  );
+  server.close();
+});
+
 test('client errors if response is not JSON', async () => {
   const api = createApi({
     async getStuff(): Promise<number> {
@@ -223,12 +239,16 @@ test('client errors if response is not JSON', async () => {
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff()).rejects.toThrow('Response is not JSON');
-  await expect(client.getMoreStuff()).rejects.toThrow('Response is not JSON');
+  await expect(client.getStuff()).rejects.toThrow(
+    `Response content type is not JSON for ${baseUrl}/getStuff`
+  );
+  await expect(client.getMoreStuff()).rejects.toThrow(
+    `Response content type is not JSON for ${baseUrl}/getMoreStuff`
+  );
   server.close();
 });
 
-test('client handles a variety of malformed error responses', async () => {
+test('client handles non-JSON error responses', async () => {
   const api = createApi({
     async getStuff(): Promise<number> {
       return 42;
@@ -245,5 +265,25 @@ test('client handles a variety of malformed error responses', async () => {
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow('invalid json response body');
+  server.close();
+});
+
+test('client handles other server errors', async () => {
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  });
+  const app = express();
+  app.post('/api/getStuff', (req, res) => {
+    res.status(500).send();
+  });
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+  const client = createClient<typeof api>({ baseUrl });
+  await expect(client.getStuff()).rejects.toThrow(
+    `Got 500 for ${baseUrl}/getStuff`
+  );
   server.close();
 });
