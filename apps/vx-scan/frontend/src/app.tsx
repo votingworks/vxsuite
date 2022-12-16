@@ -11,7 +11,8 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { Api } from '@votingworks/vx-scan-backend';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { Api } from '@votingworks/vx-scan-backend';
 import { AppRoot, Props as AppRootProps } from './app_root';
 
 import { machineConfigProvider } from './utils/machine_config';

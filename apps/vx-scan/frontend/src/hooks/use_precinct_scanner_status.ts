@@ -23,8 +23,6 @@ export function usePrecinctScannerStatus(
       isFetchingStatus.current = true;
       const currentStatus = await makeCancelable(apiClient.getScannerStatus());
       setStatus(currentStatus);
-    } catch (error) {
-      console.error(error);
     } finally {
       isFetchingStatus.current = false;
     }
