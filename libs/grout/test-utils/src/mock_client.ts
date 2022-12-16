@@ -3,7 +3,7 @@ import {
   MockFunction,
   MockFunctionError,
 } from '@votingworks/test-utils';
-import { AnyApi, AnyMethods, inferApiMethods } from './server';
+import { AnyApi, AnyMethods, inferApiMethods } from '@votingworks/grout';
 
 type MockMethods<Methods extends AnyMethods> = {
   [Method in keyof Methods]: MockFunction<Methods[Method]>;

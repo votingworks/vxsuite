@@ -14,6 +14,7 @@ packages:
   # include all the libraries and our custom types
   - 'libs/*'
   - 'libs/@types/*'
+  - 'libs/grout/*'
 
   # include all integration tests
   - 'integration-testing/*'

@@ -6,7 +6,7 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import * as grout from '@votingworks/grout';
+import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
 
@@ -28,7 +28,7 @@ export const statusNoPaper: Scan.PrecinctScannerStatus = {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = grout.createMockClient<Api>();
+  const mockApiClient = createMockClient<Api>();
   return {
     mockApiClient,
 
