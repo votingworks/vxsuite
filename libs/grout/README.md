@@ -111,6 +111,40 @@ try {
 }
 ```
 
+### Testing
+
+To test your server API, you can simply run the server and use the Grout client
+to call the API methods. Note that you'll need to patch `globals.fetch` with a
+Node implementation like `node-fetch`.
+
+To mock your API in client-side tests, you can use the `createMockClient` method
+from `@votingworks/grout-test-utils`:
+
+```ts
+import { createMockClient } from '@votingworks/grout-test-utils';
+const mockApiClient = createMockClient<MyApi>();
+
+// Ensure the mock is in a clean state before each test
+beforeEach(() => {
+  mockApiClient.reset();
+});
+
+// Ensure all expected calls were made after each test
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
+
+test('it works', () => {
+  // Each method on the mock client is a MockFunction (see @votingworks/test-utils).
+  mockApiClient.getAllPeople
+    .expectCallWith()
+    .resolves([{ name: 'Alice', age: 99 }]);
+  expect(await mockApiClient.getAllPeople()).toEqual([
+    { name: 'Alice', age: 99 },
+  ]);
+});
+```
+
 ### tsconfig settings
 
 Grout works out of the box with our default `tsconfig.json` settings. However,
