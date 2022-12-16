@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Scan } from '@votingworks/api';
 import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import * as scanner from '../api/scan';
+import { useApiClient } from '../api/api';
 
-export interface Props {
+export interface CalibrateScannerModalProps {
   scannerStatus: Scan.PrecinctScannerStatus;
   onCancel: VoidFunction;
 }
@@ -18,14 +18,15 @@ type CalibrationState = 'ready' | 'calibrating' | 'calibrated' | 'failed';
 export function CalibrateScannerModal({
   scannerStatus,
   onCancel,
-}: Props): JSX.Element {
+}: CalibrateScannerModalProps): JSX.Element {
+  const apiClient = useApiClient();
   const [calibrationState, setCalibrationState] =
     useState<CalibrationState>('ready');
   const makeCancelable = useCancelablePromise();
 
   async function calibrate() {
     setCalibrationState('calibrating');
-    const success = await makeCancelable(scanner.calibrate());
+    const success = await makeCancelable(apiClient.calibrate());
     setCalibrationState(success ? 'calibrated' : 'failed');
   }
 

@@ -85,6 +85,10 @@
       "path": "libs/grout"
     },
     {
+      "name": "libs/grout/test-utils",
+      "path": "libs/grout/test-utils"
+    },
+    {
       "name": "libs/image-utils",
       "path": "libs/image-utils"
     },

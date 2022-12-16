@@ -5,16 +5,11 @@ import {
   readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
 import request from 'supertest';
-import {
-  CastVoteRecord,
-  ok,
-  PollsState,
-  PrecinctId,
-  Result,
-} from '@votingworks/types';
+import { CastVoteRecord, ok, PrecinctId, Result } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -26,7 +21,9 @@ import {
 import { dirSync } from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
-import { buildApp } from '../../src/app';
+import { AddressInfo } from 'net';
+import fetch from 'node-fetch';
+import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
@@ -37,45 +34,11 @@ import {
 } from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 
-export function get(app: Application, path: string): request.Test {
-  return request(app).get(path).accept('application/json').expect(200);
-}
-
-export function patch(
-  app: Application,
-  path: string,
-  body?: object | string
-): request.Test {
-  return request(app)
-    .patch(path)
-    .accept('application/json')
-    .set(
-      'Content-Type',
-      typeof body === 'string' ? 'application/octet-stream' : 'application/json'
-    )
-    .send(body)
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
-
-export function post(
-  app: Application,
-  path: string,
-  body?: object
-): request.Test {
-  return request(app)
-    .post(path)
-    .accept('application/json')
-    .send(body)
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
-}
+// TODO(jonah) - Is there a way to ensure Grout always has access to node-fetch
+// in a node environment?
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+global.fetch = fetch;
 
 export function postTemplate(
   app: Application,
@@ -111,26 +74,6 @@ export function postTemplate(
     .expect(200, { status: 'ok' });
 }
 
-export function setAppPrecinct(
-  app: Application,
-  precinctId?: PrecinctId
-): request.Test {
-  return patch(app, '/precinct-scanner/config/precinct', {
-    precinctSelection: precinctId
-      ? singlePrecinctSelectionFor(precinctId)
-      : ALL_PRECINCTS_SELECTION,
-  });
-}
-
-export function setPollsState(
-  app: Application,
-  pollsState: PollsState
-): request.Test {
-  return patch(app, '/precinct-scanner/config/polls', {
-    pollsState,
-  });
-}
-
 export async function postExportCvrs(
   app: Application
 ): Promise<CastVoteRecord[]> {
@@ -147,31 +90,31 @@ export async function postExportCvrs(
 }
 
 export async function expectStatus(
-  app: Application,
-  status: {
+  apiClient: grout.Client<Api>,
+  expectedStatus: {
     state: Scan.PrecinctScannerState;
   } & Partial<Scan.PrecinctScannerStatus>
 ): Promise<void> {
-  const response = await get(app, '/precinct-scanner/scanner/status');
-  expect(response.body).toEqual({
+  const status = await apiClient.getScannerStatus();
+  expect(status).toEqual({
     ballotsCounted: 0,
     // TODO canUnconfigure should probably not be part of this endpoint - it's
     // only needed on the admin screen
-    canUnconfigure: !status?.ballotsCounted,
+    canUnconfigure: !expectedStatus?.ballotsCounted,
     error: undefined,
     interpretation: undefined,
-    ...status,
+    ...expectedStatus,
   });
 }
 
 export async function waitForStatus(
-  app: Application,
+  apiClient: grout.Client<Api>,
   status: {
     state: Scan.PrecinctScannerState;
   } & Partial<Scan.PrecinctScannerStatus>
 ): Promise<void> {
   await waitForExpect(async () => {
-    await expectStatus(app, status);
+    await expectStatus(apiClient, status);
   }, 1_000);
 }
 
@@ -179,6 +122,7 @@ export async function createApp(
   delays: Partial<Delays> = {},
   mockPlustekOptions: Partial<MockScannerClientOptions> = {}
 ): Promise<{
+  apiClient: grout.Client<Api>;
   app: Application;
   mockPlustek: MockScannerClient;
   workspace: Workspace;
@@ -213,10 +157,18 @@ export async function createApp(
     },
   });
   const app = buildApp(precinctScannerMachine, interpreter, workspace, logger);
-  await expectStatus(app, { state: 'connecting' });
+
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+
+  const apiClient = grout.createClient<Api>({ baseUrl });
+
+  await expectStatus(apiClient, { state: 'connecting' });
   deferredConnect.resolve();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
   return {
+    apiClient,
     app,
     mockPlustek,
     workspace,
@@ -255,6 +207,7 @@ export const ballotImages = {
 } as const;
 
 export async function configureApp(
+  apiClient: grout.Client<Api>,
   app: Application,
   {
     addTemplates = false,
@@ -266,18 +219,20 @@ export async function configureApp(
   const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
     electionFamousNames2021Fixtures.ballotPackage.asBuffer()
   );
-  await patch(
-    app,
-    '/precinct-scanner/config/election',
-    electionDefinition.electionData
-  );
+  await apiClient.setElection({
+    electionData: electionDefinition.electionData,
+  });
   if (addTemplates) {
     // It takes about a second per template, so we only do some
     for (const ballot of ballots.slice(0, 2)) {
       await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
     }
   }
-  await setAppPrecinct(app, precinctId);
-  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
-  await setPollsState(app, 'polls_open');
+  await apiClient.setPrecinctSelection({
+    precinctSelection: precinctId
+      ? singlePrecinctSelectionFor(precinctId)
+      : ALL_PRECINCTS_SELECTION,
+  });
+  await apiClient.setTestMode({ isTestMode: false });
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
 }

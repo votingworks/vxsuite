@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.shared.json",
+  "extends": "../../../tsconfig.shared.json",
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
@@ -11,7 +11,8 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" }
+    { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../grout/tsconfig.build.json" },
+    { "path": "../../test-utils/tsconfig.build.json" }
   ]
 }

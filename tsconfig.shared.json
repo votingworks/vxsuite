@@ -19,6 +19,6 @@
     "noPropertyAccessFromIndexSignature": true,
 
     // Treat `[…]` property accesses as potentially undefined.
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": true
   }
 }

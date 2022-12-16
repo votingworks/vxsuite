@@ -1,5 +1,4 @@
 import { AdjudicationReason, err, ok } from '@votingworks/types';
-import request from 'supertest';
 import waitForExpect from 'wait-for-expect';
 import { Scan } from '@votingworks/api';
 import { Logger } from '@votingworks/logging';
@@ -10,7 +9,6 @@ import {
   configureApp,
   createApp,
   expectStatus,
-  post,
   postExportCvrs,
   waitForStatus,
 } from '../test/helpers/app_helpers';
@@ -87,35 +85,35 @@ function mockInterpretation(
 }
 
 test('configure and scan hmpb', async () => {
-  const { app, mockPlustek, logger } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { apiClient, app, mockPlustek, logger } = await createApp();
+  await configureApp(apiClient, app, { addTemplates: true });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/accept');
-  await expectStatus(app, {
+  await apiClient.acceptBallot();
+  await expectStatus(apiClient, {
     state: 'accepting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
   });
 
   // Test waiting for automatic transition back to no_paper
-  await waitForStatus(app, { state: 'no_paper', ballotsCounted: 1 });
+  await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 
   // Check the CVR
   const cvrs = await postExportCvrs(app);
@@ -126,28 +124,28 @@ test('configure and scan hmpb', async () => {
 });
 
 test('configure and scan bmd ballot', async () => {
-  const { app, mockPlustek, logger } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, logger } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/accept');
-  await expectStatus(app, {
+  await apiClient.acceptBallot();
+  await expectStatus(apiClient, {
     state: 'accepting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
@@ -157,7 +155,7 @@ test('configure and scan bmd ballot', async () => {
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan', ballotsCounted: 1 });
+  await waitForStatus(apiClient, { state: 'ready_to_scan', ballotsCounted: 1 });
 
   // Check the CVR
   const cvrs = await postExportCvrs(app);
@@ -172,32 +170,32 @@ const needsReviewInterpretation: Scan.SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const { app, mockPlustek, workspace, logger } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { apiClient, app, mockPlustek, workspace, logger } = await createApp();
+  await configureApp(apiClient, app, { addTemplates: true });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/return');
-  await expectStatus(app, {
+  await apiClient.returnBallot();
+  await expectStatus(apiClient, {
     state: 'returning',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'returned',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'no_paper',
   });
 
@@ -212,32 +210,32 @@ test('ballot needs review - return', async () => {
 });
 
 test('ballot needs review - accept', async () => {
-  const { app, mockPlustek, logger } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { apiClient, app, mockPlustek, logger } = await createApp();
+  await configureApp(apiClient, app, { addTemplates: true });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/accept');
-  await expectStatus(app, {
+  await apiClient.acceptBallot();
+  await expectStatus(apiClient, {
     state: 'accepting_after_review',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
   });
 
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: 1,
   });
@@ -251,32 +249,32 @@ test('ballot needs review - accept', async () => {
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const { app, mockPlustek, workspace, logger } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, workspace, logger } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 
   // Check the CVR
   const cvrs = await postExportCvrs(app);
@@ -289,38 +287,38 @@ test('invalid ballot rejected', async () => {
 });
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { precinctId: '22' });
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app, { precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_precinct',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { precinctId: '23' });
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app, { precinctId: '23' });
   // Configure for the proper precinct and verify the ballot scans
 
   const validInterpretation: Scan.SheetInterpretation = {
@@ -330,49 +328,49 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     interpretation: validInterpretation,
   });
 });
 
 test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true, precinctId: '22' });
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app, { addTemplates: true, precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_precinct',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true, precinctId: '21' });
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app, { addTemplates: true, precinctId: '21' });
   // Configure for the proper precinct and verify the ballot scans
 
   const validInterpretation: Scan.SheetInterpretation = {
@@ -382,150 +380,150 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     interpretation: validInterpretation,
   });
 });
 
 test('blank sheet ballot rejected', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'unknown',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('scanner powered off while waiting for paper', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('scanner powered off while scanning', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off while accepting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
   mockPlustek.simulatePowerOff();
-  await post(app, '/precinct-scanner/scanner/accept');
-  await waitForStatus(app, { state: 'disconnected' });
+  await apiClient.acceptBallot();
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('ready_to_eject');
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     error: 'paper_in_back_after_reconnect',
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     error: 'paper_in_back_after_reconnect',
   });
 });
 
 test('scanner powered off after accepting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
-  await post(app, '/precinct-scanner/scanner/accept');
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
+  await apiClient.acceptBallot();
+  await waitForStatus(apiClient, {
     state: 'accepting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'disconnected',
     ballotsCounted: 1,
   });
 
   mockPlustek.simulatePowerOn('no_paper');
-  await waitForStatus(app, { state: 'no_paper', ballotsCounted: 1 });
+  await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 });
 
 test('scanner powered off while rejecting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
@@ -533,148 +531,151 @@ test('scanner powered off while rejecting', async () => {
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off while returning', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/return');
-  await waitForStatus(app, {
+  await apiClient.returnBallot();
+  await waitForStatus(apiClient, {
     state: 'returning',
     interpretation,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off after returning', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/return');
-  await waitForStatus(app, {
+  await apiClient.returnBallot();
+  await waitForStatus(apiClient, {
     state: 'returning',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'returned',
     interpretation,
   });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(apiClient, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('ready_to_scan');
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     error: 'paper_in_front_after_reconnect',
   });
 });
 
 test('insert second ballot while first ballot is scanning', async () => {
-  const { app, mockPlustek } = await createApp(
+  const { apiClient, app, mockPlustek } = await createApp(
     {},
     { passthroughDuration: 500 }
   );
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await expectStatus(app, { state: 'both_sides_have_paper' });
+  await expectStatus(apiClient, { state: 'both_sides_have_paper' });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     error: 'both_sides_have_paper',
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     error: 'both_sides_have_paper',
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('insert second ballot before first ballot accept', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await post(app, '/precinct-scanner/scanner/accept');
+  await apiClient.acceptBallot();
 
-  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
+  await waitForStatus(apiClient, {
+    state: 'both_sides_have_paper',
+    interpretation,
+  });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
-  await post(app, '/precinct-scanner/scanner/accept');
-  await expectStatus(app, { state: 'accepting', interpretation });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
+  await apiClient.acceptBallot();
+  await expectStatus(apiClient, { state: 'accepting', interpretation });
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
@@ -682,67 +683,70 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp({
+  const { apiClient, app, mockPlustek, interpreter } = await createApp({
     DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
     DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
-  await post(app, '/precinct-scanner/scanner/accept');
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
+  await apiClient.acceptBallot();
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
 
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'ready_to_scan',
     ballotsCounted: 1,
   });
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
+  await waitForStatus(apiClient, {
+    state: 'both_sides_have_paper',
+    interpretation,
+  });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/accept');
-  await waitForStatus(app, {
+  await apiClient.acceptBallot();
+  await waitForStatus(apiClient, {
     state: 'accepted',
     interpretation,
     ballotsCounted: 1,
@@ -750,16 +754,16 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp(
+  const { apiClient, app, mockPlustek, interpreter } = await createApp(
     {},
     { passthroughDuration: 500 }
   );
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
@@ -767,9 +771,9 @@ test('insert second ballot while first ballot is rejecting', async () => {
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
@@ -777,163 +781,163 @@ test('insert second ballot while first ballot is rejecting', async () => {
   (
     await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const { app, mockPlustek, interpreter } = await createApp(
+  const { apiClient, app, mockPlustek, interpreter } = await createApp(
     {},
     { passthroughDuration: 500 }
   );
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await post(app, '/precinct-scanner/scanner/return');
+  await apiClient.returnBallot();
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'needs_review',
     interpretation,
   });
-  await post(app, '/precinct-scanner/scanner/return');
-  await waitForStatus(app, {
+  await apiClient.returnBallot();
+  await waitForStatus(apiClient, {
     state: 'returned',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on scan', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { apiClient, app, mockPlustek } = await createApp({
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   mockPlustek.simulateJamOnNextOperation();
-  await post(app, '/precinct-scanner/scanner/scan');
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'plustek_error',
   });
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on accept', async () => {
-  const { app, mockPlustek, interpreter } = await createApp({
+  const { apiClient, app, mockPlustek, interpreter } = await createApp({
     DELAY_ACCEPTING_TIMEOUT: 500,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await waitForStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await apiClient.scanBallot();
+  await waitForStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
   mockPlustek.simulateJamOnNextOperation();
-  await post(app, '/precinct-scanner/scanner/accept');
-  await waitForStatus(app, { state: 'accepting', interpretation });
+  await apiClient.acceptBallot();
+  await waitForStatus(apiClient, { state: 'accepting', interpretation });
   // The paper can't get permanently jammed on accept - it just stays held in
   // the back and we can reject at that point
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
     error: 'paper_in_back_after_accept',
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'rejected',
     error: 'paper_in_back_after_accept',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on return', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
   mockPlustek.simulateJamOnNextOperation();
-  await post(app, '/precinct-scanner/scanner/return');
-  await waitForStatus(app, {
+  await apiClient.returnBallot();
+  await waitForStatus(apiClient, {
     state: 'jammed',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on reject', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, interpreter } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
@@ -941,72 +945,63 @@ test('jam on reject', async () => {
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.simulateJamOnNextOperation();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'jammed',
     interpretation,
   });
 
   (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('calibrate', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  // Supertest won't actually start the request until you call .then()
-  const calibratePromise = post(
-    app,
-    '/precinct-scanner/scanner/calibrate'
-  ).then();
-  await waitForStatus(app, { state: 'calibrating' });
+  const calibratePromise = apiClient.calibrate();
+  await waitForStatus(apiClient, { state: 'calibrating' });
   await calibratePromise;
-  await expectStatus(app, { state: 'no_paper' });
+  await expectStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on calibrate', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   mockPlustek.simulateJamOnNextOperation();
-  await request(app)
-    .post('/precinct-scanner/scanner/calibrate')
-    .accept('application/json')
-    .expect(200, {
-      status: 'error',
-      errors: [{ type: 'error', message: 'plustek_error' }],
-    });
-  await expectStatus(app, { state: 'jammed' });
+  expect(await apiClient.calibrate()).toEqual(false);
+  await expectStatus(apiClient, { state: 'jammed' });
 });
 
 test('scan fails and retries', async () => {
-  const { app, mockPlustek, logger, interpreter } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, logger, interpreter } =
+    await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.simulateScanError('error_feeding');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
   // Make sure the underlying error got logged correctly
   expect(logger.log).toHaveBeenCalledWith(
@@ -1023,39 +1018,42 @@ test('scan fails and retries', async () => {
 });
 
 test('scan fails repeatedly and eventually gives up', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const scanSpy = jest.spyOn(mockPlustek, 'scan');
-  await post(app, '/precinct-scanner/scanner/scan');
+  await apiClient.scanBallot();
   for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
     await waitForExpect(() => {
       expect(scanSpy).toHaveBeenCalledTimes(i + 1);
     });
-    await expectStatus(app, { state: 'scanning' });
+    await expectStatus(apiClient, { state: 'scanning' });
     mockPlustek.simulateScanError('error_feeding');
   }
-  await waitForStatus(app, { state: 'rejected', error: 'scanning_failed' });
+  await waitForStatus(apiClient, {
+    state: 'rejected',
+    error: 'scanning_failed',
+  });
 });
 
 test('scan fails due to plustek returning only one file instead of two', async () => {
-  const { app, mockPlustek, logger } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, logger } = await createApp();
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.simulateScanError('only_one_file_returned');
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'unrecoverable_error',
     error: 'plustek_error',
   });
@@ -1075,24 +1073,24 @@ test('scan fails due to plustek returning only one file instead of two', async (
 });
 
 test('scanning time out', async () => {
-  const { app, mockPlustek, logger } = await createApp({
+  const { apiClient, app, mockPlustek, logger } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
+  await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'scanning_timed_out',
   });
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 
   // Make sure the underlying error got logged correctly
   expect(logger.log).toHaveBeenCalledWith(
@@ -1109,54 +1107,54 @@ test('scanning time out', async () => {
 });
 
 test('kills plustekctl if it freezes', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { apiClient, app, mockPlustek } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
     DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
     DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.simulatePlustekctlFreeze();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'paper_status_timed_out',
   });
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('stops completely if plustekctl freezes and cant be killed', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { apiClient, app, mockPlustek } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
     DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
     DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
   });
-  await configureApp(app);
+  await configureApp(apiClient, app);
 
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(apiClient, { state: 'no_paper' });
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, { state: 'ready_to_scan' });
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
+  await apiClient.scanBallot();
+  await expectStatus(apiClient, { state: 'scanning' });
   mockPlustek.kill = () => err(new Error('could not kill'));
   mockPlustek.simulatePlustekctlFreeze();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'paper_status_timed_out',
   });
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'unrecoverable_error',
     error: 'paper_status_timed_out',
   });

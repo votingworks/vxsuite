@@ -1,10 +1,15 @@
-import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
+import { Scan } from '@votingworks/api';
 import { pdfToImages } from '@votingworks/image-utils';
+import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
-  safeParse,
+  MarkThresholds,
+  ok,
+  PollsState,
+  PrecinctSelection,
+  Result,
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
@@ -14,7 +19,6 @@ import {
   generateFilenameForScanningResults,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
@@ -31,29 +35,17 @@ const debug = rootDebug.extend('app');
 
 type NoParams = never;
 
-export function buildApp(
+function buildApi(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   logger: Logger
-): Application {
+) {
   const { store } = workspace;
-
-  const app: Application = express();
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: workspace.uploadsPath,
-    }),
-  });
-
-  app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
-  app.use(express.urlencoded({ extended: false }));
-
-  app.get<NoParams, Scan.GetPrecinctScannerConfigResponse>(
-    '/precinct-scanner/config',
-    (_request, response) => {
-      response.json({
+  return grout.createApi({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async getConfig(): Promise<Scan.PrecinctScannerConfig> {
+      return {
         electionDefinition: store.getElectionDefinition(),
         precinctSelection: store.getPrecinctSelection(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
@@ -62,259 +54,109 @@ export function buildApp(
         pollsState: store.getPollsState(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
-      });
-    }
-  );
+      };
+    },
 
-  app.patch<
-    NoParams,
-    Scan.PatchElectionConfigResponse,
-    Scan.PatchElectionConfigRequest
-  >('/precinct-scanner/config/election', (request, response) => {
-    const { body } = request;
-
-    if (!Buffer.isBuffer(body)) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `expected content type to be application/octet-stream, got ${request.header(
-              'content-type'
-            )}`,
-          },
-        ],
-      });
-      return;
-    }
-
-    const bodyParseResult = safeParseElectionDefinition(
-      new TextDecoder('utf-8', { fatal: false }).decode(body)
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: error.name,
-            message: error.message,
-          },
-        ],
-      });
-      return;
-    }
-
-    const electionDefinition = bodyParseResult.ok();
-    store.setElection(electionDefinition.electionData);
-    // If the election has only one precinct, set it automatically
-    if (electionDefinition.election.precincts.length === 1) {
-      store.setPrecinctSelection(
-        singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setElection(input: {
+      // We transmit and store the election definition as a string, not as a
+      // JSON object, since it will later be hashed to match the election hash
+      // in ballot QR codes. Since the original hash was made from the string,
+      // the most reliable way to get the same hash is to use the same string.
+      electionData: string;
+    }): Promise<void> {
+      const parseResult = safeParseElectionDefinition(input.electionData);
+      const electionDefinition = parseResult.assertOk(
+        'Invalid election definition'
       );
-    }
-    response.json({ status: 'ok' });
-  });
-
-  app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
-    '/precinct-scanner/config/election',
-    (request, response) => {
-      if (
-        !store.getCanUnconfigure() &&
-        request.query['ignoreBackupRequirement'] !== 'true'
-      ) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'no-backup',
-              message:
-                'cannot unconfigure an election that has not been backed up',
-            },
-          ],
-        });
-        return;
+      store.setElection(electionDefinition.electionData);
+      // If the election has only one precinct, set it automatically
+      if (electionDefinition.election.precincts.length === 1) {
+        store.setPrecinctSelection(
+          singlePrecinctSelectionFor(
+            electionDefinition.election.precincts[0].id
+          )
+        );
       }
+    },
 
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async unconfigureElection(input: {
+      ignoreBackupRequirement?: boolean;
+    }): Promise<void> {
+      assert(
+        input.ignoreBackupRequirement || store.getCanUnconfigure(),
+        'Attempt to unconfigure without backup'
+      );
       interpreter.unconfigure();
       workspace.reset();
-      response.json({ status: 'ok' });
-    }
-  );
+    },
 
-  app.patch<
-    NoParams,
-    Scan.PatchPrecinctSelectionConfigResponse,
-    Scan.PatchPrecinctSelectionConfigRequest
-  >('/precinct-scanner/config/precinct', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchPrecinctSelectionConfigRequestSchema,
-      request.body
-    );
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): Promise<void> {
+      assert(
+        store.getBallotsCounted() === 0,
+        'Attempt to change precinct selection after ballots have been cast'
+      );
+      store.setPrecinctSelection(input.precinctSelection);
+      workspace.resetElectionSession();
+    },
 
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setMarkThresholdOverrides(input: {
+      markThresholdOverrides?: MarkThresholds;
+    }): Promise<void> {
+      store.setMarkThresholdOverrides(input.markThresholdOverrides);
+    },
 
-    if (store.getBallotsCounted() > 0) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'ballots-cast',
-            message:
-              'cannot change the precinct selection if ballots have been cast',
-          },
-        ],
-      });
-      return;
-    }
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
+      store.setIsSoundMuted(input.isSoundMuted);
+    },
 
-    store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    workspace.resetElectionSession();
-    response.json({ status: 'ok' });
-  });
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async setTestMode(input: { isTestMode: boolean }): Promise<void> {
+      workspace.resetElectionSession();
+      store.setTestMode(input.isTestMode);
+    },
 
-  app.patch<
-    NoParams,
-    Scan.PatchMarkThresholdOverridesConfigResponse,
-    Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/precinct-scanner/config/markThresholdOverrides', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-      request.body
-    );
+    async setPollsState(input: { pollsState: PollsState }): Promise<void> {
+      const previousPollsState = store.getPollsState();
+      const newPollsState = input.pollsState;
 
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
+      // Start new batch if opening polls, end batch if pausing or closing polls
+      if (
+        newPollsState === 'polls_open' &&
+        previousPollsState !== 'polls_open'
+      ) {
+        const batchId = store.addBatch();
+        await logger.log(LogEventId.ScannerBatchStarted, 'system', {
+          disposition: 'success',
+          message:
+            'New scanning batch started due to polls being opened or voting being resumed.',
+          batchId,
+        });
+      } else if (
+        newPollsState !== 'polls_open' &&
+        previousPollsState === 'polls_open'
+      ) {
+        const ongoingBatchId = store.getOngoingBatchId();
+        assert(typeof ongoingBatchId === 'string');
+        store.finishBatch({ batchId: ongoingBatchId });
+        await logger.log(LogEventId.ScannerBatchEnded, 'system', {
+          disposition: 'success',
+          message:
+            'Current scanning batch ended due to polls being closed or voting being paused.',
+          batchId: ongoingBatchId,
+        });
+      }
 
-    store.setMarkThresholdOverrides(
-      bodyParseResult.ok().markThresholdOverrides
-    );
+      store.setPollsState(newPollsState);
+    },
 
-    response.json({ status: 'ok' });
-  });
-
-  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/precinct-scanner/config/markThresholdOverrides',
-    (_request, response) => {
-      store.setMarkThresholdOverrides(undefined);
-      response.json({ status: 'ok' });
-    }
-  );
-
-  app.patch<
-    NoParams,
-    Scan.PatchIsSoundMutedConfigResponse,
-    Scan.PatchIsSoundMutedConfigRequest
-  >('/precinct-scanner/config/isSoundMuted', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchIsSoundMutedConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    store.setIsSoundMuted(bodyParseResult.ok().isSoundMuted);
-    response.json({ status: 'ok' });
-  });
-
-  app.patch<
-    NoParams,
-    Scan.PatchTestModeConfigResponse,
-    Scan.PatchTestModeConfigRequest
-  >('/precinct-scanner/config/testMode', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchTestModeConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    workspace.resetElectionSession();
-    store.setTestMode(bodyParseResult.ok().testMode);
-    response.json({ status: 'ok' });
-  });
-
-  app.patch<
-    NoParams,
-    Scan.PatchPollsStateResponse,
-    Scan.PatchPollsStateRequest
-  >('/precinct-scanner/config/polls', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchPollsStateRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    const previousPollsState = store.getPollsState();
-    const newPollsState = bodyParseResult.ok().pollsState;
-
-    // Start new batch if opening polls, end batch if pausing or closing polls
-    if (newPollsState === 'polls_open' && previousPollsState !== 'polls_open') {
-      const batchId = store.addBatch();
-      await logger.log(LogEventId.ScannerBatchStarted, 'system', {
-        disposition: 'success',
-        message:
-          'New scanning batch started due to polls being opened or voting being resumed.',
-        batchId,
-      });
-    } else if (
-      newPollsState !== 'polls_open' &&
-      previousPollsState === 'polls_open'
-    ) {
-      const ongoingBatchId = store.getOngoingBatchId();
-      assert(typeof ongoingBatchId === 'string');
-      store.finishBatch({ batchId: ongoingBatchId });
-      await logger.log(LogEventId.ScannerBatchEnded, 'system', {
-        disposition: 'success',
-        message:
-          'Current scanning batch ended due to polls being closed or voting being paused.',
-        batchId: ongoingBatchId,
-      });
-    }
-
-    store.setPollsState(bodyParseResult.ok().pollsState);
-    response.json({ status: 'ok' });
-  });
-
-  app.patch<NoParams, Scan.PatchBallotBagReplaced>(
-    '/precinct-scanner/config/ballotBagReplaced',
-    async (_request, response) => {
+    async recordBallotBagReplaced(): Promise<void> {
       // If polls are open, we need to end current batch and start a new batch
       if (store.getPollsState() === 'polls_open') {
         const ongoingBatchId = store.getOngoingBatchId();
@@ -336,11 +178,95 @@ export function buildApp(
       }
 
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
-      response.json({ status: 'ok' });
-    }
-  );
+    },
 
-  app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
+    async backupToUsbDrive(): Promise<Result<void, Scan.BackupError>> {
+      const result = await backupToUsbDrive(store);
+      return result.isErr() ? result : ok();
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async getScannerStatus(): Promise<Scan.PrecinctScannerStatus> {
+      const machineStatus = machine.status();
+      const ballotsCounted = store.getBallotsCounted();
+      const canUnconfigure = store.getCanUnconfigure();
+      return {
+        ...machineStatus,
+        ballotsCounted,
+        canUnconfigure,
+      };
+    },
+
+    async scanBallot(): Promise<void> {
+      assert(store.getPollsState() === 'polls_open');
+      const electionDefinition = store.getElectionDefinition();
+      const precinctSelection = store.getPrecinctSelection();
+      const layouts = await store.loadLayouts();
+      assert(electionDefinition);
+      assert(precinctSelection);
+      assert(layouts);
+      interpreter.configure({
+        electionDefinition,
+        precinctSelection,
+        layouts,
+        testMode: store.getTestMode(),
+        markThresholdOverrides: store.getMarkThresholdOverrides(),
+        ballotImagesPath: workspace.ballotImagesPath,
+      });
+      machine.scan();
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async acceptBallot(): Promise<void> {
+      machine.accept();
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async returnBallot(): Promise<void> {
+      machine.return();
+    },
+
+    async calibrate(): Promise<boolean> {
+      const result = await machine.calibrate();
+      return result.isOk();
+    },
+  });
+}
+
+export type Api = ReturnType<typeof buildApi>;
+
+export function buildApp(
+  machine: PrecinctScannerStateMachine,
+  interpreter: PrecinctScannerInterpreter,
+  workspace: Workspace,
+  logger: Logger
+): Application {
+  const { store } = workspace;
+
+  const app: Application = express();
+
+  const api = buildApi(machine, interpreter, workspace, logger);
+  app.use('/api', grout.buildRouter(api, express));
+
+  const deprecatedApiRouter = express.Router();
+
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: workspace.uploadsPath,
+    }),
+  });
+
+  deprecatedApiRouter.use(express.raw());
+  deprecatedApiRouter.use(
+    express.json({ limit: '5mb', type: 'application/json' })
+  );
+  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
+
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.AddTemplatesResponse,
+    Scan.AddTemplatesRequest
+  >(
     '/precinct-scanner/config/addTemplates',
     upload.fields([
       { name: 'ballots' },
@@ -471,7 +397,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
+  deprecatedApiRouter.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/precinct-scanner/export',
     async (request, response) => {
       const skipImages = request.body?.skipImages;
@@ -499,103 +425,7 @@ export function buildApp(
     }
   );
 
-  app.post<NoParams, Scan.BackupToUsbResponse, Scan.BackupToUsbRequest>(
-    '/precinct-scanner/backup-to-usb-drive',
-    async (_request, response) => {
-      const result = await backupToUsbDrive(store);
-
-      if (result.isErr()) {
-        response.status(500).json({
-          status: 'error',
-          errors: [result.err()],
-        });
-        return;
-      }
-
-      response.json({ status: 'ok', paths: result.ok() });
-    }
-  );
-
-  app.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
-    '/precinct-scanner/scanner/status',
-    (_request, response) => {
-      const machineStatus = machine.status();
-      const ballotsCounted = store.getBallotsCounted();
-      const canUnconfigure = store.getCanUnconfigure();
-      response.json({
-        ...machineStatus,
-        ballotsCounted,
-        canUnconfigure,
-      });
-    }
-  );
-
-  app.post<NoParams, OkResponse | ErrorsResponse>(
-    '/precinct-scanner/scanner/scan',
-    async (_request, response) => {
-      if (store.getPollsState() !== 'polls_open') {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'polls-closed',
-              message: 'cannot scan ballots while polls are closed',
-            },
-          ],
-        });
-        return;
-      }
-
-      const electionDefinition = store.getElectionDefinition();
-      const precinctSelection = store.getPrecinctSelection();
-      const layouts = await store.loadLayouts();
-      assert(electionDefinition);
-      assert(precinctSelection);
-      assert(layouts);
-      interpreter.configure({
-        electionDefinition,
-        precinctSelection,
-        layouts,
-        testMode: store.getTestMode(),
-        markThresholdOverrides: store.getMarkThresholdOverrides(),
-        ballotImagesPath: workspace.ballotImagesPath,
-      });
-
-      machine.scan();
-      response.json({ status: 'ok' });
-    }
-  );
-
-  app.post<NoParams, OkResponse>(
-    '/precinct-scanner/scanner/accept',
-    (_request, response) => {
-      machine.accept();
-      response.json({ status: 'ok' });
-    }
-  );
-
-  app.post<NoParams, OkResponse>(
-    '/precinct-scanner/scanner/return',
-    (_request, response) => {
-      machine.return();
-      response.json({ status: 'ok' });
-    }
-  );
-
-  app.post<NoParams, Scan.CalibrateResponse>(
-    '/precinct-scanner/scanner/calibrate',
-    async (_request, response) => {
-      const result = await machine.calibrate();
-      if (result.isOk()) {
-        response.json({ status: 'ok' });
-      } else {
-        response.json({
-          status: 'error',
-          errors: [{ type: 'error', message: result.err() }],
-        });
-      }
-    }
-  );
+  app.use(deprecatedApiRouter);
 
   return app;
 }

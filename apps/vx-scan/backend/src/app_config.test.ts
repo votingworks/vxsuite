@@ -1,35 +1,31 @@
 import { MockScannerClient } from '@votingworks/plustek-sdk';
 import request from 'supertest';
-import { Application } from 'express';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
+import * as grout from '@votingworks/grout';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   ballotImages,
   configureApp,
   createApp,
-  get,
-  patch,
-  post,
   postExportCvrs,
-  setAppPrecinct,
-  setPollsState,
   waitForStatus,
 } from '../test/helpers/app_helpers';
+import { Api } from './app';
 
 jest.setTimeout(20_000);
 
 async function scanBallot(
   mockPlustek: MockScannerClient,
-  app: Application,
+  apiClient: grout.Client<Api>,
   initialBallotsCounted: number
 ) {
   (
     await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'ready_to_scan',
     ballotsCounted: initialBallotsCounted,
   });
@@ -38,35 +34,34 @@ async function scanBallot(
     type: 'ValidSheet',
   };
 
-  await post(app, '/precinct-scanner/scanner/scan');
-  await waitForStatus(app, {
+  await apiClient.scanBallot();
+  await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     interpretation,
     ballotsCounted: initialBallotsCounted,
   });
-  await post(app, '/precinct-scanner/scanner/accept');
-  await waitForStatus(app, {
+  await apiClient.acceptBallot();
+  await waitForStatus(apiClient, {
     ballotsCounted: initialBallotsCounted + 1,
     state: 'accepted',
     interpretation,
   });
 
   // Wait for transition back to no paper
-  await waitForStatus(app, {
+  await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: initialBallotsCounted + 1,
   });
 }
 
 test("setting the election also sets precinct if there's only one", async () => {
-  const { app } = await createApp();
-  await patch(
-    app,
-    '/precinct-scanner/config/election',
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData
-  );
-  const response = await get(app, '/precinct-scanner/config');
-  expect(response.body.precinctSelection).toMatchObject({
+  const { apiClient } = await createApp();
+  await apiClient.setElection({
+    electionData:
+      electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData,
+  });
+  const config = await apiClient.getConfig();
+  expect(config.precinctSelection).toMatchObject({
     kind: 'SinglePrecinct',
     precinctId: 'precinct-1',
   });
@@ -74,9 +69,9 @@ test("setting the election also sets precinct if there's only one", async () => 
 
 describe('POST /precinct-scanner/export', () => {
   test('sets CVRs as backed up', async () => {
-    const { app, workspace } = await createApp();
+    const { apiClient, app, workspace } = await createApp();
 
-    await configureApp(app);
+    await configureApp(apiClient, app);
     await request(app)
       .post('/precinct-scanner/export')
       .set('Accept', 'application/json')
@@ -88,43 +83,31 @@ describe('POST /precinct-scanner/export', () => {
   });
 });
 
-describe('PATCH /precinct-scanner/config/precinct', () => {
-  test('will return error status if ballots have been cast', async () => {
-    const { app, mockPlustek } = await createApp();
-    await configureApp(app);
-    await scanBallot(mockPlustek, app, 0);
+test('setPrecinctSelection will reset polls to closed', async () => {
+  const { apiClient, app, workspace } = await createApp();
+  await configureApp(apiClient, app);
 
-    await request(app)
-      .patch('/precinct-scanner/config/precinct')
-      .set('Content-Type', 'application/json')
-      .send({ precinctSelection: singlePrecinctSelectionFor('whatever') })
-      .expect(400);
+  workspace.store.setPollsState('polls_open');
+  await apiClient.setPrecinctSelection({
+    precinctSelection: singlePrecinctSelectionFor('21'),
   });
-
-  test('will reset polls to closed', async () => {
-    const { app, workspace } = await createApp();
-    await configureApp(app);
-
-    workspace.store.setPollsState('polls_open');
-    await setAppPrecinct(app, '21');
-    expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
-  });
+  expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
 });
 
 test('ballot batching', async () => {
-  const { app, mockPlustek, logger, workspace } = await createApp();
-  await configureApp(app);
+  const { apiClient, app, mockPlustek, logger, workspace } = await createApp();
+  await configureApp(apiClient, app);
 
   // Scan two ballots, which should have the same batch
-  await scanBallot(mockPlustek, app, 0);
-  await scanBallot(mockPlustek, app, 1);
+  await scanBallot(mockPlustek, apiClient, 0);
+  await scanBallot(mockPlustek, apiClient, 1);
   let cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(2);
   const batch1Id = cvrs[0]._batchId;
   expect(cvrs[1]._batchId).toEqual(batch1Id);
 
   // Pause polls, which should stop the current batch
-  await setPollsState(app, 'polls_paused');
+  await apiClient.setPollsState({ pollsState: 'polls_paused' });
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ScannerBatchEnded,
@@ -139,7 +122,7 @@ test('ballot batching', async () => {
   });
 
   // Reopen polls, which should stop the current batch
-  await setPollsState(app, 'polls_open');
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ScannerBatchStarted,
@@ -154,8 +137,8 @@ test('ballot batching', async () => {
   });
 
   // Confirm there is a new, second batch distinct from the first
-  await scanBallot(mockPlustek, app, 2);
-  await scanBallot(mockPlustek, app, 3);
+  await scanBallot(mockPlustek, apiClient, 2);
+  await scanBallot(mockPlustek, apiClient, 3);
   cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(4);
   const batch2Id = cvrs[2]._batchId;
@@ -163,7 +146,7 @@ test('ballot batching', async () => {
   expect(cvrs[3]._batchId).toEqual(batch2Id);
 
   // Replace the ballot bag, which should create a new batch
-  await patch(app, '/precinct-scanner/config/ballotBagReplaced');
+  await apiClient.recordBallotBagReplaced();
   expect(workspace.store.getBallotCountWhenBallotBagLastReplaced()).toEqual(4);
   await waitForExpect(() => {
     expect(logger.log).toHaveBeenCalledWith(
@@ -189,8 +172,8 @@ test('ballot batching', async () => {
   });
 
   // Confirm there is a third batch, distinct from the second
-  await scanBallot(mockPlustek, app, 4);
-  await scanBallot(mockPlustek, app, 5);
+  await scanBallot(mockPlustek, apiClient, 4);
+  await scanBallot(mockPlustek, apiClient, 5);
   cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(6);
   const batch3Id = cvrs[4]._batchId;

@@ -1,10 +1,14 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Scan } from '@votingworks/api';
-import fetchMock from 'fetch-mock';
 import { deferred } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { CalibrateScannerModal } from './calibrate_scanner_modal';
+import {
+  CalibrateScannerModal,
+  CalibrateScannerModalProps,
+} from './calibrate_scanner_modal';
+import { ApiClientContext } from '../api/api';
+import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const fakeScannerStatus: Scan.PrecinctScannerStatus = {
   state: 'no_paper',
@@ -12,13 +16,30 @@ const fakeScannerStatus: Scan.PrecinctScannerStatus = {
   canUnconfigure: true,
 };
 
-test('shows instructions', () => {
-  render(
-    <CalibrateScannerModal
-      scannerStatus={fakeScannerStatus}
-      onCancel={jest.fn()}
-    />
+const apiMock = createApiMock();
+
+function renderModal(props: Partial<CalibrateScannerModalProps> = {}) {
+  return render(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <CalibrateScannerModal
+        scannerStatus={fakeScannerStatus}
+        onCancel={jest.fn()}
+        {...props}
+      />
+    </ApiClientContext.Provider>
   );
+}
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
+test('shows instructions', () => {
+  renderModal();
 
   screen.getByRole('heading', { name: 'Calibrate Scanner' });
   screen.getByText(/blank sheet of white paper/);
@@ -26,12 +47,7 @@ test('shows instructions', () => {
 
 test('waiting for paper', async () => {
   const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      scannerStatus={fakeScannerStatus}
-      onCancel={onCancel}
-    />
-  );
+  renderModal({ onCancel });
 
   expect(
     (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
@@ -43,12 +59,10 @@ test('waiting for paper', async () => {
 
 test('scanner not available', async () => {
   const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      scannerStatus={{ ...fakeScannerStatus, state: 'jammed' }}
-      onCancel={onCancel}
-    />
-  );
+  renderModal({
+    scannerStatus: { ...fakeScannerStatus, state: 'jammed' },
+    onCancel,
+  });
 
   expect(
     (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
@@ -59,53 +73,41 @@ test('scanner not available', async () => {
 });
 
 test('calibrate success', async () => {
-  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
-  render(
-    <CalibrateScannerModal
-      // Note that in reality, scanner status would update as the scanner
-      // calibrates, but the modal ignores it, so we don't bother mocking the
-      // changes.
-      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
-      onCancel={jest.fn()}
-    />
-  );
+  const { promise, resolve } = deferred<boolean>();
+  apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
+  renderModal({
+    // Note that in reality, scanner status would update as the scanner
+    // calibrates, but the modal ignores it, so we don't bother mocking the
+    // changes.
+    scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },
+  });
 
   userEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.done()).toBe(true);
 
   screen.getByText('Calibrating…');
 
-  resolve({ body: { status: 'ok' } });
+  resolve(true);
 
   await screen.findByText('Calibration succeeded!');
 });
 
 test('calibrate error and cancel', async () => {
-  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
+  const { promise, resolve } = deferred<boolean>();
+  apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
   const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      // Note that in reality, scanner status would update as the scanner
-      // calibrates, but the modal ignores it, so we don't bother mocking the
-      // changes.
-      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
-      onCancel={onCancel}
-    />
-  );
+  renderModal({
+    // Note that in reality, scanner status would update as the scanner
+    // calibrates, but the modal ignores it, so we don't bother mocking the
+    // changes.
+    scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },
+    onCancel,
+  });
 
   userEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.done()).toBe(true);
 
   screen.getByText('Calibrating…');
 
-  resolve({
-    body: {
-      status: 'error',
-      errors: [{ type: 'error', message: 'Calibration error' }],
-    },
-  });
+  resolve(false);
 
   await screen.findByText('Calibration failed!');
 
@@ -114,29 +116,20 @@ test('calibrate error and cancel', async () => {
 });
 
 test('calibrate error and try again', async () => {
-  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
-  render(
-    <CalibrateScannerModal
-      // Note that in reality, scanner status would update as the scanner
-      // calibrates, but the modal ignores it, so we don't bother mocking the
-      // changes.
-      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
-      onCancel={jest.fn()}
-    />
-  );
+  const { promise, resolve } = deferred<boolean>();
+  apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
+  renderModal({
+    // Note that in reality, scanner status would update as the scanner
+    // calibrates, but the modal ignores it, so we don't bother mocking the
+    // changes.
+    scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },
+  });
 
   userEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.done()).toBe(true);
 
   screen.getByText('Calibrating…');
 
-  resolve({
-    body: {
-      status: 'error',
-      errors: [{ type: 'error', message: 'Calibration error' }],
-    },
-  });
+  resolve(false);
 
   await screen.findByText('Calibration failed!');
 
@@ -147,21 +140,17 @@ test('calibrate error and try again', async () => {
 // This test won't actually fail, but it will cause the warning:
 // "An update to CalibrateScannerModal inside a test was not wrapped in act(...)."
 test('unmount during calibration (e.g. if election manager card removed)', async () => {
-  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
-  const { unmount } = render(
-    <CalibrateScannerModal
-      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
-      onCancel={jest.fn()}
-    />
-  );
+  const { promise, resolve } = deferred<boolean>();
+  apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
+  const { unmount } = renderModal({
+    scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },
+  });
 
   userEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.done()).toBe(true);
 
   screen.getByText('Calibrating…');
 
   unmount();
 
-  resolve({ body: { status: 'ok' } });
+  resolve(true);
 });

@@ -1,8 +1,7 @@
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
-import { createClient } from './client';
+import { createApi, createClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client';
-import { createApi } from './server';
 
 const api = createApi({
   // eslint-disable-next-line @typescript-eslint/require-await

@@ -546,6 +546,28 @@ jobs:
       - store_test_results:
           path: libs/grout/reports/
 
+  test-libs-grout-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/grout/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/grout/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/grout/test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/grout/test-utils/reports/
+
   test-libs-image-utils:
     executor: nodejs
     resource_class: xlarge
@@ -846,6 +868,7 @@ workflows:
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
       - test-libs-grout
+      - test-libs-grout-test-utils
       - test-libs-image-utils
       - test-libs-logging
       - test-libs-plustek-sdk

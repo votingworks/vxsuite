@@ -34,9 +34,6 @@ import { UnconfiguredElectionScreen } from './screens/unconfigured_election_scre
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
 
-import * as config from './api/config';
-import * as scanner from './api/scan';
-
 import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -59,6 +56,7 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
+import { useApiClient } from './api/api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -177,6 +175,7 @@ export function AppRoot({
   machineConfig: machineConfigProvider,
   logger,
 }: Props): JSX.Element | null {
+  const apiClient = useApiClient();
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
     electionDefinition,
@@ -216,13 +215,13 @@ export function AppRoot({
   const makeCancelable = useCancelablePromise();
 
   const refreshConfig = useCallback(async () => {
-    const scannerConfig = await makeCancelable(config.get());
+    const scannerConfig = await makeCancelable(apiClient.getConfig());
 
     dispatchAppState({
       type: 'refreshStateFromBackend',
       scannerConfig,
     });
-  }, [makeCancelable]);
+  }, [makeCancelable, apiClient]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -256,11 +255,11 @@ export function AppRoot({
 
   const updatePollsState = useCallback(
     async (newPollsState: PollsState) => {
-      await config.setPollsState(newPollsState);
+      await apiClient.setPollsState({ pollsState: newPollsState });
       dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
       await refreshConfig();
     },
-    [refreshConfig]
+    [refreshConfig, apiClient]
   );
 
   const resetPollsToPaused = useCallback(async () => {
@@ -268,33 +267,35 @@ export function AppRoot({
   }, [updatePollsState]);
 
   const toggleTestMode = useCallback(async () => {
-    await config.setTestMode(!isTestMode);
+    await apiClient.setTestMode({ isTestMode: !isTestMode });
     dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
     dispatchAppState({ type: 'resetElectionSession' });
     await refreshConfig();
-  }, [refreshConfig, isTestMode]);
+  }, [refreshConfig, isTestMode, apiClient]);
 
   const toggleIsSoundMuted = useCallback(async () => {
     dispatchAppState({ type: 'toggleIsSoundMuted' });
-    await config.setIsSoundMuted(!isSoundMuted);
-  }, [isSoundMuted]);
+    await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
+  }, [isSoundMuted, apiClient]);
 
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
       try {
-        await config.setElection(undefined, options);
+        await apiClient.unconfigureElection(options);
         await refreshConfig();
       } catch (error) {
         debug('failed unconfigureServer()', error);
       }
     },
-    [refreshConfig]
+    [refreshConfig, apiClient]
   );
 
   async function updatePrecinctSelection(
     newPrecinctSelection: PrecinctSelection
   ) {
-    await config.setPrecinctSelection(newPrecinctSelection);
+    await apiClient.setPrecinctSelection({
+      precinctSelection: newPrecinctSelection,
+    });
     dispatchAppState({
       type: 'updatePrecinctSelection',
       precinctSelection: newPrecinctSelection,
@@ -307,19 +308,21 @@ export function AppRoot({
       type: 'updateMarkThresholdOverrides',
       markThresholdOverrides: markThresholds,
     });
-    await config.setMarkThresholdOverrides(markThresholds);
+    await apiClient.setMarkThresholdOverrides({
+      markThresholdOverrides: markThresholds,
+    });
   }
 
   const scannerStatus = usePrecinctScannerStatus();
 
   const onBallotBagReplaced = useCallback(async () => {
-    await config.setBallotBagReplaced();
+    await apiClient.recordBallotBagReplaced();
     await refreshConfig();
     await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
       disposition: 'success',
       message: 'Poll worker confirmed that they replaced the ballot bag.',
     });
-  }, [logger, refreshConfig]);
+  }, [logger, refreshConfig, apiClient]);
 
   const needsToReplaceBallotBag =
     scannerStatus &&
@@ -339,9 +342,9 @@ export function AppRoot({
       }
 
       if (scannerStatus?.state === 'ready_to_scan') {
-        await scanner.scanBallot();
+        await apiClient.scanBallot();
       } else if (scannerStatus?.state === 'ready_to_accept') {
-        await scanner.acceptBallot();
+        await apiClient.acceptBallot();
       }
     }
     void automaticallyScanAndAcceptBallots();

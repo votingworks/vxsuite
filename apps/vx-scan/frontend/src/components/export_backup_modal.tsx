@@ -1,5 +1,3 @@
-import { Scan } from '@votingworks/api';
-import { safeParse } from '@votingworks/types';
 import {
   Button,
   isElectionManagerAuth,
@@ -14,13 +12,14 @@ import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
+import { useApiClient } from '../api/api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
   height: 200px;
 `;
 
-export interface Props {
+export interface ExportBackupModalProps {
   onClose: () => void;
   usbDrive: UsbDrive;
 }
@@ -34,7 +33,11 @@ enum ModalState {
 
 const DEFAULT_ERROR = 'Failed to save backup.';
 
-export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
+export function ExportBackupModal({
+  onClose,
+  usbDrive,
+}: ExportBackupModalProps): JSX.Element {
+  const apiClient = useApiClient();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -52,33 +55,20 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       setCurrentState(ModalState.ERROR);
       return;
     }
-    const httpResponse = await fetch('/precinct-scanner/backup-to-usb-drive', {
-      method: 'POST',
-    });
 
-    if (!httpResponse.ok) {
-      setErrorMessage(DEFAULT_ERROR);
-      setCurrentState(ModalState.ERROR);
-      return;
-    }
-
-    const body = await httpResponse.json();
-    const result = safeParse(Scan.BackupToUsbResponseSchema, body);
-
-    if (result.isErr()) {
-      setErrorMessage(DEFAULT_ERROR);
-      setCurrentState(ModalState.ERROR);
-    } else {
-      const response = result.ok();
-
-      if (response.status === 'ok') {
-        setCurrentState(ModalState.DONE);
-      } else {
-        setErrorMessage(response.errors[0].message ?? DEFAULT_ERROR);
+    try {
+      const result = await apiClient.backupToUsbDrive();
+      if (result.isErr()) {
+        setErrorMessage(result.err().message ?? DEFAULT_ERROR);
         setCurrentState(ModalState.ERROR);
+      } else {
+        setCurrentState(ModalState.DONE);
       }
+    } catch (error) {
+      setErrorMessage(DEFAULT_ERROR);
+      setCurrentState(ModalState.ERROR);
     }
-  }, []);
+  }, [apiClient]);
 
   if (currentState === ModalState.ERROR) {
     return (

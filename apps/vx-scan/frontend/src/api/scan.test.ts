@@ -3,14 +3,6 @@ import { CastVoteRecord } from '@votingworks/types';
 import fetchMock from 'fetch-mock';
 import * as scan from './scan';
 
-test('calibrate success', async () => {
-  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', {
-    body: { status: 'ok' },
-  });
-  await scan.calibrate();
-  expect(fetchMock.done()).toBe(true);
-});
-
 test('getExportWithoutImages returns CVRs on success', async () => {
   const fileContent = electionWithMsEitherNeitherFixtures.cvrData;
   fetchMock.postOnce('/precinct-scanner/export', fileContent);
