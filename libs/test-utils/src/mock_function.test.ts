@@ -135,9 +135,9 @@ describe('mockFunction', () => {
       throw new Error('Not implemented');
     }
     const addMock = mockFunction<typeof addAsync>('addAsync');
-    // @ts-expect-error - can't use returns with async functions
-    addMock.expectCallWith(1, 2).returns(3);
+    addMock.expectCallWith(1, 2).returns(Promise.resolve(3));
     addMock.expectCallWith(1, 2).resolves(3);
+    expect(await addMock(1, 2)).toBe(3);
     expect(await addMock(1, 2)).toBe(3);
   });
 

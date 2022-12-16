@@ -18,9 +18,8 @@ interface ReturnHelpers<Func extends AnyFunc> {
   throws(error: unknown): void;
 }
 
-interface AsyncReturnHelpers<Func extends AnyFunc> {
+interface AsyncReturnHelpers<Func extends AnyFunc> extends ReturnHelpers<Func> {
   resolves(output: Awaited<ReturnType<Func>>): void;
-  throws(error: unknown): void;
 }
 
 export class MockFunctionError extends Error {}
