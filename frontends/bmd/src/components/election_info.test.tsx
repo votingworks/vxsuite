@@ -62,11 +62,3 @@ test('renders vertical ElectionInfo without hash by default', () => {
   );
   expect(container).toMatchSnapshot();
 });
-
-// test.only('renders vertical without precinct name', () => {
-//   render(<ElectionInfo electionDefinition={electionSampleDefinition} />);
-//   screen.debug();
-//   screen.getByLabelText(
-//     'November 3, 2020. State of Hamilton, Franklin County.'
-//   );
-// });

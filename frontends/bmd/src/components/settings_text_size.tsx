@@ -11,19 +11,6 @@ import {
 } from '../config/types';
 import { FONT_SIZES } from '../config/globals';
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  border: 1px solid #808080;
-  border-width: 1px 0;
-  padding: 1rem 0;
-`;
-const Center = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1em;
-`;
 const TextSizeSegmentedButton = styled(SegmentedButton)`
   button {
     min-width: ${FONT_SIZES[1] * 3.5}px;
@@ -49,7 +36,6 @@ const Label = styled.label`
 interface Props {
   userSettings: UserSettings;
   setUserSettings: SetUserSettings;
-  sidebarWrapper?: boolean;
 }
 
 const ariaLabels = ['Small', 'Medium', 'Large', 'Extra Large'];
@@ -57,7 +43,6 @@ const ariaLabels = ['Small', 'Medium', 'Large', 'Extra Large'];
 export function SettingsTextSize({
   userSettings,
   setUserSettings,
-  sidebarWrapper = false,
 }: Props): JSX.Element {
   const adjustFontSize: EventTargetFunction = (event) => {
     const target = event.currentTarget as HTMLButtonElement;
@@ -87,10 +72,5 @@ export function SettingsTextSize({
       </TextSizeSegmentedButton>
     </p>
   );
-  if (sidebarWrapper) {
-    <Container aria-hidden>
-      <Center>{textSizeSetting}</Center>
-    </Container>;
-  }
   return textSizeSetting;
 }

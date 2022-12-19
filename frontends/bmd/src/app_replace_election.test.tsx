@@ -45,12 +45,10 @@ test('replacing a loaded election with one from a card', async () => {
     electionSample2Definition.electionData
   );
   await enterPin();
-  await screen.findByText(
-    'Election Manager card is not configured for this election'
-  );
+  await screen.findByText('This card is configured for a different election.');
 
   // unconfigure
-  fireEvent.click(screen.getByText('Remove Current Election and All Data'));
+  fireEvent.click(screen.getByText('Remove the Current Election and All Data'));
   await advanceTimersAndPromises();
 
   // take out and put card in again to allow loading

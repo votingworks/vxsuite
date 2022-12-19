@@ -101,6 +101,12 @@ export function StartPage(): JSX.Element {
                 <strong>{pluralize('contest', contests.length, true)}</strong>.
               </span>
             </p>
+            <SettingsContainer>
+              <SettingsTextSize
+                userSettings={userSettings}
+                setUserSettings={setUserSettings}
+              />
+            </SettingsContainer>
           </Prose>
         )}
         <p className="screen-reader-only">
@@ -138,21 +144,14 @@ export function StartPage(): JSX.Element {
       ) : (
         <Sidebar
           footer={
-            <React.Fragment>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-                sidebarWrapper
+            isLandscape && (
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                ballotStyleId={ballotStyleId}
+                precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                horizontal
               />
-              {isLandscape && (
-                <ElectionInfo
-                  electionDefinition={electionDefinition}
-                  ballotStyleId={ballotStyleId}
-                  precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                  horizontal
-                />
-              )}
-            </React.Fragment>
+            )
           }
         >
           <Prose>

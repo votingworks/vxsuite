@@ -5,9 +5,11 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  ElectionInfoBar,
   Main,
   Prose,
   Screen,
+  Table,
   Text,
   useCancelablePromise,
 } from '@votingworks/ui';
@@ -15,9 +17,6 @@ import { formatLongDate } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
-import { ElectionInfo } from '../components/election_info';
-import { Sidebar } from '../components/sidebar';
-import { VersionsData } from '../components/versions_data';
 import { MachineConfig, ScreenReader } from '../config/types';
 
 interface Props {
@@ -30,31 +29,6 @@ interface Props {
   unconfigure(): Promise<void>;
 }
 
-function BriefElectionDefinitionInfo({
-  electionDefinition,
-}: {
-  electionDefinition: ElectionDefinition;
-}) {
-  const { election, electionHash } = electionDefinition;
-  const displayElectionHash = electionHash.slice(0, 10);
-  return (
-    <ul>
-      <li>
-        <strong>Title:</strong> {election.title}
-      </li>
-      <li>
-        <strong>County:</strong> {election.county.name}
-      </li>
-      <li>
-        <strong>Date:</strong> {formatLongDate(DateTime.fromISO(election.date))}
-      </li>
-      <li>
-        <strong>Election ID:</strong> {displayElectionHash}
-      </li>
-    </ul>
-  );
-}
-
 export function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
@@ -64,6 +38,7 @@ export function ReplaceElectionScreen({
   screenReader,
   unconfigure,
 }: Props): JSX.Element {
+  const { election, electionHash } = electionDefinition;
   const makeCancelable = useCancelablePromise();
   const [cardElectionDefinition, setCardElectionDefinition] =
     useState<ElectionDefinition>();
@@ -82,72 +57,100 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
+  if (!cardElectionDefinition) {
+    return (
+      <Screen>
+        <Main padded centerChild>
+          <Prose>
+            <p>Reading the election definition from Election Manager card…</p>
+          </Prose>
+        </Main>
+      </Screen>
+    );
+  }
+
+  const { election: cardElection, electionHash: cardElectionHash } =
+    cardElectionDefinition;
   return (
-    <Screen navLeft>
-      <Main padded>
+    <Screen>
+      <Main padded centerChild>
         <Prose id="audiofocus">
-          <h1>Election Manager card is not configured for this election</h1>
-          {!cardElectionDefinition ? (
-            <p>Reading Election Definition from Election Manager card…</p>
+          <Text as="h1" error>
+            This card is configured for a different election.
+          </Text>
+          <Table>
+            <thead>
+              <tr>
+                <th />
+                <th>Current Election</th>
+                <th>Election on Card</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Title</th>
+                <td>{election.title}</td>
+                <td>{cardElection.title}</td>
+              </tr>
+              <tr>
+                <th>County</th>
+                <td>{election.county.name}</td>
+                <td>{cardElection.county.name}</td>
+              </tr>
+              <tr>
+                <th>Date</th>
+                <td>{formatLongDate(DateTime.fromISO(election.date))}</td>
+                <td>{formatLongDate(DateTime.fromISO(cardElection.date))}</td>
+              </tr>
+              <tr>
+                <th>Election ID</th>
+                <td>{electionHash.slice(0, 10)}</td>
+                <td>{cardElectionHash.slice(0, 10)}</td>
+              </tr>
+              <tr>
+                <th>Ballots Printed</th>
+                <td>{ballotsPrintedCount}</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </Table>
+          {ballotsPrintedCount === 0 ? (
+            <p>
+              This machine has not printed any ballots for the current election.
+            </p>
           ) : (
-            <React.Fragment>
-              <p>
-                You may replace the Election Definition on this machine with the
-                one on the Election Manager card. Doing so will replace all data
-                on this machine.
-              </p>
-              <h3>Current Election Definition:</h3>
-              <BriefElectionDefinitionInfo
-                electionDefinition={electionDefinition}
-              />
-              <h3>Card Election Definition:</h3>
-              <BriefElectionDefinitionInfo
-                electionDefinition={cardElectionDefinition}
-              />
-              {ballotsPrintedCount === 0 ? (
-                <Text>No ballots have been printed yet.</Text>
-              ) : (
-                <Text>
-                  This machine has already printed{' '}
-                  {pluralize('ballot', ballotsPrintedCount, true)}.
-                </Text>
-              )}
-              <p>
-                <Button danger onPress={unconfigure}>
-                  Remove Current Election and All Data
-                </Button>
-              </p>
-            </React.Fragment>
+            <p>
+              This machine has printed{' '}
+              <strong>{pluralize('ballot', ballotsPrintedCount, true)}</strong>{' '}
+              for the current election.
+            </p>
           )}
+          <h2>Cancel and Go Back</h2>
+          <p>Remove the inserted card to cancel.</p>
+          <h2>Remove the Current Election</h2>
+          <p>
+            You may remove the current election on this machine and then replace
+            it with the election on the card.
+          </p>
+          <p>
+            Removing the current election will replace all data on this machine.
+          </p>
+          <p>
+            <Button danger small onPress={unconfigure}>
+              Remove the Current Election and All Data
+            </Button>
+          </p>
         </Prose>
       </Main>
-      <Sidebar
-        appName={machineConfig.appMode.productName}
-        centerContent
-        title="Replace Election"
-        footer={
-          <React.Fragment>
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              precinctSelection={appPrecinct}
-              horizontal
-            />
-            <VersionsData
-              machineConfig={machineConfig}
-              electionHash={electionDefinition.electionHash}
-            />
-          </React.Fragment>
-        }
-      >
-        <Prose>
-          <h2>Instructions</h2>
-          <p>
-            Loading an Election Definition from the Election Manager card will
-            reset all data on this device.
-          </p>
-          <p>Remove Election Manager card to cancel.</p>
-        </Prose>
-      </Sidebar>
+      {election && (
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+          precinctSelection={appPrecinct}
+        />
+      )}
     </Screen>
   );
 }

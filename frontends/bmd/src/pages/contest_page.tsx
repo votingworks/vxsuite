@@ -15,11 +15,13 @@ import { CandidateContest } from '../components/candidate_contest';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { YesNoContest } from '../components/yes_no_contest';
-import { SettingsTextSize } from '../components/settings_text_size';
 import { TextIcon } from '../components/text_icon';
 import { MsEitherNeitherContest } from '../components/ms_either_neither_contest';
 import { screenOrientation } from '../lib/screen_orientation';
-import { ButtonFooter } from '../components/button_footer';
+import {
+  ButtonFooter,
+  ButtonFooterLandscape,
+} from '../components/button_footer';
 
 interface ContestParams {
   contestNumber: string;
@@ -36,7 +38,6 @@ export function ContestPage(): JSX.Element {
     precinctId,
     setUserSettings,
     updateVote,
-    userSettings,
     votes,
   } = useContext(BallotContext);
   assert(
@@ -132,15 +133,17 @@ export function ContestPage(): JSX.Element {
 
   return (
     <Screen navRight={isLandscape}>
-      <Breadcrumbs>
-        <Prose>
-          <Text small>
-            This is the <strong>{ordinal(ballotContestNumber)} contest</strong>{' '}
-            of {pluralize('contest', ballotContestsLength, true)} on your
-            ballot.
-          </Text>
-        </Prose>
-      </Breadcrumbs>
+      {isPortrait && (
+        <Breadcrumbs>
+          <Prose>
+            <Text small>
+              This is the{' '}
+              <strong>{ordinal(ballotContestNumber)} contest</strong> of{' '}
+              {pluralize('contest', ballotContestsLength, true)} on your ballot.
+            </Text>
+          </Prose>
+        </Breadcrumbs>
+      )}
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
@@ -203,11 +206,29 @@ export function ContestPage(): JSX.Element {
         <Sidebar
           footer={
             <React.Fragment>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-                sidebarWrapper
-              />
+              <ButtonFooterLandscape>
+                {/* <SegmentedButton>
+                  <Button
+                    primary
+                    onPress={() => {}}
+                    aria-label="Change Language"
+                  >
+                    Español
+                  </Button>
+                  <Button onPress={() => {}} aria-label="Change Language">
+                    English
+                  </Button>
+                </SegmentedButton> */}
+                {/* <Button onPress={() => {}} aria-label="Change Language">
+                  English
+                </Button> */}
+                <Button
+                  onPress={() => setUserSettings({ showSettingsModal: true })}
+                  aria-label="Change Settings"
+                >
+                  Settings
+                </Button>
+              </ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}

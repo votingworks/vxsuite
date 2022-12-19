@@ -61,6 +61,15 @@ export function formatLongDate(date: DateTime, timeZone?: string): string {
   }).format(date.toJSDate());
 }
 
+export function formatShortDate(date: DateTime, timeZone?: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone,
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date.toJSDate());
+}
+
 export function formatTime(date: DateTime): string {
   return new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,

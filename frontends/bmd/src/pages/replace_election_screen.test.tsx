@@ -1,4 +1,4 @@
-import { electionSample2Definition } from '@votingworks/fixtures';
+import { primaryElectionSampleDefinition } from '@votingworks/fixtures';
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { electionDefinition } from '../../test/helpers/election';
@@ -13,7 +13,7 @@ const screenReader = new AriaScreenReader(fakeTts());
 test('reads election definition from card', async () => {
   const getElectionDefinitionFromCard = jest
     .fn()
-    .mockResolvedValueOnce(electionSample2Definition);
+    .mockResolvedValueOnce(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
 
   render(
@@ -29,7 +29,7 @@ test('reads election definition from card', async () => {
 
   expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
-    screen.getByText(electionSample2Definition.election.title)
+    screen.getByText(primaryElectionSampleDefinition.election.title)
   );
   expect(unconfigure).not.toHaveBeenCalled();
 });
@@ -37,7 +37,7 @@ test('reads election definition from card', async () => {
 test('allows unconfiguring', async () => {
   const getElectionDefinitionFromCard = jest
     .fn()
-    .mockResolvedValueOnce(electionSample2Definition);
+    .mockResolvedValueOnce(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
 
   render(
@@ -53,16 +53,16 @@ test('allows unconfiguring', async () => {
 
   expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
-    screen.getByText(electionSample2Definition.election.title)
+    screen.getByText(primaryElectionSampleDefinition.election.title)
   );
-  fireEvent.click(screen.getByText('Remove Current Election and All Data'));
+  fireEvent.click(screen.getByText('Remove the Current Election and All Data'));
   expect(unconfigure).toHaveBeenCalled();
 });
 
 test('shows count of ballots printed', async () => {
   const getElectionDefinitionFromCard = jest
     .fn()
-    .mockResolvedValue(electionSample2Definition);
+    .mockResolvedValue(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
   const machineConfig = fakeMachineConfig();
 
@@ -79,9 +79,11 @@ test('shows count of ballots printed', async () => {
 
   expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
-    screen.getByText(electionSample2Definition.election.title)
+    screen.getByText(primaryElectionSampleDefinition.election.title)
   );
-  screen.getByText('No ballots have been printed yet.');
+  screen.getByText(
+    'This machine has not printed any ballots for the current election.'
+  );
 
   rerender(
     <ReplaceElectionScreen
@@ -94,7 +96,9 @@ test('shows count of ballots printed', async () => {
     />
   );
   await waitFor(() =>
-    screen.getByText(electionSample2Definition.election.title)
+    screen.getByText(primaryElectionSampleDefinition.election.title)
   );
-  screen.getByText('This machine has already printed 129 ballots.');
+  expect(screen.getByText('129 ballots').parentElement?.textContent).toBe(
+    'This machine has printed 129 ballots for the current election.'
+  );
 });

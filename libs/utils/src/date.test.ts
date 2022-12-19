@@ -3,6 +3,7 @@ import MockDate from 'mockdate';
 import {
   formatFullDateTimeZone,
   formatLongDate,
+  formatShortDate,
   formatTime,
   formatTimeZoneName,
   getDaysInMonth,
@@ -71,6 +72,21 @@ test('formatLongDate', () => {
       'America/Chicago'
     )
   ).toEqual('December 31, 2021');
+});
+
+test('formatShortDate', () => {
+  expect(
+    formatShortDate(
+      DateTime.fromISO('2021-01-01', { zone: 'America/Chicago' }),
+      'America/Chicago'
+    )
+  ).toEqual('Jan 1, 2021');
+  expect(
+    formatShortDate(
+      DateTime.fromISO('2021-12-31', { zone: 'America/Chicago' }),
+      'America/Chicago'
+    )
+  ).toEqual('Dec 31, 2021');
 });
 
 test('formatTime', () => {

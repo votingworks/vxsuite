@@ -31,13 +31,11 @@ describe('supports yes/no contest', () => {
     );
     expect(container).toMatchSnapshot();
 
-    const contestChoices = screen.queryByTestId('contest-choices');
-    fireEvent.click(
-      within(contestChoices!).getByText('Yes').closest('button')!
-    );
+    const contestChoices = screen.getByTestId('contest-choices');
+    fireEvent.click(within(contestChoices).getByText('Yes').closest('button')!);
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(within(contestChoices!).getByText('No').closest('button')!);
+    fireEvent.click(within(contestChoices).getByText('No').closest('button')!);
     expect(updateVote).toHaveBeenCalledTimes(2);
   });
 
@@ -47,8 +45,8 @@ describe('supports yes/no contest', () => {
       <YesNoContest contest={contest} vote={['yes']} updateVote={updateVote} />
     );
     expect(container).toMatchSnapshot();
-    const contestChoices = screen.queryByTestId('contest-choices');
-    fireEvent.click(within(contestChoices!).getByText('No').closest('button')!);
+    const contestChoices = screen.getByTestId('contest-choices');
+    fireEvent.click(within(contestChoices).getByText('No').closest('button')!);
     expect(
       screen.getAllByText(
         (_, element) =>

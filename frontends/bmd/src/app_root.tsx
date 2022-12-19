@@ -144,7 +144,6 @@ const initialHardwareState: Readonly<HardwareState> = {
     machineId: '0000',
     codeVersion: 'dev',
     screenOrientation: 'portrait',
-    // screenOrientation: 'landscape',
   },
 };
 
@@ -242,10 +241,6 @@ function appReducer(state: State, action: AppAction): State {
         showPostVotingInstructions: action.showPostVotingInstructions,
       };
     case 'setUserSettings':
-      /* istanbul ignore next */
-      // if (Object.keys(action.userSettings).join(',') !== 'textSize') {
-      //   throw new Error('unknown userSetting key');
-      // }
       return {
         ...state,
         userSettings: {
@@ -432,10 +427,8 @@ export function AppRoot({
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
-    // if (false) {
     if (isCardlessVoterAuth(auth)) auth.logOut();
     dispatchAppState({ type: 'resetBallot' });
-    // }
   }, [auth]);
 
   // Hide Verify and Scan Instructions

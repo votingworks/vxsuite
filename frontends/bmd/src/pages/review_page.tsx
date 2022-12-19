@@ -46,8 +46,10 @@ import { FONT_SIZES } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
-import { SettingsTextSize } from '../components/settings_text_size';
-import { ButtonFooter } from '../components/button_footer';
+import {
+  ButtonFooter,
+  ButtonFooterLandscape,
+} from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 
 const ContentHeader = styled.div`
@@ -546,11 +548,29 @@ export function ReviewPage(): JSX.Element {
         <Sidebar
           footer={
             <React.Fragment>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-                sidebarWrapper
-              />
+              <ButtonFooterLandscape>
+                {/* <SegmentedButton>
+                  <Button
+                    primary
+                    onPress={() => {}}
+                    aria-label="Change Language"
+                  >
+                    Español
+                  </Button>
+                  <Button onPress={() => {}} aria-label="Change Language">
+                    English
+                  </Button>
+                </SegmentedButton> */}
+                {/* <Button onPress={() => {}} aria-label="Change Language">
+                  English
+                </Button> */}
+                <Button
+                  onPress={() => setUserSettings({ showSettingsModal: true })}
+                  aria-label="Change Settings"
+                >
+                  Settings
+                </Button>
+              </ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}

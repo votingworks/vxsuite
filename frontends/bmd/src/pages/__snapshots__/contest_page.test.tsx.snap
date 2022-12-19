@@ -188,13 +188,14 @@ exports[`Renders ContestPage 1`] = `
         <p
           class="sc-bdvvaa iybVtA"
         >
-          This is the 
+          This is the
+           
           <strong>
             1st
              contest
           </strong>
+           of
            
-          of 
           22 contests
            on your ballot.
         </p>
@@ -429,7 +430,7 @@ exports[`Renders ContestPage 1`] = `
 `;
 
 exports[`Renders ContestPage in Landscape orientation 1`] = `
-.c7 {
+.c6 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -441,7 +442,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c7::before {
+.c6::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -470,19 +471,19 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   content: '';
 }
 
-.c1 {
+.c0 {
   margin: 0 auto;
   width: 100%;
   padding: 1rem 30px 0.5rem;
 }
 
-.c2 {
+.c1 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.c3 {
+.c2 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -491,8 +492,8 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   overflow: auto;
 }
 
-.c3::before,
-.c3::after {
+.c2::before,
+.c2::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -502,43 +503,43 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c3::before {
+.c2::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c3::after {
+.c2::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c4 {
+.c3 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c5 {
+.c4 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c6 {
+.c5 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 20px;
   margin-bottom: 40px;
 }
 
-.c17 {
+.c15 {
   max-width: 250px;
 }
 
-.c15 {
+.c13 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -546,7 +547,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c16 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -561,12 +562,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin: auto;
 }
 
-.c16 div:first-child {
+.c14 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
 
-.c8 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -581,7 +582,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   color: #ffffff;
 }
 
-.c9 {
+.c8 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -595,74 +596,19 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   padding: 1rem;
 }
 
-.c9 p > button {
+.c8 p > button {
   width: 100%;
 }
 
-.c12 {
+.c11 {
   margin: 1rem;
 }
 
-.c14 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+.c9 {
   white-space: nowrap;
 }
 
-.c14 > button {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c14 > button:first-child {
-  box-shadow: none;
-}
-
-.c14 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c14 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c14 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
-.c14 button {
-  min-width: 98px;
-}
-
-.c14 button[data-size='0'] {
-  font-size: 22px !important;
-}
-
-.c14 button[data-size='1'] {
-  font-size: 28px !important;
-}
-
-.c14 button[data-size='2'] {
-  font-size: 36px !important;
-}
-
-.c13 {
-  display: block;
-  margin-bottom: 0.4rem;
-}
-
-.c10 {
-  white-space: nowrap;
-}
-
-.c10::after {
+.c9::after {
   display: inline-block;
   margin-left: 0.5rem;
   background: url('/images/arrow-right-open-black.svg') no-repeat;
@@ -672,11 +618,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   content: '';
 }
 
-.c11 {
+.c10 {
   white-space: nowrap;
 }
 
-.c11::before {
+.c10::before {
   display: inline-block;
   margin-right: 0.5rem;
   background: url('/images/arrow-left-open-black.svg') no-repeat;
@@ -686,12 +632,27 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   content: '';
 }
 
-.c0 {
-  padding: 30px 30px 0;
+.c12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 20px;
+}
+
+.c12 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c12 button {
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 @media (min-width:480px) {
-  .c7 {
+  .c6 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
@@ -700,32 +661,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   <div
     class="sc-hUpaWb fvcRs"
   >
-    <div
-      class="c0"
-    >
-      <div
-        class="sc-hKwCoD gmiWky"
-      >
-        <p
-          class="sc-bdvvaa iybVtA"
-        >
-          This is the 
-          <strong>
-            1st
-             contest
-          </strong>
-           
-          of 
-          22 contests
-           on your ballot.
-        </p>
-      </div>
-    </div>
     <main
       class="sc-kLwgWK kRCmMs"
     >
       <div
-        class="c1"
+        class="c0"
         id="contest-header"
       >
         <div
@@ -736,7 +676,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             aria-label="United States President and Vice-President."
           >
             <div
-              class="c2"
+              class="c1"
             >
               United States
             </div>
@@ -760,20 +700,20 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         </div>
       </div>
       <div
-        class="c3"
+        class="c2"
       >
         <div
-          class="c4"
+          class="c3"
         >
           <div
-            class="c5"
+            class="c4"
           >
             <div
-              class="c6"
+              class="c5"
             >
               <button
                 aria-label=" Joseph Barchi and Joseph Hallaren, Federalist."
-                class="c7"
+                class="c6"
                 data-choice="barchi-hallaren"
                 data-selected="false"
                 role="option"
@@ -795,7 +735,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </button>
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo, People's."
-                class="c7"
+                class="c6"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
                 role="option"
@@ -817,7 +757,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </button>
               <button
                 aria-label=" Daniel Court and Amy Blumhardt, Liberty."
-                class="c7"
+                class="c6"
                 data-choice="court-blumhardt"
                 data-selected="false"
                 role="option"
@@ -839,7 +779,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </button>
               <button
                 aria-label=" Alvin Boone and James Lian, Constitution."
-                class="c7"
+                class="c6"
                 data-choice="boone-lian"
                 data-selected="false"
                 role="option"
@@ -861,7 +801,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </button>
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
-                class="c7"
+                class="c6"
                 data-choice="hildebrand-garritty"
                 data-selected="false"
                 role="option"
@@ -883,7 +823,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </button>
               <button
                 aria-label=" Martin Patterson and Clay Lariviere, Labor."
-                class="c7"
+                class="c6"
                 data-choice="patterson-lariviere"
                 data-selected="false"
                 role="option"
@@ -909,10 +849,10 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
       </div>
     </main>
     <nav
-      class="c8"
+      class="c7"
     >
       <div
-        class="c9"
+        class="c8"
       >
         <div
           class="sc-hKwCoD gmiWky"
@@ -938,7 +878,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               type="button"
             >
               <span
-                class="c10"
+                class="c9"
               >
                 Next
               </span>
@@ -953,7 +893,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               type="button"
             >
               <span
-                class="c11"
+                class="c10"
               >
                 Back
               </span>
@@ -962,59 +902,30 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         </div>
       </div>
       <div
-        class="c12"
+        class="c11"
       >
-        <p>
-          <label
-            aria-hidden="true"
-            class="c13"
+        <div
+          class="c12"
+        >
+          <button
+            aria-label="Change Settings"
+            class="sc-egiSv dHUDgX"
+            type="button"
           >
-            Text Size
-          </label>
-          <span
-            class="sc-bqiQRQ c14"
-            data-testid="change-text-size-buttons"
-          >
-            <button
-              aria-label=" Text Size: Small"
-              class="sc-egiSv feoAXt"
-              data-size="0"
-              type="button"
-              value="0"
-            >
-              A
-            </button>
-            <button
-              aria-label="Selected Text Size: Medium"
-              class="sc-egiSv dGzrLr"
-              data-size="1"
-              type="button"
-              value="1"
-            >
-              A
-            </button>
-            <button
-              aria-label=" Text Size: Large"
-              class="sc-egiSv feoAXt"
-              data-size="2"
-              type="button"
-              value="2"
-            >
-              A
-            </button>
-          </span>
-        </p>
+            Settings
+          </button>
+        </div>
         <div
           aria-hidden="true"
-          class="c15"
+          class="c13"
           data-testid="election-info"
         >
           <div
-            class="c16"
+            class="c14"
           >
             <div
               aria-hidden="true"
-              class="c17"
+              class="c15"
             />
             <div
               class="sc-hKwCoD eDCLhO"

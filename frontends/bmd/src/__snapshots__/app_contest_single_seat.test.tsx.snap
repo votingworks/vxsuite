@@ -247,13 +247,14 @@ exports[`Single Seat Contest 1`] = `
         <p
           class="sc-bdvvaa iybVtA"
         >
-          This is the 
+          This is the
+           
           <strong>
             1st
              contest
           </strong>
+           of
            
-          of 
           21 contests
            on your ballot.
         </p>

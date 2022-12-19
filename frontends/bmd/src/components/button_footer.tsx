@@ -1,4 +1,11 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+
+const ButtonFooterButtons = css`
+  button {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+`;
 
 export const ButtonFooter = styled.nav`
   display: flex;
@@ -13,8 +20,16 @@ export const ButtonFooter = styled.nav`
       order: 1;
     }
   }
-  button {
-    padding-right: 10px;
-    padding-left: 10px;
+  /* stylelint-disable-next-line value-keyword-case, order/order */
+  ${ButtonFooterButtons}
+`;
+
+export const ButtonFooterLandscape = styled.div`
+  display: flex;
+  gap: 20px;
+  & > * {
+    flex: 1;
   }
+  /* stylelint-disable-next-line value-keyword-case, order/order */
+  ${ButtonFooterButtons}
 `;

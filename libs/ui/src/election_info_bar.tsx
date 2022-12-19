@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
-import { format, getPrecinctSelectionName } from '@votingworks/utils';
+import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
+import { DateTime } from 'luxon';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import { contrastTheme, Theme } from './themes';
@@ -41,7 +42,10 @@ export function ElectionInfoBar({
   const {
     election: { precincts, date, title, county, state, seal, sealUrl },
   } = electionDefinition;
-  const electionDate = format.localeDate(new Date(date));
+  // const electionDate = format.localeDate(new Date(date));
+  //                  <td>{formatLongDate(DateTime.fromISO(election.date))}</td>
+
+  const electionDate = formatShortDate(DateTime.fromISO(date));
 
   /* istanbul ignore next */
   const theme: Theme = { ...(contrastTheme.dark ?? {}) };
