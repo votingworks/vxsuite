@@ -15,9 +15,8 @@ export const PIXEL_WHITE = MAX_LUM;
 /**
  * Generates an image from two images where corresponding pixels in `compare`
  * that are darker than their counterpart in `base` show up with the luminosity
- * difference between the two.  `compare` is black and `base` is not. This is
- * useful for determining where a light-background form was filled out, for
- * example.
+ * difference between the two. This is useful for determining where a
+ * light-background form was filled out, for example.
  *
  * Note that the sizes of the bounds, which default to the full image size, must
  * be equal.

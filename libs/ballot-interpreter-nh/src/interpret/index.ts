@@ -31,6 +31,7 @@ import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
 import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 import { interpretOvalMarks } from './interpret_oval_marks';
+import * as rustImpl from './rust_impl';
 
 const debugLogger = makeDebug('ballot-interpreter-nh:interpret');
 
@@ -68,6 +69,9 @@ export async function interpret(
     adjudicationReasons?: readonly AdjudicationReason[];
   }
 ): Promise<Result<SheetOf<InterpretFileResult>, Error>> {
+  const rustImplResult = await rustImpl.interpret(electionDefinition, sheet);
+  console.log('rustImplResult', rustImplResult);
+
   const timer = time(debugLogger, 'interpret');
 
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;

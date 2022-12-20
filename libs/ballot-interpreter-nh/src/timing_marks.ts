@@ -331,7 +331,7 @@ export function decodeBottomRowTimingMarks(
   // absent.
   const bits: Bit[] = [];
   for (let i = 0; i < barcodeTimingMarkCount; i += 1) {
-    bits.push(bitOffsets.has(i) ? 1 : 0);
+    bits.push(bitOffsets.has(i));
   }
 
   return bits;

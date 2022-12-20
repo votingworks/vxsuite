@@ -480,7 +480,7 @@ export function bitsToNumber(
 
   let result = 0;
   for (let i = endIndex - 1; i >= startIndex; i -= 1) {
-    result = result * 2 + (bits[i] as number);
+    result = result * 2 + ((bits[i] as boolean) ? 1 : 0);
   }
   return result;
 }

@@ -11,17 +11,15 @@ export function outline(
   { color = PIXEL_BLACK } = {}
 ): ImageData {
   const { width, height, data: src } = imageData;
-  const channels = getImageChannelCount({ data: src, width, height });
+  const channels = getImageChannelCount(imageData);
   const result = createImageData(Uint8ClampedArray.from(src), width, height);
   const v1px = width * channels;
   const h1px = channels;
   const pixel = channels === 4 ? [color, color, color, 0xff] : [color];
   const { data: dst } = result;
 
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const offset = (y * width + x) * channels;
-
+  for (let y = 0, offset = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1, offset += channels) {
       if (src[offset] === color) {
         if (y > 0) {
           dst.set(pixel, offset - v1px);

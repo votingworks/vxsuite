@@ -328,14 +328,14 @@ export function findTemplateOvals(
 }
 
 /**
- * Bit offset for `mod4CheckSum`.
+ * Bit offset for `mod4Checksum`.
  */
-export const FrontMarksMod4CheckSumStart = 0;
+export const FrontMarksMod4ChecksumStart = 0;
 
 /**
- * Exclusive end offset for `mod4CheckSum`.
+ * Exclusive end offset for `mod4Checksum`.
  */
-export const FrontMarksMod4CheckSumEnd = 2;
+export const FrontMarksMod4ChecksumEnd = 2;
 
 /**
  * Bit offset for `batchOrPrecinctNumber`.
@@ -391,17 +391,17 @@ export function decodeFrontTimingMarkBits(
   }
 
   const bitsRightToLeft = bits as unknown as ThirtyTwoBits;
-  const computedMod4CheckSum =
+  const computedMod4Checksum =
     bitsRightToLeft.reduce<number>(
       (sum, bit, index) =>
-        index >= FrontMarksMod4CheckSumEnd ? sum + bit : sum,
+        index >= FrontMarksMod4ChecksumEnd ? sum + (bit ? 1 : 0) : sum,
       0
     ) % 4;
 
-  const mod4CheckSum = bitsToNumber(
+  const mod4Checksum = bitsToNumber(
     bitsRightToLeft,
-    FrontMarksMod4CheckSumStart,
-    FrontMarksMod4CheckSumEnd
+    FrontMarksMod4ChecksumStart,
+    FrontMarksMod4ChecksumEnd
   );
   const batchOrPrecinctNumber = bitsToNumber(
     bitsRightToLeft,
@@ -422,13 +422,13 @@ export function decodeFrontTimingMarkBits(
     bitsRightToLeft,
     FrontMarksStartBitStart,
     FrontMarksStartBitEnd
-  ) as Bit;
+  ) as 0 | 1;
 
   return {
     side: 'front',
     bits: bitsRightToLeft,
-    mod4CheckSum,
-    computedMod4CheckSum,
+    mod4Checksum,
+    computedMod4Checksum,
     batchOrPrecinctNumber,
     cardNumber,
     sequenceNumber,
@@ -490,7 +490,17 @@ export const BackMarksEnderCodeEnd = 32;
  * Expected ender code for the back page.
  */
 export const BackExpectedEnderCode: BackMarksMetadata['enderCode'] = [
-  0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0,
+  false,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  false,
 ];
 
 /**

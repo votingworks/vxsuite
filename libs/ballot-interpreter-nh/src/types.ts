@@ -121,9 +121,9 @@ export interface PossibleOptionBubblesGrid {
 }
 
 /**
- * Represents a single bit, yes = 1, no = 0.
+ * Represents a single bit.
  */
-export type Bit = 0 | 1;
+export type Bit = boolean;
 
 /**
  * Represents two bits.
@@ -153,10 +153,7 @@ export type ThirtyTwoBits = readonly [...SixteenBits, ...SixteenBits];
 /**
  * Schema for {@link Bit}.
  */
-export const BitSchema: z.ZodSchema<Bit> = z.union([
-  z.literal(0),
-  z.literal(1),
-]);
+export const BitSchema: z.ZodSchema<Bit> = z.boolean();
 
 /**
  * Schema for {@link ThirtyTwoBits}.
@@ -218,12 +215,12 @@ export interface FrontMarksMetadata {
    * For example, if bits 2 through 31 have 18 1’s, bits 0 and 1 will hold the
    * value 2 (18 mod 4 = 2).
    */
-  readonly mod4CheckSum: number;
+  readonly mod4Checksum: number;
 
   /**
    * The mod 4 check sum computed from bits 2-31.
    */
-  readonly computedMod4CheckSum: number;
+  readonly computedMod4Checksum: number;
 
   /**
    * Batch or precinct number from bits 2-14 (13 bits).
@@ -243,7 +240,7 @@ export interface FrontMarksMetadata {
   /**
    * Start bit (always 1) from bit 31-31 (1 bit).
    */
-  readonly startBit: Bit;
+  readonly startBit: 0 | 1;
 }
 
 /**
@@ -253,8 +250,8 @@ export const FrontMarksMetadataSchema: z.ZodSchema<FrontMarksMetadata> = z
   .object({
     side: z.literal('front'),
     bits: ThirtyTwoBitsSchema,
-    mod4CheckSum: z.number(),
-    computedMod4CheckSum: z.number(),
+    mod4Checksum: z.number(),
+    computedMod4Checksum: z.number(),
     batchOrPrecinctNumber: z.number().int().nonnegative(),
     cardNumber: z.number().int().nonnegative(),
     sequenceNumber: z
@@ -262,15 +259,14 @@ export const FrontMarksMetadataSchema: z.ZodSchema<FrontMarksMetadata> = z
       .int()
       .nonnegative()
       .refine((n) => n === 0, 'sequenceNumber must be 0'),
-    startBit: BitSchema.refine(
-      (bit) => bit === 1,
-      'startBit must be 1'
-    ) as typeof BitSchema,
+    startBit: z
+      .union([z.literal(0), z.literal(1)])
+      .refine((bit) => bit, 'startBit must be 1'),
   })
   .refine(
-    ({ mod4CheckSum, computedMod4CheckSum }) =>
-      mod4CheckSum === computedMod4CheckSum,
-    'mod4CheckSum must equal computedMod4CheckSum'
+    ({ mod4Checksum, computedMod4Checksum }) =>
+      mod4Checksum === computedMod4Checksum,
+    'mod4Checksum must equal computedMod4Checksum'
   );
 
 /**
