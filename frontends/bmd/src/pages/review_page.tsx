@@ -51,6 +51,8 @@ import {
   ButtonFooterLandscape,
 } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
+import { SettingsButton } from '../components/settings_button';
+import { LanguageSettingsButton } from '../components/language_settings_button';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -335,6 +337,9 @@ export function ReviewPage(): JSX.Element {
   } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
+  function showSettingsModal() {
+    return setUserSettings({ showSettingsModal: true });
+  }
 
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
@@ -423,6 +428,26 @@ export function ReviewPage(): JSX.Element {
     >
       I’m Ready to <NoWrap>Print My Ballot</NoWrap>
     </LinkButton>
+  );
+
+  const settingsButton = (
+    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
+  );
+
+  /* istanbul ignore next */
+  const languageSettingsButton = (
+    <LanguageSettingsButton
+      large={isPortrait}
+      onPress={() => {
+        // eslint-disable-next-line no-console
+        console.log(
+          'Replace with method to toggleCurrentLanguage (which toggles between secondaryLanguageKey and English, or shows language settings modal when secondaryLanaguageKey === "EN")'
+        );
+      }}
+      isSecondaryLanguageActive={false}
+      secondaryLanguageKey="EN"
+      isSupported={false}
+    />
   );
 
   return (
@@ -533,43 +558,16 @@ export function ReviewPage(): JSX.Element {
       {isPortrait ? (
         <ButtonFooter>
           {printMyBallotButton}
-          {/* <Button large onPress={() => {}}>
-            English
-          </Button> */}
-          <Button
-            large
-            onPress={() => setUserSettings({ showSettingsModal: true })}
-            aria-label="Change Settings"
-          >
-            Settings
-          </Button>
+          {languageSettingsButton}
+          {settingsButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
               <ButtonFooterLandscape>
-                {/* <SegmentedButton>
-                  <Button
-                    primary
-                    onPress={() => {}}
-                    aria-label="Change Language"
-                  >
-                    Español
-                  </Button>
-                  <Button onPress={() => {}} aria-label="Change Language">
-                    English
-                  </Button>
-                </SegmentedButton> */}
-                {/* <Button onPress={() => {}} aria-label="Change Language">
-                  English
-                </Button> */}
-                <Button
-                  onPress={() => setUserSettings({ showSettingsModal: true })}
-                  aria-label="Change Settings"
-                >
-                  Settings
-                </Button>
+                {languageSettingsButton}
+                {settingsButton}
               </ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}

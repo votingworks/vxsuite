@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, Text, Button } from '@votingworks/ui';
+import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
 import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
@@ -22,6 +22,8 @@ import {
   ButtonFooter,
   ButtonFooterLandscape,
 } from '../components/button_footer';
+import { SettingsButton } from '../components/settings_button';
+import { LanguageSettingsButton } from '../components/language_settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -49,6 +51,9 @@ export function ContestPage(): JSX.Element {
     'precinctId is required to render ContestPage'
   );
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
+  function showSettingsModal() {
+    return setUserSettings({ showSettingsModal: true });
+  }
 
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
@@ -86,7 +91,11 @@ export function ContestPage(): JSX.Element {
     calculateIsVoteComplete();
   }, [contest, vote, votes]);
 
-  const NextContestButton = (
+  const Breadcrumbs = styled.div`
+    padding: 30px 30px 0;
+  `;
+
+  const nextContestButton = (
     <LinkButton
       large
       id="next"
@@ -100,7 +109,7 @@ export function ContestPage(): JSX.Element {
     </LinkButton>
   );
 
-  const PreviousContestButton = (
+  const previousContestButton = (
     <LinkButton
       small={isLandscape}
       large={isPortrait}
@@ -114,7 +123,7 @@ export function ContestPage(): JSX.Element {
     </LinkButton>
   );
 
-  const ReviewScreenButton = (
+  const reviewScreenButton = (
     <LinkButton
       large
       primary={isVoteComplete}
@@ -127,9 +136,25 @@ export function ContestPage(): JSX.Element {
     </LinkButton>
   );
 
-  const Breadcrumbs = styled.div`
-    padding: 30px 30px 0;
-  `;
+  const settingsButton = (
+    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
+  );
+
+  /* istanbul ignore next */
+  const languageSettingsButton = (
+    <LanguageSettingsButton
+      large={isPortrait}
+      onPress={() => {
+        // eslint-disable-next-line no-console
+        console.log(
+          'Replace with method to toggleCurrentLanguage (which toggles between secondaryLanguageKey and English, or shows language settings modal when secondaryLanaguageKey === "EN")'
+        );
+      }}
+      isSecondaryLanguageActive={false}
+      secondaryLanguageKey="EN"
+      isSupported={false}
+    />
+  );
 
   return (
     <Screen navRight={isLandscape}>
@@ -176,58 +201,24 @@ export function ContestPage(): JSX.Element {
       )}
       {isPortrait ? (
         <ButtonFooter>
-          {isReviewMode ? ReviewScreenButton : NextContestButton}
-          {!isReviewMode && PreviousContestButton}
-          {/* <Button large onPress={() => {}} aria-label="Change Language">
-            English
-          </Button> */}
-          {/* <SegmentedButton>
-            <Button
-              large
-              primary
-              onPress={() => {}}
-              aria-label="Change Language"
-            >
-              Español
-            </Button>
-            <Button large onPress={() => {}} aria-label="Change Language">
-              English
-            </Button>
-          </SegmentedButton> */}
-          <Button
-            large
-            onPress={() => setUserSettings({ showSettingsModal: true })}
-            aria-label="Change Settings"
-          >
-            Settings
-          </Button>
+          {isReviewMode ? (
+            reviewScreenButton
+          ) : (
+            <React.Fragment>
+              {nextContestButton}
+              {previousContestButton}
+            </React.Fragment>
+          )}
+          {languageSettingsButton}
+          {settingsButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
               <ButtonFooterLandscape>
-                {/* <SegmentedButton>
-                  <Button
-                    primary
-                    onPress={() => {}}
-                    aria-label="Change Language"
-                  >
-                    Español
-                  </Button>
-                  <Button onPress={() => {}} aria-label="Change Language">
-                    English
-                  </Button>
-                </SegmentedButton> */}
-                {/* <Button onPress={() => {}} aria-label="Change Language">
-                  English
-                </Button> */}
-                <Button
-                  onPress={() => setUserSettings({ showSettingsModal: true })}
-                  aria-label="Change Settings"
-                >
-                  Settings
-                </Button>
+                {languageSettingsButton}
+                {settingsButton}
               </ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}
@@ -244,11 +235,11 @@ export function ContestPage(): JSX.Element {
               {pluralize('contest', contests.length, true)}.
             </Text>
             {isReviewMode ? (
-              <p>{ReviewScreenButton}</p>
+              <p>{reviewScreenButton}</p>
             ) : (
               <React.Fragment>
-                <p>{NextContestButton}</p>
-                <p>{PreviousContestButton}</p>
+                <p>{nextContestButton}</p>
+                <p>{previousContestButton}</p>
               </React.Fragment>
             )}
           </Prose>

@@ -50,7 +50,7 @@ export function SettingsTextSize({
     const textSize = +target.value as TextSizeSetting;
     setUserSettings({ textSize });
   };
-  const textSizeSetting = (
+  return (
     <p>
       <Label aria-hidden>Text Size</Label>
       <TextSizeSegmentedButton data-testid="change-text-size-buttons">
@@ -72,5 +72,4 @@ export function SettingsTextSize({
       </TextSizeSegmentedButton>
     </p>
   );
-  return textSizeSetting;
 }

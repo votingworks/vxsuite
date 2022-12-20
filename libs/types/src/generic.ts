@@ -2,6 +2,9 @@ import check8601 from '@antongolub/iso8601';
 import { z } from 'zod';
 import { err, ok, Result, wrapException } from './result';
 
+export interface DefinedDictionary<T> {
+  [key: string]: T;
+}
 export interface Dictionary<T> {
   [key: string]: Optional<T>;
 }

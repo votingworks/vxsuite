@@ -77,10 +77,37 @@ export function StartPage(): JSX.Element {
     audioFocus.current?.click();
   }, []);
 
+  const settingsContainer = (
+    <React.Fragment>
+      <h1>Voter Settings</h1>
+      <SettingsContainer>
+        <SettingsTextSize
+          userSettings={userSettings}
+          setUserSettings={setUserSettings}
+        />
+      </SettingsContainer>
+    </React.Fragment>
+  );
+
+  const startVotingButton = (
+    <Wobble as="p">
+      <LinkButton
+        large
+        primary
+        fullWidth={isLandscape}
+        onPress={onStart}
+        id="next"
+        aria-label="Press the right button to advance to the first contest."
+      >
+        Start Voting
+      </LinkButton>
+    </Wobble>
+  );
+
   return (
     <Screen navRight={isLandscape} ref={audioFocus}>
       <Main centerChild padded>
-        {isPortrait && (
+        {isPortrait ? (
           <ElectionInfo
             electionDefinition={electionDefinition}
             ballotStyleId={ballotStyleId}
@@ -88,8 +115,7 @@ export function StartPage(): JSX.Element {
             ariaHidden={false}
             contestCount={contests.length}
           />
-        )}
-        {isLandscape && (
+        ) : (
           <Prose textCenter>
             <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
               {partyPrimaryAdjective} {title}
@@ -101,12 +127,7 @@ export function StartPage(): JSX.Element {
                 <strong>{pluralize('contest', contests.length, true)}</strong>.
               </span>
             </p>
-            <SettingsContainer>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-              />
-            </SettingsContainer>
+            {settingsContainer}
           </Prose>
         )}
         <p className="screen-reader-only">
@@ -120,53 +141,24 @@ export function StartPage(): JSX.Element {
       {isPortrait ? (
         <Footer>
           <Prose textCenter>
-            <Wobble as="p">
-              <LinkButton
-                large
-                primary
-                fullWidth
-                onPress={onStart}
-                id="next"
-                aria-label="Press the right button to advance to the first contest."
-              >
-                Start Voting
-              </LinkButton>
-            </Wobble>
-            <h1>Voter Settings</h1>
-            <SettingsContainer>
-              <SettingsTextSize
-                userSettings={userSettings}
-                setUserSettings={setUserSettings}
-              />
-            </SettingsContainer>
+            {startVotingButton}
+            {settingsContainer}
           </Prose>
         </Footer>
       ) : (
         <Sidebar
           footer={
-            isLandscape && (
-              <ElectionInfo
-                electionDefinition={electionDefinition}
-                ballotStyleId={ballotStyleId}
-                precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                horizontal
-              />
-            )
+            <ElectionInfo
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
+              horizontal
+            />
           }
         >
           <Prose>
             <SidebarSpacer />
-            <Wobble as="p">
-              <LinkButton
-                large
-                primary
-                onPress={onStart}
-                id="next"
-                aria-label="Press the right button to advance to the first contest."
-              >
-                Start Voting
-              </LinkButton>
-            </Wobble>
+            {startVotingButton}
           </Prose>
         </Sidebar>
       )}

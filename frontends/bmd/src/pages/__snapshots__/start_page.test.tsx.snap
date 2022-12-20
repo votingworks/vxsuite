@@ -183,7 +183,7 @@ exports[`renders StartPage 1`] = `
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-egiSv kGVoMM"
+          class="sc-egiSv desLmk"
           id="next"
           role="option"
           type="button"
@@ -580,7 +580,7 @@ exports[`renders StartPage with inline SVG 1`] = `
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-egiSv kGVoMM"
+          class="sc-egiSv desLmk"
           id="next"
           role="option"
           type="button"
@@ -813,7 +813,7 @@ exports[`renders StartPage with no seal 1`] = `
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-egiSv kGVoMM"
+          class="sc-egiSv desLmk"
           id="next"
           role="option"
           type="button"

@@ -42,9 +42,6 @@ export function ElectionInfoBar({
   const {
     election: { precincts, date, title, county, state, seal, sealUrl },
   } = electionDefinition;
-  // const electionDate = format.localeDate(new Date(date));
-  //                  <td>{formatLongDate(DateTime.fromISO(election.date))}</td>
-
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
   /* istanbul ignore next */
