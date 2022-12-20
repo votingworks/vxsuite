@@ -244,7 +244,6 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
           >
             Center Springfield
           </span>
-           
         </p>
       </div>
     </div>
@@ -496,7 +495,6 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
           >
             Center Springfield
           </span>
-           
         </p>
       </div>
     </div>
@@ -699,17 +697,23 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       >
          General Election
       </h1>
-      <p>
+      <p
+        aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+      >
         November 3, 2020
+        <br />
+        State of Hamilton
         <br />
         Franklin County
         <br />
-        State of Hamilton
-      </p>
-      <p
-        class="sc-bdvvaa hsgYyE"
-      >
-        Center Springfield
+        <strong>
+          <span
+            class="sc-gsDJrp fUIxJs"
+          >
+            Center Springfield
+          </span>
+           
+        </strong>
       </p>
     </div>
   </div>
@@ -911,17 +915,23 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       >
          General Election
       </h1>
-      <p>
+      <p
+        aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+      >
         November 3, 2020
+        <br />
+        State of Hamilton
         <br />
         Franklin County
         <br />
-        State of Hamilton
-      </p>
-      <p
-        class="sc-bdvvaa hsgYyE"
-      >
-        Center Springfield
+        <strong>
+          <span
+            class="sc-gsDJrp fUIxJs"
+          >
+            Center Springfield
+          </span>
+           
+        </strong>
       </p>
     </div>
   </div>

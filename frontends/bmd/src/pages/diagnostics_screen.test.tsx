@@ -34,7 +34,6 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
         devices={fakeDevices()}
         screenReader={new AriaScreenReader(fakeTts())}
         onBackButtonPress={jest.fn()}
-        sidebarProps={{}}
         {...props}
       />
     </MemoryRouter>

@@ -16,7 +16,7 @@ test('formats counts properly', () => {
   expect(format.count(-3141098210928)).toEqual('-3,141,098,210,928');
 });
 
-test('formats locale long date properly', () => {
+test('formats locale long date and time properly', () => {
   expect(
     format.localeLongDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))
   ).toEqual('Tuesday, April 14, 2020, 1:15:09 AM UTC');
@@ -26,6 +26,12 @@ test('formats locale weekday and date properly', () => {
   expect(
     format.localeWeekdayAndDate(new Date(2020, 3, 14, 1, 15, 9, 26))
   ).toEqual('Tuesday, April 14, 2020');
+});
+
+test('formats locale long date properly', () => {
+  expect(format.localeLongDate(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
+    'April 14, 2020'
+  );
 });
 
 test('formats locale date properly', () => {

@@ -69,7 +69,7 @@ it('gamepad controls work', async () => {
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp');
-  expect(document.activeElement!.textContent).toEqual('Back');
+  expect(document.activeElement!.textContent).toEqual('Settings');
   handleGamepadButtonDown('DPadDown');
   expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
 

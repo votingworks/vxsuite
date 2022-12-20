@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionSampleDefinition,
+  primaryElectionSampleDefinition,
+} from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -69,4 +72,13 @@ test('Renders ElectionInfoBar without admin info in default voter mode', () => {
   );
   expect(screen.queryByText(/Software Version/)).not.toBeInTheDocument();
   expect(screen.queryByText(/Machined ID/)).not.toBeInTheDocument();
+});
+
+test('Renders ElectionInfoBar seal via url', () => {
+  render(
+    <ElectionInfoBar electionDefinition={primaryElectionSampleDefinition} />
+  );
+  expect(screen.queryByAltText('state seal')).toBeInTheDocument();
+  expect(screen.queryByText(/Election ID/)).toBeInTheDocument();
+  expect(screen.queryByText(/5d78f8badd/)).toBeInTheDocument();
 });

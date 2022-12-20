@@ -1,12 +1,11 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
-import { SettingsTextSize } from './settings_text_size';
+import * as GLOBALS from '../config/globals';
 import { UserSettings } from '../config/types';
+import { SettingsTextSize } from './settings_text_size';
 
-const userSettings: UserSettings = {
-  textSize: 1,
-};
+const userSettings: UserSettings = GLOBALS.DEFAULT_USER_SETTINGS;
 const setUserSettings = jest.fn();
 
 it('renders SettingsTextSize', () => {

@@ -17,7 +17,7 @@ export function UnconfiguredScreen({
           {hasElectionDefinition ? (
             <p>Insert Election Manager card to select a precinct.</p>
           ) : (
-            <p>Insert Election Manager card to load an election.</p>
+            <p>Insert Election Manager card to load an election definition.</p>
           )}
         </Prose>
       </Main>

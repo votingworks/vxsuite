@@ -1,17 +1,15 @@
 import styled from 'styled-components';
 import { Scrollable, ScrollShadows } from '../config/types';
 
-export const ContentHeader = styled.div<{ isCandidateStyle?: boolean }>`
+export const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 2rem 0.5rem;
-  padding-left: ${({ isCandidateStyle }) =>
-    isCandidateStyle ? '6rem' : undefined};
+  padding: 1rem 30px 0.5rem;
 `;
 export const ContestFooter = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 2rem;
+  padding: 30px 20px 0;
 `;
 export const ContestSection = styled.div`
   text-transform: uppercase;
@@ -20,7 +18,6 @@ export const ContestSection = styled.div`
 `;
 export const VariableContentContainer = styled.div<ScrollShadows>`
   display: flex;
-  flex: 1;
   position: relative;
   overflow: auto;
   &::before,
@@ -117,14 +114,18 @@ export const ScrollContainer = styled.div`
 export const ScrollableContentWrapper = styled.div<Scrollable>`
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 2rem 2rem;
+  padding: 0.25rem 20px 0;
   padding-right: ${({ isScrollable }) =>
     isScrollable
       ? /* istanbul ignore next: Tested by Cypress */ '11rem'
       : undefined};
 `;
+export const ContestDescription = styled.div`
+  padding: 0 10px;
+`;
 export const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 1rem;
+  grid-gap: 20px;
+  margin-bottom: 40px;
 `;

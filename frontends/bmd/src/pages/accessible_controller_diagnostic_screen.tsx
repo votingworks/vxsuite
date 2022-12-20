@@ -12,17 +12,27 @@ const Header = styled(Prose).attrs({
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  width: 100%;
+  padding: 40px;
 `;
 
 const StepContainer = styled.div`
-  display: grid;
-  grid-template-columns: 55% 1fr;
-  flex-grow: 1;
+  display: flex;
+  flex: 1;
   align-items: center;
-  padding: 0 6em;
+  min-width: 1080px;
+`;
+
+const StepInnerContainer = styled.div`
+  display: flex;
+  width: 100%;
+
+  & > div {
+    flex: 1;
+    padding: 0 20px 0 40px;
+  }
 
   svg {
-    justify-self: flex-end;
     height: 25em;
   }
 
@@ -142,7 +152,7 @@ function AccessibleControllerButtonDiagnostic({
   }, [buttonKey, buttonName, onSuccess]);
 
   return (
-    <StepContainer>
+    <StepInnerContainer>
       <div>
         <h1>Press the {buttonName.toLowerCase()} button.</h1>
         <Button
@@ -152,7 +162,7 @@ function AccessibleControllerButtonDiagnostic({
         </Button>
       </div>
       <AccessibleControllerIllustration highlight={buttonName} />
-    </StepContainer>
+    </StepInnerContainer>
   );
 }
 
@@ -191,7 +201,7 @@ function AccessibleControllerSoundDiagnostic({
   }, [screenReader, onSuccess, hasPlayedAudio]);
 
   return (
-    <StepContainer>
+    <StepInnerContainer>
       <div>
         <h1>Confirm sound is working.</h1>
         <ol>
@@ -204,7 +214,7 @@ function AccessibleControllerSoundDiagnostic({
         </Button>
       </div>
       <AccessibleControllerIllustration highlight="Headphones" />
-    </StepContainer>
+    </StepInnerContainer>
   );
 }
 
@@ -270,7 +280,7 @@ export function AccessibleControllerDiagnosticScreen({
 
   return (
     <Screen>
-      <Main style={{ padding: '2em 4em' }}>
+      <Main centerChild>
         <Header>
           <Text>
             <strong>Accessible Controller Test</strong> &mdash; Step {step + 1}{' '}
@@ -278,7 +288,7 @@ export function AccessibleControllerDiagnosticScreen({
           </Text>
           <Button onPress={onCancel}>Cancel Test</Button>
         </Header>
-        {steps[step]}
+        <StepContainer>{steps[step]}</StepContainer>
       </Main>
     </Screen>
   );

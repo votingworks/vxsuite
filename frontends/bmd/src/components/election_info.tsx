@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -8,9 +7,10 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   PrecinctSelection,
 } from '@votingworks/types';
-import { getPrecinctSelectionName, formatLongDate } from '@votingworks/utils';
+import { getPrecinctSelectionName, format } from '@votingworks/utils';
 
 import { Prose, Text, NoWrap } from '@votingworks/ui';
+import pluralize from 'pluralize';
 import { Seal } from './seal';
 
 const VerticalContainer = styled.div`
@@ -38,17 +38,21 @@ const HorizontalContainer = styled.div`
 `;
 
 interface Props {
+  electionDefinition: ElectionDefinition;
   precinctSelection?: PrecinctSelection;
   ballotStyleId?: BallotStyleId;
-  electionDefinition: ElectionDefinition;
   horizontal?: boolean;
+  ariaHidden?: boolean;
+  contestCount?: number;
 }
 
 export function ElectionInfo({
+  electionDefinition,
   precinctSelection,
   ballotStyleId,
-  electionDefinition,
   horizontal = false,
+  ariaHidden = true,
+  contestCount,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const { title: t, state, county, date, seal, sealUrl } = election;
@@ -62,45 +66,63 @@ export function ElectionInfo({
       })
     : '';
   const title = `${partyPrimaryAdjective} ${t}`;
+  const electionDate = format.localeLongDate(new Date(date));
   if (horizontal) {
     return (
-      <CenterinBlock aria-hidden data-testid="election-info">
+      <CenterinBlock aria-hidden={ariaHidden} data-testid="election-info">
         <HorizontalContainer>
           <Seal seal={seal} sealUrl={sealUrl} />
           <Prose compact>
             <h5 aria-label={`${title}.`}>{title}</h5>
             <Text small>
-              {formatLongDate(DateTime.fromISO(date))}
+              {electionDate}
               <br />
               <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
             </Text>
-            <Text small light>
-              {precinctName && (
+            {precinctName && (
+              <Text small light>
                 <NoWrap>
                   {precinctName}
                   {ballotStyleId && ', '}
                 </NoWrap>
-              )}{' '}
-              {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
-            </Text>
+                {ballotStyleId && <NoWrap>ballot style {ballotStyleId}</NoWrap>}
+              </Text>
+            )}
           </Prose>
         </HorizontalContainer>
       </CenterinBlock>
     );
   }
   return (
-    <VerticalContainer aria-hidden>
+    <VerticalContainer aria-hidden={ariaHidden}>
       <Seal seal={seal} sealUrl={sealUrl} />
       <Prose textCenter>
         <h1 aria-label={`${title}.`}>{title}</h1>
-        <p>
-          {formatLongDate(DateTime.fromISO(date))}
-          <br />
-          {county.name}
+        <p
+          aria-label={`${electionDate}. ${state}, ${county.name}. ${precinctName}.`}
+        >
+          {electionDate}
           <br />
           {state}
+          <br />
+          {county.name}
+          {precinctName && <br />}
+          {precinctName && (
+            <strong>
+              <NoWrap>{precinctName}</NoWrap>{' '}
+              {ballotStyleId && <NoWrap>({ballotStyleId})</NoWrap>}
+            </strong>
+          )}
         </p>
-        {precinctName && <Text bold>{precinctName}</Text>}
+        {contestCount && (
+          <React.Fragment>
+            <hr />
+            <p>
+              Your ballot has{' '}
+              <strong>{pluralize('contest', contestCount, true)}</strong>.
+            </p>
+          </React.Fragment>
+        )}
       </Prose>
     </VerticalContainer>
   );

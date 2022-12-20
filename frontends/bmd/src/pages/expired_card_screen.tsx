@@ -16,7 +16,7 @@ export function ExpiredCardScreen({
 
   return (
     <Screen white>
-      <Main>
+      <Main centerChild>
         <Prose textCenter id="audiofocus">
           <h1>Expired Card</h1>
           <p>Please ask poll worker for assistance.</p>

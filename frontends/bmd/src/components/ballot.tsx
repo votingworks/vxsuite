@@ -16,13 +16,14 @@ import {
   DEFAULT_FONT_SIZE,
 } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
+import { VoterSettingsModal } from '../pages/user_settings_modal';
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
 
   // Handle changes to text size user setting
   const {
-    userSettings: { textSize },
+    userSettings: { textSize, showSettingsModal },
   } = useContext(BallotContext);
   useEffect(() => {
     document.documentElement.style.fontSize = `${FONT_SIZES[textSize]}px`;
@@ -55,29 +56,32 @@ export function Ballot(): JSX.Element {
       {isIdle ? (
         <IdlePage />
       ) : (
-        <Switch>
-          <Route path="/" exact>
-            <StartPage />
-          </Route>
-          <Route path="/contests/:contestNumber">
-            <ContestPage />
-          </Route>
-          <Route path="/review">
-            <ReviewPage />
-          </Route>
-          <Route path="/save">
-            <SaveCardScreen />
-          </Route>
-          <Route path="/remove">
-            <RemoveCardScreen />
-          </Route>
-          <Route path="/print">
-            <PrintPage />
-          </Route>
-          <Route path="/:path">
-            <NotFoundPage />
-          </Route>
-        </Switch>
+        <React.Fragment>
+          <Switch>
+            <Route path="/" exact>
+              <StartPage />
+            </Route>
+            <Route path="/contests/:contestNumber">
+              <ContestPage />
+            </Route>
+            <Route path="/review">
+              <ReviewPage />
+            </Route>
+            <Route path="/save">
+              <SaveCardScreen />
+            </Route>
+            <Route path="/remove">
+              <RemoveCardScreen />
+            </Route>
+            <Route path="/print">
+              <PrintPage />
+            </Route>
+            <Route path="/:path">
+              <NotFoundPage />
+            </Route>
+          </Switch>
+          {showSettingsModal && <VoterSettingsModal />}
+        </React.Fragment>
       )}
     </IdleTimer>
   );

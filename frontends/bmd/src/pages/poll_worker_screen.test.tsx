@@ -22,7 +22,7 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { Logger, LogSource } from '@votingworks/logging';
-import { MarkOnly, MarkAndPrint } from '../config/types';
+import { AppMode, MarkAndPrint, MarkOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
 
@@ -59,7 +59,8 @@ function renderScreen(
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
     electionSampleWithSealDefinition
   ),
-  electionDefinition: ElectionDefinition = electionSampleWithSealDefinition
+  electionDefinition: ElectionDefinition = electionSampleWithSealDefinition,
+  appMode: AppMode = MarkOnly
 ) {
   return render(
     <PollWorkerScreen
@@ -73,7 +74,7 @@ function renderScreen(
       isLiveMode={false}
       pollsState="polls_open"
       ballotsPrintedCount={0}
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      machineConfig={fakeMachineConfig({ appMode })}
       hardware={MemoryHardware.buildStandard()}
       devices={fakeDevices()}
       screenReader={new AriaScreenReader(fakeTts())}
@@ -85,10 +86,17 @@ function renderScreen(
   );
 }
 
+test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
+  renderScreen(undefined, undefined, undefined, MarkAndPrint);
+  screen.getByText('Poll Worker Actions');
+  expect(screen.getByText('Ballots Printed:').parentElement!.textContent).toBe(
+    'Ballots Printed: 0'
+  );
+});
+
 test('renders PollWorkerScreen', () => {
   renderScreen();
   screen.getByText('Poll Worker Actions');
-  screen.getByText('Ballots Printed:');
 });
 
 test('switching out of test mode on election day', () => {
@@ -100,7 +108,7 @@ test('switching out of test mode on election day', () => {
   renderScreen({ electionDefinition, enableLiveMode });
 
   screen.getByText('Switch to Live Election Mode?');
-  fireEvent.click(screen.getByText('Switch to Live Mode'));
+  fireEvent.click(screen.getByText('Switch to Live Election Mode'));
   expect(enableLiveMode).toHaveBeenCalled();
 });
 
@@ -128,7 +136,9 @@ test('navigates to System Diagnostics screen', () => {
   userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
   screen.getByRole('heading', { name: 'System Diagnostics' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Back to Poll Worker Actions' })
+  );
   screen.getByText(hasTextAcrossElements('Polls: Open'));
 
   // Explicitly unmount before the printer status has resolved to verify that
@@ -166,13 +176,13 @@ test('can toggle between vote activation and "other actions" during polls open',
   });
 
   // confirm we start with polls open
-  await screen.findByText(hasTextAcrossElements('Select Ballot Style'));
+  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
 
   // switch to other actions pane
-  userEvent.click(screen.getByText('View Other Actions'));
+  userEvent.click(screen.getByText('View More Actions'));
   screen.getByText('System Diagnostics');
 
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));
-  screen.getByText('Select Ballot Style');
+  screen.getByText('Select Voter’s Ballot Style');
 });

@@ -83,7 +83,7 @@ test('Cardless Voting Flow', async () => {
       'Center Springfield'
     ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('Center Springfield');
+  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
@@ -114,13 +114,13 @@ test('Cardless Voting Flow', async () => {
   // Activate Voter Session for Cardless Voter
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  screen.getByText('Select Ballot Style');
+  screen.getByText('Select Voter’s Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voter session activated: 12');
+  screen.getByText(/(12)/);
 
   // Poll Worker deactivates ballot style
-  fireEvent.click(screen.getByText('Deactivate Voter Session'));
-  screen.getByText('Select Ballot Style');
+  fireEvent.click(screen.getByText('Deactivate Voting Session'));
+  screen.getByText('Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
@@ -130,7 +130,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -147,18 +147,18 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Reset Ballot'));
 
   // Back on Poll Worker screen
-  screen.getByText('Select Ballot Style');
+  screen.getByText('Select Voter’s Ballot Style');
 
   // Activates Ballot Style again
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voter session activated: 12');
+  screen.getByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
   card.removeCard();
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -179,7 +179,7 @@ test('Cardless Voting Flow', async () => {
 
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
-  screen.getByText('Printing Official Ballot');
+  screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
   // Reset ballot
@@ -236,14 +236,14 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voter session activated: 12');
+  screen.getByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
   card.removeCard();
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -259,7 +259,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
-  screen.getByText('Printing Official Ballot');
+  screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
   // Reset ballot
@@ -271,9 +271,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // Reset Ballot is called with instructions type "cardless"
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
-  expect(
-    screen.queryByText('3. Return the card to a poll worker.')
-  ).toBeFalsy();
+  expect(screen.queryByText('3. Return the card.')).toBeFalsy();
 
   // Click "Done" to get back to Insert Card screen
   fireEvent.click(screen.getByText('Done'));
@@ -328,7 +326,7 @@ test('poll worker must select a precinct first', async () => {
   const precinctId =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts').value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('election-info')).getByText('All Precincts');
+  within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
@@ -359,17 +357,17 @@ test('poll worker must select a precinct first', async () => {
   // Activate Voter Session for Cardless Voter
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  screen.getByText('Select Precinct');
+  screen.getByText('1. Select Voter’s Precinct');
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
-  screen.getByText('Select Ballot Style');
+  screen.getByText('2. Select Voter’s Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voter session activated: 12 @ Center Springfield');
+  screen.getByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker deactivates ballot style
-  fireEvent.click(screen.getByText('Deactivate Voter Session'));
-  screen.getByText('Select Ballot Style');
+  fireEvent.click(screen.getByText('Deactivate Voting Session'));
+  screen.getByText('2. Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
   fireEvent.click(
@@ -382,7 +380,7 @@ test('poll worker must select a precinct first', async () => {
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -399,22 +397,22 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.click(screen.getByText('Reset Ballot'));
 
   // Back on Poll Worker screen
-  screen.getByText('Select Precinct');
+  screen.getByText('1. Select Voter’s Precinct');
 
   // Activates Ballot Style again
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
-  screen.getByText('Select Ballot Style');
+  screen.getByText('2. Select Voter’s Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voter session activated: 12 @ Center Springfield');
+  screen.getByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
   card.removeCard();
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/ballot style 12/);
+  screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 21 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -435,7 +433,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Advance to print ballot
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
-  screen.getByText('Printing Official Ballot');
+  screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
   // Reset ballot

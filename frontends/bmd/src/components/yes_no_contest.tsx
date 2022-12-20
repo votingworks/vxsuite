@@ -43,6 +43,7 @@ import {
   ScrollContainer,
   ScrollableContentWrapper,
   ChoicesGrid,
+  ContestDescription,
 } from './contest_screen_layout';
 
 interface Props {
@@ -161,7 +162,7 @@ export function YesNoContest({
               {contest.title}
             </h1>
             <p>
-              <strong>Vote Yes or No.</strong>
+              Vote <strong>Yes</strong> or <strong>No</strong>.
               <span className="screen-reader-only">
                 {contest.description}
                 To navigate through the contest choices, use the down button. To
@@ -179,9 +180,11 @@ export function YesNoContest({
             onScroll={updateContestChoicesScrollStates}
           >
             <ScrollableContentWrapper isScrollable={isScrollable}>
-              <Prose>
-                <TextWithLineBreaks text={contest.description} />
-              </Prose>
+              <ContestDescription>
+                <Prose>
+                  <TextWithLineBreaks text={contest.description} />
+                </Prose>
+              </ContestDescription>
             </ScrollableContentWrapper>
           </ScrollContainer>
           {

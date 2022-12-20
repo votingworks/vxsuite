@@ -11,20 +11,9 @@ import {
 } from '../config/types';
 import { FONT_SIZES } from '../config/globals';
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  border: 1px solid #808080;
-  border-width: 1px 0;
-  padding: 1rem 0;
-`;
-const Center = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-const FontSizeButtons = styled.div`
+const TextSizeSegmentedButton = styled(SegmentedButton)`
   button {
-    min-width: ${FONT_SIZES[1] * 4}px;
+    min-width: ${FONT_SIZES[1] * 3.5}px;
     /* stylelint-disable declaration-no-important */
     &[data-size='0'] {
       font-size: ${FONT_SIZES[0]}px !important;
@@ -39,7 +28,7 @@ const FontSizeButtons = styled.div`
   }
 `;
 
-const Label = styled.div`
+const Label = styled.label`
   display: block;
   margin-bottom: 0.4rem;
 `;
@@ -48,6 +37,8 @@ interface Props {
   userSettings: UserSettings;
   setUserSettings: SetUserSettings;
 }
+
+const ariaLabels = ['Small', 'Medium', 'Large', 'Extra Large'];
 
 export function SettingsTextSize({
   userSettings,
@@ -60,28 +51,25 @@ export function SettingsTextSize({
     setUserSettings({ textSize });
   };
   return (
-    <Container aria-hidden>
-      <Center>
-        <div>
-          <Label>Change Text Size</Label>
-          <FontSizeButtons>
-            <SegmentedButton data-testid="change-text-size-buttons">
-              {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
-                <Button
-                  key={v}
-                  data-size={i}
-                  small
-                  onPress={adjustFontSize}
-                  value={i}
-                  primary={userSettings.textSize === i}
-                >
-                  A
-                </Button>
-              ))}
-            </SegmentedButton>
-          </FontSizeButtons>
-        </div>
-      </Center>
-    </Container>
+    <p>
+      <Label aria-hidden>Text Size</Label>
+      <TextSizeSegmentedButton data-testid="change-text-size-buttons">
+        {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
+          <Button
+            key={v}
+            data-size={i}
+            small
+            onPress={adjustFontSize}
+            value={i}
+            primary={userSettings.textSize === i}
+            aria-label={`${
+              userSettings.textSize === i ? 'Selected' : ''
+            } Text Size: ${ariaLabels[i]}`}
+          >
+            A
+          </Button>
+        ))}
+      </TextSizeSegmentedButton>
+    </p>
   );
 }

@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
 import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
@@ -13,9 +15,15 @@ import { CandidateContest } from '../components/candidate_contest';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { YesNoContest } from '../components/yes_no_contest';
-import { SettingsTextSize } from '../components/settings_text_size';
 import { TextIcon } from '../components/text_icon';
 import { MsEitherNeitherContest } from '../components/ms_either_neither_contest';
+import { screenOrientation } from '../lib/screen_orientation';
+import {
+  ButtonFooter,
+  ButtonFooterLandscape,
+} from '../components/button_footer';
+import { SettingsButton } from '../components/settings_button';
+import { LanguageSettingsButton } from '../components/language_settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -28,10 +36,10 @@ export function ContestPage(): JSX.Element {
     ballotStyleId,
     contests,
     electionDefinition,
+    machineConfig,
     precinctId,
     setUserSettings,
     updateVote,
-    userSettings,
     votes,
   } = useContext(BallotContext);
   assert(
@@ -42,6 +50,11 @@ export function ContestPage(): JSX.Element {
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
   );
+  const { isLandscape, isPortrait } = screenOrientation(machineConfig);
+  function showSettingsModal() {
+    return setUserSettings({ showSettingsModal: true });
+  }
+
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
   const contest = contests[currentContestIndex];
@@ -55,6 +68,9 @@ export function ContestPage(): JSX.Element {
 
   const nextContestIndex = currentContestIndex + 1;
   const nextContest = contests[nextContestIndex];
+
+  const ballotContestNumber = currentContestIndex + 1;
+  const ballotContestsLength = contests.length;
 
   useEffect(() => {
     function calculateIsVoteComplete() {
@@ -75,8 +91,84 @@ export function ContestPage(): JSX.Element {
     calculateIsVoteComplete();
   }, [contest, vote, votes]);
 
+  const Breadcrumbs = styled.div`
+    padding: 30px 30px 0;
+  `;
+
+  const nextContestButton = (
+    <LinkButton
+      large
+      id="next"
+      primary={isVoteComplete}
+      aria-label="next contest"
+      to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
+    >
+      <TextIcon arrowRight white={isVoteComplete}>
+        Next
+      </TextIcon>
+    </LinkButton>
+  );
+
+  const previousContestButton = (
+    <LinkButton
+      small={isLandscape}
+      large={isPortrait}
+      id="previous"
+      aria-label="previous contest"
+      to={prevContest ? `/contests/${prevContestIndex}` : '/'}
+    >
+      <TextIcon small={isLandscape} arrowLeft>
+        Back
+      </TextIcon>
+    </LinkButton>
+  );
+
+  const reviewScreenButton = (
+    <LinkButton
+      large
+      primary={isVoteComplete}
+      to={`/review#contest-${contest.id}`}
+      id="next"
+    >
+      <TextIcon arrowRight white={isVoteComplete}>
+        Review
+      </TextIcon>
+    </LinkButton>
+  );
+
+  const settingsButton = (
+    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
+  );
+
+  /* istanbul ignore next */
+  const languageSettingsButton = (
+    <LanguageSettingsButton
+      large={isPortrait}
+      onPress={() => {
+        // eslint-disable-next-line no-console
+        console.log(
+          'Replace with method to toggleCurrentLanguage (which toggles between secondaryLanguageKey and English, or shows language settings modal when secondaryLanaguageKey === "EN")'
+        );
+      }}
+      isSecondaryLanguageActive={false}
+      secondaryLanguageKey="EN"
+      isSupported={false}
+    />
+  );
+
   return (
-    <Screen navRight>
+    <Screen navRight={isLandscape}>
+      {isPortrait && (
+        <Breadcrumbs>
+          <Prose>
+            <Text small>
+              This is the{' '}
+              <strong>{ordinal(ballotContestNumber)} contest</strong> of{' '}
+              {pluralize('contest', ballotContestsLength, true)} on your ballot.
+            </Text>
+          </Prose>
+        </Breadcrumbs>
+      )}
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
@@ -107,67 +199,52 @@ export function ContestPage(): JSX.Element {
           updateVote={updateVote}
         />
       )}
-      <Sidebar
-        footer={
-          <React.Fragment>
-            <SettingsTextSize
-              userSettings={userSettings}
-              setUserSettings={setUserSettings}
-            />
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              horizontal
-            />
-          </React.Fragment>
-        }
-      >
-        <Prose>
-          <Text center>
-            This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
-            {pluralize('contest', contests.length, true)}.
-          </Text>
+      {isPortrait ? (
+        <ButtonFooter>
           {isReviewMode ? (
-            <p>
-              <LinkButton
-                large
-                primary={isVoteComplete}
-                to={`/review#contest-${contest.id}`}
-                id="next"
-              >
-                <TextIcon arrowRight white={isVoteComplete}>
-                  Review
-                </TextIcon>
-              </LinkButton>
-            </p>
+            reviewScreenButton
           ) : (
             <React.Fragment>
-              <p>
-                <LinkButton
-                  large
-                  id="next"
-                  primary={isVoteComplete}
-                  to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
-                >
-                  <TextIcon arrowRight white={isVoteComplete}>
-                    Next
-                  </TextIcon>
-                </LinkButton>
-              </p>
-              <p>
-                <LinkButton
-                  small
-                  id="previous"
-                  to={prevContest ? `/contests/${prevContestIndex}` : '/'}
-                >
-                  <TextIcon arrowLeft>Back</TextIcon>
-                </LinkButton>
-              </p>
+              {nextContestButton}
+              {previousContestButton}
             </React.Fragment>
           )}
-        </Prose>
-      </Sidebar>
+          {languageSettingsButton}
+          {settingsButton}
+        </ButtonFooter>
+      ) : (
+        <Sidebar
+          footer={
+            <React.Fragment>
+              <ButtonFooterLandscape>
+                {languageSettingsButton}
+                {settingsButton}
+              </ButtonFooterLandscape>
+              <ElectionInfo
+                electionDefinition={electionDefinition}
+                ballotStyleId={ballotStyleId}
+                precinctSelection={singlePrecinctSelectionFor(precinctId)}
+                horizontal
+              />
+            </React.Fragment>
+          }
+        >
+          <Prose>
+            <Text center>
+              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
+              {pluralize('contest', contests.length, true)}.
+            </Text>
+            {isReviewMode ? (
+              <p>{reviewScreenButton}</p>
+            ) : (
+              <React.Fragment>
+                <p>{nextContestButton}</p>
+                <p>{previousContestButton}</p>
+              </React.Fragment>
+            )}
+          </Prose>
+        </Sidebar>
+      )}
     </Screen>
   );
 }

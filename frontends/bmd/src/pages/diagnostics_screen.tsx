@@ -19,7 +19,6 @@ import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ScreenReader } from '../config/types';
 
 const ButtonAndTimestamp = styled.div`
@@ -253,7 +252,6 @@ export interface DiagnosticsScreenProps {
   devices: Devices;
   screenReader: ScreenReader;
   onBackButtonPress: () => void;
-  sidebarProps: SidebarProps;
 }
 
 export function DiagnosticsScreen({
@@ -261,7 +259,6 @@ export function DiagnosticsScreen({
   devices,
   screenReader,
   onBackButtonPress,
-  sidebarProps,
 }: DiagnosticsScreenProps): JSX.Element {
   // Since we show full-screen alerts for specific hardware states, there are
   // certain cases that we will never see in this screen
@@ -279,10 +276,18 @@ export function DiagnosticsScreen({
   return (
     <Switch>
       <Route path="/" exact>
-        <Screen navLeft>
+        <Screen>
           <Main padded>
-            <Prose compact>
+            <Prose compact maxWidth={false}>
+              <p>
+                <Button primary onPress={onBackButtonPress}>
+                  Back to Poll Worker Actions
+                </Button>
+              </p>
               <h1>System Diagnostics</h1>
+              <span className="screen-reader-only">
+                To navigate through the available actions, use the down arrow.
+              </span>
               <section>
                 <h2>Computer</h2>
                 <ComputerStatus computer={devices.computer} />
@@ -300,11 +305,6 @@ export function DiagnosticsScreen({
               </section>
             </Prose>
           </Main>
-          <Sidebar {...sidebarProps}>
-            <Prose>
-              <Button onPress={onBackButtonPress}>Back</Button>
-            </Prose>
-          </Sidebar>
         </Screen>
       </Route>
       <Route path="/accessible-controller">
