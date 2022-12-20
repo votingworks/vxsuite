@@ -72,7 +72,7 @@ test('Loading screen show while usb is mounting or ejecting', () => {
 describe('Screens display properly when USB is mounted', () => {
   beforeEach(() => {
     const mockKiosk = fakeKiosk();
-    mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
     window.kiosk = mockKiosk;
   });
 

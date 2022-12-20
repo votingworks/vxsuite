@@ -57,7 +57,7 @@ test('returns notavailable if no kiosk', async () => {
 
 test('returns the status after the first tick', async () => {
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
   window.kiosk = kiosk;
 
   const { result } = renderHook(() => useUsbDrive({ logger }));
@@ -86,7 +86,7 @@ test('full lifecycle with USBControllerButton', async () => {
   }
 
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   window.kiosk = kiosk;
 
   // wait for initial status
@@ -108,7 +108,7 @@ test('full lifecycle with USBControllerButton', async () => {
   await waitForStatusUpdate();
 
   // plug in a USB drive
-  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(kiosk.mountUsbDrive).toHaveBeenCalled();
   screen.getByText('Connecting…');
@@ -137,7 +137,7 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 
   // wait for it to mount
-  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
   await waitForStatusUpdate();
   screen.getByText('Eject USB');
   expect(logger.log).toHaveBeenCalledTimes(6);
@@ -163,7 +163,7 @@ test('full lifecycle with USBControllerButton', async () => {
   await advanceTimersAndPromises();
 
   // ejecting unmounts but does not remove USB drives
-  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   screen.getByText('Ejecting…');
 
   await waitForStatusUpdate();
@@ -192,7 +192,7 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 
   // remove the USB drive
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   await waitForStatusUpdate();
   screen.getByText('No USB');
   expect(logger.log).toHaveBeenCalledTimes(10);
@@ -219,7 +219,7 @@ test('usb drive that is removed while being ejected is updated to absent', async
   }
 
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
   window.kiosk = kiosk;
 
   // wait for initial status
@@ -248,7 +248,7 @@ test('usb drive that is removed while being ejected is updated to absent', async
   await advanceTimersAndPromises();
 
   // mock that the usb drive is removed while ejecting
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
 
   await waitForStatusUpdate();
   expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
@@ -281,15 +281,15 @@ test('usb drive gets mounted from undefined state', async () => {
   const { result } = renderHook(() => useUsbDrive({ logger }));
   expect(result.current.status).toBeUndefined();
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   window.kiosk = kiosk;
-  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(kiosk.mountUsbDrive).toHaveBeenCalled();
   expect(result.current.status).toEqual(usbstick.UsbDriveStatus.present);
 
   // wait for it to mount
-  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(result.current.status).toEqual(usbstick.UsbDriveStatus.mounted);
   expect(logger.log).toHaveBeenCalledTimes(5);
@@ -322,10 +322,10 @@ test('error in mounting gets logged as expected', async () => {
   const { result } = renderHook(() => useUsbDrive({ logger }));
   expect(result.current.status).toBeUndefined();
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   window.kiosk = kiosk;
   kiosk.mountUsbDrive.mockRejectedValueOnce(new Error('autumn leaves falling'));
-  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(kiosk.mountUsbDrive).toHaveBeenCalled();
   expect(result.current.status).toEqual(usbstick.UsbDriveStatus.present);
@@ -353,15 +353,15 @@ test('error in unmounting gets logged as expected', async () => {
   }
   render(<ThisTestComponent />);
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   window.kiosk = kiosk;
-  kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(kiosk.mountUsbDrive).toHaveBeenCalled();
   screen.getByText('Connecting…');
 
   // wait for it to mount
-  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
   await waitForStatusUpdate();
   screen.getByText('Eject USB');
   kiosk.unmountUsbDrive.mockRejectedValue(new Error('like pieces into place'));

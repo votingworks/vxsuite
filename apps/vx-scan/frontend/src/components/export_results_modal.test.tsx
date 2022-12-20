@@ -73,7 +73,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fakeFileWriter());
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
@@ -112,7 +112,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   mockKiosk.writeFile.mockResolvedValue(
     fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
@@ -201,7 +201,7 @@ test('render export modal with errors when appropriate', async () => {
   );
   getByText('Save CVRs');
 
-  mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'));
+  mockKiosk.getUsbDriveInfo.mockRejectedValueOnce(new Error('NOPE'));
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('Failed to Save CVRs'));
   getByText(/Failed to save CVRs./);

@@ -115,7 +115,7 @@ beforeEach(() => {
   apiMock.mockApiClient.reset();
 
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   kiosk.writeFile.mockResolvedValue(
     fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );

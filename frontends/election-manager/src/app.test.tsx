@@ -95,7 +95,7 @@ beforeEach(() => {
   mockKiosk.getPrinterInfo.mockResolvedValue([
     fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
   fetchMock.get(

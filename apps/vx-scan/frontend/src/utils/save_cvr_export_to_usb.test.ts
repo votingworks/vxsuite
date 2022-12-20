@@ -18,7 +18,7 @@ let kiosk = fakeKiosk();
 
 beforeEach(() => {
   kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   kiosk.writeFile.mockResolvedValue(
     fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
@@ -50,7 +50,7 @@ test('throws error when scan service errors', async () => {
 });
 
 test('throws error when there is no usb mounted in kiosk mode', async () => {
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   fetchMock.postOnce(
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData

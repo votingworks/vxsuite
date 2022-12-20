@@ -80,7 +80,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
 test('render export modal when a USB drive is mounted as expected and allows automatic export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const onClose = jest.fn();
   const ejectFn = jest.fn();
@@ -111,7 +111,7 @@ test('handles no USB drives', async () => {
   });
   screen.getByText('Save Backup');
 
-  mockKiosk.getUsbDrives.mockResolvedValueOnce([]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValueOnce([]);
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to Save Backup');
   screen.getByText(/No USB drive found./);
@@ -131,7 +131,7 @@ test('shows errors from the backend', async () => {
   });
   screen.getByText('Save Backup');
 
-  mockKiosk.getUsbDrives.mockResolvedValueOnce([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValueOnce([fakeUsbDrive()]);
   apiMock.mockApiClient.backupToUsbDrive
     .expectCallWith()
     .resolves(err({ type: 'permission-denied', message: 'Permission denied' }));

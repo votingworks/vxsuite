@@ -62,7 +62,7 @@ test('shows insert usb screen when no usb is present with manual load button', a
 
 test('reads files from usb when mounted and shows proper display when there are no matching files', async () => {
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   mockKiosk.getFileSystemEntries = jest.fn().mockResolvedValue([]);
   window.kiosk = mockKiosk;
   const manualUpload = jest.fn();
@@ -94,7 +94,7 @@ test('reads files from usb when mounted and shows list of files', async () => {
     'king-county_2020-general-election_a123456789__2020-12-02_09-52-50.zip';
   const file3 = 'invalidfile.zip';
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   mockKiosk.getFileSystemEntries = jest.fn().mockResolvedValue([
     { name: file1, type: 1 },
     { name: file2, type: 1 },
@@ -146,7 +146,7 @@ test('shows errors that occur when loading in file list screen', async () => {
   const file1 =
     'choctaw-county_2020-general-election_a5753d5776__2020-12-02_09-42-50.zip';
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   mockKiosk.getFileSystemEntries = jest
     .fn()
     .mockResolvedValue([{ name: file1, type: 1 }]);

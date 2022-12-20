@@ -216,7 +216,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper, 3);
   const { card } = renderApp({ hardware });
@@ -261,7 +261,7 @@ test('App shows warning message to connect to power when disconnected', async ()
 test('removing card during calibration', async () => {
   apiMock.expectGetConfig();
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
   fetchMock.post('/precinct-scanner/export', {});

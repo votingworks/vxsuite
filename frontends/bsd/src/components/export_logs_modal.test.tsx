@@ -48,7 +48,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'not-the-right-file.log' },
   ]);
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
 
   const { getByText } = renderInAppContext(
@@ -112,7 +112,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
   const logCdfSpy = jest
     .spyOn(logger, 'buildCDFLog')
@@ -172,7 +172,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-raw-file-content');
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
   logger.buildCDFLog = jest.fn().mockReturnValue('this-is-the-cdf-content');
 

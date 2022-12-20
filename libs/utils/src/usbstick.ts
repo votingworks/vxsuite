@@ -16,8 +16,8 @@ export enum UsbDriveStatus {
   ejecting = 'ejecting',
 }
 
-async function getDevice(): Promise<KioskBrowser.UsbDrive | undefined> {
-  return (await window.kiosk?.getUsbDrives())?.[0];
+async function getDevice(): Promise<KioskBrowser.UsbDriveInfo | undefined> {
+  return (await window.kiosk?.getUsbDriveInfo())?.[0];
 }
 
 export async function getDevicePath(): Promise<string | undefined> {

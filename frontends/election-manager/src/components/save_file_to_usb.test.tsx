@@ -75,7 +75,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     .mockResolvedValueOnce('this-is-my-file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
 
   const { getByText, queryAllByText } = renderInAppContext(
@@ -133,7 +133,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     .mockResolvedValueOnce('this-is-my-file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
 
   const { getByText } = renderInAppContext(
@@ -232,7 +232,7 @@ test('creates new directory and saves to it, if specified', async () => {
   const fileContentFn = jest.fn().mockResolvedValueOnce('file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const { getByText } = renderInAppContext(
     <SaveFileToUsb

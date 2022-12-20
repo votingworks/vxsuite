@@ -21,7 +21,7 @@ jest.mock('../utils/pdf_to_images');
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);

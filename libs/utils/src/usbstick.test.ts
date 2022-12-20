@@ -31,10 +31,10 @@ test('sees mounted USB drive', async () => {
   const fKiosk = fakeKiosk();
   window.kiosk = fKiosk;
 
-  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
+  fKiosk.getUsbDriveInfo.mockResolvedValue(mountedDevices);
   expect(await getStatus()).toBe(UsbDriveStatus.mounted);
 
-  fKiosk.getUsbDrives.mockResolvedValue(unmountedDevices);
+  fKiosk.getUsbDriveInfo.mockResolvedValue(unmountedDevices);
   expect(await getStatus()).toBe(UsbDriveStatus.present);
 });
 
@@ -47,7 +47,7 @@ test('can mount and unmount USB drive', async () => {
   await doMount();
   expect(window.kiosk.mountUsbDrive).not.toBeCalled();
 
-  fKiosk.getUsbDrives.mockResolvedValue(unmountedDevices);
+  fKiosk.getUsbDriveInfo.mockResolvedValue(unmountedDevices);
 
   // unmount should do nothing
   await doEject();
@@ -58,7 +58,7 @@ test('can mount and unmount USB drive', async () => {
 
   const fKiosk2 = fakeKiosk();
   window.kiosk = fKiosk2;
-  fKiosk2.getUsbDrives.mockResolvedValue(mountedDevices);
+  fKiosk2.getUsbDriveInfo.mockResolvedValue(mountedDevices);
 
   // mount should do nothing
   await doMount();
@@ -82,7 +82,7 @@ test('can get device path', async () => {
   const fKiosk = fakeKiosk();
   window.kiosk = fKiosk;
   expect(await getDevicePath()).toEqual(undefined);
-  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
+  fKiosk.getUsbDriveInfo.mockResolvedValue(mountedDevices);
 
   expect(await getDevicePath()).toEqual('/media/usb-drive-sdb');
 });
@@ -96,7 +96,7 @@ test('doSync triggers a sync', async () => {
   expect(window.kiosk.syncUsbDrive).not.toBeCalled();
 
   // try sync with drive mounted
-  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
+  fKiosk.getUsbDriveInfo.mockResolvedValue(mountedDevices);
   await doMount();
   await doSync();
   expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
