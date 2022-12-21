@@ -10,7 +10,11 @@ import {
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { UsbControllerButton } from '../usbcontroller_button';
-import { POLLING_INTERVAL_FOR_USB, useUsbDrive } from './use_usb_drive';
+import {
+  MIN_TIME_TO_UNMOUNT_USB,
+  POLLING_INTERVAL_FOR_USB,
+  useUsbDrive,
+} from './use_usb_drive';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -22,7 +26,7 @@ async function waitForStatusUpdate(): Promise<void> {
 }
 
 async function waitForUnmount(): Promise<void> {
-  await advanceTimersAndPromises(usbstick.MIN_TIME_TO_UNMOUNT_USB / 1000);
+  await advanceTimersAndPromises(MIN_TIME_TO_UNMOUNT_USB / 1000);
 }
 
 let logger: Logger;

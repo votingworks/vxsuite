@@ -1,9 +1,11 @@
 import useInterval from 'use-interval';
-import { assert, usbstick } from '@votingworks/utils';
+import { assert, sleep, usbstick } from '@votingworks/utils';
 import { useCallback, useState } from 'react';
 import makeDebug from 'debug';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useCancelablePromise } from './use_cancelable_promise';
+
+export const MIN_TIME_TO_UNMOUNT_USB = 1000;
 
 const debug = makeDebug('ui:useUsbDrive');
 const { UsbDriveStatus } = usbstick;
@@ -45,7 +47,10 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
       setStatus(UsbDriveStatus.ejecting);
       await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
       try {
-        await makeCancelable(usbstick.doEject());
+        // Wait for minimum delay in parallel to eject, so UX is not too fast
+        await makeCancelable(
+          Promise.all([usbstick.doEject(), sleep(MIN_TIME_TO_UNMOUNT_USB)])
+        );
         setRecentlyEjected(true);
         await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'success',

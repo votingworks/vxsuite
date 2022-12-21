@@ -77,7 +77,7 @@ export function ExportResultsModal({
       );
 
       if (window.kiosk) {
-        const usbPath = await usbstick.getDevicePath();
+        const usbPath = await usbstick.getPath();
         if (!usbPath) {
           throw new Error('could not save file; path to usb drive missing');
         }

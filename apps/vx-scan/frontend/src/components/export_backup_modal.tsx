@@ -49,7 +49,7 @@ export function ExportBackupModal({
   const exportBackup = useCallback(async () => {
     setCurrentState(ModalState.SAVING);
 
-    const usbPath = await usbstick.getDevicePath();
+    const usbPath = await usbstick.getPath();
     if (!usbPath) {
       setErrorMessage('No USB drive found.');
       setCurrentState(ModalState.ERROR);

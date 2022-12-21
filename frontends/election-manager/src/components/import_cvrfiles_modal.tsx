@@ -172,7 +172,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
   async function fetchFilenames() {
     setCurrentState({ state: 'loading' });
-    const usbPath = await usbstick.getDevicePath();
+    const usbPath = await usbstick.getPath();
     try {
       assert(typeof usbPath !== 'undefined');
       assert(window.kiosk);

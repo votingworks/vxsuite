@@ -167,7 +167,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   // Callback to open the file dialog.
   async function saveFileCallback(openDialog: boolean) {
     try {
-      const usbPath = await usbstick.getDevicePath();
+      const usbPath = await usbstick.getPath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PDFS_FOLDER);
       const defaultArchiveFilenameWithExtension = `${defaultArchiveFilename}.zip`;
       const pathToFile = join(

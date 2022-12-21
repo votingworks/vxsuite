@@ -86,7 +86,7 @@ export function ElectionConfiguration({
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true);
-    const usbPath = await usbstick.getDevicePath();
+    const usbPath = await usbstick.getPath();
     try {
       assert(typeof usbPath !== 'undefined');
       assert(window.kiosk);

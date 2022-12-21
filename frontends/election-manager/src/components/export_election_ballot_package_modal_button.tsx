@@ -180,7 +180,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     // TODO(auth) check proper file permissions
     try {
       await logger.log(LogEventId.SaveBallotPackageInit, userRole);
-      const usbPath = await usbstick.getDevicePath();
+      const usbPath = await usbstick.getPath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER);
       const pathToFile = join(pathToFolder ?? '.', defaultFileName);
       if (openDialog || !pathToFolder) {

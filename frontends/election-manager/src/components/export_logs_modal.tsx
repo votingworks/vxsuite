@@ -111,7 +111,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
           throwIllegalValue(logFileType);
       }
       let filenameLocation = '';
-      const usbPath = await usbstick.getDevicePath();
+      const usbPath = await usbstick.getPath();
       if (openFileDialog) {
         const fileWriter = await window.kiosk.saveAs({
           defaultPath: defaultFilename,

@@ -105,7 +105,7 @@ export function SaveFileToUsb({
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv');
       } else {
-        const usbPath = await usbstick.getDevicePath();
+        const usbPath = await usbstick.getPath();
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: defaultFilename,
