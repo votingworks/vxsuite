@@ -159,7 +159,7 @@ test('create election works', async () => {
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Save Log File as CDF'));
+  fireEvent.click(screen.getByText('Save CDF Log File'));
   await screen.findByText('No Log File Present');
 
   fireEvent.click(getByText('Definition'));
@@ -185,7 +185,7 @@ test('create election works', async () => {
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Save Log File as CDF'));
+  fireEvent.click(screen.getByText('Save CDF Log File'));
   // You can not save as CDF when there is no election.
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 

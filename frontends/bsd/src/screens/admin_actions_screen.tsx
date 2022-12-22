@@ -1,8 +1,9 @@
 import { ElectionDefinition, MarkThresholds, Result } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { assert, LogFileType } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import {
+  ExportLogsButtonRow,
   isElectionManagerAuth,
   Loading,
   Main,
@@ -19,7 +20,6 @@ import { Prose } from '../components/prose';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
-import { ExportLogsModal } from '../components/export_logs_modal';
 
 export interface AdminActionScreenProps {
   unconfigureServer: () => Promise<void>;
@@ -48,7 +48,8 @@ export function AdminActionsScreen({
   markThresholds,
   electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
-  const { logger, auth } = useContext(AppContext);
+  const { logger, auth, usbDriveStatus, machineConfig } =
+    useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
@@ -65,7 +66,6 @@ export function AdminActionsScreen({
     setIsDoubleConfirmingUnconfigure((s) => !s);
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
-  const [exportingLogType, setExportingLogType] = useState<LogFileType>();
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
   function toggleIsConfirmingZero() {
@@ -144,14 +144,13 @@ export function AdminActionsScreen({
                 {isBackingUp ? 'Saving…' : 'Save Backup'}
               </Button>
             </p>
-            <p>
-              <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
-                Save Logs
-              </Button>{' '}
-              <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
-                Save Logs as CDF
-              </Button>
-            </p>
+            <ExportLogsButtonRow
+              electionDefinition={electionDefinition}
+              usbDriveStatus={usbDriveStatus}
+              auth={auth}
+              logger={logger}
+              machineConfig={machineConfig}
+            />
             <p>
               <SetClockButton>Update Date and Time</SetClockButton>
             </p>
@@ -293,12 +292,6 @@ export function AdminActionsScreen({
           markThresholds={electionDefinition.election.markThresholds}
           markThresholdOverrides={markThresholds}
           onClose={() => setIsMarkThresholdModalOpen(false)}
-        />
-      )}
-      {exportingLogType !== undefined && (
-        <ExportLogsModal
-          onClose={() => setExportingLogType(undefined)}
-          logFileType={exportingLogType}
         />
       )}
       {isBackingUp && (
