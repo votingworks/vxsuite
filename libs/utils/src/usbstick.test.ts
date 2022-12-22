@@ -1,7 +1,7 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
   getInfo,
-  getStatus,
+  getAvailability,
   doMount,
   doEject,
   getPath,
@@ -29,10 +29,10 @@ test('getInfo', async () => {
   expect(await getInfo()).toMatchObject(mountedDevices[0]!);
 });
 
-test('getStatus', () => {
-  expect(getStatus(undefined)).toEqual('absent');
-  expect(getStatus(unmountedDevices[0])).toEqual('present');
-  expect(getStatus(mountedDevices[0])).toEqual('mounted');
+test('getAvailability', () => {
+  expect(getAvailability(undefined)).toEqual('absent');
+  expect(getAvailability(unmountedDevices[0])).toEqual('present');
+  expect(getAvailability(mountedDevices[0])).toEqual('mounted');
 });
 
 test('getPath', async () => {

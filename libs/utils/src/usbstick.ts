@@ -15,7 +15,7 @@ export async function getPath(): Promise<string | undefined> {
   return usbDriveInfo?.mountPoint;
 }
 
-export function getStatus(
+export function getAvailability(
   usbDriveInfo?: KioskBrowser.UsbDriveInfo
 ): UsbDriveAvailability {
   if (!usbDriveInfo) {

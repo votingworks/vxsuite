@@ -1,25 +1,27 @@
 import useInterval from 'use-interval';
-import { assert, sleep, usbstick } from '@votingworks/utils';
-import { useCallback, useState } from 'react';
-import makeDebug from 'debug';
+import { sleep, usbstick } from '@votingworks/utils';
+import { useCallback, useRef, useState } from 'react';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useCancelablePromise } from './use_cancelable_promise';
 
+export const POLLING_INTERVAL_FOR_USB = 100;
 export const MIN_TIME_TO_UNMOUNT_USB = 1000;
 
-const debug = makeDebug('ui:useUsbDrive');
-const { UsbDriveStatus } = usbstick;
+export type UsbDriveStatus =
+  | 'absent'
+  | 'mounting'
+  | 'mounted'
+  | 'ejecting'
+  | 'ejected';
 
 export interface UsbDrive {
-  status?: usbstick.UsbDriveStatus;
+  status: UsbDriveStatus;
   eject(currentUser: string): Promise<void>;
 }
 
 export interface UsbDriveProps {
   logger: Logger;
 }
-
-export const POLLING_INTERVAL_FOR_USB = 100;
 
 /**
  * React hook to get a representation of the current USB drive.
@@ -29,120 +31,118 @@ export const POLLING_INTERVAL_FOR_USB = 100;
  * const usbDrive = useUsbDrive({ logger })
  * return (
  *   <USBControllerButton
- *     usbDriveStatus={usbDrive.status ?? UsbDriveStatus.absent}
+ *     usbDriveStatus={usbDrive.status}
  *     usbDriveEject={usbDrive.eject}
  *   />
  * )
  */
 export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
-  const [isMountingOrUnmounting, setIsMountingOrUnmounting] = useState(false);
-  const [status, setStatus] = useState<usbstick.UsbDriveStatus>();
-  const [recentlyEjected, setRecentlyEjected] = useState(false);
   const makeCancelable = useCancelablePromise();
+
+  // Hardware state
+  const availability = useRef<usbstick.UsbDriveAvailability>('absent');
+
+  // Application state
+  const [status, setStatus] = useState<UsbDriveStatus>('absent');
 
   const eject = useCallback(
     async (currentUser: LoggingUserRole) => {
-      debug('eject requested, updating state');
-      setIsMountingOrUnmounting(true);
-      setStatus(UsbDriveStatus.ejecting);
+      setStatus('ejecting');
       await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
       try {
         // Wait for minimum delay in parallel to eject, so UX is not too fast
         await makeCancelable(
           Promise.all([usbstick.doEject(), sleep(MIN_TIME_TO_UNMOUNT_USB)])
         );
-        setRecentlyEjected(true);
+        setStatus('ejected');
         await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'success',
-          message: 'USB Drive successfully ejected.',
+          message: 'USB drive successfully ejected.',
         });
       } catch (error) {
-        assert(error instanceof Error);
+        setStatus('mounted');
         await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'failure',
-          message: 'USB Drive failed when attempting to eject.',
-          error: error.message,
+          message: 'USB drive failed to eject.',
+          error: (error as Error).message,
           result: 'USB drive not ejected.',
         });
-      } finally {
-        setIsMountingOrUnmounting(false);
       }
     },
     [makeCancelable, logger]
   );
 
+  const mount = useCallback(async () => {
+    try {
+      await logger.log(LogEventId.UsbDriveMountInit, 'system');
+      setStatus('mounting');
+      await makeCancelable(usbstick.doMount());
+      setStatus('mounted');
+      await logger.log(LogEventId.UsbDriveMounted, 'system', {
+        disposition: 'success',
+        message: 'USB drive successfully mounted',
+      });
+    } catch (error) {
+      await logger.log(LogEventId.UsbDriveMounted, 'system', {
+        disposition: 'failure',
+        message: 'USB drive failed to mount.',
+        error: (error as Error).message,
+        result: 'USB drive not mounted.',
+      });
+    }
+  }, [logger, makeCancelable]);
+
   useInterval(
     async () => {
-      if (isMountingOrUnmounting) {
+      // Stop polling during operations - the operation is responsible for state
+      if (status === 'ejecting' || status === 'mounting') {
         return;
       }
 
-      const newStatus = await makeCancelable(usbstick.getStatus());
-      if (status === newStatus) {
+      const newInfo = await usbstick.getInfo();
+      const previousAvailability = availability.current;
+      availability.current = usbstick.getAvailability(newInfo);
+
+      // No action needed if hardware state is the same
+      if (availability.current === previousAvailability) {
         return;
       }
 
-      debug('USB drive status changed from %s to %s', status, newStatus);
-      setStatus(newStatus);
-      await logger.log(LogEventId.UsbDriveStatusUpdate, 'system', {
-        disposition: 'na',
-        message: `USB Drive status updated from ${status} to ${newStatus}`,
-        previousStatus: status,
-        newStatus,
-      });
+      // USB drive was detected
       if (
-        (status === UsbDriveStatus.present ||
-          status === UsbDriveStatus.ejecting) &&
-        newStatus === UsbDriveStatus.absent
+        availability.current !== 'absent' &&
+        previousAvailability === 'absent'
       ) {
-        debug('USB drive removed');
-        setRecentlyEjected(false);
-      } else if (
-        (status === UsbDriveStatus.absent || status === undefined) &&
-        newStatus === UsbDriveStatus.present
-      ) {
-        try {
-          debug('USB drive found, mounting');
-          await logger.log(LogEventId.UsbDriveMountInit, 'system');
-          setIsMountingOrUnmounting(true);
-          await makeCancelable(usbstick.doMount());
-          await logger.log(LogEventId.UsbDriveMounted, 'system', {
-            disposition: 'success',
-            message: 'USB Drive successfully mounted',
-          });
-        } catch (error) {
-          assert(error instanceof Error);
-          await logger.log(LogEventId.UsbDriveMounted, 'system', {
-            disposition: 'failure',
-            message: 'USB Drive failed mounting.',
-            error: error.message,
-            result: 'USB drive not mounted.',
-          });
-        } finally {
-          setIsMountingOrUnmounting(false);
+        await logger.log(LogEventId.UsbDriveDetected, 'system', {
+          message: `${
+            availability.current === 'mounted' ? 'Mounted' : 'Unmounted'
+          } USB drive detected.`,
+        });
+        if (availability.current === 'present') {
+          await mount();
+        } else {
+          setStatus('mounted');
         }
-      } else if (
-        status === UsbDriveStatus.present &&
-        newStatus === UsbDriveStatus.mounted
+      }
+
+      // USB drive was removed
+      if (
+        availability.current === 'absent' &&
+        previousAvailability !== 'absent'
       ) {
-        debug('mount finished');
-      } else if (
-        status === UsbDriveStatus.ejecting &&
-        newStatus === UsbDriveStatus.present
-      ) {
-        debug('eject finished');
+        await logger.log(LogEventId.UsbDriveRemoved, 'system', {
+          message: 'USB drive removed by user.',
+          previousStatus: status,
+        });
+        setStatus('absent');
       }
     },
-    /* istanbul ignore next */
-    status === UsbDriveStatus.notavailable ? false : POLLING_INTERVAL_FOR_USB,
+    window.kiosk ? POLLING_INTERVAL_FOR_USB : false,
     true
   );
 
   return {
-    status:
-      recentlyEjected && status !== UsbDriveStatus.ejecting
-        ? UsbDriveStatus.recentlyEjected
-        : status,
+    status,
     eject,
   };
 }

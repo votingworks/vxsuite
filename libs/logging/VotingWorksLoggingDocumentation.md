@@ -54,9 +54,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.  
 **Machines:** All
-### usb-drive-status-update
+### usb-drive-detected
 **Type:** [application-status](#application-status)  
-**Description:** USB Drive detected a status update. Potential USB statuses are: notavailable - No USB Drive detection is available, absent - No USB identified, present - USB identified but not mounted, mounted - USB mounted on device, ejecting - USB in the process of ejecting.   
+**Description:** USB drive detected.  
+**Machines:** All
+### usb-drive-removed
+**Type:** [application-status](#application-status)  
+**Description:** USB drive removed by the user.  
 **Machines:** All
 ### usb-drive-eject-init
 **Type:** [user-action](#user-action)  
@@ -68,11 +72,11 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### usb-drive-mount-init
 **Type:** [application-action](#application-action)  
-**Description:** The USB Drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.  
+**Description:** The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.  
 **Machines:** All
 ### usb-drive-mount-complete
 **Type:** [application-status](#application-status)  
-**Description:** USB Drive mount has completed. Success or failure is indicated by the disposition.  
+**Description:** USB drive mount has completed. Success or failure is indicated by the disposition.  
 **Machines:** All
 ### application-startup
 **Type:** [application-status](#application-status)  

@@ -157,7 +157,7 @@ describe('test cdf conversion', () => {
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefinition,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
       '12machine34',
       'thisisacodeversion',
       'election_manager'
@@ -172,7 +172,7 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
+    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveDetected);
     expect(decodedEvent.Disposition).toBe('na');
     expect(decodedEvent.Sequence).toBe('0');
     expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
@@ -196,7 +196,7 @@ describe('test cdf conversion', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefinition,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
       '12machine34',
       'thisisacodeversion',
       'election_manager'
@@ -218,7 +218,7 @@ describe('test cdf conversion', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
       electionMinimalExhaustiveSampleDefinition,
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
       '12machine34',
       'thisisacodeversion',
       'election_manager'
@@ -233,7 +233,7 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveStatusUpdate);
+    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveDetected);
     expect(decodedEvent.Disposition).toBe('other');
     expect(decodedEvent.OtherDisposition).toBe('dinosaurs');
     expect(decodedEvent.Sequence).toBe('0');
@@ -354,7 +354,7 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Version).toBe('codeversion');
     expect(cdfLogDevice.Type).toBe('ems');
     const events = cdfLogDevice.Event!;
-    // There are 37 log lines in the sample file.
+    // There are 35 log lines in the sample file.
     expect(events).toHaveLength(35);
     // There should be one auth-login log from the application logging.
     expect(events.filter((e) => e.Id === LogEventId.AuthLogin)).toHaveLength(1);
@@ -362,7 +362,7 @@ describe('test cdf conversion', () => {
     expect(
       events.filter((e) => e.Id === LogEventId.DeviceAttached)
     ).toHaveLength(11);
-    // There should be 11 usb-device-status-change logs from the system logging.
+    // There should be 4 usb-device-change-detected logs from the system logging.
     expect(
       events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)
     ).toHaveLength(4);
