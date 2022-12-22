@@ -17,6 +17,7 @@ import {
   assert,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
+  throwIllegalValue,
   usbstick,
 } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
@@ -35,8 +36,6 @@ import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 import { AddCastVoteRecordFileResult } from '../lib/backends';
 import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
-
-const { UsbDriveStatus } = usbstick;
 
 const CvrFileTable = styled(Table)`
   margin-top: 20px;
@@ -68,10 +67,6 @@ type ModalState =
 
 export interface Props {
   onClose: () => void;
-}
-
-function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`);
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
@@ -221,7 +216,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   useEffect(() => {
-    if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
+    if (usbDriveStatus === 'mounted') {
       void fetchFilenames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,8 +286,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   if (
     cvrFilesQuery.isLoading ||
     currentState.state === 'loading' ||
-    usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
-    usbDriveStatus === usbstick.UsbDriveStatus.present
+    usbDriveStatus === 'ejecting' ||
+    usbDriveStatus === 'mounting'
   ) {
     return (
       <Modal
@@ -307,11 +302,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     );
   }
 
-  if (
-    usbDriveStatus === usbstick.UsbDriveStatus.absent ||
-    usbDriveStatus === usbstick.UsbDriveStatus.notavailable ||
-    usbDriveStatus === UsbDriveStatus.recentlyEjected
-  ) {
+  if (usbDriveStatus === 'absent' || usbDriveStatus === 'ejected') {
     return (
       <Modal
         content={
@@ -342,7 +333,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     );
   }
 
-  if (usbDriveStatus === UsbDriveStatus.mounted) {
+  if (usbDriveStatus === 'mounted') {
     // Determine if we are already locked to a filemode based on previously loaded CVRs
     const fileModeLocked = fileMode !== Admin.CvrFileMode.Unlocked;
 
@@ -466,6 +457,5 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       />
     );
   }
-  // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-  throwBadStatus(usbDriveStatus);
+  throwIllegalValue(usbDriveStatus);
 }

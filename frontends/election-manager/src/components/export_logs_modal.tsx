@@ -27,8 +27,6 @@ import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { UsbImage } from './save_file_to_usb';
 
-const { UsbDriveStatus } = usbstick;
-
 export interface Props {
   onClose: () => void;
   logFileType: LogFileType;
@@ -225,9 +223,8 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
   }
 
   switch (usbDriveStatus) {
-    case UsbDriveStatus.absent:
-    case UsbDriveStatus.notavailable:
-    case UsbDriveStatus.recentlyEjected:
+    case 'absent':
+    case 'ejected':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -263,8 +260,8 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
           }
         />
       );
-    case UsbDriveStatus.ejecting:
-    case UsbDriveStatus.present:
+    case 'ejecting':
+    case 'mounting':
       return (
         <Modal
           content={<Loading />}
@@ -272,7 +269,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
           actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
-    case UsbDriveStatus.mounted: {
+    case 'mounted': {
       return (
         <Modal
           content={
@@ -298,7 +295,6 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
       );
     }
     default:
-      // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
       throwIllegalValue(usbDriveStatus);
   }
 }

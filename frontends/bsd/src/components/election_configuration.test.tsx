@@ -5,14 +5,12 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { usbstick } from '@votingworks/utils';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { ElectionConfiguration } from './election_configuration';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
-const { UsbDriveStatus } = usbstick;
-
 test('shows loading screen when usb is mounting or ejecting', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
     const { getByText, unmount } = renderInAppContext(
@@ -28,11 +26,7 @@ test('shows loading screen when usb is mounting or ejecting', () => {
 });
 
 test('shows insert usb screen when no usb is present with manual load button', async () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const status of usbStatuses) {
     const manualUpload = jest.fn();
@@ -71,7 +65,7 @@ test('reads files from usb when mounted and shows proper display when there are 
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={jest.fn()}
     />,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+    { usbDriveStatus: 'mounted' }
   );
 
   await waitFor(() => getByText('No Election Ballot Packages Found'));
@@ -108,7 +102,7 @@ test('reads files from usb when mounted and shows list of files', async () => {
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={automaticUpload}
     />,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+    { usbDriveStatus: 'mounted' }
   );
 
   await waitFor(() => getByText('Choose Election Configuration'));
@@ -158,7 +152,7 @@ test('shows errors that occur when loading in file list screen', async () => {
         .fn()
         .mockRejectedValueOnce(new Error('FAKE-ERROR'))}
     />,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+    { usbDriveStatus: 'mounted' }
   );
 
   await waitFor(() => getByText('Choose Election Configuration'));

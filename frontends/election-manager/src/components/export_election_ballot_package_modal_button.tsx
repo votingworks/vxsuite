@@ -44,7 +44,6 @@ import { Loading } from './loading';
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 
-const { UsbDriveStatus } = usbstick;
 const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
@@ -225,9 +224,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
     case 'ArchiveBegin':
       switch (usbDriveStatus) {
-        case UsbDriveStatus.absent:
-        case UsbDriveStatus.notavailable:
-        case UsbDriveStatus.recentlyEjected:
+        case 'absent':
+        case 'ejected':
           actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
           mainContent = (
             <Prose>
@@ -245,8 +243,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             </Prose>
           );
           break;
-        case UsbDriveStatus.ejecting:
-        case UsbDriveStatus.present:
+        case 'ejecting':
+        case 'mounting':
           mainContent = <Loading />;
           actions = (
             <LinkButton onPress={closeModal} disabled>
@@ -254,7 +252,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             </LinkButton>
           );
           break;
-        case UsbDriveStatus.mounted: {
+        case 'mounted': {
           actions = (
             <React.Fragment>
               <Button primary onPress={() => saveFileCallback(false)}>
@@ -345,7 +343,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
 
     case 'Done': {
-      if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+      if (usbDriveStatus !== 'ejected') {
         actions = (
           <React.Fragment>
             <UsbControllerButton

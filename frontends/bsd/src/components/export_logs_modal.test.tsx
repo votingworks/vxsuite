@@ -6,13 +6,12 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { LogFileType, usbstick } from '@votingworks/utils';
+import { LogFileType } from '@votingworks/utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { ExportLogsModal } from './export_logs_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
-
-const { UsbDriveStatus } = usbstick;
 
 const fileSystemEntry: KioskBrowser.FileSystemEntry = {
   name: 'file',
@@ -25,7 +24,7 @@ const fileSystemEntry: KioskBrowser.FileSystemEntry = {
 };
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -54,7 +53,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   const { getByText } = renderInAppContext(
     <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -69,11 +68,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
 });
 
 test('render no usb found screen when there is not a mounted usb drive', async () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getFileSystemEntries.mockResolvedValue([
@@ -121,7 +116,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   const { getByText } = renderInAppContext(
     <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -179,7 +174,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   const { getByText } = renderInAppContext(
     <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Cdf} />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -235,7 +230,7 @@ test('render export modal with errors when appropriate', async () => {
   const { getByText } = renderInAppContext(
     <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );

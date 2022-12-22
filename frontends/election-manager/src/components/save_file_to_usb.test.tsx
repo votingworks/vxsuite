@@ -2,17 +2,15 @@ import React from 'react';
 
 import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { usbstick } from '@votingworks/utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
-const { UsbDriveStatus } = usbstick;
-
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
     for (const fileType of Object.values(FileType)) {
@@ -35,11 +33,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 });
 
 test('render no usb found screen when there is not a mounted usb drive', () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -86,7 +80,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
       fileType={FileType.Ballot}
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -145,7 +139,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
       promptToEjectUsb
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -201,7 +195,7 @@ test('render export modal with errors when appropriate', async () => {
       fileType={FileType.TallyReport}
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -243,7 +237,7 @@ test('creates new directory and saves to it, if specified', async () => {
       fileType={FileType.Ballot}
     />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
     }
   );
 

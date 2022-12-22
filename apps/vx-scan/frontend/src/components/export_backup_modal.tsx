@@ -86,7 +86,7 @@ export function ExportBackupModal({
   }
 
   if (currentState === ModalState.DONE) {
-    if (usbDrive.status === usbstick.UsbDriveStatus.recentlyEjected) {
+    if (usbDrive.status === 'ejected') {
       return (
         <Modal
           content={
@@ -117,7 +117,7 @@ export function ExportBackupModal({
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
+              usbDriveStatus={usbDrive.status}
               usbDriveEject={() => usbDrive.eject(userRole)}
             />
             <Button onPress={onClose}>Cancel</Button>
@@ -137,10 +137,8 @@ export function ExportBackupModal({
   }
 
   switch (usbDrive.status) {
-    case undefined:
-    case usbstick.UsbDriveStatus.absent:
-    case usbstick.UsbDriveStatus.notavailable:
-    case usbstick.UsbDriveStatus.recentlyEjected:
+    case 'absent':
+    case 'ejected':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -158,8 +156,8 @@ export function ExportBackupModal({
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
-    case usbstick.UsbDriveStatus.ejecting:
-    case usbstick.UsbDriveStatus.present:
+    case 'ejecting':
+    case 'mounting':
       return (
         <Modal
           content={<Loading />}
@@ -167,7 +165,7 @@ export function ExportBackupModal({
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
-    case usbstick.UsbDriveStatus.mounted:
+    case 'mounted':
       return (
         <Modal
           content={

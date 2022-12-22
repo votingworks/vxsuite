@@ -151,7 +151,7 @@ export function ExportResultsModal({
   }
 
   if (currentState === ModalState.DONE) {
-    if (usbDriveStatus === usbstick.UsbDriveStatus.recentlyEjected) {
+    if (usbDriveStatus === 'ejected') {
       return (
         <Modal
           content={
@@ -204,9 +204,8 @@ export function ExportResultsModal({
   }
 
   switch (usbDriveStatus) {
-    case usbstick.UsbDriveStatus.absent:
-    case usbstick.UsbDriveStatus.notavailable:
-    case usbstick.UsbDriveStatus.recentlyEjected:
+    case 'absent':
+    case 'ejected':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -241,8 +240,8 @@ export function ExportResultsModal({
           }
         />
       );
-    case usbstick.UsbDriveStatus.ejecting:
-    case usbstick.UsbDriveStatus.present:
+    case 'ejecting':
+    case 'mounting':
       return (
         <Modal
           content={<Loading />}
@@ -250,7 +249,7 @@ export function ExportResultsModal({
           actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
-    case usbstick.UsbDriveStatus.mounted:
+    case 'mounted':
       return (
         <Modal
           content={

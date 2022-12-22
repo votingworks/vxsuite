@@ -19,7 +19,6 @@ import {
 import {
   assert,
   throwIllegalValue,
-  usbstick,
   Hardware,
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -118,7 +117,6 @@ export function AppRoot({
   }, [machineConfigProvider]);
 
   const usbDrive = useUsbDrive({ logger });
-  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
   useEffect(() => {
     const totalBallots =
@@ -233,7 +231,7 @@ export function AppRoot({
         saveElection,
         resetElection,
         resetFiles,
-        usbDriveStatus: displayUsbStatus,
+        usbDriveStatus: usbDrive.status,
         usbDriveEject: usbDrive.eject,
         fullElectionTally,
         fullElectionExternalTallies: store.fullElectionExternalTallies,

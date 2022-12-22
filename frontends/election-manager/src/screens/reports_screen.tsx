@@ -89,8 +89,11 @@ export function ReportsScreen(): JSX.Element {
   useEffect(() => {
     void (async () => {
       try {
+        console.log(`converter ${converter}`);
         const client = getTallyConverterClient(converter);
+        console.log(`client ${client}`);
         if (client) {
+          console.log('setting name and such');
           await makeCancelable(client.getFiles());
           setConverterName(client.getDisplayName());
         }

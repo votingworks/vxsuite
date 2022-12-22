@@ -7,18 +7,17 @@ import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
 import { Dipped, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { assert, MemoryStorage, usbstick } from '@votingworks/utils';
+import { assert, MemoryStorage } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { safeParseJson } from '@votingworks/types';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { AppContext } from '../contexts/app_context';
 
-const { UsbDriveStatus } = usbstick;
-
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -39,11 +38,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 });
 
 test('render no usb found screen when there is not a mounted usb drive', () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -91,7 +86,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
         isTestMode
       />
     </Router>,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+    { usbDriveStatus: 'mounted' }
   );
   getByText('Save CVRs');
   getByText(
@@ -128,7 +123,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       numberOfBallots={5}
       isTestMode
     />,
-    { usbDriveStatus: UsbDriveStatus.mounted, history }
+    { usbDriveStatus: 'mounted', history }
   );
   getByText('Save CVRs');
 
@@ -163,7 +158,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
           machineId: '0001',
           codeVersion: 'TEST',
         },
-        usbDriveStatus: UsbDriveStatus.recentlyEjected,
+        usbDriveStatus: 'ejected',
         usbDriveEject: jest.fn(),
         storage: new MemoryStorage(),
         auth: Dipped.fakeElectionManagerAuth(),
@@ -203,7 +198,7 @@ test('render export modal with errors when appropriate', async () => {
         isTestMode
       />
     </Router>,
-    { usbDriveStatus: UsbDriveStatus.mounted }
+    { usbDriveStatus: 'mounted' }
   );
   getByText('Save CVRs');
 

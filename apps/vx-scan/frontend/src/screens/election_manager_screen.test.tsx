@@ -12,7 +12,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import {
@@ -63,7 +63,7 @@ function renderScreen({
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
-        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
+        usbDrive={{ status: 'absent', eject: jest.fn() }}
         toggleIsSoundMuted={jest.fn()}
         {...electionManagerScreenProps}
       />
@@ -145,7 +145,7 @@ test('unconfigure does not eject a usb drive that is not mounted', () => {
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
-      usbDrive: { status: usbstick.UsbDriveStatus.absent, eject: ejectFn },
+      usbDrive: { status: 'absent', eject: ejectFn },
     },
   });
 
@@ -162,7 +162,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
-      usbDrive: { status: usbstick.UsbDriveStatus.mounted, eject: ejectFn },
+      usbDrive: { status: 'mounted', eject: ejectFn },
     },
   });
 

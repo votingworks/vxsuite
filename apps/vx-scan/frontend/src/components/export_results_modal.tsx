@@ -11,7 +11,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 
@@ -85,7 +85,7 @@ export function ExportResultsModal({
   }
 
   if (currentState === ModalState.DONE) {
-    if (usbDrive.status === usbstick.UsbDriveStatus.recentlyEjected) {
+    if (usbDrive.status === 'ejected') {
       return (
         <Modal
           content={
@@ -117,9 +117,7 @@ export function ExportResultsModal({
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={
-                usbDrive.status ?? usbstick.UsbDriveStatus.notavailable
-              }
+              usbDriveStatus={usbDrive.status}
               usbDriveEject={() => usbDrive.eject(userRole)}
             />
           </React.Fragment>
@@ -142,10 +140,8 @@ export function ExportResultsModal({
   }
 
   switch (usbDrive.status) {
-    case undefined:
-    case usbstick.UsbDriveStatus.absent:
-    case usbstick.UsbDriveStatus.notavailable:
-    case usbstick.UsbDriveStatus.recentlyEjected:
+    case 'absent':
+    case 'ejected':
       // When run not through kiosk mode let the user download the file
       // on the machine for internal debugging use
       return (
@@ -182,8 +178,8 @@ export function ExportResultsModal({
           }
         />
       );
-    case usbstick.UsbDriveStatus.ejecting:
-    case usbstick.UsbDriveStatus.present:
+    case 'ejecting':
+    case 'mounting':
       return (
         <Modal
           content={<Loading />}
@@ -191,7 +187,7 @@ export function ExportResultsModal({
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
-    case usbstick.UsbDriveStatus.mounted:
+    case 'mounted':
       return (
         <Modal
           content={

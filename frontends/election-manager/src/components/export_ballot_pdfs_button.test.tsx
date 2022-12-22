@@ -2,13 +2,12 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { assert, usbstick } from '@votingworks/utils';
+import { UsbDriveStatus } from '@votingworks/ui';
+import { assert } from '@votingworks/utils';
 import React from 'react';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportBallotPdfsButton } from './export_ballot_pdfs_button';
-
-const { UsbDriveStatus } = usbstick;
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -33,11 +32,7 @@ test('button renders properly when not clicked', () => {
 });
 
 test('modal renders insert usb screen appropriately', async () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.recentlyEjected,
-    UsbDriveStatus.notavailable,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const usbStatus of usbStatuses) {
     const { unmount } = renderInAppContext(<ExportBallotPdfsButton />, {
@@ -56,7 +51,7 @@ test('modal renders insert usb screen appropriately', async () => {
 });
 
 test('modal renders loading screen when usb drive is mounting or ejecting', async () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
     const { unmount } = renderInAppContext(<ExportBallotPdfsButton />, {
@@ -75,7 +70,7 @@ test('modal happy path flow works', async () => {
   const ejectFunction = jest.fn();
   renderInAppContext(<ExportBallotPdfsButton />, {
     logger,
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: 'mounted',
     usbDriveEject: ejectFunction,
   });
 
@@ -107,7 +102,7 @@ test('modal happy path flow works', async () => {
 
 test('can select options to save different ballots', async () => {
   renderInAppContext(<ExportBallotPdfsButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: 'mounted',
   });
 
   userEvent.click(screen.getByText('Save PDFs'));
@@ -125,7 +120,7 @@ test('can select options to save different ballots', async () => {
 test('modal custom flow works', async () => {
   const logger = fakeLogger();
   renderInAppContext(<ExportBallotPdfsButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: 'mounted',
     logger,
   });
   userEvent.click(screen.getByText('Save PDFs'));
@@ -145,7 +140,7 @@ test('modal renders error message appropriately', async () => {
   // Trigger error by simulating no file chosen at "Save As" prompt
   window.kiosk!.saveAs = jest.fn().mockResolvedValue(undefined);
   renderInAppContext(<ExportBallotPdfsButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: 'mounted',
   });
   userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');

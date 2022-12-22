@@ -9,13 +9,13 @@ import {
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { Admin } from '@votingworks/api';
-import { usbstick } from '@votingworks/utils';
 import {
   BallotIdSchema,
   CastVoteRecord,
   unsafeParse,
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,
@@ -28,18 +28,12 @@ const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
 const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
-const { UsbDriveStatus } = usbstick;
-
 test('No USB screen shows when there is no USB drive', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
 
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.recentlyEjected,
-    UsbDriveStatus.notavailable,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
@@ -56,7 +50,7 @@ test('No USB screen shows when there is no USB drive', async () => {
 });
 
 test('Loading screen show while usb is mounting or ejecting', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
@@ -89,7 +83,7 @@ describe('Screens display properly when USB is mounted', () => {
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDriveStatus: UsbDriveStatus.mounted,
+        usbDriveStatus: 'mounted',
         logger,
         backend,
       }
@@ -156,7 +150,7 @@ describe('Screens display properly when USB is mounted', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDriveStatus: UsbDriveStatus.mounted,
+        usbDriveStatus: 'mounted',
         logger,
         backend,
       }
@@ -271,7 +265,7 @@ describe('Screens display properly when USB is mounted', () => {
     const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDriveStatus: UsbDriveStatus.mounted,
+        usbDriveStatus: 'mounted',
         logger,
         backend,
       }
@@ -382,7 +376,7 @@ describe('Screens display properly when USB is mounted', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDriveStatus: UsbDriveStatus.mounted,
+        usbDriveStatus: 'mounted',
         backend,
       }
     );
@@ -451,7 +445,7 @@ describe('Screens display properly when USB is mounted', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDriveStatus: UsbDriveStatus.mounted,
+        usbDriveStatus: 'mounted',
         backend,
       }
     );
