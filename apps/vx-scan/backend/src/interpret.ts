@@ -1,4 +1,7 @@
-import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
+import {
+  // interpret as interpretNh,
+  OpenCvInterpreter,
+} from '@votingworks/ballot-interpreter-nh';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -20,7 +23,7 @@ import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
-import { time } from '@votingworks/utils';
+import { assert, time } from '@votingworks/utils';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';
@@ -180,12 +183,19 @@ async function nhInterpret(
 
   const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
     config;
-  const result = await interpretNh(electionDefinition, sheet, {
+  // const result = await interpretNh(electionDefinition, sheet, {
+  //   isTestMode: config.testMode,
+  //   markThresholds: markThresholdOverrides,
+  //   adjudicationReasons:
+  //     electionDefinition.election.precinctScanAdjudicationReasons ?? [],
+  // });
+
+  const result = await new OpenCvInterpreter({
+    ballotImagesPath,
+    electionDefinition,
     isTestMode: config.testMode,
     markThresholds: markThresholdOverrides,
-    adjudicationReasons:
-      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
-  });
+  }).run(sheet, sheetId);
 
   timer.checkpoint('finishedInterpretation');
 
@@ -195,33 +205,36 @@ async function nhInterpret(
 
   const [frontResult, backResult] = result.ok();
 
-  const frontImages = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    sheet[0],
-    frontResult.normalizedImage
-  );
-  const backImages = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    sheet[1],
-    backResult.normalizedImage
-  );
+  assert(frontResult);
+  assert(backResult);
 
-  timer.checkpoint('savedSheetImages');
+  // const frontImages = await saveSheetImages(
+  //   sheetId,
+  //   ballotImagesPath,
+  //   sheet[0],
+  //   frontResult.normalizedImage
+  // );
+  // const backImages = await saveSheetImages(
+  //   sheetId,
+  //   ballotImagesPath,
+  //   sheet[1],
+  //   backResult.normalizedImage
+  // );
+
+  // timer.checkpoint('savedSheetImages');
 
   timer.end();
 
   const pageInterpretations: SheetOf<PageInterpretationWithFiles> = [
     {
       interpretation: frontResult.interpretation,
-      originalFilename: frontImages.original,
-      normalizedFilename: frontImages.normalized,
+      originalFilename: frontResult.originalImageFilePath,
+      normalizedFilename: frontResult.normalizedImageFilePath,
     },
     {
       interpretation: backResult.interpretation,
-      originalFilename: backImages.original,
-      normalizedFilename: backImages.normalized,
+      originalFilename: backResult.originalImageFilePath,
+      normalizedFilename: backResult.normalizedImageFilePath,
     },
   ];
   return ok(pageInterpretations);

@@ -93,18 +93,18 @@ export type SheetOf<T> = readonly [T, T];
  */
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => Promise<U>
+  fn: (page: T, index: number) => Promise<U>
 ): Promise<SheetOf<U>>;
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => U
+  fn: (page: T, index: number) => U
 ): SheetOf<U>;
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => U
+  fn: (page: T, index: number) => U
 ): SheetOf<U> | Promise<SheetOf<U>> {
-  const front = fn(sheet[0]);
-  const back = fn(sheet[1]);
+  const front = fn(sheet[0], 0);
+  const back = fn(sheet[1], 1);
 
   if (
     front &&

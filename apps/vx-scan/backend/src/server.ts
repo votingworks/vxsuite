@@ -1,3 +1,9 @@
+import path from 'path';
+
+import {
+  interpret,
+  OpenCvInterpreter,
+} from '@votingworks/ballot-interpreter-nh';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { createClient } from '@votingworks/plustek-sdk';
 import { PORT, SCAN_WORKSPACE } from './globals';
@@ -14,6 +20,60 @@ export interface StartOptions {
   createPlustekClient: CreatePlustekClient;
   logger: Logger;
   workspace: Workspace;
+}
+
+async function testCvInterpreter(workspace: Workspace) {
+  const { store } = workspace;
+
+  const electionDefinition = store.getElectionDefinition();
+  if (!electionDefinition) {
+    throw new Error('no election definition');
+  }
+
+  const openCvResult = await new OpenCvInterpreter(electionDefinition, {
+    isTestMode: false,
+    markThresholds: store.getMarkThresholdOverrides(),
+    adjudicationReasons:
+      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
+  }).run([
+    path.join(workspace.scannedImagesPath, 'PIC-1671039574-001.jpg'),
+    path.join(workspace.scannedImagesPath, 'PIC-1671039574-002.jpg'),
+    // path.resolve(
+    //   __dirname,
+    //   '../../../../libs/fixtures/data/electionGridLayoutNewHampshireAmherst/scan-marked-stretch-extra-front.jpeg'
+    // ),
+    // path.resolve(
+    //   __dirname,
+    //   '../../../../libs/fixtures/data/electionGridLayoutNewHampshireAmherst/scan-marked-stretch-extra-back.jpeg'
+    // ),
+  ]);
+
+  console.log('openCV result:', openCvResult);
+}
+
+async function testCanvasInterpreterBak(workspace: Workspace) {
+  const { store } = workspace;
+
+  const electionDefinition = store.getElectionDefinition();
+  if (!electionDefinition) {
+    throw new Error('no election definition');
+  }
+
+  const canvasResult = await interpret(
+    electionDefinition,
+    [
+      path.join(workspace.scannedImagesPath, 'PIC-1671041023-001.jpg'),
+      path.join(workspace.scannedImagesPath, 'PIC-1671041023-002.jpg'),
+    ],
+    {
+      isTestMode: false,
+      markThresholds: store.getMarkThresholdOverrides(),
+      adjudicationReasons:
+        electionDefinition.election.precinctScanAdjudicationReasons ?? [],
+    }
+  );
+
+  console.log('canvas result:', canvasResult);
 }
 
 /**
@@ -71,6 +131,15 @@ export async function start({
       await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
         message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
       });
+
+      console.warn('starting...');
+      console.warn('starting...');
+      console.warn('starting...');
+      try {
+        await testCvInterpreter(resolvedWorkspace);
+      } catch (error) {
+        console.error(error);
+      }
     }
   });
 }

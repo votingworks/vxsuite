@@ -9,6 +9,7 @@
   "main": "build/index.js",
   "scripts": {
     "type-check": "tsc --build",
+    "build-opencv": "sudo apt install -y cmake && pnpx build-opencv --nocontrib rebuild",
     "build": "tsc --build tsconfig.build.json",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.png'",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
@@ -21,6 +22,7 @@
   },
   "packageManager": "pnpm@5.18.10",
   "dependencies": {
+    "@u4/opencv4nodejs": "^6.2.5",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -63,6 +65,7 @@
     "jest": "^27.4.7",
     "jest-junit": "^14.0.1",
     "jest-watch-typeahead": "^0.6.4",
+    "node-gyp": "^9.3.1",
     "ts-jest": "^27.1.3",
     "typescript": "4.6.3"
   }
