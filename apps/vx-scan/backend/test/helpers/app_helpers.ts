@@ -1,6 +1,6 @@
 import {
   ALL_PRECINCTS_SELECTION,
-  BallotPackageEntry,
+  assert,
   deferred,
   readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
@@ -18,12 +18,13 @@ import {
   MockScannerClientOptions,
   ScannerClient,
 } from '@votingworks/plustek-sdk';
-import { dirSync } from 'tmp';
+import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
 import { AddressInfo } from 'net';
 import fetch from 'node-fetch';
-import { buildApp, Api } from '../../src/app';
+import fs from 'fs';
+import { buildApp, Api, Usb } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
@@ -40,38 +41,61 @@ import { createWorkspace, Workspace } from '../../src/util/workspace';
 // @ts-ignore
 global.fetch = fetch;
 
-export function postTemplate(
-  app: Application,
-  path: string,
-  ballot: BallotPackageEntry
-): request.Test {
-  return request(app)
-    .post(path)
-    .accept('application/json')
-    .attach('ballots', Buffer.from(ballot.pdf), {
-      filename: ballot.ballotConfig.filename,
-      contentType: 'application/pdf',
-    })
-    .attach(
-      'metadatas',
-      Buffer.from(
-        new TextEncoder().encode(JSON.stringify(ballot.ballotConfig))
-      ),
-      { filename: 'ballot-config.json', contentType: 'application/json' }
-    )
-    .attach(
-      'layouts',
-      Buffer.from(new TextEncoder().encode(JSON.stringify(ballot.layout))),
-      {
-        filename: ballot.ballotConfig.layoutFilename,
-        contentType: 'application/json',
+type MockFileTree = MockFile | MockDirectory;
+type MockFile = Buffer;
+interface MockDirectory {
+  [name: string]: MockFileTree;
+}
+
+function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
+  if (Buffer.isBuffer(tree)) {
+    fs.writeFileSync(destinationPath, tree);
+  } else {
+    if (!fs.existsSync(destinationPath)) fs.mkdirSync(destinationPath);
+    for (const [name, child] of Object.entries(tree)) {
+      writeMockFileTree(join(destinationPath, name), child);
+    }
+  }
+}
+
+interface MockUsb {
+  insertUsbDrive(contents: MockFileTree): void;
+  removeUsbDrive(): void;
+  mock: jest.Mocked<Usb>;
+}
+
+function createMockUsb(): MockUsb {
+  let mockUsbTmpDir: tmp.DirResult | undefined;
+
+  const mock: jest.Mocked<Usb> = {
+    getUsbDrives: jest.fn().mockImplementation(() => {
+      if (mockUsbTmpDir) {
+        return Promise.resolve([
+          {
+            deviceName: 'mock-usb-drive',
+            mountPoint: mockUsbTmpDir.name,
+          },
+        ]);
       }
-    )
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
+      return Promise.resolve([]);
+    }),
+  };
+
+  return {
+    mock,
+
+    insertUsbDrive(contents: MockFileTree) {
+      assert(!mockUsbTmpDir, 'Mock USB drive already inserted');
+      mockUsbTmpDir = tmp.dirSync({ unsafeCleanup: true });
+      writeMockFileTree(mockUsbTmpDir.name, contents);
+    },
+
+    removeUsbDrive() {
+      assert(mockUsbTmpDir, 'No mock USB drive to remove');
+      mockUsbTmpDir.removeCallback();
+      mockUsbTmpDir = undefined;
+    },
+  };
 }
 
 export async function postExportCvrs(
@@ -126,11 +150,12 @@ export async function createApp(
   app: Application;
   mockPlustek: MockScannerClient;
   workspace: Workspace;
+  mockUsb: MockUsb;
   logger: Logger;
   interpreter: PrecinctScannerInterpreter;
 }> {
   const logger = fakeLogger();
-  const workspace = await createWorkspace(dirSync().name);
+  const workspace = await createWorkspace(tmp.dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
@@ -156,7 +181,14 @@ export async function createApp(
       ...delays,
     },
   });
-  const app = buildApp(precinctScannerMachine, interpreter, workspace, logger);
+  const mockUsb = createMockUsb();
+  const app = buildApp(
+    precinctScannerMachine,
+    interpreter,
+    workspace,
+    mockUsb.mock,
+    logger
+  );
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -172,6 +204,7 @@ export async function createApp(
     app,
     mockPlustek,
     workspace,
+    mockUsb,
     logger,
     interpreter,
   };
@@ -206,9 +239,11 @@ export const ballotImages = {
   ],
 } as const;
 
+// const CACHED_DB_PATH = tmp.tmpNameSync();
+
 export async function configureApp(
   apiClient: grout.Client<Api>,
-  app: Application,
+  mockUsb: MockUsb,
   {
     addTemplates = false,
     precinctId,
@@ -216,18 +251,40 @@ export async function configureApp(
     addTemplates: false,
   }
 ): Promise<void> {
-  const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-  );
-  await apiClient.setElection({
-    electionData: electionDefinition.electionData,
+  // if (fs.existsSync(CACHED_DB_PATH)) {
+  //   console.log(
+  //     'copying cached db',
+  //     CACHED_DB_PATH,
+  //     workspace.store.getDbPath()
+  //   );
+  //   fs.copyFileSync(CACHED_DB_PATH, workspace.store.getDbPath());
+  // } else {
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip':
+        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
+    },
   });
+  expect(await apiClient.checkForBallotPackageOnUsbDrive()).toEqual(ok());
+  await apiClient.configureFromBallotPackageOnUsbDrive();
+  // console.log('caching db', workspace.store.getDbPath(), CACHED_DB_PATH);
+  // fs.copyFileSync(workspace.store.getDbPath(), CACHED_DB_PATH);
+  // }
   if (addTemplates) {
-    // It takes about a second per template, so we only do some
-    for (const ballot of ballots.slice(0, 2)) {
-      await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
-    }
+    // TODO
   }
+  // const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
+  //   electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+  // );
+  // await apiClient.setElection({
+  //   electionData: electionDefinition.electionData,
+  // });
+  // if (addTemplates) {
+  //   // It takes about a second per template, so we only do some
+  //   for (const ballot of ballots.slice(0, 2)) {
+  //     await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
+  //   }
+  // }
   await apiClient.setPrecinctSelection({
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(precinctId)

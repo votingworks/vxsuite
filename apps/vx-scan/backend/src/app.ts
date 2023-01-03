@@ -22,7 +22,7 @@ import {
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import { pipeline } from 'stream/promises';
-import { getUsbDrives } from '@votingworks/data';
+import { UsbDrive } from '@votingworks/data';
 import path from 'path';
 import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
@@ -35,14 +35,18 @@ const debug = rootDebug.extend('app');
 
 type NoParams = never;
 
+export interface Usb {
+  getUsbDrives: () => Promise<UsbDrive[]>;
+}
+
 export type UsbDriveBallotPackageError =
   | 'no_usb_drive_connected'
   | 'no_ballot_package_on_usb_drive';
 
-async function findBallotPackageOnUsbDrive(): Promise<
-  Result<string, UsbDriveBallotPackageError>
-> {
-  const [usbDrive] = await getUsbDrives();
+async function findBallotPackageOnUsbDrive(
+  usb: Usb
+): Promise<Result<string, UsbDriveBallotPackageError>> {
+  const [usbDrive] = await usb.getUsbDrives();
   if (!usbDrive?.mountPoint) {
     return err('no_usb_drive_connected');
   }
@@ -79,6 +83,7 @@ function buildApi(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
+  usb: Usb,
   logger: Logger
 ) {
   const { store } = workspace;
@@ -87,13 +92,13 @@ function buildApi(
     async checkForBallotPackageOnUsbDrive(): Promise<
       Result<void, UsbDriveBallotPackageError>
     > {
-      const result = await findBallotPackageOnUsbDrive();
+      const result = await findBallotPackageOnUsbDrive(usb);
       return result.isErr() ? result : ok();
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<void> {
       assert(!store.getElectionDefinition());
-      const ballotPackagePathResult = await findBallotPackageOnUsbDrive();
+      const ballotPackagePathResult = await findBallotPackageOnUsbDrive(usb);
       assert(ballotPackagePathResult.isOk());
 
       const ballotPackage = await readBallotPackageFromBuffer(
@@ -316,13 +321,14 @@ export function buildApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
+  usb: Usb,
   logger: Logger
 ): Application {
   const { store } = workspace;
 
   const app: Application = express();
 
-  const api = buildApi(machine, interpreter, workspace, logger);
+  const api = buildApi(machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));
 
   const deprecatedApiRouter = express.Router();

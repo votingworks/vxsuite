@@ -1117,6 +1117,7 @@ export class Store {
   }
 
   getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {
+    debug('loading stored HMPB templates');
     const rows = this.client.all(
       `
         select
