@@ -409,12 +409,7 @@ export function AppRoot({
   }
 
   if (!electionDefinition) {
-    return (
-      <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveDisplayStatus}
-        refreshConfig={refreshConfig}
-      />
-    );
+    return <UnconfiguredElectionScreen refreshConfig={refreshConfig} />;
   }
 
   if (auth.status === 'checking_passcode') {

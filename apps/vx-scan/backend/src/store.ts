@@ -168,6 +168,19 @@ export class Store {
     return this.client.one(sql, ...params);
   }
 
+  // TODO(jonah): Make this the only way to access the store so that we always use a transaction.
+  /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * the transaction is rolled back. Otherwise, the transaction is committed.
+   *
+   * The function is passed the store as its only argument.
+   *
+   * Returns the result of the function.
+   */
+  withTransaction<T>(fn: (store: Store) => T): T {
+    return this.client.transaction(() => fn(this));
+  }
+
   /**
    * Writes a copy of the database to the given path.
    */

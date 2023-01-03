@@ -8,7 +8,7 @@ import { MOCK_SCANNER_HTTP, MOCK_SCANNER_PORT, NODE_ENV } from './globals';
 import * as server from './server';
 import { plustekMockServer } from './plustek_mock_server';
 
-export type { Api } from './app';
+export type { Api, UsbDriveBallotPackageError } from './app';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotEnvPath = '.env';
