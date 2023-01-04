@@ -1,8 +1,15 @@
 import makeDebug from 'debug';
+import { promises as fs } from 'fs';
 import * as cv from '@u4/opencv4nodejs';
 
 import { assert, time } from '@votingworks/utils';
-import { err, GridPosition, ok, Result } from '@votingworks/types';
+import {
+  err,
+  GridPosition,
+  ok,
+  Result,
+  safeParseInt,
+} from '@votingworks/types';
 import { BallotCardGeometry } from '../../types';
 import {
   BGR_BLUE,
@@ -42,6 +49,47 @@ import { ovalTemplatePromise } from './oval_template';
 
 const debugLogger = makeDebug('ballot-interpreter-nh:interpret-opencv:Page');
 
+async function loadImageAsMat(imageFilePath: string): Promise<cv.Mat> {
+  try {
+    return cv.imreadAsync(imageFilePath, cv.IMREAD_GRAYSCALE);
+  } catch (error) {
+    if (!imageFilePath.endsWith('.pgm')) {
+      throw error;
+    }
+
+    const buffer = await fs.readFile(imageFilePath);
+    const intro = buffer.toString('ascii', 0, 100);
+    const match = intro.match(/P5\n(\d+) (\d+)\n(\d+)\n/);
+
+    if (!match) {
+      throw new Error(
+        `Unsupported PGM image format: magic=${intro.slice(0, 'P5'.length)}`
+      );
+    }
+
+    const [header, widthAsString, heightAsString, maxAsString] = match;
+
+    const width = safeParseInt(widthAsString, { min: 1 }).assertOk(
+      'width is valid'
+    );
+    const height = safeParseInt(heightAsString, { min: 1 }).assertOk(
+      'height is valid'
+    );
+    const max = safeParseInt(maxAsString, { min: 1 }).assertOk('max is valid');
+
+    if (max !== 255) {
+      throw new Error(`Unsupported PGM image format: max=${max}`);
+    }
+
+    return new cv.Mat(
+      height,
+      width,
+      cv.CV_8UC1,
+      buffer.subarray(header.length)
+    );
+  }
+}
+
 /** Represents a scanned ballot page */
 export class Page {
   private constructor(
@@ -60,10 +108,7 @@ export class Page {
 
     const timer = time(debugLogger, `loadPage:page-${pageIndex}`);
 
-    const originalImage = await cv.imreadAsync(
-      imageFilePath,
-      cv.IMREAD_GRAYSCALE
-    );
+    const originalImage = await loadImageAsMat(imageFilePath);
 
     timer.checkpoint('loadedPageImage');
 
