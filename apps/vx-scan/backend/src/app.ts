@@ -1,9 +1,7 @@
 import { Scan } from '@votingworks/api';
-import { pdfToImages } from '@votingworks/image-utils';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPageLayoutWithImage,
   err,
   MarkThresholds,
   ok,
@@ -14,7 +12,6 @@ import {
 import {
   assert,
   BALLOT_PACKAGE_FOLDER,
-  find,
   generateFilenameForScanningResults,
   readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
@@ -102,28 +99,8 @@ function buildApi(
         await fs.readFile(mostRecentBallotPackageFile.filePath)
       );
 
-      const ballotTemplatesWithImages = await Promise.all(
-        ballotPackage.ballots.map(async (ballotTemplate) => {
-          const layoutsWithImages: BallotPageLayoutWithImage[] = [];
-          for await (const { page, pageNumber } of pdfToImages(
-            ballotTemplate.pdf,
-            {
-              scale: 2,
-            }
-          )) {
-            const ballotPageLayout = find(
-              ballotTemplate.layout,
-              (l) => l.metadata.pageNumber === pageNumber
-            );
-            layoutsWithImages.push({ ballotPageLayout, imageData: page });
-          }
-          return { ...ballotTemplate, layoutsWithImages };
-        })
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      store.withTransaction((store) => {
-        const { electionDefinition } = ballotPackage;
+      await store.withTransaction(async () => {
+        const { electionDefinition, ballots } = ballotPackage;
         store.setElection(electionDefinition.electionData);
 
         // If the election has only one precinct, set it automatically
@@ -135,13 +112,7 @@ function buildApi(
           );
         }
 
-        for (const ballotTemplate of ballotTemplatesWithImages) {
-          store.addHmpbTemplate(
-            ballotTemplate.pdf,
-            ballotTemplate.layoutsWithImages[0].ballotPageLayout.metadata,
-            ballotTemplate.layoutsWithImages
-          );
-        }
+        await store.setHmpbTemplates(ballots);
       });
 
       return ok();

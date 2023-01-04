@@ -37,7 +37,7 @@ import {
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert, BallotPackageEntry } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -168,17 +168,17 @@ export class Store {
     return this.client.one(sql, ...params);
   }
 
-  // TODO(jonah): Make this the only way to access the store so that we always use a transaction.
+  // TODO(jonah): Make this the only way to access the store so that we always
+  // use a transaction.
   /**
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.
    *
-   * The function is passed the store as its only argument.
-   *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: (store: Store) => T): T {
-    return this.client.transaction(() => fn(this));
+  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
+  withTransaction<T>(fn: () => T): T {
+    return this.client.transaction(() => fn());
   }
 
   /**
@@ -1067,53 +1067,31 @@ export class Store {
     }
   }
 
-  addHmpbTemplate(
-    pdf: Buffer,
-    metadata: BallotMetadata,
-    layoutsWithImages: readonly BallotPageLayoutWithImage[]
-  ): string {
-    debug('storing HMPB template: %O', metadata);
-    // remove page image for storage, but we need the image here to cache
-    const layouts = layoutsWithImages.map(
-      ({ ballotPageLayout }) => ballotPageLayout
-    );
+  async setHmpbTemplates(ballotTemplates: BallotPackageEntry[]): Promise<void> {
+    this.client.run(`delete from hmpb_templates`);
 
-    this.client.run(
-      `
-      delete from hmpb_templates
-      where json_extract(metadata_json, '$.locales.primary') = ?
-      and json_extract(metadata_json, '$.locales.secondary') = ?
-      and json_extract(metadata_json, '$.ballotStyleId') = ?
-      and json_extract(metadata_json, '$.precinctId') = ?
-      and json_extract(metadata_json, '$.isTestMode') = ?
-      `,
-      metadata.locales.primary,
-      metadata.locales.secondary ?? null,
-      metadata.ballotStyleId,
-      metadata.precinctId,
-      metadata.isTestMode ? 1 : 0
-    );
-
-    const id = uuid();
-    this.client.run(
-      `
-      insert into hmpb_templates (
+    for await (const ballotTemplate of ballotTemplates) {
+      const id = uuid();
+      this.client.run(
+        `
+        insert into hmpb_templates (
+          id,
+          pdf,
+          metadata_json,
+          layouts_json
+        ) values (
+          ?, ?, ?, ?
+        )
+        `,
         id,
-        pdf,
-        metadata_json,
-        layouts_json
-      ) values (
-        ?, ?, ?, ?
-      )
-      `,
-      id,
-      pdf,
-      JSON.stringify(metadata),
-      JSON.stringify(layouts)
-    );
-    // cache our layouts so they can be immediately used by the interpreter
-    this.cachedLayouts.push(...layoutsWithImages);
-    return id;
+        ballotTemplate.pdf,
+        JSON.stringify(ballotTemplate.layout[0].metadata),
+        JSON.stringify(ballotTemplate.layout)
+      );
+
+      // Load the layouts immediately to warm the cache.
+      await this.loadLayouts();
+    }
   }
 
   getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {

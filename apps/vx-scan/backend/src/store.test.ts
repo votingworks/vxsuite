@@ -13,6 +13,7 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BallotConfig,
   singlePrecinctSelectionFor,
   sleep,
   typedAs,
@@ -23,10 +24,7 @@ import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import {
-  getMockBallotPageLayoutsWithImages,
-  getMockImageData,
-} from '../test/helpers/mock_layouts';
+import { getMockBallotPageLayout } from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
 import { ballotPdf } from '../test/fixtures/2020-choctaw';
 
@@ -220,7 +218,18 @@ test('get/set cvrs as backed up', () => {
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
-test('HMPB template handling', () => {
+const ballotConfig: BallotConfig = {
+  filename: 'test-filename',
+  layoutFilename: 'test-layout-filename',
+  locales: { primary: 'en-US' },
+  isLiveMode: true,
+  isAbsentee: false,
+  ballotStyleId: '12',
+  precinctId: '23',
+  contestIds: [],
+};
+
+test('HMPB template handling', async () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
   const metadata: BallotMetadata = {
@@ -234,16 +243,23 @@ test('HMPB template handling', () => {
 
   expect(store.getHmpbTemplates()).toEqual([]);
 
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  const ballotPdfBuffer = await fs.readFile(ballotPdf);
+
+  await store.setHmpbTemplates([
+    {
+      pdf: ballotPdfBuffer,
+      layout: [
+        getMockBallotPageLayout({ ...metadata, pageNumber: 1 }),
+        getMockBallotPageLayout({ ...metadata, pageNumber: 2 }),
+      ],
+      ballotConfig,
+    },
+  ]);
 
   expect(store.getHmpbTemplates()).toEqual(
     typedAs<Array<[Buffer, BallotPageLayout[]]>>([
       [
-        Buffer.of(1, 2, 3),
+        ballotPdfBuffer,
         [
           {
             pageSize: { width: 1, height: 1 },
@@ -291,11 +307,16 @@ test('layout caching', async () => {
     ballotType: BallotType.Standard,
   };
 
-  initialStore.addHmpbTemplate(
-    await fs.readFile(ballotPdf),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await initialStore.setHmpbTemplates([
+    {
+      pdf: await fs.readFile(ballotPdf),
+      layout: [
+        getMockBallotPageLayout({ ...metadata, pageNumber: 1 }),
+        getMockBallotPageLayout({ ...metadata, pageNumber: 2 }),
+      ],
+      ballotConfig,
+    },
+  ]);
 
   const expectedLayouts = [
     {
@@ -587,7 +608,7 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toBe(true);
 });
 
-test('adjudication', () => {
+test('adjudication', async () => {
   const candidateContests = stateOfHamilton.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
@@ -606,12 +627,10 @@ test('adjudication', () => {
     ballotType: BallotType.Standard,
   };
   store.setElection(stateOfHamilton.electionDefinition.electionData);
-  store.addHmpbTemplate(
-    Buffer.of(),
-    metadata,
-    [1, 2].map((pageNumber) => ({
-      imageData: getMockImageData(),
-      ballotPageLayout: {
+  await store.setHmpbTemplates([
+    {
+      pdf: await fs.readFile(ballotPdf),
+      layout: [1, 2].map((pageNumber) => ({
         pageSize: { width: 1, height: 1 },
         metadata: {
           ...metadata,
@@ -655,9 +674,10 @@ test('adjudication', () => {
             ],
           },
         ],
-      },
-    }))
-  );
+      })),
+      ballotConfig,
+    },
+  ]);
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
