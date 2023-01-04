@@ -171,7 +171,7 @@ export class Page {
   ): Promise<OvalMark> {
     const { ovalSize } = this.geometry;
 
-    const expectedBounds = await this.findExpectedOvalBounds(
+    const expectedBounds = this.findExpectedOvalBounds(
       timingMarks,
       cell.row,
       cell.column
@@ -528,7 +528,7 @@ export class Page {
       rowIndex >= timingMarks.left.interpolated.length ||
       rowIndex >= timingMarks.right.interpolated.length
     ) {
-      err('invalid row index');
+      return err('invalid row index');
     }
 
     const bottom = timingMarks.bottom.interpolated[colIndex];
@@ -549,14 +549,14 @@ export class Page {
 
     const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
     if (denominator === 0) {
-      return err('grid lines do not interset');
+      return err('grid lines do not intersect');
     }
 
     const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
     const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
 
     if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
-      return err('grid lines do not interset within the page');
+      return err('grid lines do not intersect within the page');
     }
 
     const ovalCenterX = x1 + ua * (x2 - x1);
@@ -790,7 +790,7 @@ export class Page {
       x < 0 ? this.image.cols + x : x,
       y < 0 ? this.image.rows + y : y
     );
-    let image = await this.image.getRegion(
+    let image = this.image.getRegion(
       new cv.Rect(offset.x, offset.y, width, height)
     );
     // .copyAsync();
