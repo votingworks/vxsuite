@@ -1,11 +1,12 @@
 import { MockScannerClient } from '@votingworks/plustek-sdk';
 import request from 'supertest';
-import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { ok } from '@votingworks/types';
 import {
   ballotImages,
   configureApp,
@@ -54,24 +55,28 @@ async function scanBallot(
   });
 }
 
-test("setting the election also sets precinct if there's only one", async () => {
-  const { apiClient } = await createApp();
-  await apiClient.setElection({
-    electionData:
-      electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData,
+test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
+  const { apiClient, mockUsb } = await createApp();
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip':
+        electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+    },
   });
+  expect(await apiClient.checkForBallotPackageOnUsbDrive()).toEqual(ok());
+  await apiClient.configureFromBallotPackageOnUsbDrive();
   const config = await apiClient.getConfig();
   expect(config.precinctSelection).toMatchObject({
     kind: 'SinglePrecinct',
-    precinctId: 'precinct-1',
+    precinctId: 'town-id-00701-precinct-id-',
   });
 });
 
 describe('POST /precinct-scanner/export', () => {
   test('sets CVRs as backed up', async () => {
-    const { apiClient, app, workspace } = await createApp();
+    const { apiClient, app, workspace, mockUsb } = await createApp();
 
-    await configureApp(apiClient, app);
+    await configureApp(apiClient, mockUsb);
     await request(app)
       .post('/precinct-scanner/export')
       .set('Accept', 'application/json')
@@ -84,8 +89,8 @@ describe('POST /precinct-scanner/export', () => {
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  const { apiClient, app, workspace } = await createApp();
-  await configureApp(apiClient, app);
+  const { apiClient, workspace, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
 
   workspace.store.setPollsState('polls_open');
   await apiClient.setPrecinctSelection({
@@ -95,8 +100,9 @@ test('setPrecinctSelection will reset polls to closed', async () => {
 });
 
 test('ballot batching', async () => {
-  const { apiClient, app, mockPlustek, logger, workspace } = await createApp();
-  await configureApp(apiClient, app);
+  const { apiClient, app, mockPlustek, logger, workspace, mockUsb } =
+    await createApp();
+  await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch
   await scanBallot(mockPlustek, apiClient, 0);

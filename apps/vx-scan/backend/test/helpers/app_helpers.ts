@@ -2,7 +2,6 @@ import {
   ALL_PRECINCTS_SELECTION,
   assert,
   deferred,
-  readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
@@ -24,6 +23,7 @@ import { join } from 'path';
 import { AddressInfo } from 'net';
 import fetch from 'node-fetch';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import { buildApp, Api, Usb } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -64,7 +64,7 @@ interface MockUsb {
   mock: jest.Mocked<Usb>;
 }
 
-function createMockUsb(): MockUsb {
+export function createMockUsb(): MockUsb {
   let mockUsbTmpDir: tmp.DirResult | undefined;
 
   const mock: jest.Mocked<Usb> = {
@@ -239,7 +239,23 @@ export const ballotImages = {
   ],
 } as const;
 
-// const CACHED_DB_PATH = tmp.tmpNameSync();
+// Many test cases only use BMD ballots to avoid the slow loading of HMPB
+// templates, so in those cases we configure with a ballot package that doesn't
+// have any templates.
+function createBallotPackageWithoutTemplates() {
+  const dirPath = tmp.dirSync().name;
+  const zipPath = `${dirPath}.zip`;
+  fs.writeFileSync(
+    join(dirPath, 'election.json'),
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+  fs.writeFileSync(
+    join(dirPath, 'manifest.json'),
+    JSON.stringify({ ballots: [] })
+  );
+  execSync(`zip -j ${zipPath} ${dirPath}/*`);
+  return fs.readFileSync(zipPath);
+}
 
 export async function configureApp(
   apiClient: grout.Client<Api>,
@@ -251,40 +267,17 @@ export async function configureApp(
     addTemplates: false,
   }
 ): Promise<void> {
-  // if (fs.existsSync(CACHED_DB_PATH)) {
-  //   console.log(
-  //     'copying cached db',
-  //     CACHED_DB_PATH,
-  //     workspace.store.getDbPath()
-  //   );
-  //   fs.copyFileSync(CACHED_DB_PATH, workspace.store.getDbPath());
-  // } else {
+  const ballotPackageBuffer = addTemplates
+    ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+    : createBallotPackageWithoutTemplates();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip':
-        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
+      'test-ballot-package.zip': ballotPackageBuffer,
     },
   });
   expect(await apiClient.checkForBallotPackageOnUsbDrive()).toEqual(ok());
   await apiClient.configureFromBallotPackageOnUsbDrive();
-  // console.log('caching db', workspace.store.getDbPath(), CACHED_DB_PATH);
-  // fs.copyFileSync(workspace.store.getDbPath(), CACHED_DB_PATH);
-  // }
-  if (addTemplates) {
-    // TODO
-  }
-  // const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
-  //   electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-  // );
-  // await apiClient.setElection({
-  //   electionData: electionDefinition.electionData,
-  // });
-  // if (addTemplates) {
-  //   // It takes about a second per template, so we only do some
-  //   for (const ballot of ballots.slice(0, 2)) {
-  //     await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
-  //   }
-  // }
+
   await apiClient.setPrecinctSelection({
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(precinctId)

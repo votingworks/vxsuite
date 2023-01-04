@@ -172,7 +172,7 @@ const needsReviewInterpretation: Scan.SheetInterpretation = {
 test('ballot needs review - return', async () => {
   const { apiClient, app, mockPlustek, workspace, mockUsb, logger } =
     await createApp();
-  await configureApp(apiClient, mockUsb);
+  await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
     await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
