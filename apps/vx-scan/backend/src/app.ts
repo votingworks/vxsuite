@@ -36,10 +36,17 @@ const debug = rootDebug.extend('app');
 
 type NoParams = never;
 
+/**
+ * An interface for interacting with USB drives. We inject this into the app so
+ * that we can easily mock it in tests.
+ */
 export interface Usb {
   getUsbDrives: () => Promise<UsbDrive[]>;
 }
 
+/**
+ * Possible errors that can occur during configuration (currently there's only one).
+ */
 export type ConfigurationError = 'no_ballot_package_on_usb_drive';
 
 function buildApi(
@@ -89,8 +96,7 @@ function buildApi(
 
       const [mostRecentBallotPackageFile] = [
         ...ballotPackageFilesWithStats,
-        // eslint-disable-next-line vx/gts-safe-number-parse
-      ].sort((a, b) => +b.ctime - +a.ctime);
+      ].sort((a, b) => b.ctime.getTime() - a.ctime.getTime());
 
       const ballotPackage = await readBallotPackageFromBuffer(
         await fs.readFile(mostRecentBallotPackageFile.filePath)

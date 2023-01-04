@@ -72,6 +72,11 @@ interface MockUsb {
   mock: jest.Mocked<Usb>;
 }
 
+/**
+ * Creates a mock of the Usb interface to USB drives. Simulates inserting and
+ * removing a USB containing a tree of files and directories. Uses a temporary
+ * directory on the filesystem to simulate the USB drive.
+ */
 export function createMockUsb(): MockUsb {
   let mockUsbTmpDir: tmp.DirResult | undefined;
 
