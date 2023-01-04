@@ -1,21 +1,15 @@
 import makeDebug from 'debug';
 
 import {
-  imageDebugger,
-  loadImage,
-  toImageData,
-} from '@votingworks/image-utils';
-import {
   AdjudicationReason,
+  BallotPageLayout,
   BallotType,
   ElectionDefinition,
   err,
   getBallotStyle,
-  getContests,
   getContestsFromIds,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
-  mapSheet,
   MarkThresholds,
   ok,
   PageInterpretation,
@@ -24,13 +18,11 @@ import {
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { getScannedBallotCardGeometry } from '../accuvote';
-import * as templates from '../data/templates';
-import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
+import { FrontMarksMetadata, InterpretedOvalMark } from '../types';
+import { makeRect, vec } from '../utils';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
-import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
-import { interpretOvalMarks } from './interpret_oval_marks';
 import * as rustImpl from './rust_impl';
 
 const debugLogger = makeDebug('ballot-interpreter-nh:interpret');
@@ -70,7 +62,6 @@ export async function interpret(
   }
 ): Promise<Result<SheetOf<InterpretFileResult>, Error>> {
   const rustImplResult = await rustImpl.interpret(electionDefinition, sheet);
-  console.log('rustImplResult', rustImplResult);
 
   const timer = time(debugLogger, 'interpret');
 
@@ -81,65 +72,50 @@ export async function interpret(
   }
 
   const geometry = getScannedBallotCardGeometry(paperSize);
-  let [frontPage, backPage] = sheet;
-  let [frontImageData, backImageData] = await mapSheet(sheet, async (page) =>
-    toImageData(await loadImage(page), {
-      maxWidth: geometry.canvasSize.width,
-      maxHeight: geometry.canvasSize.height,
-    })
-  );
 
-  timer.checkpoint('loadedImages');
-
-  const frontDebug = imageDebugger(frontPage, frontImageData);
-  const backDebug = imageDebugger(backPage, backImageData);
-  let frontLayout = frontDebug.capture('front-interpret', (debug) =>
-    interpretBallotCardLayout(frontImageData, { geometry, debug })
-  );
-
-  timer.checkpoint('interpretedFrontPageLayout');
-
-  let backLayout = backDebug.capture('back-interpret', (debug) =>
-    interpretBallotCardLayout(backImageData, { geometry, debug })
-  );
-
-  timer.checkpoint('interpretedBackPageLayout');
-
-  if (!frontLayout) {
-    return err(new Error('could not interpret front page layout'));
+  if (rustImplResult.isErr()) {
+    return rustImplResult;
   }
 
-  if (!backLayout) {
-    return err(new Error('could not interpret back page layout'));
+  const rustInterpretation = rustImplResult.ok();
+
+  function ovalMarksFromRustMarks(
+    marks: rustImpl.InterpretedBallotPage['marks']
+  ): InterpretedOvalMark[] {
+    return marks.flatMap(([gridPosition, scoredOvalMark]) => {
+      if (!scoredOvalMark) {
+        return [];
+      }
+
+      return [
+        {
+          bounds: makeRect({
+            minX: scoredOvalMark.expectedBounds.left,
+            minY: scoredOvalMark.expectedBounds.top,
+            maxX:
+              scoredOvalMark.expectedBounds.left +
+              scoredOvalMark.expectedBounds.width -
+              1,
+            maxY:
+              scoredOvalMark.expectedBounds.top +
+              scoredOvalMark.expectedBounds.height -
+              1,
+          }),
+          gridPosition,
+          score: scoredOvalMark.fillScore,
+          scoredOffset: vec(
+            scoredOvalMark.matchedBounds.left -
+              scoredOvalMark.expectedBounds.left,
+            scoredOvalMark.matchedBounds.top - scoredOvalMark.expectedBounds.top
+          ),
+        },
+      ];
+    });
   }
 
-  if (frontLayout.side === 'back') {
-    [
-      frontLayout,
-      backLayout,
-      frontImageData,
-      backImageData,
-      frontPage,
-      backPage,
-    ] = [
-      backLayout,
-      frontLayout,
-      backImageData,
-      frontImageData,
-      backPage,
-      frontPage,
-    ];
-  }
-
-  if (frontLayout.side === 'back' || backLayout.side === 'front') {
-    return err(
-      new Error(
-        `invalid ballot card: expected front and back pages but got ${frontLayout.side} and ${backLayout.side}`
-      )
-    );
-  }
-
-  const ballotStyleId = `card-number-${frontLayout.metadata.cardNumber}`;
+  const ballotStyleId = `card-number-${
+    (rustInterpretation.front.grid.metadata as FrontMarksMetadata).cardNumber
+  }`;
   const ballotStyle = getBallotStyle({
     election: electionDefinition.election,
     ballotStyleId,
@@ -149,47 +125,13 @@ export async function interpret(
     return err(new Error(`no ballot style found for ${ballotStyleId}`));
   }
 
-  const contests = getContests({
-    election: electionDefinition.election,
-    ballotStyle,
-  });
   const precinctId = ballotStyle.precincts[0];
 
   if (!precinctId) {
     return err(new Error('no precinct found for ballot style'));
   }
 
-  const gridLayout = electionDefinition.election.gridLayouts?.find(
-    (layout) => layout.ballotStyleId === ballotStyleId
-  );
-
-  if (!gridLayout) {
-    return err(
-      new Error(
-        `could not find grid layout for ballot style ID ${ballotStyleId}`
-      )
-    );
-  }
-
-  const ovalTemplate = await templates.getOvalScanTemplate();
-  const interpretedOvalMarks = interpretOvalMarks({
-    geometry,
-    ovalTemplate,
-    frontImageData,
-    backImageData,
-    frontLayout,
-    backLayout,
-    gridLayout,
-  });
-
-  timer.checkpoint('foundOvalMarks');
-
-  const frontMarks = interpretedOvalMarks.filter(
-    (m) => m.gridPosition.side === 'front'
-  );
-  const backMarks = interpretedOvalMarks.filter(
-    (m) => m.gridPosition.side === 'back'
-  );
+  const frontMarks = ovalMarksFromRustMarks(rustInterpretation.front.marks);
   const frontMetadata: HmpbBallotPageMetadata = {
     ballotStyleId,
     ballotType: BallotType.Standard,
@@ -203,43 +145,16 @@ export async function interpret(
     ...frontMetadata,
     pageNumber: frontMetadata.pageNumber + 1,
   };
-  const frontConvertedLayout = frontDebug.capture('front-layout', () =>
-    convertInterpretedLayoutToBallotLayout({
-      gridLayout,
-      contests,
-      metadata: frontMetadata,
-      interpretedLayout: frontLayout,
-      debug: frontDebug,
-    })
-  );
-  const backConvertedLayout = backDebug.capture('back-layout', () =>
-    convertInterpretedLayoutToBallotLayout({
-      gridLayout,
-      contests,
-      metadata: backMetadata,
-      interpretedLayout: backLayout,
-      debug: backDebug,
-    })
-  );
-
-  if (frontConvertedLayout.isErr()) {
-    return frontConvertedLayout;
-  }
-
-  if (backConvertedLayout.isErr()) {
-    return backConvertedLayout;
-  }
-
   const frontInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: convertMarksToAdjudicationInfo({
       contests: getContestsFromIds(
         electionDefinition.election,
-        frontMarks.map(({ gridPosition: { contestId } }) => contestId)
+        rustInterpretation.front.marks.map((mark) => mark[0].contestId)
       ),
       enabledReasons: adjudicationReasons,
       markThresholds,
-      ovalMarks: interpretedOvalMarks,
+      ovalMarks: frontMarks,
     }),
     markInfo: convertMarksToMarkInfo(geometry, frontMarks),
     // FIXME: Much of this information is not available in the scanned ballot.
@@ -250,18 +165,19 @@ export async function interpret(
       markThresholds,
       frontMarks
     ),
-    layout: frontConvertedLayout.ok(),
+    layout: undefined as unknown as BallotPageLayout,
   };
+  const backMarks = ovalMarksFromRustMarks(rustInterpretation.back.marks);
   const backInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: convertMarksToAdjudicationInfo({
       contests: getContestsFromIds(
         electionDefinition.election,
-        backMarks.map(({ gridPosition: { contestId } }) => contestId)
+        rustInterpretation.back.marks.map((mark) => mark[0].contestId)
       ),
       enabledReasons: adjudicationReasons,
       markThresholds,
-      ovalMarks: interpretedOvalMarks,
+      ovalMarks: backMarks,
     }),
     markInfo: convertMarksToMarkInfo(geometry, backMarks),
     // FIXME: Much of this information is not available in the scanned ballot.
@@ -272,16 +188,14 @@ export async function interpret(
       markThresholds,
       backMarks
     ),
-    layout: backConvertedLayout.ok(),
+    layout: undefined as unknown as BallotPageLayout,
   };
 
   const frontPageInterpretationResult: InterpretFileResult = {
     interpretation: frontInterpretation,
-    normalizedImage: frontLayout.imageData,
   };
   const backPageInterpretationResult: InterpretFileResult = {
     interpretation: backInterpretation,
-    normalizedImage: backLayout.imageData,
   };
 
   timer.end();
