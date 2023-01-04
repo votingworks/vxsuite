@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { UsbDriveBallotPackageError } from '@votingworks/vx-scan-backend';
-import { usbstick } from '@votingworks/utils';
+import type { ConfigurationError } from '@votingworks/vx-scan-backend';
+import { throwIllegalValue, usbstick } from '@votingworks/utils';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -19,7 +19,7 @@ export function UnconfiguredElectionScreen({
   refreshConfig,
 }: Props): JSX.Element {
   const apiClient = useApiClient();
-  const [error, setError] = useState<UsbDriveBallotPackageError>();
+  const [error, setError] = useState<ConfigurationError>();
 
   useEffect(() => {
     async function configure() {
@@ -35,12 +35,19 @@ export function UnconfiguredElectionScreen({
     void configure();
   }, [usbDriveStatus, apiClient, refreshConfig]);
 
-  const errorMessage =
-    usbDriveStatus !== usbstick.UsbDriveStatus.mounted
-      ? 'Insert a USB drive containing a ballot package.'
-      : error === 'no_ballot_package_on_usb_drive'
-      ? 'No ballot package found on the inserted USB drive.'
-      : undefined;
+  const errorMessage = (() => {
+    if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
+      return 'Insert a USB drive containing a ballot package.';
+    }
+    if (!error) return undefined;
+    switch (error) {
+      case 'no_ballot_package_on_usb_drive':
+        return 'No ballot package found on the inserted USB drive.';
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(error);
+    }
+  })();
 
   return (
     <ScreenMainCenterChild infoBar={false}>

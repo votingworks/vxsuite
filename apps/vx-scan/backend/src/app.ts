@@ -40,44 +40,7 @@ export interface Usb {
   getUsbDrives: () => Promise<UsbDrive[]>;
 }
 
-export type UsbDriveBallotPackageError = 'no_ballot_package_on_usb_drive';
-
-async function findBallotPackageOnUsbDrive(
-  usb: Usb
-): Promise<Result<string, UsbDriveBallotPackageError>> {
-  const [usbDrive] = await usb.getUsbDrives();
-  assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
-
-  const directoryPath = path.join(usbDrive.mountPoint, BALLOT_PACKAGE_FOLDER);
-  if (!existsSync(directoryPath)) {
-    return err('no_ballot_package_on_usb_drive');
-  }
-  const files = await fs.readdir(directoryPath, { withFileTypes: true });
-  const ballotPackageFiles = files.filter(
-    (file) => file.isFile() && file.name.endsWith('.zip')
-  );
-  if (ballotPackageFiles.length === 0) {
-    return err('no_ballot_package_on_usb_drive');
-  }
-
-  const ballotPackageFilesWithStats = await Promise.all(
-    ballotPackageFiles.map(async (file) => {
-      const filePath = path.join(directoryPath, file.name);
-      return {
-        ...file,
-        filePath,
-        // Include file stats so we can sort by creation time
-        ...(await fs.lstat(filePath)),
-      };
-    })
-  );
-  const [mostRecentBallotPackageFile] = [
-    ...ballotPackageFilesWithStats,
-    // eslint-disable-next-line vx/gts-safe-number-parse
-  ].sort((a, b) => +b.ctime - +a.ctime);
-
-  return ok(mostRecentBallotPackageFile.filePath);
-}
+export type ConfigurationError = 'no_ballot_package_on_usb_drive';
 
 function buildApi(
   machine: PrecinctScannerStateMachine,
@@ -89,24 +52,48 @@ function buildApi(
   const { store } = workspace;
 
   return grout.createApi({
-    // async checkForBallotPackageOnUsbDrive(): Promise<
-    //   Result<void, UsbDriveBallotPackageError>
-    // > {
-    //   const result = await findBallotPackageOnUsbDrive(usb);
-    //   return result.isErr() ? result : ok();
-    // },
-
     async configureFromBallotPackageOnUsbDrive(): Promise<
-      Result<void, UsbDriveBallotPackageError>
+      Result<void, ConfigurationError>
     > {
       assert(!store.getElectionDefinition());
-      const ballotPackagePathResult = await findBallotPackageOnUsbDrive(usb);
-      if (ballotPackagePathResult.isErr()) {
-        return ballotPackagePathResult;
+      const [usbDrive] = await usb.getUsbDrives();
+      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+
+      const directoryPath = path.join(
+        usbDrive.mountPoint,
+        BALLOT_PACKAGE_FOLDER
+      );
+      if (!existsSync(directoryPath)) {
+        return err('no_ballot_package_on_usb_drive');
       }
 
+      const files = await fs.readdir(directoryPath, { withFileTypes: true });
+      const ballotPackageFiles = files.filter(
+        (file) => file.isFile() && file.name.endsWith('.zip')
+      );
+      if (ballotPackageFiles.length === 0) {
+        return err('no_ballot_package_on_usb_drive');
+      }
+
+      const ballotPackageFilesWithStats = await Promise.all(
+        ballotPackageFiles.map(async (file) => {
+          const filePath = path.join(directoryPath, file.name);
+          return {
+            ...file,
+            filePath,
+            // Include file stats so we can sort by creation time
+            ...(await fs.lstat(filePath)),
+          };
+        })
+      );
+
+      const [mostRecentBallotPackageFile] = [
+        ...ballotPackageFilesWithStats,
+        // eslint-disable-next-line vx/gts-safe-number-parse
+      ].sort((a, b) => +b.ctime - +a.ctime);
+
       const ballotPackage = await readBallotPackageFromBuffer(
-        await fs.readFile(ballotPackagePathResult.ok())
+        await fs.readFile(mostRecentBallotPackageFile.filePath)
       );
 
       const ballotTemplatesWithImages = await Promise.all(

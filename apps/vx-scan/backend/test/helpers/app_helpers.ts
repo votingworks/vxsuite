@@ -8,7 +8,13 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
 import request from 'supertest';
-import { CastVoteRecord, ok, PrecinctId, Result } from '@votingworks/types';
+import {
+  CastVoteRecord,
+  ElectionDefinition,
+  ok,
+  PrecinctId,
+  Result,
+} from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -49,6 +55,8 @@ interface MockDirectory {
 
 function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
   if (Buffer.isBuffer(tree)) {
+    // Sleep 1ms to ensure that each file is created with a distinct timestamp
+    execSync('sleep 0.01');
     fs.writeFileSync(destinationPath, tree);
   } else {
     if (!fs.existsSync(destinationPath)) fs.mkdirSync(destinationPath);
@@ -239,15 +247,16 @@ export const ballotImages = {
   ],
 } as const;
 
-// Many test cases only use BMD ballots to avoid the slow loading of HMPB
-// templates, so in those cases we configure with a ballot package that doesn't
-// have any templates.
-function createBallotPackageWithoutTemplates() {
+// Loading of HMPB templates is slow, so in some tests we want to skip it by
+// removing the templates from the ballot package.
+export function createBallotPackageWithoutTemplates(
+  electionDefinition: ElectionDefinition
+): Buffer {
   const dirPath = tmp.dirSync().name;
   const zipPath = `${dirPath}.zip`;
   fs.writeFileSync(
     join(dirPath, 'election.json'),
-    electionFamousNames2021Fixtures.electionDefinition.electionData
+    electionDefinition.electionData
   );
   fs.writeFileSync(
     join(dirPath, 'manifest.json'),
@@ -256,6 +265,10 @@ function createBallotPackageWithoutTemplates() {
   execSync(`zip -j ${zipPath} ${dirPath}/*`);
   return fs.readFileSync(zipPath);
 }
+const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
+  createBallotPackageWithoutTemplates(
+    electionFamousNames2021Fixtures.electionDefinition
+  );
 
 export async function configureApp(
   apiClient: grout.Client<Api>,
@@ -269,14 +282,13 @@ export async function configureApp(
 ): Promise<void> {
   const ballotPackageBuffer = addTemplates
     ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-    : createBallotPackageWithoutTemplates();
+    : electionFamousNames2021WithoutTemplatesBallotPackageBuffer;
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': ballotPackageBuffer,
     },
   });
-  expect(await apiClient.checkForBallotPackageOnUsbDrive()).toEqual(ok());
-  await apiClient.configureFromBallotPackageOnUsbDrive();
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
 
   await apiClient.setPrecinctSelection({
     precinctSelection: precinctId

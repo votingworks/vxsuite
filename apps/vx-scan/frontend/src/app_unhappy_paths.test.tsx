@@ -82,7 +82,7 @@ test('when backend does not respond shows loading screen', async () => {
   renderApp();
   await screen.findByText('Loading Configuration…');
   jest.advanceTimersByTime(1000);
-  await screen.findByText('VxScan is Not Configured');
+  await screen.findByText('VxScan is not configured');
 });
 
 test('backend fails to unconfigure', async () => {

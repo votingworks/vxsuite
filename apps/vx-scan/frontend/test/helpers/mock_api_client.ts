@@ -1,11 +1,7 @@
 import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { PollsState, PrecinctSelection } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
@@ -37,13 +33,6 @@ export function createApiMock() {
         ...defaultConfig,
         ...config,
       });
-    },
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    expectSetElection(electionDefinition: ElectionDefinition): void {
-      // mockApiClient.setElection
-      //   .expectCallWith({ electionData: electionDefinition.electionData })
-      //   .resolves();
     },
 
     expectSetPrecinct(precinctSelection: PrecinctSelection): void {
