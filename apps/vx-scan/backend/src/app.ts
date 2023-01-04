@@ -24,6 +24,7 @@ import * as fs from 'fs/promises';
 import { pipeline } from 'stream/promises';
 import { UsbDrive } from '@votingworks/data';
 import path from 'path';
+import { existsSync } from 'fs';
 import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
@@ -39,19 +40,18 @@ export interface Usb {
   getUsbDrives: () => Promise<UsbDrive[]>;
 }
 
-export type UsbDriveBallotPackageError =
-  | 'no_usb_drive_connected'
-  | 'no_ballot_package_on_usb_drive';
+export type UsbDriveBallotPackageError = 'no_ballot_package_on_usb_drive';
 
 async function findBallotPackageOnUsbDrive(
   usb: Usb
 ): Promise<Result<string, UsbDriveBallotPackageError>> {
   const [usbDrive] = await usb.getUsbDrives();
-  if (!usbDrive?.mountPoint) {
-    return err('no_usb_drive_connected');
-  }
+  assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
   const directoryPath = path.join(usbDrive.mountPoint, BALLOT_PACKAGE_FOLDER);
+  if (!existsSync(directoryPath)) {
+    return err('no_ballot_package_on_usb_drive');
+  }
   const files = await fs.readdir(directoryPath, { withFileTypes: true });
   const ballotPackageFiles = files.filter(
     (file) => file.isFile() && file.name.endsWith('.zip')
@@ -89,17 +89,21 @@ function buildApi(
   const { store } = workspace;
 
   return grout.createApi({
-    async checkForBallotPackageOnUsbDrive(): Promise<
+    // async checkForBallotPackageOnUsbDrive(): Promise<
+    //   Result<void, UsbDriveBallotPackageError>
+    // > {
+    //   const result = await findBallotPackageOnUsbDrive(usb);
+    //   return result.isErr() ? result : ok();
+    // },
+
+    async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, UsbDriveBallotPackageError>
     > {
-      const result = await findBallotPackageOnUsbDrive(usb);
-      return result.isErr() ? result : ok();
-    },
-
-    async configureFromBallotPackageOnUsbDrive(): Promise<void> {
       assert(!store.getElectionDefinition());
       const ballotPackagePathResult = await findBallotPackageOnUsbDrive(usb);
-      assert(ballotPackagePathResult.isOk());
+      if (ballotPackagePathResult.isErr()) {
+        return ballotPackagePathResult;
+      }
 
       const ballotPackage = await readBallotPackageFromBuffer(
         await fs.readFile(ballotPackagePathResult.ok())
@@ -146,6 +150,8 @@ function buildApi(
           );
         }
       });
+
+      return ok();
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
