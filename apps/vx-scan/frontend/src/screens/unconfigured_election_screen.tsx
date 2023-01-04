@@ -43,8 +43,8 @@ export function UnconfiguredElectionScreen({
     switch (error) {
       case 'no_ballot_package_on_usb_drive':
         return 'No ballot package found on the inserted USB drive.';
+      /* istanbul ignore next - compile time check for completeness */
       default:
-        /* istanbul ignore next */
         throwIllegalValue(error);
     }
   })();

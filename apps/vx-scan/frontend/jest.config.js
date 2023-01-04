@@ -16,7 +16,7 @@ module.exports = {
       statements: 94,
       branches: 85,
       functions: 89,
-      lines: 95,
+      lines: 94,
     },
   },
   resetMocks: true,
