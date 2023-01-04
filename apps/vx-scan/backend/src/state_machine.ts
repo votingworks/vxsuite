@@ -104,6 +104,7 @@ function connectToPlustek(
     const plustekClient = await createPlustekClient(
       {
         ...DEFAULT_CONFIG,
+        resolution: 200,
         savepath: scannedImagesPath,
       },
       { plustekctlPath: PLUSTEKCTL_PATH }
