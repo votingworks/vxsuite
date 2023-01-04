@@ -186,7 +186,7 @@ export async function interpret(
   timer.checkpoint('prepared');
 
   const interpreterProcess = spawn(
-    '/home/brian/code/rust-image-testing/target/release/rust-image-testing',
+    'nh-interpret',
     ['-e', electionJsonPath, ...sheet],
     { stdio: 'pipe' }
   );
