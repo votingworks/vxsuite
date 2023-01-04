@@ -67,7 +67,7 @@ async function loadImageAsMat(imageFilePath: string): Promise<cv.Mat> {
       );
     }
 
-    const [header, widthAsString, heightAsString, maxAsString] = match;
+    const [header = '', widthAsString, heightAsString, maxAsString] = match;
 
     const width = safeParseInt(widthAsString, { min: 1 }).assertOk(
       'width is valid'
