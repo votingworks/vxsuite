@@ -61,9 +61,9 @@ export async function interpret(
     adjudicationReasons?: readonly AdjudicationReason[];
   }
 ): Promise<Result<SheetOf<InterpretFileResult>, Error>> {
-  const rustImplResult = await rustImpl.interpret(electionDefinition, sheet);
-
   const timer = time(debugLogger, 'interpret');
+
+  const rustImplResult = await rustImpl.interpret(electionDefinition, sheet);
 
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 

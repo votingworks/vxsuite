@@ -188,7 +188,7 @@ export async function interpret(
   const interpreterProcess = spawn(
     'nh-interpret',
     ['-e', electionJsonPath, ...sheet],
-    { stdio: 'pipe' }
+    { stdio: 'pipe', env: { LOG: 'trace' } }
   );
 
   interpreterProcess.stdout.setEncoding('utf8');
