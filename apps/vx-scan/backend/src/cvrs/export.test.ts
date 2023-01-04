@@ -4,16 +4,19 @@ import {
   BallotType,
   CastVoteRecord,
 } from '@votingworks/types';
-import { isFeatureFlagEnabled } from '@votingworks/utils';
-import { Buffer } from 'buffer';
+import {
+  BallotConfig,
+  BallotPackageEntry,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { copyFile, writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
+import fs from 'fs';
 import * as stateOfHamilton from '../../test/fixtures/state-of-hamilton';
-import { getMockBallotPageLayoutsWithImages } from '../../test/helpers/mock_layouts';
 import { Store } from '../store';
 import * as buildCastVoteRecord from './build';
 import { exportCastVoteRecordsAsNdJson } from './export';
@@ -26,6 +29,39 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: jest.fn(),
   };
 });
+
+const ballotConfig: BallotConfig = {
+  filename: 'test-filename',
+  layoutFilename: 'test-layout-filename',
+  locales: { primary: 'en-US' },
+  isLiveMode: true,
+  isAbsentee: false,
+  ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+  precinctId: stateOfHamilton.election.precincts[0].id,
+  contestIds: [],
+};
+
+const metadata: BallotPageMetadata = {
+  locales: { primary: 'en-US' },
+  electionHash: stateOfHamilton.electionDefinition.electionHash,
+  ballotType: BallotType.Standard,
+  ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+  precinctId: stateOfHamilton.election.precincts[0].id,
+  isTestMode: false,
+  pageNumber: 1,
+};
+
+const ballotTemplates: BallotPackageEntry[] = [
+  {
+    pdf: fs.readFileSync(stateOfHamilton.ballotPdf),
+    layout: [1, 2, 3, 4, 5, 6].map((i) => ({
+      pageSize: { width: 1, height: 1 },
+      metadata: { ...metadata, pageNumber: i },
+      contests: [],
+    })),
+    ballotConfig,
+  },
+];
 
 beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
@@ -72,21 +108,7 @@ test('exportCvrs', async () => {
   await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
   expect(stream.toString()).toEqual('');
 
-  const metadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
@@ -187,21 +209,7 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
   await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
   expect(stream.toString()).toEqual('');
 
-  const metadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
@@ -296,21 +304,7 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
 
   let stream = new streams.WritableStream();
 
-  const metadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
@@ -379,21 +373,7 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
   // No CVRs, export should be empty
   let stream = new streams.WritableStream();
 
-  const metadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   const frontNormalizedFile = tmp.fileSync();
   await writeFile(frontNormalizedFile.fd, 'front normalized');
@@ -456,21 +436,7 @@ test('exportCvrs called with orderBySheetId actually orders by sheet ID', async 
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
-  const metadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const sheetIds = ['fake-uuid-zzz', 'fake-uuid-lll', 'fake-uuid-aaa'];

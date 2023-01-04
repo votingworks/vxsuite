@@ -37,7 +37,7 @@ import {
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
-import { assert, BallotPackageEntry } from '@votingworks/utils';
+import { assert, BallotPackageEntry, find } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -1149,7 +1149,10 @@ export class Store {
 
     for (const [pdf, layouts] of templates) {
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-        const ballotPageLayout = layouts[pageNumber - 1];
+        const ballotPageLayout = find(
+          layouts,
+          (l) => l.metadata.pageNumber === pageNumber
+        );
         loadedLayouts.push(
           await interpretTemplate({
             electionDefinition,
