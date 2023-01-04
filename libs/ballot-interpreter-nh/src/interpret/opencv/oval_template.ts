@@ -15,5 +15,5 @@ export const ovalTemplatePromise: Promise<OvalTemplate> = cv
   )
   .then<OvalTemplate>(async (image) => ({
     image,
-    shadedPixelRatio: await getShadedPixelRatio(image),
+    shadedPixelRatio: await getShadedPixelRatio(image, { blurSize: 0 }),
   }));

@@ -220,22 +220,29 @@ export class Page {
     if (matchBounds.isOk()) {
       // Pad the area around the match region to make binarization a bit
       // more accurate for the bubble outline and marks.
-      const paddingSize = 100;
+      const paddingSize = matchBounds.ok().width * (25 / 100);
       const matchImageRegion = await this.getRegion({
         ...matchBounds.ok(),
         paddingSize,
       });
       const shadedPixelRatio = await getShadedPixelRatio(
         matchImageRegion.image,
-        new cv.Rect(
-          paddingSize,
-          paddingSize,
-          matchBounds.ok().width,
-          matchBounds.ok().height
-        )
+        {
+          blurSize: 0,
+          testBounds: new cv.Rect(
+            paddingSize,
+            paddingSize,
+            matchBounds.ok().width,
+            matchBounds.ok().height
+          ),
+        }
       );
 
-      score = Math.max(shadedPixelRatio - ovalTemplate.shadedPixelRatio, 0);
+      // Score the oval mark as a shaded ratio of the non-shaded area in the
+      // oval template image.
+      score =
+        Math.max(shadedPixelRatio - ovalTemplate.shadedPixelRatio, 0) /
+        (1 - ovalTemplate.shadedPixelRatio);
     }
 
     const result: OvalMark = {

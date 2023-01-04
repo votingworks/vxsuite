@@ -154,12 +154,17 @@ export class PageInterpreter {
 
           debugDrawPromises.push(
             debugImage.putTextAsync(
-              `${Math.round(oval.score * 100)}%`,
+              `${(oval.score * 100).toPrecision(3)}%`,
               new cv.Point2(matchBounds.x - 10, matchBounds.y - 20),
               cv.FONT_HERSHEY_PLAIN,
-              2.5,
+              2.25,
               {
-                color: oval.score > 0.05 ? BGR_DARK_GREEN : BGR_GRAY,
+                color:
+                  oval.score > this.markThresholds.definite
+                    ? BGR_DARK_GREEN
+                    : oval.score > this.markThresholds.marginal
+                    ? BGR_RED
+                    : BGR_GRAY,
                 thickness: 2,
               }
             )

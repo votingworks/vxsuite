@@ -15,11 +15,18 @@ import { MarginType, PageMargins, TimingMarks } from './types';
  * all other pixel values to black, using the Otsu threshold algorith:
  * https://en.wikipedia.org/wiki/Otsu%27s_method}
  */
-export async function binarizeImage(image: cv.Mat): Promise<cv.Mat> {
+export async function binarizeImage(
+  image: cv.Mat,
+  options: { blurSize?: number } = {}
+): Promise<cv.Mat> {
+  const { blurSize = 2 } = options;
   // Recommendation from openCV: make binarization a little more effective by
   // slightly blurring to remove noise:
   // FIXME: magic constants
-  const denoisedImage = await image.blurAsync(new cv.Size(2, 2));
+  const denoisedImage =
+    blurSize > 0
+      ? await image.blurAsync(new cv.Size(blurSize, blurSize))
+      : image;
 
   return denoisedImage.thresholdAsync(
     0,
@@ -31,9 +38,11 @@ export async function binarizeImage(image: cv.Mat): Promise<cv.Mat> {
 /** TODO */
 export async function getShadedPixelRatio(
   image: cv.Mat,
-  testBounds?: cv.Rect
+  options: { blurSize?: number; testBounds?: cv.Rect } = {}
 ): Promise<number> {
-  const binarizedImage = await binarizeImage(image);
+  const { blurSize, testBounds } = options;
+
+  const binarizedImage = await binarizeImage(image, { blurSize });
 
   const testRegion = testBounds
     ? binarizedImage.getRegion(testBounds)
