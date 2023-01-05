@@ -20,7 +20,7 @@ const UsbImage = styled.img`
   height: 200px;
 `;
 
-export interface Props {
+export interface ExportResultsModalProps {
   onClose: () => void;
   usbDrive: UsbDrive;
 }
@@ -32,7 +32,10 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function ExportResultsModal({ onClose, usbDrive }: Props): JSX.Element {
+export function ExportResultsModal({
+  onClose,
+  usbDrive,
+}: ExportResultsModalProps): JSX.Element {
   const apiClient = useApiClient();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
