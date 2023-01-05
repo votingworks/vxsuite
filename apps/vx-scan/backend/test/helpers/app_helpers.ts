@@ -1,15 +1,20 @@
 import {
   ALL_PRECINCTS_SELECTION,
-  BallotPackageEntry,
+  assert,
   deferred,
-  readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
 import request from 'supertest';
-import { CastVoteRecord, ok, PrecinctId, Result } from '@votingworks/types';
+import {
+  CastVoteRecord,
+  ElectionDefinition,
+  ok,
+  PrecinctId,
+  Result,
+} from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -18,12 +23,14 @@ import {
   MockScannerClientOptions,
   ScannerClient,
 } from '@votingworks/plustek-sdk';
-import { dirSync } from 'tmp';
+import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
 import { AddressInfo } from 'net';
 import fetch from 'node-fetch';
-import { buildApp, Api } from '../../src/app';
+import fs from 'fs';
+import { execSync } from 'child_process';
+import { buildApp, Api, Usb } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
@@ -40,38 +47,68 @@ import { createWorkspace, Workspace } from '../../src/util/workspace';
 // @ts-ignore
 global.fetch = fetch;
 
-export function postTemplate(
-  app: Application,
-  path: string,
-  ballot: BallotPackageEntry
-): request.Test {
-  return request(app)
-    .post(path)
-    .accept('application/json')
-    .attach('ballots', Buffer.from(ballot.pdf), {
-      filename: ballot.ballotConfig.filename,
-      contentType: 'application/pdf',
-    })
-    .attach(
-      'metadatas',
-      Buffer.from(
-        new TextEncoder().encode(JSON.stringify(ballot.ballotConfig))
-      ),
-      { filename: 'ballot-config.json', contentType: 'application/json' }
-    )
-    .attach(
-      'layouts',
-      Buffer.from(new TextEncoder().encode(JSON.stringify(ballot.layout))),
-      {
-        filename: ballot.ballotConfig.layoutFilename,
-        contentType: 'application/json',
+type MockFileTree = MockFile | MockDirectory;
+type MockFile = Buffer;
+interface MockDirectory {
+  [name: string]: MockFileTree;
+}
+
+function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
+  if (Buffer.isBuffer(tree)) {
+    fs.writeFileSync(destinationPath, tree);
+  } else {
+    if (!fs.existsSync(destinationPath)) fs.mkdirSync(destinationPath);
+    for (const [name, child] of Object.entries(tree)) {
+      // Sleep 1ms to ensure that each file is created with a distinct timestamp
+      execSync('sleep 0.01');
+      writeMockFileTree(join(destinationPath, name), child);
+    }
+  }
+}
+
+interface MockUsb {
+  insertUsbDrive(contents: MockFileTree): void;
+  removeUsbDrive(): void;
+  mock: jest.Mocked<Usb>;
+}
+
+/**
+ * Creates a mock of the Usb interface to USB drives. Simulates inserting and
+ * removing a USB containing a tree of files and directories. Uses a temporary
+ * directory on the filesystem to simulate the USB drive.
+ */
+export function createMockUsb(): MockUsb {
+  let mockUsbTmpDir: tmp.DirResult | undefined;
+
+  const mock: jest.Mocked<Usb> = {
+    getUsbDrives: jest.fn().mockImplementation(() => {
+      if (mockUsbTmpDir) {
+        return Promise.resolve([
+          {
+            deviceName: 'mock-usb-drive',
+            mountPoint: mockUsbTmpDir.name,
+          },
+        ]);
       }
-    )
-    .expect((res) => {
-      // eslint-disable-next-line no-console
-      if (res.status !== 200) console.error(res.body);
-    })
-    .expect(200, { status: 'ok' });
+      return Promise.resolve([]);
+    }),
+  };
+
+  return {
+    mock,
+
+    insertUsbDrive(contents: MockFileTree) {
+      assert(!mockUsbTmpDir, 'Mock USB drive already inserted');
+      mockUsbTmpDir = tmp.dirSync({ unsafeCleanup: true });
+      writeMockFileTree(mockUsbTmpDir.name, contents);
+    },
+
+    removeUsbDrive() {
+      assert(mockUsbTmpDir, 'No mock USB drive to remove');
+      mockUsbTmpDir.removeCallback();
+      mockUsbTmpDir = undefined;
+    },
+  };
 }
 
 export async function postExportCvrs(
@@ -126,11 +163,12 @@ export async function createApp(
   app: Application;
   mockPlustek: MockScannerClient;
   workspace: Workspace;
+  mockUsb: MockUsb;
   logger: Logger;
   interpreter: PrecinctScannerInterpreter;
 }> {
   const logger = fakeLogger();
-  const workspace = await createWorkspace(dirSync().name);
+  const workspace = await createWorkspace(tmp.dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
@@ -156,7 +194,14 @@ export async function createApp(
       ...delays,
     },
   });
-  const app = buildApp(precinctScannerMachine, interpreter, workspace, logger);
+  const mockUsb = createMockUsb();
+  const app = buildApp(
+    precinctScannerMachine,
+    interpreter,
+    workspace,
+    mockUsb.mock,
+    logger
+  );
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -172,6 +217,7 @@ export async function createApp(
     app,
     mockPlustek,
     workspace,
+    mockUsb,
     logger,
     interpreter,
   };
@@ -206,9 +252,32 @@ export const ballotImages = {
   ],
 } as const;
 
+// Loading of HMPB templates is slow, so in some tests we want to skip it by
+// removing the templates from the ballot package.
+export function createBallotPackageWithoutTemplates(
+  electionDefinition: ElectionDefinition
+): Buffer {
+  const dirPath = tmp.dirSync().name;
+  const zipPath = `${dirPath}.zip`;
+  fs.writeFileSync(
+    join(dirPath, 'election.json'),
+    electionDefinition.electionData
+  );
+  fs.writeFileSync(
+    join(dirPath, 'manifest.json'),
+    JSON.stringify({ ballots: [] })
+  );
+  execSync(`zip -j ${zipPath} ${dirPath}/*`);
+  return fs.readFileSync(zipPath);
+}
+const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
+  createBallotPackageWithoutTemplates(
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+
 export async function configureApp(
   apiClient: grout.Client<Api>,
-  app: Application,
+  mockUsb: MockUsb,
   {
     addTemplates = false,
     precinctId,
@@ -216,18 +285,16 @@ export async function configureApp(
     addTemplates: false,
   }
 ): Promise<void> {
-  const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-  );
-  await apiClient.setElection({
-    electionData: electionDefinition.electionData,
+  const ballotPackageBuffer = addTemplates
+    ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+    : electionFamousNames2021WithoutTemplatesBallotPackageBuffer;
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': ballotPackageBuffer,
+    },
   });
-  if (addTemplates) {
-    // It takes about a second per template, so we only do some
-    for (const ballot of ballots.slice(0, 2)) {
-      await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
-    }
-  }
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
+
   await apiClient.setPrecinctSelection({
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(precinctId)

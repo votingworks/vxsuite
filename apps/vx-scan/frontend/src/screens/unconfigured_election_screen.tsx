@@ -1,21 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { join } from 'path';
-import { getPrecinctById } from '@votingworks/types';
-import {
-  assert,
-  readBallotPackageFromFilePointer,
-  usbstick,
-} from '@votingworks/utils';
-import { addTemplates } from '../api/config';
-import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
+import React, { useEffect, useState } from 'react';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { ConfigurationError } from '@votingworks/vx-scan-backend';
+import { throwIllegalValue, usbstick } from '@votingworks/utils';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
-import {
-  QuestionCircle,
-  IndeterminateProgressBar,
-} from '../components/graphics';
+import { IndeterminateProgressBar } from '../components/graphics';
 import { useApiClient } from '../api/api';
 
 interface Props {
@@ -28,158 +19,50 @@ export function UnconfiguredElectionScreen({
   refreshConfig,
 }: Props): JSX.Element {
   const apiClient = useApiClient();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
-
-  const [currentUploadingBallotIndex, setCurrentUploadingBallotIndex] =
-    useState(-1);
-  const [totalTemplates, setTotalTemplates] = useState(0);
-  const [currentUploadingBallot, setCurrentUploadingBallot] = useState<{
-    ballotStyle: string;
-    precinct: string;
-    isLiveMode: boolean;
-    locales?: string;
-  }>();
+  const [error, setError] = useState<ConfigurationError>();
 
   useEffect(() => {
-    async function attemptToLoadBallotPackageFromUsb() {
-      if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
-        setErrorMessage('');
-        setIsLoadingBallotPackage(false);
-        setTotalTemplates(0);
+    async function configure() {
+      setError(undefined);
+      if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) return;
+      const result = await apiClient.configureFromBallotPackageOnUsbDrive();
+      if (result.isErr()) {
+        setError(result.err());
         return;
       }
-      setIsLoadingBallotPackage(true);
-
-      try {
-        const usbPath = await usbstick.getDevicePath();
-        let files: KioskBrowser.FileSystemEntry[];
-        try {
-          assert(typeof usbPath !== 'undefined');
-          assert(window.kiosk);
-          files = await window.kiosk.getFileSystemEntries(
-            join(usbPath, PRECINCT_SCANNER_FOLDER)
-          );
-        } catch (error) {
-          throw new Error('No ballot package found on the inserted USB drive.');
-        }
-        const ballotPackages = files.filter(
-          (f) => f.type === 1 && f.name.endsWith('.zip')
-        );
-
-        if (ballotPackages.length === 0) {
-          throw new Error('No ballot package found on the inserted USB drive.');
-        }
-
-        // Get the most recently-created ballot package.
-        const ballotPackage = await readBallotPackageFromFilePointer(
-          // eslint-disable-next-line vx/gts-safe-number-parse
-          [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
-        );
-        addTemplates(apiClient, ballotPackage)
-          .on('configuring', () => {
-            setCurrentUploadingBallotIndex(0);
-            setTotalTemplates(ballotPackage.ballots.length);
-            setIsLoadingBallotPackage(false);
-          })
-          .on('uploading', (_pkg, ballot) => {
-            const { locales } = ballot.ballotConfig;
-            setCurrentUploadingBallot({
-              ballotStyle: ballot.ballotConfig.ballotStyleId,
-              precinct:
-                /* istanbul ignore next */
-                getPrecinctById({
-                  election: ballotPackage.electionDefinition.election,
-                  precinctId: ballot.ballotConfig.precinctId,
-                })?.name ?? ballot.ballotConfig.precinctId,
-              isLiveMode: ballot.ballotConfig.isLiveMode,
-              locales: locales?.secondary
-                ? `${locales.primary} / ${locales.secondary}`
-                : locales?.primary,
-            });
-            setCurrentUploadingBallotIndex(
-              ballotPackage.ballots.indexOf(ballot)
-            );
-          })
-          .on('completed', async () => {
-            await refreshConfig();
-          });
-      } catch (error) {
-        if (error instanceof Error) {
-          setErrorMessage(error.message);
-        } else {
-          setErrorMessage('Unknown Error');
-        }
-        setIsLoadingBallotPackage(false);
-      }
+      await refreshConfig();
     }
+    void configure();
+  }, [usbDriveStatus, apiClient, refreshConfig]);
 
-    // function handles its own errors, so no `.catch` needed
-    void attemptToLoadBallotPackageFromUsb();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usbDriveStatus]);
-
-  let content = (
-    <React.Fragment>
-      <QuestionCircle />
-      <CenteredLargeProse>
-        <h1>VxScan is Not Configured</h1>
-        <p>
-          {errorMessage === ''
-            ? 'Insert USB Drive with configuration.'
-            : `Error in configuration: ${errorMessage}`}
-        </p>
-      </CenteredLargeProse>
-    </React.Fragment>
-  );
-  if (isLoadingBallotPackage) {
-    content = (
-      <React.Fragment>
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>Searching USB for ballot package…</h1>
-        </CenteredLargeProse>
-      </React.Fragment>
-    );
-  }
-
-  if (totalTemplates > 0 && currentUploadingBallot) {
-    content = (
-      <React.Fragment>
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>
-            Loading ballot package {currentUploadingBallotIndex + 1} of{' '}
-            {totalTemplates}
-          </h1>
-          <ul style={{ textAlign: 'left' }}>
-            <li>
-              <strong>Ballot Style:</strong>{' '}
-              {currentUploadingBallot.ballotStyle}
-            </li>
-            <li>
-              <strong>Precinct:</strong> {currentUploadingBallot.precinct}
-            </li>
-            <li>
-              <strong>Test Ballot:</strong>{' '}
-              {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
-            </li>
-            <li>
-              <strong>Languages:</strong>{' '}
-              {
-                /* istanbul ignore next */ currentUploadingBallot.locales ?? (
-                  <em>(unknown)</em>
-                )
-              }
-            </li>
-          </ul>
-        </CenteredLargeProse>
-      </React.Fragment>
-    );
-  }
+  const errorMessage = (() => {
+    if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
+      return 'Insert a USB drive containing a ballot package.';
+    }
+    if (!error) return undefined;
+    switch (error) {
+      case 'no_ballot_package_on_usb_drive':
+        return 'No ballot package found on the inserted USB drive.';
+      /* istanbul ignore next - compile time check for completeness */
+      default:
+        throwIllegalValue(error);
+    }
+  })();
 
   return (
-    <ScreenMainCenterChild infoBar={false}>{content}</ScreenMainCenterChild>
+    <ScreenMainCenterChild infoBar={false}>
+      {errorMessage ? (
+        <CenteredLargeProse>
+          <h1>VxScan is not configured</h1>
+          <p>{errorMessage}</p>
+        </CenteredLargeProse>
+      ) : (
+        <CenteredLargeProse>
+          <h1>Configuring VxScan from USB drive…</h1>
+          <IndeterminateProgressBar />
+        </CenteredLargeProse>
+      )}
+    </ScreenMainCenterChild>
   );
 }
 

@@ -1,12 +1,13 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { createClient } from '@votingworks/plustek-sdk';
+import { getUsbDrives } from '@votingworks/data';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import {
   CreatePlustekClient,
   createPrecinctScannerStateMachine,
 } from './state_machine';
-import { buildApp } from './app';
+import { buildApp, Usb } from './app';
 import { createInterpreter } from './interpret';
 
 export interface StartOptions {
@@ -54,10 +55,12 @@ export async function start({
     interpreter: precinctScannerInterpreter,
     logger,
   });
+  const usb: Usb = { getUsbDrives };
   const app = buildApp(
     precinctScannerMachine,
     precinctScannerInterpreter,
     resolvedWorkspace,
+    usb,
     logger
   );
 

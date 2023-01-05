@@ -13,6 +13,8 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BallotConfig,
+  BallotPackageEntry,
   singlePrecinctSelectionFor,
   sleep,
   typedAs,
@@ -21,14 +23,11 @@ import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
+import { readFileSync } from 'fs';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import {
-  getMockBallotPageLayoutsWithImages,
-  getMockImageData,
-} from '../test/helpers/mock_layouts';
 import { ResultSheet, Store } from './store';
-import { ballotPdf } from '../test/fixtures/2020-choctaw';
+import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -220,35 +219,64 @@ test('get/set cvrs as backed up', () => {
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
-test('HMPB template handling', () => {
+const metadata: BallotMetadata = {
+  electionHash: electionDefinition.electionHash,
+  locales: { primary: 'en-US' },
+  ballotStyleId: '12',
+  precinctId: '23',
+  isTestMode: false,
+  ballotType: BallotType.Standard,
+};
+
+const ballotConfig: BallotConfig = {
+  filename: 'test-filename',
+  layoutFilename: 'test-layout-filename',
+  locales: { primary: 'en-US' },
+  isLiveMode: true,
+  isAbsentee: false,
+  ballotStyleId: '12',
+  precinctId: '23',
+  contestIds: [],
+};
+
+const ballotPdfBuffer = readFileSync(ballotPdf);
+
+const ballotTemplates: BallotPackageEntry[] = [
+  {
+    pdf: ballotPdfBuffer,
+    layout: [
+      {
+        pageSize: { width: 1, height: 1 },
+        metadata: { ...metadata, pageNumber: 1 },
+        contests: [],
+      },
+      {
+        pageSize: { width: 1, height: 1 },
+        metadata: { ...metadata, pageNumber: 2 },
+        contests: [],
+      },
+    ],
+    ballotConfig,
+  },
+];
+
+test('HMPB template handling', async () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
-  const metadata: BallotMetadata = {
-    electionHash: 'd34db33f',
-    locales: { primary: 'en-US' },
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
 
   expect(store.getHmpbTemplates()).toEqual([]);
 
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await store.setHmpbTemplates(ballotTemplates);
 
   expect(store.getHmpbTemplates()).toEqual(
     typedAs<Array<[Buffer, BallotPageLayout[]]>>([
       [
-        Buffer.of(1, 2, 3),
+        ballotPdfBuffer,
         [
           {
             pageSize: { width: 1, height: 1 },
             metadata: {
-              electionHash: 'd34db33f',
+              electionHash: electionDefinition.electionHash,
               ballotType: BallotType.Standard,
               locales: { primary: 'en-US' },
               ballotStyleId: '12',
@@ -261,7 +289,7 @@ test('HMPB template handling', () => {
           {
             pageSize: { width: 1, height: 1 },
             metadata: {
-              electionHash: 'd34db33f',
+              electionHash: electionDefinition.electionHash,
               ballotType: BallotType.Standard,
               locales: { primary: 'en-US' },
               ballotStyleId: '12',
@@ -282,20 +310,7 @@ test('layout caching', async () => {
   const initialStore = await Store.fileStore(dbFile.name);
   initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
 
-  const metadata: BallotMetadata = {
-    electionHash: 'd34db33f',
-    locales: { primary: 'en-US' },
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
-
-  initialStore.addHmpbTemplate(
-    await fs.readFile(ballotPdf),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
+  await initialStore.setHmpbTemplates(ballotTemplates);
 
   const expectedLayouts = [
     {
@@ -587,7 +602,7 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toBe(true);
 });
 
-test('adjudication', () => {
+test('adjudication', async () => {
   const candidateContests = stateOfHamilton.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
@@ -597,7 +612,7 @@ test('adjudication', () => {
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
-  const metadata: BallotMetadata = {
+  const ballotMetadata: BallotMetadata = {
     electionHash: stateOfHamilton.electionDefinition.electionHash,
     ballotStyleId: '12',
     precinctId: '23',
@@ -606,15 +621,13 @@ test('adjudication', () => {
     ballotType: BallotType.Standard,
   };
   store.setElection(stateOfHamilton.electionDefinition.electionData);
-  store.addHmpbTemplate(
-    Buffer.of(),
-    metadata,
-    [1, 2].map((pageNumber) => ({
-      imageData: getMockImageData(),
-      ballotPageLayout: {
+  await store.setHmpbTemplates([
+    {
+      pdf: await fs.readFile(ballotPdf),
+      layout: [1, 2].map((pageNumber) => ({
         pageSize: { width: 1, height: 1 },
         metadata: {
-          ...metadata,
+          ...ballotMetadata,
           pageNumber,
         },
         contests: [
@@ -655,9 +668,10 @@ test('adjudication', () => {
             ],
           },
         ],
-      },
-    }))
-  );
+      })),
+      ballotConfig,
+    },
+  ]);
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',

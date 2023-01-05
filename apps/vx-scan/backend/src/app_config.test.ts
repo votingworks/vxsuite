@@ -1,15 +1,23 @@
 import { MockScannerClient } from '@votingworks/plustek-sdk';
 import request from 'supertest';
-import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { err, ok } from '@votingworks/types';
+import fs from 'fs';
+import { join } from 'path';
 import {
   ballotImages,
   configureApp,
   createApp,
+  createBallotPackageWithoutTemplates,
   postExportCvrs,
   waitForStatus,
 } from '../test/helpers/app_helpers';
@@ -54,12 +62,29 @@ async function scanBallot(
   });
 }
 
-test("setting the election also sets precinct if there's only one", async () => {
-  const { apiClient } = await createApp();
-  await apiClient.setElection({
-    electionData:
-      electionMinimalExhaustiveSampleSinglePrecinctDefinition.electionData,
+test("fails to configure if there's no ballot package on the usb drive", async () => {
+  const { apiClient, mockUsb } = await createApp();
+  mockUsb.insertUsbDrive({});
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    err('no_ballot_package_on_usb_drive')
+  );
+  mockUsb.removeUsbDrive();
+  mockUsb.insertUsbDrive({ 'ballot-packages': {} });
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    err('no_ballot_package_on_usb_drive')
+  );
+});
+
+test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
+  const { apiClient, mockUsb } = await createApp();
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionMinimalExhaustiveSampleSinglePrecinctDefinition
+      ),
+    },
   });
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
   const config = await apiClient.getConfig();
   expect(config.precinctSelection).toMatchObject({
     kind: 'SinglePrecinct',
@@ -67,11 +92,46 @@ test("setting the election also sets precinct if there's only one", async () => 
   });
 });
 
+test('configures using the most recently created ballot package on the usb drive', async () => {
+  const { apiClient, mockUsb } = await createApp();
+
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'older-ballot-package.zip':
+        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
+      'newer-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionSampleDefinition
+      ),
+    },
+  });
+  // Ensure our mock actually created the files in the order we expect (the
+  // order of the keys in the object above)
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  assert(usbDrive.mountPoint !== undefined);
+  const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
+  const files = fs.readdirSync(dirPath);
+  const filesWithStats = files.map((file) => ({
+    file,
+    ...fs.statSync(join(dirPath, file)),
+  }));
+  expect(filesWithStats[0].file).toContain('newer-ballot-package.zip');
+  expect(filesWithStats[1].file).toContain('older-ballot-package.zip');
+  expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
+    filesWithStats[1].ctime.getTime()
+  );
+
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
+  const config = await apiClient.getConfig();
+  expect(config.electionDefinition?.election.title).toEqual(
+    electionSampleDefinition.election.title
+  );
+});
+
 describe('POST /precinct-scanner/export', () => {
   test('sets CVRs as backed up', async () => {
-    const { apiClient, app, workspace } = await createApp();
+    const { apiClient, app, workspace, mockUsb } = await createApp();
 
-    await configureApp(apiClient, app);
+    await configureApp(apiClient, mockUsb);
     await request(app)
       .post('/precinct-scanner/export')
       .set('Accept', 'application/json')
@@ -84,8 +144,8 @@ describe('POST /precinct-scanner/export', () => {
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  const { apiClient, app, workspace } = await createApp();
-  await configureApp(apiClient, app);
+  const { apiClient, workspace, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
 
   workspace.store.setPollsState('polls_open');
   await apiClient.setPrecinctSelection({
@@ -95,8 +155,9 @@ test('setPrecinctSelection will reset polls to closed', async () => {
 });
 
 test('ballot batching', async () => {
-  const { apiClient, app, mockPlustek, logger, workspace } = await createApp();
-  await configureApp(apiClient, app);
+  const { apiClient, app, mockPlustek, logger, workspace, mockUsb } =
+    await createApp();
+  await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch
   await scanBallot(mockPlustek, apiClient, 0);

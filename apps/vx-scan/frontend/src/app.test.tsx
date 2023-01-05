@@ -1,19 +1,17 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { promises as fs } from 'fs';
 import { Scan } from '@votingworks/api';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
-  readBallotPackageFromFilePointer,
   singlePrecinctSelectionFor,
   MemoryCard,
   MemoryHardware,
   MemoryStorage,
-  BallotPackage,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { waitFor, screen, within, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   fakeKiosk,
   fakeUsbDrive,
@@ -23,16 +21,11 @@ import {
   makeSystemAdministratorCard,
   expectPrint,
 } from '@votingworks/test-utils';
-import { join } from 'path';
 import {
   electionSampleDefinition,
   electionSample2Definition,
 } from '@votingworks/fixtures';
-
-import { AdjudicationReason } from '@votingworks/types';
-
-import { mocked } from 'ts-jest/utils';
-import userEvent from '@testing-library/user-event';
+import { AdjudicationReason, err, ok } from '@votingworks/types';
 
 import {
   BALLOT_BAG_CAPACITY,
@@ -54,18 +47,6 @@ const apiMock = createApiMock();
 jest.setTimeout(20000);
 
 fetchMock.config.overwriteRoutes = false;
-
-// Mock just `readBallotPackageFromFilePointer` from `@votingworks/utils`.
-const readBallotPackageFromFilePointerMock = mocked(
-  readBallotPackageFromFilePointer
-);
-const { readBallotPackageFromFile } = jest.requireActual('@votingworks/utils');
-
-jest.mock('@votingworks/utils/build/ballot_package', () => ({
-  ...jest.requireActual('@votingworks/utils/build/ballot_package'),
-  readBallotPackageFromFilePointer: jest.fn(),
-}));
-// End mocking `readBallotPackageFromFilePointer`.
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -145,98 +126,27 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   kiosk.getUsbDrives.mockResolvedValue([]);
-  apiMock.expectGetScannerStatus(statusNoPaper, 7);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('Loading Configuration…');
-  await advanceTimersAndPromises(1);
-  await screen.findByText('VxScan is Not Configured');
-  await screen.findByText('Insert USB Drive with configuration.');
+  await screen.findByText('VxScan is not configured');
+  await screen.findByText('Insert a USB drive containing a ballot package.');
 
+  apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(err('no_ballot_package_on_usb_drive'));
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(2);
-
-  await screen.findByText(
-    'Error in configuration: No ballot package found on the inserted USB drive.'
-  );
+  await screen.findByText('No ballot package found on the inserted USB drive.');
 
   // Remove the USB
   kiosk.getUsbDrives.mockResolvedValue([]);
-  await advanceTimersAndPromises(2);
-  await screen.findByText('Insert USB Drive with configuration.');
+  await screen.findByText('Insert a USB drive containing a ballot package.');
 
-  // Mock getFileSystemEntries returning an error
-  kiosk.getFileSystemEntries.mockRejectedValueOnce('error');
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(2);
-  await screen.findByText(
-    'Error in configuration: No ballot package found on the inserted USB drive.'
-  );
-  // Remove the USB
-  kiosk.getUsbDrives.mockResolvedValue([]);
-  await advanceTimersAndPromises(2);
-  await screen.findByText('Insert USB Drive with configuration.');
-
-  const pathToFile = join(
-    __dirname,
-    '../test/fixtures/ballot-package-state-of-hamilton.zip'
-  );
-  kiosk.getFileSystemEntries.mockResolvedValue([
-    {
-      name: 'ballot-package-old.zip',
-      path: pathToFile,
-      type: 1,
-      size: 1,
-      atime: new Date(),
-      ctime: new Date(2021, 0, 1),
-      mtime: new Date(),
-    },
-    {
-      name: 'ballot-package-new.zip',
-      path: pathToFile,
-      type: 1,
-      size: 1,
-      atime: new Date(),
-      ctime: new Date(2021, 10, 9),
-      mtime: new Date(),
-    },
-  ]);
-  const fileContent = await fs.readFile(pathToFile);
-  kiosk.readFile.mockResolvedValue(fileContent as unknown as string);
-  const ballotPackage = (await readBallotPackageFromFile(
-    new File([fileContent], 'ballot-package-new.zip')
-  )) as BallotPackage;
-  const { electionDefinition } = ballotPackage;
-  expect(electionDefinition).toBeDefined();
-  /* This function can take too long when the test is running for the results to be seen in time for the
-   * test to pass consistently. By running it above and mocking out the result we guarantee the test will
-   * pass consistently.
-   */
-  readBallotPackageFromFilePointerMock.mockResolvedValue(ballotPackage);
-
-  fetchMock.post('/precinct-scanner/config/addTemplates', {
-    body: '{"status": "ok"}',
-    status: 200,
-  });
-  apiMock.expectSetElection(electionDefinition);
-  apiMock.expectGetConfig({ electionDefinition });
-
-  // Reinsert USB now that fake zip file on it is setup
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(2);
-  await advanceTimersAndPromises(1);
+  apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(ok());
+  apiMock.expectGetConfig({ electionDefinition: electionSampleDefinition });
   await screen.findByText('Polls Closed');
-  expect(kiosk.getFileSystemEntries).toHaveBeenCalledWith(
-    'fake mount point/ballot-packages'
-  );
-  expect(fetchMock.calls('/precinct-scanner/config/addTemplates')).toHaveLength(
-    16
-  );
-
-  expect(readBallotPackageFromFilePointerMock).toHaveBeenCalledWith(
-    expect.objectContaining({
-      name: 'ballot-package-new.zip',
-    })
-  );
 });
 
 test('election manager must set precinct', async () => {
@@ -443,7 +353,7 @@ test('election manager and poll worker configuration', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
-  await screen.findByText('VxScan is Not Configured');
+  await screen.findByText('VxScan is not configured');
   expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
 
