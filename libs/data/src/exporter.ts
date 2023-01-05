@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { err, ok, Result } from '@votingworks/types';
-import { mkdir } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';
 import { Readable } from 'stream';
-import { lstatSync, writeFileSync } from 'fs';
+import { lstatSync } from 'fs';
 import { splitToFiles } from './split';
 import { execFile } from './utils/exec';
 import { UsbDrive } from './get_usb_drives';
@@ -113,7 +113,7 @@ export class Exporter {
     // If the data was empty, splitToFiles won't create any files, but we still
     // want to create an empty file.
     if (paths.length === 0) {
-      writeFileSync(safePath, '');
+      await writeFile(safePath, '');
       paths.push(safePath);
     }
     return ok(paths);
