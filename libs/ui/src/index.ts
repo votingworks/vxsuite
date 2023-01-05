@@ -57,3 +57,4 @@ export * from './precinct_scanner_tally_reports';
 export * from './change_precinct_button';
 export * from './precinct_scanner_ballot_count_report';
 export * from './export_logs_modal';
+export * from './graphics';

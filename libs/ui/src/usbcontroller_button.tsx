@@ -10,6 +10,7 @@ function doNothing() {
 
 const disabledText: Record<Exclude<UsbDriveStatus, 'mounted'>, string> = {
   absent: 'No USB',
+  bad_format: 'No USB',
   mounting: 'Connecting…',
   ejecting: 'Ejecting…',
   ejected: 'Ejected',

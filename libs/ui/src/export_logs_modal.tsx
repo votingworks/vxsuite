@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { join } from 'path';
 import {
   assert,
@@ -30,12 +29,7 @@ import {
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
-
-export const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
+import { UsbImage } from './graphics';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
@@ -250,6 +244,7 @@ export function ExportLogsModal({
   switch (usbDriveStatus) {
     case 'absent':
     case 'ejected':
+    case 'bad_format':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -258,7 +253,7 @@ export function ExportLogsModal({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+                <UsbImage />
                 Please insert a USB drive where you would like the save the log
                 file.
               </p>
