@@ -1148,6 +1148,9 @@ export class Store {
     const loadedLayouts: BallotPageLayoutWithImage[] = [];
 
     for (const [pdf, layouts] of templates) {
+      // While the PDFs only use O(100KB) of memory, each page image uses
+      // O(10MB) of memory, so we should be careful to only load one page of one
+      // pdf at a time.
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
         const ballotPageLayout = find(
           layouts,
