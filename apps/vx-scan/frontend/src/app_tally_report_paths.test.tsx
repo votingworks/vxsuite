@@ -13,7 +13,6 @@ import {
   fakeKiosk,
   advanceTimersAndPromises,
   makePollWorkerCard,
-  generateFileContentFromCvrs,
   generateCvr,
   getZeroCompressedTally,
   fakeUsbDrive,
@@ -112,6 +111,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
   fetchMock.get('/machine-config', { body: getMachineConfigBody });
+  fetchMock.post('/precinct-scanner/export', {});
   apiMock.mockApiClient.reset();
 
   const kiosk = fakeKiosk();
@@ -135,7 +135,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
   await screen.findByText('Polls Closed');
 
   // Open the polls
-  fetchMock.post('/precinct-scanner/export', {});
+  apiMock.expectGetCastVoteRecordsForTally([]);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
@@ -184,7 +184,7 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
   await screen.findByText('Polls Closed');
 
   // Open the polls
-  fetchMock.post('/precinct-scanner/export', {});
+  apiMock.expectGetCastVoteRecordsForTally([]);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
@@ -270,7 +270,7 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
   );
 });
 
-const PRIMARY_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
+const PRIMARY_ALL_PRECINCTS_CVRS = [
   generateCvr(
     electionMinimalExhaustiveSampleWithReportingUrl,
     {
@@ -312,7 +312,7 @@ const PRIMARY_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
       ballotType: VotingMethod.Precinct,
     }
   ),
-]);
+];
 
 test('printing: polls closed, primary election, all precincts + quickresults on', async () => {
   const electionDefinition =
@@ -324,7 +324,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', PRIMARY_ALL_PRECINCTS_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -528,7 +528,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', PRIMARY_ALL_PRECINCTS_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -593,7 +593,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   );
 });
 
-const PRIMARY_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
+const PRIMARY_SINGLE_PRECINCT_CVRS = [
   generateCvr(
     electionMinimalExhaustiveSample,
     {
@@ -635,7 +635,7 @@ const PRIMARY_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
       ballotType: VotingMethod.Precinct,
     }
   ),
-]);
+];
 
 test('printing: polls closed, primary election, single precinct + check additional report', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -650,7 +650,7 @@ test('printing: polls closed, primary election, single precinct + check addition
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', PRIMARY_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -788,7 +788,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', PRIMARY_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -838,7 +838,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
   );
 });
 
-const GENERAL_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
+const GENERAL_ALL_PRECINCTS_CVRS = [
   generateCvr(
     electionSample2,
     {
@@ -863,7 +863,7 @@ const GENERAL_ALL_PRECINCTS_CVRS = generateFileContentFromCvrs([
       ballotType: VotingMethod.Absentee,
     }
   ),
-]);
+];
 
 test('printing: polls closed, general election, all precincts', async () => {
   const electionDefinition = electionSample2Definition;
@@ -873,7 +873,7 @@ test('printing: polls closed, general election, all precincts', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_ALL_PRECINCTS_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -968,7 +968,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_ALL_PRECINCTS_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1021,7 +1021,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   );
 });
 
-const GENERAL_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
+const GENERAL_SINGLE_PRECINCT_CVRS = [
   generateCvr(
     electionSample2,
     {
@@ -1046,7 +1046,7 @@ const GENERAL_SINGLE_PRECINCT_CVRS = generateFileContentFromCvrs([
       ballotType: VotingMethod.Absentee,
     }
   ),
-]);
+];
 
 test('printing: polls closed, general election, single precinct', async () => {
   const electionDefinition = electionSample2Definition;
@@ -1060,7 +1060,7 @@ test('printing: polls closed, general election, single precinct', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1132,7 +1132,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1184,12 +1184,12 @@ test('printing: polls paused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   const { card } = renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1231,7 +1231,7 @@ test('saving to card: polls paused', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   // Pause the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1270,12 +1270,12 @@ test('printing: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   const { card } = renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
   // Unpause the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');
@@ -1310,12 +1310,12 @@ test('saving to card: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
 
   // Unpause the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');
@@ -1357,7 +1357,7 @@ test('printing: polls closed from paused, general election, single precinct', as
   await screen.findByText('Polls Paused');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');
@@ -1430,7 +1430,7 @@ test('saving to card: polls closed from paused, general election, single precinc
   await screen.findByText('Polls Paused');
 
   // Close the polls
-  fetchMock.post('/precinct-scanner/export', GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');

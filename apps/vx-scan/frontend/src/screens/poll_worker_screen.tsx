@@ -34,7 +34,6 @@ import {
   ScannerReportDataBase,
 } from '@votingworks/utils';
 import {
-  CastVoteRecord,
   VotingMethod,
   TallyCategory,
   FullElectionTally,
@@ -62,8 +61,8 @@ import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
-import * as scan from '../api/scan';
 import { rootDebug } from '../utils/debug';
+import { useApiClient } from '../api/api';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -85,16 +84,6 @@ async function saveReportDataToCard(
     ScannerReportDataSchema
   );
   return possibleTally.ok()?.timeSaved === reportData.timeSaved;
-}
-
-async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
-  const castVoteRecordsString = await scan.getExportWithoutImages();
-  const lines = castVoteRecordsString.split('\n');
-  const cvrs = lines.flatMap((line) =>
-    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
-  );
-  // TODO add more validation of the CVR, move the validation code from election-manager to utils
-  return cvrs.filter((cvr) => cvr._precinctId !== undefined);
 }
 
 const debug = rootDebug.extend('pollworker-screen');
@@ -129,6 +118,7 @@ export function PollWorkerScreen({
   isLiveMode,
   hasPrinterAttached: printerFromProps,
 }: PollWorkerScreenProps): JSX.Element {
+  const apiClient = useApiClient();
   const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -178,7 +168,7 @@ export function PollWorkerScreen({
 
   useEffect(() => {
     async function calculateTally() {
-      const castVoteRecords = await getCvrsFromExport();
+      const castVoteRecords = await apiClient.getCastVoteRecordsForTally();
       const tally = computeTallyWithPrecomputedCategories(
         election,
         new Set(castVoteRecords),

@@ -220,7 +220,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper, 3);
   const { card } = renderApp({ hardware });
-  fetchMock.post('/precinct-scanner/export', {});
+  apiMock.expectGetCastVoteRecordsForTally([]);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(
@@ -264,7 +264,7 @@ test('removing card during calibration', async () => {
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
-  fetchMock.post('/precinct-scanner/export', {});
+  apiMock.expectGetCastVoteRecordsForTally([]);
   const { card } = renderApp();
 
   // Open Polls

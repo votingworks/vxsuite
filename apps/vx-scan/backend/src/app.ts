@@ -2,6 +2,7 @@ import { Scan } from '@votingworks/api';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  CastVoteRecord,
   err,
   MarkThresholds,
   ok,
@@ -23,7 +24,10 @@ import { UsbDrive } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { backupToUsbDrive } from './backup';
-import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
+import {
+  exportCastVoteRecords,
+  exportCastVoteRecordsAsNdJson,
+} from './cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './state_machine';
 import { rootDebug } from './util/debug';
@@ -235,6 +239,17 @@ function buildApi(
     async backupToUsbDrive(): Promise<Result<void, Scan.BackupError>> {
       const result = await backupToUsbDrive(store);
       return result.isErr() ? result : ok();
+    },
+
+    async getCastVoteRecordsForTally(): Promise<CastVoteRecord[]> {
+      const castVoteRecords: CastVoteRecord[] = [];
+      for await (const castVoteRecord of exportCastVoteRecords({
+        store,
+        skipImages: true,
+      })) {
+        castVoteRecords.push(castVoteRecord);
+      }
+      return castVoteRecords;
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await

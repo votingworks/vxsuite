@@ -14,6 +14,10 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { ApiClientContext } from '../api/api';
+import { createApiMock } from '../../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -31,10 +35,12 @@ beforeEach(() => {
   window.location.href = '/';
   fetchMock.post('/precinct-scanner/export', {});
   window.kiosk = fakeKiosk();
+  apiMock.mockApiClient.reset();
 });
 
 afterEach(() => {
   window.kiosk = undefined;
+  apiMock.mockApiClient.assertComplete();
 });
 
 function renderScreen({
@@ -49,15 +55,18 @@ function renderScreen({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ...appContextProps,
   };
+  apiMock.expectGetCastVoteRecordsForTally([]);
   return renderInAppContext(
-    <PollWorkerScreen
-      scannedBallotCount={0}
-      pollsState="polls_closed_initial"
-      updatePollsState={jest.fn()}
-      isLiveMode
-      hasPrinterAttached={false}
-      {...pollWorkerScreenProps}
-    />,
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <PollWorkerScreen
+        scannedBallotCount={0}
+        pollsState="polls_closed_initial"
+        updatePollsState={jest.fn()}
+        isLiveMode
+        hasPrinterAttached={false}
+        {...pollWorkerScreenProps}
+      />
+    </ApiClientContext.Provider>,
     pollWorkerScreenAppContextProps
   );
 }
