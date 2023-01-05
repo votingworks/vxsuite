@@ -56,19 +56,19 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### usb-drive-detected
 **Type:** [application-status](#application-status)  
-**Description:** USB drive detected.  
+**Description:** A USB drive was detected.  
 **Machines:** All
 ### usb-drive-removed
-**Type:** [application-status](#application-status)  
-**Description:** USB drive removed by the user.  
+**Type:** [user-action](#user-action)  
+**Description:** A USB drive was removed by the user.  
 **Machines:** All
 ### usb-drive-eject-init
 **Type:** [user-action](#user-action)  
-**Description:** A request to eject the current USB drive was given by the user, the usb drive will now be ejected.  
+**Description:** A request to eject the current USB drive was made by the user, the USB drive will now be ejected.  
 **Machines:** All
 ### usb-drive-eject-complete
 **Type:** [application-status](#application-status)  
-**Description:** The current USB drive finished attempting to ejected. Success or failure indicated by disposition.  
+**Description:** Attempt to eject USB drive complete. Success or failure indicated by disposition.  
 **Machines:** All
 ### usb-drive-mount-init
 **Type:** [application-action](#application-action)  
@@ -76,7 +76,15 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### usb-drive-mount-complete
 **Type:** [application-status](#application-status)  
-**Description:** USB drive mount has completed. Success or failure is indicated by the disposition.  
+**Description:** Attempt to mount USB drive mount complete. Success or failure indicated by disposition.  
+**Machines:** All
+### usb-drive-format-init
+**Type:** [user-action](#user-action)  
+**Description:** A request to format the current USB drive was made by the user. The usb drive will now be re-formatted for compatibility with VotingWorks software.  
+**Machines:** All
+### usb-drive-format-complete
+**Type:** [application-status](#application-status)  
+**Description:** Attempt to reformat USB drive complete. Success or failure indicated by disposition.  
 **Machines:** All
 ### application-startup
 **Type:** [application-status](#application-status)  
