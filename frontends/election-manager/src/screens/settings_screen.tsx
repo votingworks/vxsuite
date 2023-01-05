@@ -11,7 +11,7 @@ import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 
 export function SettingsScreen(): JSX.Element {
-  const { logger, usbDriveStatus } = useContext(AppContext);
+  const { logger, usbDrive } = useContext(AppContext);
 
   return (
     <NavigationScreen>
@@ -27,7 +27,7 @@ export function SettingsScreen(): JSX.Element {
         <p>
           <RebootFromUsbButton
             logger={logger}
-            usbDriveStatus={usbDriveStatus}
+            usbDriveStatus={usbDrive.status}
           />{' '}
           or <RebootToBiosButton logger={logger} />
         </p>

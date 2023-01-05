@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
@@ -23,7 +24,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
           fileType={fileType}
         />,
         {
-          usbDriveStatus: status,
+          usbDrive: mockUsbDrive(status),
         }
       );
       getByText('Loading');
@@ -45,7 +46,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
         fileType={FileType.TestDeckTallyReport}
       />,
       {
-        usbDriveStatus: status,
+        usbDrive: mockUsbDrive(status),
       }
     );
     getByText('No USB Drive Detected');
@@ -80,7 +81,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
       fileType={FileType.Ballot}
     />,
     {
-      usbDriveStatus: 'mounted',
+      usbDrive: mockUsbDrive('mounted'),
       logger,
     }
   );
@@ -139,7 +140,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
       promptToEjectUsb
     />,
     {
-      usbDriveStatus: 'mounted',
+      usbDrive: mockUsbDrive('mounted'),
       logger,
     }
   );
@@ -195,7 +196,7 @@ test('render export modal with errors when appropriate', async () => {
       fileType={FileType.TallyReport}
     />,
     {
-      usbDriveStatus: 'mounted',
+      usbDrive: mockUsbDrive('mounted'),
       logger,
     }
   );
@@ -237,7 +238,7 @@ test('creates new directory and saves to it, if specified', async () => {
       fileType={FileType.Ballot}
     />,
     {
-      usbDriveStatus: 'mounted',
+      usbDrive: mockUsbDrive('mounted'),
     }
   );
 

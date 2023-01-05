@@ -51,8 +51,7 @@ const UsbImage = styled.img`
 `;
 
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
-  const { electionDefinition, usbDriveStatus, usbDriveEject, auth, logger } =
-    useContext(AppContext);
+  const { electionDefinition, usbDrive, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
@@ -223,7 +222,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
 
     case 'ArchiveBegin':
-      switch (usbDriveStatus) {
+      switch (usbDrive.status) {
         case 'absent':
         case 'ejected':
           actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
@@ -277,7 +276,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         }
 
         default:
-          throwIllegalValue(usbDriveStatus);
+          throwIllegalValue(usbDrive.status);
       }
       break;
 
@@ -343,14 +342,14 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
 
     case 'Done': {
-      if (usbDriveStatus !== 'ejected') {
+      if (usbDrive.status !== 'ejected') {
         actions = (
           <React.Fragment>
             <UsbControllerButton
               primary
               small={false}
-              usbDriveEject={() => usbDriveEject(userRole)}
-              usbDriveStatus={usbDriveStatus}
+              usbDriveEject={() => usbDrive.eject(userRole)}
+              usbDriveStatus={usbDrive.status}
             />
             <LinkButton onPress={closeModal}>Close</LinkButton>
           </React.Fragment>

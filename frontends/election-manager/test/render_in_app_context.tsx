@@ -23,7 +23,7 @@ import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDrive } from '@votingworks/ui';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -37,6 +37,7 @@ import {
   ElectionManagerStoreBackend,
   ElectionManagerStoreMemoryBackend,
 } from '../src/lib/backends';
+import { mockUsbDrive } from './helpers/mock_usb_drive';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -51,8 +52,7 @@ interface RenderInAppContextParams {
   saveElection?: SaveElection;
   resetElection?: ResetElection;
   resetFiles?: () => Promise<void>;
-  usbDriveStatus?: UsbDriveStatus;
-  usbDriveEject?: () => Promise<void>;
+  usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -107,8 +107,7 @@ export function renderInAppContext(
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     resetFiles = jest.fn(),
-    usbDriveStatus = 'absent',
-    usbDriveEject = jest.fn(),
+    usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
@@ -140,8 +139,7 @@ export function renderInAppContext(
         saveElection,
         resetElection,
         resetFiles,
-        usbDriveStatus,
-        usbDriveEject,
+        usbDrive,
         fullElectionTally,
         isTabulationRunning,
         setIsTabulationRunning,

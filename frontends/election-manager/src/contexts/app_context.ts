@@ -10,8 +10,8 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
-import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { Logger, LogSource } from '@votingworks/logging';
+import { UsbDrive } from '@votingworks/ui';
 import {
   SaveElection,
   Iso8601Timestamp,
@@ -31,8 +31,7 @@ export interface AppContextInterface {
   saveElection: SaveElection;
   resetElection: ResetElection;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
-  usbDriveStatus: UsbDriveStatus;
-  usbDriveEject: (currentUserRole: LoggingUserRole) => Promise<void>;
+  usbDrive: UsbDrive;
   fullElectionTally: FullElectionTally;
   fullElectionExternalTallies: FullElectionExternalTallies;
   isTabulationRunning: boolean;
@@ -59,8 +58,11 @@ const appContext: AppContextInterface = {
   saveElection: async () => undefined,
   resetElection: async () => undefined,
   resetFiles: async () => undefined,
-  usbDriveStatus: 'absent',
-  usbDriveEject: async () => undefined,
+  usbDrive: {
+    status: 'absent',
+    eject: async () => undefined,
+    format: async () => undefined,
+  },
   fullElectionTally: getEmptyFullElectionTally(),
   fullElectionExternalTallies: new Map(),
   updateExternalTally: async () => undefined,

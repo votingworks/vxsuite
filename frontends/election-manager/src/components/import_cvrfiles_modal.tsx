@@ -70,8 +70,7 @@ export interface Props {
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
-  const { usbDriveStatus, electionDefinition, auth, logger } =
-    useContext(AppContext);
+  const { usbDrive, electionDefinition, auth, logger } = useContext(AppContext);
   const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
   const cvrFilesQuery = useCvrFilesQuery();
   const fileMode = useCvrFileModeQuery().data;
@@ -216,11 +215,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   useEffect(() => {
-    if (usbDriveStatus === 'mounted') {
+    if (usbDrive.status === 'mounted') {
       void fetchFilenames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usbDriveStatus]);
+  }, [usbDrive.status]);
 
   if (currentState.state === 'error') {
     return (
@@ -286,8 +285,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   if (
     cvrFilesQuery.isLoading ||
     currentState.state === 'loading' ||
-    usbDriveStatus === 'ejecting' ||
-    usbDriveStatus === 'mounting'
+    usbDrive.status === 'ejecting' ||
+    usbDrive.status === 'mounting'
   ) {
     return (
       <Modal
@@ -302,7 +301,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     );
   }
 
-  if (usbDriveStatus === 'absent' || usbDriveStatus === 'ejected') {
+  if (usbDrive.status === 'absent' || usbDrive.status === 'ejected') {
     return (
       <Modal
         content={
@@ -333,7 +332,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     );
   }
 
-  if (usbDriveStatus === 'mounted') {
+  if (usbDrive.status === 'mounted') {
     // Determine if we are already locked to a filemode based on previously loaded CVRs
     const fileModeLocked = fileMode !== Admin.CvrFileMode.Unlocked;
 
@@ -457,5 +456,5 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       />
     );
   }
-  throwIllegalValue(usbDriveStatus);
+  throwIllegalValue(usbDrive.status);
 }
