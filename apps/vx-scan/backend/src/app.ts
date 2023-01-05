@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -30,11 +29,11 @@ import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './state_machine';
 import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
-
-/**
- * Possible errors that can occur during configuration (currently there's only one).
- */
-export type ConfigurationError = 'no_ballot_package_on_usb_drive';
+import {
+  ConfigurationError,
+  PrecinctScannerConfig,
+  PrecinctScannerStatus,
+} from './types';
 
 function buildApi(
   machine: PrecinctScannerStateMachine,
@@ -109,7 +108,7 @@ function buildApi(
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async getConfig(): Promise<Scan.PrecinctScannerConfig> {
+    async getConfig(): Promise<PrecinctScannerConfig> {
       return {
         electionDefinition: store.getElectionDefinition(),
         precinctSelection: store.getPrecinctSelection(),
@@ -222,9 +221,8 @@ function buildApi(
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
     },
 
-    async backupToUsbDrive(): Promise<Result<void, Scan.BackupError>> {
-      const result = await backupToUsbDrive(store, usb);
-      return result.isErr() ? result : ok();
+    async backupToUsbDrive(): Promise<Result<void, ExportDataError>> {
+      return await backupToUsbDrive(store, usb);
     },
 
     async exportCastVoteRecordsToUsbDrive(input: {
@@ -249,7 +247,7 @@ function buildApi(
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async getScannerStatus(): Promise<Scan.PrecinctScannerStatus> {
+    async getScannerStatus(): Promise<PrecinctScannerStatus> {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
       const canUnconfigure = store.getCanUnconfigure();

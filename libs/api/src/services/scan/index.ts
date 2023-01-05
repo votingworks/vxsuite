@@ -1,17 +1,17 @@
 import {
-  AdjudicationReasonInfo,
-  AdjudicationReasonInfoSchema,
+  AdjudicationStatus,
+  AdjudicationStatusSchema,
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotSheetInfo,
   BallotSheetInfoSchema,
+  BatchInfo,
+  BatchInfoSchema,
   Contest,
   ElectionDefinition,
   ElectionDefinitionSchema,
   ElectionHash,
   IdSchema,
-  Iso8601Timestamp,
-  Iso8601TimestampSchema,
   MarkThresholds,
   MarkThresholdsSchema,
   Optional,
@@ -28,38 +28,6 @@ import {
   OkResponse,
   OkResponseSchema,
 } from '../../base';
-
-export type Side = 'front' | 'back';
-export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
-
-export interface AdjudicationStatus {
-  adjudicated: number;
-  remaining: number;
-}
-
-export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> =
-  z.object({
-    adjudicated: z.number(),
-    remaining: z.number(),
-  });
-
-export interface BatchInfo {
-  id: string;
-  label: string;
-  startedAt: Iso8601Timestamp;
-  endedAt?: Iso8601Timestamp;
-  error?: string;
-  count: number;
-}
-
-export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
-  id: IdSchema,
-  label: z.string(),
-  startedAt: Iso8601TimestampSchema,
-  endedAt: z.optional(Iso8601TimestampSchema),
-  error: z.optional(z.string()),
-  count: z.number().nonnegative(),
-});
 
 export interface ScanStatus {
   electionHash?: string;
@@ -843,151 +811,3 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: z.object({ contestIds: z.array(IdSchema) }).optional(),
     }),
   });
-
-// Precinct Scanner API types
-export const PrecinctScannerStateSchema = z.enum([
-  'connecting',
-  'disconnected',
-  'no_paper',
-  'ready_to_scan',
-  'scanning',
-  'ready_to_accept',
-  'accepting',
-  'accepted',
-  'needs_review',
-  'accepting_after_review',
-  'returning',
-  'returned',
-  'rejecting',
-  'rejected',
-  'calibrating',
-  'jammed',
-  'both_sides_have_paper',
-  'recovering_from_error',
-  'unrecoverable_error',
-]);
-export type PrecinctScannerState = z.infer<typeof PrecinctScannerStateSchema>;
-
-export const InvalidInterpretationReasonSchema = z.enum([
-  'invalid_test_mode',
-  'invalid_election_hash',
-  'invalid_precinct',
-  'unreadable',
-  'unknown',
-]);
-export type InvalidInterpretationReason = z.infer<
-  typeof InvalidInterpretationReasonSchema
->;
-
-export type SheetInterpretation =
-  | {
-      type: 'ValidSheet';
-    }
-  | {
-      type: 'InvalidSheet';
-      reason: InvalidInterpretationReason;
-    }
-  | {
-      type: 'NeedsReviewSheet';
-      reasons: AdjudicationReasonInfo[];
-    };
-export const SheetInterpretationSchema: z.ZodSchema<SheetInterpretation> =
-  z.union([
-    z.object({
-      type: z.literal('ValidSheet'),
-    }),
-    z.object({
-      type: z.literal('InvalidSheet'),
-      reason: InvalidInterpretationReasonSchema,
-    }),
-    z.object({
-      type: z.literal('NeedsReviewSheet'),
-      reasons: z.array(AdjudicationReasonInfoSchema),
-    }),
-  ]);
-
-export const PrecinctScannerErrorTypeSchema = z.enum([
-  'paper_status_timed_out',
-  'scanning_timed_out',
-  'scanning_failed',
-  'both_sides_have_paper',
-  'paper_in_back_after_accept',
-  'paper_in_front_after_reconnect',
-  'paper_in_back_after_reconnect',
-  'unexpected_paper_status',
-  'unexpected_event',
-  'plustek_error',
-]);
-export type PrecinctScannerErrorType = z.infer<
-  typeof PrecinctScannerErrorTypeSchema
->;
-
-export interface PrecinctScannerMachineStatus {
-  state: PrecinctScannerState;
-  interpretation?: SheetInterpretation;
-  error?: PrecinctScannerErrorType;
-}
-export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
-  ballotsCounted: number;
-  canUnconfigure: boolean;
-}
-
-export const PrecinctScannerStatusSchema: z.ZodSchema<PrecinctScannerStatus> =
-  z.object({
-    state: PrecinctScannerStateSchema,
-    interpretation: SheetInterpretationSchema.optional(),
-    error: PrecinctScannerErrorTypeSchema.optional(),
-    ballotsCounted: z.number(),
-    canUnconfigure: z.boolean(),
-  });
-
-export type GetPrecinctScannerStatusResponse = PrecinctScannerStatus;
-/**
- * @url /scanner/status
- * @method GET
- */
-export const GetPrecinctScannerStatusResponseSchema: z.ZodSchema<GetPrecinctScannerStatusResponse> =
-  PrecinctScannerStatusSchema;
-
-export interface PrecinctScannerConfig {
-  // Config that persists across switching modes
-  electionDefinition?: ElectionDefinition;
-  precinctSelection?: PrecinctSelection;
-  markThresholdOverrides?: MarkThresholds;
-  isSoundMuted: boolean;
-  // "Config" that is specific to each election session
-  isTestMode: boolean;
-  pollsState: PollsState;
-  ballotCountWhenBallotBagLastReplaced: number;
-}
-
-export const PrecinctScannerConfigSchema: z.ZodSchema<PrecinctScannerConfig> =
-  z.object({
-    electionDefinition: ElectionDefinitionSchema.optional(),
-    precinctSelection: PrecinctSelectionSchema.optional(),
-    markThresholdOverrides: MarkThresholdsSchema.optional(),
-    isSoundMuted: z.boolean(),
-    isTestMode: z.boolean(),
-    pollsState: PollsStateSchema,
-    ballotCountWhenBallotBagLastReplaced: z.number(),
-  });
-
-export const InitialPrecinctScannerConfig: PrecinctScannerConfig = {
-  isSoundMuted: false,
-  isTestMode: true,
-  pollsState: 'polls_closed_initial',
-  ballotCountWhenBallotBagLastReplaced: 0,
-};
-
-/**
- * @url /config
- * @method GET
- */
-export type GetPrecinctScannerConfigResponse = PrecinctScannerConfig;
-
-/**
- * @url /config
- * @method GET
- */
-export const GetPrecinctScannerConfigResponseSchema: z.ZodSchema<GetPrecinctScannerConfigResponse> =
-  PrecinctScannerConfigSchema;

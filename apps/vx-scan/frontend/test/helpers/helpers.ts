@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
-import { Scan } from '@votingworks/api';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { CARD_POLLING_INTERVAL } from '../../src/config/globals';
 
 export async function authenticateElectionManagerCard(): Promise<void> {
@@ -16,8 +17,8 @@ export async function authenticateElectionManagerCard(): Promise<void> {
 }
 
 export function scannerStatus(
-  props: Partial<Scan.GetPrecinctScannerStatusResponse> = {}
-): Scan.GetPrecinctScannerStatusResponse {
+  props: Partial<PrecinctScannerStatus> = {}
+): PrecinctScannerStatus {
   return {
     state: 'no_paper',
     ballotsCounted: 0,

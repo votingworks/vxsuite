@@ -23,14 +23,21 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import { Scan } from '@votingworks/api';
 import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import { PLUSTEKCTL_PATH } from './globals';
-import { SheetInterpretation, PrecinctScannerInterpreter } from './interpret';
+import {
+  SheetInterpretationWithPages,
+  PrecinctScannerInterpreter,
+} from './interpret';
 import { Store } from './store';
 import { Workspace } from './util/workspace';
 import { rootDebug } from './util/debug';
+import {
+  PrecinctScannerErrorType,
+  PrecinctScannerMachineStatus,
+  SheetInterpretation,
+} from './types';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -45,12 +52,12 @@ export type CreatePlustekClient = typeof createClient;
 
 class PrecinctScannerError extends Error {
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  constructor(public type: Scan.PrecinctScannerErrorType, message?: string) {
+  constructor(public type: PrecinctScannerErrorType, message?: string) {
     super(message ?? type);
   }
 }
 
-type InterpretationResult = SheetInterpretation & { sheetId: Id };
+type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
 
 interface Context {
   client?: ScannerClient;
@@ -252,7 +259,7 @@ async function reject({ client }: Context) {
 function storeInterpretedSheet(
   store: Store,
   sheetId: Id,
-  interpretation: SheetInterpretation
+  interpretation: SheetInterpretationWithPages
 ): Id {
   const ongoingBatchId = store.getOngoingBatchId();
   assert(typeof ongoingBatchId === 'string');
@@ -964,7 +971,7 @@ function errorToString(error: NonNullable<Context['error']>) {
  * - calibrate
  */
 export interface PrecinctScannerStateMachine {
-  status: () => Scan.PrecinctScannerMachineStatus;
+  status: () => PrecinctScannerMachineStatus;
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
   // in the status.
@@ -1012,7 +1019,7 @@ export function createPrecinctScannerStateMachine({
   setupLogging(machineService, logger);
 
   return {
-    status: (): Scan.PrecinctScannerMachineStatus => {
+    status: (): PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState = (() => {
         // We use state.matches as recommended by the XState docs. This allows
@@ -1067,26 +1074,25 @@ export function createPrecinctScannerStateMachine({
       const { error, interpretation } = state.context;
 
       // Remove interpretation details that are only used internally (e.g. sheetId, pages)
-      const interpretationResult: Scan.SheetInterpretation | undefined =
-        (() => {
-          if (!interpretation) return undefined;
-          switch (interpretation.type) {
-            case 'ValidSheet':
-              return { type: interpretation.type };
-            case 'InvalidSheet':
-              return {
-                type: interpretation.type,
-                reason: interpretation.reason,
-              };
-            case 'NeedsReviewSheet':
-              return {
-                type: interpretation.type,
-                reasons: interpretation.reasons,
-              };
-            default:
-              throwIllegalValue(interpretation, 'type');
-          }
-        })();
+      const interpretationResult: SheetInterpretation | undefined = (() => {
+        if (!interpretation) return undefined;
+        switch (interpretation.type) {
+          case 'ValidSheet':
+            return { type: interpretation.type };
+          case 'InvalidSheet':
+            return {
+              type: interpretation.type,
+              reason: interpretation.reason,
+            };
+          case 'NeedsReviewSheet':
+            return {
+              type: interpretation.type,
+              reasons: interpretation.reasons,
+            };
+          default:
+            throwIllegalValue(interpretation, 'type');
+        }
+      })();
 
       const stateNeedsErrorDetails = [
         'rejecting',

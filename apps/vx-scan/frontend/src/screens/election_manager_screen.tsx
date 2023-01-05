@@ -18,8 +18,9 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
-import { Scan } from '@votingworks/api';
 import { Logger, LogSource } from '@votingworks/logging';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -31,7 +32,7 @@ import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal'
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
 export interface ElectionManagerScreenProps {
-  scannerStatus: Scan.PrecinctScannerStatus;
+  scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   pollsState: PollsState;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;

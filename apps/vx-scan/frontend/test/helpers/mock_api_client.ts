@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
@@ -9,15 +8,22 @@ import {
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { Api } from '@votingworks/vx-scan-backend';
+import type {
+  Api,
+  PrecinctScannerConfig,
+  PrecinctScannerStatus,
+} from '@votingworks/vx-scan-backend';
 
-const defaultConfig: Scan.PrecinctScannerConfig = {
-  ...Scan.InitialPrecinctScannerConfig,
+const defaultConfig: PrecinctScannerConfig = {
+  isSoundMuted: false,
+  isTestMode: true,
+  pollsState: 'polls_closed_initial',
+  ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionSampleDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
 };
 
-export const statusNoPaper: Scan.PrecinctScannerStatus = {
+export const statusNoPaper: PrecinctScannerStatus = {
   state: 'no_paper',
   canUnconfigure: false,
   ballotsCounted: 0,
@@ -33,7 +39,7 @@ export function createApiMock() {
   return {
     mockApiClient,
 
-    expectGetConfig(config: Partial<Scan.PrecinctScannerConfig> = {}): void {
+    expectGetConfig(config: Partial<PrecinctScannerConfig> = {}): void {
       mockApiClient.getConfig.expectCallWith().resolves({
         ...defaultConfig,
         ...config,
@@ -50,10 +56,7 @@ export function createApiMock() {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
     },
 
-    expectGetScannerStatus(
-      status: Scan.PrecinctScannerStatus,
-      times = 1
-    ): void {
+    expectGetScannerStatus(status: PrecinctScannerStatus, times = 1): void {
       for (let i = 0; i < times; i += 1) {
         mockApiClient.getScannerStatus.expectCallWith().resolves(status);
       }

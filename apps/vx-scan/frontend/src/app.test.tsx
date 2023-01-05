@@ -1,6 +1,5 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { Scan } from '@votingworks/api';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -29,6 +28,11 @@ import {
 } from '@votingworks/fixtures';
 import { AdjudicationReason, err, ok } from '@votingworks/types';
 
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type {
+  PrecinctScannerConfig,
+  SheetInterpretation,
+} from '@votingworks/vx-scan-backend';
 import {
   BALLOT_BAG_CAPACITY,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -188,7 +192,7 @@ test('election manager must set precinct', async () => {
 
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
-  let config: Partial<Scan.PrecinctScannerConfig> = { electionDefinition };
+  let config: Partial<PrecinctScannerConfig> = { electionDefinition };
   apiMock.expectGetConfig(config);
   const { card, logger } = renderApp();
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -493,7 +497,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   renderApp();
   await screen.findByText('Insert Your Ballot Below');
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.BlankBallot }],
   };

@@ -1,7 +1,11 @@
 import React, { useEffect } from 'react';
 import { Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
-import { Scan } from '@votingworks/api';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type {
+  InvalidInterpretationReason,
+  PrecinctScannerErrorType,
+} from '@votingworks/vx-scan-backend';
 import { TimesCircle } from '../components/graphics';
 import {
   CenteredLargeProse,
@@ -11,7 +15,7 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { useSound } from '../hooks/use_sound';
 
 interface Props {
-  error?: Scan.InvalidInterpretationReason | Scan.PrecinctScannerErrorType;
+  error?: InvalidInterpretationReason | PrecinctScannerErrorType;
   isTestMode: boolean;
   scannedBallotCount: number;
   restartRequired?: boolean;

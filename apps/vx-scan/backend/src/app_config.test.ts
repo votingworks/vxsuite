@@ -4,7 +4,6 @@ import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
@@ -25,6 +24,7 @@ import {
   waitForStatus,
 } from '../test/helpers/app_helpers';
 import { Api } from './app';
+import { SheetInterpretation } from './types';
 
 jest.setTimeout(20_000);
 
@@ -41,7 +41,7 @@ async function scanBallot(
     ballotsCounted: initialBallotsCounted,
   });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
 

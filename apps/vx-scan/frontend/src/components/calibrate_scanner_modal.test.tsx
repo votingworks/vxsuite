@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Scan } from '@votingworks/api';
 import { deferred } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,
@@ -10,7 +11,7 @@ import {
 import { ApiClientContext } from '../api/api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
-const fakeScannerStatus: Scan.PrecinctScannerStatus = {
+const fakeScannerStatus: PrecinctScannerStatus = {
   state: 'no_paper',
   ballotsCounted: 0,
   canUnconfigure: true,
