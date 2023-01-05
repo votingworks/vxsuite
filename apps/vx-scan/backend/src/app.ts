@@ -13,29 +13,22 @@ import {
 import {
   assert,
   BALLOT_PACKAGE_FOLDER,
-  generateFilenameForScanningResults,
   readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
-import { pipeline } from 'stream/promises';
-import { UsbDrive } from '@votingworks/data';
+import { ExportDataError, UsbDrive } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,
-  exportCastVoteRecordsAsNdJson,
+  exportCastVoteRecordsToUsbDrive,
 } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './state_machine';
-import { rootDebug } from './util/debug';
 import { Workspace } from './util/workspace';
-
-const debug = rootDebug.extend('app');
-
-type NoParams = never;
 
 /**
  * An interface for interacting with USB drives. We inject this into the app so
@@ -241,6 +234,12 @@ function buildApi(
       return result.isErr() ? result : ok();
     },
 
+    async exportCastVoteRecordsToUsbDrive(input: {
+      machineId: string;
+    }): Promise<Result<void, ExportDataError>> {
+      return await exportCastVoteRecordsToUsbDrive(store, input.machineId);
+    },
+
     /**
      * @deprecated We want to eventually build the tally in the backend,
      * but for now that logic still lives in the frontend.
@@ -313,50 +312,8 @@ export function buildApp(
   usb: Usb,
   logger: Logger
 ): Application {
-  const { store } = workspace;
-
   const app: Application = express();
-
   const api = buildApi(machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));
-
-  const deprecatedApiRouter = express.Router();
-
-  deprecatedApiRouter.use(express.raw());
-  deprecatedApiRouter.use(
-    express.json({ limit: '5mb', type: 'application/json' })
-  );
-  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
-    '/precinct-scanner/export',
-    async (request, response) => {
-      const skipImages = request.body?.skipImages;
-      debug(`exporting CVRs ${skipImages ? 'without' : 'with'} inline images`);
-
-      const cvrFilename = generateFilenameForScanningResults(
-        // TODO: Move machine config provider to shared utilities and access
-        // actual machine config, with dev overrides, here instead
-        'NO-ID',
-        store.getBallotsCounted(),
-        store.getTestMode(),
-        new Date()
-      );
-
-      response
-        .header('Content-Type', 'text/plain; charset=utf-8')
-        .header('Content-Disposition', `attachment; filename="${cvrFilename}"`);
-
-      await pipeline(
-        exportCastVoteRecordsAsNdJson({ store, skipImages }),
-        response
-      );
-
-      store.setCvrsBackedUp();
-    }
-  );
-
-  app.use(deprecatedApiRouter);
-
   return app;
 }

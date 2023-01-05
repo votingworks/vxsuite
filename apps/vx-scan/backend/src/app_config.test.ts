@@ -1,5 +1,4 @@
 import { MockScannerClient } from '@votingworks/plustek-sdk';
-import request from 'supertest';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -126,20 +125,15 @@ test('configures using the most recently created ballot package on the usb drive
   );
 });
 
-describe('POST /precinct-scanner/export', () => {
-  test('sets CVRs as backed up', async () => {
-    const { apiClient, app, workspace, mockUsb } = await createApp();
-
-    await configureApp(apiClient, mockUsb);
-    await request(app)
-      .post('/precinct-scanner/export')
-      .set('Accept', 'application/json')
-      .set('Content-Type', 'application/json')
-      .send({ skipImages: true })
-      .expect(200);
-
-    expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
-  });
+test('after exporting the CVRs, we mark them as exported in the store', async () => {
+  const { apiClient, workspace, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
+  expect(
+    await apiClient.exportCastVoteRecordsToUsbDrive({
+      machineId: 'test-machine-id',
+    })
+  ).toEqual(ok());
+  expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
