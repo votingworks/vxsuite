@@ -1,5 +1,5 @@
 import useInterval from 'use-interval';
-import { sleep, usbstick } from '@votingworks/utils';
+import { assert, sleep, usbstick } from '@votingworks/utils';
 import { useCallback, useRef, useState } from 'react';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useCancelablePromise } from './use_cancelable_promise';
@@ -7,8 +7,43 @@ import { useCancelablePromise } from './use_cancelable_promise';
 export const POLLING_INTERVAL_FOR_USB = 100;
 export const MIN_TIME_TO_UNMOUNT_USB = 1000;
 
+function isFat32(usbDriveInfo: KioskBrowser.UsbDriveInfo) {
+  return usbDriveInfo.fsType === 'vfat' && usbDriveInfo.fsVersion === 'FAT32';
+}
+
+const CASE_INSENSITIVE_ALPHANUMERICS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function randomCaseInsensitiveAlphanumeric(): string {
+  return CASE_INSENSITIVE_ALPHANUMERICS[
+    Math.floor(Math.random() * CASE_INSENSITIVE_ALPHANUMERICS.length)
+  ];
+}
+
+const VX_USB_LABEL_REGEXP = /VxUSB-[A-Z0-9]{5,}/i;
+
+function generateVxUsbLabel(usbDriveInfo: KioskBrowser.UsbDriveInfo): string {
+  const oldLabel = usbDriveInfo.label;
+  if (oldLabel && VX_USB_LABEL_REGEXP.test(oldLabel)) {
+    return oldLabel;
+  }
+
+  let newLabel = 'VxUSB-';
+
+  for (let i = 0; i < 5; i += 1) {
+    newLabel += randomCaseInsensitiveAlphanumeric();
+  }
+
+  return newLabel;
+}
+
+export interface PostFormatUsbOptions {
+  action: 'mount' | 'eject';
+  actionDelay?: number;
+}
+
 export type UsbDriveStatus =
   | 'absent'
+  | 'bad_format'
   | 'mounting'
   | 'mounted'
   | 'ejecting'
@@ -17,6 +52,7 @@ export type UsbDriveStatus =
 export interface UsbDrive {
   status: UsbDriveStatus;
   eject(currentUser: string): Promise<void>;
+  format(currentUser: string, options: PostFormatUsbOptions): Promise<void>;
 }
 
 export interface UsbDriveProps {
@@ -47,8 +83,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
   const eject = useCallback(
     async (currentUser: LoggingUserRole) => {
-      setStatus('ejecting');
       await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
+      setStatus('ejecting');
       try {
         // Wait for minimum delay in parallel to eject, so UX is not too fast
         await makeCancelable(
@@ -67,6 +103,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           error: (error as Error).message,
           result: 'USB drive not ejected.',
         });
+        // throw the error so handling can take place in the app
+        throw error;
       }
     },
     [makeCancelable, logger]
@@ -92,16 +130,52 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
     }
   }, [logger, makeCancelable]);
 
+  const format = useCallback(
+    async (currentUser: LoggingUserRole, options: PostFormatUsbOptions) => {
+      try {
+        await logger.log(LogEventId.UsbDriveFormatInit, currentUser);
+        const usbDriveInfo = await usbstick.getInfo();
+        assert(usbDriveInfo);
+        const name = generateVxUsbLabel(usbDriveInfo);
+        await makeCancelable(
+          usbstick.doFormat({
+            format: 'fat32',
+            name,
+          })
+        );
+        await logger.log(LogEventId.UsbDriveFormatted, 'system', {
+          disposition: 'success',
+          message: `USB drive successfully formatted with a single FAT32 volume named "${name}".`,
+        });
+
+        // UI flow may require a delay to show the result of the format
+        // operation before mounting or ejecting.
+        if (options.actionDelay) {
+          await sleep(options.actionDelay);
+        }
+
+        if (options.action === 'mount') {
+          await mount();
+        } else {
+          setStatus('ejected');
+        }
+      } catch (error) {
+        await logger.log(LogEventId.UsbDriveFormatted, 'system', {
+          disposition: 'failure',
+          message: `Failed to format USB drive.`,
+          error: (error as Error).message,
+          result: 'USB drive not formatted.',
+        });
+      }
+    },
+    [logger, makeCancelable, mount]
+  );
+
   useInterval(
     async () => {
-      // Stop polling during operations - the operation is responsible for state
-      if (status === 'ejecting' || status === 'mounting') {
-        return;
-      }
-
-      const newInfo = await usbstick.getInfo();
+      const usbDriveInfo = await usbstick.getInfo();
       const previousAvailability = availability.current;
-      availability.current = usbstick.getAvailability(newInfo);
+      availability.current = usbstick.getAvailability(usbDriveInfo);
 
       // No action needed if hardware state is the same
       if (availability.current === previousAvailability) {
@@ -113,13 +187,24 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         availability.current !== 'absent' &&
         previousAvailability === 'absent'
       ) {
+        assert(usbDriveInfo);
+        const isCorrectFormat = isFat32(usbDriveInfo);
         await logger.log(LogEventId.UsbDriveDetected, 'system', {
           message: `${
             availability.current === 'mounted' ? 'Mounted' : 'Unmounted'
-          } USB drive detected.`,
+          } USB drive detected with ${
+            isCorrectFormat ? 'compatible' : 'incompatible'
+          } file system.`,
+          fsType: usbDriveInfo.fsType,
+          fsVersion: usbDriveInfo.fsVersion,
         });
+
         if (availability.current === 'present') {
-          await mount();
+          if (isFat32(usbDriveInfo)) {
+            await mount();
+          } else {
+            setStatus('bad_format');
+          }
         } else {
           setStatus('mounted');
         }
@@ -131,7 +216,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         previousAvailability !== 'absent'
       ) {
         await logger.log(LogEventId.UsbDriveRemoved, 'system', {
-          message: 'USB drive removed by user.',
           previousStatus: status,
         });
         setStatus('absent');
@@ -144,5 +228,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
   return {
     status,
     eject,
+    format,
   };
 }
