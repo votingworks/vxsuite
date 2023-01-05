@@ -85,20 +85,16 @@ test('loadImage/writeImageData', async () => {
   );
 });
 
-test('loadImage with invalid RAW filename', async () => {
-  await expect(loadImage('invalid.raw')).rejects.toThrowError(
-    'Invalid raw image filename'
-  );
-});
-
-test('loadImage/loadImageData with RAW format', async () => {
+test('loadImage/loadImageData with PGM format', async () => {
   await fc.assert(
     fc.asyncProperty(arbitraryImageData(), async (imageData) => {
-      const bitsPerPixel = getImageChannelCount(imageData) * 8;
       const filePath = fileSync({
-        template: `tmp-XXXXXX-${imageData.width}x${imageData.height}-${bitsPerPixel}bpp.raw`,
+        template: `tmp-XXXXXX.pgm`,
       }).name;
-      await writeFile(filePath, imageData.data);
+      await writeFile(
+        filePath,
+        `P5\n${imageData.width} ${imageData.height}\n255\n${imageData.data}`
+      );
       const loadedImage = await loadImage(filePath);
       const loadedImageData = await loadImageData(filePath);
       expect({
