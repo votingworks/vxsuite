@@ -6,6 +6,7 @@ import { Scan } from '@votingworks/api';
 
 import { Modal, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
+import { BatchInfo } from '@votingworks/types';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
 import { Button } from '../components/button';
@@ -43,8 +44,7 @@ export function DashboardScreen({
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);
 
-  const [pendingDeleteBatch, setPendingDeleteBatchId] =
-    useState<Scan.BatchInfo>();
+  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>();
   const [isDeletingBatch, setIsDeletingBatch] = useState(false);
   const [deleteBatchError, setDeleteBatchError] = useState<string>();
 
