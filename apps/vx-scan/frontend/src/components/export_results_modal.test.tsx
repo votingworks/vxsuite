@@ -63,43 +63,6 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
   }
 });
 
-test('render export modal when a usb drive is mounted as expected and allows custom export', async () => {
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-  mockKiosk.saveAs = jest.fn().mockResolvedValue(fakeFileWriter());
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-
-  fetchMock.postOnce('/precinct-scanner/export', {
-    body: '',
-  });
-
-  const closeFn = jest.fn();
-  const { getByText, getByAltText } = renderInAppContext(
-    <ExportResultsModal
-      onClose={closeFn}
-      usbDrive={{ status: 'mounted', eject: jest.fn() }}
-      scannedBallotCount={5}
-      isTestMode
-    />,
-    { auth }
-  );
-  getByText('Save CVRs');
-  getByText(
-    /A CVR file will automatically be saved to the default location on the mounted USB drive. /
-  );
-  getByAltText('Insert USB Image');
-
-  fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText('CVRs Saved to USB Drive'));
-  await waitFor(() => {
-    expect(mockKiosk.saveAs).toHaveBeenCalledTimes(1);
-  });
-  expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
-
-  fireEvent.click(getByText('Cancel'));
-  expect(closeFn).toHaveBeenCalled();
-});
-
 test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;

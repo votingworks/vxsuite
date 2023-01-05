@@ -14,7 +14,6 @@ interface SaveCvrExportToUsbArgs {
   machineConfig: MachineConfig;
   scannedBallotCount: number;
   isTestMode: boolean;
-  openFilePickerDialog: boolean;
 }
 
 /**
@@ -26,7 +25,6 @@ export async function saveCvrExportToUsb({
   machineConfig,
   scannedBallotCount,
   isTestMode,
-  openFilePickerDialog,
 }: SaveCvrExportToUsbArgs): Promise<void> {
   // TODO: filename should be determined server-side
   const cvrFilename = generateFilenameForScanningResults(
@@ -37,35 +35,26 @@ export async function saveCvrExportToUsb({
   );
   let result: Result<void, DownloadError>;
   if (window.kiosk) {
-    if (!openFilePickerDialog) {
-      const usbPath = await usbstick.getPath();
-      if (!usbPath) {
-        throw new Error('could not save file; path to usb drive missing');
-      }
-      const electionFolderName = generateElectionBasedSubfolderName(
-        electionDefinition.election,
-        electionDefinition.electionHash
-      );
-      const pathToFolder = join(
-        usbPath,
-        SCANNER_RESULTS_FOLDER,
-        electionFolderName
-      );
-      result = await download('/precinct-scanner/export', {
-        directory: pathToFolder,
-        filename: cvrFilename,
-        fetchOptions: {
-          method: 'POST',
-        },
-      });
-    } else {
-      result = await download('/precinct-scanner/export', {
-        filename: cvrFilename,
-        fetchOptions: {
-          method: 'POST',
-        },
-      });
+    const usbPath = await usbstick.getPath();
+    if (!usbPath) {
+      throw new Error('could not save file; path to usb drive missing');
     }
+    const electionFolderName = generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.electionHash
+    );
+    const pathToFolder = join(
+      usbPath,
+      SCANNER_RESULTS_FOLDER,
+      electionFolderName
+    );
+    result = await download('/precinct-scanner/export', {
+      directory: pathToFolder,
+      filename: cvrFilename,
+      fetchOptions: {
+        method: 'POST',
+      },
+    });
     await usbstick.doSync();
   } else {
     // Downloading CVR files outside of kiosk-browser is not supported after

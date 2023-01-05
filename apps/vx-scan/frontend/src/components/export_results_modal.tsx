@@ -48,26 +48,22 @@ export function ExportResultsModal({
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
-  const exportResults = useCallback(
-    async (openDialog: boolean) => {
-      setCurrentState(ModalState.SAVING);
-      try {
-        await saveCvrExportToUsb({
-          electionDefinition,
-          machineConfig,
-          scannedBallotCount,
-          isTestMode,
-          openFilePickerDialog: openDialog,
-        });
-        setCurrentState(ModalState.DONE);
-      } catch (error) {
-        assert(error instanceof Error);
-        setErrorMessage(`Failed to save CVRs. ${error.message}`);
-        setCurrentState(ModalState.ERROR);
-      }
-    },
-    [electionDefinition, isTestMode, machineConfig, scannedBallotCount]
-  );
+  const exportResults = useCallback(async () => {
+    setCurrentState(ModalState.SAVING);
+    try {
+      await saveCvrExportToUsb({
+        electionDefinition,
+        machineConfig,
+        scannedBallotCount,
+        isTestMode,
+      });
+      setCurrentState(ModalState.DONE);
+    } catch (error) {
+      assert(error instanceof Error);
+      setErrorMessage(`Failed to save CVRs. ${error.message}`);
+      setCurrentState(ModalState.ERROR);
+    }
+  }, [electionDefinition, isTestMode, machineConfig, scannedBallotCount]);
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -151,31 +147,12 @@ export function ExportResultsModal({
               <h1>No USB Drive Detected</h1>
               <p>
                 Please insert a USB drive in order to save CVRs.
-                <UsbImage
-                  src="/assets/usb-drive.svg"
-                  alt="Insert USB Image"
-                  // hidden feature to save with file dialog by double-clicking
-                  onDoubleClick={() => exportResults(true)}
-                />
+                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               </p>
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              {!window.kiosk && (
-                <Button
-                  data-testid="manual-export"
-                  onPress={() => exportResults(true)}
-                  disabled // Not currently supported
-                  primary
-                >
-                  Save
-                </Button>
-              )}
-              <Button onPress={onClose}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'ejecting':
@@ -196,19 +173,17 @@ export function ExportResultsModal({
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <p>
                 A CVR file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom save
-                location.
+                on the mounted USB drive.
               </p>
             </Prose>
           }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportResults(false)}>
+              <Button primary onPress={exportResults}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>
-              <Button onPress={() => exportResults(true)}>Custom</Button>
             </React.Fragment>
           }
         />

@@ -384,7 +384,6 @@ export function PollWorkerScreen({
       machineConfig,
       scannedBallotCount,
       isTestMode: !isLiveMode,
-      openFilePickerDialog: false,
     });
   }
 
