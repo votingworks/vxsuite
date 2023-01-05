@@ -1,5 +1,4 @@
 import { err, ok, Result, safeParseInt } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import {
   createCanvas,
@@ -83,71 +82,33 @@ export function isGrayscale(image: ImageData): boolean {
 }
 
 /**
- * Loads a RAW image from a file.
+ * Loads a Portable GrayMap binary (PGM P5) image from a file. We only support
+ * this because it's the format used by `customctl` for now.
+ *
+ * @see https://en.wikipedia.org/wiki/Netpbm
  */
-async function loadRawImage(
-  path: string,
-  width: number,
-  height: number,
-  channelCount: number
-): Promise<ImageData> {
-  assert(
-    channelCount === GRAY_CHANNEL_COUNT ||
-      channelCount === RGB_CHANNEL_COUNT ||
-      channelCount === RGBA_CHANNEL_COUNT
+async function loadPgmImageData(path: string): Promise<ImageData> {
+  const buffer = await fs.readFile(path);
+  const intro = buffer.toString('utf8', 0, 100);
+  const match = intro.match(/P5\n(\d+) (\d+)\n(\d+)\n/);
+
+  if (!match) {
+    throw new Error(`Invalid PGM image: ${path}`);
+  }
+
+  const [header, widthString, heightString, maxString] = match;
+  const width = safeParseInt(widthString, { min: 1 }).assertOk(
+    `Invalid PGM image width: ${widthString}`
+  );
+  const height = safeParseInt(heightString, { min: 1 }).assertOk(
+    `Invalid PGM image height: ${heightString}`
+  );
+  safeParseInt(maxString, { min: 255, max: 255 }).assertOk(
+    `Invalid PGM image max: ${maxString}`
   );
 
-  const imageData = createImageData(width, height);
-  const buffer = await fs.readFile(path);
-
-  for (
-    let srcOffset = 0, dstOffset = 0;
-    srcOffset < buffer.length;
-    srcOffset += channelCount, dstOffset += RGBA_CHANNEL_COUNT
-  ) {
-    imageData.data[dstOffset] = buffer[srcOffset] as number;
-    imageData.data[dstOffset + 1] = buffer[
-      channelCount > GRAY_CHANNEL_COUNT ? srcOffset + 1 : srcOffset
-    ] as number;
-    imageData.data[dstOffset + 2] = buffer[
-      channelCount > GRAY_CHANNEL_COUNT ? srcOffset + 2 : srcOffset
-    ] as number;
-    imageData.data[dstOffset + 3] = buffer[
-      channelCount > RGB_CHANNEL_COUNT ? srcOffset + 3 : srcOffset
-    ] as number;
-  }
-
-  return imageData;
-}
-
-/**
- * Loads a RAW image from a file. The file name must be in the format
- * `{label}-{width}x{height}-{bitsPerPixel}bpp.raw`. For example:
- * `ballot-1700x2200-24bpp.raw` or `scan-1700x2200-8bpp.raw`.
- */
-async function loadRawImageWithMetadataInFileName(
-  path: string
-): Promise<ImageData> {
-  const parts = parse(path);
-  const match = parts.name.match(/(\d+)x(\d+)-(\d+)bpp/);
-  if (!match) {
-    throw new Error(`Invalid raw image filename: ${parts.name}`);
-  }
-  const [, widthResult, heightResult, bitsPerPixelResult] = match.map((n) =>
-    safeParseInt(n, { min: 1 })
-  ) as [
-    Result<number, Error>,
-    Result<number, Error>,
-    Result<number, Error>,
-    Result<number, Error>
-  ];
-
-  // these should be valid because of the regex above
-  const width = widthResult.assertOk('width is valid');
-  const height = heightResult.assertOk('height is valid');
-  const bitsPerPixel = bitsPerPixelResult.assertOk('bitsPerPixel is valid');
-  const srcBytesPerPixel = Math.round(bitsPerPixel / 8);
-  return await loadRawImage(path, width, height, srcBytesPerPixel);
+  const data = buffer.subarray((header as string).length);
+  return createImageData(Uint8ClampedArray.from(data), width, height);
 }
 
 /**
@@ -155,8 +116,8 @@ async function loadRawImageWithMetadataInFileName(
  */
 export async function loadImage(path: string): Promise<Image> {
   const parts = parse(path);
-  if (parts.ext === '.raw') {
-    const imageData = await loadRawImageWithMetadataInFileName(path);
+  if (parts.ext === '.pgm') {
+    const imageData = await loadPgmImageData(path);
     const image = new Image();
     const canvas = createCanvas(imageData.width, imageData.height);
     const context = canvas.getContext('2d');
@@ -184,8 +145,8 @@ export async function loadImageData(
 ): Promise<ImageData> {
   if (typeof pathOrData === 'string') {
     const parts = parse(pathOrData);
-    if (parts.ext === '.raw') {
-      return loadRawImageWithMetadataInFileName(pathOrData);
+    if (parts.ext === '.pgm') {
+      return loadPgmImageData(pathOrData);
     }
   }
 
