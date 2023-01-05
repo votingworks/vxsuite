@@ -126,7 +126,7 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
-  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetScannerStatus(statusNoPaper, 2);
   renderApp();
   await screen.findByText('VxScan is not configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
