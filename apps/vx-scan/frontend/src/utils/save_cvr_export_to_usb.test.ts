@@ -42,7 +42,6 @@ test('throws error when scan service errors', async () => {
       machineConfig,
       scannedBallotCount: 0,
       isTestMode: false,
-      openFilePickerDialog: false,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `"Unable to get CVR file: FetchFailed (status=Internal Server Error)"`
@@ -62,14 +61,13 @@ test('throws error when there is no usb mounted in kiosk mode', async () => {
       machineConfig,
       scannedBallotCount: 0,
       isTestMode: false,
-      openFilePickerDialog: false,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `"could not save file; path to usb drive missing"`
   );
 });
 
-test('calls kiosk saveAs when opening file picker dialog', async () => {
+test('saves file to default location in kiosk mode', async () => {
   fetchMock.postOnce(
     '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
@@ -80,45 +78,6 @@ test('calls kiosk saveAs when opening file picker dialog', async () => {
     machineConfig,
     scannedBallotCount: 0,
     isTestMode: false,
-    openFilePickerDialog: true,
-  });
-  expect(kiosk.saveAs).toHaveBeenCalledWith({
-    defaultPath: 'machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
-  });
-});
-
-test('throws error when no file is chosen in file picker', async () => {
-  fetchMock.postOnce(
-    '/precinct-scanner/export',
-    electionMinimalExhaustiveSampleFixtures.cvrData
-  );
-  kiosk.saveAs.mockResolvedValue(undefined);
-  await expect(
-    saveCvrExportToUsb({
-      electionDefinition:
-        electionMinimalExhaustiveSampleFixtures.electionDefinition,
-      machineConfig,
-      scannedBallotCount: 0,
-      isTestMode: false,
-      openFilePickerDialog: true,
-    })
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"Could not save; no file was chosen"`
-  );
-});
-
-test('saves file to default location when openFilePicker is false in kiosk mode', async () => {
-  fetchMock.postOnce(
-    '/precinct-scanner/export',
-    electionMinimalExhaustiveSampleFixtures.cvrData
-  );
-  await saveCvrExportToUsb({
-    electionDefinition:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition,
-    machineConfig,
-    scannedBallotCount: 0,
-    isTestMode: false,
-    openFilePickerDialog: false,
   });
   expect(kiosk.makeDirectory).toHaveBeenCalledWith(
     'fake mount point/cast-vote-records/sample-county_example-primary-election_0dabcacc5d',
