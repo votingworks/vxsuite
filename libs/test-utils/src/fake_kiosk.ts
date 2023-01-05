@@ -17,8 +17,8 @@ export function fakeDevice(
 }
 
 export function fakeUsbDrive(
-  props: Partial<KioskBrowser.UsbDrive> = {}
-): KioskBrowser.UsbDrive {
+  props: Partial<KioskBrowser.UsbDriveInfo> = {}
+): KioskBrowser.UsbDriveInfo {
   return {
     deviceName: 'fake device',
     mountPoint: 'fake mount point',
@@ -79,9 +79,10 @@ export function fakeKiosk({
     printers: new BehaviorSubject(new Set<KioskBrowser.PrinterInfo>()),
     quit: jest.fn(),
     saveAs: jest.fn().mockResolvedValue(undefined),
-    getUsbDrives: jest.fn().mockResolvedValue([]),
+    getUsbDriveInfo: jest.fn().mockResolvedValue([]),
     mountUsbDrive: jest.fn().mockResolvedValue(undefined),
     unmountUsbDrive: jest.fn().mockResolvedValue(undefined),
+    formatUsbDrive: jest.fn().mockResolvedValue(undefined),
     syncUsbDrive: jest.fn().mockResolvedValue(undefined),
     writeFile: jest.fn().mockResolvedValue(undefined),
     readFile: jest.fn().mockResolvedValue(''),

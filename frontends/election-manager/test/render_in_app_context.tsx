@@ -14,7 +14,6 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import {
-  usbstick,
   NullPrinter,
   MemoryStorage,
   Storage,
@@ -24,6 +23,7 @@ import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -51,7 +51,7 @@ interface RenderInAppContextParams {
   saveElection?: SaveElection;
   resetElection?: ResetElection;
   resetFiles?: () => Promise<void>;
-  usbDriveStatus?: usbstick.UsbDriveStatus;
+  usbDriveStatus?: UsbDriveStatus;
   usbDriveEject?: () => Promise<void>;
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
@@ -107,7 +107,7 @@ export function renderInAppContext(
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     resetFiles = jest.fn(),
-    usbDriveStatus = usbstick.UsbDriveStatus.absent,
+    usbDriveStatus = 'absent',
     usbDriveEject = jest.fn(),
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,

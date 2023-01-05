@@ -1,8 +1,9 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from './button';
+import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { Loading } from './loading';
 import { Modal } from './modal';
 import { Prose } from './prose';
@@ -22,7 +23,7 @@ const UsbImage = styled.img`
 `;
 
 interface Props {
-  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveStatus: UsbDriveStatus;
   logger: Logger;
 }
 
@@ -47,7 +48,7 @@ export function RebootFromUsbButton({
           'Attempting to set the USB drive next in the boot order and reboot',
       }
     );
-    if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
+    if (usbDriveStatus !== 'mounted') {
       setCurrentState(State.NO_USB_INSERTED);
       await logger.log(
         LogEventId.PrepareBootFromUsbComplete,
@@ -99,7 +100,7 @@ export function RebootFromUsbButton({
   }
   useEffect(() => {
     if (
-      usbDriveStatus === usbstick.UsbDriveStatus.mounted &&
+      usbDriveStatus === 'mounted' &&
       currentState === State.NO_USB_INSERTED
     ) {
       void attemptReboot();

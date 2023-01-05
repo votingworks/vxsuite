@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigurationError } from '@votingworks/vx-scan-backend';
-import { throwIllegalValue, usbstick } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/utils';
+import { UsbDriveStatus } from '@votingworks/ui';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -10,7 +11,7 @@ import { IndeterminateProgressBar } from '../components/graphics';
 import { useApiClient } from '../api/api';
 
 interface Props {
-  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveStatus: UsbDriveStatus;
   refreshConfig: () => Promise<void>;
 }
 
@@ -24,7 +25,7 @@ export function UnconfiguredElectionScreen({
   useEffect(() => {
     async function configure() {
       setError(undefined);
-      if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) return;
+      if (usbDriveStatus !== 'mounted') return;
       const result = await apiClient.configureFromBallotPackageOnUsbDrive();
       if (result.isErr()) {
         setError(result.err());
@@ -36,7 +37,7 @@ export function UnconfiguredElectionScreen({
   }, [usbDriveStatus, apiClient, refreshConfig]);
 
   const errorMessage = (() => {
-    if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
+    if (usbDriveStatus !== 'mounted') {
       return 'Insert a USB drive containing a ballot package.';
     }
     if (!error) return undefined;
@@ -70,7 +71,7 @@ export function UnconfiguredElectionScreen({
 export function DefaultPreview(): JSX.Element {
   return (
     <UnconfiguredElectionScreen
-      usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
+      usbDriveStatus="absent"
       refreshConfig={() => Promise.resolve()}
     />
   );

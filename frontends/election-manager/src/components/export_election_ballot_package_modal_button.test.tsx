@@ -2,9 +2,9 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
-import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import {
   eitherNeitherElectionDefinition,
@@ -13,15 +13,13 @@ import {
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
 import { pdfToImages } from '../utils/pdf_to_images';
 
-const { UsbDriveStatus } = usbstick;
-
 jest.mock('@votingworks/ballot-interpreter-vx');
 jest.mock('../components/hand_marked_paper_ballot');
 jest.mock('../utils/pdf_to_images');
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
@@ -89,11 +87,7 @@ test('Button renders properly when not clicked', () => {
 });
 
 test('Modal renders insert usb screen appropriately', async () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.recentlyEjected,
-    UsbDriveStatus.notavailable,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const usbStatus of usbStatuses) {
     const {
@@ -125,7 +119,7 @@ test('Modal renders insert usb screen appropriately', async () => {
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
   const logger = fakeLogger();
   renderInAppContext(<ExportElectionBallotPackageModalButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
+    usbDriveStatus: 'mounted',
     logger,
   });
   fireEvent.click(screen.getByText('Save Ballot Package'));
@@ -165,7 +159,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
 });
 
 test('Modal renders loading screen when usb drive is mounting or ejecting', async () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
     const { unmount, queryAllByTestId, getByText } = renderInAppContext(
@@ -190,7 +184,7 @@ test('Modal renders error message appropriately', async () => {
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       logger,
     }
   );
@@ -222,7 +216,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   const { queryAllByTestId, getByText, queryByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
-      usbDriveStatus: UsbDriveStatus.mounted,
+      usbDriveStatus: 'mounted',
       usbDriveEject: ejectFunction,
     }
   );

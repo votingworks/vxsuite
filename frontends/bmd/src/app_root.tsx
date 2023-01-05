@@ -31,7 +31,6 @@ import {
   Storage,
   Hardware,
   throwIllegalValue,
-  usbstick,
   singlePrecinctSelectionFor,
   makeAsync,
 } from '@votingworks/utils';
@@ -351,7 +350,6 @@ export function AppRoot({
     computer,
   } = devices;
   const usbDrive = useUsbDrive({ logger });
-  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
@@ -795,7 +793,7 @@ export function AppRoot({
             ? makeAsync(resetPollsToPaused)
             : undefined
         }
-        usbDriveStatus={displayUsbStatus}
+        usbDriveStatus={usbDrive.status}
       />
     );
   }

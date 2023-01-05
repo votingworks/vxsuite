@@ -1,6 +1,6 @@
 import React from 'react';
 import { Logger } from '@votingworks/logging';
-import { usbstick, isVxDev } from '@votingworks/utils';
+import { isVxDev } from '@votingworks/utils';
 
 import { Button } from './button';
 import { Main } from './main';
@@ -9,6 +9,7 @@ import { RebootFromUsbButton } from './reboot_from_usb_button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
+import { UsbDriveStatus } from './hooks/use_usb_drive';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -18,7 +19,7 @@ interface Props {
   resetPollsToPausedText?: string;
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
-  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveStatus: UsbDriveStatus;
 }
 
 /**

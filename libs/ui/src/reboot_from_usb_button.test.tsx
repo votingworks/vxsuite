@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { usbstick } from '@votingworks/utils';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
@@ -13,7 +12,7 @@ beforeEach(() => {
 test('renders without a USB drive as expected.', async () => {
   render(
     <RebootFromUsbButton
-      usbDriveStatus={usbstick.UsbDriveStatus.absent}
+      usbDriveStatus="absent"
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -26,7 +25,7 @@ test('renders with a non-bootable USB as expected', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(false);
   render(
     <RebootFromUsbButton
-      usbDriveStatus={usbstick.UsbDriveStatus.mounted}
+      usbDriveStatus="mounted"
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -55,7 +54,7 @@ test('reboots automatically when clicked with a bootable USB', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(true);
   render(
     <RebootFromUsbButton
-      usbDriveStatus={usbstick.UsbDriveStatus.mounted}
+      usbDriveStatus="mounted"
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -69,7 +68,7 @@ test('modal state updates when USB drive is inserted.', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(false);
   const { rerender } = render(
     <RebootFromUsbButton
-      usbDriveStatus={usbstick.UsbDriveStatus.absent}
+      usbDriveStatus="absent"
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -77,7 +76,7 @@ test('modal state updates when USB drive is inserted.', async () => {
   await screen.findByText('No USB Drive Detected');
   rerender(
     <RebootFromUsbButton
-      usbDriveStatus={usbstick.UsbDriveStatus.mounted}
+      usbDriveStatus="mounted"
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );

@@ -25,7 +25,8 @@ export enum LogEventId {
   AuthLogout = 'auth-logout',
   AuthLogin = 'auth-login',
   // USB related logs
-  UsbDriveStatusUpdate = 'usb-drive-status-update',
+  UsbDriveDetected = 'usb-drive-detected',
+  UsbDriveRemoved = 'usb-drive-removed',
   UsbDriveEjectInit = 'usb-drive-eject-init',
   UsbDriveEjected = 'usb-drive-eject-complete',
   UsbDriveMountInit = 'usb-drive-mount-init',
@@ -190,6 +191,18 @@ const AuthLogoutEvent: LogDetails = {
   defaultMessage: 'User logged out.',
 };
 
+const UsbDriveDetected: LogDetails = {
+  eventId: LogEventId.UsbDriveDetected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'USB drive detected.',
+};
+
+const UsbDriveRemoved: LogDetails = {
+  eventId: LogEventId.UsbDriveRemoved,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'USB drive removed by the user.',
+};
+
 const UsbDriveEjectInit: LogDetails = {
   eventId: LogEventId.UsbDriveEjectInit,
   eventType: LogEventType.UserAction,
@@ -206,27 +219,20 @@ const UsbDriveEjected: LogDetails = {
     'The current USB drive finished attempting to ejected. Success or failure indicated by disposition.',
 };
 
-const UsbDriveStatusUpdate: LogDetails = {
-  eventId: LogEventId.UsbDriveStatusUpdate,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'USB Drive detected a status update. Potential USB statuses are: notavailable - No USB Drive detection is available, absent - No USB identified, present - USB identified but not mounted, mounted - USB mounted on device, ejecting - USB in the process of ejecting. ',
-};
-
 const UsbDriveMountInit: LogDetails = {
   eventId: LogEventId.UsbDriveMountInit,
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
-    'The USB Drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
+    'The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
   defaultMessage:
-    'The USB Drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
+    'The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
 };
 
 const UsbDriveMounted: LogDetails = {
   eventId: LogEventId.UsbDriveMounted,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
-    'USB Drive mount has completed. Success or failure is indicated by the disposition.',
+    'USB drive mount has completed. Success or failure is indicated by the disposition.',
 };
 
 const UsbDeviceChangeDetected: LogDetails = {
@@ -868,8 +874,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UsbDriveEjectInit;
     case LogEventId.UsbDriveEjected:
       return UsbDriveEjected;
-    case LogEventId.UsbDriveStatusUpdate:
-      return UsbDriveStatusUpdate;
+    case LogEventId.UsbDriveDetected:
+      return UsbDriveDetected;
+    case LogEventId.UsbDriveRemoved:
+      return UsbDriveRemoved;
     case LogEventId.UsbDriveMountInit:
       return UsbDriveMountInit;
     case LogEventId.UsbDriveMounted:

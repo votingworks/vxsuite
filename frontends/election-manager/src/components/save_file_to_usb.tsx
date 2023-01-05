@@ -19,8 +19,6 @@ import { AppContext } from '../contexts/app_context';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
-const { UsbDriveStatus } = usbstick;
-
 export const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
@@ -105,7 +103,7 @@ export function SaveFileToUsb({
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv');
       } else {
-        const usbPath = await usbstick.getDevicePath();
+        const usbPath = await usbstick.getPath();
         if (openFileDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: defaultFilename,
@@ -176,7 +174,7 @@ export function SaveFileToUsb({
 
   if (currentState === ModalState.DONE) {
     let actions = <LinkButton onPress={onClose}>Close</LinkButton>;
-    if (promptToEjectUsb && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+    if (promptToEjectUsb && usbDriveStatus !== 'ejected') {
       actions = (
         <React.Fragment>
           <UsbControllerButton
@@ -222,9 +220,8 @@ export function SaveFileToUsb({
   }
 
   switch (usbDriveStatus) {
-    case UsbDriveStatus.absent:
-    case UsbDriveStatus.notavailable:
-    case UsbDriveStatus.recentlyEjected:
+    case 'absent':
+    case 'ejected':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -260,8 +257,8 @@ export function SaveFileToUsb({
           }
         />
       );
-    case UsbDriveStatus.ejecting:
-    case UsbDriveStatus.present:
+    case 'ejecting':
+    case 'mounting':
       return (
         <Modal
           content={<Loading />}
@@ -269,7 +266,7 @@ export function SaveFileToUsb({
           actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
-    case UsbDriveStatus.mounted: {
+    case 'mounted': {
       return (
         <Modal
           content={
@@ -295,7 +292,6 @@ export function SaveFileToUsb({
       );
     }
     default:
-      // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
       throwIllegalValue(usbDriveStatus);
   }
 }

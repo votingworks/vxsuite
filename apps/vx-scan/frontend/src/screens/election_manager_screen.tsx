@@ -16,7 +16,7 @@ import {
   isElectionManagerAuth,
   ChangePrecinctButton,
 } from '@votingworks/ui';
-import { assert, usbstick } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import { Scan } from '@votingworks/api';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -123,7 +123,7 @@ export function ElectionManagerScreen({
   async function handleUnconfigure() {
     setIsLoading(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
-    if (usbDrive.status === usbstick.UsbDriveStatus.mounted) {
+    if (usbDrive.status === 'mounted') {
       await usbDrive.eject(userRole);
     }
     await unconfigure();
@@ -353,7 +353,7 @@ export function DefaultPreview(): JSX.Element {
           setPrecinctSelection(newPrecinctSelection)
         }
         usbDrive={{
-          status: usbstick.UsbDriveStatus.notavailable,
+          status: 'absent',
           eject: () => Promise.resolve(),
         }}
       />

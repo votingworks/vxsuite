@@ -5,24 +5,22 @@ import {
   electionSampleDefinition as electionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { usbstick } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { UsbDriveStatus } from '@votingworks/ui';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 
-const { UsbDriveStatus } = usbstick;
-
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
 const auth = Inserted.fakeElectionManagerAuth();
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
+  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -41,11 +39,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 });
 
 test('render no usb found screen when there is not a mounted usb drive', () => {
-  const usbStatuses = [
-    UsbDriveStatus.absent,
-    UsbDriveStatus.notavailable,
-    UsbDriveStatus.recentlyEjected,
-  ];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -73,7 +67,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fakeFileWriter());
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
@@ -83,7 +77,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   const { getByText, getByAltText } = renderInAppContext(
     <ExportResultsModal
       onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+      usbDrive={{ status: 'mounted', eject: jest.fn() }}
       scannedBallotCount={5}
       isTestMode
     />,
@@ -112,7 +106,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   mockKiosk.writeFile.mockResolvedValue(
     fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
-  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
@@ -123,7 +117,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   const { getByText, rerender } = renderInAppContext(
     <ExportResultsModal
       onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
+      usbDrive={{ status: 'mounted', eject: ejectFn }}
       scannedBallotCount={5}
       isTestMode
     />,
@@ -171,7 +165,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     >
       <ExportResultsModal
         onClose={closeFn}
-        usbDrive={{ status: UsbDriveStatus.recentlyEjected, eject: ejectFn }}
+        usbDrive={{ status: 'ejected', eject: ejectFn }}
         scannedBallotCount={5}
         isTestMode
       />
@@ -193,7 +187,7 @@ test('render export modal with errors when appropriate', async () => {
   const { getByText } = renderInAppContext(
     <ExportResultsModal
       onClose={closeFn}
-      usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+      usbDrive={{ status: 'mounted', eject: jest.fn() }}
       scannedBallotCount={5}
       isTestMode
     />,
@@ -201,7 +195,7 @@ test('render export modal with errors when appropriate', async () => {
   );
   getByText('Save CVRs');
 
-  mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'));
+  mockKiosk.getUsbDriveInfo.mockRejectedValueOnce(new Error('NOPE'));
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('Failed to Save CVRs'));
   getByText(/Failed to save CVRs./);

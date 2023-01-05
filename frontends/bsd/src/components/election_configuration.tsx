@@ -86,7 +86,7 @@ export function ElectionConfiguration({
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true);
-    const usbPath = await usbstick.getDevicePath();
+    const usbPath = await usbstick.getPath();
     try {
       assert(typeof usbPath !== 'undefined');
       assert(window.kiosk);
@@ -126,7 +126,7 @@ export function ElectionConfiguration({
   }, [setFoundFilenames, setLoadingFiles, usbDriveStatus, logger, userRole]);
 
   useEffect(() => {
-    if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
+    if (usbDriveStatus === 'mounted') {
       void fetchFilenames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -153,8 +153,8 @@ export function ElectionConfiguration({
   );
 
   if (
-    usbDriveStatus === usbstick.UsbDriveStatus.present ||
-    usbDriveStatus === usbstick.UsbDriveStatus.ejecting ||
+    usbDriveStatus === 'mounting' ||
+    usbDriveStatus === 'ejecting' ||
     loadingFiles
   ) {
     return (
@@ -167,7 +167,7 @@ export function ElectionConfiguration({
     );
   }
 
-  if (usbDriveStatus === usbstick.UsbDriveStatus.mounted && !loadingFiles) {
+  if (usbDriveStatus === 'mounted' && !loadingFiles) {
     // Parse information from the file names and sort by export date.
     const parsedFileInformation = foundFilenames
       .map((f) => {

@@ -24,7 +24,6 @@ import {
   throwIllegalValue,
   Hardware,
   Storage,
-  usbstick,
   assert,
 } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -190,8 +189,6 @@ export function AppRoot({
   } = appState;
 
   const usbDrive = useUsbDrive({ logger });
-  const usbDriveDisplayStatus =
-    usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
   const {
     cardReader,
@@ -389,7 +386,7 @@ export function AppRoot({
             pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
-          usbDriveStatus={usbDriveDisplayStatus}
+          usbDriveStatus={usbDrive.status}
         />
       </ScreenMainCenterChild>
     );
@@ -411,7 +408,7 @@ export function AppRoot({
   if (!electionDefinition) {
     return (
       <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveDisplayStatus}
+        usbDriveStatus={usbDrive.status}
         refreshConfig={refreshConfig}
       />
     );
@@ -454,7 +451,7 @@ export function AppRoot({
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
-  if (window.kiosk && usbDrive.status !== usbstick.UsbDriveStatus.mounted) {
+  if (window.kiosk && usbDrive.status !== 'mounted') {
     return <InsertUsbScreen />;
   }
 

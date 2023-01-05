@@ -40,7 +40,6 @@ import { BallotModeToggle } from './ballot_mode_toggle';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { generatePdfExportMetadataCsv } from '../utils/generate_pdf_export_metadata_csv';
 
-const { UsbDriveStatus } = usbstick;
 const UsbImage = styled.img`
   margin-right: auto;
   margin-left: auto;
@@ -167,7 +166,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   // Callback to open the file dialog.
   async function saveFileCallback(openDialog: boolean) {
     try {
-      const usbPath = await usbstick.getDevicePath();
+      const usbPath = await usbstick.getPath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PDFS_FOLDER);
       const defaultArchiveFilenameWithExtension = `${defaultArchiveFilename}.zip`;
       const pathToFile = join(
@@ -205,9 +204,8 @@ export function ExportBallotPdfsButton(): JSX.Element {
   switch (modalState) {
     case 'BeforeExport':
       switch (usbDriveStatus) {
-        case UsbDriveStatus.absent:
-        case UsbDriveStatus.notavailable:
-        case UsbDriveStatus.recentlyEjected:
+        case 'absent':
+        case 'ejected':
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -225,8 +223,8 @@ export function ExportBallotPdfsButton(): JSX.Element {
           );
           actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
           break;
-        case UsbDriveStatus.ejecting:
-        case UsbDriveStatus.present:
+        case 'ejecting':
+        case 'mounting':
           mainContent = <Loading />;
           actions = (
             <LinkButton onPress={closeModal} disabled>
@@ -234,7 +232,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
             </LinkButton>
           );
           break;
-        case UsbDriveStatus.mounted: {
+        case 'mounted': {
           mainContent = (
             <Prose>
               <h1>Save Ballot PDFs</h1>
@@ -311,7 +309,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
           <p>You may now eject the USB drive.</p>
         </Prose>
       );
-      if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
+      if (usbDriveStatus !== 'ejected') {
         actions = (
           <React.Fragment>
             <UsbControllerButton

@@ -1,10 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { usbstick } from '@votingworks/utils';
 import { UsbControllerButton } from './usbcontroller_button';
-
-const { UsbDriveStatus } = usbstick;
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -15,24 +12,10 @@ afterAll(() => {
   delete window.kiosk;
 });
 
-test('shows nothing if USB not available', () => {
-  const { container } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.notavailable}
-      usbDriveEject={jest.fn()}
-    />
-  );
-
-  expect(container.firstChild).toEqual(null);
-});
-
-test('shows No USB if usb available but absent', () => {
+test('shows No USB if usb absent', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.absent}
-      usbDriveEject={eject}
-    />
+    <UsbControllerButton usbDriveStatus="absent" usbDriveEject={eject} />
   );
 
   expect(container.firstChild).toHaveTextContent('No USB');
@@ -43,10 +26,7 @@ test('shows No USB if usb available but absent', () => {
 test('shows eject if mounted', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.mounted}
-      usbDriveEject={eject}
-    />
+    <UsbControllerButton usbDriveStatus="mounted" usbDriveEject={eject} />
   );
 
   expect(container.firstChild).toHaveTextContent('Eject USB');
@@ -57,10 +37,7 @@ test('shows eject if mounted', () => {
 test('shows ejected if recently ejected', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.recentlyEjected}
-      usbDriveEject={eject}
-    />
+    <UsbControllerButton usbDriveStatus="ejected" usbDriveEject={eject} />
   );
 
   expect(container.firstChild).toHaveTextContent('Ejected');
@@ -71,10 +48,7 @@ test('shows ejected if recently ejected', () => {
 test('shows connecting while mounting', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.present}
-      usbDriveEject={eject}
-    />
+    <UsbControllerButton usbDriveStatus="mounting" usbDriveEject={eject} />
   );
 
   expect(container.firstChild).toHaveTextContent('Connecting…');
@@ -85,10 +59,7 @@ test('shows connecting while mounting', () => {
 test('shows ejecting while ejecting', () => {
   const eject = jest.fn();
   const { container, getByText } = render(
-    <UsbControllerButton
-      usbDriveStatus={UsbDriveStatus.ejecting}
-      usbDriveEject={eject}
-    />
+    <UsbControllerButton usbDriveStatus="ejecting" usbDriveEject={eject} />
   );
 
   expect(container.firstChild).toHaveTextContent('Ejecting…');

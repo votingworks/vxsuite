@@ -14,7 +14,6 @@ import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
 import {
-  usbstick,
   KioskStorage,
   LocalStorage,
   Hardware,
@@ -492,20 +491,15 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     1000
   );
 
-  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
-
   useEffect(() => {
     void updateStatus();
   }, [updateStatus]);
 
   useEffect(() => {
-    if (
-      electionJustLoaded &&
-      displayUsbStatus === usbstick.UsbDriveStatus.recentlyEjected
-    ) {
+    if (electionJustLoaded && usbDrive.status === 'ejected') {
       setElectionJustLoaded(false);
     }
-  }, [electionJustLoaded, displayUsbStatus]);
+  }, [electionJustLoaded, usbDrive.status]);
 
   const storage = window.kiosk
     ? new KioskStorage(window.kiosk)
@@ -515,7 +509,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
   const currentContext: AppContextInterface = {
-    usbDriveStatus: displayUsbStatus,
+    usbDriveStatus: usbDrive.status,
     usbDriveEject: usbDrive.eject,
     electionDefinition,
     machineConfig,
@@ -567,7 +561,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
               unconfigureServer({ ignoreBackupRequirement: true })
             }
             isMachineConfigured={Boolean(electionDefinition)}
-            usbDriveStatus={displayUsbStatus}
+            usbDriveStatus={usbDrive.status}
           />
           {electionDefinition && (
             <ElectionInfoBar
@@ -605,7 +599,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                   <UsbControllerButton
                     small={false}
                     primary
-                    usbDriveStatus={displayUsbStatus}
+                    usbDriveStatus={usbDrive.status}
                     usbDriveEject={() => usbDrive.eject(userRole)}
                   />
                 </Buttons>
@@ -669,7 +663,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
               </Main>
               <MainNav isTestMode={isTestMode}>
                 <UsbControllerButton
-                  usbDriveStatus={displayUsbStatus}
+                  usbDriveStatus={usbDrive.status}
                   usbDriveEject={() => usbDrive.eject(userRole)}
                 />
                 <Button small onPress={() => auth.logOut()}>

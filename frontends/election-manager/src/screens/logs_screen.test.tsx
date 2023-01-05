@@ -22,7 +22,7 @@ test('Exporting logs', async () => {
   userEvent.click(screen.getByText('Close'));
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save Log File as CDF'));
+  userEvent.click(screen.getByText('Save CDF Log File'));
   await screen.findByText('No Log File Present');
   userEvent.click(screen.getByText('Close'));
 });
@@ -36,6 +36,6 @@ test('Exporting logs when no election definition', async () => {
   userEvent.click(screen.getByText('Close'));
 
   expect(
-    screen.getByText('Save Log File as CDF').closest('button')
+    screen.getByText('Save CDF Log File').closest('button')
   ).toHaveAttribute('disabled');
 });

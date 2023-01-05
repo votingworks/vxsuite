@@ -1,82 +1,70 @@
 import { assert } from './assert';
-import { sleep } from './sleep';
 
-export const MIN_TIME_TO_UNMOUNT_USB = 1000;
+export type UsbDriveAvailability = 'absent' | 'present' | 'mounted';
 
-function isAvailable() {
-  return !!window.kiosk;
+export async function getInfo(): Promise<
+  KioskBrowser.UsbDriveInfo | undefined
+> {
+  assert(window.kiosk);
+  return (await window.kiosk.getUsbDriveInfo())[0];
 }
 
-export enum UsbDriveStatus {
-  notavailable = 'notavailable',
-  absent = 'absent',
-  present = 'present',
-  mounted = 'mounted',
-  recentlyEjected = 'recentlyEjected',
-  ejecting = 'ejecting',
+export async function getPath(): Promise<string | undefined> {
+  assert(window.kiosk);
+  const usbDriveInfo = await getInfo();
+  return usbDriveInfo?.mountPoint;
 }
 
-async function getDevice(): Promise<KioskBrowser.UsbDrive | undefined> {
-  return (await window.kiosk?.getUsbDrives())?.[0];
-}
-
-export async function getDevicePath(): Promise<string | undefined> {
-  const device = await getDevice();
-  return device?.mountPoint;
-}
-
-export async function getStatus(): Promise<UsbDriveStatus> {
-  if (!isAvailable()) {
-    return UsbDriveStatus.notavailable;
+export function getAvailability(
+  usbDriveInfo?: KioskBrowser.UsbDriveInfo
+): UsbDriveAvailability {
+  if (!usbDriveInfo) {
+    return 'absent';
   }
 
-  const device = await getDevice();
-
-  if (!device) {
-    return UsbDriveStatus.absent;
+  if (usbDriveInfo.mountPoint) {
+    return 'mounted';
   }
 
-  if (device.mountPoint) {
-    return UsbDriveStatus.mounted;
-  }
-  return UsbDriveStatus.present;
+  return 'present';
 }
 
 export async function doMount(): Promise<void> {
-  const device = await getDevice();
-  if (!device || device.mountPoint) {
+  assert(window.kiosk);
+  const usbDriveInfo = await getInfo();
+  if (!usbDriveInfo || usbDriveInfo.mountPoint) {
     return;
   }
 
-  assert(window.kiosk);
-  await window.kiosk.mountUsbDrive(device.deviceName);
+  await window.kiosk.mountUsbDrive(usbDriveInfo.deviceName);
 }
 
+/**
+ * Eject = Sync & Unmount. This ensures that data is flushed to
+ * disk before resolving.
+ */
 export async function doEject(): Promise<void> {
-  const device = await getDevice();
-  if (!device?.mountPoint) {
+  assert(window.kiosk);
+  const usbDriveInfo = await getInfo();
+  if (!usbDriveInfo?.mountPoint) {
     return;
   }
 
-  const start = new Date().getTime();
-  assert(window.kiosk);
-  await window.kiosk.syncUsbDrive(device.mountPoint);
-  await window.kiosk.unmountUsbDrive(device.deviceName);
-  const timeToUnmount = new Date().getTime() - start;
-
-  if (timeToUnmount < MIN_TIME_TO_UNMOUNT_USB) {
-    await sleep(MIN_TIME_TO_UNMOUNT_USB - timeToUnmount);
-  }
+  await window.kiosk.syncUsbDrive(usbDriveInfo.mountPoint);
+  await window.kiosk.unmountUsbDrive(usbDriveInfo.deviceName);
 }
 
-// Triggers linux 'sync' command which forces any cached file data to be
-// flushed to the removable drive. Used to prevent incomplete file transfers.
+/**
+ * Triggers linux 'sync' command which forces any cached file data to be
+ * flushed to the removable drive. Used to prevent incomplete file transfers.
+ */
 export async function doSync(): Promise<void> {
-  const device = await getDevice();
-  const mountPoint = device?.mountPoint;
+  assert(window.kiosk);
+  const usbDriveInfo = await getInfo();
+  const mountPoint = usbDriveInfo?.mountPoint;
   if (!mountPoint) {
     return;
   }
-  assert(window.kiosk);
+
   await window.kiosk.syncUsbDrive(mountPoint);
 }

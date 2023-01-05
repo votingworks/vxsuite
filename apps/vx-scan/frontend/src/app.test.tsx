@@ -90,7 +90,7 @@ beforeEach(() => {
   jest.useFakeTimers();
 
   kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   kiosk.writeFile.mockResolvedValue(
     fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
@@ -115,7 +115,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
 
 test('shows insert USB Drive screen when there is no card reader', async () => {
   apiMock.expectGetConfig();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('No USB Drive Detected');
@@ -125,8 +125,8 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
-  kiosk.getUsbDrives.mockResolvedValue([]);
-  apiMock.expectGetScannerStatus(statusNoPaper);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectGetScannerStatus(statusNoPaper, 2);
   renderApp();
   await screen.findByText('VxScan is not configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
@@ -134,14 +134,14 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(err('no_ballot_package_on_usb_drive'));
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   await screen.findByText('No ballot package found on the inserted USB drive.');
 
   // Remove the USB
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(ok());
@@ -449,12 +449,12 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(2);
 
   // Simulate unmounted usb drive
-  kiosk.getUsbDrives.mockResolvedValue([
+  kiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
   await advanceTimersAndPromises(2);
   // Remove the usb drive
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   await advanceTimersAndPromises(2);
 
   // Remove pollworker card
@@ -474,7 +474,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   // Insert usb drive
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   await advanceTimersAndPromises(2);
   userEvent.click(await screen.findByText('Save CVRs'));
 

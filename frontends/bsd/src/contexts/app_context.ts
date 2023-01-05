@@ -1,11 +1,12 @@
 import { LoggingUserRole, LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
-import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
+import { UsbDriveStatus } from '@votingworks/ui';
+import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createContext } from 'react';
 import { MachineConfig } from '../config/types';
 
 export interface AppContextInterface {
-  usbDriveStatus: usbstick.UsbDriveStatus;
+  usbDriveStatus: UsbDriveStatus;
   usbDriveEject: (currentUser: LoggingUserRole) => void;
   machineConfig: MachineConfig;
   electionDefinition?: ElectionDefinition;
@@ -16,7 +17,7 @@ export interface AppContextInterface {
 }
 
 const appContext: AppContextInterface = {
-  usbDriveStatus: usbstick.UsbDriveStatus.absent,
+  usbDriveStatus: 'absent',
   usbDriveEject: () => undefined,
   machineConfig: {
     machineId: '0000',

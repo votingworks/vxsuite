@@ -80,3 +80,30 @@ try {
   });
 }
 ```
+
+## Viewing Logs in Development
+
+You may want to view emitted logs during development. All logs are passed to
+[`debug`](https://www.npmjs.com/package/debug) with the namespace `logger`. Logs
+emitted by backend services can be viewed by running those services with the
+environment variable `DEBUG` set to include `logger`. For example:
+
+```bash
+DEBUG=scan:*,logger pnpm start
+```
+
+If you want to view logs emitted by a frontend in the devtools console, you can
+do so by setting the `debug` value on `localStorage`. For example, in the
+console:
+
+```js
+localStorage.debug = 'logger';
+```
+
+In Chromium-based browsers, you will also have to set log level to "Verbose" or
+the logs will not appear. For more information on limitations, allowed
+wildcards, and additional options, view the
+[`debug` README](https://www.npmjs.com/package/debug?activeTab=readme).
+
+Note: Viewing logger values is a useful tool for debugging, but it is not a
+replacement for confirming correct logging in automated tests.

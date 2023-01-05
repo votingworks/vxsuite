@@ -34,6 +34,7 @@ import { MachineConfigResponse } from './config/types';
 jest.mock('./util/download');
 
 beforeEach(() => {
+  window.kiosk = undefined;
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
     '/central-scanner/scan/status',
@@ -317,6 +318,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   );
 });
 
+// bad cleanup
 test('configuring election from usb ballot package works end to end', async () => {
   const getTestModeConfigResponse: Scan.GetTestModeConfigResponse = {
     status: 'ok',

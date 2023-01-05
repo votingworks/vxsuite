@@ -1,7 +1,6 @@
 import React from 'react';
 import { fakeLogger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
-import { usbstick } from '@votingworks/utils';
 
 import { render } from '../../test/test_utils';
 import { SystemAdministratorScreen } from './system_administrator_screen';
@@ -14,7 +13,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
       logger={logger}
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      usbDriveStatus={usbstick.UsbDriveStatus.absent}
+      usbDriveStatus="absent"
     />
   );
 
