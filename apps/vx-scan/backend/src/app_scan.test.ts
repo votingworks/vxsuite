@@ -9,7 +9,6 @@ import {
   configureApp,
   createApp,
   expectStatus,
-  postExportCvrs,
   waitForStatus,
 } from '../test/helpers/app_helpers';
 
@@ -85,7 +84,7 @@ function mockInterpretation(
 }
 
 test('configure and scan hmpb', async () => {
-  const { apiClient, app, mockPlustek, mockUsb, logger } = await createApp();
+  const { apiClient, mockPlustek, mockUsb, logger } = await createApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
@@ -116,7 +115,7 @@ test('configure and scan hmpb', async () => {
   await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 
   // Check the CVR
-  const cvrs = await postExportCvrs(app);
+  const cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(1);
   // TODO what do we actually want to check about the CVRs to make sure they work?
 
@@ -124,7 +123,7 @@ test('configure and scan hmpb', async () => {
 });
 
 test('configure and scan bmd ballot', async () => {
-  const { apiClient, app, mockPlustek, mockUsb, logger } = await createApp();
+  const { apiClient, mockPlustek, mockUsb, logger } = await createApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -158,7 +157,7 @@ test('configure and scan bmd ballot', async () => {
   await waitForStatus(apiClient, { state: 'ready_to_scan', ballotsCounted: 1 });
 
   // Check the CVR
-  const cvrs = await postExportCvrs(app);
+  const cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(1);
 
   checkLogs(logger);
@@ -170,7 +169,7 @@ const needsReviewInterpretation: Scan.SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const { apiClient, app, mockPlustek, workspace, mockUsb, logger } =
+  const { apiClient, mockPlustek, workspace, mockUsb, logger } =
     await createApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
@@ -201,7 +200,7 @@ test('ballot needs review - return', async () => {
   });
 
   // Check the CVR
-  const cvrs = await postExportCvrs(app);
+  const cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(0);
 
   // Make sure the ballot was still recorded in the db for backup purposes
@@ -211,7 +210,7 @@ test('ballot needs review - return', async () => {
 });
 
 test('ballot needs review - accept', async () => {
-  const { apiClient, app, mockPlustek, mockUsb, logger } = await createApp();
+  const { apiClient, mockPlustek, mockUsb, logger } = await createApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
@@ -242,7 +241,7 @@ test('ballot needs review - accept', async () => {
   });
 
   // Check the CVR
-  const cvrs = await postExportCvrs(app);
+  const cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(1);
 
   checkLogs(logger);
@@ -250,7 +249,7 @@ test('ballot needs review - accept', async () => {
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const { apiClient, app, mockPlustek, workspace, mockUsb, logger } =
+  const { apiClient, mockPlustek, workspace, mockUsb, logger } =
     await createApp();
   await configureApp(apiClient, mockUsb);
 
@@ -279,7 +278,7 @@ test('invalid ballot rejected', async () => {
   await waitForStatus(apiClient, { state: 'no_paper' });
 
   // Check the CVR
-  const cvrs = await postExportCvrs(app);
+  const cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(0);
 
   // Make sure the ballot was still recorded in the db for backup purposes

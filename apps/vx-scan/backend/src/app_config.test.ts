@@ -18,7 +18,6 @@ import {
   configureApp,
   createApp,
   createBallotPackageWithoutTemplates,
-  postExportCvrs,
   waitForStatus,
 } from '../test/helpers/app_helpers';
 import { Api } from './app';
@@ -155,14 +154,14 @@ test('setPrecinctSelection will reset polls to closed', async () => {
 });
 
 test('ballot batching', async () => {
-  const { apiClient, app, mockPlustek, logger, workspace, mockUsb } =
+  const { apiClient, mockPlustek, logger, workspace, mockUsb } =
     await createApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch
   await scanBallot(mockPlustek, apiClient, 0);
   await scanBallot(mockPlustek, apiClient, 1);
-  let cvrs = await postExportCvrs(app);
+  let cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(2);
   const batch1Id = cvrs[0]._batchId;
   expect(cvrs[1]._batchId).toEqual(batch1Id);
@@ -200,7 +199,7 @@ test('ballot batching', async () => {
   // Confirm there is a new, second batch distinct from the first
   await scanBallot(mockPlustek, apiClient, 2);
   await scanBallot(mockPlustek, apiClient, 3);
-  cvrs = await postExportCvrs(app);
+  cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(4);
   const batch2Id = cvrs[2]._batchId;
   expect(batch2Id).not.toEqual(batch1Id);
@@ -235,7 +234,7 @@ test('ballot batching', async () => {
   // Confirm there is a third batch, distinct from the second
   await scanBallot(mockPlustek, apiClient, 4);
   await scanBallot(mockPlustek, apiClient, 5);
-  cvrs = await postExportCvrs(app);
+  cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(6);
   const batch3Id = cvrs[4]._batchId;
   expect(cvrs[3]._batchId).not.toEqual(batch3Id);

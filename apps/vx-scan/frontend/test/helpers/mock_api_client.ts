@@ -1,7 +1,11 @@
 import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { PollsState, PrecinctSelection } from '@votingworks/types';
+import {
+  CastVoteRecord,
+  PollsState,
+  PrecinctSelection,
+} from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
@@ -56,6 +60,12 @@ export function createApiMock() {
 
     expectSetPollsState(pollsState: PollsState): void {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
+    },
+
+    expectGetCastVoteRecordsForTally(castVoteRecords: CastVoteRecord[]): void {
+      mockApiClient.getCastVoteRecordsForTally
+        .expectCallWith()
+        .resolves(castVoteRecords);
     },
   };
 }

@@ -7,14 +7,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
-import request from 'supertest';
-import {
-  CastVoteRecord,
-  ElectionDefinition,
-  ok,
-  PrecinctId,
-  Result,
-} from '@votingworks/types';
+import { ElectionDefinition, ok, PrecinctId, Result } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -109,21 +102,6 @@ export function createMockUsb(): MockUsb {
       mockUsbTmpDir = undefined;
     },
   };
-}
-
-export async function postExportCvrs(
-  app: Application
-): Promise<CastVoteRecord[]> {
-  const exportResponse = await request(app)
-    .post('/precinct-scanner/export')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  const cvrs: CastVoteRecord[] = exportResponse.text
-    .split('\n')
-    .filter((line) => line !== '')
-    .map((line) => JSON.parse(line));
-  return cvrs;
 }
 
 export async function expectStatus(
