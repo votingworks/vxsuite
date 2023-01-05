@@ -50,8 +50,9 @@ jest.setTimeout(20000);
 
 fetchMock.config.overwriteRoutes = false;
 
+const machineId = '0002';
 const getMachineConfigBody: MachineConfigResponse = {
-  machineId: '0002',
+  machineId,
   codeVersion: '3.14',
 };
 
@@ -395,8 +396,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
 
   // Insert a pollworker card
-  apiMock.expectGetScannerStatus(statusBallotCounted, 7);
-  const expectedCvrs = [
+  apiMock.expectGetScannerStatus(statusBallotCounted, 6);
+  const mockCvrs = [
     generateCvr(
       electionSample,
       {
@@ -412,8 +413,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
       }
     ),
   ];
-  apiMock.expectGetCastVoteRecordsForTally(expectedCvrs);
-  fetchMock.post('/precinct-scanner/export', expectedCvrs);
+  apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
+  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
 
@@ -445,16 +446,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
       ]),
     })
   );
-  expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
-  expect(kiosk.writeFile).toHaveBeenCalledWith(
-    expect.stringMatching(
-      `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
-        0,
-        10
-      )}/TEST__machine_0002__1_ballots`
-    )
-  );
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   // Simulate unmounted usb drive
   kiosk.getUsbDriveInfo.mockResolvedValue([
@@ -486,20 +477,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(2);
   userEvent.click(await screen.findByText('Save CVRs'));
 
+  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
   expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
-  expect(kiosk.writeFile).toHaveBeenCalledTimes(2);
-  expect(kiosk.writeFile).toHaveBeenNthCalledWith(
-    2,
-    expect.stringMatching(
-      `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
-        0,
-        10
-      )}/TEST__machine_0002__1_ballots`
-    )
-  );
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(2);
   userEvent.click(await screen.findByText('Eject USB'));
   expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
@@ -771,8 +752,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
 
   // Close Polls
-  apiMock.expectGetScannerStatus(statusBallotCounted, 1);
-  const expectedCvrs = [
+  const mockCvrs = [
     generateCvr(
       electionSample,
       {
@@ -788,8 +768,8 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
       }
     ),
   ];
-  apiMock.expectGetCastVoteRecordsForTally(expectedCvrs);
-  fetchMock.post('/precinct-scanner/export', expectedCvrs);
+  apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
+  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
@@ -819,18 +799,6 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
       ]),
     })
   );
-  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
-
-  expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
-  expect(kiosk.writeFile).toHaveBeenCalledWith(
-    expect.stringMatching(
-      `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
-        0,
-        10
-      )}/TEST__machine_0002__1_ballots`
-    )
-  );
-  await advanceTimersAndPromises(1);
 
   card.removeCard();
   await screen.findByText('Polls Closed');

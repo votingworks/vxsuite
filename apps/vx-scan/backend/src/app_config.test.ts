@@ -1,5 +1,4 @@
 import { MockScannerClient } from '@votingworks/plustek-sdk';
-import request from 'supertest';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -9,10 +8,15 @@ import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  assert,
+  SCANNER_RESULTS_FOLDER,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { err, ok } from '@votingworks/types';
 import fs from 'fs';
 import { join } from 'path';
+import { generateCvr } from '@votingworks/test-utils';
 import {
   ballotImages,
   configureApp,
@@ -126,20 +130,62 @@ test('configures using the most recently created ballot package on the usb drive
   );
 });
 
-describe('POST /precinct-scanner/export', () => {
-  test('sets CVRs as backed up', async () => {
-    const { apiClient, app, workspace, mockUsb } = await createApp();
+test('export the CVRs to USB', async () => {
+  const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
+  await scanBallot(mockPlustek, apiClient, 0);
+  expect(
+    await apiClient.exportCastVoteRecordsToUsbDrive({
+      machineId: 'test-machine-id',
+    })
+  ).toEqual(ok());
 
-    await configureApp(apiClient, mockUsb);
-    await request(app)
-      .post('/precinct-scanner/export')
-      .set('Accept', 'application/json')
-      .set('Content-Type', 'application/json')
-      .send({ skipImages: true })
-      .expect(200);
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  assert(usbDrive.mountPoint !== undefined);
+  const resultsDirPath = join(usbDrive.mountPoint, SCANNER_RESULTS_FOLDER);
+  const electionDirs = fs.readdirSync(resultsDirPath);
+  expect(electionDirs).toHaveLength(1);
+  const electionDirPath = join(resultsDirPath, electionDirs[0]);
+  const cvrFiles = fs.readdirSync(electionDirPath);
+  expect(cvrFiles).toHaveLength(1);
+  expect(cvrFiles[0]).toMatch(/machine_testmachineid__1_ballots__.*.jsonl/);
+  const cvrFilePath = join(electionDirPath, cvrFiles[0]);
+  const cvr = JSON.parse(fs.readFileSync(cvrFilePath).toString());
+  const expectedCvr = generateCvr(
+    electionFamousNames2021Fixtures.election,
+    {
+      attorney: ['john-snow'],
+      'board-of-alderman': [
+        'helen-keller',
+        'steve-jobs',
+        'nikola-tesla',
+        'vincent-van-gogh',
+      ],
+      'chief-of-police': ['natalie-portman'],
+      'city-council': [
+        'marie-curie',
+        'indiana-jones',
+        'mona-lisa',
+        'jackie-chan',
+      ],
+      controller: ['winston-churchill'],
+      mayor: ['sherlock-holmes'],
+      'parks-and-recreation-director': ['charles-darwin'],
+      'public-works-director': ['benjamin-franklin'],
+    },
+    {
+      scannerId: '000',
+    }
+  );
 
-    expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
+  expect(cvr).toEqual({
+    ...expectedCvr,
+    _ballotId: expect.any(String),
+    _batchId: expect.any(String),
+    _locales: { primary: 'en-US' },
   });
+
+  expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {

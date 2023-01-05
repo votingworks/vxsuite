@@ -60,7 +60,6 @@ import { LiveCheckModal } from '../components/live_check_modal';
 import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
-import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import { rootDebug } from '../utils/debug';
 import { useApiClient } from '../api/api';
 
@@ -379,12 +378,12 @@ export function PollWorkerScreen({
 
   async function exportCvrs(): Promise<void> {
     assert(electionDefinition);
-    await saveCvrExportToUsb({
-      electionDefinition,
-      machineConfig,
-      scannedBallotCount,
-      isTestMode: !isLiveMode,
+    const result = await apiClient.exportCastVoteRecordsToUsbDrive({
+      machineId: machineConfig.machineId,
     });
+    if (result.isErr()) {
+      throw new Error(result.err().message);
+    }
   }
 
   async function transitionPolls(pollsTransition: PollsTransition) {

@@ -12,6 +12,7 @@ import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
 import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
+import { Usb } from './util/usb';
 
 const debug = rootDebug.extend('backup');
 
@@ -219,6 +220,7 @@ export function backup(
  */
 export async function backupToUsbDrive(
   store: Store,
+  usb: Usb,
   options: BackupOptions = {}
 ): Promise<Scan.BackupResult> {
   const electionDefinition = store.getElectionDefinition();
@@ -230,7 +232,7 @@ export async function backupToUsbDrive(
     });
   }
 
-  const exporter = buildExporter();
+  const exporter = buildExporter(usb);
   return await exporter.exportDataToUsbDrive(
     'scanner-backups',
     `${generateElectionBasedSubfolderName(

@@ -3,6 +3,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   CastVoteRecord,
+  ok,
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -66,6 +67,12 @@ export function createApiMock() {
       mockApiClient.getCastVoteRecordsForTally
         .expectCallWith()
         .resolves(castVoteRecords);
+    },
+
+    expectExportCastVoteRecordsToUsbDrive(machineId: string): void {
+      mockApiClient.exportCastVoteRecordsToUsbDrive
+        .expectCallWith({ machineId })
+        .resolves(ok());
     },
   };
 }

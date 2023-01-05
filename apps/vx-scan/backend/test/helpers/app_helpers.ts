@@ -23,7 +23,7 @@ import { AddressInfo } from 'net';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { execSync } from 'child_process';
-import { buildApp, Api, Usb } from '../../src/app';
+import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
@@ -33,6 +33,7 @@ import {
   PrecinctScannerInterpreter,
 } from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
+import { Usb } from '../../src/util/usb';
 
 // TODO(jonah) - Is there a way to ensure Grout always has access to node-fetch
 // in a node environment?

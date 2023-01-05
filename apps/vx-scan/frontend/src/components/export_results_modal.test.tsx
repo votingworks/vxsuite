@@ -1,38 +1,55 @@
 import React from 'react';
 
 import { fireEvent, waitFor } from '@testing-library/react';
-import {
-  electionSampleDefinition as electionDefinition,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
-import fetchMock from 'fetch-mock';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { ExportResultsModal } from './export_results_modal';
+import { err } from '@votingworks/types';
+import {
+  ExportResultsModal,
+  ExportResultsModalProps,
+} from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiClientContext } from '../api/api';
 
+const apiMock = createApiMock();
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
 const auth = Inserted.fakeElectionManagerAuth();
+
+function renderModal(props: Partial<ExportResultsModalProps> = {}) {
+  return renderInAppContext(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <ExportResultsModal
+        onClose={jest.fn()}
+        usbDrive={{ status: 'mounted', eject: jest.fn() }}
+        {...props}
+      />
+    </ApiClientContext.Provider>,
+    { auth }
+  );
+}
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn();
-    const { getByText, unmount } = renderInAppContext(
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status, eject: jest.fn() }}
-        scannedBallotCount={5}
-        isTestMode
-      />,
-      { auth }
-    );
+    const { getByText, unmount } = renderModal({
+      usbDrive: { status, eject: jest.fn() },
+    });
     getByText('Loading');
     unmount();
   }
@@ -42,28 +59,23 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
   const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn();
-    const { getByText, unmount, getByAltText } = renderInAppContext(
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status, eject: jest.fn() }}
-        scannedBallotCount={5}
-        isTestMode
-      />,
-      { auth }
-    );
+    const onClose = jest.fn();
+    const { getByText, unmount, getByAltText } = renderModal({
+      onClose,
+      usbDrive: { status, eject: jest.fn() },
+    });
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
     fireEvent.click(getByText('Cancel'));
-    expect(closeFn).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
 
     unmount();
   }
 });
 
-test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
+test('render export modal when a usb drive is mounted as expected and allows export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.writeFile.mockResolvedValue(
@@ -71,50 +83,23 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/precinct-scanner/export', {
-    body: '',
-  });
+  apiMock.expectExportCastVoteRecordsToUsbDrive(machineConfig.machineId);
 
-  const closeFn = jest.fn();
-  const ejectFn = jest.fn();
-  const { getByText, rerender } = renderInAppContext(
-    <ExportResultsModal
-      onClose={closeFn}
-      usbDrive={{ status: 'mounted', eject: ejectFn }}
-      scannedBallotCount={5}
-      isTestMode
-    />,
-    { auth }
-  );
+  const onClose = jest.fn();
+  const eject = jest.fn();
+  const { getByText, rerender } = renderModal({
+    onClose,
+    usbDrive: { status: 'mounted', eject },
+  });
   getByText('Save CVRs');
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved to USB Drive'));
-  await waitFor(() => {
-    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
-  });
-  expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
-    `fake mount point/cast-vote-records/franklin-county_general-election_${electionDefinition.electionHash.slice(
-      0,
-      10
-    )}`,
-    { recursive: true }
-  );
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-  expect(mockKiosk.writeFile).toHaveBeenCalledWith(
-    expect.stringMatching(
-      `fake mount point/cast-vote-records/franklin-county_general-election_${electionDefinition.electionHash.slice(
-        0,
-        10
-      )}/TEST__machine_0003__5_ballots`
-    )
-  );
-  expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
 
   fireEvent.click(getByText('Eject USB'));
-  expect(ejectFn).toHaveBeenCalled();
+  expect(eject).toHaveBeenCalled();
   fireEvent.click(getByText('Cancel'));
-  expect(closeFn).toHaveBeenCalled();
+  expect(eject).toHaveBeenCalled();
 
   rerender(
     <AppContext.Provider
@@ -126,12 +111,12 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
-      <ExportResultsModal
-        onClose={closeFn}
-        usbDrive={{ status: 'ejected', eject: ejectFn }}
-        scannedBallotCount={5}
-        isTestMode
-      />
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <ExportResultsModal
+          onClose={onClose}
+          usbDrive={{ status: 'ejected', eject }}
+        />
+      </ApiClientContext.Provider>
     </AppContext.Provider>
   );
   getByText('USB Drive Ejected');
@@ -142,28 +127,19 @@ test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  fetchMock.postOnce('/precinct-scanner/export', {
-    body: '',
-  });
+  apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ machineId: machineConfig.machineId })
+    .resolves(
+      err({ type: 'file-system-error', message: 'Something went wrong.' })
+    );
 
-  const closeFn = jest.fn();
-  const { getByText } = renderInAppContext(
-    <ExportResultsModal
-      onClose={closeFn}
-      usbDrive={{ status: 'mounted', eject: jest.fn() }}
-      scannedBallotCount={5}
-      isTestMode
-    />,
-    { auth }
-  );
+  const onClose = jest.fn();
+  const { getByText } = renderModal({ onClose });
   getByText('Save CVRs');
 
-  mockKiosk.getUsbDriveInfo.mockRejectedValueOnce(new Error('NOPE'));
   fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Failed to Save CVRs'));
-  getByText(/Failed to save CVRs./);
-  getByText(/NOPE/);
+  await waitFor(() => getByText('Failed to save CVRs. Something went wrong.'));
 
   fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
+  expect(onClose).toHaveBeenCalled();
 });

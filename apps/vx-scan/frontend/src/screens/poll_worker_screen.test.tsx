@@ -8,16 +8,20 @@ import MockDate from 'mockdate';
 import React from 'react';
 import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
-import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import {
+  machineConfig,
+  renderInAppContext,
+} from '../../test/helpers/render_in_app_context';
 import { ApiClientContext } from '../api/api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
+
+const { machineId } = machineConfig;
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -26,14 +30,11 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-jest.mock('../utils/save_cvr_export_to_usb');
-
 MockDate.set('2020-10-31T00:00:00.000Z');
 
 beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
   window.location.href = '/';
-  fetchMock.post('/precinct-scanner/export', {});
   window.kiosk = fakeKiosk();
   apiMock.mockApiClient.reset();
 });
@@ -190,6 +191,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls happy path', async () => {
+    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
@@ -205,6 +207,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls from landing screen', async () => {
+    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -289,6 +292,7 @@ describe('transitions from polls paused', () => {
   });
 
   test('close polls from landing screen', async () => {
+    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');

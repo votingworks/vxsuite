@@ -13,18 +13,16 @@ import {
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
-import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
+import { useApiClient } from '../api/api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
   height: 200px;
 `;
 
-export interface Props {
+export interface ExportResultsModalProps {
   onClose: () => void;
   usbDrive: UsbDrive;
-  scannedBallotCount: number;
-  isTestMode: boolean;
 }
 
 enum ModalState {
@@ -37,9 +35,8 @@ enum ModalState {
 export function ExportResultsModal({
   onClose,
   usbDrive,
-  scannedBallotCount,
-  isTestMode,
-}: Props): JSX.Element {
+}: ExportResultsModalProps): JSX.Element {
+  const apiClient = useApiClient();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -51,19 +48,19 @@ export function ExportResultsModal({
   const exportResults = useCallback(async () => {
     setCurrentState(ModalState.SAVING);
     try {
-      await saveCvrExportToUsb({
-        electionDefinition,
-        machineConfig,
-        scannedBallotCount,
-        isTestMode,
+      const result = await apiClient.exportCastVoteRecordsToUsbDrive({
+        machineId: machineConfig.machineId,
       });
+      if (result.isErr()) {
+        throw new Error(result.err().message);
+      }
       setCurrentState(ModalState.DONE);
     } catch (error) {
       assert(error instanceof Error);
       setErrorMessage(`Failed to save CVRs. ${error.message}`);
       setCurrentState(ModalState.ERROR);
     }
-  }, [electionDefinition, isTestMode, machineConfig, scannedBallotCount]);
+  }, [apiClient, machineConfig]);
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -131,6 +128,7 @@ export function ExportResultsModal({
     );
   }
 
+  /* istanbul ignore next - compile time check */
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState);
   }
@@ -188,6 +186,7 @@ export function ExportResultsModal({
           }
         />
       );
+    /* istanbul ignore next - compile time check */
     default:
       throwIllegalValue(usbDrive.status);
   }

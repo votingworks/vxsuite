@@ -1,3 +1,4 @@
+import { ExportDataError } from '@votingworks/data';
 import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   BallotIdSchema,
@@ -6,17 +7,26 @@ import {
   HmpbPageInterpretation,
   InlineBallotImage,
   mapSheet,
+  ok,
   PageInterpretation,
+  Result,
   SheetOf,
   unsafeParse,
 } from '@votingworks/types';
 import {
+  assert,
   BooleanEnvironmentVariableName,
+  generateElectionBasedSubfolderName,
+  generateFilenameForScanningResults,
   isFeatureFlagEnabled,
   mapAsync,
+  SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
+import { join } from 'path';
 import { Readable } from 'stream';
 import { Store } from '../store';
+import { buildExporter } from '../util/exporter';
+import { Usb } from '../util/usb';
 import {
   addBallotImagesToCvr,
   buildCastVoteRecord,
@@ -182,4 +192,36 @@ export function exportCastVoteRecordsAsNdJson({
       (cvr) => `${JSON.stringify(cvr)}\n`
     )
   );
+}
+
+export async function exportCastVoteRecordsToUsbDrive(
+  store: Store,
+  usb: Usb,
+  machineId: string
+): Promise<Result<void, ExportDataError>> {
+  const electionDefinition = store.getElectionDefinition();
+  assert(electionDefinition, 'Cannot export CVRs without election definition');
+  const cvrFilename = generateFilenameForScanningResults(
+    // TODO: Move machine config provider to shared utilities and access
+    // machine config, with dev overrides, here instead
+    machineId,
+    store.getBallotsCounted(),
+    store.getTestMode(),
+    new Date()
+  );
+  const electionFolderName = generateElectionBasedSubfolderName(
+    electionDefinition.election,
+    electionDefinition.electionHash
+  );
+  const exporter = buildExporter(usb);
+  const result = await exporter.exportDataToUsbDrive(
+    SCANNER_RESULTS_FOLDER,
+    join(electionFolderName, cvrFilename),
+    exportCastVoteRecordsAsNdJson({ store })
+  );
+  if (result.isErr()) {
+    return result;
+  }
+  store.setCvrsBackedUp();
+  return ok();
 }

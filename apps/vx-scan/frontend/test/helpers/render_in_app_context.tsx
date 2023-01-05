@@ -9,7 +9,7 @@ import {
   AppContextInterface,
 } from '../../src/contexts/app_context';
 
-const machineConfig: MachineConfig = {
+export const machineConfig: MachineConfig = {
   machineId: '0003',
   codeVersion: 'TEST',
 };
