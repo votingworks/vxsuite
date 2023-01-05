@@ -241,6 +241,10 @@ function buildApi(
       return result.isErr() ? result : ok();
     },
 
+    /**
+     * @deprecated We want to eventually build the tally in the backend,
+     * but for now that logic still lives in the frontend.
+     */
     async getCastVoteRecordsForTally(): Promise<CastVoteRecord[]> {
       const castVoteRecords: CastVoteRecord[] = [];
       for await (const castVoteRecord of exportCastVoteRecords({
