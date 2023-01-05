@@ -213,19 +213,21 @@ test('going through the whole process works', async () => {
     .expect(200);
 
   expect(
-    fsExtra.existsSync(
-      path.join(
-        workspace.path,
-        'mock-usb',
-        SCANNER_RESULTS_FOLDER,
-        generateElectionBasedSubfolderName(
-          election,
-          asElectionDefinition(election).electionHash
-        ),
-        'cvrs_export_2.jsonl'
+    fsExtra
+      .readFileSync(
+        path.join(
+          workspace.path,
+          'mock-usb',
+          SCANNER_RESULTS_FOLDER,
+          generateElectionBasedSubfolderName(
+            election,
+            asElectionDefinition(election).electionHash
+          ),
+          'cvrs_export_2.jsonl'
+        )
       )
-    )
-  ).toBe(false);
+      .toString()
+  ).toEqual('');
 
   // clean up
   await request(app).delete('/central-scanner/config/election');

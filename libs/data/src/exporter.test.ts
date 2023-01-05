@@ -82,6 +82,22 @@ test('exportData with stream and maximumFileSize', async () => {
   expect(await readFile(`${path}-part-2`)).toEqual(Buffer.of(3));
 });
 
+test('exportData with empty string', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, '');
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path)).toEqual(Buffer.of());
+});
+
+test('exportData with empty stream', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, Readable.from([]));
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path)).toEqual(Buffer.of());
+});
+
 test('exportData with a symbolic link', async () => {
   const tmpDir = createTmpDir();
   const existingPath = join(tmpDir, 'test.txt');

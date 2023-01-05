@@ -7,8 +7,9 @@ import {
   CreatePlustekClient,
   createPrecinctScannerStateMachine,
 } from './state_machine';
-import { buildApp, Usb } from './app';
+import { buildApp } from './app';
 import { createInterpreter } from './interpret';
+import { Usb } from './util/usb';
 
 export interface StartOptions {
   port: number | string;

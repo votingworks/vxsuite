@@ -1,13 +1,14 @@
-import { Exporter, getUsbDrives } from '@votingworks/data';
+import { Exporter } from '@votingworks/data';
+import { Usb } from './usb';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 
 /**
  * Builds an exporter suitable for saving data to a file or USB drive.
  */
-export function buildExporter(): Exporter {
+export function buildExporter(usb: Usb): Exporter {
   const exporter = new Exporter({
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
-    getUsbDrives,
+    getUsbDrives: usb.getUsbDrives,
   });
   return exporter;
 }

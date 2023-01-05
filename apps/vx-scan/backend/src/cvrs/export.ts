@@ -26,6 +26,7 @@ import { join } from 'path';
 import { Readable } from 'stream';
 import { Store } from '../store';
 import { buildExporter } from '../util/exporter';
+import { Usb } from '../util/usb';
 import {
   addBallotImagesToCvr,
   buildCastVoteRecord,
@@ -195,6 +196,7 @@ export function exportCastVoteRecordsAsNdJson({
 
 export async function exportCastVoteRecordsToUsbDrive(
   store: Store,
+  usb: Usb,
   machineId: string
 ): Promise<Result<void, ExportDataError>> {
   const electionDefinition = store.getElectionDefinition();
@@ -211,7 +213,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     electionDefinition.election,
     electionDefinition.electionHash
   );
-  const exporter = buildExporter();
+  const exporter = buildExporter(usb);
   const result = await exporter.exportDataToUsbDrive(
     SCANNER_RESULTS_FOLDER,
     join(electionFolderName, cvrFilename),

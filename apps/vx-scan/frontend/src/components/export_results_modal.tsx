@@ -128,6 +128,7 @@ export function ExportResultsModal({
     );
   }
 
+  /* istanbul ignore next - compile time check */
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState);
   }
@@ -185,6 +186,7 @@ export function ExportResultsModal({
           }
         />
       );
+    /* istanbul ignore next - compile time check */
     default:
       throwIllegalValue(usbDrive.status);
   }

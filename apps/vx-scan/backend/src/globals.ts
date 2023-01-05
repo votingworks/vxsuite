@@ -49,8 +49,13 @@ export const SCAN_WORKSPACE =
 /**
  * Where are exported files allowed to be written to?
  */
+const defaultAllowedExportPatterns =
+  NODE_ENV === 'test'
+    ? ['/tmp/**/*'] // Mock USB drive location
+    : ['/media/**/*']; // Real USB drive location
 export const SCAN_ALLOWED_EXPORT_PATTERNS =
-  process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ?? ['/media/**/*'];
+  process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ??
+  defaultAllowedExportPatterns;
 
 /**
  * Path to the `plustekctl` binary.

@@ -4,7 +4,7 @@ import { mkdir } from 'fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';
 import { Readable } from 'stream';
-import { lstatSync } from 'fs';
+import { lstatSync, writeFileSync } from 'fs';
 import { splitToFiles } from './split';
 import { execFile } from './utils/exec';
 import { UsbDrive } from './get_usb_drives';
@@ -101,17 +101,22 @@ export class Exporter {
 
     await mkdir(pathParts.dir, { recursive: true });
 
-    return ok(
-      await splitToFiles(
-        typeof data === 'string' ? Readable.from(data) : data,
-        {
-          size: maximumFileSize ?? Infinity,
-          nextPath: (index) =>
-            join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
-          singleFileName: pathParts.base,
-        }
-      )
+    const paths = await splitToFiles(
+      typeof data === 'string' ? Readable.from(data) : data,
+      {
+        size: maximumFileSize ?? Infinity,
+        nextPath: (index) =>
+          join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
+        singleFileName: pathParts.base,
+      }
     );
+    // If the data was empty, splitToFiles won't create any files, but we still
+    // want to create an empty file.
+    if (paths.length === 0) {
+      writeFileSync(safePath, '');
+      paths.push(safePath);
+    }
+    return ok(paths);
   }
 
   /**

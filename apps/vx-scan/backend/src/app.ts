@@ -18,7 +18,7 @@ import {
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
-import { ExportDataError, UsbDrive } from '@votingworks/data';
+import { ExportDataError } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { backupToUsbDrive } from './backup';
@@ -29,14 +29,7 @@ import {
 import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './state_machine';
 import { Workspace } from './util/workspace';
-
-/**
- * An interface for interacting with USB drives. We inject this into the app so
- * that we can easily mock it in tests.
- */
-export interface Usb {
-  getUsbDrives: () => Promise<UsbDrive[]>;
-}
+import { Usb } from './util/usb';
 
 /**
  * Possible errors that can occur during configuration (currently there's only one).
@@ -230,14 +223,14 @@ function buildApi(
     },
 
     async backupToUsbDrive(): Promise<Result<void, Scan.BackupError>> {
-      const result = await backupToUsbDrive(store);
+      const result = await backupToUsbDrive(store, usb);
       return result.isErr() ? result : ok();
     },
 
     async exportCastVoteRecordsToUsbDrive(input: {
       machineId: string;
     }): Promise<Result<void, ExportDataError>> {
-      return await exportCastVoteRecordsToUsbDrive(store, input.machineId);
+      return await exportCastVoteRecordsToUsbDrive(store, usb, input.machineId);
     },
 
     /**
