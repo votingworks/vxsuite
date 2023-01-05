@@ -85,6 +85,16 @@ test('loadImage/writeImageData', async () => {
   );
 });
 
+test('loadImageData with invalid PGM format', async () => {
+  const filePath = fileSync({
+    template: `tmp-XXXXXX.pgm`,
+  }).name;
+  await writeFile(filePath, `P5\n0\n255\n`);
+  await expect(loadImageData(filePath)).rejects.toThrow(
+    new Error(`Invalid PGM image: ${filePath}`)
+  );
+});
+
 test('loadImage/loadImageData with PGM format', async () => {
   await fc.assert(
     fc.asyncProperty(arbitraryImageData(), async (imageData) => {
