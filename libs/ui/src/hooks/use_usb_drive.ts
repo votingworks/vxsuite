@@ -81,6 +81,11 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
   // Application state
   const [status, setStatus] = useState<UsbDriveStatus>('absent');
 
+  // The hardware state blips / flickers during formatting, so we need to
+  // know when to skip polling. We could add this as a `UsbDriveStatus`, but
+  // then we would have to handle in the frontends.
+  const [isFormatting, setIsFormatting] = useState(false);
+
   const eject = useCallback(
     async (currentUser: LoggingUserRole) => {
       await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
@@ -132,6 +137,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
   const format = useCallback(
     async (currentUser: LoggingUserRole, options: PostFormatUsbOptions) => {
+      setIsFormatting(true);
       try {
         await logger.log(LogEventId.UsbDriveFormatInit, currentUser);
         const usbDriveInfo = await usbstick.getInfo();
@@ -166,6 +172,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           error: (error as Error).message,
           result: 'USB drive not formatted.',
         });
+      } finally {
+        setIsFormatting(false);
       }
     },
     [logger, makeCancelable, mount]
@@ -173,6 +181,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
   useInterval(
     async () => {
+      if (isFormatting) return;
+
       const usbDriveInfo = await usbstick.getInfo();
       const previousAvailability = availability.current;
       availability.current = usbstick.getAvailability(usbDriveInfo);
@@ -215,6 +225,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         availability.current === 'absent' &&
         previousAvailability !== 'absent'
       ) {
+        console.log(usbDriveInfo);
         await logger.log(LogEventId.UsbDriveRemoved, 'system', {
           previousStatus: status,
         });
