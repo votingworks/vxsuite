@@ -33,7 +33,7 @@ test('button renders properly when not clicked', () => {
 });
 
 test('modal renders insert usb screen appropriately', async () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const usbStatus of usbStatuses) {
     const { unmount } = renderInAppContext(<ExportBallotPdfsButton />, {

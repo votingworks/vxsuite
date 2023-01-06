@@ -73,7 +73,7 @@ test('full lifecycle with USBControllerButton', async () => {
     LogEventId.UsbDriveDetected,
     'system',
     expect.objectContaining({
-      message: 'Unmounted USB drive detected.',
+      message: 'Unmounted USB drive detected with compatible file system.',
     })
   );
   expect(logger.log).toHaveBeenNthCalledWith(
@@ -121,7 +121,6 @@ test('full lifecycle with USBControllerButton', async () => {
     'system',
     expect.objectContaining({
       previousStatus: 'ejected',
-      message: 'USB drive removed by user.',
     })
   );
 });
@@ -243,4 +242,139 @@ test('error in ejecting gets logged as expected', async () => {
       error: 'like pieces into place',
     })
   );
+});
+
+describe('usb formatting', () => {
+  test('improperly formatted usb is not mounted', async () => {
+    const mockKiosk = fakeKiosk();
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([
+      fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
+    ]);
+    window.kiosk = mockKiosk;
+
+    const { result } = renderHook(() => useUsbDrive({ logger }));
+
+    await waitFor(() => {
+      expect(result.current.status).toEqual('bad_format');
+    });
+    expect(mockKiosk.mountUsbDrive).not.toHaveBeenCalled();
+
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.UsbDriveDetected,
+      'system',
+      expect.objectContaining({
+        message: 'Unmounted USB drive detected with incompatible file system.',
+      })
+    );
+  });
+
+  test('format unmounted drive and eject', async () => {
+    const mockKiosk = fakeKiosk();
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([
+      fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
+    ]);
+    window.kiosk = mockKiosk;
+
+    const { result } = renderHook(() => useUsbDrive({ logger }));
+
+    await waitFor(() => {
+      expect(result.current.status).toEqual('bad_format');
+    });
+
+    await act(async () => {
+      await result.current.format('poll_worker', { action: 'eject' });
+    });
+
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.UsbDriveFormatInit,
+      'poll_worker'
+    );
+
+    expect(mockKiosk.formatUsbDrive).toHaveBeenCalled();
+    expect(mockKiosk.unmountUsbDrive).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.status).toEqual('ejected');
+    });
+
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.UsbDriveFormatted,
+      'system',
+      expect.objectContaining({
+        disposition: 'success',
+        message:
+          'USB drive successfully formatted with a single FAT32 volume named "VxUSB-XXXXX".',
+      })
+    );
+  });
+
+  test('format mounted drive and re-mount after delay', async () => {
+    jest.useFakeTimers();
+    const mockKiosk = fakeKiosk();
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([
+      fakeUsbDrive({ label: 'label' }),
+    ]);
+    window.kiosk = mockKiosk;
+
+    const { result } = renderHook(() => useUsbDrive({ logger }));
+
+    await waitFor(() => {
+      expect(result.current.status).toEqual('mounted');
+    });
+
+    await act(async () => {
+      const formatPromise = result.current.format('poll_worker', {
+        action: 'mount',
+        actionDelay: 1000,
+      });
+      await waitFor(() => {
+        expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
+      });
+      mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
+      await advanceTimersAndPromises(1); // our delay
+      await waitFor(() => {
+        expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+      });
+      await formatPromise;
+    });
+
+    expect(mockKiosk.formatUsbDrive).toHaveBeenCalled();
+    expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(result.current.status).toEqual('mounted');
+    });
+    expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+  });
+
+  test('format error is logged and thrown', async () => {
+    const mockKiosk = fakeKiosk();
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
+    mockKiosk.formatUsbDrive.mockRejectedValue(new Error('format error'));
+    window.kiosk = mockKiosk;
+
+    const { result } = renderHook(() => useUsbDrive({ logger }));
+
+    await waitFor(() => {
+      expect(result.current.status).toEqual('mounted');
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.format('poll_worker', { action: 'eject' })
+      ).rejects.toThrowError('format error');
+    });
+
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.UsbDriveFormatted,
+      'system',
+      expect.objectContaining({
+        disposition: 'failure',
+        error: 'format error',
+      })
+    );
+  });
 });

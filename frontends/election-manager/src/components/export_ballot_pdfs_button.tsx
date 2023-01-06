@@ -205,6 +205,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
       switch (usbDrive.status) {
         case 'absent':
         case 'ejected':
+        case 'bad_format':
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>

@@ -486,7 +486,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
   userEvent.click(await screen.findByText('Eject USB'));
-  expect(screen.queryByText('Eject USB')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByText('Eject USB')).toBeNull();
+  });
   await advanceTimersAndPromises(1);
   expect(fetchMock.done()).toBe(true);
 });

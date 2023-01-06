@@ -225,6 +225,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       switch (usbDrive.status) {
         case 'absent':
         case 'ejected':
+        case 'bad_format':
           actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
           mainContent = (
             <Prose>

@@ -108,8 +108,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           error: (error as Error).message,
           result: 'USB drive not ejected.',
         });
-        // throw the error so handling can take place in the app
-        throw error;
       }
     },
     [makeCancelable, logger]
@@ -172,6 +170,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           error: (error as Error).message,
           result: 'USB drive not formatted.',
         });
+        // throw the error so handling can take place in the app
+        throw error;
       } finally {
         setIsFormatting(false);
       }
@@ -181,7 +181,9 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
   useInterval(
     async () => {
-      if (isFormatting) return;
+      if (isFormatting || status === 'mounting' || status === 'ejecting') {
+        return;
+      }
 
       const usbDriveInfo = await usbstick.getInfo();
       const previousAvailability = availability.current;
@@ -225,7 +227,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         availability.current === 'absent' &&
         previousAvailability !== 'absent'
       ) {
-        console.log(usbDriveInfo);
         await logger.log(LogEventId.UsbDriveRemoved, 'system', {
           previousStatus: status,
         });

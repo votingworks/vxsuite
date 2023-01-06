@@ -29,12 +29,12 @@ const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
 const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
-test('No USB screen shows when there is no USB drive', async () => {
+test('No USB screen shows when there is no valid USB drive', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
 
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();

@@ -6,6 +6,7 @@ import {
   doEject,
   getPath,
   doSync,
+  doFormat,
 } from './usbstick';
 
 const mountedDevices = [
@@ -89,4 +90,37 @@ test('doSync', async () => {
   await doMount();
   await doSync();
   expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
+});
+
+test('doFormat', async () => {
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+
+  // try format without any drive
+  const formatOptions: KioskBrowser.FormatUsbOptions = {
+    format: 'fat32',
+    name: 'test',
+  };
+  await doFormat(formatOptions);
+  expect(window.kiosk.formatUsbDrive).not.toBeCalled();
+
+  // try format with unmounted drive
+  mockKiosk.getUsbDriveInfo.mockResolvedValue(unmountedDevices);
+  await doFormat(formatOptions);
+  expect(window.kiosk.formatUsbDrive).toHaveBeenNthCalledWith(
+    1,
+    'sdb',
+    formatOptions
+  );
+  expect(window.kiosk.unmountUsbDrive).not.toBeCalled();
+
+  // try format with mounted drive
+  mockKiosk.getUsbDriveInfo.mockResolvedValue(mountedDevices);
+  await doFormat(formatOptions);
+  expect(window.kiosk.formatUsbDrive).toHaveBeenNthCalledWith(
+    2,
+    'sdb',
+    formatOptions
+  );
+  expect(window.kiosk.unmountUsbDrive).toBeCalled();
 });

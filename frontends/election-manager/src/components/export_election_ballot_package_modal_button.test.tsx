@@ -88,7 +88,7 @@ test('Button renders properly when not clicked', () => {
 });
 
 test('Modal renders insert usb screen appropriately', async () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const usbStatus of usbStatuses) {
     const {

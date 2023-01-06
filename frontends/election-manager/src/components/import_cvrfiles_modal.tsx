@@ -301,7 +301,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     );
   }
 
-  if (usbDrive.status === 'absent' || usbDrive.status === 'ejected') {
+  if (
+    usbDrive.status === 'absent' ||
+    usbDrive.status === 'ejected' ||
+    usbDrive.status === 'bad_format'
+  ) {
     return (
       <Modal
         content={

@@ -6,6 +6,7 @@ import { UsbDriveStatus } from '@votingworks/ui';
 import jestFetchMock from 'jest-fetch-mock';
 import React from 'react';
 import { createApiMock } from '../../test/helpers/mock_api_client';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { ApiClientContext } from '../api/api';
 import {
@@ -31,7 +32,7 @@ function renderModal(props: Partial<ExportBackupModalProps> = {}) {
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <ExportBackupModal
         onClose={jest.fn()}
-        usbDrive={{ status: 'mounting', eject: jest.fn() }}
+        usbDrive={mockUsbDrive('mounting')}
         {...props}
       />
     </ApiClientContext.Provider>,
@@ -44,21 +45,21 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const { unmount } = renderModal({
-      usbDrive: { status, eject: jest.fn() },
+      usbDrive: mockUsbDrive(status),
     });
     screen.getByText('Loading');
     unmount();
   }
 });
 
-test('render no USB found screen when there is not a mounted USB drive', () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+test('render no USB found screen when there is not a compatible mounted USB drive', () => {
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const status of usbStatuses) {
     const onClose = jest.fn();
     const { unmount } = renderModal({
       onClose,
-      usbDrive: { status, eject: jest.fn() },
+      usbDrive: mockUsbDrive(status),
     });
     screen.getByText('No USB Drive Detected');
     screen.getByText('Please insert a USB drive to save the backup.');
@@ -77,10 +78,10 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const onClose = jest.fn();
-  const ejectFn = jest.fn();
+  const usbDrive = mockUsbDrive('mounted');
   renderModal({
     onClose,
-    usbDrive: { status: 'mounted', eject: ejectFn },
+    usbDrive,
   });
   screen.getByText('Save Backup');
 
@@ -89,7 +90,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   await screen.findByText('Backup Saved');
 
   userEvent.click(screen.getByText('Eject USB'));
-  expect(ejectFn).toHaveBeenCalled();
+  expect(usbDrive.eject).toHaveBeenCalled();
   userEvent.click(screen.getByText('Cancel'));
   expect(onClose).toHaveBeenCalled();
 });
@@ -101,7 +102,7 @@ test('handles no USB drives', async () => {
   const onClose = jest.fn();
   renderModal({
     onClose,
-    usbDrive: { status: 'mounted', eject: jest.fn() },
+    usbDrive: mockUsbDrive('mounted'),
   });
   screen.getByText('Save Backup');
 
@@ -121,7 +122,7 @@ test('shows errors from the backend', async () => {
   const onClose = jest.fn();
   renderModal({
     onClose,
-    usbDrive: { status: 'mounted', eject: jest.fn() },
+    usbDrive: mockUsbDrive('mounted'),
   });
   screen.getByText('Save Backup');
 

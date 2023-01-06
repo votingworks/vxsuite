@@ -1508,3 +1508,86 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByRole('button', { name: 'Save Ballot as PDF' });
   screen.getByText(/Ballot Package Filename/);
 });
+
+test('usb formatting flows', async () => {
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  mockKiosk.formatUsbDrive.mockImplementation(async () => {
+    await advanceTimersAndPromises(1);
+  });
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.build({
+    connectCardReader: true,
+  });
+  const logger = fakeLogger();
+  renderRootElement(<App card={card} hardware={hardware} />, {
+    logger,
+  });
+
+  await authenticateWithSystemAdministratorCard(card);
+
+  // navigate to modal
+  userEvent.click(screen.getByText('Settings'));
+  screen.getByText('USB Formatting');
+  userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  // initial prompt to insert USB drive
+  within(modal).getByText('No USB Drive Detected');
+
+  // Inserting a USB drive that already is in VotingWorks format, which should mount
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined }),
+  ]);
+  await within(modal).findByText('Loading');
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+
+  // Format USB Drive
+  await within(modal).findByText('Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await within(modal).findByText('Confirm Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined }),
+  ]);
+  await within(modal).findByText('Formatting USB Drive');
+  await within(modal).findByText('USB Drive Formatted');
+  screen.getByText('Ejected');
+
+  // Removing USB resets modal
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  await within(modal).findByText('No USB Drive Detected');
+
+  // Format another USB, this time in an incompatible format
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
+  ]);
+  await within(modal).findByText('Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await within(modal).findByText('Confirm Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined }),
+  ]);
+  await within(modal).findByText('Formatting USB Drive');
+  await within(modal).findByText('USB Drive Formatted');
+  screen.getByText('Ejected');
+
+  // Removing USB resets modal
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  await within(modal).findByText('No USB Drive Detected');
+
+  // Error handling
+  mockKiosk.formatUsbDrive.mockRejectedValueOnce(new Error('unable to format'));
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  await within(modal).findByText('No USB Drive Detected');
+  await within(modal).findByText('Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await within(modal).findByText('Confirm Format USB Drive');
+  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await within(modal).findByText('Failed to Format USB Drive');
+  within(modal).getByText(/unable to format/);
+
+  // Removing USB resets modal
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  await within(modal).findByText('No USB Drive Detected');
+});

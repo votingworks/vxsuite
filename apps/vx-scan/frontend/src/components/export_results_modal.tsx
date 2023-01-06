@@ -136,6 +136,7 @@ export function ExportResultsModal({
   switch (usbDrive.status) {
     case 'absent':
     case 'ejected':
+    case 'bad_format':
       // When run not through kiosk mode let the user download the file
       // on the machine for internal debugging use
       return (
