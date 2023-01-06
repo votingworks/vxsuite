@@ -79,17 +79,16 @@ const errorTagger: Tagger<Error, { message: string }> = {
 
 const resultTagger: Tagger<
   Result<unknown, unknown>,
-  { isOk: boolean; ok: unknown; err: unknown }
+  { isOk: boolean; value: unknown }
 > = {
   tag: 'Result',
   shouldTag: isResult,
   serialize: (value) => ({
     isOk: value.isOk(),
-    ok: value.ok(),
-    err: value.err(),
+    value: value.isOk() ? value.ok() : value.err(),
   }),
   deserialize: (value) => {
-    return value.isOk ? ok(value.ok) : err(value.err);
+    return value.isOk ? ok(value.value) : err(value.value);
   },
 };
 
