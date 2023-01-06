@@ -4,8 +4,7 @@ import { createApi, createClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client';
 
 const api = createApi({
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async add(input: { num1: number; num2: number }): Promise<number> {
+  add(input: { num1: number; num2: number }): number {
     return input.num1 + input.num2;
   },
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -19,6 +18,9 @@ test('creates a mock client', () => {
   // A mock client has a mock function for each method
   expectTypeOf(mockClient.add).toEqualTypeOf<
     MockFunction<(input: { num1: number; num2: number }) => Promise<number>>
+  >();
+  expectTypeOf(mockClient.sqrt).toEqualTypeOf<
+    MockFunction<(input: { num: number }) => Promise<number>>
   >();
   // A mock client can pass as a real client
   expectTypeOf(mockClient).toMatchTypeOf(
