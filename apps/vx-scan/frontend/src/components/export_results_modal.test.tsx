@@ -63,6 +63,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderModal({
       usbDrive: mockUsbDrive(status),
+      onClose: closeFn,
     });
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
