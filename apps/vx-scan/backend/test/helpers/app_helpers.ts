@@ -8,7 +8,6 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
 import { ElectionDefinition, ok, PrecinctId, Result } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import {
@@ -34,6 +33,7 @@ import {
 } from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 import { Usb } from '../../src/util/usb';
+import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
 
 // TODO(jonah) - Is there a way to ensure Grout always has access to node-fetch
 // in a node environment?
@@ -108,8 +108,8 @@ export function createMockUsb(): MockUsb {
 export async function expectStatus(
   apiClient: grout.Client<Api>,
   expectedStatus: {
-    state: Scan.PrecinctScannerState;
-  } & Partial<Scan.PrecinctScannerStatus>
+    state: PrecinctScannerState;
+  } & Partial<PrecinctScannerStatus>
 ): Promise<void> {
   const status = await apiClient.getScannerStatus();
   expect(status).toEqual({
@@ -126,8 +126,8 @@ export async function expectStatus(
 export async function waitForStatus(
   apiClient: grout.Client<Api>,
   status: {
-    state: Scan.PrecinctScannerState;
-  } & Partial<Scan.PrecinctScannerStatus>
+    state: PrecinctScannerState;
+  } & Partial<PrecinctScannerStatus>
 ): Promise<void> {
   await waitForExpect(async () => {
     await expectStatus(apiClient, status);

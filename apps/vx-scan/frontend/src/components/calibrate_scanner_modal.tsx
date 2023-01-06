@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Scan } from '@votingworks/api';
 import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { useApiClient } from '../api/api';
 
 export interface CalibrateScannerModalProps {
-  scannerStatus: Scan.PrecinctScannerStatus;
+  scannerStatus: PrecinctScannerStatus;
   onCancel: VoidFunction;
 }
 

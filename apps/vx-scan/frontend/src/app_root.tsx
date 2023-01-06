@@ -28,7 +28,8 @@ import {
 } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { Scan } from '@votingworks/api';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerConfig } from '@votingworks/vx-scan-backend';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
@@ -71,7 +72,7 @@ interface HardwareState {
   machineConfig: Readonly<MachineConfig>;
 }
 
-export interface State extends HardwareState, Scan.PrecinctScannerConfig {
+export interface State extends HardwareState, PrecinctScannerConfig {
   isBackendStateLoaded: boolean;
 }
 
@@ -82,9 +83,16 @@ const initialHardwareState: Readonly<HardwareState> = {
   },
 };
 
+const initialPrecinctScannerConfig: PrecinctScannerConfig = {
+  isSoundMuted: false,
+  isTestMode: true,
+  pollsState: 'polls_closed_initial',
+  ballotCountWhenBallotBagLastReplaced: 0,
+};
+
 const initialState: Readonly<State> = {
   ...initialHardwareState,
-  ...Scan.InitialPrecinctScannerConfig,
+  ...initialPrecinctScannerConfig,
   isBackendStateLoaded: false,
 };
 
@@ -94,7 +102,7 @@ type AppAction =
   | { type: 'resetElectionSession' }
   | {
       type: 'refreshStateFromBackend';
-      scannerConfig: Scan.PrecinctScannerConfig;
+      scannerConfig: PrecinctScannerConfig;
     }
   | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
   | {

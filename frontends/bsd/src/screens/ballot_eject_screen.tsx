@@ -3,6 +3,7 @@ import {
   AdjudicationReason,
   Contest,
   PageInterpretation,
+  Side,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
@@ -236,7 +237,7 @@ export function BallotEjectScreen({
 
   for (const reviewPageInfo of [
     {
-      side: 'front' as Scan.Side,
+      side: 'front' as Side,
       imageUrl: reviewInfo.interpreted.front.image.url,
       interpretation: reviewInfo.interpreted.front.interpretation,
       layout: reviewInfo.layouts.front,
@@ -245,7 +246,7 @@ export function BallotEjectScreen({
         reviewInfo.interpreted.front.adjudicationFinishedAt,
     },
     {
-      side: 'back' as Scan.Side,
+      side: 'back' as Side,
       imageUrl: reviewInfo.interpreted.back.image.url,
       interpretation: reviewInfo.interpreted.back.interpretation,
       layout: reviewInfo.layouts.back,

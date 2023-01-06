@@ -2,12 +2,12 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { Scan } from '@votingworks/api';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
+  AdjudicationStatus,
   AnyContest,
   BallotMetadata,
   BallotMetadataSchema,
@@ -17,6 +17,7 @@ import {
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
+  BatchInfo,
   ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -36,6 +37,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
+  Side,
 } from '@votingworks/types';
 import { assert, BallotPackageEntry, find } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -793,7 +795,7 @@ export class Store {
 
   getBallotFilenames(
     sheetId: string,
-    side: Scan.Side
+    side: Side
   ): { original: string; normalized: string } | undefined {
     const row = this.client.one<[string]>(
       `
@@ -958,7 +960,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): Scan.BatchInfo[] {
+  batchStatus(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       label: string;
@@ -1008,7 +1010,7 @@ export class Store {
   /**
    * Gets adjudication status.
    */
-  adjudicationStatus(): Scan.AdjudicationStatus {
+  adjudicationStatus(): AdjudicationStatus {
     const { remaining } = this.client.one(`
         select count(*) as remaining
         from sheets

@@ -1,6 +1,5 @@
 import { AdjudicationReason, err, ok } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
-import { Scan } from '@votingworks/api';
 import { Logger } from '@votingworks/logging';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import { PrecinctScannerInterpreter } from './interpret';
@@ -11,6 +10,7 @@ import {
   expectStatus,
   waitForStatus,
 } from '../test/helpers/app_helpers';
+import { SheetInterpretation } from './types';
 
 jest.setTimeout(20_000);
 
@@ -62,7 +62,7 @@ export function checkLogs(logger: Logger): void {
  */
 function mockInterpretation(
   interpreter: PrecinctScannerInterpreter,
-  interpretation: Scan.SheetInterpretation
+  interpretation: SheetInterpretation
 ) {
   jest.spyOn(interpreter, 'interpret').mockResolvedValue(
     ok({
@@ -92,7 +92,7 @@ test('configure and scan hmpb', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
 
@@ -131,7 +131,7 @@ test('configure and scan bmd ballot', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
 
@@ -163,7 +163,7 @@ test('configure and scan bmd ballot', async () => {
   checkLogs(logger);
 });
 
-const needsReviewInterpretation: Scan.SheetInterpretation = {
+const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',
   reasons: [{ type: AdjudicationReason.BlankBallot }],
 };
@@ -258,7 +258,7 @@ test('invalid ballot rejected', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
@@ -297,7 +297,7 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_precinct',
   };
@@ -322,7 +322,7 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
   await configureApp(apiClient, mockUsb, { precinctId: '23' });
   // Configure for the proper precinct and verify the ballot scans
 
-  const validInterpretation: Scan.SheetInterpretation = {
+  const validInterpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
 
@@ -352,7 +352,7 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_precinct',
   };
@@ -380,7 +380,7 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
   });
   // Configure for the proper precinct and verify the ballot scans
 
-  const validInterpretation: Scan.SheetInterpretation = {
+  const validInterpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
 
@@ -404,7 +404,7 @@ test('blank sheet ballot rejected', async () => {
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'unknown',
   };
@@ -462,7 +462,7 @@ test('scanner powered off while accepting', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
@@ -494,7 +494,7 @@ test('scanner powered off after accepting', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
@@ -532,7 +532,7 @@ test('scanner powered off while rejecting', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
@@ -660,7 +660,7 @@ test('insert second ballot before first ballot accept', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
@@ -701,7 +701,7 @@ test('insert second ballot while first ballot is accepting', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
@@ -772,7 +772,7 @@ test('insert second ballot while first ballot is rejecting', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
@@ -881,7 +881,7 @@ test('jam on accept', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);
@@ -946,7 +946,7 @@ test('jam on reject', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
@@ -999,7 +999,7 @@ test('scan fails and retries', async () => {
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.SheetInterpretation = {
+  const interpretation: SheetInterpretation = {
     type: 'ValidSheet',
   };
   mockInterpretation(interpreter, interpretation);

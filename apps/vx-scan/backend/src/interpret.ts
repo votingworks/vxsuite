@@ -15,7 +15,6 @@ import {
   mapSheet,
   SheetOf,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
@@ -24,6 +23,7 @@ import { time } from '@votingworks/utils';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';
+import { SheetInterpretation } from './types';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
@@ -44,7 +44,7 @@ export interface PrecinctScannerInterpreter {
   interpret(
     sheetId: Id,
     sheet: SheetOf<string>
-  ): Promise<Result<SheetInterpretation, Error>>;
+  ): Promise<Result<SheetInterpretationWithPages, Error>>;
 }
 
 /**
@@ -52,13 +52,13 @@ export interface PrecinctScannerInterpreter {
  * result for the sheet as a whole and the individual page (i.e. front and back)
  * interpretations.
  */
-export type SheetInterpretation = Scan.SheetInterpretation & {
+export type SheetInterpretationWithPages = SheetInterpretation & {
   pages: SheetOf<PageInterpretationWithFiles>;
 };
 
 function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>
-): Scan.SheetInterpretation {
+): SheetInterpretation {
   const [front, back] = pages;
   const frontType = front.interpretation.type;
   const backType = back.interpretation.type;

@@ -8,6 +8,8 @@ import {
   Id,
   IdSchema,
   Iso8601Date,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
   NewType,
   Optional,
   safeParse,
@@ -1054,6 +1056,38 @@ export const AdjudicationInfoSchema: z.ZodSchema<AdjudicationInfo> = z.object({
   enabledReasons: z.array(AdjudicationReasonSchema),
   enabledReasonInfos: z.array(AdjudicationReasonInfoSchema),
   ignoredReasonInfos: z.array(AdjudicationReasonInfoSchema),
+});
+
+export interface AdjudicationStatus {
+  adjudicated: number;
+  remaining: number;
+}
+
+export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> =
+  z.object({
+    adjudicated: z.number(),
+    remaining: z.number(),
+  });
+
+export type Side = 'front' | 'back';
+export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
+
+export interface BatchInfo {
+  id: string;
+  label: string;
+  startedAt: Iso8601Timestamp;
+  endedAt?: Iso8601Timestamp;
+  error?: string;
+  count: number;
+}
+
+export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
+  id: IdSchema,
+  label: z.string(),
+  startedAt: Iso8601TimestampSchema,
+  endedAt: z.optional(Iso8601TimestampSchema),
+  error: z.optional(z.string()),
+  count: z.number().nonnegative(),
 });
 
 export interface InlineBallotImage {

@@ -1,7 +1,7 @@
-import { Scan } from '@votingworks/api';
+import { ExportDataError } from '@votingworks/data';
 import { FULL_LOG_PATH } from '@votingworks/logging';
-import { err } from '@votingworks/types';
-import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import { ok, Result } from '@votingworks/types';
+import { assert, generateElectionBasedSubfolderName } from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import { createReadStream, existsSync } from 'fs-extra';
@@ -222,18 +222,12 @@ export async function backupToUsbDrive(
   store: Store,
   usb: Usb,
   options: BackupOptions = {}
-): Promise<Scan.BackupResult> {
+): Promise<Result<void, ExportDataError>> {
   const electionDefinition = store.getElectionDefinition();
-
-  if (!electionDefinition) {
-    return err({
-      type: 'no-election',
-      message: 'Cannot backup without election configuration',
-    });
-  }
+  assert(electionDefinition, 'Cannot backup without election configuration');
 
   const exporter = buildExporter(usb);
-  return await exporter.exportDataToUsbDrive(
+  const result = await exporter.exportDataToUsbDrive(
     'scanner-backups',
     `${generateElectionBasedSubfolderName(
       electionDefinition.election,
@@ -241,4 +235,5 @@ export async function backupToUsbDrive(
     )}/${new Date().toISOString().replace(/[^-a-z0-9]+/gi, '-')}-backup.zip`,
     backup(store, options)
   );
+  return result.isErr() ? result : ok();
 }

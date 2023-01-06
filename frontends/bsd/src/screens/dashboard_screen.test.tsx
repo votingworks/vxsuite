@@ -1,12 +1,13 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Scan } from '@votingworks/api';
+import { AdjudicationStatus } from '@votingworks/types';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { DashboardScreen } from './dashboard_screen';
 
-const noneLeftAdjudicationStatus: Scan.AdjudicationStatus = {
+const noneLeftAdjudicationStatus: AdjudicationStatus = {
   adjudicated: 0,
   remaining: 0,
 };
