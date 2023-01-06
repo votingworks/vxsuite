@@ -166,6 +166,8 @@ export function buildRouter(
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         debug(`Error: ${message}`);
+        // eslint-disable-next-line no-console
+        console.error(error); // To aid debugging, log the full error with stack trace
         response.status(500).json({ message });
       }
     });

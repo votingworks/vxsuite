@@ -90,6 +90,7 @@ test('registers Express routes for an API', async () => {
 });
 
 test('sends a 500 for unexpected errors', async () => {
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
   const api = createApi({
     async getStuff(): Promise<number> {
       throw new Error('Unexpected error');
@@ -105,6 +106,11 @@ test('sends a 500 for unexpected errors', async () => {
 
   await expect(client.getStuff()).rejects.toThrow('Unexpected error');
   await expect(client.doStuff()).rejects.toThrow('Not even an Error');
+
+  expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Unexpected error'));
+  expect(consoleErrorSpy).toHaveBeenCalledWith('Not even an Error');
+
   server.close();
 });
 
