@@ -1,8 +1,5 @@
-/* eslint-disable vx/gts-identifiers */
-/* eslint-disable vx/gts-type-parameters */
 import { deserialize, serialize } from './serialization';
-// eslint-disable-next-line vx/gts-no-import-export-type
-import type { AnyApi, inferApiMethods } from './server';
+import { AnyApi, inferApiMethods } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
@@ -10,7 +7,7 @@ const debug = rootDebug.extend('client');
 /**
  * A Grout RPC client based on the type of an API definition.
  */
-export type Client<TApi extends AnyApi> = inferApiMethods<TApi>;
+export type Client<Api extends AnyApi> = inferApiMethods<Api>;
 
 /**
  * Options for creating a Grout RPC client.
@@ -48,14 +45,14 @@ export class ServerError extends Error {}
  * server error.
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-export function createClient<TApi extends AnyApi>(
+export function createClient<Api extends AnyApi>(
   options: ClientOptions
-): Client<TApi> {
+): Client<Api> {
   // We use a Proxy to create a client object that fakes the type of the API but
   // dynamically converts method calls into HTTP requests. When accessing
   // client.doSomething(), the variable methodName will be "doSomething" -
   // that's the magic of the Proxy!
-  return new Proxy({} as unknown as Client<TApi>, {
+  return new Proxy({} as unknown as Client<Api>, {
     get(_target, methodName: string) {
       return async (input?: unknown) => {
         const inputJson = serialize(input);
