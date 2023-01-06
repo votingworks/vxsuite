@@ -89,8 +89,8 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
           <Prose>
             <h1>Confirm Format USB Drive</h1>
             <p>
-              <strong>Warning:</strong> Any files currently on the USB drive
-              will be deleted. Make sure you have backed up any important files.
+              <strong>Warning:</strong> formatting will delete all files on the
+              USB drive. Back up USB drive files before formatting.
             </p>
           </Prose>
         }
@@ -142,9 +142,9 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
             <Prose>
               <h1>Format USB Drive</h1>
               <p>
-                Format the inserted USB drive to be compatible with VotingWorks
-                devices? Formatting will delete any files currently saved to the
-                USB drive.
+                {usbDrive.status === 'bad_format'
+                  ? 'The format of the inserted USB drive is not VotingWorks compatible. Would you like to format the USB drive?'
+                  : 'The format of the inserted USB drive is already VotingWorks compatible. Would you like to re-format the USB drive?'}
               </p>
             </Prose>
           }

@@ -1543,6 +1543,7 @@ test('usb formatting flows', async () => {
 
   // Format USB Drive
   await within(modal).findByText('Format USB Drive');
+  within(modal).getByText(/already VotingWorks compatible/);
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
   await within(modal).findByText('Confirm Format USB Drive');
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
@@ -1562,6 +1563,7 @@ test('usb formatting flows', async () => {
     fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
   ]);
   await within(modal).findByText('Format USB Drive');
+  within(modal).getByText(/not VotingWorks compatible/);
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
   await within(modal).findByText('Confirm Format USB Drive');
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
