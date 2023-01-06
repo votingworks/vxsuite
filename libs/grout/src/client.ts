@@ -1,8 +1,16 @@
+import nodeFetch from 'node-fetch';
 import { deserialize, serialize } from './serialization';
 import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
+
+// If we're in Node.js, use node-fetch instead of the browser's fetch.
+if (!global.fetch) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  global.fetch = nodeFetch;
+}
 
 /**
  * Wraps a method's return type in a Promise if it isn't already a Promise.
