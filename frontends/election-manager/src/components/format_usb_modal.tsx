@@ -30,7 +30,7 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
   const format = useCallback(async () => {
     setState('formatting');
     try {
-      await usbDrive.format(userRole, { action: 'eject', actionDelay: 2000 });
+      await usbDrive.format(userRole, { action: 'eject' });
       setState('done');
     } catch (error) {
       setState('error');

@@ -38,7 +38,6 @@ function generateVxUsbLabel(usbDriveInfo: KioskBrowser.UsbDriveInfo): string {
 
 export interface PostFormatUsbOptions {
   action: 'mount' | 'eject';
-  actionDelay?: number;
 }
 
 export type UsbDriveStatus =
@@ -151,12 +150,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           disposition: 'success',
           message: `USB drive successfully formatted with a single FAT32 volume named "${name}".`,
         });
-
-        // UI flow may require a delay to show the result of the format
-        // operation before mounting or ejecting.
-        if (options.actionDelay) {
-          await sleep(options.actionDelay);
-        }
 
         if (options.action === 'mount') {
           await mount();

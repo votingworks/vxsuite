@@ -327,13 +327,11 @@ describe('usb formatting', () => {
     await act(async () => {
       const formatPromise = result.current.format('poll_worker', {
         action: 'mount',
-        actionDelay: 1000,
       });
       await waitFor(() => {
         expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
       });
       mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
-      await advanceTimersAndPromises(1); // our delay
       await waitFor(() => {
         expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
       });
