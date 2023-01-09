@@ -107,8 +107,7 @@ function buildApi(
       return ok();
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async getConfig(): Promise<PrecinctScannerConfig> {
+    getConfig(): PrecinctScannerConfig {
       return {
         electionDefinition: store.getElectionDefinition(),
         precinctSelection: store.getPrecinctSelection(),
@@ -121,10 +120,7 @@ function buildApi(
       };
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async unconfigureElection(input: {
-      ignoreBackupRequirement?: boolean;
-    }): Promise<void> {
+    unconfigureElection(input: { ignoreBackupRequirement?: boolean }): void {
       assert(
         input.ignoreBackupRequirement || store.getCanUnconfigure(),
         'Attempt to unconfigure without backup'
@@ -133,10 +129,9 @@ function buildApi(
       workspace.reset();
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async setPrecinctSelection(input: {
+    setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
-    }): Promise<void> {
+    }): void {
       assert(
         store.getBallotsCounted() === 0,
         'Attempt to change precinct selection after ballots have been cast'
@@ -145,20 +140,17 @@ function buildApi(
       workspace.resetElectionSession();
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async setMarkThresholdOverrides(input: {
+    setMarkThresholdOverrides(input: {
       markThresholdOverrides?: MarkThresholds;
-    }): Promise<void> {
+    }): void {
       store.setMarkThresholdOverrides(input.markThresholdOverrides);
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
+    setIsSoundMuted(input: { isSoundMuted: boolean }): void {
       store.setIsSoundMuted(input.isSoundMuted);
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async setTestMode(input: { isTestMode: boolean }): Promise<void> {
+    setTestMode(input: { isTestMode: boolean }): void {
       workspace.resetElectionSession();
       store.setTestMode(input.isTestMode);
     },
@@ -246,8 +238,7 @@ function buildApi(
       return castVoteRecords;
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async getScannerStatus(): Promise<PrecinctScannerStatus> {
+    getScannerStatus(): PrecinctScannerStatus {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
       const canUnconfigure = store.getCanUnconfigure();
@@ -277,13 +268,11 @@ function buildApi(
       machine.scan();
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async acceptBallot(): Promise<void> {
+    acceptBallot(): void {
       machine.accept();
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async returnBallot(): Promise<void> {
+    returnBallot(): void {
       machine.return();
     },
 

@@ -37,9 +37,7 @@ test('registers Express routes for an API', async () => {
     async getAllPeople(): Promise<Person[]> {
       return store.people;
     },
-    async getPersonByName(input: {
-      name: string;
-    }): Promise<Person | undefined> {
+    getPersonByName(input: { name: string }): Person | undefined {
       return store.people.find((person) => person.name === input.name);
     },
     async createPerson(input: { person: Person }) {

@@ -3,10 +3,15 @@ import {
   MockFunction,
   MockFunctionError,
 } from '@votingworks/test-utils';
-import { AnyApi, AnyMethods, inferApiMethods } from '@votingworks/grout';
+import {
+  AnyApi,
+  AnyMethods,
+  AsyncFunction,
+  inferApiMethods,
+} from '@votingworks/grout';
 
 type MockMethods<Methods extends AnyMethods> = {
-  [Method in keyof Methods]: MockFunction<Methods[Method]>;
+  [Method in keyof Methods]: MockFunction<AsyncFunction<Methods[Method]>>;
 };
 
 interface MockHelpers {

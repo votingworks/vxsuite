@@ -25,20 +25,20 @@ interface Person {
 
 // Create an API definition by building an object with async methods.
 const api = grout.createApi({
-  // Each method should return a Promise. The data returned should be simple TS
-  // values - not fancy class instances. Values that can be easily serialized to
-  // JSON. More details on this below.
-  async getAllPeople(): Promise<Person[]> {
+  // Each method should return simple TS values - not fancy class instances.
+  // Values that can be easily serialized to JSON. More details on this below.
+  getAllPeople(): Person[] {
     return store.getAllPeople(); // Assume this accesses the database, etc.
   },
 
   // Methods can take input, but it must be packaged into a single object.
   // Think of it like using named parameters, or React component props.
-  async getPersonByName(input: { name: string }): Promise<Person | undefined> {
+  getPersonByName(input: { name: string }): Person | undefined {
     return store.getPersonByName(input.name);
   },
 
-  // For known errors (e.g. invalid input), use a Result type so that the client
+  // Async methods are supported, just wrap the return type with a Promise. For
+  // known errors (e.g. invalid input), use a Result type so that the client is
   // forced to handle them explicitly.
   async updatePersonAge(input: {
     name: string;
@@ -81,7 +81,8 @@ const baseUrl = '/api';
 // Create the client using MyApi as a type parameter.
 const apiClient = grout.createClient<MyApi>({ baseUrl });
 
-// Now we can call the API methods we defined as normal functions.
+// Now we can call the API methods we defined as normal functions. Note that all
+// the methods are async now, since there's a network request involved.
 await apiClient.getAllPeople(); // => [{ name: 'Alice', age: 99 }, ...]
 await apiClient.getPersonByName({ name: 'Bob' }); // => { name: 'Bob', age: 42 }
 await apiClient.updatePersonAge({ name: 'Bob', age: 43 }); // => ok()

@@ -10,8 +10,8 @@ const debug = rootDebug.extend('server');
  * A Grout RPC method.
  *
  * A method must take either no arguments or a single object argument (which
- * is intended to be used as a dictionary of named parameters). The return value
- * must be a Promise.
+ * is intended to be used as a dictionary of named parameters). It may be either
+ * sync or async (i.e. return a plain value or a Promise).
  *
  * Method input and output values must be serializable to JSON and
  * deserializable from JSON. Grout supports built-in JSON types as well as some
@@ -19,15 +19,14 @@ const debug = rootDebug.extend('server');
  * specifics.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyRpcMethod = (input: any) => Promise<any>;
+export type AnyRpcMethod = (input: any) => any;
 // Notes(jonah):
 // - We can't enforce the constraints on method input at compile time, because
 //  function argument subtyping is contravariant, meaning that for an RPC method to
 //  be a subtype of AnyRpcMethod, its input must be a supertype of
-//  Parameters<AnyRPCMethod>. Function return value subtyping is covariant, which
-//  is why we can enforce the Promise constraint there. Maybe there's another
-//  approach that would work, but I couldn't figure it out. Instead I opted to
-//  just put in runtime checks during serialization/deserialization.
+//  Parameters<AnyRPCMethod>. Maybe there's another approach that would work,
+//  but I couldn't figure it out. Instead I opted to just put in runtime checks
+//  during serialization/deserialization.
 //
 // - There are a few reasons behind having one single input argument object:
 //   - Input parameters will be named in the serialized JSON, which will
@@ -55,7 +54,7 @@ export type Api<Methods extends AnyMethods> = Methods;
 export type AnyApi = Api<AnyMethods>;
 
 /**
- * Helper to extract the method type from an API definition type
+ * Helper to extract the method types from an API definition type
  */
 export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
   infer Methods

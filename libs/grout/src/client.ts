@@ -1,13 +1,27 @@
 import { deserialize, serialize } from './serialization';
-import { AnyApi, inferApiMethods } from './server';
+import { AnyApi, AnyMethods, inferApiMethods } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
 
 /**
+ * Wraps a function's return type in a Promise if it isn't already a Promise.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AsyncFunction<F extends (...args: any) => any> = (
+  ...args: Parameters<F>
+) => ReturnType<F> extends Promise<infer R>
+  ? Promise<R>
+  : Promise<ReturnType<F>>;
+
+type ClientMethods<Methods extends AnyMethods> = {
+  [Method in keyof Methods]: AsyncFunction<Methods[Method]>;
+};
+
+/**
  * A Grout RPC client based on the type of an API definition.
  */
-export type Client<Api extends AnyApi> = inferApiMethods<Api>;
+export type Client<Api extends AnyApi> = ClientMethods<inferApiMethods<Api>>;
 
 /**
  * Options for creating a Grout RPC client.
@@ -34,7 +48,7 @@ export class ServerError extends Error {}
  * import the API definition type using `import type` to avoid importing the
  * server code.
  *
- * API methods can be called just like any regular function. For example:
+ * API methods can be called just like any regular async function. For example:
  *
  *  import type { MyApi } from 'my-api-server-package';
  *  const options = { baseUrl: 'http://localhost:1234/api' };
