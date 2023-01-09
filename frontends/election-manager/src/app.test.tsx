@@ -1538,7 +1538,10 @@ test('usb formatting flows', async () => {
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
-  await within(modal).findByText('Loading');
+  await waitFor(async () => {
+    within(await screen.findByRole('alertdialog')).getByText('Loading');
+  });
+
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   // Format USB Drive
