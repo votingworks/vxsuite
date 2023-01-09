@@ -1529,18 +1529,25 @@ test('usb formatting flows', async () => {
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('USB Formatting');
   userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
-  const modal = await screen.findByRole('alertdialog');
+
+  // Because the "No USB Drive Detected" and other modals are distinct in the
+  // DOM, we need to continually refresh our reference to the modal
+  async function findModal(text: string) {
+    return waitFor(() => {
+      const currentModal = screen.getByRole('alertdialog');
+      within(currentModal).getByText(text);
+      return currentModal;
+    });
+  }
 
   // initial prompt to insert USB drive
-  within(modal).getByText('No USB Drive Detected');
+  let modal = await findModal('No USB Drive Detected');
 
   // Inserting a USB drive that already is in VotingWorks format, which should mount
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
-  await waitFor(async () => {
-    within(await screen.findByRole('alertdialog')).getByText('Loading');
-  });
+  modal = await findModal('Loading');
 
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
@@ -1559,13 +1566,13 @@ test('usb formatting flows', async () => {
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  await within(modal).findByText('No USB Drive Detected');
+  modal = await findModal('No USB Drive Detected');
 
   // Format another USB, this time in an incompatible format
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
   ]);
-  await within(modal).findByText('Format USB Drive');
+  modal = await findModal('Format USB Drive');
   within(modal).getByText(/not VotingWorks compatible/);
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
   await within(modal).findByText('Confirm Format USB Drive');
@@ -1579,13 +1586,11 @@ test('usb formatting flows', async () => {
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  await within(modal).findByText('No USB Drive Detected');
-
+  modal = await findModal('No USB Drive Detected');
   // Error handling
   mockKiosk.formatUsbDrive.mockRejectedValueOnce(new Error('unable to format'));
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  await within(modal).findByText('No USB Drive Detected');
-  await within(modal).findByText('Format USB Drive');
+  modal = await findModal('Format USB Drive');
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
   await within(modal).findByText('Confirm Format USB Drive');
   userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
@@ -1594,5 +1599,5 @@ test('usb formatting flows', async () => {
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  await within(modal).findByText('No USB Drive Detected');
+  modal = await findModal('No USB Drive Detected');
 });
