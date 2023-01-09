@@ -4,7 +4,7 @@ import { useCancelablePromise } from '@votingworks/ui';
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { useRef, useState } from 'react';
 import useInterval from 'use-interval';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 
 export function usePrecinctScannerStatus(

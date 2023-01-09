@@ -3,7 +3,7 @@ import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 export interface CalibrateScannerModalProps {
   scannerStatus: PrecinctScannerStatus;

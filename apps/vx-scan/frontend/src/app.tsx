@@ -16,7 +16,7 @@ import type { Api } from '@votingworks/vx-scan-backend';
 import { AppRoot, Props as AppRootProps } from './app_root';
 
 import { machineConfigProvider } from './utils/machine_config';
-import { ApiClientContext } from './api/api';
+import { ApiClientContext } from './api';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];

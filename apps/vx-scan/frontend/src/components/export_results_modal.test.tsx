@@ -16,8 +16,12 @@ import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { createApiMock } from '../../test/helpers/mock_api_client';
+<<<<<<< HEAD
 import { ApiClientContext } from '../api/api';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+=======
+import { ApiClientContext } from '../api';
+>>>>>>> aeeda048d (Move src/api/api.ts -> src/api.ts)
 
 const apiMock = createApiMock();
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };

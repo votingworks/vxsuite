@@ -12,7 +12,7 @@ import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;

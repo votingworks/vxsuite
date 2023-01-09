@@ -13,7 +13,7 @@ import { mockOf } from '@votingworks/test-utils';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext } from '../api';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {

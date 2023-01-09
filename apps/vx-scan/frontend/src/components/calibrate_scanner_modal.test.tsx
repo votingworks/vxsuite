@@ -8,7 +8,7 @@ import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,
 } from './calibrate_scanner_modal';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext } from '../api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const fakeScannerStatus: PrecinctScannerStatus = {

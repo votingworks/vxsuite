@@ -21,7 +21,7 @@ import {
 } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext } from '../api';
 import { AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,

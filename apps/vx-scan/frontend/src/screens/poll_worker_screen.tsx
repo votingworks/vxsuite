@@ -61,7 +61,7 @@ import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 

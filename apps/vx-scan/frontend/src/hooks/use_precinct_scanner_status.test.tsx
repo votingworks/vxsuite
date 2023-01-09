@@ -5,7 +5,7 @@ import { advanceTimersAndPromises } from '@votingworks/test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { usePrecinctScannerStatus } from './use_precinct_scanner_status';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext } from '../api';
 import {
   createApiMock,
   statusNoPaper,

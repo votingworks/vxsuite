@@ -16,7 +16,7 @@ import {
   machineConfig,
   renderInAppContext,
 } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext } from '../api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();

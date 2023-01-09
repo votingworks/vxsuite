@@ -11,7 +11,7 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 import { IndeterminateProgressBar } from '../components/graphics';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;

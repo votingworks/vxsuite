@@ -36,7 +36,7 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { useSound } from '../hooks/use_sound';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 const ResponsiveButtonParagraph = styled.p`
   @media (orientation: portrait) {

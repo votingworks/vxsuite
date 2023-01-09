@@ -13,7 +13,7 @@ import {
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
-import { useApiClient } from '../api/api';
+import { useApiClient } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
