@@ -7,7 +7,6 @@ import {
   Prose,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-  LinkButton,
   Loading,
   UsbImage,
 } from '@votingworks/ui';
@@ -52,7 +51,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
             <Modal
               content={<Loading />}
               onOverlayClick={onClose}
-              actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
+              actions={<Button onPress={onClose}>Cancel</Button>}
             />
           );
         case 'ejected':
@@ -79,7 +78,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
                   >
                     Format USB
                   </Button>
-                  <LinkButton onPress={onClose}>Cancel</LinkButton>
+                  <Button onPress={onClose}>Cancel</Button>
                 </React.Fragment>
               }
             />
@@ -128,7 +127,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+          actions={<Button onPress={onClose}>Close</Button>}
         />
       );
     case 'error':
