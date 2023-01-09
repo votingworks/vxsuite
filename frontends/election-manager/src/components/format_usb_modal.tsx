@@ -67,7 +67,7 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
           <Prose>
             <h1>USB Drive Formatted</h1>
             <p>
-              USB drive successfully re-formatted. It is now ready to use with
+              USB drive successfully reformatted. It is now ready to use with
               VotingWorks devices.
             </p>
           </Prose>
@@ -144,7 +144,7 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
               <p>
                 {usbDrive.status === 'bad_format'
                   ? 'The format of the inserted USB drive is not VotingWorks compatible. Would you like to format the USB drive?'
-                  : 'The format of the inserted USB drive is already VotingWorks compatible. Would you like to re-format the USB drive?'}
+                  : 'The format of the inserted USB drive is already VotingWorks compatible. Would you like to reformat the USB drive?'}
               </p>
             </Prose>
           }

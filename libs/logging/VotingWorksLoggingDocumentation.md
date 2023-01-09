@@ -80,7 +80,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### usb-drive-format-init
 **Type:** [user-action](#user-action)  
-**Description:** A request to format the current USB drive was made by the user. The usb drive will now be re-formatted for compatibility with VotingWorks software.  
+**Description:** A request to format the current USB drive was made by the user. The usb drive will now be reformatted for compatibility with VotingWorks software.  
 **Machines:** All
 ### usb-drive-format-complete
 **Type:** [application-status](#application-status)  

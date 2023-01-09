@@ -226,7 +226,7 @@ const UsbDriveFormatInit: LogDetails = {
   eventId: LogEventId.UsbDriveFormatInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A request to format the current USB drive was made by the user. The usb drive will now be re-formatted for compatibility with VotingWorks software.',
+    'A request to format the current USB drive was made by the user. The usb drive will now be reformatted for compatibility with VotingWorks software.',
   defaultMessage: 'Attempting to reformat USB drive based on user request...',
 };
 
