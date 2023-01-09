@@ -167,6 +167,7 @@ importers:
   apps/vx-scan/frontend:
     dependencies:
       '@rooks/use-interval': 4.11.2_react@17.0.1
+      '@tanstack/react-query': 4.22.0_react-dom@17.0.1+react@17.0.1
       '@testing-library/jest-dom': 5.16.4
       '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@types/jest': 24.9.1
@@ -263,6 +264,7 @@ importers:
     specifiers:
       '@codemod/parser': ^1.0.6
       '@rooks/use-interval': ^4.11.2
+      '@tanstack/react-query': ^4.22.0
       '@testing-library/jest-dom': ^5.11.4
       '@testing-library/react': ^12.1.5
       '@testing-library/react-hooks': ^7.0.2
@@ -11206,7 +11208,6 @@ packages:
     resolution:
       integrity: sha512-zdt5lYWs1dZaA3IxJbCgtAfHZJScRZONpiLL7YkeOkrme5MfjQqTpjq7LYbzpyuwPOh2Jx68le0PLl57JFv5hQ==
   /@tanstack/query-core/4.22.0:
-    dev: true
     resolution:
       integrity: sha512-OeLyBKBQoT265f5G9biReijeP8mBxNFwY7ZUu1dKL+YzqpG5q5z7J/N1eT8aWyKuhyDTiUHuKm5l+oIVzbtrjw==
   /@tanstack/react-query-devtools/4.3.9_c35f85980f456f36adab49b5c175683e:
@@ -11248,7 +11249,6 @@ packages:
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       use-sync-external-store: 1.2.0_react@17.0.1
-    dev: true
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
