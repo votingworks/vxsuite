@@ -38,7 +38,7 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
     }
   }, [usbDrive, userRole]);
 
-  // Handle USB drive being removed during stages of the  process
+  // Handle USB drive being removed during stages of the process
   useEffect(() => {
     if (usbDrive.status === 'absent') {
       setState('init');
