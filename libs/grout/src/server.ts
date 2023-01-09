@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-type-parameters */
-/* eslint-disable vx/gts-identifiers */
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type Express from 'express';
 import { rootDebug } from './debug';
@@ -49,7 +47,7 @@ export interface AnyMethods {
 /**
  * Type for a specific API definition returned by createApi.
  */
-export type Api<TMethods extends AnyMethods> = TMethods;
+export type Api<Methods extends AnyMethods> = Methods;
 
 /**
  * Base type for any API definition.
@@ -59,10 +57,10 @@ export type AnyApi = Api<AnyMethods>;
 /**
  * Helper to extract the method type from an API definition type
  */
-export type inferApiMethods<TApi extends AnyApi> = TApi extends Api<
-  infer TMethods
+export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
+  infer Methods
 >
-  ? TMethods
+  ? Methods
   : never;
 
 /**
@@ -77,9 +75,9 @@ export type inferApiMethods<TApi extends AnyApi> = TApi extends Api<
  *  })
  *
  */
-export function createApi<TMethods extends AnyMethods>(
-  methods: TMethods
-): Api<TMethods> {
+export function createApi<Methods extends AnyMethods>(
+  methods: Methods
+): Api<Methods> {
   // Currently, we don't to actually need to do anything with the methods. By
   // calling createApi, we're able to infer their type into TMethods, which the
   // client can use.
