@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-no-import-export-type */
-import type { Api } from '@votingworks/vx-scan-backend';
+import type { Api, PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
@@ -8,6 +8,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from '@tanstack/react-query';
 import { CastVoteRecord } from '@votingworks/types';
 
@@ -172,6 +173,20 @@ export const getCastVoteRecordsForTally = {
       // For now, just invalidate this query immediately so it's always reloaded.
       // TODO figure out what mutations should invalidate this query.
       { ...options, staleTime: 0 }
+    );
+  },
+} as const;
+
+export const getScannerStatus = {
+  queryKey(): QueryKey {
+    return ['getScannerStatus'];
+  },
+  useQuery(options?: UseQueryOptions<PrecinctScannerStatus>) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getScannerStatus(),
+      options
     );
   },
 } as const;

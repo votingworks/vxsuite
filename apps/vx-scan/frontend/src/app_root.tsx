@@ -34,7 +34,6 @@ import { UnconfiguredElectionScreen } from './screens/unconfigured_election_scre
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
 
-import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
@@ -53,11 +52,15 @@ import { ScanReturnedBallotScreen } from './screens/scan_returned_ballot_screen'
 import { ScanJamScreen } from './screens/scan_jam_screen';
 import { ScanBusyScreen } from './screens/scan_busy_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
-import { BALLOT_BAG_CAPACITY } from './config/globals';
+import {
+  BALLOT_BAG_CAPACITY,
+  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+} from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
 import {
   getConfig,
+  getScannerStatus,
   recordBallotBagReplaced,
   setIsSoundMuted,
   setMarkThresholdOverrides,
@@ -326,7 +329,10 @@ export function AppRoot({
     });
   }
 
-  const scannerStatus = usePrecinctScannerStatus();
+  const scannerStatusQuery = getScannerStatus.useQuery({
+    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+  });
+  const scannerStatus = scannerStatusQuery.data;
 
   const recordBallotBagReplacedMutation = recordBallotBagReplaced.useMutation();
   const onBallotBagReplaced = useCallback(async () => {
