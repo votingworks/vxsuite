@@ -61,6 +61,7 @@ import {
   setIsSoundMuted,
   setMarkThresholdOverrides,
   setPrecinctSelection,
+  setTestMode,
   unconfigureElection,
   useApiClient,
 } from './api';
@@ -269,12 +270,17 @@ export function AppRoot({
     await updatePollsState('polls_paused');
   }, [updatePollsState]);
 
-  // const toggleTestMode = useCallback(async () => {
-  //   await apiClient.setTestMode({ isTestMode: !isTestMode });
-  //   dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
-  //   dispatchAppState({ type: 'resetElectionSession' });
-  //   await refreshConfig();
-  // }, [refreshConfig, isTestMode, apiClient]);
+  const setTestModeMutation = setTestMode.useMutation();
+  const toggleTestMode = useCallback(async () => {
+    assert(configQuery.isSuccess);
+    await setTestModeMutation.mutateAsync({
+      isTestMode: !configQuery.data.isTestMode,
+    });
+  }, [
+    setTestModeMutation,
+    configQuery.isSuccess,
+    configQuery.data?.isTestMode,
+  ]);
 
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const toggleIsSoundMuted = useCallback(async () => {
@@ -464,9 +470,7 @@ export function AppRoot({
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}
-          toggleLiveMode={async () => {
-            // TODO
-          }}
+          toggleLiveMode={toggleTestMode}
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}

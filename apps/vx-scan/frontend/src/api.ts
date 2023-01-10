@@ -108,3 +108,15 @@ export const setIsSoundMuted = {
     });
   },
 } as const;
+
+export const setTestMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setTestMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
