@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigurationError } from '@votingworks/vx-scan-backend';
 import { throwIllegalValue } from '@votingworks/utils';
-import { UsbDriveStatus } from '@votingworks/ui';
+import {
+  UsbDriveStatus,
+  useExternalStateChangeListener,
+} from '@votingworks/ui';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -22,19 +25,16 @@ export function UnconfiguredElectionScreen({
   const apiClient = useApiClient();
   const [error, setError] = useState<ConfigurationError>();
 
-  useEffect(() => {
-    async function configure() {
-      setError(undefined);
-      if (usbDriveStatus !== 'mounted') return;
-      const result = await apiClient.configureFromBallotPackageOnUsbDrive();
-      if (result.isErr()) {
-        setError(result.err());
-        return;
-      }
-      await refreshConfig();
+  useExternalStateChangeListener(usbDriveStatus, async (newUsbDriveStatus) => {
+    setError(undefined);
+    if (newUsbDriveStatus !== 'mounted') return;
+    const result = await apiClient.configureFromBallotPackageOnUsbDrive();
+    if (result.isErr()) {
+      setError(result.err());
+      return;
     }
-    void configure();
-  }, [usbDriveStatus, apiClient, refreshConfig]);
+    await refreshConfig();
+  });
 
   const errorMessage = (() => {
     if (usbDriveStatus !== 'mounted') {
