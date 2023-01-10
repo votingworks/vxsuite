@@ -61,7 +61,7 @@ import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
-import { useApiClient } from '../api';
+import { exportCastVoteRecordsToUsbDrive, useApiClient } from '../api';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -118,6 +118,8 @@ export function PollWorkerScreen({
   hasPrinterAttached: printerFromProps,
 }: PollWorkerScreenProps): JSX.Element {
   const apiClient = useApiClient();
+  const exportCastVoteRecordsMutation =
+    exportCastVoteRecordsToUsbDrive.useMutation();
   const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -378,7 +380,7 @@ export function PollWorkerScreen({
 
   async function exportCvrs(): Promise<void> {
     assert(electionDefinition);
-    const result = await apiClient.exportCastVoteRecordsToUsbDrive({
+    const result = await exportCastVoteRecordsMutation.mutateAsync({
       machineId: machineConfig.machineId,
     });
     if (result.isErr()) {

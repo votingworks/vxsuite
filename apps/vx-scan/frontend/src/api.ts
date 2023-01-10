@@ -151,3 +151,10 @@ export const backupToUsbDrive = {
     return useMutation(apiClient.backupToUsbDrive);
   },
 } as const;
+
+export const exportCastVoteRecordsToUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
+  },
+} as const;
