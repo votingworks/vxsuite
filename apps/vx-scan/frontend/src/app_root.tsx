@@ -58,6 +58,7 @@ import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_scre
 import { rootDebug } from './utils/debug';
 import {
   getConfig,
+  recordBallotBagReplaced,
   setIsSoundMuted,
   setMarkThresholdOverrides,
   setPollsState,
@@ -327,14 +328,17 @@ export function AppRoot({
 
   const scannerStatus = usePrecinctScannerStatus();
 
+  const recordBallotBagReplacedMutation = recordBallotBagReplaced.useMutation();
   const onBallotBagReplaced = useCallback(async () => {
-    await apiClient.recordBallotBagReplaced();
-    await refreshConfig();
+    await recordBallotBagReplacedMutation.mutateAsync();
     await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
       disposition: 'success',
       message: 'Poll worker confirmed that they replaced the ballot bag.',
     });
-  }, [logger, refreshConfig, apiClient]);
+    // TODO(jonah): Refactor replace ballot bag flow to not call this function
+    // whenever the function identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logger]);
 
   const needsToReplaceBallotBag =
     configQuery.isSuccess &&

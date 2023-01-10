@@ -132,3 +132,15 @@ export const setPollsState = {
     });
   },
 } as const;
+
+export const recordBallotBagReplaced = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.recordBallotBagReplaced, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
