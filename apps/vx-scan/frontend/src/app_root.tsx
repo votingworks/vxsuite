@@ -56,7 +56,12 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
-import { getConfig, unconfigureElection, useApiClient } from './api';
+import {
+  getConfig,
+  setPrecinctSelection,
+  unconfigureElection,
+  useApiClient,
+} from './api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -286,17 +291,13 @@ export function AppRoot({
     [unconfigureElectionMutation]
   );
 
+  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   async function updatePrecinctSelection(
     newPrecinctSelection: PrecinctSelection
   ) {
-    await apiClient.setPrecinctSelection({
+    await setPrecinctSelectionMutation.mutateAsync({
       precinctSelection: newPrecinctSelection,
     });
-    dispatchAppState({
-      type: 'updatePrecinctSelection',
-      precinctSelection: newPrecinctSelection,
-    });
-    await refreshConfig();
   }
 
   async function updateMarkThresholds(markThresholds?: MarkThresholds) {
