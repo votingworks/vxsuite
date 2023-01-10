@@ -120,3 +120,15 @@ export const setTestMode = {
     });
   },
 } as const;
+
+export const setPollsState = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollsState, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;

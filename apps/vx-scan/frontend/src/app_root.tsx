@@ -60,6 +60,7 @@ import {
   getConfig,
   setIsSoundMuted,
   setMarkThresholdOverrides,
+  setPollsState,
   setPrecinctSelection,
   setTestMode,
   unconfigureElection,
@@ -257,13 +258,12 @@ export function AppRoot({
     void initializeScanner();
   }, [refreshConfig, storage]);
 
+  const setPollsStateMutation = setPollsState.useMutation();
   const updatePollsState = useCallback(
     async (newPollsState: PollsState) => {
-      await apiClient.setPollsState({ pollsState: newPollsState });
-      dispatchAppState({ type: 'updatePollsState', pollsState: newPollsState });
-      await refreshConfig();
+      await setPollsStateMutation.mutateAsync({ pollsState: newPollsState });
     },
-    [refreshConfig, apiClient]
+    [setPollsStateMutation]
   );
 
   const resetPollsToPaused = useCallback(async () => {
