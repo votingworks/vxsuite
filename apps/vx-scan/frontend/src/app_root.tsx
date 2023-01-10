@@ -58,6 +58,7 @@ import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_scre
 import { rootDebug } from './utils/debug';
 import {
   getConfig,
+  setMarkThresholdOverrides,
   setPrecinctSelection,
   unconfigureElection,
   useApiClient,
@@ -300,13 +301,13 @@ export function AppRoot({
     });
   }
 
-  async function updateMarkThresholds(markThresholds?: MarkThresholds) {
-    dispatchAppState({
-      type: 'updateMarkThresholdOverrides',
-      markThresholdOverrides: markThresholds,
-    });
-    await apiClient.setMarkThresholdOverrides({
-      markThresholdOverrides: markThresholds,
+  const setMarkThresholdOverridesMutation =
+    setMarkThresholdOverrides.useMutation();
+  async function updateMarkThresholds(
+    newMarkThresholdOverrides?: MarkThresholds
+  ) {
+    await setMarkThresholdOverridesMutation.mutateAsync({
+      markThresholdOverrides: newMarkThresholdOverrides,
     });
   }
 

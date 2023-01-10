@@ -84,3 +84,15 @@ export const setPrecinctSelection = {
     });
   },
 } as const;
+
+export const setMarkThresholdOverrides = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setMarkThresholdOverrides, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
