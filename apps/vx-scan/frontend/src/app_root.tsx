@@ -58,6 +58,7 @@ import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_scre
 import { rootDebug } from './utils/debug';
 import {
   getConfig,
+  setIsSoundMuted,
   setMarkThresholdOverrides,
   setPrecinctSelection,
   unconfigureElection,
@@ -275,10 +276,17 @@ export function AppRoot({
   //   await refreshConfig();
   // }, [refreshConfig, isTestMode, apiClient]);
 
-  // const toggleIsSoundMuted = useCallback(async () => {
-  //   dispatchAppState({ type: 'toggleIsSoundMuted' });
-  //   await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
-  // }, [isSoundMuted, apiClient]);
+  const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
+  const toggleIsSoundMuted = useCallback(async () => {
+    assert(configQuery.isSuccess);
+    await setIsSoundMutedMutation.mutateAsync({
+      isSoundMuted: !configQuery.data.isSoundMuted,
+    });
+  }, [
+    setIsSoundMutedMutation,
+    configQuery.isSuccess,
+    configQuery.data?.isSoundMuted,
+  ]);
 
   const unconfigureElectionMutation = unconfigureElection.useMutation();
   const unconfigureServer = useCallback(
@@ -462,9 +470,7 @@ export function AppRoot({
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
-          toggleIsSoundMuted={() => {
-            // TODO
-          }}
+          toggleIsSoundMuted={toggleIsSoundMuted}
         />
       </AppContext.Provider>
     );

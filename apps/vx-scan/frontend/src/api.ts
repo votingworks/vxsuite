@@ -96,3 +96,15 @@ export const setMarkThresholdOverrides = {
     });
   },
 } as const;
+
+export const setIsSoundMuted = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsSoundMuted, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
