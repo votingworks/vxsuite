@@ -56,7 +56,7 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
-import { getConfig, useApiClient } from './api';
+import { getConfig, unconfigureElection, useApiClient } from './api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -274,16 +274,16 @@ export function AppRoot({
   //   await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
   // }, [isSoundMuted, apiClient]);
 
+  const unconfigureElectionMutation = unconfigureElection.useMutation();
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
       try {
-        await apiClient.unconfigureElection(options);
-        await refreshConfig();
+        await unconfigureElectionMutation.mutateAsync(options);
       } catch (error) {
         debug('failed unconfigureServer()', error);
       }
     },
-    [refreshConfig, apiClient]
+    [unconfigureElectionMutation]
   );
 
   async function updatePrecinctSelection(

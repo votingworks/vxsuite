@@ -60,3 +60,15 @@ export const configureFromBallotPackageOnUsbDrive = {
     });
   },
 } as const;
+
+export const unconfigureElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigureElection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
