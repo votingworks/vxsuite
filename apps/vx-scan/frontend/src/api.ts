@@ -9,6 +9,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { CastVoteRecord } from '@votingworks/types';
 
 export const ApiClientContext = React.createContext<
   grout.Client<Api> | undefined
@@ -156,5 +157,21 @@ export const exportCastVoteRecordsToUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
+  },
+} as const;
+
+export const getCastVoteRecordsForTally = {
+  queryKey(): QueryKey {
+    return ['getCastVoteRecordsForTally'];
+  },
+  useQuery(options: UseQueryOptions<CastVoteRecord[]> = {}) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getCastVoteRecordsForTally(),
+      // For now, just invalidate this query immediately so it's always reloaded.
+      // TODO figure out what mutations should invalidate this query.
+      { ...options, staleTime: 0 }
+    );
   },
 } as const;
