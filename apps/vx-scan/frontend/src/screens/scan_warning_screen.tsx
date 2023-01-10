@@ -36,7 +36,7 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { useSound } from '../hooks/use_sound';
-import { useApiClient } from '../api';
+import { acceptBallot, returnBallot } from '../api';
 
 const ResponsiveButtonParagraph = styled.p`
   @media (orientation: portrait) {
@@ -97,7 +97,8 @@ function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
 }: OvervoteWarningScreenProps): JSX.Element {
-  const apiClient = useApiClient();
+  const returnBallotMutation = returnBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
   const allowCastingOvervotes = !isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES
   );
@@ -126,7 +127,7 @@ function OvervoteWarningScreen({
           {toSentence(contestNames)}.
         </Text>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => apiClient.returnBallot()}>
+          <Button primary onPress={() => returnBallotMutation.mutateAsync()}>
             Return Ballot
           </Button>
           {allowCastingOvervotes && (
@@ -154,7 +155,7 @@ function OvervoteWarningScreen({
               </p>
             </Prose>
           }
-          onConfirm={() => apiClient.acceptBallot()}
+          onConfirm={() => acceptBallotMutation.mutateAsync()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -171,7 +172,8 @@ function UndervoteWarningScreen({
   electionDefinition,
   undervotes,
 }: UndervoteWarningScreenProps): JSX.Element {
-  const apiClient = useApiClient();
+  const returnBallotMutation = returnBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;
@@ -220,7 +222,7 @@ function UndervoteWarningScreen({
           </p>
         )}
         <ResponsiveButtonParagraph>
-          <Button onPress={() => apiClient.returnBallot()}>
+          <Button primary onPress={() => returnBallotMutation.mutateAsync()}>
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -264,7 +266,7 @@ function UndervoteWarningScreen({
               </Text>
             </Prose>
           }
-          onConfirm={() => apiClient.acceptBallot()}
+          onConfirm={() => acceptBallotMutation.mutateAsync()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -273,7 +275,8 @@ function UndervoteWarningScreen({
 }
 
 function BlankBallotWarningScreen(): JSX.Element {
-  const apiClient = useApiClient();
+  const returnBallotMutation = returnBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
@@ -282,7 +285,7 @@ function BlankBallotWarningScreen(): JSX.Element {
         <h1>Review Your Ballot</h1>
         <p>No votes were found when scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => apiClient.returnBallot()}>
+          <Button primary onPress={() => returnBallotMutation.mutateAsync()}>
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -304,7 +307,7 @@ function BlankBallotWarningScreen(): JSX.Element {
               <p>No votes will be counted from this ballot.</p>
             </Prose>
           }
-          onConfirm={() => apiClient.acceptBallot()}
+          onConfirm={() => acceptBallotMutation.mutateAsync()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
@@ -313,7 +316,8 @@ function BlankBallotWarningScreen(): JSX.Element {
 }
 
 function OtherReasonWarningScreen(): JSX.Element {
-  const apiClient = useApiClient();
+  const returnBallotMutation = returnBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
@@ -322,7 +326,7 @@ function OtherReasonWarningScreen(): JSX.Element {
         <h1>Scanning Failed</h1>
         <p>There was a problem scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => apiClient.returnBallot()}>
+          <Button primary onPress={() => returnBallotMutation.mutateAsync()}>
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -342,7 +346,7 @@ function OtherReasonWarningScreen(): JSX.Element {
               <p>No votes will be recorded for this ballot.</p>
             </Prose>
           }
-          onConfirm={() => apiClient.acceptBallot()}
+          onConfirm={() => acceptBallotMutation.mutateAsync()}
           onCancel={() => setConfirmTabulate(false)}
         />
       )}

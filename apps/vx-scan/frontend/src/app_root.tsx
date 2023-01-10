@@ -28,8 +28,6 @@ import {
 } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-// eslint-disable-next-line vx/gts-no-import-export-type
-import type { PrecinctScannerConfig } from '@votingworks/vx-scan-backend';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { MachineConfig } from './config/types';
@@ -59,9 +57,11 @@ import {
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
 import {
+  acceptBallot,
   getConfig,
   getScannerStatus,
   recordBallotBagReplaced,
+  scanBallot,
   setIsSoundMuted,
   setMarkThresholdOverrides,
   setPollsState,
@@ -357,27 +357,41 @@ export function AppRoot({
   // frontend controls when this happens so that ensure we're only scanning when
   // we're in voter mode.
   const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
-  useEffect(() => {
-    async function automaticallyScanAndAcceptBallots() {
-      if (!configQuery.isSuccess) return;
-      if (
-        !(
-          configQuery.data.pollsState === 'polls_open' &&
-          voterMode &&
-          !needsToReplaceBallotBag
-        )
-      ) {
-        return;
-      }
+  const scanBallotMutation = scanBallot.useMutation();
+  const acceptBallotMutation = acceptBallot.useMutation();
+  useEffect(
+    () => {
+      async function automaticallyScanAndAcceptBallots() {
+        if (!configQuery.isSuccess) return;
+        if (
+          !(
+            configQuery.data.pollsState === 'polls_open' &&
+            voterMode &&
+            !needsToReplaceBallotBag
+          )
+        ) {
+          return;
+        }
 
-      if (scannerStatus?.state === 'ready_to_scan') {
-        await apiClient.scanBallot();
-      } else if (scannerStatus?.state === 'ready_to_accept') {
-        await apiClient.acceptBallot();
+        if (scannerStatus?.state === 'ready_to_scan') {
+          await scanBallotMutation.mutateAsync();
+        } else if (scannerStatus?.state === 'ready_to_accept') {
+          await acceptBallotMutation.mutateAsync();
+        }
       }
-    }
-    void automaticallyScanAndAcceptBallots();
-  });
+      void automaticallyScanAndAcceptBallots();
+    },
+    // TODO(jonah): Instead of using dependencies to control when this hook
+    // re-runs, refactor so that this effect only runs in voter mode
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      configQuery.data?.pollsState,
+      configQuery.isSuccess,
+      needsToReplaceBallotBag,
+      scannerStatus?.state,
+      voterMode,
+    ]
+  );
 
   if (!configQuery.isSuccess) {
     return <LoadingConfigurationScreen />;

@@ -190,3 +190,24 @@ export const getScannerStatus = {
     );
   },
 } as const;
+
+export const scanBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.scanBallot);
+  },
+} as const;
+
+export const acceptBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.acceptBallot);
+  },
+} as const;
+
+export const returnBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.returnBallot);
+  },
+} as const;
