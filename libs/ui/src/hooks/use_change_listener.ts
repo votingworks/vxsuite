@@ -48,13 +48,13 @@ export function useExternalStateChangeListener<State>(
  */
 export function useQueryChangeListener<Data>(
   query: UseQueryResult<Data>,
-  changeHandler: (newData: Data, previousData?: Data) => void
+  changeHandler: (newData: Data, previousData?: Data) => void | Promise<void>
 ): void {
   const previousData = useRef<Data>();
 
   useEffect(() => {
     if (query.isSuccess && !deepEqual(previousData.current, query.data)) {
-      changeHandler(query.data, previousData.current);
+      void changeHandler(query.data, previousData.current);
       previousData.current = query.data;
     }
   }, [query.isSuccess, query.data, changeHandler]);
