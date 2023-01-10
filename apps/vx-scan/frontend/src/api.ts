@@ -211,3 +211,10 @@ export const returnBallot = {
     return useMutation(apiClient.returnBallot);
   },
 } as const;
+
+export const calibrate = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.calibrate);
+  },
+} as const;
