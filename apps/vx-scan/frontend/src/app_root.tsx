@@ -56,7 +56,7 @@ import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { rootDebug } from './utils/debug';
-import { useApiClient } from './api';
+import { getConfig, useApiClient } from './api';
 
 const debug = rootDebug.extend('app-root');
 
@@ -183,18 +183,9 @@ export function AppRoot({
   logger,
 }: Props): JSX.Element | null {
   const apiClient = useApiClient();
+  const configQuery = getConfig.useQuery();
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
-  const {
-    electionDefinition,
-    isBackendStateLoaded,
-    isTestMode,
-    precinctSelection,
-    markThresholdOverrides,
-    pollsState,
-    machineConfig,
-    isSoundMuted,
-    ballotCountWhenBallotBagLastReplaced,
-  } = appState;
+  const { isBackendStateLoaded, machineConfig } = appState;
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -213,7 +204,7 @@ export function AppRoot({
       'poll_worker',
     ],
     cardApi: card,
-    scope: { electionDefinition },
+    scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
 
@@ -271,17 +262,17 @@ export function AppRoot({
     await updatePollsState('polls_paused');
   }, [updatePollsState]);
 
-  const toggleTestMode = useCallback(async () => {
-    await apiClient.setTestMode({ isTestMode: !isTestMode });
-    dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
-    dispatchAppState({ type: 'resetElectionSession' });
-    await refreshConfig();
-  }, [refreshConfig, isTestMode, apiClient]);
+  // const toggleTestMode = useCallback(async () => {
+  //   await apiClient.setTestMode({ isTestMode: !isTestMode });
+  //   dispatchAppState({ type: 'updateTestMode', isTestMode: !isTestMode });
+  //   dispatchAppState({ type: 'resetElectionSession' });
+  //   await refreshConfig();
+  // }, [refreshConfig, isTestMode, apiClient]);
 
-  const toggleIsSoundMuted = useCallback(async () => {
-    dispatchAppState({ type: 'toggleIsSoundMuted' });
-    await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
-  }, [isSoundMuted, apiClient]);
+  // const toggleIsSoundMuted = useCallback(async () => {
+  //   dispatchAppState({ type: 'toggleIsSoundMuted' });
+  //   await apiClient.setIsSoundMuted({ isSoundMuted: !isSoundMuted });
+  // }, [isSoundMuted, apiClient]);
 
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
@@ -330,9 +321,11 @@ export function AppRoot({
   }, [logger, refreshConfig, apiClient]);
 
   const needsToReplaceBallotBag =
+    configQuery.isSuccess &&
     scannerStatus &&
     scannerStatus.ballotsCounted >=
-      ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
+      configQuery.data.ballotCountWhenBallotBagLastReplaced +
+        BALLOT_BAG_CAPACITY;
 
   // The scan service waits to receive a command to scan or accept a ballot. The
   // frontend controls when this happens so that ensure we're only scanning when
@@ -340,8 +333,13 @@ export function AppRoot({
   const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
   useEffect(() => {
     async function automaticallyScanAndAcceptBallots() {
+      if (!configQuery.isSuccess) return;
       if (
-        !(pollsState === 'polls_open' && voterMode && !needsToReplaceBallotBag)
+        !(
+          configQuery.data.pollsState === 'polls_open' &&
+          voterMode &&
+          !needsToReplaceBallotBag
+        )
       ) {
         return;
       }
@@ -354,6 +352,20 @@ export function AppRoot({
     }
     void automaticallyScanAndAcceptBallots();
   });
+
+  if (!configQuery.isSuccess) {
+    return <LoadingConfigurationScreen />;
+  }
+
+  const {
+    electionDefinition,
+    isTestMode,
+    precinctSelection,
+    markThresholdOverrides,
+    pollsState,
+    isSoundMuted,
+    // ballotCountWhenBallotBagLastReplaced,
+  } = configQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -414,12 +426,7 @@ export function AppRoot({
   }
 
   if (!electionDefinition) {
-    return (
-      <UnconfiguredElectionScreen
-        usbDriveStatus={usbDrive.status}
-        refreshConfig={refreshConfig}
-      />
-    );
+    return <UnconfiguredElectionScreen usbDriveStatus={usbDrive.status} />;
   }
 
   if (auth.status === 'checking_passcode') {
@@ -447,11 +454,15 @@ export function AppRoot({
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}
-          toggleLiveMode={toggleTestMode}
+          toggleLiveMode={async () => {
+            // TODO
+          }}
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
-          toggleIsSoundMuted={toggleIsSoundMuted}
+          toggleIsSoundMuted={() => {
+            // TODO
+          }}
         />
       </AppContext.Provider>
     );

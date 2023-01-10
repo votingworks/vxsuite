@@ -48,7 +48,7 @@ function buildApi(
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
     > {
-      assert(!store.getElectionDefinition());
+      assert(!store.getElectionDefinition(), 'Already configured');
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
