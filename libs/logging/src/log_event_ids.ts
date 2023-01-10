@@ -31,6 +31,8 @@ export enum LogEventId {
   UsbDriveEjected = 'usb-drive-eject-complete',
   UsbDriveMountInit = 'usb-drive-mount-init',
   UsbDriveMounted = 'usb-drive-mount-complete',
+  UsbDriveFormatInit = 'usb-drive-format-init',
+  UsbDriveFormatted = 'usb-drive-format-complete',
   // App Startup
   ApplicationStartup = 'application-startup',
   // External Device Related Logs
@@ -194,29 +196,45 @@ const AuthLogoutEvent: LogDetails = {
 const UsbDriveDetected: LogDetails = {
   eventId: LogEventId.UsbDriveDetected,
   eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'USB drive detected.',
+  documentationMessage: 'A USB drive was detected.',
+  defaultMessage: 'USB drive detected.',
 };
 
 const UsbDriveRemoved: LogDetails = {
   eventId: LogEventId.UsbDriveRemoved,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'USB drive removed by the user.',
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A USB drive was removed by the user.',
+  defaultMessage: 'USB drive removed.',
 };
 
 const UsbDriveEjectInit: LogDetails = {
   eventId: LogEventId.UsbDriveEjectInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A request to eject the current USB drive was given by the user, the usb drive will now be ejected.',
-  defaultMessage:
-    'The current USB drive was requested to eject, application will now eject...',
+    'A request to eject the current USB drive was made by the user, the USB drive will now be ejected.',
+  defaultMessage: 'Attempting to eject USB drive based on user request...',
 };
 
 const UsbDriveEjected: LogDetails = {
   eventId: LogEventId.UsbDriveEjected,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
-    'The current USB drive finished attempting to ejected. Success or failure indicated by disposition.',
+    'Attempt to eject USB drive complete. Success or failure indicated by disposition.',
+};
+
+const UsbDriveFormatInit: LogDetails = {
+  eventId: LogEventId.UsbDriveFormatInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A request to format the current USB drive was made by the user. The usb drive will now be reformatted for compatibility with VotingWorks software.',
+  defaultMessage: 'Attempting to reformat USB drive based on user request...',
+};
+
+const UsbDriveFormatted: LogDetails = {
+  eventId: LogEventId.UsbDriveFormatted,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Attempt to reformat USB drive complete. Success or failure indicated by disposition.',
 };
 
 const UsbDriveMountInit: LogDetails = {
@@ -224,15 +242,14 @@ const UsbDriveMountInit: LogDetails = {
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
     'The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
-  defaultMessage:
-    'The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected.',
+  defaultMessage: 'Application is attempting to mount a USB drive...',
 };
 
 const UsbDriveMounted: LogDetails = {
   eventId: LogEventId.UsbDriveMounted,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
-    'USB drive mount has completed. Success or failure is indicated by the disposition.',
+    'Attempt to mount USB drive mount complete. Success or failure indicated by disposition.',
 };
 
 const UsbDeviceChangeDetected: LogDetails = {
@@ -874,6 +891,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UsbDriveEjectInit;
     case LogEventId.UsbDriveEjected:
       return UsbDriveEjected;
+    case LogEventId.UsbDriveFormatInit:
+      return UsbDriveFormatInit;
+    case LogEventId.UsbDriveFormatted:
+      return UsbDriveFormatted;
     case LogEventId.UsbDriveDetected:
       return UsbDriveDetected;
     case LogEventId.UsbDriveRemoved:

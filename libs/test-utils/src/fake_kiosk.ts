@@ -22,6 +22,9 @@ export function fakeUsbDrive(
   return {
     deviceName: 'fake device',
     mountPoint: 'fake mount point',
+    fsType: 'vfat',
+    fsVersion: 'FAT32',
+    label: 'VxUSB-XXXXX',
     ...props,
   };
 }

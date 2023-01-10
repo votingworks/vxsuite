@@ -47,13 +47,8 @@ export function NavigationScreen({
       : '';
   }
 
-  const {
-    electionDefinition,
-    usbDriveEject,
-    usbDriveStatus,
-    machineConfig,
-    auth,
-  } = useContext(AppContext);
+  const { electionDefinition, usbDrive, machineConfig, auth } =
+    useContext(AppContext);
   const election = electionDefinition?.election;
 
   let primaryNavItems: NavItem[] = [];
@@ -120,8 +115,8 @@ export function NavigationScreen({
                   Lock Machine
                 </Button>
                 <UsbControllerButton
-                  usbDriveEject={() => usbDriveEject(auth.user.role)}
-                  usbDriveStatus={usbDriveStatus}
+                  usbDriveEject={() => usbDrive.eject(auth.user.role)}
+                  usbDriveStatus={usbDrive.status}
                 />
               </React.Fragment>
             )}

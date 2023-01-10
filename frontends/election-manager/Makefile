@@ -4,6 +4,7 @@ FORCE:
 
 # install any required dependencies here, i.e. `sudo apt install -y DEPS`
 install:
+	sudo apt install -y fdisk dosfstools exfat-utils
 
 build: FORCE
 	pnpm install && pnpm build

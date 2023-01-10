@@ -17,6 +17,7 @@ import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiClientContext } from '../api/api';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 const apiMock = createApiMock();
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
@@ -27,7 +28,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <ExportResultsModal
         onClose={jest.fn()}
-        usbDrive={{ status: 'mounted', eject: jest.fn() }}
+        usbDrive={mockUsbDrive('mounted')}
         {...props}
       />
     </ApiClientContext.Provider>,
@@ -48,28 +49,28 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const { getByText, unmount } = renderModal({
-      usbDrive: { status, eject: jest.fn() },
+      usbDrive: mockUsbDrive(status),
     });
     getByText('Loading');
     unmount();
   }
 });
 
-test('render no usb found screen when there is not a mounted usb drive', () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+test('render no usb found screen when there is not a compatible mounted usb drive', () => {
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const status of usbStatuses) {
-    const onClose = jest.fn();
+    const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderModal({
-      onClose,
-      usbDrive: { status, eject: jest.fn() },
+      usbDrive: mockUsbDrive(status),
+      onClose: closeFn,
     });
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
     fireEvent.click(getByText('Cancel'));
-    expect(onClose).toHaveBeenCalled();
+    expect(closeFn).toHaveBeenCalled();
 
     unmount();
   }
@@ -86,10 +87,10 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   apiMock.expectExportCastVoteRecordsToUsbDrive(machineConfig.machineId);
 
   const onClose = jest.fn();
-  const eject = jest.fn();
+  const usbDrive = mockUsbDrive('mounted');
   const { getByText, rerender } = renderModal({
     onClose,
-    usbDrive: { status: 'mounted', eject },
+    usbDrive,
   });
   getByText('Save CVRs');
 
@@ -97,9 +98,9 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   await waitFor(() => getByText('CVRs Saved to USB Drive'));
 
   fireEvent.click(getByText('Eject USB'));
-  expect(eject).toHaveBeenCalled();
+  expect(usbDrive.eject).toHaveBeenCalled();
   fireEvent.click(getByText('Cancel'));
-  expect(eject).toHaveBeenCalled();
+  expect(usbDrive.eject).toHaveBeenCalled();
 
   rerender(
     <AppContext.Provider
@@ -114,7 +115,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
       <ApiClientContext.Provider value={apiMock.mockApiClient}>
         <ExportResultsModal
           onClose={onClose}
-          usbDrive={{ status: 'ejected', eject }}
+          usbDrive={mockUsbDrive('ejected')}
         />
       </ApiClientContext.Provider>
     </AppContext.Provider>

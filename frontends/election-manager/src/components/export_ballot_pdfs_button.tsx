@@ -60,8 +60,7 @@ type ModalState =
 const defaultBallotLocales: BallotLocale = { primary: DEFAULT_LOCALE };
 
 export function ExportBallotPdfsButton(): JSX.Element {
-  const { electionDefinition, usbDriveStatus, usbDriveEject, auth, logger } =
-    useContext(AppContext);
+  const { electionDefinition, usbDrive, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
@@ -203,9 +202,10 @@ export function ExportBallotPdfsButton(): JSX.Element {
 
   switch (modalState) {
     case 'BeforeExport':
-      switch (usbDriveStatus) {
+      switch (usbDrive.status) {
         case 'absent':
         case 'ejected':
+        case 'bad_format':
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -276,7 +276,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
         }
 
         default:
-          throwIllegalValue(usbDriveStatus);
+          throwIllegalValue(usbDrive.status);
       }
       break;
 
@@ -309,14 +309,14 @@ export function ExportBallotPdfsButton(): JSX.Element {
           <p>You may now eject the USB drive.</p>
         </Prose>
       );
-      if (usbDriveStatus !== 'ejected') {
+      if (usbDrive.status !== 'ejected') {
         actions = (
           <React.Fragment>
             <UsbControllerButton
               primary
               small={false}
-              usbDriveEject={() => usbDriveEject(userRole)}
-              usbDriveStatus={usbDriveStatus}
+              usbDriveEject={() => usbDrive.eject(userRole)}
+              usbDriveStatus={usbDrive.status}
             />
             <LinkButton onPress={closeModal}>Close</LinkButton>
           </React.Fragment>

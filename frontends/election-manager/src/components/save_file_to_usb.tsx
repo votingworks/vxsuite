@@ -57,8 +57,7 @@ export function SaveFileToUsb({
   defaultDirectory = '',
   promptToEjectUsb = false,
 }: Props): JSX.Element {
-  const { usbDriveStatus, usbDriveEject, isOfficialResults, auth, logger } =
-    useContext(AppContext);
+  const { usbDrive, isOfficialResults, auth, logger } = useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
 
@@ -174,14 +173,14 @@ export function SaveFileToUsb({
 
   if (currentState === ModalState.DONE) {
     let actions = <LinkButton onPress={onClose}>Close</LinkButton>;
-    if (promptToEjectUsb && usbDriveStatus !== 'ejected') {
+    if (promptToEjectUsb && usbDrive.status !== 'ejected') {
       actions = (
         <React.Fragment>
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={usbDriveStatus}
-            usbDriveEject={() => usbDriveEject(userRole)}
+            usbDriveStatus={usbDrive.status}
+            usbDriveEject={() => usbDrive.eject(userRole)}
           />
           <LinkButton onPress={onClose}>Close</LinkButton>
         </React.Fragment>
@@ -219,9 +218,10 @@ export function SaveFileToUsb({
     throwIllegalValue(currentState);
   }
 
-  switch (usbDriveStatus) {
+  switch (usbDrive.status) {
     case 'absent':
     case 'ejected':
+    case 'bad_format':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -292,6 +292,6 @@ export function SaveFileToUsb({
       );
     }
     default:
-      throwIllegalValue(usbDriveStatus);
+      throwIllegalValue(usbDrive.status);
   }
 }

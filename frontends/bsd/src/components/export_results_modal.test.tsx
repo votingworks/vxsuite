@@ -37,8 +37,8 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
   }
 });
 
-test('render no usb found screen when there is not a mounted usb drive', () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+test('render no usb found screen when there is not a valid, mounted usb drive', () => {
+  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();

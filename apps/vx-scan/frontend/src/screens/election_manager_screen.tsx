@@ -28,6 +28,7 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -351,10 +352,7 @@ export function DefaultPreview(): JSX.Element {
         updatePrecinctSelection={async (newPrecinctSelection) =>
           setPrecinctSelection(newPrecinctSelection)
         }
-        usbDrive={{
-          status: 'absent',
-          eject: () => Promise.resolve(),
-        }}
+        usbDrive={mockUsbDrive('absent')}
       />
     </AppContext.Provider>
   );

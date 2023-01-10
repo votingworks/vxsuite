@@ -19,6 +19,7 @@ import {
   createApiMock,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { ApiClientContext } from '../api/api';
 import { AppContextInterface } from '../contexts/app_context';
@@ -63,7 +64,7 @@ function renderScreen({
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
-        usbDrive={{ status: 'absent', eject: jest.fn() }}
+        usbDrive={mockUsbDrive('absent')}
         toggleIsSoundMuted={jest.fn()}
         {...electionManagerScreenProps}
       />
@@ -139,30 +140,30 @@ test('export from admin screen', () => {
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', () => {
-  const ejectFn = jest.fn();
+  const usbDrive = mockUsbDrive('absent');
   const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
-      usbDrive: { status: 'absent', eject: ejectFn },
+      usbDrive,
     },
   });
 
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   fireEvent.click(screen.getByText('Yes, Delete All'));
   expect(unconfigureFn).toHaveBeenCalledTimes(1);
-  expect(ejectFn).toHaveBeenCalledTimes(0);
+  expect(usbDrive.eject).toHaveBeenCalledTimes(0);
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
-  const ejectFn = jest.fn();
+  const usbDrive = mockUsbDrive('mounted');
   const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
       unconfigure: unconfigureFn,
-      usbDrive: { status: 'mounted', eject: ejectFn },
+      usbDrive,
     },
   });
 
@@ -170,7 +171,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   fireEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
     expect(unconfigureFn).toHaveBeenCalledTimes(1);
-    expect(ejectFn).toHaveBeenCalledTimes(1);
+    expect(usbDrive.eject).toHaveBeenCalledTimes(1);
   });
 });
 
