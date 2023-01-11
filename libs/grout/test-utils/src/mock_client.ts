@@ -6,12 +6,12 @@ import {
 import {
   AnyApi,
   AnyMethods,
-  AsyncFunction,
+  AsyncRpcMethod,
   inferApiMethods,
 } from '@votingworks/grout';
 
 type MockMethods<Methods extends AnyMethods> = {
-  [Method in keyof Methods]: MockFunction<AsyncFunction<Methods[Method]>>;
+  [Method in keyof Methods]: MockFunction<AsyncRpcMethod<Methods[Method]>>;
 };
 
 interface MockHelpers {
