@@ -76,12 +76,9 @@ test('when backend does not respond shows loading screen', async () => {
     .expectCallWith()
     .throws(new ServerError('not responding'));
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectGetConfig({ electionDefinition: undefined });
 
   renderApp();
   await screen.findByText('Loading Configuration…');
-  jest.advanceTimersByTime(1000);
-  await screen.findByText('VxScan is not configured');
 });
 
 test('backend fails to unconfigure', async () => {

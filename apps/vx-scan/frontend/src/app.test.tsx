@@ -114,6 +114,7 @@ afterEach(() => {
 
 test('shows setup card reader screen when there is no card reader', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus(statusNoPaper);
   const hardware = MemoryHardware.build({ connectCardReader: false });
   renderApp({ hardware });
   await screen.findByText('Card Reader Not Detected');
@@ -132,14 +133,18 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper, 3);
   renderApp();
   await screen.findByText('VxScan is not configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
+  // Insert a USB with no ballot package
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(err('no_ballot_package_on_usb_drive'));
+  apiMock.expectGetConfig({
+    electionDefinition: undefined,
+  });
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   await screen.findByText('No ballot package found on the inserted USB drive.');
 
@@ -147,11 +152,13 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
+  // Insert a USB with a ballot package
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(ok());
   apiMock.expectGetConfig({ electionDefinition: electionSampleDefinition });
+  await screen.findByText('Configuring VxScan from USB drive…');
   await screen.findByText('Polls Closed');
 });
 
@@ -193,8 +200,8 @@ test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
   apiMock.expectGetConfig(config);
+  apiMock.expectGetScannerStatus(statusNoPaper, 2);
   const { card, logger } = renderApp();
-  apiMock.expectGetScannerStatus(statusNoPaper);
   await screen.findByText('Polls Closed');
 
   // Calibrate scanner as Election Manager
@@ -218,12 +225,15 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetConfig(config);
   userEvent.click(await screen.findByText('Live Election Mode'));
   await screen.findByText('Loading');
-  await advanceTimersAndPromises(1);
+  await advanceTimersAndPromises(2);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
     'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
+  await waitFor(() => {
+    expect(screen.queryByText('Loading')).not.toBeInTheDocument();
+  });
 
   // Change precinct as Election Manager
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -245,7 +255,7 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Open the polls
-  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetScannerStatus(statusNoPaper, 2);
   apiMock.expectGetCastVoteRecordsForTally([]);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
@@ -329,7 +339,7 @@ test('election manager and poll worker configuration', async () => {
       canUnconfigure: true,
       ballotsCounted: 1,
     },
-    3
+    4
   );
   card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateElectionManagerCard();
@@ -360,13 +370,41 @@ test('election manager and poll worker configuration', async () => {
   expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
 
+const statusBallotCounted = scannerStatus({
+  state: 'no_paper',
+  ballotsCounted: 1,
+});
+
+async function scanBallot() {
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
+  apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_accept' }));
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText('Your ballot was counted!');
+
+  apiMock.expectGetScannerStatus(statusBallotCounted);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText('Insert Your Ballot Below');
+  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+}
+
 test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });
+  apiMock.expectGetScannerStatus(statusNoPaper);
   const { card } = renderApp();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  apiMock.expectGetScannerStatus(statusNoPaper);
   await screen.findByText('Insert Your Ballot Below');
   screen.getByText('Scan one ballot sheet at a time.');
   screen.getByText('General Election');
@@ -375,31 +413,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   screen.getByText('Election ID');
   screen.getByText('748dc61ad3');
 
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
-  apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_accept' }));
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
-  const statusBallotCounted = scannerStatus({
-    state: 'no_paper',
-    ballotsCounted: 1,
-  });
-  apiMock.expectGetScannerStatus(statusBallotCounted);
-
-  // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  screen.getByText(/Please wait/);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  screen.getByText('Your ballot was counted!');
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await screen.findByText('Scan one ballot sheet at a time.');
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+  await scanBallot();
 
   // Insert a pollworker card
-  apiMock.expectGetScannerStatus(statusBallotCounted, 6);
+  apiMock.expectGetScannerStatus(statusBallotCounted, 4);
   const mockCvrs = [
     generateCvr(
       electionSample,
@@ -488,8 +505,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Eject USB')).toBeNull();
   });
-  await advanceTimersAndPromises(1);
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
@@ -504,16 +519,19 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   };
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'needs_review', interpretation })
   );
-
-  // trigger scan
-  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  await screen.findByText('Are you sure?');
 
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(
@@ -522,18 +540,15 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', interpretation })
   );
-  apiMock.expectGetScannerStatus(
-    scannerStatus({ state: 'no_paper', ballotsCounted: 1 })
-  );
-
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  await screen.findByText('Are you sure?');
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
-
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
+
+  apiMock.expectGetScannerStatus(
+    scannerStatus({ state: 'no_paper', ballotsCounted: 1 })
+  );
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
   expect(screen.getByTestId('ballot-count').textContent).toBe('1');
@@ -547,6 +562,9 @@ test('voter tries to cast ballot that is rejected', async () => {
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   apiMock.expectGetScannerStatus(
     scannerStatus({
@@ -557,9 +575,6 @@ test('voter tries to cast ballot that is rejected', async () => {
       },
     })
   );
-
-  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Ballot Not Counted');
   screen.getByText(
@@ -578,12 +593,13 @@ test('voter can cast another ballot while the success screen is showing', async 
   );
   renderApp();
   await screen.findByText('Your ballot was counted!');
-
-  screen.getByText('Your ballot was counted!');
   expect(screen.getByTestId('ballot-count').textContent).toBe('1');
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   apiMock.expectGetScannerStatus(
     scannerStatus({
@@ -594,16 +610,13 @@ test('voter can cast another ballot while the success screen is showing', async 
       },
     })
   );
-
-  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
 });
 
 test('scanning is not triggered when polls closed or cards present', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }), 3);
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }), 2);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -617,20 +630,20 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
   // Once we remove the poll worker card, scanning should start
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   card.removeCard();
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
-  expect(fetchMock.done()).toBe(true);
 });
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper, 3);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
-  apiMock.expectGetCastVoteRecordsForTally([]);
 
   // Open Polls Flow
+  apiMock.expectGetCastVoteRecordsForTally([]);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
@@ -731,30 +744,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
-  // Voter scans a ballot
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
-  apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_accept' }));
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
-  const statusBallotCounted = scannerStatus({
-    state: 'no_paper',
-    ballotsCounted: 1,
-  });
-  apiMock.expectGetScannerStatus(statusBallotCounted);
-
-  // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  screen.getByText(/Please wait/);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  screen.getByText('Your ballot was counted!');
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await screen.findByText('Scan one ballot sheet at a time.');
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+  await scanBallot();
 
   // Close Polls
   const mockCvrs = [
@@ -794,7 +784,6 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
       machineId: '0002',
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0], // President expected tally
         [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], // Senator expected tally
@@ -811,7 +800,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
 
 test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper, 5);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
 
@@ -873,7 +862,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper, 3);
   const { card } = renderApp();
 
   card.insertCard(makeSystemAdministratorCard());
@@ -909,6 +898,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
 test('system administrator allowed to log in on unconfigured machine', async () => {
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetScannerStatus(statusNoPaper);
 
   const { card } = renderApp();
 
@@ -968,12 +958,9 @@ test('replace ballot bag flow', async () => {
   const { card, logger } = renderApp();
   await screen.findByText('Insert Your Ballot Below');
 
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
-  apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_accept' }));
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  await scanBallot();
+
+  // should go to modal after accepted screen
   apiMock.expectGetScannerStatus(
     scannerStatus({
       state: 'no_paper',
@@ -981,19 +968,7 @@ test('replace ballot bag flow', async () => {
     }),
     6
   );
-
-  // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  screen.getByText(/Please wait/);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-
-  // we should see still see accepted screen
-  screen.getByText('Your ballot was counted!');
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-
-  // should go to modal after accepted screen
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Ballot Bag Full');
 
   // Insert a pollworker card to enter confirmation step

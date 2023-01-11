@@ -10,13 +10,14 @@ import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
   machineConfig,
   renderInAppContext,
 } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext } from '../api';
+import { ApiClientContext, queryClientDefaultOptions } from '../api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
@@ -59,14 +60,18 @@ function renderScreen({
   apiMock.expectGetCastVoteRecordsForTally([]);
   return renderInAppContext(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <PollWorkerScreen
-        scannedBallotCount={0}
-        pollsState="polls_closed_initial"
-        updatePollsState={jest.fn()}
-        isLiveMode
-        hasPrinterAttached={false}
-        {...pollWorkerScreenProps}
-      />
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        <PollWorkerScreen
+          scannedBallotCount={0}
+          pollsState="polls_closed_initial"
+          updatePollsState={jest.fn()}
+          isLiveMode
+          hasPrinterAttached={false}
+          {...pollWorkerScreenProps}
+        />
+      </QueryClientProvider>
     </ApiClientContext.Provider>,
     pollWorkerScreenAppContextProps
   );

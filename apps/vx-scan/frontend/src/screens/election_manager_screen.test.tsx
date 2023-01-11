@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
   fireEvent,
@@ -21,7 +22,7 @@ import {
 } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext } from '../api';
+import { ApiClientContext, queryClientDefaultOptions } from '../api';
 import { AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,
@@ -56,18 +57,22 @@ function renderScreen({
   };
   return renderInAppContext(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <ElectionManagerScreen
-        scannerStatus={statusNoPaper}
-        isTestMode={false}
-        pollsState="polls_closed_initial"
-        updatePrecinctSelection={jest.fn()}
-        toggleLiveMode={jest.fn()}
-        setMarkThresholdOverrides={jest.fn()}
-        unconfigure={jest.fn()}
-        usbDrive={mockUsbDrive('absent')}
-        toggleIsSoundMuted={jest.fn()}
-        {...electionManagerScreenProps}
-      />
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        <ElectionManagerScreen
+          scannerStatus={statusNoPaper}
+          isTestMode={false}
+          pollsState="polls_closed_initial"
+          updatePrecinctSelection={jest.fn()}
+          toggleLiveMode={jest.fn()}
+          setMarkThresholdOverrides={jest.fn()}
+          unconfigure={jest.fn()}
+          usbDrive={mockUsbDrive('absent')}
+          toggleIsSoundMuted={jest.fn()}
+          {...electionManagerScreenProps}
+        />
+      </QueryClientProvider>
     </ApiClientContext.Provider>,
     electionManagerScreenAppContextProps
   );
