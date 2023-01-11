@@ -100,7 +100,6 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
     <App
       card={card}
       hardware={hardware}
-      storage={storage}
       logger={logger}
       apiClient={apiMock.mockApiClient}
     />

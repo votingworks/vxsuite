@@ -9,7 +9,6 @@ import {
   PollsState,
 } from '@votingworks/types';
 import {
-  useCancelablePromise,
   useUsbDrive,
   SetupCardReaderPage,
   useDevices,
@@ -20,12 +19,7 @@ import {
   isPollWorkerAuth,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
-import {
-  throwIllegalValue,
-  Hardware,
-  Storage,
-  assert,
-} from '@votingworks/utils';
+import { throwIllegalValue, Hardware, assert } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
@@ -68,7 +62,6 @@ import {
   setPrecinctSelection,
   setTestMode,
   unconfigureElection,
-  useApiClient,
 } from './api';
 
 const debug = rootDebug.extend('app-root');
@@ -76,55 +69,25 @@ const debug = rootDebug.extend('app-root');
 export interface Props {
   hardware: Hardware;
   card: Card;
-  storage: Storage;
   machineConfig: Provider<MachineConfig>;
   logger: Logger;
 }
 
-interface HardwareState {
+export interface State {
   machineConfig: Readonly<MachineConfig>;
 }
 
-export interface State extends HardwareState, PrecinctScannerConfig {
-  isBackendStateLoaded: boolean;
-}
-
-const initialHardwareState: Readonly<HardwareState> = {
+const initialState: Readonly<State> = {
   machineConfig: {
     machineId: '0000',
     codeVersion: 'dev',
   },
 };
 
-const initialPrecinctScannerConfig: PrecinctScannerConfig = {
-  isSoundMuted: false,
-  isTestMode: true,
-  pollsState: 'polls_closed_initial',
-  ballotCountWhenBallotBagLastReplaced: 0,
-};
-
-const initialState: Readonly<State> = {
-  ...initialHardwareState,
-  ...initialPrecinctScannerConfig,
-  isBackendStateLoaded: false,
-};
-
-// Sets State.
-type AppAction =
-  | { type: 'updateTestMode'; isTestMode: boolean }
-  | { type: 'resetElectionSession' }
-  | {
-      type: 'refreshStateFromBackend';
-      scannerConfig: PrecinctScannerConfig;
-    }
-  | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
-  | {
-      type: 'updateMarkThresholdOverrides';
-      markThresholdOverrides?: MarkThresholds;
-    }
-  | { type: 'updatePollsState'; pollsState: PollsState }
-  | { type: 'toggleIsSoundMuted' }
-  | { type: 'setMachineConfig'; machineConfig: MachineConfig };
+interface AppAction {
+  type: 'setMachineConfig';
+  machineConfig: MachineConfig;
+}
 
 function appReducer(state: State, action: AppAction): State {
   debug(
@@ -138,67 +101,25 @@ function appReducer(state: State, action: AppAction): State {
     }
   );
   switch (action.type) {
-    case 'refreshStateFromBackend': {
-      return {
-        machineConfig: state.machineConfig,
-        ...action.scannerConfig,
-        isBackendStateLoaded: true,
-      };
-    }
-    case 'resetElectionSession': {
-      return {
-        ...state,
-        pollsState: 'polls_closed_initial',
-        ballotCountWhenBallotBagLastReplaced: 0,
-      };
-    }
-    case 'updateTestMode':
-      return {
-        ...state,
-        isTestMode: action.isTestMode,
-      };
-    case 'updatePrecinctSelection':
-      return {
-        ...state,
-        precinctSelection: action.precinctSelection,
-      };
-    case 'updateMarkThresholdOverrides':
-      return {
-        ...state,
-        markThresholdOverrides: action.markThresholdOverrides,
-      };
-    case 'updatePollsState':
-      return {
-        ...state,
-        pollsState: action.pollsState,
-      };
-    case 'toggleIsSoundMuted':
-      return {
-        ...state,
-        isSoundMuted: !state.isSoundMuted,
-      };
     case 'setMachineConfig':
       return {
         ...state,
-        machineConfig:
-          action.machineConfig ?? initialHardwareState.machineConfig,
+        machineConfig: action.machineConfig ?? initialState.machineConfig,
       };
     default:
-      throwIllegalValue(action);
+      throwIllegalValue(action.type);
   }
 }
 
 export function AppRoot({
   hardware,
   card,
-  storage,
   machineConfig: machineConfigProvider,
   logger,
 }: Props): JSX.Element | null {
-  const apiClient = useApiClient();
   const configQuery = getConfig.useQuery();
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
-  const { isBackendStateLoaded, machineConfig } = appState;
+  const { machineConfig } = appState;
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -221,17 +142,6 @@ export function AppRoot({
     logger,
   });
 
-  const makeCancelable = useCancelablePromise();
-
-  const refreshConfig = useCallback(async () => {
-    const scannerConfig = await makeCancelable(apiClient.getConfig());
-
-    dispatchAppState({
-      type: 'refreshStateFromBackend',
-      scannerConfig,
-    });
-  }, [makeCancelable, apiClient]);
-
   // Handle Machine Config
   useEffect(() => {
     async function setMachineConfig() {
@@ -247,20 +157,6 @@ export function AppRoot({
     }
     void setMachineConfig();
   }, [machineConfigProvider]);
-
-  // Initialize app state
-  useEffect(() => {
-    async function initializeScanner() {
-      try {
-        await refreshConfig();
-      } catch (e) {
-        debug('failed to initialize:', e);
-        window.setTimeout(initializeScanner, 1000);
-      }
-    }
-
-    void initializeScanner();
-  }, [refreshConfig, storage]);
 
   const setPollsStateMutation = setPollsState.useMutation();
   const updatePollsState = useCallback(
@@ -404,7 +300,6 @@ export function AppRoot({
     markThresholdOverrides,
     pollsState,
     isSoundMuted,
-    // ballotCountWhenBallotBagLastReplaced,
   } = configQuery.data;
 
   if (!cardReader) {
@@ -459,10 +354,6 @@ export function AppRoot({
         scannedBallotCount={scannerStatus?.ballotsCounted}
       />
     );
-  }
-
-  if (!isBackendStateLoaded) {
-    return <LoadingConfigurationScreen />;
   }
 
   if (!electionDefinition) {

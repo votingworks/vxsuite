@@ -1,12 +1,11 @@
 import { render, RenderResult } from '@testing-library/react';
 import { fakeLogger, Logger } from '@votingworks/logging';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { App } from '../../src/app';
 
 export function buildApp(connectPrinter = false): {
   card: MemoryCard;
   hardware: MemoryHardware;
-  storage: MemoryStorage;
   logger: Logger;
   renderApp: () => RenderResult;
 } {
@@ -17,9 +16,8 @@ export function buildApp(connectPrinter = false): {
     connectPrecinctScanner: true,
   });
   const logger = fakeLogger();
-  const storage = new MemoryStorage();
   function renderApp() {
-    return render(App({ card, hardware, storage, logger }));
+    return render(App({ card, hardware, logger }));
   }
-  return { renderApp, card, hardware, logger, storage };
+  return { renderApp, card, hardware, logger };
 }

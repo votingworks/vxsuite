@@ -52,7 +52,6 @@ function renderApp(props: Partial<AppProps> = {}) {
     <App
       card={card}
       hardware={hardware}
-      storage={storage}
       logger={logger}
       apiClient={apiMock.mockApiClient}
       {...props}
