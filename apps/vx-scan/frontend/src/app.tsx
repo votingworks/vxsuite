@@ -10,14 +10,11 @@ import * as grout from '@votingworks/grout';
 import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoot, Props as AppRootProps } from './app_root';
-
-import { machineConfigProvider } from './utils/machine_config';
 import { ApiClientContext, queryClientDefaultOptions } from './api';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
   card?: AppRootProps['card'];
-  machineConfig?: AppRootProps['machineConfig'];
   logger?: AppRootProps['logger'];
   apiClient?: grout.Client<Api>;
   queryClient?: QueryClient;
@@ -26,7 +23,6 @@ export interface AppProps {
 export function App({
   hardware = getHardware(),
   card = new WebServiceCard(),
-  machineConfig = machineConfigProvider,
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
   queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
@@ -35,12 +31,7 @@ export function App({
     <BrowserRouter>
       <ApiClientContext.Provider value={apiClient}>
         <QueryClientProvider client={queryClient}>
-          <AppRoot
-            card={card}
-            hardware={hardware}
-            machineConfig={machineConfig}
-            logger={logger}
-          />
+          <AppRoot card={card} hardware={hardware} logger={logger} />
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </BrowserRouter>

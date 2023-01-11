@@ -65,6 +65,31 @@ async function scanBallot(
   });
 }
 
+test('uses machine config from env', async () => {
+  const originalEnv = process.env;
+  process.env = {
+    ...originalEnv,
+    VX_MACHINE_ID: 'test-machine-id',
+    VX_CODE_VERSION: 'test-code-version',
+  };
+
+  const { apiClient } = await createApp();
+  expect(await apiClient.getMachineConfig()).toEqual({
+    machineId: 'test-machine-id',
+    codeVersion: 'test-code-version',
+  });
+
+  process.env = originalEnv;
+});
+
+test('uses default machine config if not set', async () => {
+  const { apiClient } = await createApp();
+  expect(await apiClient.getMachineConfig()).toEqual({
+    machineId: '0000',
+    codeVersion: 'dev',
+  });
+});
+
 test("fails to configure if there's no ballot package on the usb drive", async () => {
   const { apiClient, mockUsb } = await createApp();
   mockUsb.insertUsbDrive({});

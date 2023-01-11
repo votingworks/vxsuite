@@ -31,6 +31,7 @@ import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
 import {
   ConfigurationError,
+  MachineConfig,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from './types';
@@ -45,6 +46,13 @@ function buildApi(
   const { store } = workspace;
 
   return grout.createApi({
+    getMachineConfig(): MachineConfig {
+      return {
+        machineId: process.env.VX_MACHINE_ID || '0000',
+        codeVersion: process.env.VX_CODE_VERSION || 'dev',
+      };
+    },
+
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
     > {
