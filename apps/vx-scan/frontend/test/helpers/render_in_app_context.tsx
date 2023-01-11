@@ -3,16 +3,11 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import { Inserted } from '@votingworks/test-utils';
 import React from 'react';
-import { MachineConfig } from '../../src/config/types';
 import {
   AppContext,
   AppContextInterface,
 } from '../../src/contexts/app_context';
-
-export const machineConfig: MachineConfig = {
-  machineId: '0003',
-  codeVersion: 'TEST',
-};
+import { machineConfig } from './mock_api_client';
 
 export function renderInAppContext(
   element: JSX.Element,

@@ -1,5 +1,3 @@
-import fetchMock from 'fetch-mock';
-import jestFetchMock from 'jest-fetch-mock';
 import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import { TextDecoder, TextEncoder } from 'util';
@@ -20,12 +18,6 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
     printElementWhenReady: fakePrintElementWhenReady,
     printElement: fakePrintElement,
   };
-});
-
-beforeEach(() => {
-  jestFetchMock.enableMocks();
-  fetchMock.reset();
-  fetchMock.mock();
 });
 
 afterEach(() => {

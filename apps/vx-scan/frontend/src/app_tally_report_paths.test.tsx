@@ -1,5 +1,4 @@
 import React from 'react';
-import fetchMock from 'fetch-mock';
 import { render, screen, within } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSample,
@@ -39,7 +38,6 @@ import {
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
-import { MachineConfigResponse } from './config/types';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { App } from './app';
 import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
@@ -47,10 +45,6 @@ import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
 const apiMock = createApiMock();
 
 const machineId = '0002';
-const getMachineConfigBody: MachineConfigResponse = {
-  machineId,
-  codeVersion: '3.14',
-};
 
 function expectBallotCountsInReport(
   container: HTMLElement,
@@ -109,9 +103,8 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  fetchMock.reset();
-  fetchMock.get('/machine-config', { body: getMachineConfigBody });
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
 
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);

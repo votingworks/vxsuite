@@ -10,9 +10,15 @@ import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {
   Api,
+  MachineConfig,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from '@votingworks/vx-scan-backend';
+
+export const machineConfig: MachineConfig = {
+  machineId: '0002',
+  codeVersion: '3.14',
+};
 
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
@@ -38,6 +44,10 @@ export function createApiMock() {
   const mockApiClient = createMockClient<Api>();
   return {
     mockApiClient,
+
+    expectGetMachineConfig(): void {
+      mockApiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
+    },
 
     expectGetConfig(config: Partial<PrecinctScannerConfig> = {}): void {
       mockApiClient.getConfig.expectCallWith().resolves({

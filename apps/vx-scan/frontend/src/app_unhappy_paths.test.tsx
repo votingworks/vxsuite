@@ -12,7 +12,6 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import fetchMock from 'fetch-mock';
 import {
   deferred,
   MemoryCard,
@@ -24,18 +23,12 @@ import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
-import { MachineConfigResponse } from './config/types';
 import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
 import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
-
-const getMachineConfigBody: MachineConfigResponse = {
-  machineId: '0002',
-  codeVersion: '3.14',
-};
 
 const apiMock = createApiMock();
 
@@ -62,9 +55,8 @@ function renderApp(props: Partial<AppProps> = {}) {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  fetchMock.reset();
-  fetchMock.get('/machine-config', { body: getMachineConfigBody });
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
 });
 
 afterEach(() => {
