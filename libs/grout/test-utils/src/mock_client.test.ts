@@ -29,7 +29,7 @@ test('creates a mock client', () => {
 });
 
 test('catches exceptions from mock function failures and logs them', async () => {
-  const mockClient = createMockClient<typeof api>();
+  const mockClient = createMockClient<typeof api>({ catchErrors: true });
   const consoleErrorMock = jest.fn();
   // eslint-disable-next-line no-console
   console.error = consoleErrorMock;
@@ -41,7 +41,7 @@ test('catches exceptions from mock function failures and logs them', async () =>
 });
 
 test('doesnt catch intentional exceptions from mock functions', () => {
-  const mockClient = createMockClient<typeof api>();
+  const mockClient = createMockClient<typeof api>({ catchErrors: true });
   const consoleErrorMock = jest.fn();
   // eslint-disable-next-line no-console
   console.error = consoleErrorMock;

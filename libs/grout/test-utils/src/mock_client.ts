@@ -28,7 +28,7 @@ export type MockClient<Api extends AnyApi> = MockMethods<inferApiMethods<Api>> &
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyMockFunction = MockFunction<any>;
 
-function createMockMethod(methodName: string): AnyMockFunction {
+function createSafeMockMethod(methodName: string): AnyMockFunction {
   // API methods are sometimes called without exception handling, which can
   // cause cause jest to exit early and swallow the error. So we wrap the
   // mock method in a proxy that catches any exceptions and logs them to the
@@ -55,9 +55,16 @@ function createMockMethod(methodName: string): AnyMockFunction {
 /**
  * Creates a client with methods that are all mock functions.
  * (see @votingworks/test-utils/mockFunction)
+ *
+ * Pass `catchErrors: true` to catch errors in mock methods (e.g. an unexpected
+ * call) and return a dummy value. This can be useful to avoid difficult to
+ * debug test crashes if you are working with legacy code that has no error
+ * handling.
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-export function createMockClient<Api extends AnyApi>(): MockClient<Api> {
+export function createMockClient<Api extends AnyApi>(options?: {
+  catchErrors: boolean;
+}): MockClient<Api> {
   const mockMethods: Record<string, AnyMockFunction> = {};
 
   const mockHelpers: MockHelpers = {
@@ -84,7 +91,9 @@ export function createMockClient<Api extends AnyApi>(): MockClient<Api> {
         return Reflect.get(mockHelpers, methodName);
       }
 
-      mockMethods[methodName] ??= createMockMethod(methodName);
+      mockMethods[methodName] ??= options?.catchErrors
+        ? createSafeMockMethod(methodName)
+        : mockFunction(methodName);
       return mockMethods[methodName];
     },
   });
