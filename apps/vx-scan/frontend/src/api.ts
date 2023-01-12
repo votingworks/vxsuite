@@ -26,6 +26,9 @@ export function useApiClient(): grout.Client<Api> {
 
 export const queryClientDefaultOptions: DefaultOptions = {
   queries: {
+    // If the server is unreachable or an unexpected error occurs, don't retry.
+    retry: false,
+
     // Since our backend is always local, we don't want react-query to "pause"
     // when it can't detect a network connection.
     networkMode: 'always',
@@ -37,8 +40,13 @@ export const queryClientDefaultOptions: DefaultOptions = {
     // there is only ever one frontend client updating the backend, so we
     // don't expect data to change on the backend except when we mutate it.
     staleTime: Infinity,
+
+    // If a query fails with an unexpected error, throw it during the render
+    // phase so it will propagate up to the nearest error boundary (we have a
+    // fallback global error boundary).
+    useErrorBoundary: true,
   },
-  mutations: { networkMode: 'always' },
+  mutations: { retry: false, networkMode: 'always', useErrorBoundary: true },
 };
 
 export const getMachineConfig = {

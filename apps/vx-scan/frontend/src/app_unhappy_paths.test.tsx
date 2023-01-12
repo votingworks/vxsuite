@@ -63,14 +63,20 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('when backend does not respond shows loading screen', async () => {
+test('when backend does not respond shows error screen', async () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
   apiMock.mockApiClient.getConfig
     .expectCallWith()
     .throws(new ServerError('not responding'));
   apiMock.expectGetScannerStatus(statusNoPaper);
 
   renderApp();
-  await screen.findByText('Loading Configuration…');
+  await screen.findByText('Something went wrong');
+  expect(console.error).toHaveBeenCalled();
+
+  console.error = originalConsoleError;
 });
 
 test('backend fails to unconfigure', async () => {

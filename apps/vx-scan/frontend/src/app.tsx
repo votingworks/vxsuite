@@ -11,6 +11,7 @@ import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { ApiClientContext, queryClientDefaultOptions } from './api';
+import { ErrorBoundary } from './components/error_boundary';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -29,11 +30,13 @@ export function App({
 }: AppProps): JSX.Element {
   return (
     <BrowserRouter>
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          <AppRoot card={card} hardware={hardware} logger={logger} />
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
+      <ErrorBoundary>
+        <ApiClientContext.Provider value={apiClient}>
+          <QueryClientProvider client={queryClient}>
+            <AppRoot card={card} hardware={hardware} logger={logger} />
+          </QueryClientProvider>
+        </ApiClientContext.Provider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
