@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import 'normalize.css';
 
-import {
-  Card,
-  MarkThresholds,
-  PrecinctSelection,
-  PollsState,
-} from '@votingworks/types';
+import { Card, MarkThresholds, PrecinctSelection } from '@votingworks/types';
 import {
   useUsbDrive,
   SetupCardReaderPage,
@@ -74,6 +69,7 @@ export interface Props {
 export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
+  const setPollsStateMutation = setPollsState.useMutation();
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -95,18 +91,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const setPollsStateMutation = setPollsState.useMutation();
-  const updatePollsState = useCallback(
-    async (newPollsState: PollsState) => {
-      await setPollsStateMutation.mutateAsync({ pollsState: newPollsState });
-    },
-    [setPollsStateMutation]
-  );
-
-  const resetPollsToPaused = useCallback(async () => {
-    await updatePollsState('polls_paused');
-  }, [updatePollsState]);
 
   const setTestModeMutation = setTestMode.useMutation();
   const toggleTestMode = useCallback(async () => {
@@ -256,9 +240,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return <UnlockMachineScreen auth={auth} />;
   }
 
-  const resetPollsToPausedText =
-    'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved.';
-
   if (isSystemAdministratorAuth(auth)) {
     return (
       <ScreenMainCenterChild infoBar>
@@ -275,9 +256,14 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           unconfigureMachine={() =>
             unconfigureServer({ ignoreBackupRequirement: true })
           }
-          resetPollsToPausedText={resetPollsToPausedText}
+          resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
           resetPollsToPaused={
-            pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
+            pollsState === 'polls_closed_final'
+              ? () =>
+                  setPollsStateMutation.mutateAsync({
+                    pollsState: 'polls_paused',
+                  })
+              : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={usbDrive.status}
@@ -366,7 +352,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         <PollWorkerScreen
           scannedBallotCount={scannerStatus.ballotsCounted}
           pollsState={pollsState}
-          updatePollsState={updatePollsState}
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
         />

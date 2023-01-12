@@ -64,6 +64,7 @@ import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
   getCastVoteRecordsForTally,
+  setPollsState,
 } from '../api';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
@@ -108,7 +109,6 @@ const BallotsAlreadyScannedScreen = (
 export interface PollWorkerScreenProps {
   scannedBallotCount: number;
   pollsState: PollsState;
-  updatePollsState: (newPollsState: PollsState) => void;
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
 }
@@ -116,10 +116,10 @@ export interface PollWorkerScreenProps {
 export function PollWorkerScreen({
   scannedBallotCount,
   pollsState,
-  updatePollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
 }: PollWorkerScreenProps): JSX.Element {
+  const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
   const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
@@ -408,7 +408,9 @@ export function PollWorkerScreen({
       await exportCvrs();
     }
     setCurrentPollsTransitionTime(timePollsTransitioned);
-    updatePollsState(getPollsTransitionDestinationState(pollsTransition));
+    await setPollsStateMutation.mutateAsync({
+      pollsState: getPollsTransitionDestinationState(pollsTransition),
+    });
     await logger.log(
       getLogEventIdForPollsTransition(pollsTransition),
       'poll_worker',

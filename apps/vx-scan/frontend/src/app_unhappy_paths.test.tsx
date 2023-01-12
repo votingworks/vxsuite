@@ -212,7 +212,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper, 7);
   const { card } = renderApp({ hardware });
   apiMock.expectGetCastVoteRecordsForTally([]);
   await screen.findByText('Polls Closed');
@@ -242,7 +242,6 @@ test('App shows warning message to connect to power when disconnected', async ()
   // Remove pollworker card
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
-  return;
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning

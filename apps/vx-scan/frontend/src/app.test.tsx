@@ -243,7 +243,7 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Open the polls
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetCastVoteRecordsForTally([]);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to open the polls?');
@@ -602,7 +602,7 @@ test('voter can cast another ballot while the success screen is showing', async 
 
 test('scanning is not triggered when polls closed or cards present', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }), 2);
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }), 3);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -624,7 +624,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper, 4);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
 
@@ -658,7 +658,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
 
 test('with printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_closed_initial' });
-  apiMock.expectGetScannerStatus(statusNoPaper, 5);
+  apiMock.expectGetScannerStatus(statusNoPaper, 6);
   const hardware = MemoryHardware.build({
     connectCardReader: true,
     connectPrinter: true,
@@ -711,7 +711,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
 
 test('no printer: open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper, 3);
   const { card } = renderApp();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   await screen.findByText('Polls Closed');
@@ -786,7 +786,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
 
 test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 5);
+  apiMock.expectGetScannerStatus(statusNoPaper, 6);
   const { card } = renderApp();
   await screen.findByText('Polls Closed');
 
