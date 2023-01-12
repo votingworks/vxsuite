@@ -29,7 +29,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { setTestMode } from '../api';
+import { setIsSoundMuted, setTestMode } from '../api';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -39,7 +39,6 @@ export interface ElectionManagerScreenProps {
   pollsState: PollsState;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
-  toggleIsSoundMuted(): void;
   unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
 }
@@ -49,12 +48,12 @@ export function ElectionManagerScreen({
   isTestMode,
   pollsState,
   updatePrecinctSelection,
-  toggleIsSoundMuted,
   setMarkThresholdOverrides,
   unconfigure,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
   const setTestModeMutation = setTestMode.useMutation();
+  const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const {
     electionDefinition,
     precinctSelection,
@@ -194,7 +193,13 @@ export function ElectionManagerScreen({
           <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
         </p>
         <p>
-          <Button onPress={toggleIsSoundMuted}>
+          <Button
+            onPress={() =>
+              setIsSoundMutedMutation.mutateAsync({
+                isSoundMuted: !isSoundMuted,
+              })
+            }
+          >
             {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
           </Button>
         </p>
@@ -303,7 +308,6 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
-  const [isSoundMuted, setIsSoundMuted] = useState(false);
   const [precinctSelection, setPrecinctSelection] =
     useState<PrecinctSelection>();
   assert(electionDefinition);
@@ -314,7 +318,7 @@ export function DefaultPreview(): JSX.Element {
         electionDefinition,
         precinctSelection,
         markThresholdOverrides: undefined,
-        isSoundMuted,
+        isSoundMuted: false,
         auth: {
           status: 'logged_in',
           user: {
@@ -342,7 +346,6 @@ export function DefaultPreview(): JSX.Element {
         }}
         isTestMode={false}
         pollsState="polls_closed_initial"
-        toggleIsSoundMuted={() => setIsSoundMuted((prev) => !prev)}
         unconfigure={() => Promise.resolve()}
         setMarkThresholdOverrides={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await

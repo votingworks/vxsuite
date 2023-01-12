@@ -40,7 +40,6 @@ import {
   getMachineConfig,
   getScannerStatus,
   recordBallotBagReplaced,
-  setIsSoundMuted,
   setMarkThresholdOverrides,
   setPollsState,
   setPrecinctSelection,
@@ -81,18 +80,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
-  const toggleIsSoundMuted = useCallback(async () => {
-    assert(configQuery.isSuccess);
-    await setIsSoundMutedMutation.mutateAsync({
-      isSoundMuted: !configQuery.data.isSoundMuted,
-    });
-  }, [
-    setIsSoundMutedMutation,
-    configQuery.isSuccess,
-    configQuery.data?.isSoundMuted,
-  ]);
 
   const unconfigureElectionMutation = unconfigureElection.useMutation();
   const unconfigureServer = useCallback(
@@ -254,7 +241,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
-          toggleIsSoundMuted={toggleIsSoundMuted}
         />
       </AppContext.Provider>
     );

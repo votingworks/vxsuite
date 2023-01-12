@@ -68,7 +68,6 @@ function renderScreen({
           setMarkThresholdOverrides={jest.fn()}
           unconfigure={jest.fn()}
           usbDrive={mockUsbDrive('absent')}
-          toggleIsSoundMuted={jest.fn()}
           {...electionManagerScreenProps}
         />
       </QueryClientProvider>
@@ -217,4 +216,20 @@ test('Allows overriding mark thresholds', async () => {
   });
 
   await screen.findByText('Override Mark Thresholds');
+});
+
+test('when sounds are not muted, shows a button to mute sounds', () => {
+  apiMock.mockApiClient.setIsSoundMuted
+    .expectCallWith({ isSoundMuted: true })
+    .resolves();
+  renderScreen();
+  userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
+});
+
+test('when sounds are muted, shows a button to unmute sounds', () => {
+  apiMock.mockApiClient.setIsSoundMuted
+    .expectCallWith({ isSoundMuted: false })
+    .resolves();
+  renderScreen({ appContextProps: { isSoundMuted: true } });
+  userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
 });
