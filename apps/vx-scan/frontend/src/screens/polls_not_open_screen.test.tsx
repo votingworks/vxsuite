@@ -6,9 +6,9 @@ import {
   PollsNotOpenScreenProps,
 } from './polls_not_open_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { machineConfig } from '../../test/helpers/mock_api_client';
 
 const TEST_BALLOT_COUNT = 50;
-const MACHINE_ID = '0003';
 
 function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
   renderInAppContext(
@@ -66,6 +66,6 @@ describe('PollsNotOpenScreen', () => {
     await screen.findByText('Franklin County,');
     await screen.findByText('State of Hamilton');
     screen.getByText('Center Springfield,');
-    screen.getByText(MACHINE_ID);
+    screen.getByText(machineConfig.machineId);
   });
 });

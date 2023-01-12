@@ -1,5 +1,4 @@
 import React from 'react';
-import fetchMock from 'fetch-mock';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -37,7 +36,6 @@ import {
   BALLOT_BAG_CAPACITY,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
 } from './config/globals';
-import { MachineConfigResponse } from './config/types';
 import {
   authenticateElectionManagerCard,
   scannerStatus,
@@ -51,14 +49,6 @@ import { App, AppProps } from './app';
 const apiMock = createApiMock();
 
 jest.setTimeout(20000);
-
-fetchMock.config.overwriteRoutes = false;
-
-const machineId = '0002';
-const getMachineConfigBody: MachineConfigResponse = {
-  machineId,
-  codeVersion: '3.14',
-};
 
 let kiosk = fakeKiosk();
 
@@ -102,10 +92,8 @@ beforeEach(() => {
   );
   window.kiosk = kiosk;
 
-  fetchMock.reset();
-  fetchMock.get('/machine-config', { body: getMachineConfigBody });
-
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
 });
 
 afterEach(() => {
@@ -434,7 +422,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     ),
   ];
   apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
 
@@ -443,7 +431,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_closed_final',
   });
-
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
@@ -456,7 +443,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
       machineId: '0002',
       timeSaved: expect.anything(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0], // President expected tally
         [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], // Senator expected tally
@@ -497,7 +483,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(2);
   userEvent.click(await screen.findByText('Save CVRs'));
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
@@ -764,7 +750,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
     ),
   ];
   apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');

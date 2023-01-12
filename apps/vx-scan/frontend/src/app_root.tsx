@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import 'normalize.css';
 
 import {
   Card,
-  Provider,
   MarkThresholds,
   PrecinctSelection,
   PollsState,
@@ -24,7 +23,6 @@ import { LogEventId, Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-import { MachineConfig } from './config/types';
 
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -53,6 +51,7 @@ import { rootDebug } from './utils/debug';
 import {
   acceptBallot,
   getConfig,
+  getMachineConfig,
   getScannerStatus,
   recordBallotBagReplaced,
   scanBallot,
@@ -69,57 +68,12 @@ const debug = rootDebug.extend('app-root');
 export interface Props {
   hardware: Hardware;
   card: Card;
-  machineConfig: Provider<MachineConfig>;
   logger: Logger;
 }
 
-export interface State {
-  machineConfig: Readonly<MachineConfig>;
-}
-
-const initialState: Readonly<State> = {
-  machineConfig: {
-    machineId: '0000',
-    codeVersion: 'dev',
-  },
-};
-
-interface AppAction {
-  type: 'setMachineConfig';
-  machineConfig: MachineConfig;
-}
-
-function appReducer(state: State, action: AppAction): State {
-  debug(
-    '%cReducer "%s"',
-    'color: green',
-    action.type,
-    { ...action, electionDefinition: undefined },
-    {
-      ...state,
-      electionDefinition: undefined,
-    }
-  );
-  switch (action.type) {
-    case 'setMachineConfig':
-      return {
-        ...state,
-        machineConfig: action.machineConfig ?? initialState.machineConfig,
-      };
-    default:
-      throwIllegalValue(action.type);
-  }
-}
-
-export function AppRoot({
-  hardware,
-  card,
-  machineConfig: machineConfigProvider,
-  logger,
-}: Props): JSX.Element | null {
+export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
+  const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
-  const [appState, dispatchAppState] = useReducer(appReducer, initialState);
-  const { machineConfig } = appState;
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -141,22 +95,6 @@ export function AppRoot({
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  // Handle Machine Config
-  useEffect(() => {
-    async function setMachineConfig() {
-      try {
-        const newMachineConfig = await machineConfigProvider.get();
-        dispatchAppState({
-          type: 'setMachineConfig',
-          machineConfig: newMachineConfig,
-        });
-      } catch {
-        // Do nothing if machineConfig fails. Default values will be used.
-      }
-    }
-    void setMachineConfig();
-  }, [machineConfigProvider]);
 
   const setPollsStateMutation = setPollsState.useMutation();
   const updatePollsState = useCallback(
@@ -289,10 +227,11 @@ export function AppRoot({
     ]
   );
 
-  if (!configQuery.isSuccess) {
+  if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return <LoadingConfigurationScreen />;
   }
 
+  const machineConfig = machineConfigQuery.data;
   const {
     electionDefinition,
     isTestMode,

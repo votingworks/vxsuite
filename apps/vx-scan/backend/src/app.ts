@@ -34,6 +34,7 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from './types';
+import { getMachineConfig } from './machine_config';
 
 function buildApi(
   machine: PrecinctScannerStateMachine,
@@ -45,6 +46,8 @@ function buildApi(
   const { store } = workspace;
 
   return grout.createApi({
+    getMachineConfig,
+
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
     > {
@@ -217,10 +220,14 @@ function buildApi(
       return await backupToUsbDrive(store, usb);
     },
 
-    async exportCastVoteRecordsToUsbDrive(input: {
-      machineId: string;
-    }): Promise<Result<void, ExportDataError>> {
-      return await exportCastVoteRecordsToUsbDrive(store, usb, input.machineId);
+    async exportCastVoteRecordsToUsbDrive(): Promise<
+      Result<void, ExportDataError>
+    > {
+      return await exportCastVoteRecordsToUsbDrive(
+        store,
+        usb,
+        getMachineConfig().machineId
+      );
     },
 
     /**

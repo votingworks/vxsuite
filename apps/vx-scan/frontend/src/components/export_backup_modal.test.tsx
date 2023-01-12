@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import jestFetchMock from 'jest-fetch-mock';
 import React from 'react';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
@@ -20,7 +19,6 @@ const auth = Inserted.fakeElectionManagerAuth();
 const apiMock = createApiMock();
 
 beforeEach(() => {
-  jestFetchMock.enableMocks();
   apiMock.mockApiClient.reset();
 });
 

@@ -40,7 +40,7 @@ export function ExportResultsModal({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition, machineConfig, auth } = useContext(AppContext);
+  const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
@@ -48,9 +48,7 @@ export function ExportResultsModal({
   const exportResults = useCallback(async () => {
     setCurrentState(ModalState.SAVING);
     try {
-      const result = await exportMutation.mutateAsync({
-        machineId: machineConfig.machineId,
-      });
+      const result = await exportMutation.mutateAsync();
       if (result.isErr()) {
         throw new Error(result.err().message);
       }
@@ -60,7 +58,7 @@ export function ExportResultsModal({
       setErrorMessage(`Failed to save CVRs. ${error.message}`);
       setCurrentState(ModalState.ERROR);
     }
-  }, [exportMutation, machineConfig]);
+  }, [exportMutation]);
 
   if (currentState === ModalState.ERROR) {
     return (

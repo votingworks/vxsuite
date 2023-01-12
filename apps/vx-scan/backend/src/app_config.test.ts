@@ -65,6 +65,31 @@ async function scanBallot(
   });
 }
 
+test('uses machine config from env', async () => {
+  const originalEnv = process.env;
+  process.env = {
+    ...originalEnv,
+    VX_MACHINE_ID: 'test-machine-id',
+    VX_CODE_VERSION: 'test-code-version',
+  };
+
+  const { apiClient } = await createApp();
+  expect(await apiClient.getMachineConfig()).toEqual({
+    machineId: 'test-machine-id',
+    codeVersion: 'test-code-version',
+  });
+
+  process.env = originalEnv;
+});
+
+test('uses default machine config if not set', async () => {
+  const { apiClient } = await createApp();
+  expect(await apiClient.getMachineConfig()).toEqual({
+    machineId: '0000',
+    codeVersion: 'dev',
+  });
+});
+
 test("fails to configure if there's no ballot package on the usb drive", async () => {
   const { apiClient, mockUsb } = await createApp();
   mockUsb.insertUsbDrive({});
@@ -134,11 +159,7 @@ test('export the CVRs to USB', async () => {
   const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockPlustek, apiClient, 0);
-  expect(
-    await apiClient.exportCastVoteRecordsToUsbDrive({
-      machineId: 'test-machine-id',
-    })
-  ).toEqual(ok());
+  expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
   const [usbDrive] = await mockUsb.mock.getUsbDrives();
   assert(usbDrive.mountPoint !== undefined);
@@ -148,7 +169,7 @@ test('export the CVRs to USB', async () => {
   const electionDirPath = join(resultsDirPath, electionDirs[0]);
   const cvrFiles = fs.readdirSync(electionDirPath);
   expect(cvrFiles).toHaveLength(1);
-  expect(cvrFiles[0]).toMatch(/machine_testmachineid__1_ballots__.*.jsonl/);
+  expect(cvrFiles[0]).toMatch(/machine_0000__1_ballots__.*.jsonl/);
   const cvrFilePath = join(electionDirPath, cvrFiles[0]);
   const cvr = JSON.parse(fs.readFileSync(cvrFilePath).toString());
   const expectedCvr = generateCvr(

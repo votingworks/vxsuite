@@ -13,16 +13,11 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
-import {
-  machineConfig,
-  renderInAppContext,
-} from '../../test/helpers/render_in_app_context';
+import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { ApiClientContext, queryClientDefaultOptions } from '../api';
 import { createApiMock } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
-
-const { machineId } = machineConfig;
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -196,7 +191,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls happy path', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+    apiMock.expectExportCastVoteRecordsToUsbDrive();
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
@@ -212,7 +207,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+    apiMock.expectExportCastVoteRecordsToUsbDrive();
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -297,7 +292,7 @@ describe('transitions from polls paused', () => {
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+    apiMock.expectExportCastVoteRecordsToUsbDrive();
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');

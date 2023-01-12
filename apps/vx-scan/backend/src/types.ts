@@ -9,6 +9,11 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 
+export interface MachineConfig {
+  machineId: string;
+  codeVersion: string;
+}
+
 /**
  * Possible errors that can occur during configuration (currently there's only one).
  */

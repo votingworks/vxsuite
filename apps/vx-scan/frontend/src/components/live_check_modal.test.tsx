@@ -8,10 +8,9 @@ import { electionSampleDefinition as electionDefinition } from '@votingworks/fix
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 
 import { LiveCheckModal } from './live_check_modal';
-import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
+import { machineConfig } from '../../test/helpers/mock_api_client';
 
-const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
 const auth = Inserted.fakePollWorkerAuth();
 
 MockDate.set('2022-06-22T01:23:45.678Z');
