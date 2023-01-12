@@ -29,7 +29,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { setIsSoundMuted, setTestMode } from '../api';
+import { setIsSoundMuted, setTestMode, unconfigureElection } from '../api';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -39,7 +39,6 @@ export interface ElectionManagerScreenProps {
   pollsState: PollsState;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
-  unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
 }
 
@@ -49,11 +48,11 @@ export function ElectionManagerScreen({
   pollsState,
   updatePrecinctSelection,
   setMarkThresholdOverrides,
-  unconfigure,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
+  const unconfigureMutation = unconfigureElection.useMutation();
   const {
     electionDefinition,
     precinctSelection,
@@ -121,13 +120,14 @@ export function ElectionManagerScreen({
     }
   }
 
+  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
   async function handleUnconfigure() {
-    setIsLoading(true);
+    setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === 'mounted') {
       await usbDrive.eject(userRole);
     }
-    await unconfigure();
+    unconfigureMutation.mutate({});
   }
 
   return (
@@ -263,21 +263,27 @@ export function ElectionManagerScreen({
       {confirmUnconfigure && (
         <Modal
           content={
-            <Prose>
-              <h1>Delete All Election Data?</h1>
-              <p>
-                Do you want to remove all election information and data from
-                this machine?
-              </p>
-            </Prose>
+            isUnconfiguring ? (
+              <Loading />
+            ) : (
+              <Prose>
+                <h1>Delete All Election Data?</h1>
+                <p>
+                  Do you want to remove all election information and data from
+                  this machine?
+                </p>
+              </Prose>
+            )
           }
           actions={
-            <React.Fragment>
-              <Button danger onPress={handleUnconfigure}>
-                Yes, Delete All
-              </Button>
-              <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
-            </React.Fragment>
+            !isUnconfiguring && (
+              <React.Fragment>
+                <Button danger onPress={handleUnconfigure}>
+                  Yes, Delete All
+                </Button>
+                <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
+              </React.Fragment>
+            )
           }
           onOverlayClick={closeConfirmUnconfigureModal}
         />
@@ -346,7 +352,6 @@ export function DefaultPreview(): JSX.Element {
         }}
         isTestMode={false}
         pollsState="polls_closed_initial"
-        unconfigure={() => Promise.resolve()}
         setMarkThresholdOverrides={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await
         updatePrecinctSelection={async (newPrecinctSelection) =>

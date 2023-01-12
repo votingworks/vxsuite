@@ -34,7 +34,6 @@ import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
 } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
-import { rootDebug } from './utils/debug';
 import {
   getConfig,
   getMachineConfig,
@@ -47,8 +46,6 @@ import {
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 
-const debug = rootDebug.extend('app-root');
-
 export interface Props {
   hardware: Hardware;
   card: Card;
@@ -59,6 +56,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
   const setPollsStateMutation = setPollsState.useMutation();
+  const unconfigureMutation = unconfigureElection.useMutation();
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -80,18 +78,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const unconfigureElectionMutation = unconfigureElection.useMutation();
-  const unconfigureServer = useCallback(
-    async (options: { ignoreBackupRequirement?: boolean } = {}) => {
-      try {
-        await unconfigureElectionMutation.mutateAsync(options);
-      } catch (error) {
-        debug('failed unconfigureServer()', error);
-      }
-    },
-    [unconfigureElectionMutation]
-  );
 
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   async function updatePrecinctSelection(
@@ -185,7 +171,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
             </React.Fragment>
           }
           unconfigureMachine={() =>
-            unconfigureServer({ ignoreBackupRequirement: true })
+            unconfigureMutation.mutateAsync({ ignoreBackupRequirement: true })
           }
           resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
           resetPollsToPaused={
@@ -239,7 +225,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           isTestMode={isTestMode}
           pollsState={pollsState}
           setMarkThresholdOverrides={updateMarkThresholds}
-          unconfigure={unconfigureServer}
           usbDrive={usbDrive}
         />
       </AppContext.Provider>

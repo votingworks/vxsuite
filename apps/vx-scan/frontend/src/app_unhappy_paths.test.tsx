@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import {
@@ -80,6 +81,9 @@ test('when backend does not respond shows error screen', async () => {
 });
 
 test('backend fails to unconfigure', async () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
   apiMock.mockApiClient.unconfigureElection
@@ -99,7 +103,10 @@ test('backend fails to unconfigure', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
 
-  await screen.findByText('Loading');
+  await screen.findByText('Something went wrong');
+  expect(console.error).toHaveBeenCalled();
+
+  console.error = originalConsoleError;
 });
 
 test('Show invalid card screen when unsupported cards are given', async () => {

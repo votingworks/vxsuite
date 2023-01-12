@@ -66,7 +66,6 @@ function renderScreen({
           pollsState="polls_closed_initial"
           updatePrecinctSelection={jest.fn()}
           setMarkThresholdOverrides={jest.fn()}
-          unconfigure={jest.fn()}
           usbDrive={mockUsbDrive('absent')}
           {...electionManagerScreenProps}
         />
@@ -143,29 +142,26 @@ test('export from admin screen', () => {
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', () => {
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   const usbDrive = mockUsbDrive('absent');
-  const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      unconfigure: unconfigureFn,
       usbDrive,
     },
   });
 
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   fireEvent.click(screen.getByText('Yes, Delete All'));
-  expect(unconfigureFn).toHaveBeenCalledTimes(1);
   expect(usbDrive.eject).toHaveBeenCalledTimes(0);
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   const usbDrive = mockUsbDrive('mounted');
-  const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      unconfigure: unconfigureFn,
       usbDrive,
     },
   });
@@ -173,7 +169,6 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   fireEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
-    expect(unconfigureFn).toHaveBeenCalledTimes(1);
     expect(usbDrive.eject).toHaveBeenCalledTimes(1);
   });
 });
