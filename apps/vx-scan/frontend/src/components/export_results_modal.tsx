@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -45,20 +45,19 @@ export function ExportResultsModal({
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
-  const exportResults = useCallback(async () => {
+  function exportResults() {
     setCurrentState(ModalState.SAVING);
-    try {
-      const result = await exportMutation.mutateAsync();
-      if (result.isErr()) {
-        throw new Error(result.err().message);
-      }
-      setCurrentState(ModalState.DONE);
-    } catch (error) {
-      assert(error instanceof Error);
-      setErrorMessage(`Failed to save CVRs. ${error.message}`);
-      setCurrentState(ModalState.ERROR);
-    }
-  }, [exportMutation]);
+    exportMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.isErr()) {
+          setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
+          setCurrentState(ModalState.ERROR);
+        } else {
+          setCurrentState(ModalState.DONE);
+        }
+      },
+    });
+  }
 
   if (currentState === ModalState.ERROR) {
     return (

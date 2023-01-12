@@ -30,11 +30,11 @@ export function VoterScreen({
   // we're in voter mode.
   const scanBallotMutation = scanBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  useQueryChangeListener(scannerStatusQuery, async (newScannerStatus) => {
+  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
     if (newScannerStatus.state === 'ready_to_scan') {
-      await scanBallotMutation.mutateAsync();
+      scanBallotMutation.mutate();
     } else if (newScannerStatus.state === 'ready_to_accept') {
-      await acceptBallotMutation.mutateAsync();
+      acceptBallotMutation.mutate();
     }
   });
 

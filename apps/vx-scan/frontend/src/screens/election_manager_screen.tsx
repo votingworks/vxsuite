@@ -66,8 +66,6 @@ export function ElectionManagerScreen({
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [
     isShowingToggleTestModeWarningModal,
     setIsShowingToggleTestModeWarningModal,
@@ -106,17 +104,11 @@ export function ElectionManagerScreen({
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
-  async function handleTogglingTestMode() {
+  function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
       openToggleTestModeWarningModal();
     } else {
-      setIsLoading(true);
-      const minimumDelay = new Promise((resolve) => {
-        setTimeout(resolve, 2000);
-      });
-      await setTestModeMutation.mutateAsync({ isTestMode: !isTestMode });
-      await minimumDelay;
-      setIsLoading(false);
+      setTestModeMutation.mutate({ isTestMode: !isTestMode });
     }
   }
 
@@ -155,14 +147,14 @@ export function ElectionManagerScreen({
             <Button
               large
               onPress={handleTogglingTestMode}
-              disabled={isTestMode}
+              disabled={isTestMode || setTestModeMutation.isLoading}
             >
               Testing Mode
             </Button>
             <Button
               large
               onPress={handleTogglingTestMode}
-              disabled={!isTestMode}
+              disabled={!isTestMode || setTestModeMutation.isLoading}
             >
               Live Election Mode
             </Button>
@@ -195,7 +187,7 @@ export function ElectionManagerScreen({
         <p>
           <Button
             onPress={() =>
-              setIsSoundMutedMutation.mutateAsync({
+              setIsSoundMutedMutation.mutate({
                 isSoundMuted: !isSoundMuted,
               })
             }
@@ -288,13 +280,13 @@ export function ElectionManagerScreen({
           onOverlayClick={closeConfirmUnconfigureModal}
         />
       )}
+
       {isCalibratingScanner && (
         <CalibrateScannerModal
           scannerStatus={scannerStatus}
           onCancel={closeCalibrateScannerModal}
         />
       )}
-      {isLoading && <Modal content={<Loading />} />}
       {isExportingResults && (
         <ExportResultsModal
           onClose={() => setIsExportingResults(false)}

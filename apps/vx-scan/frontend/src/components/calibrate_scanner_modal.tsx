@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
+import { Button, Modal, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
@@ -23,12 +23,13 @@ export function CalibrateScannerModal({
   const calibrateMutation = calibrate.useMutation();
   const [calibrationState, setCalibrationState] =
     useState<CalibrationState>('ready');
-  const makeCancelable = useCancelablePromise();
 
-  async function onCalibrate() {
+  function onCalibrate() {
     setCalibrationState('calibrating');
-    const success = await makeCancelable(calibrateMutation.mutateAsync());
-    setCalibrationState(success ? 'calibrated' : 'failed');
+    calibrateMutation.mutate(undefined, {
+      onSuccess: (calibrationResult: boolean) =>
+        setCalibrationState(calibrationResult ? 'calibrated' : 'failed'),
+    });
   }
 
   if (calibrationState === 'ready') {

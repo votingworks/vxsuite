@@ -9,7 +9,7 @@ import {
   UsbDrive,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { backupToUsbDrive } from '../api';
@@ -46,7 +46,7 @@ export function ExportBackupModal({
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
-  const exportBackup = useCallback(async () => {
+  async function exportBackup() {
     setCurrentState(ModalState.SAVING);
 
     const usbPath = await usbstick.getPath();
@@ -56,19 +56,17 @@ export function ExportBackupModal({
       return;
     }
 
-    try {
-      const result = await backupToUsbDriveMutation.mutateAsync();
-      if (result.isErr()) {
-        setErrorMessage(result.err().message ?? DEFAULT_ERROR);
-        setCurrentState(ModalState.ERROR);
-      } else {
-        setCurrentState(ModalState.DONE);
-      }
-    } catch (error) {
-      setErrorMessage(DEFAULT_ERROR);
-      setCurrentState(ModalState.ERROR);
-    }
-  }, [backupToUsbDriveMutation]);
+    backupToUsbDriveMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.isErr()) {
+          setErrorMessage(result.err().message ?? DEFAULT_ERROR);
+          setCurrentState(ModalState.ERROR);
+        } else {
+          setCurrentState(ModalState.DONE);
+        }
+      },
+    });
+  }
 
   if (currentState === ModalState.ERROR) {
     return (
@@ -182,7 +180,7 @@ export function ExportBackupModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportBackup()}>
+              <Button primary onPress={exportBackup}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>

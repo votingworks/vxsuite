@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-// eslint-disable-next-line vx/gts-no-import-export-type
-import type { ConfigurationError } from '@votingworks/vx-scan-backend';
+import React from 'react';
 import { throwIllegalValue } from '@votingworks/utils';
 import {
   UsbDriveStatus,
@@ -21,14 +19,10 @@ export function UnconfiguredElectionScreen({
   usbDriveStatus,
 }: Props): JSX.Element {
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
-  const [error, setError] = useState<ConfigurationError>();
 
-  useExternalStateChangeListener(usbDriveStatus, async (newUsbDriveStatus) => {
-    setError(undefined);
-    if (newUsbDriveStatus !== 'mounted') return;
-    const result = await configureMutation.mutateAsync();
-    if (result.isErr()) {
-      setError(result.err());
+  useExternalStateChangeListener(usbDriveStatus, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus === 'mounted') {
+      configureMutation.mutate();
     }
   });
 
@@ -36,6 +30,7 @@ export function UnconfiguredElectionScreen({
     if (usbDriveStatus !== 'mounted') {
       return 'Insert a USB drive containing a ballot package.';
     }
+    const error = configureMutation.data?.err();
     if (!error) return undefined;
     switch (error) {
       case 'no_ballot_package_on_usb_drive':
