@@ -379,9 +379,7 @@ export function PollWorkerScreen({
 
   async function exportCvrs(): Promise<void> {
     assert(electionDefinition);
-    const result = await exportCastVoteRecordsMutation.mutateAsync({
-      machineId: machineConfig.machineId,
-    });
+    const result = await exportCastVoteRecordsMutation.mutateAsync();
     if (result.isErr()) {
       throw new Error(result.err().message);
     }

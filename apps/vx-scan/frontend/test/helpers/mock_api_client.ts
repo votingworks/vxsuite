@@ -82,9 +82,9 @@ export function createApiMock() {
         .resolves(castVoteRecords);
     },
 
-    expectExportCastVoteRecordsToUsbDrive(machineId: string): void {
+    expectExportCastVoteRecordsToUsbDrive(): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith({ machineId })
+        .expectCallWith()
         .resolves(ok());
     },
   };

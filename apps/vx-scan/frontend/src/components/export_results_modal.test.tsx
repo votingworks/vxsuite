@@ -89,7 +89,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineConfig.machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
 
   const onClose = jest.fn();
   const usbDrive = mockUsbDrive('mounted');
@@ -140,7 +140,7 @@ test('render export modal with errors when appropriate', async () => {
   window.kiosk = mockKiosk;
 
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ machineId: machineConfig.machineId })
+    .expectCallWith()
     .resolves(
       err({ type: 'file-system-error', message: 'Something went wrong.' })
     );

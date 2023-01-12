@@ -44,8 +44,6 @@ import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
 
-const machineId = '0002';
-
 function expectBallotCountsInReport(
   container: HTMLElement,
   precinctBallots: number,
@@ -317,7 +315,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -522,7 +520,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -645,7 +643,7 @@ test('printing: polls closed, primary election, single precinct + check addition
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -784,7 +782,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -870,7 +868,7 @@ test('printing: polls closed, general election, all precincts', async () => {
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -966,7 +964,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1059,7 +1057,7 @@ test('printing: polls closed, general election, single precinct', async () => {
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1132,7 +1130,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
@@ -1358,7 +1356,7 @@ test('printing: polls closed from paused, general election, single precinct', as
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');
@@ -1432,7 +1430,7 @@ test('saving to card: polls closed from paused, general election, single precinc
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to resume voting?');

@@ -50,8 +50,6 @@ const apiMock = createApiMock();
 
 jest.setTimeout(20000);
 
-const machineId = '0002';
-
 let kiosk = fakeKiosk();
 
 const pollWorkerCard = makePollWorkerCard(
@@ -424,7 +422,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     ),
   ];
   apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
 
@@ -485,7 +483,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(2);
   userEvent.click(await screen.findByText('Save CVRs'));
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
@@ -752,7 +750,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
     ),
   ];
   apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
-  apiMock.expectExportCastVoteRecordsToUsbDrive(machineId);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   card.insertCard(pollWorkerCard);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
