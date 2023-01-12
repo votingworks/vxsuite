@@ -29,6 +29,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import { setTestMode } from '../api';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -38,7 +39,6 @@ export interface ElectionManagerScreenProps {
   pollsState: PollsState;
   updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
-  toggleLiveMode(): Promise<void>;
   toggleIsSoundMuted(): void;
   unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
@@ -49,12 +49,12 @@ export function ElectionManagerScreen({
   isTestMode,
   pollsState,
   updatePrecinctSelection,
-  toggleLiveMode,
   toggleIsSoundMuted,
   setMarkThresholdOverrides,
   unconfigure,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
+  const setTestModeMutation = setTestMode.useMutation();
   const {
     electionDefinition,
     precinctSelection,
@@ -71,15 +71,15 @@ export function ElectionManagerScreen({
   const [isLoading, setIsLoading] = useState(false);
 
   const [
-    isShowingToggleLiveModeWarningModal,
-    setIsShowingToggleLiveModeWarningModal,
+    isShowingToggleTestModeWarningModal,
+    setIsShowingToggleTestModeWarningModal,
   ] = useState(false);
-  const openToggleLiveModeWarningModal = useCallback(
-    () => setIsShowingToggleLiveModeWarningModal(true),
+  const openToggleTestModeWarningModal = useCallback(
+    () => setIsShowingToggleTestModeWarningModal(true),
     []
   );
-  const closeToggleLiveModeWarningModal = useCallback(
-    () => setIsShowingToggleLiveModeWarningModal(false),
+  const closeToggleTestModeWarningModal = useCallback(
+    () => setIsShowingToggleTestModeWarningModal(false),
     []
   );
 
@@ -108,15 +108,15 @@ export function ElectionManagerScreen({
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
-  async function handleTogglingLiveMode() {
+  async function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
-      openToggleLiveModeWarningModal();
+      openToggleTestModeWarningModal();
     } else {
       setIsLoading(true);
       const minimumDelay = new Promise((resolve) => {
         setTimeout(resolve, 2000);
       });
-      await toggleLiveMode();
+      await setTestModeMutation.mutateAsync({ isTestMode: !isTestMode });
       await minimumDelay;
       setIsLoading(false);
     }
@@ -155,14 +155,14 @@ export function ElectionManagerScreen({
           <SegmentedButton>
             <Button
               large
-              onPress={handleTogglingLiveMode}
+              onPress={handleTogglingTestMode}
               disabled={isTestMode}
             >
               Testing Mode
             </Button>
             <Button
               large
-              onPress={handleTogglingLiveMode}
+              onPress={handleTogglingTestMode}
               disabled={!isTestMode}
             >
               Live Election Mode
@@ -227,7 +227,7 @@ export function ElectionManagerScreen({
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
-      {isShowingToggleLiveModeWarningModal && (
+      {isShowingToggleTestModeWarningModal && (
         <Modal
           content={
             <Prose>
@@ -243,16 +243,16 @@ export function ElectionManagerScreen({
               <Button
                 primary
                 onPress={() => {
-                  closeToggleLiveModeWarningModal();
+                  closeToggleTestModeWarningModal();
                   setIsExportingBackup(true);
                 }}
               >
                 Save Backup
               </Button>
-              <Button onPress={closeToggleLiveModeWarningModal}>Cancel</Button>
+              <Button onPress={closeToggleTestModeWarningModal}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeToggleLiveModeWarningModal}
+          onOverlayClick={closeToggleTestModeWarningModal}
         />
       )}
       {confirmUnconfigure && (
@@ -303,7 +303,6 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
-  const [isTestMode, setIsTestMode] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(false);
   const [precinctSelection, setPrecinctSelection] =
     useState<PrecinctSelection>();
@@ -341,10 +340,8 @@ export function DefaultPreview(): JSX.Element {
           ballotsCounted: 1234,
           canUnconfigure: true,
         }}
-        isTestMode={isTestMode}
+        isTestMode={false}
         pollsState="polls_closed_initial"
-        // eslint-disable-next-line @typescript-eslint/require-await
-        toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
         toggleIsSoundMuted={() => setIsSoundMuted((prev) => !prev)}
         unconfigure={() => Promise.resolve()}
         setMarkThresholdOverrides={() => Promise.resolve()}

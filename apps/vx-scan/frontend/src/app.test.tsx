@@ -212,8 +212,9 @@ test('election manager and poll worker configuration', async () => {
   config = { ...config, isTestMode: true };
   apiMock.expectGetConfig(config);
   userEvent.click(await screen.findByText('Live Election Mode'));
-  await screen.findByText('Loading');
-  await advanceTimersAndPromises(2);
+  await waitFor(() =>
+    expect(screen.getByText('Live Election Mode')).toBeDisabled()
+  );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
     'election_manager',

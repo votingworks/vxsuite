@@ -65,7 +65,6 @@ function renderScreen({
           isTestMode={false}
           pollsState="polls_closed_initial"
           updatePrecinctSelection={jest.fn()}
-          toggleLiveMode={jest.fn()}
           setMarkThresholdOverrides={jest.fn()}
           unconfigure={jest.fn()}
           usbDrive={mockUsbDrive('absent')}
@@ -188,13 +187,10 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
 });
 
 test('cannot toggle to testing mode when the machine cannot be unconfigured', () => {
-  const toggleLiveModeFn = jest.fn();
-  renderScreen({
-    electionManagerScreenProps: { toggleLiveMode: toggleLiveModeFn },
-  });
+  renderScreen();
 
   fireEvent.click(screen.getByText('Testing Mode'));
-  expect(toggleLiveModeFn).not.toHaveBeenCalled();
+  screen.getByText('Save Backup to switch to Test Mode');
   fireEvent.click(screen.getByText('Cancel'));
 });
 

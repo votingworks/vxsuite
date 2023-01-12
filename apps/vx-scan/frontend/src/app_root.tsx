@@ -44,7 +44,6 @@ import {
   setMarkThresholdOverrides,
   setPollsState,
   setPrecinctSelection,
-  setTestMode,
   unconfigureElection,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
@@ -82,18 +81,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const setTestModeMutation = setTestMode.useMutation();
-  const toggleTestMode = useCallback(async () => {
-    assert(configQuery.isSuccess);
-    await setTestModeMutation.mutateAsync({
-      isTestMode: !configQuery.data.isTestMode,
-    });
-  }, [
-    setTestModeMutation,
-    configQuery.isSuccess,
-    configQuery.data?.isTestMode,
-  ]);
 
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const toggleIsSoundMuted = useCallback(async () => {
@@ -264,7 +251,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}
-          toggleLiveMode={toggleTestMode}
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
