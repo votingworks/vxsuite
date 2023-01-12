@@ -43,7 +43,7 @@ export function main({ stdout }: IO): void {
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
-    'pnpmfile.js',
+    '.pnpmfile.cjs',
   ]) {
     fs.copyFileSync(join(WORKSPACE_ROOT, file), join(outRoot, basename(file)));
   }

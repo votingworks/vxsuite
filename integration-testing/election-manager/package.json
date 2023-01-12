@@ -5,8 +5,8 @@
   "scripts": {
     "build": "pnpm install && make build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "(cd ../../frontends/election-manager && pnpx tsc --build) && eslint .",
-    "lint:fix": "pnpm lint -- --fix",
+    "lint": "(cd ../../frontends/election-manager && tsc --build) && eslint .",
+    "lint:fix": "pnpm lint --fix",
     "start": "make run",
     "test": "is-ci test:ci test:watch",
     "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
@@ -66,5 +66,5 @@
     "sort-package-json": "^1.50.0",
     "typescript": "4.6.3"
   },
-  "packageManager": "pnpm@5.18.10"
+  "packageManager": "pnpm@7.24.3"
 }
