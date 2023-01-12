@@ -12,7 +12,7 @@ import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
-import { useApiClient } from '../api/api';
+import { backupToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -37,7 +37,7 @@ export function ExportBackupModal({
   onClose,
   usbDrive,
 }: ExportBackupModalProps): JSX.Element {
-  const apiClient = useApiClient();
+  const backupToUsbDriveMutation = backupToUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -57,7 +57,7 @@ export function ExportBackupModal({
     }
 
     try {
-      const result = await apiClient.backupToUsbDrive();
+      const result = await backupToUsbDriveMutation.mutateAsync();
       if (result.isErr()) {
         setErrorMessage(result.err().message ?? DEFAULT_ERROR);
         setCurrentState(ModalState.ERROR);
@@ -68,7 +68,7 @@ export function ExportBackupModal({
       setErrorMessage(DEFAULT_ERROR);
       setCurrentState(ModalState.ERROR);
     }
-  }, [apiClient]);
+  }, [backupToUsbDriveMutation]);
 
   if (currentState === ModalState.ERROR) {
     return (

@@ -115,6 +115,11 @@ export function mockFunction<Func extends AnyFunc>(
   };
 
   const mock: MockFunction<Func> = (...input: Parameters<Func>) => {
+    // Special case - [] and [undefined] are equivalent as args
+    if (input.length === 1 && input[0] === undefined) {
+      // eslint-disable-next-line no-param-reassign
+      input = [] as unknown as Parameters<Func>;
+    }
     state.actualCalls.push({ input });
     const expectedCall = state.expectedCalls[state.actualCalls.length - 1];
     if (!expectedCall) {

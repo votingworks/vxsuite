@@ -1,27 +1,24 @@
 import { deserialize, serialize } from './serialization';
-import { AnyApi, AnyMethods, inferApiMethods } from './server';
+import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
 
 /**
- * Wraps a function's return type in a Promise if it isn't already a Promise.
+ * Wraps a method's return type in a Promise if it isn't already a Promise.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AsyncFunction<F extends (...args: any) => any> = (
-  ...args: Parameters<F>
-) => ReturnType<F> extends Promise<infer R>
-  ? Promise<R>
-  : Promise<ReturnType<F>>;
-
-type ClientMethods<Methods extends AnyMethods> = {
-  [Method in keyof Methods]: AsyncFunction<Methods[Method]>;
-};
+export type AsyncRpcMethod<Method extends AnyRpcMethod> = (
+  ...args: Parameters<Method>
+) => Promise<Awaited<ReturnType<Method>>>;
 
 /**
  * A Grout RPC client based on the type of an API definition.
  */
-export type Client<Api extends AnyApi> = ClientMethods<inferApiMethods<Api>>;
+export type Client<Api extends AnyApi> = {
+  [Method in keyof inferApiMethods<Api>]: AsyncRpcMethod<
+    inferApiMethods<Api>[Method]
+  >;
+};
 
 /**
  * Options for creating a Grout RPC client.

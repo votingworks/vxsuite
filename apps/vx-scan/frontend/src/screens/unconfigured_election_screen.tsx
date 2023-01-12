@@ -11,29 +11,25 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 import { IndeterminateProgressBar } from '../components/graphics';
-import { useApiClient } from '../api/api';
+import { configureFromBallotPackageOnUsbDrive } from '../api';
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;
-  refreshConfig: () => Promise<void>;
 }
 
 export function UnconfiguredElectionScreen({
   usbDriveStatus,
-  refreshConfig,
 }: Props): JSX.Element {
-  const apiClient = useApiClient();
+  const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
   const [error, setError] = useState<ConfigurationError>();
 
   useExternalStateChangeListener(usbDriveStatus, async (newUsbDriveStatus) => {
     setError(undefined);
     if (newUsbDriveStatus !== 'mounted') return;
-    const result = await apiClient.configureFromBallotPackageOnUsbDrive();
+    const result = await configureMutation.mutateAsync();
     if (result.isErr()) {
       setError(result.err());
-      return;
     }
-    await refreshConfig();
   });
 
   const errorMessage = (() => {
@@ -69,10 +65,5 @@ export function UnconfiguredElectionScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return (
-    <UnconfiguredElectionScreen
-      usbDriveStatus="absent"
-      refreshConfig={() => Promise.resolve()}
-    />
-  );
+  return <UnconfiguredElectionScreen usbDriveStatus="absent" />;
 }

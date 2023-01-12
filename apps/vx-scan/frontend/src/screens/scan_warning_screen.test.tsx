@@ -10,10 +10,11 @@ import {
 } from '@votingworks/utils';
 import React from 'react';
 import { mockOf } from '@votingworks/test-utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext } from '../api/api';
+import { ApiClientContext, queryClientDefaultOptions } from '../api';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -35,7 +36,11 @@ afterEach(() => {
 function renderScreen(props: Props) {
   return renderInAppContext(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <ScanWarningScreen {...props} />
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        <ScanWarningScreen {...props} />
+      </QueryClientProvider>
     </ApiClientContext.Provider>
   );
 }

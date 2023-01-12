@@ -7,6 +7,7 @@ import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/types';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ExportResultsModal,
   ExportResultsModalProps,
@@ -16,8 +17,8 @@ import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
 import { createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext } from '../api/api';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import { ApiClientContext, queryClientDefaultOptions } from '../api';
 
 const apiMock = createApiMock();
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
@@ -26,11 +27,15 @@ const auth = Inserted.fakeElectionManagerAuth();
 function renderModal(props: Partial<ExportResultsModalProps> = {}) {
   return renderInAppContext(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <ExportResultsModal
-        onClose={jest.fn()}
-        usbDrive={mockUsbDrive('mounted')}
-        {...props}
-      />
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        <ExportResultsModal
+          onClose={jest.fn()}
+          usbDrive={mockUsbDrive('mounted')}
+          {...props}
+        />
+      </QueryClientProvider>
     </ApiClientContext.Provider>,
     { auth }
   );
@@ -113,10 +118,16 @@ test('render export modal when a usb drive is mounted as expected and allows exp
       }}
     >
       <ApiClientContext.Provider value={apiMock.mockApiClient}>
-        <ExportResultsModal
-          onClose={onClose}
-          usbDrive={mockUsbDrive('ejected')}
-        />
+        <QueryClientProvider
+          client={
+            new QueryClient({ defaultOptions: queryClientDefaultOptions })
+          }
+        >
+          <ExportResultsModal
+            onClose={onClose}
+            usbDrive={mockUsbDrive('ejected')}
+          />
+        </QueryClientProvider>
       </ApiClientContext.Provider>
     </AppContext.Provider>
   );

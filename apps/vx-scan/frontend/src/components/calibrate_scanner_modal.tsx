@@ -3,7 +3,7 @@ import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
-import { useApiClient } from '../api/api';
+import { calibrate } from '../api';
 
 export interface CalibrateScannerModalProps {
   scannerStatus: PrecinctScannerStatus;
@@ -20,14 +20,14 @@ export function CalibrateScannerModal({
   scannerStatus,
   onCancel,
 }: CalibrateScannerModalProps): JSX.Element {
-  const apiClient = useApiClient();
+  const calibrateMutation = calibrate.useMutation();
   const [calibrationState, setCalibrationState] =
     useState<CalibrationState>('ready');
   const makeCancelable = useCancelablePromise();
 
-  async function calibrate() {
+  async function onCalibrate() {
     setCalibrationState('calibrating');
-    const success = await makeCancelable(apiClient.calibrate());
+    const success = await makeCancelable(calibrateMutation.mutateAsync());
     setCalibrationState(success ? 'calibrated' : 'failed');
   }
 
@@ -47,7 +47,7 @@ export function CalibrateScannerModal({
         actions={
           <React.Fragment>
             {scannerStatus?.state === 'ready_to_scan' ? (
-              <Button primary onPress={calibrate}>
+              <Button primary onPress={onCalibrate}>
                 Calibrate
               </Button>
             ) : scannerStatus?.state === 'no_paper' ? (

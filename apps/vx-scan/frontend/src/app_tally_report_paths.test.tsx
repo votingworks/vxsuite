@@ -100,7 +100,6 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
     <App
       card={card}
       hardware={hardware}
-      storage={storage}
       logger={logger}
       apiClient={apiMock.mockApiClient}
     />
@@ -1192,7 +1191,7 @@ test('printing: polls paused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
   const { card } = renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1278,7 +1277,7 @@ test('printing: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
   const { card } = renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
@@ -1318,7 +1317,7 @@ test('saving to card: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
 

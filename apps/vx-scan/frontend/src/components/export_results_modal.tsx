@@ -13,7 +13,7 @@ import {
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
-import { useApiClient } from '../api/api';
+import { exportCastVoteRecordsToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -36,7 +36,7 @@ export function ExportResultsModal({
   onClose,
   usbDrive,
 }: ExportResultsModalProps): JSX.Element {
-  const apiClient = useApiClient();
+  const exportMutation = exportCastVoteRecordsToUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -48,7 +48,7 @@ export function ExportResultsModal({
   const exportResults = useCallback(async () => {
     setCurrentState(ModalState.SAVING);
     try {
-      const result = await apiClient.exportCastVoteRecordsToUsbDrive({
+      const result = await exportMutation.mutateAsync({
         machineId: machineConfig.machineId,
       });
       if (result.isErr()) {
@@ -60,7 +60,7 @@ export function ExportResultsModal({
       setErrorMessage(`Failed to save CVRs. ${error.message}`);
       setCurrentState(ModalState.ERROR);
     }
-  }, [apiClient, machineConfig]);
+  }, [exportMutation, machineConfig]);
 
   if (currentState === ModalState.ERROR) {
     return (

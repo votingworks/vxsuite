@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@rooks/use-interval": "^4.11.2",
+    "@tanstack/react-query": "^4.22.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^12.1.5",
     "@types/jest": "^24.0.0",
