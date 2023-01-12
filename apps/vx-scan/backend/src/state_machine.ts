@@ -242,10 +242,11 @@ async function interpretSheet(
 
 async function accept({ client }: Context) {
   assert(client);
-  debug('Accepting');
-  const acceptResult = await client.accept();
-  debug('Accept result: %o', acceptResult);
-  return acceptResult.unsafeUnwrap();
+  debug('Faking Accepting');
+  return ok();
+  // const acceptResult = await client.accept();
+  // debug('Accept result: %o', acceptResult);
+  // return acceptResult.unsafeUnwrap();
 }
 
 async function reject({ client }: Context) {
@@ -394,15 +395,15 @@ function buildMachine({
       checking_completed: {
         invoke: pollPaperStatus,
         on: {
-          SCANNER_NO_PAPER: '#accepted',
+          SCANNER_NO_PAPER: '#error',
           // If there's a paper in front, that means the ballot in back did get
           // dropped but somebody quickly inserted a new ballot in front, so we
           // should count the first ballot as accepted.
-          SCANNER_READY_TO_SCAN: '#accepted',
+          SCANNER_READY_TO_SCAN: '#error',
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
-          SCANNER_READY_TO_EJECT: doNothing,
+          SCANNER_READY_TO_EJECT: '#accepted',
         },
         // If the paper eventually didn't get dropped, reject it.
         after: {
@@ -428,7 +429,7 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(workspace.store, context),
+          // entry: (context) => recordRejectedSheet(workspace.store, context),
           invoke: {
             src: reject,
             onDone: 'checking_completed',
@@ -530,22 +531,8 @@ function buildMachine({
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: {
-              target: 'rejected',
-              actions: assign({
-                error: new PrecinctScannerError(
-                  'paper_in_front_after_reconnect'
-                ),
-              }),
-            },
-            SCANNER_READY_TO_EJECT: {
-              target: 'rejecting',
-              actions: assign({
-                error: new PrecinctScannerError(
-                  'paper_in_back_after_reconnect'
-                ),
-              }),
-            },
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_EJECT: 'resetting_ballot',
           },
         },
         no_paper: {
@@ -724,24 +711,11 @@ function buildMachine({
         accepted: {
           id: 'accepted',
           entry: (context) => recordAcceptedSheet(workspace.store, context),
-          invoke: pollPaperStatus,
-          initial: 'scanning_paused',
-          on: { SCANNER_NO_PAPER: doNothing },
-          states: {
-            scanning_paused: {
-              on: { SCANNER_READY_TO_SCAN: doNothing },
-              after: {
-                DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'ready_for_next_ballot',
-              },
-            },
-            ready_for_next_ballot: {
-              on: { SCANNER_READY_TO_SCAN: '#ready_to_scan' },
-            },
-          },
-          after: {
-            DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper',
-          },
+          after: { 500: 'resetting_ballot' },
         },
+	resetting_ballot: {
+          ...rejectingState('#ready_to_scan'),
+	},
         needs_review: {
           id: 'needs_review',
           invoke: pollPaperStatus,
@@ -1037,6 +1011,8 @@ export function createPrecinctScannerStateMachine({
             return 'ready_to_scan';
           case state.matches('scanning'):
             return 'scanning';
+          case state.matches('resetting_ballot'):
+            return 'accepted';
           case state.matches('interpreting'):
             return 'scanning';
           case state.matches('ready_to_accept'):
