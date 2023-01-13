@@ -135,6 +135,10 @@
     {
       "name": "libs/eslint-plugin-vx",
       "path": "libs/eslint-plugin-vx"
+    },
+    {
+      "name": "libs/usb-mocking",
+      "path": "libs/usb-mocking"
     }
   ],
   "settings": {
