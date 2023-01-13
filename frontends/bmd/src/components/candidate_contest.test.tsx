@@ -80,7 +80,7 @@ describe('supports single-seat contest', () => {
     expect(
       screen.getByText(candidateContest.candidates[0].name).closest('button')!
         .dataset['selected']
-    ).toBe('true');
+    ).toEqual('true');
 
     fireEvent.click(
       screen.getByText(candidateContest.candidates[1].name).closest('button')!
@@ -122,17 +122,17 @@ describe('supports multi-seat contests', () => {
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[0].name)
         .closest('button')!.dataset['selected']
-    ).toBe('true');
+    ).toEqual('true');
     expect(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[1].name)
         .closest('button')!.dataset['selected']
-    ).toBe('false');
+    ).toEqual('false');
     expect(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[2].name)
         .closest('button')!.dataset['selected']
-    ).toBe('false');
+    ).toEqual('false');
 
     fireEvent.click(
       screen
@@ -250,7 +250,7 @@ describe('supports write-in candidates', () => {
 
     expect(
       screen.getByText('space').closest('button')!.hasAttribute('disabled')
-    ).toBe(true);
+    ).toEqual(true);
     fireEvent.click(screen.getByText('Accept'));
     expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 

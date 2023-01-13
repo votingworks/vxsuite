@@ -209,17 +209,17 @@ test('MarkAndPrint end-to-end flow', async () => {
   getByTextWithMarkup('Your ballot has 21 contests.');
 
   // Adjust Text Size on Start Page
-  expect(screen.getAllByLabelText('Text Size:', { exact: false }).length).toBe(
-    3
-  );
+  expect(
+    screen.getAllByLabelText('Text Size:', { exact: false }).length
+  ).toEqual(3);
   userEvent.click(screen.getByLabelText('Text Size: Large'));
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
   userEvent.click(screen.getByLabelText('Selected Text Size: Large'));
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
   userEvent.click(screen.getByLabelText('Text Size: Medium'));
-  expect(window.document.documentElement.style.fontSize).toBe('28px');
+  expect(window.document.documentElement.style.fontSize).toEqual('28px');
   userEvent.click(screen.getByLabelText('Text Size: Small'));
-  expect(window.document.documentElement.style.fontSize).toBe('22px');
+  expect(window.document.documentElement.style.fontSize).toEqual('22px');
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
@@ -231,9 +231,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Adjust Text Size in Settings Modal
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('Voter Settings');
-  expect(screen.getAllByLabelText('Text Size:', { exact: false }).length).toBe(
-    3
-  );
+  expect(
+    screen.getAllByLabelText('Text Size:', { exact: false }).length
+  ).toEqual(3);
   userEvent.keyboard('{ArrowRight}');
   expect(screen.getByLabelText('Selected Text Size: Small')).toHaveFocus();
   userEvent.keyboard('{ArrowRight}');
@@ -241,22 +241,22 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.keyboard('{ArrowLeft}');
   expect(screen.getByLabelText('Selected Text Size: Small')).toHaveFocus();
   userEvent.click(screen.getByLabelText('Text Size: Large'));
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
   userEvent.click(screen.getByText('Done'));
   expect(screen.queryByText('Voter Settings')).not.toBeInTheDocument();
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
 
   // Use Default Settings
   userEvent.click(screen.getByText('Settings'));
   userEvent.click(screen.getByText('Use Default Settings'));
   expect(screen.queryByText('Voter Settings')).not.toBeInTheDocument();
-  expect(window.document.documentElement.style.fontSize).toBe('28px');
+  expect(window.document.documentElement.style.fontSize).toEqual('28px');
 
   // Update Settings to use non default text size for voting session
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('Voter Settings');
   userEvent.click(screen.getByLabelText('Text Size: Large'));
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
   userEvent.click(screen.getByText('Done'));
 
   // Advance through every contest
@@ -349,7 +349,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Font Size is still custom user setting
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
 
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
@@ -365,7 +365,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('Insert Card');
 
   // Font size has been reset to default on Insert Card screen
-  expect(window.document.documentElement.style.fontSize).toBe('28px');
+  expect(window.document.documentElement.style.fontSize).toEqual('28px');
 
   // Insert Voter card which has just printed, it should say "used card"
   card.insertCard(makeUsedVoterCard());

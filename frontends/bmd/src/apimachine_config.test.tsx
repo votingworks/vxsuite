@@ -34,7 +34,7 @@ test('machineConfig is fetched from /machine-config by default', async () => {
   );
   await advanceTimersAndPromises();
 
-  expect(fetchMock.called('/machine-config')).toBe(true);
+  expect(fetchMock.called('/machine-config')).toEqual(true);
 });
 
 test('machineConfig fetch fails', async () => {

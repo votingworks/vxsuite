@@ -59,11 +59,11 @@ export function parseCvrs(cvrsFileContents: string): CastVoteRecord[] {
 }
 
 function expectAllEmptyTallies(tally: Tally) {
-  expect(tally.numberOfBallotsCounted).toBe(0);
+  expect(tally.numberOfBallotsCounted).toEqual(0);
   for (const contestId of Object.keys(tally.contestTallies)) {
     const contestTally = tally.contestTallies[contestId]!;
     for (const contestTallyTally of Object.values(contestTally.tallies)) {
-      expect(contestTallyTally?.tally).toBe(0);
+      expect(contestTallyTally?.tally).toEqual(0);
     }
     expect(contestTally.metadata).toStrictEqual({
       undervotes: 0,
@@ -102,18 +102,18 @@ test('getContestVoteOptionsForCandidateContest', () => {
 });
 
 test('getSingleYesNoVote', () => {
-  expect(getSingleYesNoVote()).toBe(undefined);
-  expect(getSingleYesNoVote([])).toBe(undefined);
-  expect(getSingleYesNoVote(['yes'])).toBe('yes');
-  expect(getSingleYesNoVote(['no'])).toBe('no');
-  expect(getSingleYesNoVote(['yes', 'no'])).toBe(undefined);
+  expect(getSingleYesNoVote()).toEqual(undefined);
+  expect(getSingleYesNoVote([])).toEqual(undefined);
+  expect(getSingleYesNoVote(['yes'])).toEqual('yes');
+  expect(getSingleYesNoVote(['no'])).toEqual('no');
+  expect(getSingleYesNoVote(['yes', 'no'])).toEqual(undefined);
 });
 
 test('normalizeWriteInId', () => {
-  expect(normalizeWriteInId('arandomword')).toBe('arandomword');
-  expect(normalizeWriteInId('writeIn-123')).toBe('writeIn-123');
-  expect(normalizeWriteInId('__write-in-123')).toBe('__write-in-123');
-  expect(normalizeWriteInId('write-in-123456')).toBe(writeInCandidate.id);
+  expect(normalizeWriteInId('arandomword')).toEqual('arandomword');
+  expect(normalizeWriteInId('writeIn-123')).toEqual('writeIn-123');
+  expect(normalizeWriteInId('__write-in-123')).toEqual('__write-in-123');
+  expect(normalizeWriteInId('write-in-123456')).toEqual(writeInCandidate.id);
 });
 
 test('buildVoteFromCvr', () => {
@@ -413,7 +413,7 @@ describe('filterTalliesByParams in a typical election', () => {
       const filteredResults = filterTalliesByParams(electionTally, election, {
         precinctId,
       });
-      expect(filteredResults.numberOfBallotsCounted).toBe(totalBallots);
+      expect(filteredResults.numberOfBallotsCounted).toEqual(totalBallots);
       expect(filteredResults.ballotCountsByVotingMethod).toMatchObject(
         ballotCountsByVotingMethod
       );
@@ -554,7 +554,7 @@ describe('filterTalliesByParams in a typical election', () => {
       const filteredResults = filterTalliesByParams(electionTally, election, {
         scannerId,
       });
-      expect(filteredResults.numberOfBallotsCounted).toBe(totalBallots);
+      expect(filteredResults.numberOfBallotsCounted).toEqual(totalBallots);
       expect(filteredResults.contestTallies).toMatchSnapshot(
         `filterTalliesByParams[scannerId=${scannerId}]`
       );
@@ -576,7 +576,7 @@ describe('filterTalliesByParams in a typical election', () => {
       precinctId,
       scannerId,
     });
-    expect(filteredResults.numberOfBallotsCounted).toBe(227);
+    expect(filteredResults.numberOfBallotsCounted).toEqual(227);
     expect(filteredResults.contestTallies).toMatchSnapshot(
       `filterTalliesByParams[precinctId=${precinctId},scannerId=${scannerId}]`
     );
@@ -591,7 +591,7 @@ describe('filterTalliesByParams in a typical election', () => {
     const absenteeResults = filterTalliesByParams(electionTally, election, {
       votingMethod: VotingMethod.Absentee,
     });
-    expect(absenteeResults.numberOfBallotsCounted).toBe(672);
+    expect(absenteeResults.numberOfBallotsCounted).toEqual(672);
     expect(absenteeResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 672,
       [VotingMethod.Precinct]: 0,
@@ -601,7 +601,7 @@ describe('filterTalliesByParams in a typical election', () => {
     const precinctResults = filterTalliesByParams(electionTally, election, {
       votingMethod: VotingMethod.Precinct,
     });
-    expect(precinctResults.numberOfBallotsCounted).toBe(474);
+    expect(precinctResults.numberOfBallotsCounted).toEqual(474);
     expect(precinctResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 474,
@@ -611,7 +611,7 @@ describe('filterTalliesByParams in a typical election', () => {
     const unknownResults = filterTalliesByParams(electionTally, election, {
       votingMethod: VotingMethod.Unknown,
     });
-    expect(unknownResults.numberOfBallotsCounted).toBe(8855);
+    expect(unknownResults.numberOfBallotsCounted).toEqual(8855);
     expect(unknownResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 0,
       [VotingMethod.Precinct]: 0,
@@ -625,7 +625,7 @@ describe('filterTalliesByParams in a typical election', () => {
       scannerId: 'scanner-5',
       votingMethod: VotingMethod.Absentee,
     });
-    expect(filteredResults.numberOfBallotsCounted).toBe(18);
+    expect(filteredResults.numberOfBallotsCounted).toEqual(18);
     expect(filteredResults.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 18,
       [VotingMethod.Precinct]: 0,
@@ -700,10 +700,10 @@ describe('filterTalliesByParams in a primary election', () => {
   });
 
   test('can filter results by party', () => {
-    expect(Object.keys(electionTally.overallTally.contestTallies).length).toBe(
-      13
-    );
-    expect(electionTally.overallTally.numberOfBallotsCounted).toBe(4530);
+    expect(
+      Object.keys(electionTally.overallTally.contestTallies).length
+    ).toEqual(13);
+    expect(electionTally.overallTally.numberOfBallotsCounted).toEqual(4530);
     expect(electionTally.overallTally.ballotCountsByVotingMethod).toMatchObject(
       {
         [VotingMethod.Absentee]: 468,
@@ -721,7 +721,9 @@ describe('filterTalliesByParams in a primary election', () => {
       expect(Object.keys(filteredResults.contestTallies)).toStrictEqual(
         testcase.contestIds
       );
-      expect(filteredResults.numberOfBallotsCounted).toBe(testcase.numBallots);
+      expect(filteredResults.numberOfBallotsCounted).toEqual(
+        testcase.numBallots
+      );
       expect(filteredResults.ballotCountsByVotingMethod).toMatchObject(
         testcase.ballotCountsByVotingMethod
       );
@@ -780,7 +782,7 @@ describe('filterTalliesByParams in a primary election', () => {
         multiPartyPrimaryElection,
         { batchId: testcase.batchId }
       );
-      expect(filteredResults.numberOfBallotsCounted).toBe(
+      expect(filteredResults.numberOfBallotsCounted).toEqual(
         testcase.numberOfBallots
       );
     }
@@ -816,7 +818,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { batchId: '1234-3', precinctId: 'precinct-1' }
     );
-    expect(precinctAndBatch.numberOfBallotsCounted).toBe(290);
+    expect(precinctAndBatch.numberOfBallotsCounted).toEqual(290);
     expect(precinctAndBatch.ballotCountsByVotingMethod).toStrictEqual({
       [VotingMethod.Precinct]: 5,
       [VotingMethod.Absentee]: 38,
@@ -848,7 +850,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { partyId: party4, precinctId: 'precinct-1' }
     );
-    expect(filterParty5Precinct1.numberOfBallotsCounted).toBe(300);
+    expect(filterParty5Precinct1.numberOfBallotsCounted).toEqual(300);
     expect(Object.keys(filterParty5Precinct1.contestTallies)).toStrictEqual(
       expectedParty4Info.contestIds
     );
@@ -872,7 +874,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { partyId: party4, precinctId: 'precinct-5' }
     );
-    expect(filterParty5Precinct5.numberOfBallotsCounted).toBe(420);
+    expect(filterParty5Precinct5.numberOfBallotsCounted).toEqual(420);
     expect(Object.keys(filterParty5Precinct5.contestTallies)).toStrictEqual(
       expectedParty4Info.contestIds
     );
@@ -956,7 +958,7 @@ describe('filterTalliesByParams in a primary election', () => {
       })
     ).toMatchSnapshot();
 
-    expect(filteredResultsScanner1.numberOfBallotsCounted).toBe(570);
+    expect(filteredResultsScanner1.numberOfBallotsCounted).toEqual(570);
     expect(filteredResultsScanner1.ballotCountsByVotingMethod).toMatchObject({
       [VotingMethod.Absentee]: 114,
       [VotingMethod.Precinct]: 0,
@@ -981,7 +983,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { votingMethod: VotingMethod.Absentee, partyId: party0 }
     );
-    expect(filteredResultsLibertyAbsentee.numberOfBallotsCounted).toBe(342);
+    expect(filteredResultsLibertyAbsentee.numberOfBallotsCounted).toEqual(342);
     expect(
       filteredResultsLibertyAbsentee.ballotCountsByVotingMethod
     ).toMatchObject({
@@ -995,7 +997,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { votingMethod: VotingMethod.Precinct, partyId: party0 }
     );
-    expect(filteredResultsLibertyPrecinct.numberOfBallotsCounted).toBe(0);
+    expect(filteredResultsLibertyPrecinct.numberOfBallotsCounted).toEqual(0);
     expect(
       filteredResultsLibertyPrecinct.ballotCountsByVotingMethod
     ).toMatchObject({
@@ -1009,7 +1011,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { votingMethod: VotingMethod.Precinct, partyId: party3 }
     );
-    expect(filteredResultsConstitutionPrecinct.numberOfBallotsCounted).toBe(
+    expect(filteredResultsConstitutionPrecinct.numberOfBallotsCounted).toEqual(
       292
     );
     expect(
@@ -1025,7 +1027,9 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { votingMethod: VotingMethod.Absentee, partyId: party3 }
     );
-    expect(filteredResultsConstitutionAbsentee.numberOfBallotsCounted).toBe(93);
+    expect(filteredResultsConstitutionAbsentee.numberOfBallotsCounted).toEqual(
+      93
+    );
     expect(
       filteredResultsConstitutionAbsentee.ballotCountsByVotingMethod
     ).toMatchObject({
@@ -1039,7 +1043,7 @@ describe('filterTalliesByParams in a primary election', () => {
       multiPartyPrimaryElection,
       { votingMethod: VotingMethod.Unknown, partyId: party0 }
     );
-    expect(filteredResultsUnknownAbsentee.numberOfBallotsCounted).toBe(1368);
+    expect(filteredResultsUnknownAbsentee.numberOfBallotsCounted).toEqual(1368);
     expect(
       filteredResultsUnknownAbsentee.ballotCountsByVotingMethod
     ).toMatchObject({
@@ -1083,7 +1087,7 @@ describe('filterTalliesByParty', () => {
       new Set(castVoteRecords)
     );
 
-    expect(filterTalliesByParty({ election, electionTally })).toBe(
+    expect(filterTalliesByParty({ election, electionTally })).toEqual(
       electionTally
     );
   });
@@ -1135,14 +1139,14 @@ describe('filterTalliesByParty', () => {
       party,
       ballotCountsByParty: { [party.id]: expectedCounts },
     });
-    expect(filteredTally2.ballotCountsByVotingMethod).toBe(expectedCounts);
+    expect(filteredTally2.ballotCountsByVotingMethod).toEqual(expectedCounts);
     const filteredTally3 = filterTalliesByParty({
       election,
       electionTally,
       party,
       ballotCountsByParty: {},
     });
-    expect(filteredTally3.ballotCountsByVotingMethod).toBe(
+    expect(filteredTally3.ballotCountsByVotingMethod).toEqual(
       electionTally.ballotCountsByVotingMethod
     );
   });
@@ -1160,10 +1164,10 @@ test('getPartyIdForCvr', () => {
     _scannerId: 'scanner',
     _testBallot: false,
   };
-  expect(getPartyIdForCvr(cvr, election)).toBe('0');
+  expect(getPartyIdForCvr(cvr, election)).toEqual('0');
   expect(
     getPartyIdForCvr({ ...cvr, _ballotStyleId: 'notaballotstyle' }, election)
-  ).toBe(undefined);
+  ).toEqual(undefined);
 });
 
 test('castVoteRecordVotes with no votes', () => {

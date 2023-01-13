@@ -122,7 +122,7 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200);
 
-    expect(JSON.parse(status.text).batches[0].count).toBe(3);
+    expect(JSON.parse(status.text).batches[0].count).toEqual(3);
   }
 
   {

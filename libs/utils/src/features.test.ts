@@ -15,13 +15,13 @@ describe('features', () => {
 
   it('isVxDev returns true when expected', () => {
     process.env['REACT_APP_VX_DEV'] = 'TRUE';
-    expect(isVxDev()).toBe(true);
+    expect(isVxDev()).toEqual(true);
   });
 
   it('isVxDev returns false when expected', () => {
-    expect(isVxDev()).toBe(false);
+    expect(isVxDev()).toEqual(false);
     process.env['REACT_APP_VX_DEV'] = 'FALSE';
-    expect(isVxDev()).toBe(false);
+    expect(isVxDev()).toEqual(false);
   });
 
   it('isFeatureFlagEnabled returns true when enabled in dev', () => {
@@ -31,7 +31,7 @@ describe('features', () => {
       isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
       )
-    ).toBe(true);
+    ).toEqual(true);
   });
 
   it('isFeatureFlagEnabled returns false when enabled in production', () => {
@@ -41,7 +41,7 @@ describe('features', () => {
       isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
       )
-    ).toBe(false);
+    ).toEqual(false);
   });
 
   it('isFeatureFlagEnabled returns true when enabled in VxDev', () => {
@@ -52,7 +52,7 @@ describe('features', () => {
       isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
       )
-    ).toBe(true);
+    ).toEqual(true);
   });
 
   it('isFeatureFlagEnabled returns false when disabled', () => {
@@ -62,16 +62,16 @@ describe('features', () => {
       isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
       )
-    ).toBe(false);
+    ).toEqual(false);
   });
 
   it('getConverterClientType returns value when set', () => {
     process.env.REACT_APP_VX_CONVERTER = 'ms-sems';
-    expect(getConverterClientType()).toBe('ms-sems');
+    expect(getConverterClientType()).toEqual('ms-sems');
   });
 
   it('getConverterClientType returns undefined when not set', () => {
-    expect(getConverterClientType()).toBe(undefined);
+    expect(getConverterClientType()).toEqual(undefined);
   });
 
   it('getConverterClientType throws error when set to invalid value', () => {

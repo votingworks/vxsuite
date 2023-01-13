@@ -19,11 +19,11 @@ test('candidate contest with no write-ins', () => {
         expect(options).toHaveLength(contest.candidates.length);
         for (const [i, option] of options.entries()) {
           assert(option.type === 'candidate');
-          expect(option.id).toBe(contest.candidates[i]?.id);
-          expect(option.contestId).toBe(contest.id);
-          expect(option.name).toBe(contest.candidates[i]?.name);
-          expect(option.isWriteIn).toBe(false);
-          expect(option.optionIndex).toBe(i);
+          expect(option.id).toEqual(contest.candidates[i]?.id);
+          expect(option.contestId).toEqual(contest.id);
+          expect(option.name).toEqual(contest.candidates[i]?.name);
+          expect(option.isWriteIn).toEqual(false);
+          expect(option.optionIndex).toEqual(i);
         }
       }
     )
@@ -39,14 +39,16 @@ test('candidate contest with write-ins', () => {
         expect(options).toHaveLength(contest.candidates.length + contest.seats);
         for (const [i, option] of options.entries()) {
           assert(option.type === 'candidate');
-          expect(option.id).toBe(
+          expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               `write-in-${i - contest.candidates.length}`
           );
-          expect(option.contestId).toBe(contest.id);
-          expect(option.name).toBe(contest.candidates[i]?.name ?? 'Write-In');
-          expect(option.isWriteIn).toBe(i >= contest.candidates.length);
-          expect(option.optionIndex).toBe(i);
+          expect(option.contestId).toEqual(contest.id);
+          expect(option.name).toEqual(
+            contest.candidates[i]?.name ?? 'Write-In'
+          );
+          expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
+          expect(option.optionIndex).toEqual(i);
         }
       }
     )
@@ -78,14 +80,16 @@ test('candidate contest with provided write-in IDs', () => {
         );
         for (const [i, option] of options.entries()) {
           assert(option.type === 'candidate');
-          expect(option.id).toBe(
+          expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               writeInOptionIds[i - contest.candidates.length]
           );
-          expect(option.contestId).toBe(contest.id);
-          expect(option.name).toBe(contest.candidates[i]?.name ?? 'Write-In');
-          expect(option.isWriteIn).toBe(i >= contest.candidates.length);
-          expect(option.optionIndex).toBe(i);
+          expect(option.contestId).toEqual(contest.id);
+          expect(option.name).toEqual(
+            contest.candidates[i]?.name ?? 'Write-In'
+          );
+          expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
+          expect(option.optionIndex).toEqual(i);
         }
       }
     )

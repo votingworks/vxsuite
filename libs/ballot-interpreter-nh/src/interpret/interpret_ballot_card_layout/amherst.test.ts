@@ -52,7 +52,7 @@ test.each([
       debug: testImageDebugger(frontImageData),
     }
   );
-  expect(imageData instanceof ImageData).toBe(true);
+  expect(imageData instanceof ImageData).toEqual(true);
   expect(frontLayout.completeTimingMarks.left).toHaveLength(
     geometry.gridSize.height
   );
@@ -130,7 +130,7 @@ test.each([
       debug: testImageDebugger(backImageData),
     }
   );
-  expect(imageData instanceof ImageData).toBe(true);
+  expect(imageData instanceof ImageData).toEqual(true);
   expect(backLayout.completeTimingMarks.left).toHaveLength(
     geometry.gridSize.height
   );

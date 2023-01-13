@@ -58,7 +58,7 @@ function makePdfToImagesMockReturnValue({
 /* eslint-enable @typescript-eslint/require-await */
 
 test('display name', () => {
-  expect(new NhConverterClient().getDisplayName()).toBe('NH');
+  expect(new NhConverterClient().getDisplayName()).toEqual('NH');
 });
 
 test('initial files', async () => {

@@ -17,9 +17,9 @@ test('can make 3 masks', () => {
 });
 
 test('can type in-range numbers as uint8', () => {
-  expect(toUint8(0)).toBe(0);
-  expect(toUint8(1)).toBe(1);
-  expect(toUint8(0xff)).toBe(0xff);
+  expect(toUint8(0)).toEqual(0);
+  expect(toUint8(1)).toEqual(1);
+  expect(toUint8(0xff)).toEqual(0xff);
 });
 
 test('cannot convert out-of-range values to uint8', () => {
@@ -33,16 +33,16 @@ test('cannot convert out-of-range values to uint8', () => {
 });
 
 test('can get the size of positive integers', () => {
-  expect(sizeof(0b0)).toBe(1);
-  expect(sizeof(0b1)).toBe(1);
-  expect(sizeof(0b10)).toBe(2);
-  expect(sizeof(0b11)).toBe(2);
-  expect(sizeof(0b100)).toBe(3);
+  expect(sizeof(0b0)).toEqual(1);
+  expect(sizeof(0b1)).toEqual(1);
+  expect(sizeof(0b10)).toEqual(2);
+  expect(sizeof(0b11)).toEqual(2);
+  expect(sizeof(0b100)).toEqual(3);
 
-  expect(sizeof(0xff)).toBe(8);
-  expect(sizeof(0x101)).toBe(9);
+  expect(sizeof(0xff)).toEqual(8);
+  expect(sizeof(0x101)).toEqual(9);
 
-  expect(sizeof(parseInt('1'.repeat(31), 2))).toBe(31);
+  expect(sizeof(parseInt('1'.repeat(31), 2))).toEqual(31);
 });
 
 test('cannot get the size of a negative or non-integer number', () => {

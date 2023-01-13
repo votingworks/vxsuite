@@ -1,35 +1,35 @@
 import { getMimeType, isImageMimeType, isTextMimeType } from './mime';
 
 test('standard types', () => {
-  expect(getMimeType('foo.txt')).toBe('text/plain');
-  expect(getMimeType('foo.js')).toBe('application/javascript');
-  expect(getMimeType('foo.json')).toBe('application/json');
-  expect(getMimeType('foo.png')).toBe('image/png');
-  expect(getMimeType('foo.jpg')).toBe('image/jpeg');
+  expect(getMimeType('foo.txt')).toEqual('text/plain');
+  expect(getMimeType('foo.js')).toEqual('application/javascript');
+  expect(getMimeType('foo.json')).toEqual('application/json');
+  expect(getMimeType('foo.png')).toEqual('image/png');
+  expect(getMimeType('foo.jpg')).toEqual('image/jpeg');
 });
 
 test('fallback types', () => {
-  expect(getMimeType('foo.jsonl')).toBe('application/jsonlines');
-  expect(getMimeType('foo.unknown')).toBe('application/octet-stream');
+  expect(getMimeType('foo.jsonl')).toEqual('application/jsonlines');
+  expect(getMimeType('foo.unknown')).toEqual('application/octet-stream');
 });
 
 test('image types', () => {
-  expect(isImageMimeType('image/png')).toBe(true);
-  expect(isImageMimeType('image/jpeg')).toBe(true);
-  expect(isImageMimeType('image/gif')).toBe(true);
-  expect(isImageMimeType('image/svg+xml')).toBe(true);
-  expect(isImageMimeType('image/tiff')).toBe(true);
-  expect(isImageMimeType('image/bmp')).toBe(true);
-  expect(isImageMimeType('text/plain')).toBe(false);
-  expect(isImageMimeType('application/octet-stream')).toBe(false);
+  expect(isImageMimeType('image/png')).toEqual(true);
+  expect(isImageMimeType('image/jpeg')).toEqual(true);
+  expect(isImageMimeType('image/gif')).toEqual(true);
+  expect(isImageMimeType('image/svg+xml')).toEqual(true);
+  expect(isImageMimeType('image/tiff')).toEqual(true);
+  expect(isImageMimeType('image/bmp')).toEqual(true);
+  expect(isImageMimeType('text/plain')).toEqual(false);
+  expect(isImageMimeType('application/octet-stream')).toEqual(false);
 });
 
 test('text types', () => {
-  expect(isTextMimeType('text/plain')).toBe(true);
-  expect(isTextMimeType('text/csv')).toBe(true);
-  expect(isTextMimeType('application/xml')).toBe(true);
-  expect(isTextMimeType('application/json')).toBe(true);
-  expect(isTextMimeType('application/jsonlines')).toBe(true);
-  expect(isTextMimeType('image/png')).toBe(false);
-  expect(isTextMimeType('application/octet-stream')).toBe(false);
+  expect(isTextMimeType('text/plain')).toEqual(true);
+  expect(isTextMimeType('text/csv')).toEqual(true);
+  expect(isTextMimeType('application/xml')).toEqual(true);
+  expect(isTextMimeType('application/json')).toEqual(true);
+  expect(isTextMimeType('application/jsonlines')).toEqual(true);
+  expect(isTextMimeType('image/png')).toEqual(false);
+  expect(isTextMimeType('application/octet-stream')).toEqual(false);
 });

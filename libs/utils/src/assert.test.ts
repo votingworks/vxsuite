@@ -8,7 +8,7 @@ test('assert', () => {
   // compile-time test checking that `value`'s type is narrowed by TS
   const value: unknown = 'value';
   assert(typeof value === 'string');
-  expect(value.startsWith('v')).toBe(true);
+  expect(value.startsWith('v')).toEqual(true);
 });
 
 test('assertDefined', () => {

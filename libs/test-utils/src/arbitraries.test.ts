@@ -87,7 +87,7 @@ test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
     fc.property(
       arbitraryCastVoteRecord({ testBallot: fc.constant(true) }),
       (cvr) => {
-        expect(cvr._testBallot).toBe(true);
+        expect(cvr._testBallot).toEqual(true);
       }
     )
   );
@@ -104,7 +104,7 @@ test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
         expect(election.ballotStyles.map(({ id }) => id)).toContain(
           cvr._ballotStyleId
         );
-        expect(cvr._testBallot).toBe(testBallot);
+        expect(cvr._testBallot).toEqual(testBallot);
       }
     })
   );
@@ -122,7 +122,7 @@ test('arbitraryCandidateContest allows specifying whether it allows write-ins', 
         )
       ),
       ([allowWriteIns, contest]) => {
-        expect(contest.allowWriteIns).toBe(allowWriteIns);
+        expect(contest.allowWriteIns).toEqual(allowWriteIns);
       }
     )
   );

@@ -10,7 +10,7 @@ describe('mockFunction', () => {
   it('creates a mock function that returns a value', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock(1, 2)).toBe(3);
+    expect(addMock(1, 2)).toEqual(3);
     addMock.assertComplete();
   });
 
@@ -32,15 +32,15 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
     addMock.expectCallWith(1, 3).returns(4);
-    expect(addMock(1, 2)).toBe(3);
-    expect(addMock(1, 3)).toBe(4);
+    expect(addMock(1, 2)).toEqual(3);
+    expect(addMock(1, 3)).toEqual(4);
     addMock.assertComplete();
   });
 
   it('only allows calls to be used once', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock(1, 2)).toBe(3);
+    expect(addMock(1, 2)).toEqual(3);
     expect(() => addMock(1, 2)).toThrowErrorMatchingInlineSnapshot(
       `"Unexpected call to mock function: add(1, 2)"`
     );
@@ -84,7 +84,7 @@ describe('mockFunction', () => {
       .returns('success');
     expect(
       funcMock('a', 1, true, null, undefined, { foo: 'bar' }, [1, 2])
-    ).toBe('success');
+    ).toEqual('success');
     expect(() =>
       funcMock('a', 1, true, null, undefined, { foo: 'bar' }, [1, 2])
     ).toThrowErrorMatchingInlineSnapshot(
@@ -137,8 +137,8 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof addAsync>('addAsync');
     addMock.expectCallWith(1, 2).returns(Promise.resolve(3));
     addMock.expectCallWith(1, 2).resolves(3);
-    expect(await addMock(1, 2)).toBe(3);
-    expect(await addMock(1, 2)).toBe(3);
+    expect(await addMock(1, 2)).toEqual(3);
+    expect(await addMock(1, 2)).toEqual(3);
   });
 
   it('supports mocking an exception', () => {
@@ -169,7 +169,7 @@ describe('mockFunction', () => {
   it('assertComplete errors if there are unexpected calls', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock(1, 2)).toBe(3);
+    expect(addMock(1, 2)).toEqual(3);
     expect(() => addMock(1, 3)).toThrow();
     expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
       "Mismatch between expected mock function calls and actual mock function calls:
@@ -223,7 +223,7 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof add>('add');
 
     addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock(1, 2)).toBe(3);
+    expect(addMock(1, 2)).toEqual(3);
     addMock.assertComplete();
     addMock.reset();
 
@@ -234,7 +234,7 @@ describe('mockFunction', () => {
     addMock.reset();
 
     addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock(1, 2)).toBe(3);
+    expect(addMock(1, 2)).toEqual(3);
     addMock.assertComplete();
     addMock.reset();
 

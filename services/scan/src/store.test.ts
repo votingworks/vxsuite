@@ -53,64 +53,64 @@ test('get/set test mode', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getTestMode()).toBe(true);
+  expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // After setting an election
-  expect(store.getTestMode()).toBe(true);
+  expect(store.getTestMode()).toEqual(true);
 
   store.setTestMode(false);
-  expect(store.getTestMode()).toBe(false);
+  expect(store.getTestMode()).toEqual(false);
 
   store.setTestMode(true);
-  expect(store.getTestMode()).toBe(true);
+  expect(store.getTestMode()).toEqual(true);
 });
 
 test('get/set skip election hash check mode', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getSkipElectionHashCheck()).toBe(false);
+  expect(store.getSkipElectionHashCheck()).toEqual(false);
   expect(() => store.setSkipElectionHashCheck(true)).toThrowError();
 
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // After setting an election
-  expect(store.getSkipElectionHashCheck()).toBe(false);
+  expect(store.getSkipElectionHashCheck()).toEqual(false);
 
   store.setSkipElectionHashCheck(true);
-  expect(store.getSkipElectionHashCheck()).toBe(true);
+  expect(store.getSkipElectionHashCheck()).toEqual(true);
 
   store.setSkipElectionHashCheck(false);
-  expect(store.getSkipElectionHashCheck()).toBe(false);
+  expect(store.getSkipElectionHashCheck()).toEqual(false);
 });
 
 test('get/set is sounds muted mode', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getIsSoundMuted()).toBe(false);
+  expect(store.getIsSoundMuted()).toEqual(false);
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // After setting an election
-  expect(store.getIsSoundMuted()).toBe(false);
+  expect(store.getIsSoundMuted()).toEqual(false);
 
   store.setIsSoundMuted(true);
-  expect(store.getIsSoundMuted()).toBe(true);
+  expect(store.getIsSoundMuted()).toEqual(true);
 
   store.setIsSoundMuted(false);
-  expect(store.getIsSoundMuted()).toBe(false);
+  expect(store.getIsSoundMuted()).toEqual(false);
 });
 
 test('get/set ballot count when ballot bag last replaced', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
   expect(() =>
     store.setBallotCountWhenBallotBagLastReplaced(1500)
   ).toThrowError();
@@ -118,17 +118,17 @@ test('get/set ballot count when ballot bag last replaced', () => {
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // After setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(0);
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
 
   store.setBallotCountWhenBallotBagLastReplaced(1500);
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toBe(1500);
+  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(1500);
 });
 
 test('get/set precinct selection', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getPrecinctSelection()).toBe(undefined);
+  expect(store.getPrecinctSelection()).toEqual(undefined);
   expect(() =>
     store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
   ).toThrowError();
@@ -136,7 +136,7 @@ test('get/set precinct selection', () => {
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   // After setting an election
-  expect(store.getPrecinctSelection()).toBe(undefined);
+  expect(store.getPrecinctSelection()).toEqual(undefined);
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   expect(store.getPrecinctSelection()).toEqual(ALL_PRECINCTS_SELECTION);
@@ -150,7 +150,7 @@ test('get/set mark threshold overrides', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getMarkThresholdOverrides()).toBe(undefined);
+  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
   expect(() => store.setMarkThresholdOverrides()).toThrowError();
 
   store.setElection(stateOfHamilton.electionDefinition.electionData);
@@ -162,7 +162,7 @@ test('get/set mark threshold overrides', () => {
   });
 
   store.setMarkThresholdOverrides(undefined);
-  expect(store.getMarkThresholdOverrides()).toBe(undefined);
+  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
 });
 
 test('get current mark thresholds falls back to election definition defaults', () => {
@@ -458,7 +458,7 @@ test('canUnconfigure in test mode', () => {
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
   store.addBatch();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 });
 
 test('canUnconfigure not in test mode', async () => {
@@ -481,13 +481,13 @@ test('canUnconfigure not in test mode', async () => {
   };
 
   // Can unconfigure if no batches added
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Create a batch
   const batchId = store.addBatch();
 
   // Can unconfigure if only empty batches added
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after new sheet added
   const sheetId = store.addSheet(uuid(), batchId, [
@@ -508,9 +508,9 @@ test('canUnconfigure not in test mode', async () => {
       },
     },
   ]);
-  expect(store.getCanUnconfigure()).toBe(false);
+  expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Setup second batch with second sheet
   await sleep(1000);
@@ -533,9 +533,9 @@ test('canUnconfigure not in test mode', async () => {
       },
     },
   ]);
-  expect(store.getCanUnconfigure()).toBe(false);
+  expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Setup third batch with third sheet
   await sleep(1000);
@@ -558,33 +558,33 @@ test('canUnconfigure not in test mode', async () => {
       },
     },
   ]);
-  expect(store.getCanUnconfigure()).toBe(false);
+  expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after sheet deleted
   await sleep(1000);
   store.deleteSheet(sheetId);
-  expect(store.getCanUnconfigure()).toBe(false);
+  expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Can unconfigure after empty batch deleted
   await sleep(1000);
   store.deleteBatch(batchId);
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after non-empty batch deleted
   await sleep(1000);
   store.deleteBatch(batchId2);
-  expect(store.getCanUnconfigure()).toBe(false);
+  expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 
   // Can unconfigure if no counted ballots
   await sleep(1000);
   store.deleteSheet(sheetId3);
-  expect(store.getCanUnconfigure()).toBe(true);
+  expect(store.getCanUnconfigure()).toEqual(true);
 });
 
 test('adjudication', () => {

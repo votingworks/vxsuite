@@ -98,7 +98,7 @@ test('shows count of ballots printed', async () => {
   await waitFor(() =>
     screen.getByText(primaryElectionSampleDefinition.election.title)
   );
-  expect(screen.getByText('129 ballots').parentElement?.textContent).toBe(
+  expect(screen.getByText('129 ballots').parentElement?.textContent).toEqual(
     'This machine has printed 129 ballots for the current election.'
   );
 });

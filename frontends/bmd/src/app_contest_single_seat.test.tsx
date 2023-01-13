@@ -80,12 +80,12 @@ it('Single Seat Contest', async () => {
   // First candidate is selected
   expect(
     screen.getByText(candidate0).closest('button')!.dataset['selected']
-  ).toBe('true');
+  ).toEqual('true');
 
   // Second candidate is NOT selected
   expect(
     screen.getByText(candidate1).closest('button')!.dataset['selected']
-  ).toBe('false');
+  ).toEqual('false');
 
   // Deselect the first candidate
   fireEvent.click(screen.getByText(candidate0));

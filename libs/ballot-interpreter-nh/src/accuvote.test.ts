@@ -194,7 +194,7 @@ test('hudson template', async () => {
       })),
     ]
   );
-  expect(pairResult.success).toBe(true);
+  expect(pairResult.success).toEqual(true);
   expect(pairResult.pairs).toHaveLength(
     frontTemplateOvals.length + backTemplateOvals.length
   );

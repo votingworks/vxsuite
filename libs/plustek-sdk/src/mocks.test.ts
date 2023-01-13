@@ -449,9 +449,9 @@ test('freeze and kill', async () => {
     paperStatusFinished = true;
   });
   await sleep(500);
-  expect(paperStatusFinished).toBe(false);
+  expect(paperStatusFinished).toEqual(false);
   await paperStatusPromise;
-  expect(paperStatusFinished).toBe(true);
+  expect(paperStatusFinished).toEqual(true);
 
   // Same with close
   const closePromise = mock.close();
@@ -460,9 +460,9 @@ test('freeze and kill', async () => {
     closeFinished = true;
   });
   await sleep(500);
-  expect(closeFinished).toBe(false);
+  expect(closeFinished).toEqual(false);
   await expect(closePromise).rejects.toThrow(Error);
-  expect(closeFinished).toBe(true);
+  expect(closeFinished).toEqual(true);
 
   // Only killing stops the madness
   mock.kill().unsafeUnwrap();

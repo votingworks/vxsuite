@@ -29,7 +29,7 @@ test('--help', async () => {
     stderr: fakeWritable(),
   };
 
-  expect(await main(['--help'], io)).toBe(0);
+  expect(await main(['--help'], io)).toEqual(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
     "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
@@ -44,7 +44,7 @@ test('-h', async () => {
     stderr: fakeWritable(),
   };
 
-  expect(await main(['-h'], io)).toBe(0);
+  expect(await main(['-h'], io)).toEqual(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
     "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
@@ -73,7 +73,7 @@ test('missing output after --output', async () => {
     "error: missing output path after --output
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('unexpected option', async () => {
@@ -89,7 +89,7 @@ test('unexpected option', async () => {
     "error: unknown option: --nope
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('unexpected argument', async () => {
@@ -108,7 +108,7 @@ test('unexpected argument', async () => {
     "error: unexpected argument: what-is-this.json
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing definition path', async () => {
@@ -124,7 +124,7 @@ test('missing definition path', async () => {
     "error: missing definition path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing front ballot path', async () => {
@@ -140,7 +140,7 @@ test('missing front ballot path', async () => {
     "error: missing front ballot path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing back ballot path', async () => {
@@ -156,7 +156,7 @@ test('missing back ballot path', async () => {
     "error: missing back ballot path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('convert to stdout', async () => {

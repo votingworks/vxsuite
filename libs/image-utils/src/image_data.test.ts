@@ -27,13 +27,13 @@ test('channels', () => {
   const rgbImage = createImageData(Uint8ClampedArray.of(0, 0, 0), 1, 1);
   const grayImage = createImageData(Uint8ClampedArray.of(0), 1, 1);
 
-  expect(getImageChannelCount(rgbaImage)).toBe(RGBA_CHANNEL_COUNT);
-  expect(getImageChannelCount(grayImage)).toBe(GRAY_CHANNEL_COUNT);
-  expect(getImageChannelCount(rgbImage)).toBe(RGB_CHANNEL_COUNT);
+  expect(getImageChannelCount(rgbaImage)).toEqual(RGBA_CHANNEL_COUNT);
+  expect(getImageChannelCount(grayImage)).toEqual(GRAY_CHANNEL_COUNT);
+  expect(getImageChannelCount(rgbImage)).toEqual(RGB_CHANNEL_COUNT);
 
-  expect(isRgba(rgbaImage)).toBe(true);
-  expect(isRgba(grayImage)).toBe(false);
-  expect(isRgba(rgbImage)).toBe(false);
+  expect(isRgba(rgbaImage)).toEqual(true);
+  expect(isRgba(grayImage)).toEqual(false);
+  expect(isRgba(rgbImage)).toEqual(false);
 });
 
 test('getImageChannelCount always returns an integer', () => {
@@ -46,9 +46,9 @@ test('getImageChannelCount always returns an integer', () => {
         })
       ),
       ({ channels, imageData }) => {
-        expect(getImageChannelCount(imageData)).toBe(channels);
-        expect(isGrayscale(imageData)).toBe(channels === GRAY_CHANNEL_COUNT);
-        expect(isRgba(imageData)).toBe(channels === RGBA_CHANNEL_COUNT);
+        expect(getImageChannelCount(imageData)).toEqual(channels);
+        expect(isGrayscale(imageData)).toEqual(channels === GRAY_CHANNEL_COUNT);
+        expect(isRgba(imageData)).toEqual(channels === RGBA_CHANNEL_COUNT);
       }
     )
   );
@@ -159,7 +159,7 @@ test('toRgba', () => {
       ),
       ({ channels, imageData }) => {
         if (channels === RGBA_CHANNEL_COUNT) {
-          expect(toRgba(imageData).unsafeUnwrap()).toBe(imageData);
+          expect(toRgba(imageData).unsafeUnwrap()).toEqual(imageData);
         } else if (channels === GRAY_CHANNEL_COUNT) {
           expect(toRgba(imageData).unsafeUnwrap().data).toHaveLength(
             imageData.width * imageData.height * RGBA_CHANNEL_COUNT
@@ -183,7 +183,7 @@ test('toGrayscale', () => {
       ),
       ({ channels, imageData }) => {
         if (channels === GRAY_CHANNEL_COUNT) {
-          expect(toGrayscale(imageData).unsafeUnwrap()).toBe(imageData);
+          expect(toGrayscale(imageData).unsafeUnwrap()).toEqual(imageData);
         } else if (channels === RGBA_CHANNEL_COUNT) {
           expect(toGrayscale(imageData).unsafeUnwrap().data).toHaveLength(
             imageData.width * imageData.height * GRAY_CHANNEL_COUNT

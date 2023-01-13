@@ -168,7 +168,7 @@ test('findBestFitLineSegmentThrough prefers centers', () => {
   });
 
   expect(fitResult?.rects).not.toContain(phantomRect);
-  expect(fitResult?.rects.length).toBe(10);
+  expect(fitResult?.rects.length).toEqual(10);
 });
 
 test('decodeBottomRowTimingMarks no marks', () => {

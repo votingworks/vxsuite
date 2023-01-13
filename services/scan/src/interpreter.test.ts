@@ -101,7 +101,7 @@ test.skip('properly scans a BMD ballot with a phantom QR code on back', async ()
     ballotImagePath: page2,
     detectQrcodeResult: await detectQrcodeInFilePath(page2),
   });
-  expect(interpretation.type).toBe('BlankPage');
+  expect(interpretation.type).toEqual('BlankPage');
 });
 
 test('properly detects test ballot in live mode', async () => {
@@ -1567,25 +1567,25 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
       withPageNumber(sideYes, 1),
       withPageNumber(sideNo, 2),
     ])
-  ).toBe(true);
+  ).toEqual(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideNo, 1),
       withPageNumber(sideYes, 2),
     ])
-  ).toBe(true);
+  ).toEqual(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideYes, 1),
       withPageNumber(sideYes, 2),
     ])
-  ).toBe(true);
+  ).toEqual(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(sideNo, 1),
       withPageNumber(sideNo, 2),
     ])
-  ).toBe(false);
+  ).toEqual(false);
 });
 
 test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
@@ -1616,27 +1616,27 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
     },
   };
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toBe(true);
+  expect(sheetRequiresAdjudication([hmpbNoVotes, hmpbNoVotes])).toEqual(true);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(hmpbNoVotes, 1),
       withPageNumber(hmpbWithVotes, 2),
     ])
-  ).toBe(false);
+  ).toEqual(false);
   expect(
     sheetRequiresAdjudication([
       withPageNumber(hmpbWithVotes, 1),
       withPageNumber(hmpbWithVotes, 2),
     ])
-  ).toBe(false);
+  ).toEqual(false);
 
-  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toBe(true);
-  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toBe(true);
+  expect(sheetRequiresAdjudication([hmpbNoVotes, blank])).toEqual(true);
+  expect(sheetRequiresAdjudication([blank, hmpbNoVotes])).toEqual(true);
 
-  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toBe(true);
-  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toBe(true);
+  expect(sheetRequiresAdjudication([hmpbWithVotes, blank])).toEqual(true);
+  expect(sheetRequiresAdjudication([blank, hmpbWithVotes])).toEqual(true);
 
-  expect(sheetRequiresAdjudication([blank, blank])).toBe(true);
+  expect(sheetRequiresAdjudication([blank, blank])).toEqual(true);
 });
 
 test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
@@ -1666,8 +1666,8 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
     type: 'BlankPage',
   };
 
-  expect(sheetRequiresAdjudication([bmd, unreadable])).toBe(false);
-  expect(sheetRequiresAdjudication([unreadable, bmd])).toBe(false);
-  expect(sheetRequiresAdjudication([bmd, blank])).toBe(false);
-  expect(sheetRequiresAdjudication([blank, bmd])).toBe(false);
+  expect(sheetRequiresAdjudication([bmd, unreadable])).toEqual(false);
+  expect(sheetRequiresAdjudication([unreadable, bmd])).toEqual(false);
+  expect(sheetRequiresAdjudication([bmd, blank])).toEqual(false);
+  expect(sheetRequiresAdjudication([blank, bmd])).toEqual(false);
 });

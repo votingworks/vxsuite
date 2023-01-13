@@ -157,7 +157,7 @@ describe('getTotalNumberOfBallots', () => {
       president: tally1,
       'question-a': tally2,
     };
-    expect(getTotalNumberOfBallots(contestTallies, electionSample)).toBe(53);
+    expect(getTotalNumberOfBallots(contestTallies, electionSample)).toEqual(53);
   });
 
   it('finds correct number of ballots for a primary election with disjoint ballot sets', () => {
@@ -196,7 +196,7 @@ describe('getTotalNumberOfBallots', () => {
     // set of contests (each of the three primaries) 19 (liberty) + 32 (constitution) + 64 (federalist) = 115
     expect(
       getTotalNumberOfBallots(contestTallies, multiPartyPrimaryElection)
-    ).toBe(115);
+    ).toEqual(115);
   });
 });
 
@@ -208,7 +208,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
     for (const precinct of multiPartyPrimaryElection.precincts) {
       const precinctResults = results[precinct.id];
       expect(precinctResults).toBeDefined();
-      expect(precinctResults!.numberOfBallotsCounted).toBe(0);
+      expect(precinctResults!.numberOfBallotsCounted).toEqual(0);
       for (const contest of expandEitherNeitherContests(
         multiPartyPrimaryElection.contests
       )) {
@@ -220,7 +220,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
           overvotes: 0,
         });
         for (const tally of Object.values(contestTally!.tallies)) {
-          expect(tally!.tally).toBe(0);
+          expect(tally!.tally).toEqual(0);
         }
       }
     }
@@ -233,7 +233,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
     for (const precinct of electionWithMsEitherNeither.precincts) {
       const precinctResults = results[precinct.id];
       expect(precinctResults).toBeDefined();
-      expect(precinctResults!.numberOfBallotsCounted).toBe(0);
+      expect(precinctResults!.numberOfBallotsCounted).toEqual(0);
       for (const contest of expandEitherNeitherContests(
         electionWithMsEitherNeither.contests
       )) {
@@ -245,7 +245,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
           overvotes: 0,
         });
         for (const tally of Object.values(contestTally!.tallies)) {
-          expect(tally!.tally).toBe(0);
+          expect(tally!.tally).toEqual(0);
         }
       }
     }
@@ -382,7 +382,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns undefined when the inputted tally is undefined', () => {
     expect(
       filterExternalTalliesByParams(undefined, electionWithMsEitherNeither, {})
-    ).toBe(undefined);
+    ).toEqual(undefined);
   });
   it('returns undefined when filtering by an unsupported parameter', () => {
     expect(
@@ -391,7 +391,7 @@ describe('filterExternalTalliesByParams', () => {
         electionWithMsEitherNeither,
         { scannerId: '1' }
       )
-    ).toBe(undefined);
+    ).toEqual(undefined);
   });
 
   it('returns an empty tally when filtering for a different voting method', () => {
@@ -655,9 +655,9 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
     expect(results.overallTally).toStrictEqual(
       buildExternalTally(multiPartyPrimaryElection, 6, contestIds)
     );
-    expect(results.votingMethod).toBe(VotingMethod.Absentee);
-    expect(results.source).toBe(ExternalTallySourceType.SEMS);
-    expect(results.inputSourceName).toBe('one-single-thread-of-gold');
+    expect(results.votingMethod).toEqual(VotingMethod.Absentee);
+    expect(results.source).toEqual(ExternalTallySourceType.SEMS);
+    expect(results.inputSourceName).toEqual('one-single-thread-of-gold');
     expect(results.timestampCreated).toStrictEqual(new Date(2020, 3, 1));
     expect([...results.resultsByCategory.keys()]).toStrictEqual([
       TallyCategory.Precinct,

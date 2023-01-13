@@ -109,8 +109,8 @@ test('can expand ms-either-neither contests into yes no contests', () => {
     if (originalContest.type !== 'ms-either-neither') {
       expect(originalContest).toEqual(expandedContests[i]);
     } else {
-      expect(expandedContests[i].type).toBe('yesno');
-      expect(expandedContests[i + 1].type).toBe('yesno');
+      expect(expandedContests[i].type).toEqual('yesno');
+      expect(expandedContests[i + 1].type).toEqual('yesno');
     }
   }
 });
@@ -128,8 +128,8 @@ test('can expand ms-either-neither contests into yes no contests in a primary', 
     if (originalContest.type !== 'ms-either-neither') {
       expect(originalContest).toEqual(expandedContests[i]);
     } else {
-      expect(expandedContests[i].type).toBe('yesno');
-      expect(expandedContests[i + 1].type).toBe('yesno');
+      expect(expandedContests[i].type).toEqual('yesno');
+      expect(expandedContests[i + 1].type).toEqual('yesno');
       expect(expandedContests[i].partyId).toEqual(originalContest.partyId);
       expect(expandedContests[i + 1].partyId).toEqual(originalContest.partyId);
     }
@@ -222,15 +222,15 @@ test('defaults to empty string if no party can be found', () => {
 test('getPrecinctById', () => {
   expect(
     getPrecinctById({ election, precinctId: election.precincts[0].id })
-  ).toBe(election.precincts[0]);
+  ).toEqual(election.precincts[0]);
   expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
 });
 
 test('getPrecinctIndexById', () => {
   expect(
     getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
-  ).toBe(0);
-  expect(getPrecinctIndexById({ election, precinctId: '' })).toBe(-1);
+  ).toEqual(0);
+  expect(getPrecinctIndexById({ election, precinctId: '' })).toEqual(-1);
 });
 
 test('getDistrictIdsForPartyId', () => {
@@ -246,7 +246,7 @@ test('getDistrictIdsForPartyId', () => {
         ballotStylesByParty.some(({ districts }) =>
           districts.includes(districtId)
         )
-      ).toBe(true);
+      ).toEqual(true);
     }
   }
 });
@@ -274,16 +274,16 @@ test('getContestsFromIds', () => {
 });
 
 test('isVotePresent', () => {
-  expect(isVotePresent()).toBe(false);
-  expect(isVotePresent([])).toBe(false);
-  expect(isVotePresent(['yes'])).toBe(true);
+  expect(isVotePresent()).toEqual(false);
+  expect(isVotePresent([])).toEqual(false);
+  expect(isVotePresent(['yes'])).toEqual(true);
   expect(
     isVotePresent([
       election.contests.find(
         (c): c is CandidateContest => c.type === 'candidate'
       )!.candidates[0],
     ])
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 test('validates votes by checking that contests are present in a given ballot style', () => {

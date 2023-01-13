@@ -23,9 +23,9 @@ test('fakeReadable', () => {
   expect(readable.read()).toEqual('cd');
   expect(readable.read()).toBeUndefined();
 
-  expect(readable.isPaused()).toBe(false);
+  expect(readable.isPaused()).toEqual(false);
   readable.pause();
-  expect(readable.isPaused()).toBe(true);
+  expect(readable.isPaused()).toEqual(true);
 
   readable.append('efgh');
   expect(onReadable).toHaveBeenCalledTimes(1);
@@ -98,7 +98,7 @@ test('fakeWritable', async () => {
 test('fakeChildProcess', () => {
   const child = fakeChildProcess();
 
-  expect(typeof child.pid).toBe('number');
+  expect(typeof child.pid).toEqual('number');
   child.stdin.write('hello child!\n');
 
   const onExit = jest.fn();

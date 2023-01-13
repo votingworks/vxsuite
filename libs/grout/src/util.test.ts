@@ -10,106 +10,106 @@ import {
 } from './util';
 
 test('isBoolean', () => {
-  expect(isBoolean(true)).toBe(true);
-  expect(isBoolean(false)).toBe(true);
+  expect(isBoolean(true)).toEqual(true);
+  expect(isBoolean(false)).toEqual(true);
 
-  expect(isBoolean(null)).toBe(false);
-  expect(isBoolean(undefined)).toBe(false);
-  expect(isBoolean(0)).toBe(false);
-  expect(isBoolean('')).toBe(false);
-  expect(isBoolean([])).toBe(false);
-  expect(isBoolean({})).toBe(false);
-  expect(isBoolean(() => 0)).toBe(false);
+  expect(isBoolean(null)).toEqual(false);
+  expect(isBoolean(undefined)).toEqual(false);
+  expect(isBoolean(0)).toEqual(false);
+  expect(isBoolean('')).toEqual(false);
+  expect(isBoolean([])).toEqual(false);
+  expect(isBoolean({})).toEqual(false);
+  expect(isBoolean(() => 0)).toEqual(false);
 });
 
 test('isNumber', () => {
-  expect(isNumber(0)).toBe(true);
-  expect(isNumber(1)).toBe(true);
-  expect(isNumber(-1)).toBe(true);
-  expect(isNumber(NaN)).toBe(true);
-  expect(isNumber(Infinity)).toBe(true);
-  expect(isNumber(-Infinity)).toBe(true);
+  expect(isNumber(0)).toEqual(true);
+  expect(isNumber(1)).toEqual(true);
+  expect(isNumber(-1)).toEqual(true);
+  expect(isNumber(NaN)).toEqual(true);
+  expect(isNumber(Infinity)).toEqual(true);
+  expect(isNumber(-Infinity)).toEqual(true);
 
-  expect(isNumber(null)).toBe(false);
-  expect(isNumber(undefined)).toBe(false);
-  expect(isNumber(true)).toBe(false);
-  expect(isNumber('')).toBe(false);
-  expect(isNumber([])).toBe(false);
-  expect(isNumber({})).toBe(false);
-  expect(isNumber(() => 0)).toBe(false);
+  expect(isNumber(null)).toEqual(false);
+  expect(isNumber(undefined)).toEqual(false);
+  expect(isNumber(true)).toEqual(false);
+  expect(isNumber('')).toEqual(false);
+  expect(isNumber([])).toEqual(false);
+  expect(isNumber({})).toEqual(false);
+  expect(isNumber(() => 0)).toEqual(false);
 });
 
 test('isString', () => {
-  expect(isString('')).toBe(true);
-  expect(isString('some string')).toBe(true);
+  expect(isString('')).toEqual(true);
+  expect(isString('some string')).toEqual(true);
 
-  expect(isString(null)).toBe(false);
-  expect(isString(undefined)).toBe(false);
-  expect(isString(true)).toBe(false);
-  expect(isString(0)).toBe(false);
-  expect(isString([])).toBe(false);
-  expect(isString({})).toBe(false);
-  expect(isString(() => 0)).toBe(false);
+  expect(isString(null)).toEqual(false);
+  expect(isString(undefined)).toEqual(false);
+  expect(isString(true)).toEqual(false);
+  expect(isString(0)).toEqual(false);
+  expect(isString([])).toEqual(false);
+  expect(isString({})).toEqual(false);
+  expect(isString(() => 0)).toEqual(false);
 });
 
 test('isArray', () => {
-  expect(isArray([])).toBe(true);
-  expect(isArray([1, 2, 3])).toBe(true);
+  expect(isArray([])).toEqual(true);
+  expect(isArray([1, 2, 3])).toEqual(true);
 
-  expect(isArray(null)).toBe(false);
-  expect(isArray(undefined)).toBe(false);
-  expect(isArray(true)).toBe(false);
-  expect(isArray(0)).toBe(false);
-  expect(isArray('')).toBe(false);
-  expect(isArray({})).toBe(false);
-  expect(isArray(() => 0)).toBe(false);
+  expect(isArray(null)).toEqual(false);
+  expect(isArray(undefined)).toEqual(false);
+  expect(isArray(true)).toEqual(false);
+  expect(isArray(0)).toEqual(false);
+  expect(isArray('')).toEqual(false);
+  expect(isArray({})).toEqual(false);
+  expect(isArray(() => 0)).toEqual(false);
 });
 
 test('isObject', () => {
-  expect(isObject({})).toBe(true);
-  expect(isObject({ a: 1, b: 2 })).toBe(true);
-  expect(isObject(new Error())).toBe(true);
-  expect(isObject(ok())).toBe(true);
-  expect(isObject(new Date())).toBe(true);
+  expect(isObject({})).toEqual(true);
+  expect(isObject({ a: 1, b: 2 })).toEqual(true);
+  expect(isObject(new Error())).toEqual(true);
+  expect(isObject(ok())).toEqual(true);
+  expect(isObject(new Date())).toEqual(true);
 
-  expect(isObject(null)).toBe(false);
-  expect(isObject(undefined)).toBe(false);
-  expect(isObject(true)).toBe(false);
-  expect(isObject(0)).toBe(false);
-  expect(isObject('')).toBe(false);
-  expect(isObject([])).toBe(false);
-  expect(isObject(() => 0)).toBe(false);
+  expect(isObject(null)).toEqual(false);
+  expect(isObject(undefined)).toEqual(false);
+  expect(isObject(true)).toEqual(false);
+  expect(isObject(0)).toEqual(false);
+  expect(isObject('')).toEqual(false);
+  expect(isObject([])).toEqual(false);
+  expect(isObject(() => 0)).toEqual(false);
 });
 
 test('isPlainObject', () => {
-  expect(isPlainObject({})).toBe(true);
-  expect(isPlainObject({ a: 1, b: 2 })).toBe(true);
+  expect(isPlainObject({})).toEqual(true);
+  expect(isPlainObject({ a: 1, b: 2 })).toEqual(true);
 
-  expect(isPlainObject(new Error())).toBe(false);
-  expect(isPlainObject(ok())).toBe(false);
-  expect(isPlainObject(new Date())).toBe(false);
+  expect(isPlainObject(new Error())).toEqual(false);
+  expect(isPlainObject(ok())).toEqual(false);
+  expect(isPlainObject(new Date())).toEqual(false);
 
-  expect(isPlainObject(null)).toBe(false);
-  expect(isPlainObject(undefined)).toBe(false);
-  expect(isPlainObject(true)).toBe(false);
-  expect(isPlainObject(0)).toBe(false);
-  expect(isPlainObject('')).toBe(false);
-  expect(isPlainObject([])).toBe(false);
-  expect(isPlainObject(() => 0)).toBe(false);
+  expect(isPlainObject(null)).toEqual(false);
+  expect(isPlainObject(undefined)).toEqual(false);
+  expect(isPlainObject(true)).toEqual(false);
+  expect(isPlainObject(0)).toEqual(false);
+  expect(isPlainObject('')).toEqual(false);
+  expect(isPlainObject([])).toEqual(false);
+  expect(isPlainObject(() => 0)).toEqual(false);
 });
 
 test('isFunction', () => {
-  expect(isFunction(() => 0)).toBe(true);
+  expect(isFunction(() => 0)).toEqual(true);
   function namedFunction() {
     return 0;
   }
-  expect(isFunction(namedFunction)).toBe(true);
+  expect(isFunction(namedFunction)).toEqual(true);
 
-  expect(isFunction(null)).toBe(false);
-  expect(isFunction(undefined)).toBe(false);
-  expect(isFunction(true)).toBe(false);
-  expect(isFunction(0)).toBe(false);
-  expect(isFunction('')).toBe(false);
-  expect(isFunction([])).toBe(false);
-  expect(isFunction({})).toBe(false);
+  expect(isFunction(null)).toEqual(false);
+  expect(isFunction(undefined)).toEqual(false);
+  expect(isFunction(true)).toEqual(false);
+  expect(isFunction(0)).toEqual(false);
+  expect(isFunction('')).toEqual(false);
+  expect(isFunction([])).toEqual(false);
+  expect(isFunction({})).toEqual(false);
 });

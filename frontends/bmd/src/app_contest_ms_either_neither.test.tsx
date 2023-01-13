@@ -52,7 +52,7 @@ test('Renders Ballot with EitherNeither: blank', async () => {
   await expectPrint((printedElement) => {
     const getByTextWithMarkup = withMarkup(printedElement.getByText);
     const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
       '[no selection]'
     );
   });
@@ -82,12 +82,12 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
   await expectPrint((printedElement) => {
     const getByTextWithMarkup = withMarkup(printedElement.getByText);
     const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
       `• ${measure420Contest.eitherOption.label}`
     );
     expect(
       contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-    ).toBe('• [no selection]');
+    ).toEqual('• [no selection]');
   });
 });
 
@@ -115,12 +115,12 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
   await expectPrint((printedElement) => {
     const getByTextWithMarkup = withMarkup(printedElement.getByText);
     const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
       `• ${measure420Contest.neitherOption.label}`
     );
     expect(
       contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-    ).toBe(`• ${measure420Contest.firstOption.label}`);
+    ).toEqual(`• ${measure420Contest.firstOption.label}`);
   });
 });
 
@@ -148,12 +148,12 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   await expectPrint((printedElement) => {
     const getByTextWithMarkup = withMarkup(printedElement.getByText);
     const contestReviewTitle = getByTextWithMarkup(measure420Contest.title);
-    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+    expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
       '• [no selection]'
     );
     expect(
       contestReviewTitle?.nextSibling?.nextSibling?.textContent?.trim()
-    ).toBe(`• ${measure420Contest.secondOption.label}`);
+    ).toEqual(`• ${measure420Contest.secondOption.label}`);
   });
 });
 
@@ -220,7 +220,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   let contestReviewTitle = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   );
-  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toBe(
+  expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
     'You may still vote in this contest.'
   );
 
@@ -241,8 +241,8 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const eitherAndFirst = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   ).nextSibling;
-  expect(eitherAndFirst?.textContent?.trim()).toBe('For either');
-  expect(eitherAndFirst?.nextSibling?.textContent?.trim()).toBe(
+  expect(eitherAndFirst?.textContent?.trim()).toEqual('For either');
+  expect(eitherAndFirst?.nextSibling?.textContent?.trim()).toEqual(
     'FOR Measure 420A'
   );
 
@@ -263,8 +263,8 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const neitherAndSecond = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   ).nextSibling;
-  expect(neitherAndSecond?.textContent?.trim()).toBe('Against both');
-  expect(neitherAndSecond?.nextSibling?.textContent?.trim()).toBe(
+  expect(neitherAndSecond?.textContent?.trim()).toEqual('Against both');
+  expect(neitherAndSecond?.nextSibling?.textContent?.trim()).toEqual(
     'FOR Measure 420B'
   );
 
@@ -284,10 +284,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const noneAndSecond = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   ).nextSibling;
-  expect(noneAndSecond?.textContent?.trim()).toBe(
+  expect(noneAndSecond?.textContent?.trim()).toEqual(
     'You may still vote in this contest.'
   );
-  expect(noneAndSecond?.nextSibling?.textContent?.trim()).toBe(
+  expect(noneAndSecond?.nextSibling?.textContent?.trim()).toEqual(
     'FOR Measure 420B'
   );
 
@@ -308,8 +308,8 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const eitherAndNone = getByTextWithMarkup(
     `${measure420Contest.section}${measure420Contest.title}`
   ).nextSibling;
-  expect(eitherAndNone?.textContent?.trim()).toBe('For either');
-  expect(eitherAndNone?.nextSibling?.textContent?.trim()).toBe(
+  expect(eitherAndNone?.textContent?.trim()).toEqual('For either');
+  expect(eitherAndNone?.nextSibling?.textContent?.trim()).toEqual(
     'You may still vote in this contest.'
   );
 });

@@ -299,7 +299,7 @@ describe('SetClockButton', () => {
       target: { value: optionTimezone.value },
     });
 
-    expect(selectTimezone.value).toBe('America/Chicago');
+    expect(selectTimezone.value).toEqual('America/Chicago');
     expect(
       within(selectTimezone).getByText<HTMLOptionElement>(
         'Central Standard Time (Chicago)'

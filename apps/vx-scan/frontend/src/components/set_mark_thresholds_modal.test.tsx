@@ -96,14 +96,14 @@ test('allows users to set thresholds properly', async () => {
   fireEvent.click(getByText('Proceed to Override Thresholds'));
 
   const definiteInput = getByTestId('definite-text-input').closest('input')!;
-  expect(definiteInput.value).toBe('0.25');
+  expect(definiteInput.value).toEqual('0.25');
   fireEvent.change(definiteInput, { target: { value: '0.12' } });
-  expect(definiteInput.value).toBe('0.12');
+  expect(definiteInput.value).toEqual('0.12');
 
   const marginalInput = getByTestId('marginal-text-input').closest('input')!;
-  expect(marginalInput.value).toBe('0.17');
+  expect(marginalInput.value).toEqual('0.17');
   fireEvent.change(marginalInput, { target: { value: '0.21' } });
-  expect(marginalInput.value).toBe('0.21');
+  expect(marginalInput.value).toEqual('0.21');
 
   fireEvent.click(getByText('Override Thresholds'));
   expect(setThresholds).toHaveBeenCalledWith({
@@ -132,7 +132,7 @@ test('setting thresholds renders an error if given a number greater than 1', () 
 
   const definiteInput = getByTestId('definite-text-input').closest('input')!;
   fireEvent.change(definiteInput, { target: { value: '314' } });
-  expect(definiteInput.value).toBe('314');
+  expect(definiteInput.value).toEqual('314');
 
   fireEvent.click(getByText('Override Thresholds'));
   getByText('Error');

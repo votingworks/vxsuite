@@ -32,18 +32,18 @@ const imageData4x4: Readonly<ImageData> = createImageData(
 
 test('ratio', () => {
   // 4 black pixels, 12 white pixels
-  expect(ratio(imageData4x4)).toBe(4 / 16);
-  expect(ratio(imageData4x4, { color: PIXEL_WHITE })).toBe(12 / 16);
+  expect(ratio(imageData4x4)).toEqual(4 / 16);
+  expect(ratio(imageData4x4, { color: PIXEL_WHITE })).toEqual(12 / 16);
 
   // 2 black pixels, 2 white pixels
   const topCornerBounds: Rect = { x: 0, y: 0, width: 2, height: 2 };
-  expect(ratio(imageData4x4, { bounds: topCornerBounds })).toBe(2 / 4);
+  expect(ratio(imageData4x4, { bounds: topCornerBounds })).toEqual(2 / 4);
   expect(
     ratio(imageData4x4, {
       bounds: topCornerBounds,
       color: PIXEL_WHITE,
     })
-  ).toBe(2 / 4);
+  ).toEqual(2 / 4);
 });
 
 test('counting pixels', () => {

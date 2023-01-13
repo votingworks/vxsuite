@@ -49,7 +49,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     'foo-sheet-id',
     ballotImages.overvoteBallot
   );
-  expect(result.ok()?.type).toBe('NeedsReviewSheet');
+  expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
 
 test.each([true, false])(
@@ -69,7 +69,7 @@ test.each([true, false])(
     const sheet = (
       await interpreter.interpret('foo-sheet-id', ballotImages.normalBallot)
     ).unsafeUnwrap();
-    expect(sheet.type).toBe('ValidSheet');
+    expect(sheet.type).toEqual('ValidSheet');
 
     for (const page of sheet.pages) {
       expect(page.interpretation).toEqual(

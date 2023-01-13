@@ -287,17 +287,17 @@ describe('convertSemsFileToExternalTally', () => {
     };
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
-    expect(convertedTally.overallTally.numberOfBallotsCounted).toBe(100);
-    expect(convertedTally.inputSourceName).toBe('file-name');
-    expect(convertedTally.source).toBe(ExternalTallySourceType.SEMS);
-    expect(convertedTally.votingMethod).toBe(VotingMethod.Precinct);
+    expect(convertedTally.overallTally.numberOfBallotsCounted).toEqual(100);
+    expect(convertedTally.inputSourceName).toEqual('file-name');
+    expect(convertedTally.source).toEqual(ExternalTallySourceType.SEMS);
+    expect(convertedTally.votingMethod).toEqual(VotingMethod.Precinct);
     expect(convertedTally.timestampCreated).toStrictEqual(new Date(2020, 3, 1));
     for (const precinctId of Object.keys(expectedNumberOfVotesByPrecinct)) {
       const tallyForPrecinct = convertedTally.resultsByCategory.get(
         TallyCategory.Precinct
       )![precinctId];
       expect(tallyForPrecinct).toBeDefined();
-      expect(tallyForPrecinct?.numberOfBallotsCounted).toBe(
+      expect(tallyForPrecinct?.numberOfBallotsCounted).toEqual(
         expectedNumberOfVotesByPrecinct[precinctId]!
       );
     }
@@ -310,10 +310,10 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 1,
       ballots: 100,
     });
-    expect(presidentTally.tallies['775031988']!.tally).toBe(27);
-    expect(presidentTally.tallies['775031987']!.tally).toBe(36);
-    expect(presidentTally.tallies['775031989']!.tally).toBe(29);
-    expect(presidentTally.tallies['write-in']!.tally).toBe(0);
+    expect(presidentTally.tallies['775031988']!.tally).toEqual(27);
+    expect(presidentTally.tallies['775031987']!.tally).toEqual(36);
+    expect(presidentTally.tallies['775031989']!.tally).toEqual(29);
+    expect(presidentTally.tallies['write-in']!.tally).toEqual(0);
 
     const eitherNeitherTally =
       convertedTally.overallTally.contestTallies['750000015']!;
@@ -322,8 +322,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 3,
       ballots: 98,
     });
-    expect(eitherNeitherTally.tallies['yes']?.tally).toBe(39);
-    expect(eitherNeitherTally.tallies['no']?.tally).toBe(53);
+    expect(eitherNeitherTally.tallies['yes']?.tally).toEqual(39);
+    expect(eitherNeitherTally.tallies['no']?.tally).toEqual(53);
 
     const pickOneTally =
       convertedTally.overallTally.contestTallies['750000016']!;
@@ -332,8 +332,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 4,
       ballots: 98,
     });
-    expect(pickOneTally.tallies['yes']?.tally).toBe(40);
-    expect(pickOneTally.tallies['no']?.tally).toBe(49);
+    expect(pickOneTally.tallies['yes']?.tally).toEqual(40);
+    expect(pickOneTally.tallies['no']?.tally).toEqual(49);
 
     // Check some specific tallies on a precinct tally, Fentress
     const fentressTally = convertedTally.resultsByCategory.get(
@@ -345,10 +345,10 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 0,
       ballots: 5,
     });
-    expect(senateTally.tallies['775031985']?.tally).toBe(1);
-    expect(senateTally.tallies['775031986']?.tally).toBe(0);
-    expect(senateTally.tallies['775031990']?.tally).toBe(3);
-    expect(senateTally.tallies['write-in']?.tally).toBe(0);
+    expect(senateTally.tallies['775031985']?.tally).toEqual(1);
+    expect(senateTally.tallies['775031986']?.tally).toEqual(0);
+    expect(senateTally.tallies['775031990']?.tally).toEqual(3);
+    expect(senateTally.tallies['write-in']?.tally).toEqual(0);
 
     const ballotmeasure2 = fentressTally.contestTallies['750000017']!;
     expect(ballotmeasure2.metadata).toStrictEqual({
@@ -356,8 +356,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 0,
       ballots: 5,
     });
-    expect(ballotmeasure2.tallies['yes']?.tally).toBe(2);
-    expect(ballotmeasure2.tallies['no']?.tally).toBe(3);
+    expect(ballotmeasure2.tallies['yes']?.tally).toEqual(2);
+    expect(ballotmeasure2.tallies['no']?.tally).toEqual(3);
 
     // Check snapshots
     expect(convertedTally.overallTally.contestTallies).toMatchSnapshot();
@@ -387,14 +387,14 @@ describe('convertSemsFileToExternalTally', () => {
     };
 
     // Check that the number of ballots in each precinct report and the overall tally are as expected.
-    expect(convertedTally.overallTally.numberOfBallotsCounted).toBe(4530);
-    expect(convertedTally.votingMethod).toBe(VotingMethod.Absentee);
+    expect(convertedTally.overallTally.numberOfBallotsCounted).toEqual(4530);
+    expect(convertedTally.votingMethod).toEqual(VotingMethod.Absentee);
     for (const precinctId of Object.keys(expectedNumberOfVotesByPrecinct)) {
       const tallyForPrecinct = convertedTally.resultsByCategory.get(
         TallyCategory.Precinct
       )![precinctId];
       expect(tallyForPrecinct).toBeDefined();
-      expect(tallyForPrecinct?.numberOfBallotsCounted).toBe(
+      expect(tallyForPrecinct?.numberOfBallotsCounted).toEqual(
         expectedNumberOfVotesByPrecinct[precinctId]!
       );
     }
@@ -409,13 +409,13 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 90,
       ballots: 450,
     });
-    expect(assistantMayorLibertyTally?.tallies['jenna-morasca']?.tally).toBe(
+    expect(assistantMayorLibertyTally?.tallies['jenna-morasca']?.tally).toEqual(
       90
     );
     expect(
       assistantMayorLibertyTally?.tallies['sandra-diaz-twine']?.tally
-    ).toBe(90);
-    expect(assistantMayorLibertyTally?.tallies['write-in']?.tally).toBe(90);
+    ).toEqual(90);
+    expect(assistantMayorLibertyTally?.tallies['write-in']?.tally).toEqual(90);
 
     const pokemonFederalist =
       convertedTally.overallTally.contestTallies['chief-pokemon-federalist'];
@@ -424,9 +424,9 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 30,
       ballots: 420,
     });
-    expect(pokemonFederalist?.tallies['pikachu']?.tally).toBe(30);
-    expect(pokemonFederalist?.tallies['eevee']?.tally).toBe(300);
-    expect(pokemonFederalist?.tallies['write-in']?.tally).toBe(30);
+    expect(pokemonFederalist?.tallies['pikachu']?.tally).toEqual(30);
+    expect(pokemonFederalist?.tallies['eevee']?.tally).toEqual(300);
+    expect(pokemonFederalist?.tallies['write-in']?.tally).toEqual(30);
 
     const schoolboardConstitution =
       convertedTally.overallTally.contestTallies['schoolboard-constitution'];
@@ -436,13 +436,13 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 600,
       ballots: 2100,
     });
-    expect(schoolboardConstitution?.tallies['aras-baskauskas']?.tally).toBe(
+    expect(schoolboardConstitution?.tallies['aras-baskauskas']?.tally).toEqual(
       750
     );
-    expect(schoolboardConstitution?.tallies['yul-kwon']?.tally).toBe(600);
-    expect(schoolboardConstitution?.tallies['earl-cole']?.tally).toBe(600);
-    expect(schoolboardConstitution?.tallies['todd-herzog']?.tally).toBe(600);
-    expect(schoolboardConstitution?.tallies['write-in']?.tally).toBe(600);
+    expect(schoolboardConstitution?.tallies['yul-kwon']?.tally).toEqual(600);
+    expect(schoolboardConstitution?.tallies['earl-cole']?.tally).toEqual(600);
+    expect(schoolboardConstitution?.tallies['todd-herzog']?.tally).toEqual(600);
+    expect(schoolboardConstitution?.tallies['write-in']?.tally).toEqual(600);
 
     // Check some specific tallies for precinct-1
     const precinct1Tally = convertedTally.resultsByCategory.get(
@@ -455,9 +455,9 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 30,
       ballots: 420,
     });
-    expect(governorConstitution.tallies['kristen-bell']?.tally).toBe(30);
-    expect(governorConstitution.tallies['dax-shepherd']?.tally).toBe(300);
-    expect(governorConstitution.tallies['write-in']?.tally).toBe(30);
+    expect(governorConstitution.tallies['kristen-bell']?.tally).toEqual(30);
+    expect(governorConstitution.tallies['dax-shepherd']?.tally).toEqual(300);
+    expect(governorConstitution.tallies['write-in']?.tally).toEqual(30);
 
     const schoolboardLiberty =
       precinct1Tally.contestTallies['schoolboard-liberty']!;
@@ -466,11 +466,11 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 0,
       ballots: 0,
     });
-    expect(schoolboardLiberty.tallies['amber-brkich']?.tally).toBe(0);
-    expect(schoolboardLiberty.tallies['chris-daugherty']?.tally).toBe(0);
-    expect(schoolboardLiberty.tallies['tom-westman']?.tally).toBe(0);
-    expect(schoolboardLiberty.tallies['danni-boatwright']?.tally).toBe(0);
-    expect(schoolboardLiberty.tallies['write-in']?.tally).toBe(0);
+    expect(schoolboardLiberty.tallies['amber-brkich']?.tally).toEqual(0);
+    expect(schoolboardLiberty.tallies['chris-daugherty']?.tally).toEqual(0);
+    expect(schoolboardLiberty.tallies['tom-westman']?.tally).toEqual(0);
+    expect(schoolboardLiberty.tallies['danni-boatwright']?.tally).toEqual(0);
+    expect(schoolboardLiberty.tallies['write-in']?.tally).toEqual(0);
 
     // Check snapshots
     expect(convertedTally.overallTally.contestTallies).toMatchSnapshot();

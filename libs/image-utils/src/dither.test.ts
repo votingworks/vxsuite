@@ -40,7 +40,7 @@ test('grayscale image dithers to binary image', () => {
         for (let y = 0, offset = 0; y < dithered.height; y += 1) {
           for (let x = 0; x < dithered.width; x += 1, offset += 1) {
             if (dithered.data[offset] !== 0) {
-              expect(dithered.data[offset]).toBe(255);
+              expect(dithered.data[offset]).toEqual(255);
             }
           }
         }
@@ -63,7 +63,7 @@ test('RGBA image dithers to binary image', () => {
         for (let y = 0, offset = 0; y < dithered.height; y += 1) {
           for (let x = 0; x < dithered.width; x += 1, offset += 1) {
             if (dithered.data[offset] !== 0) {
-              expect(dithered.data[offset]).toBe(255);
+              expect(dithered.data[offset]).toEqual(255);
             }
           }
         }

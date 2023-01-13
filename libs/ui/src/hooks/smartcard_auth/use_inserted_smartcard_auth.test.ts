@@ -869,8 +869,8 @@ describe('useInsertedSmartcardAuth', () => {
       result.current.markCardPrinted(),
     ]);
 
-    expect(voidResult.isErr()).toBe(false);
-    expect(printResult.isErr()).toBe(true);
+    expect(voidResult.isErr()).toEqual(false);
+    expect(printResult.isErr()).toEqual(true);
     expect(printResult.err()?.message).toEqual('Card write in progress');
   });
 

@@ -6,13 +6,13 @@ import { main } from '.';
 import { absolutize, getOutputPath, relativize, Stdio } from './cli';
 
 test('absolutize', () => {
-  expect(absolutize('/foo/bar', '/baz')).toBe('/foo/bar');
-  expect(absolutize('foo/bar', '/baz')).toBe('/baz/foo/bar');
+  expect(absolutize('/foo/bar', '/baz')).toEqual('/foo/bar');
+  expect(absolutize('foo/bar', '/baz')).toEqual('/baz/foo/bar');
 });
 
 test('relativize', () => {
-  expect(relativize('/foo/bar', '/foo')).toBe('bar');
-  expect(relativize('/foo/bar', '/baz')).toBe('../foo/bar');
+  expect(relativize('/foo/bar', '/foo')).toEqual('bar');
+  expect(relativize('/foo/bar', '/baz')).toEqual('../foo/bar');
   expect(relativize('/foo/bar')).toEqual('/foo/bar');
 });
 

@@ -43,7 +43,7 @@ test('a yesno mark', () => {
     optionId: 'yes',
   });
 
-  expect(result).toBe(MarkStatus.Marked);
+  expect(result).toEqual(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     contests: election.contests,
@@ -53,7 +53,7 @@ test('a yesno mark', () => {
     optionId: 'yes',
   });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked);
+  expect(emptyResult).toEqual(MarkStatus.Unmarked);
 });
 
 test('a candidate mark', () => {
@@ -78,7 +78,7 @@ test('a candidate mark', () => {
     optionId: contest.candidates[2].id,
   });
 
-  expect(result).toBe(MarkStatus.Marked);
+  expect(result).toEqual(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     contests: election.contests,
@@ -88,7 +88,7 @@ test('a candidate mark', () => {
     optionId: contest.candidates[2].id,
   });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked);
+  expect(emptyResult).toEqual(MarkStatus.Unmarked);
 });
 
 test('a ms-either-neither mark', () => {
@@ -113,7 +113,7 @@ test('a ms-either-neither mark', () => {
     optionId: 'no',
   });
 
-  expect(eitherResult).toBe(MarkStatus.Marked);
+  expect(eitherResult).toEqual(MarkStatus.Marked);
 
   const pickOneResult = optionMarkStatus({
     contests: eitherNeitherElection.contests,
@@ -133,7 +133,7 @@ test('a ms-either-neither mark', () => {
     optionId: 'yes',
   });
 
-  expect(pickOneResult).toBe(MarkStatus.Marked);
+  expect(pickOneResult).toEqual(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
     contests: eitherNeitherElection.contests,
@@ -143,5 +143,5 @@ test('a ms-either-neither mark', () => {
     optionId: 'yes',
   });
 
-  expect(emptyResult).toBe(MarkStatus.Unmarked);
+  expect(emptyResult).toEqual(MarkStatus.Unmarked);
 });

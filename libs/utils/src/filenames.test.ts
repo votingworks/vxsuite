@@ -30,9 +30,9 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     expect(parsedInfo).toBeTruthy();
     const { electionCounty, electionName, electionHash, timestamp } =
       parsedInfo!;
-    expect(electionCounty).toBe('choctaw county');
-    expect(electionName).toBe('2020 general election');
-    expect(electionHash).toBe('a5753d5776');
+    expect(electionCounty).toEqual('choctaw county');
+    expect(electionName).toEqual('2020 general election');
+    expect(electionHash).toEqual('a5753d5776');
     expect(timestamp).toStrictEqual(new Date(2020, 11, 2, 9, 42, 50));
   });
 
@@ -112,9 +112,9 @@ describe('generateElectionBasedSubfolderName', () => {
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
-    expect(generateElectionBasedSubfolderName(mockElection, 'testHash12')).toBe(
-      'king-county_general-election_testHash12'
-    );
+    expect(
+      generateElectionBasedSubfolderName(mockElection, 'testHash12')
+    ).toEqual('king-county_general-election_testHash12');
   });
 
   test('generates election subfolder name as expected when election county and title have weird characters', () => {
@@ -123,9 +123,9 @@ describe('generateElectionBasedSubfolderName', () => {
       county: { name: '-K(ing&COUN-----TY**', id: '' },
       title: 'General-Election@@',
     };
-    expect(generateElectionBasedSubfolderName(mockElection, 'testHash12')).toBe(
-      'k-ing-coun-ty_general-election_testHash12'
-    );
+    expect(
+      generateElectionBasedSubfolderName(mockElection, 'testHash12')
+    ).toEqual('k-ing-coun-ty_general-election_testHash12');
   });
 
   test('generates election subfolder name as expected when election hash length varies', () => {
@@ -139,13 +139,13 @@ describe('generateElectionBasedSubfolderName', () => {
         mockElection,
         'testHash12thisisextratext'
       )
-    ).toBe('king-county_general-election_testHash12');
+    ).toEqual('king-county_general-election_testHash12');
 
-    expect(generateElectionBasedSubfolderName(mockElection, '')).toBe(
+    expect(generateElectionBasedSubfolderName(mockElection, '')).toEqual(
       'king-county_general-election_'
     );
 
-    expect(generateElectionBasedSubfolderName(mockElection, 'short')).toBe(
+    expect(generateElectionBasedSubfolderName(mockElection, 'short')).toEqual(
       'king-county_general-election_short'
     );
   });
@@ -154,23 +154,23 @@ describe('generateElectionBasedSubfolderName', () => {
 describe('generateFilenameForScanningResults', () => {
   test('generates basic scanning results filename in test mode', () => {
     const time = new Date(2019, 2, 14, 15, 9, 26);
-    expect(generateFilenameForScanningResults('1', 0, true, time)).toBe(
+    expect(generateFilenameForScanningResults('1', 0, true, time)).toEqual(
       'TEST__machine_1__0_ballots__2019-03-14_15-09-26.jsonl'
     );
 
     expect(
       generateFilenameForScanningResults('po!n@y:__', 35, true, time)
-    ).toBe('TEST__machine_pony__35_ballots__2019-03-14_15-09-26.jsonl');
+    ).toEqual('TEST__machine_pony__35_ballots__2019-03-14_15-09-26.jsonl');
   });
 
   test('generates basic scanning results filename not in test mode', () => {
     const time = new Date(2019, 2, 14, 15, 9, 26);
-    expect(generateFilenameForScanningResults('1', 0, false, time)).toBe(
+    expect(generateFilenameForScanningResults('1', 0, false, time)).toEqual(
       'machine_1__0_ballots__2019-03-14_15-09-26.jsonl'
     );
     expect(
       generateFilenameForScanningResults('<3-u!n#icorn<3', 1, false, time)
-    ).toBe('machine_3unicorn3__1_ballots__2019-03-14_15-09-26.jsonl');
+    ).toEqual('machine_3unicorn3__1_ballots__2019-03-14_15-09-26.jsonl');
   });
 
   test('generates basic scanning results filename with default time', () => {
@@ -191,7 +191,7 @@ test('generates ballot export package names as expected with simple inputs', () 
     electionData: '',
   };
   const time = new Date(2019, 2, 14, 15, 9, 26);
-  expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
+  expect(generateFilenameForBallotExportPackage(mockElection, time)).toEqual(
     'king-county_general-election_testHash12__2019-03-14_15-09-26.zip'
   );
 });
@@ -207,7 +207,7 @@ test('generates ballot export package names as expected when election informatio
     electionData: '',
   };
   const time = new Date(2019, 2, 14, 15, 9, 26);
-  expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
+  expect(generateFilenameForBallotExportPackage(mockElection, time)).toEqual(
     'king-county_general-election_testHash12__2019-03-14_15-09-26.zip'
   );
   expect(generateFilenameForBallotExportPackage(mockElection)).toEqual(
@@ -226,7 +226,7 @@ test('generates ballot export package name with truncated election hash', () => 
     electionData: '',
   };
   const time = new Date(2019, 2, 14, 15, 9, 26);
-  expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
+  expect(generateFilenameForBallotExportPackage(mockElection, time)).toEqual(
     'king-county_general-election_testHash12__2019-03-14_15-09-26.zip'
   );
 });
@@ -242,7 +242,7 @@ test('generates ballot export package name with zero padded time pieces', () => 
     electionData: '',
   };
   const time = new Date(2019, 2, 1, 1, 9, 2);
-  expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
+  expect(generateFilenameForBallotExportPackage(mockElection, time)).toEqual(
     'king-county_general-election_testHash12__2019-03-01_01-09-02.zip'
   );
 });
@@ -257,7 +257,7 @@ describe('generateSemsFinalExportDefaultFilename', () => {
     const time = new Date(2019, 2, 1, 1, 9, 2);
     expect(
       generateSemsFinalExportDefaultFilename(true, mockElection, time)
-    ).toBe(
+    ).toEqual(
       'votingworks-sems-test-results_king-county_general-election_2019-03-01_01-09-02.txt'
     );
   });
@@ -271,7 +271,7 @@ describe('generateSemsFinalExportDefaultFilename', () => {
     };
     expect(
       generateSemsFinalExportDefaultFilename(false, mockElection, time)
-    ).toBe(
+    ).toEqual(
       'votingworks-sems-live-results_king-county_general-election_2019-03-01_01-09-02.txt'
     );
     expect(generateSemsFinalExportDefaultFilename(false, mockElection)).toEqual(
@@ -290,7 +290,9 @@ describe('generateFinalExportDefaultFilename', () => {
       title: 'General Election',
     };
     const time = new Date(2019, 2, 1, 1, 9, 2);
-    expect(generateFinalExportDefaultFilename(true, mockElection, time)).toBe(
+    expect(
+      generateFinalExportDefaultFilename(true, mockElection, time)
+    ).toEqual(
       'votingworks-test-results_king-county_general-election_2019-03-01_01-09-02.csv'
     );
   });
@@ -302,7 +304,9 @@ describe('generateFinalExportDefaultFilename', () => {
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
-    expect(generateFinalExportDefaultFilename(false, mockElection, time)).toBe(
+    expect(
+      generateFinalExportDefaultFilename(false, mockElection, time)
+    ).toEqual(
       'votingworks-live-results_king-county_general-election_2019-03-01_01-09-02.csv'
     );
     expect(generateFinalExportDefaultFilename(false, mockElection)).toEqual(

@@ -564,7 +564,7 @@ test('shows invalid election screen when appropriate', async () => {
 
   getByText('Wrong Election');
   getByText('Ballot Election Hash: this-is-a-');
-  expect(queryAllByText('Tabulate As Is').length).toBe(0);
+  expect(queryAllByText('Tabulate As Is').length).toEqual(0);
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,

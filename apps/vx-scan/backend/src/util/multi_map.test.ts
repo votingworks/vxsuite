@@ -5,7 +5,7 @@ test('can have multiple string keys', () => {
   const value: unknown = { foo: 'bar' };
   map.set(['a', 'b'], value);
   const values = map.get(['a', 'b'])!;
-  expect([...values][0]).toBe(value);
+  expect([...values][0]).toEqual(value);
   expect(map.get(['a', ''])).toBeUndefined();
   expect(map.get(['b', 'a'])).toBeUndefined();
 });

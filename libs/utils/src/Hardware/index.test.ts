@@ -34,7 +34,7 @@ it('getHardware does not return KioskHardware when window.kiosk is not set', () 
 });
 
 it('isCardReader does not match just any device', () => {
-  expect(isCardReader(fakeDevice())).toBe(false);
+  expect(isCardReader(fakeDevice())).toEqual(false);
 });
 
 it('isCardReader matches a device with the right vendor ID and product ID', () => {
@@ -45,7 +45,7 @@ it('isCardReader matches a device with the right vendor ID and product ID', () =
         productId: OmniKeyCardReaderProductId,
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 it('isCardReader matches a device with the right product name and manufacturer (using spaces)', () => {
@@ -56,7 +56,7 @@ it('isCardReader matches a device with the right product name and manufacturer (
         manufacturer: OmniKeyCardReaderManufacturer,
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 it('isCardReader matches a device with the right product name and manufacturer (using underscores)', () => {
@@ -67,11 +67,11 @@ it('isCardReader matches a device with the right product name and manufacturer (
         manufacturer: OmniKeyCardReaderManufacturer.replace(/ /g, '_'),
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 it('isAccessibleController does not match just any device', () => {
-  expect(isAccessibleController(fakeDevice())).toBe(false);
+  expect(isAccessibleController(fakeDevice())).toEqual(false);
 });
 
 it('isAccessibleController matches a device with the right vendor and product id', () => {
@@ -82,11 +82,11 @@ it('isAccessibleController matches a device with the right vendor and product id
         productId: AccessibleControllerProductId,
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 it('isBatchScanner does not match just any device', () => {
-  expect(isBatchScanner(fakeDevice())).toBe(false);
+  expect(isBatchScanner(fakeDevice())).toEqual(false);
 });
 
 it('isBatchScanner matches a device with the right vendor and product id', () => {
@@ -96,11 +96,11 @@ it('isBatchScanner matches a device with the right vendor and product id', () =>
         vendorId: FujitsuScannerVendorId,
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });
 
 it('isPrecinctScanner does not match just any device', () => {
-  expect(isPrecinctScanner(fakeDevice())).toBe(false);
+  expect(isPrecinctScanner(fakeDevice())).toEqual(false);
 });
 
 it('isPrecinctScanner matches a device with the right vendor and product id', () => {
@@ -111,5 +111,5 @@ it('isPrecinctScanner matches a device with the right vendor and product id', ()
         productId: PlustekVtm300ScannerProductId,
       })
     )
-  ).toBe(true);
+  ).toEqual(true);
 });

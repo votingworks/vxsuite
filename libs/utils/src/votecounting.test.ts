@@ -48,7 +48,7 @@ test('tabulating a set of CVRs gives expected output', () => {
     election,
     new Set(castVoteRecords)
   );
-  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(10001);
+  expect(fullTally.overallTally.numberOfBallotsCounted).toEqual(10001);
   expect(fullTally.overallTally.contestTallies).toMatchSnapshot();
   expect(fullTally.overallTally.ballotCountsByVotingMethod).toMatchObject({
     absentee: 672,
@@ -61,13 +61,13 @@ test('tabulating a set of CVRs gives expected output', () => {
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
   const presidentTallies = fullTally.overallTally.contestTallies['president']!;
   const jackieChanTally = presidentTallies.tallies['jackie-chan']!;
-  expect(jackieChanTally.tally).toBe(1372);
+  expect(jackieChanTally.tally).toEqual(1372);
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
   const repDistrict18Tallies =
     fullTally.overallTally.contestTallies['representative-district-18']!;
   const neilArmstrongTally = repDistrict18Tallies.tallies['neil-armstrong']!;
-  expect(neilArmstrongTally.tally).toBe(2197);
+  expect(neilArmstrongTally.tally).toEqual(2197);
 
   // sum up all the write-ins across all questions
   // 262 bubbles filled out, of which 2 are overvotes --> 260 write-ins
@@ -81,15 +81,15 @@ test('tabulating a set of CVRs gives expected output', () => {
     0
   );
 
-  expect(numWriteIns).toBe(260);
+  expect(numWriteIns).toEqual(260);
 });
 
 test('computeFullTally with no results should produce empty tally objects with contests', () => {
   const election = electionSample2;
 
   const fullTally = computeFullElectionTally(election, new Set());
-  expect(fullTally.overallTally.numberOfBallotsCounted).toBe(0);
-  expect(Object.keys(fullTally.overallTally.contestTallies).length).toBe(
+  expect(fullTally.overallTally.numberOfBallotsCounted).toEqual(0);
+  expect(Object.keys(fullTally.overallTally.contestTallies).length).toEqual(
     election.contests.length
   );
   const precinctTallies = fullTally.resultsByCategory.get(
@@ -99,8 +99,8 @@ test('computeFullTally with no results should produce empty tally objects with c
   for (const precinct of election.precincts) {
     const precinctTally = precinctTallies![precinct.id];
     expect(precinctTally).toBeDefined();
-    expect(precinctTally!.numberOfBallotsCounted).toBe(0);
-    expect(Object.keys(precinctTally!.contestTallies).length).toBe(
+    expect(precinctTally!.numberOfBallotsCounted).toEqual(0);
+    expect(Object.keys(precinctTally!.contestTallies).length).toEqual(
       election.contests.length
     );
   }
@@ -131,7 +131,7 @@ test('undervotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
-  ).toBe(4);
+  ).toEqual(4);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -140,7 +140,7 @@ test('undervotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
-  ).toBe(3);
+  ).toEqual(3);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -149,7 +149,7 @@ test('undervotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
-  ).toBe(2);
+  ).toEqual(2);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -163,7 +163,7 @@ test('undervotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
-  ).toBe(1);
+  ).toEqual(1);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -177,7 +177,7 @@ test('undervotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .undervotes
-  ).toBe(0);
+  ).toEqual(0);
 });
 
 test('overvotes counted in n of m contest properly', () => {
@@ -208,7 +208,7 @@ test('overvotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .overvotes
-  ).toBe(0);
+  ).toEqual(0);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -230,7 +230,7 @@ test('overvotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .overvotes
-  ).toBe(4);
+  ).toEqual(4);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -252,7 +252,7 @@ test('overvotes counted in n of m contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['county-commissioners']?.metadata
       .overvotes
-  ).toBe(4);
+  ).toEqual(4);
 });
 
 test('overvotes counted in single seat contest properly', () => {
@@ -277,7 +277,7 @@ test('overvotes counted in single seat contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
       .overvotes
-  ).toBe(0);
+  ).toEqual(0);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -294,7 +294,7 @@ test('overvotes counted in single seat contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
       .overvotes
-  ).toBe(1);
+  ).toEqual(1);
 
   electionTally = computeFullElectionTally(
     primaryElectionSample,
@@ -315,7 +315,7 @@ test('overvotes counted in single seat contest properly', () => {
   expect(
     electionTally.overallTally.contestTallies['lieutenant-governor']?.metadata
       .overvotes
-  ).toBe(1);
+  ).toEqual(1);
 });
 
 test('overvote report', () => {
@@ -772,16 +772,16 @@ describe('filterTalliesByParams in a primary election', () => {
         multiPartyPrimaryElection,
         { batchId: testcase.batchId }
       );
-      expect(filteredResults.numberOfBallotsCounted).toBe(
+      expect(filteredResults.numberOfBallotsCounted).toEqual(
         testcase.numberOfBallots
       );
-      expect(typedFilteredResults.numberOfBallotsCounted).toBe(
+      expect(typedFilteredResults.numberOfBallotsCounted).toEqual(
         testcase.numberOfBallots
       );
       expect(filteredResults.contestTallies).toEqual(
         typedFilteredResults.contestTallies
       );
-      expect(typedFilteredResults.batchLabel).toBe(testcase.label);
+      expect(typedFilteredResults.batchLabel).toEqual(testcase.label);
       expect(typedFilteredResults.scannerIds).toEqual([testcase.scanner]);
     }
     // Since there is only one batch for scanner-2 the results for the scanner and batch should be identical.

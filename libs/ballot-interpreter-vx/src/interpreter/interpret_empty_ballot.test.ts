@@ -20,9 +20,9 @@ test('interpret empty ballot', async () => {
 
   const { matchedTemplate, mappedBallot, metadata, ballot } =
     await interpreter.interpretBallot(await fixtures.blankPage1.imageData());
-  expect(matchedTemplate === p1).toBe(true);
-  expect(mappedBallot.width).toBe(matchedTemplate.imageData.width);
-  expect(mappedBallot.height).toBe(matchedTemplate.imageData.height);
+  expect(matchedTemplate === p1).toEqual(true);
+  expect(mappedBallot.width).toEqual(matchedTemplate.imageData.width);
+  expect(mappedBallot.height).toEqual(matchedTemplate.imageData.height);
   expect(metadata.ballotStyleId).toEqual(
     p1.ballotPageLayout.metadata.ballotStyleId
   );

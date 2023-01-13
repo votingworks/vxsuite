@@ -102,7 +102,7 @@ describe('Ballot Counts by Precinct', () => {
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
-    expect(getAllByTestId('table-row').length).toBe(
+    expect(getAllByTestId('table-row').length).toEqual(
       electionWithMsEitherNeither.precincts.length + 2
     );
   });
@@ -137,7 +137,7 @@ describe('Ballot Counts by Precinct', () => {
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
-    expect(getAllByTestId('table-row').length).toBe(
+    expect(getAllByTestId('table-row').length).toEqual(
       electionWithMsEitherNeither.precincts.length + 2
     );
   });
@@ -176,7 +176,7 @@ describe('Ballot Counts by Precinct', () => {
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
-    expect(getAllByTestId('table-row').length).toBe(
+    expect(getAllByTestId('table-row').length).toEqual(
       electionWithMsEitherNeither.precincts.length + 2
     );
   });
@@ -225,7 +225,7 @@ describe('Ballot Counts by Scanner', () => {
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
 
     // There should be 2 rows in the table, the header row and the totals row.
-    expect(getAllByTestId('table-row').length).toBe(2);
+    expect(getAllByTestId('table-row').length).toEqual(2);
   });
 
   it('renders as expected when there is tally data', () => {
@@ -262,7 +262,7 @@ describe('Ballot Counts by Scanner', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(scannerIds.length + 2);
   });
 
   it('renders as expected when there is tally data and sems data', () => {
@@ -310,7 +310,7 @@ describe('Ballot Counts by Scanner', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(scannerIds.length + 3);
+    expect(getAllByTestId('table-row').length).toEqual(scannerIds.length + 3);
   });
 });
 
@@ -399,7 +399,9 @@ describe('Ballots Counts by Party', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedParties.length + 2
+    );
   });
 
   it('renders as expected when there is tally data', () => {
@@ -438,7 +440,9 @@ describe('Ballots Counts by Party', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedParties.length + 2
+    );
   });
 
   it('renders as expected where there is tally data and sems data', () => {
@@ -481,7 +485,9 @@ describe('Ballots Counts by Party', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedParties.length + 2
+    );
   });
 });
 
@@ -542,7 +548,9 @@ describe('Ballots Counts by VotingMethod', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedLabels.length + 2
+    );
   });
 
   it('renders as expected when there is tally data', () => {
@@ -578,7 +586,9 @@ describe('Ballots Counts by VotingMethod', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedLabels.length + 2
+    );
   });
 
   it('renders as expected where there is tally data and sems data', () => {
@@ -624,7 +634,9 @@ describe('Ballots Counts by VotingMethod', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedLabels.length + 2
+    );
   });
 });
 
@@ -693,7 +705,7 @@ describe('Ballots Counts by Batch', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
 
-    expect(getAllByTestId('table-row').length).toBe(2);
+    expect(getAllByTestId('table-row').length).toEqual(2);
   });
 
   it('renders as expected when there is tally data', () => {
@@ -745,7 +757,9 @@ describe('Ballots Counts by Batch', () => {
     expect(domGetByText(tableRow!, 122)).toBeInTheDocument();
 
     // There should be 2 extra table rows in addition to the batches, one for the headers, and one for the total row.
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 2);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedLabels.length + 2
+    );
   });
 
   it('renders as expected where there is tally data and sems data', () => {
@@ -805,6 +819,8 @@ describe('Ballots Counts by Batch', () => {
     domGetByText(tableRow, 176);
 
     // There should be 3 extra table rows in addition to the batches, one for the headers, one for the external data, and one for the total row.
-    expect(getAllByTestId('table-row').length).toBe(expectedLabels.length + 3);
+    expect(getAllByTestId('table-row').length).toEqual(
+      expectedLabels.length + 3
+    );
   });
 });

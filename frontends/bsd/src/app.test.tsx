@@ -63,7 +63,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expect(fetchMock.done()).toBe(true);
+  expect(fetchMock.done()).toEqual(true);
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
@@ -310,7 +310,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
     fireEvent.click(getByText('Cancel'));
   });
 
-  expect(queryByText(exportingModalText)).toBe(null);
+  expect(queryByText(exportingModalText)).toEqual(null);
   expect(download).toHaveBeenCalledWith(
     expect.stringContaining(
       '/central-scanner/scan/export?filename=TEST__machine_0001__'

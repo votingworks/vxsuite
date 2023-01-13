@@ -25,13 +25,13 @@ test('create a file store', async () => {
   const store = Store.fileStore(tmpDbPath);
 
   expect(store).toBeInstanceOf(Store);
-  expect(store.getDbPath()).toBe(tmpDbPath);
+  expect(store.getDbPath()).toEqual(tmpDbPath);
 });
 
 test('create a memory store', () => {
   const store = Store.memoryStore();
   expect(store).toBeInstanceOf(Store);
-  expect(store.getDbPath()).toBe(':memory:');
+  expect(store.getDbPath()).toEqual(':memory:');
 });
 
 test('add an election', () => {
@@ -46,7 +46,7 @@ test('add an election', () => {
     id: electionId,
     createdAt: expect.anything(),
   });
-  expect(store.getElection('not-an-id')).toBe(undefined);
+  expect(store.getElection('not-an-id')).toEqual(undefined);
 });
 
 test('assert election exists', () => {
@@ -562,7 +562,7 @@ test('add a CVR file with unhandled validation errors', async () => {
     exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
-  expect(result.isErr()).toBe(true);
+  expect(result.isErr()).toEqual(true);
   expect(result.err()).toMatchObject({
     kind: 'InvalidCvr',
     lineNumber: 1,
@@ -674,14 +674,14 @@ test('getCvrFiles', async () => {
 
 test('getCvrFileMode returns "unlocked" if no CVRs exist', () => {
   const store = Store.memoryStore();
-  expect(store.getCurrentCvrFileModeForElection('unknown-election-id')).toBe(
+  expect(store.getCurrentCvrFileModeForElection('unknown-election-id')).toEqual(
     Admin.CvrFileMode.Unlocked
   );
 
   const electionId = store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
-  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toEqual(
     Admin.CvrFileMode.Unlocked
   );
 });
@@ -700,7 +700,7 @@ test('getCvrFileMode returns "test" if test CVRs previously imported', async () 
     exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
-  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toEqual(
     Admin.CvrFileMode.Test
   );
 });
@@ -719,7 +719,7 @@ test('getCvrFileMode returns "live" if official CVRs previously imported', async
     exportedTimestamp: '2021-09-02T22:27:58.327Z',
   });
 
-  expect(store.getCurrentCvrFileModeForElection(electionId)).toBe(
+  expect(store.getCurrentCvrFileModeForElection(electionId)).toEqual(
     Admin.CvrFileMode.Official
   );
 });
@@ -942,7 +942,7 @@ test('write-in adjudication lifecycle', async () => {
     }),
   });
 
-  expect(store.getCastVoteRecordForWriteIn('not-an-id')).toBe(undefined);
+  expect(store.getCastVoteRecordForWriteIn('not-an-id')).toEqual(undefined);
 
   const firstWriteInAdjudicationId = store.createWriteInAdjudication({
     electionId,

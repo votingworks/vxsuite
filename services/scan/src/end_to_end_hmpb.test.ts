@@ -163,8 +163,8 @@ test('going through the whole process works', async () => {
       .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
-    expect(JSON.parse(status.text).batches.length).toBe(1);
-    expect(JSON.parse(status.text).batches[0].count).toBe(1);
+    expect(JSON.parse(status.text).batches.length).toEqual(1);
+    expect(JSON.parse(status.text).batches[0].count).toEqual(1);
   }
 
   {
@@ -302,8 +302,8 @@ test('ms-either-neither end-to-end', async () => {
       .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
-    expect(JSON.parse(status.text).batches.length).toBe(1);
-    expect(JSON.parse(status.text).batches[0].count).toBe(1);
+    expect(JSON.parse(status.text).batches.length).toEqual(1);
+    expect(JSON.parse(status.text).batches[0].count).toEqual(1);
   }
 
   {

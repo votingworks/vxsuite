@@ -913,11 +913,11 @@ test('kill', async () => {
 
   // kill unsuccessfully
   (plustekctl.kill as jest.Mock).mockReturnValue(false);
-  expect(client.kill().isErr()).toBe(true);
+  expect(client.kill().isErr()).toEqual(true);
   expect(plustekctl.kill).toHaveBeenCalledWith();
 
   // kill successfully
   (plustekctl.kill as jest.Mock).mockReturnValue(true);
-  expect(client.kill().isOk()).toBe(true);
+  expect(client.kill().isOk()).toEqual(true);
   expect(plustekctl.kill).toHaveBeenCalledWith();
 });

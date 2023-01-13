@@ -15,7 +15,7 @@ test('can interpret a template that is not in the same mode as the interpreter',
         await fixtures.blankPage1.metadata({ isTestMode: false })
       )
     ).ballotPageLayout.metadata.isTestMode
-  ).toBe(false);
+  ).toEqual(false);
 });
 
 test('takes the mark score vote threshold from the election definition if present', () => {
