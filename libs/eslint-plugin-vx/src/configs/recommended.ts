@@ -64,6 +64,7 @@ export = {
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
+    'vx/no-jest-to-be': 'error',
 
     '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],

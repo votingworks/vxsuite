@@ -29,6 +29,7 @@ import noArraySortMutation from './no_array_sort_mutation';
 import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
 import noImportSubfolders from './no_import_workspace_subfolders';
+import noJestToBe from './no_jest_to_be';
 
 const rules: Record<string, Rule.RuleModule> = {
   'gts-array-type-style': gtsArrayTypeStyle,
@@ -61,6 +62,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,
   'no-import-workspace-subfolders': noImportSubfolders,
+  'no-jest-to-be': noJestToBe,
 } as unknown as Record<string, Rule.RuleModule>;
 
 export default rules;
