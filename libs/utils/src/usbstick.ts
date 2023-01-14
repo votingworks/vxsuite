@@ -51,7 +51,7 @@ export async function doEject(): Promise<void> {
   }
 
   await window.kiosk.syncUsbDrive(usbDriveInfo.mountPoint);
-  await window.kiosk.unmountUsbDrive(usbDriveInfo.deviceName);
+  await window.kiosk.unmountUsbDrive();
 }
 
 /**
@@ -83,7 +83,7 @@ export async function doFormat(
   }
 
   if (usbDriveInfo.mountPoint) {
-    await window.kiosk.unmountUsbDrive(usbDriveInfo.deviceName);
+    await window.kiosk.unmountUsbDrive();
   }
 
   await window.kiosk.formatUsbDrive(usbDriveInfo.deviceName, options);
