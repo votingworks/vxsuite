@@ -9,7 +9,7 @@ if [ -e "$MOCK_BY_ID_ENTRY" ]; then
     rm "$MOCK_BY_ID_ENTRY"
 
     # Detach the loop device
-    losetup -d /dev/`echo $DEVICE_PARTITION | sed 's/\.\.\/\.\.\/\(.*\)p1/\1/'`
+    losetup -d "/dev/`echo $DEVICE_PARTITION | sed 's/\.\.\/\.\.\/\(.*\)p1/\1/'`"
 
     # Unmount the drive, because detaching the loop device does not do this automatically
     umount "/media/vx/usb-drive" -q

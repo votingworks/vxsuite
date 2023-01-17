@@ -6,13 +6,13 @@ if [ -f "$DIR/usb-mock.img" ]; then
     echo "Virtual USB drive image found..."
 else
     echo "No virtual USB drivei image found. Initializing a virtual USB drive image with default size of 64MB..."
-    bash $DIR/initialize.sh -s 64
+    bash "$DIR/initialize.sh" -s 64
     echo "To create a larger virtual USB drive image, run 'sudo bash initalize.sh -s <size>' where <size> is the desired size in megabytes."
 fi
 
 # Attach the loop device and get its name
-DEVICE=$( losetup -fP --show $DIR/usb-mock.img )
-DEVICE_BASENAME=$( basename ${DEVICE} )
+DEVICE=$( losetup -fP --show "$DIR/usb-mock.img" )
+DEVICE_BASENAME=$( basename "${DEVICE}" )
 echo "Virtual USB drive attached."
 
 # Wait for OS to detect filesystem on USB drive partition
@@ -32,6 +32,6 @@ done
 echo "Virtual USB drive filesystem detected."
 
 # Create a mock entry in /dev/disk/by-id that kiosk-browser can use to detect the USB drive
-ln -s ../../${DEVICE_BASENAME}p1 /dev/disk/by-id/usb-mock-part1
+ln -s "../../${DEVICE_BASENAME}p1" /dev/disk/by-id/usb-mock-part1
 
 echo "Virtual USB drive mock complete."
