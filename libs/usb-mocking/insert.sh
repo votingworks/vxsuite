@@ -1,20 +1,37 @@
-DIR=$( dirname $BASH_SOURCE )
+#!/bin/bash
+
+DIR=$( dirname $0 )
 
 if [ -f "$DIR/usb-mock.img" ]; then
-    echo "Virtual USB drive found..."
+    echo "Virtual USB drive image found..."
 else
-    echo "No virtual USB drive found. Initializing a virtual USB drive with default size of 64MB..."
+    echo "No virtual USB drivei image found. Initializing a virtual USB drive image with default size of 64MB..."
     bash $DIR/initialize.sh -s 64
-    echo "To create a larger virtual USB drive, run 'sudo bash initalize.sh -s <size>' where <size> is the desired size in megabytes."
+    echo "To create a larger virtual USB drive image, run 'sudo bash initalize.sh -s <size>' where <size> is the desired size in megabytes."
 fi
 
-# Attach the loop device
-DEVICE_BASENAME=$( basename $( losetup -fP --show $DIR/usb-mock.img ) )
+# Attach the loop device and get its name
+DEVICE=$( losetup -fP --show $DIR/usb-mock.img )
+DEVICE_BASENAME=$( basename ${DEVICE} )
+echo "Virtual USB drive attached."
 
-# Use a delay to allow the OS to detect the filesystems on the loop device partition
-sleep 1 
+# Wait for OS to detect filesystem on USB drive partition
+DELAY=0.05
+DELAY_COUNTER=0
+DELAY_MAX_TIMES=10
+until [[ $( lsblk -fl | grep "${DEVICE_BASENAME}p1 vfat" ) ]]
+do
+    echo "Waiting for OS to detect virtual USB drive filesystem..."
+    sleep $DELAY
+    let DELAY_COUNTER++
+    if [ $WAIT_COUNTER > $DELAY_MAX_TIMES ]; then
+        echo "Timed out waiting for OS to detect virtual USB drive filesystem."
+        break
+    fi
+done
+echo "Virtual USB drive filesystem detected."
 
 # Create a mock entry in /dev/disk/by-id that kiosk-browser can use to detect the USB drive
 ln -s ../../${DEVICE_BASENAME}p1 /dev/disk/by-id/usb-mock-part1
 
-echo "Inserted virtual USB drive."
+echo "Virtual USB drive mock complete."

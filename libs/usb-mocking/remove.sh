@@ -1,3 +1,5 @@
+#!/bin/bash
+
 MOCK_BY_ID_ENTRY="/dev/disk/by-id/usb-mock-part1"
 
 if [ -e "$MOCK_BY_ID_ENTRY" ]; then

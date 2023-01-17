@@ -1,3 +1,5 @@
+#!/bin/bash
+
 while getopts s: flag; do
     case "$flag" in
         s) size=$OPTARG;;
