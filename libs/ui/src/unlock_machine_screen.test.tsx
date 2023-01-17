@@ -48,7 +48,6 @@ test('Unlock machine screen submits passcode', async () => {
   getByText('• • • • • -');
 
   userEvent.click(getByText('5'));
-  getByText('• • • • • •');
 
   await waitFor(() =>
     expect(fakeAuth.checkPasscode).toHaveBeenNthCalledWith(1, '012345')

@@ -17,18 +17,13 @@ test('PATCH /config/election', async () => {
 });
 
 test('PATCH /config/election fails', async () => {
-  fetchMock.patchOnce(
-    '/central-scanner/config/election',
-    new Response(
-      JSON.stringify(
-        typedAs<Scan.PatchElectionConfigResponse>({
-          status: 'error',
-          errors: [{ type: 'invalid-value', message: 'bad election!' }],
-        })
-      ),
-      { status: 400 }
-    )
-  );
+  fetchMock.patchOnce('/central-scanner/config/election', {
+    body: typedAs<Scan.PatchElectionConfigResponse>({
+      status: 'error',
+      errors: [{ type: 'invalid-value', message: 'bad election!' }],
+    }),
+    status: 400,
+  });
   await expect(
     config.setElection(testElectionDefinition.electionData)
   ).rejects.toThrowError('bad election!');

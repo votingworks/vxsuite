@@ -13,8 +13,8 @@
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
-    "start": "pnpm -w run-dev -- bsd",
-    "start:core": "pnpm -w run-dev -- bsd --core-only",
+    "start": "pnpm -w run-dev bsd",
+    "start:core": "pnpm -w run-dev bsd --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
@@ -147,7 +147,7 @@
     "vite": "^2.9.12",
     "zip-stream": "^3.0.1"
   },
-  "packageManager": "pnpm@5.18.10",
+  "packageManager": "pnpm@7.24.3",
   "vx": {
     "isBundled": true,
     "services": [

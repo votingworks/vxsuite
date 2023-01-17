@@ -17,7 +17,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage -- --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:coverage": "TZ=UTC jest --coverage",
     "test:watch": "TZ=UTC jest --watch",
     "type-check": "tsc --build"
@@ -73,5 +73,5 @@
     "ts-jest": "^27.0.7",
     "typescript": "4.6.3"
   },
-  "packageManager": "pnpm@5.18.10"
+  "packageManager": "pnpm@7.24.3"
 }

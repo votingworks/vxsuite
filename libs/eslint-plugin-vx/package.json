@@ -23,7 +23,7 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7"
   },
-  "packageManager": "pnpm@5.18.10",
+  "packageManager": "pnpm@7.24.3",
   "dependencies": {
     "@types/eslint": "^8.4.1",
     "@typescript-eslint/eslint-plugin": "^5.37.0",

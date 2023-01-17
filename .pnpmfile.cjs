@@ -19,7 +19,7 @@ module.exports = {
  * with hoisted packages, implicit dependencies are typically never a problem
  * because traversing up the node_modules directories will find them. The
  * layout created by pnpm with `hoist = false` means that won't be the case.
- * 
+ *
  * To ensure packages can find their implicit dependencies, we add the missing
  * ones manually here on a package-by-package basis.
  *
@@ -82,7 +82,7 @@ function readPackage(pkg, context) {
     context.log('react-idle-timer implicitly depends on @types/react')
   }
 
-  if (pkg.name === 'eslint-module-utils') {
+  if (pkg.name === '@typescript-eslint/utils') {
     // Cannot find module '@typescript-eslint/parser'
     pkg.dependencies = {
       ...pkg.dependencies,

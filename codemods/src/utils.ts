@@ -10,7 +10,7 @@ export function addSpecifierToImport(
   path: NodePath<t.ImportDeclaration>,
   name: string
 ): void {
-  const specifiers = path.get('specifiers');
+  const specifiers: any = path.get('specifiers');
   const newSpecifier = t.importSpecifier(
     t.identifier(name),
     t.identifier(name)
@@ -18,7 +18,7 @@ export function addSpecifierToImport(
 
   if (specifiers.length === 0) {
     path.replaceWith(
-      t.importDeclaration([newSpecifier], path.get('source').node)
+      t.importDeclaration([newSpecifier], path.get('source').node) as any
     );
   } else {
     let insertionIndex = 0;

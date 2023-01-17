@@ -4,7 +4,7 @@ import traverse from '@babel/traverse';
 import { addSpecifierToImport } from './utils';
 
 test('addSpecifierToImport without specifiers', () => {
-  const ast = parseSync(`import '@votingworks/types';`)!;
+  const ast: any = parseSync(`import '@votingworks/types';`)!;
 
   traverse(ast, {
     ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
@@ -18,7 +18,7 @@ test('addSpecifierToImport without specifiers', () => {
 });
 
 test('addSpecifierToImport with existing specifiers can insert at the start', () => {
-  const ast = parseSync(`import { ok } from '@votingworks/types';`)!;
+  const ast: any = parseSync(`import { ok } from '@votingworks/types';`)!;
 
   traverse(ast, {
     ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
@@ -32,7 +32,7 @@ test('addSpecifierToImport with existing specifiers can insert at the start', ()
 });
 
 test('addSpecifierToImport with existing specifiers can insert at the end', () => {
-  const ast = parseSync(`import { err } from '@votingworks/types';`)!;
+  const ast: any = parseSync(`import { err } from '@votingworks/types';`)!;
 
   traverse(ast, {
     ImportDeclaration(path: NodePath<t.ImportDeclaration>): void {
@@ -46,7 +46,7 @@ test('addSpecifierToImport with existing specifiers can insert at the end', () =
 });
 
 test('addSpecifierToImport with existing specifiers can insert in the middle', () => {
-  const ast = parseSync(
+  const ast: any = parseSync(
     `import { Election, Precinct } from '@votingworks/types';`
   )!;
 

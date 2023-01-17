@@ -394,7 +394,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   // Unconfigure Machine
   fetchMock
-    .getOnce('/central-scanner/config/election', new Response('null'), {
+    .getOnce('/central-scanner/config/election', JSON.stringify(null), {
       overwriteRoutes: true,
     })
     .deleteOnce('/central-scanner/config/election', {

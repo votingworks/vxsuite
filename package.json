@@ -12,7 +12,7 @@
     "package.json": "sort-package-json",
     "*.ts,*.md,*.json": "prettier --write"
   },
-  "packageManager": "pnpm@5.18.10",
+  "packageManager": "pnpm@7.24.3",
   "devDependencies": {
     "@codemod/cli": "^3.1.2",
     "eslint": "^7.29.0",

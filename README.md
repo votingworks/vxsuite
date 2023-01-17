@@ -14,7 +14,7 @@ more information about VotingWorks.
 ## Development
 
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
-v16.14.2 and [pnpm](https://pnpm.js.org) v5 (or use `corepack` to automatically use the right package manager).
+v16.14.2 and [pnpm](https://pnpm.js.org) v7 (or use `corepack enable` to automatically use the right package manager).
 
 Most of the code is written in TypeScript. We follow the
 [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
@@ -83,7 +83,7 @@ Install Node, npm, yarn, and pnpm by running the following script:
 cd vxsuite
 ./script/setup-dev
 node -v # this should return 16.x.x
-pnpm -v # this should return 5.x.x
+pnpm -v # this should return 7.x.x
 ```
 
 NOTE: The initial bootstrap will take some time. You may be prompted for your
@@ -94,8 +94,7 @@ reset the timer by running a quick sudo command before the bootstrap:
 sudo whoami
 ```
 
-Automatically install and build all dependencies in the vxsuite repo with the 
-following command:
+Automatically install and build all dependencies in the vxsuite repo with the following command:
 
 ```sh
 ./script/bootstrap
@@ -276,8 +275,8 @@ help you contribute.
 ## Development Best Practices
 
 ### Feature Flags
-Feature flags are defined in the libs/utils subrepo [here](https://github.com/votingworks/vxsuite/blob/main/libs/utils/src/environment_flag.ts). 
-To configure which flags you are using you can set them in an `.env.local` file. This file can live either at the root of vxsuite or in the subrepo you want that flag to apply to. Flag values set in subrepo files will override those set at the root. `.env.local` file will also override a default `.env` file at either a subrepo or root level. To generate a `.env.local` file properly run the `pnpm configure-dev` command. If you are using VxDev you can run the `pnpm configure-vxdev-env` command BEFORE running the update code program. 
+Feature flags are defined in the libs/utils subrepo [here](https://github.com/votingworks/vxsuite/blob/main/libs/utils/src/environment_flag.ts).
+To configure which flags you are using you can set them in an `.env.local` file. This file can live either at the root of vxsuite or in the subrepo you want that flag to apply to. Flag values set in subrepo files will override those set at the root. `.env.local` file will also override a default `.env` file at either a subrepo or root level. To generate a `.env.local` file properly run the `pnpm configure-dev` command. If you are using VxDev you can run the `pnpm configure-vxdev-env` command BEFORE running the update code program.
 
 ### Use `zod` for validating/parsing JSON data
 
