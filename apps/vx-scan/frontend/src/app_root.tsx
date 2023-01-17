@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import 'normalize.css';
 
 import { Card } from '@votingworks/types';
@@ -14,7 +14,7 @@ import {
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { Hardware, assert } from '@votingworks/utils';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
@@ -38,7 +38,6 @@ import {
   getConfig,
   getMachineConfig,
   getScannerStatus,
-  recordBallotBagReplaced,
   setPollsState,
   unconfigureElection,
 } from './api';
@@ -81,25 +80,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
-  const recordBallotBagReplacedMutation = recordBallotBagReplaced.useMutation();
-  const onBallotBagReplaced = useCallback(async () => {
-    await recordBallotBagReplacedMutation.mutateAsync();
-    await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
-      disposition: 'success',
-      message: 'Poll worker confirmed that they replaced the ballot bag.',
-    });
-    // TODO(jonah): Refactor replace ballot bag flow to not call this function
-    // whenever the function identity changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logger]);
-
-  const needsToReplaceBallotBag =
-    configQuery.isSuccess &&
-    scannerStatusQuery.isSuccess &&
-    scannerStatusQuery.data.ballotsCounted >=
-      configQuery.data.ballotCountWhenBallotBagLastReplaced +
-        BALLOT_BAG_CAPACITY;
-
   if (
     !(
       machineConfigQuery.isSuccess &&
@@ -118,6 +98,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     markThresholdOverrides,
     pollsState,
     isSoundMuted,
+    ballotCountWhenBallotBagLastReplaced,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
 
@@ -214,12 +195,15 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return <InsertUsbScreen />;
   }
 
+  const needsToReplaceBallotBag =
+    scannerStatus.ballotsCounted >=
+    ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
   if (needsToReplaceBallotBag && scannerStatus.state !== 'accepted') {
     return (
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollWorkerAuthenticated={isPollWorkerAuth(auth)}
-        onComplete={onBallotBagReplaced}
+        logger={logger}
       />
     );
   }
