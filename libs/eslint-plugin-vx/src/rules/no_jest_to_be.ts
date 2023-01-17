@@ -23,6 +23,7 @@ const rule: TSESLint.RuleModule<'noJestToBe', readonly unknown[]> = createRule({
     return {
       MemberExpression(node: TSESTree.MemberExpression) {
         if (
+          !node.computed &&
           node.property.type === AST_NODE_TYPES.Identifier &&
           node.property.name === 'toBe' &&
           node.object.type === AST_NODE_TYPES.CallExpression &&
