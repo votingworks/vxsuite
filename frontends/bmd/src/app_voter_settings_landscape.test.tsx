@@ -102,11 +102,11 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   getByTextWithMarkup('Your ballot has 21 contests.');
 
   // Adjust Text Size on Start Page
-  expect(screen.getAllByLabelText('Text Size:', { exact: false }).length).toBe(
-    3
-  );
+  expect(
+    screen.getAllByLabelText('Text Size:', { exact: false }).length
+  ).toEqual(3);
   userEvent.click(screen.getByLabelText('Text Size: Small'));
-  expect(window.document.documentElement.style.fontSize).toBe('22px');
+  expect(window.document.documentElement.style.fontSize).toEqual('22px');
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
@@ -116,7 +116,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('Voter Settings');
   userEvent.click(screen.getByLabelText('Text Size: Large'));
-  expect(window.document.documentElement.style.fontSize).toBe('36px');
+  expect(window.document.documentElement.style.fontSize).toEqual('36px');
   userEvent.click(screen.getByText('Done'));
 
   // Advance through every contest

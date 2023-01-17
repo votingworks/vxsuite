@@ -17,7 +17,7 @@ it('calls the underlying function as long as it returns undefined', () => {
 
   // finally a value is cached
   fn.mockReturnValueOnce('cached!');
-  expect(mfn()).toBe('cached!');
+  expect(mfn()).toEqual('cached!');
 });
 
 it('stops calling the underlying function once it returns a value', () => {
@@ -31,15 +31,15 @@ it('stops calling the underlying function once it returns a value', () => {
 
   // `fn` hasn't been called yet
   expect(fn).toHaveBeenCalledTimes(0);
-  expect(i).toBe(0);
+  expect(i).toEqual(0);
 
   // first value is computed and cached
-  expect(mfn()).toBe(0);
+  expect(mfn()).toEqual(0);
   expect(fn).toHaveBeenCalledTimes(1);
-  expect(i).toBe(1);
+  expect(i).toEqual(1);
 
   // first value is returned from cache
-  expect(mfn()).toBe(0);
+  expect(mfn()).toEqual(0);
   expect(fn).toHaveBeenCalledTimes(1);
-  expect(i).toBe(1);
+  expect(i).toEqual(1);
 });

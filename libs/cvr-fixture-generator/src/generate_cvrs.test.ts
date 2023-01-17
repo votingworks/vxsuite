@@ -99,9 +99,9 @@ test('has all ballot types', async () => {
     }
   }
 
-  expect(seenAbsentee).toBe(true);
-  expect(seenProvisional).toBe(true);
-  expect(seenStandard).toBe(true);
+  expect(seenAbsentee).toEqual(true);
+  expect(seenProvisional).toEqual(true);
+  expect(seenStandard).toEqual(true);
 });
 
 test('uses all the scanners given', async () => {
@@ -159,7 +159,7 @@ test('adds write-ins for contests that allow them', async () => {
     }
   }
 
-  expect(seenWriteIn).toBe(true);
+  expect(seenWriteIn).toEqual(true);
 });
 
 test('adds write-ins for contests that have 1 seat', async () => {
@@ -186,7 +186,7 @@ test('adds write-ins for contests that have 1 seat', async () => {
     }
   }
 
-  expect(seenWriteIn).toBe(true);
+  expect(seenWriteIn).toEqual(true);
 });
 
 test('can include ballot images for write-ins', async () => {

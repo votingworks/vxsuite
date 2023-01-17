@@ -138,7 +138,7 @@ describe('test cdf conversion', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    expect(cdfLog.ElectionId).toBe(
+    expect(cdfLog.ElectionId).toEqual(
       electionMinimalExhaustiveSampleDefinition.electionHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
@@ -146,9 +146,9 @@ describe('test cdf conversion', () => {
     );
     const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
-    expect(cdfLogDevice.Id).toBe('12machine34');
-    expect(cdfLogDevice.Version).toBe('thisisacodeversion');
-    expect(cdfLogDevice.Type).toBe('ems');
+    expect(cdfLogDevice.Id).toEqual('12machine34');
+    expect(cdfLogDevice.Version).toEqual('thisisacodeversion');
+    expect(cdfLogDevice.Type).toEqual('ems');
     expect(cdfLogDevice.Event).toStrictEqual([]);
   });
 
@@ -172,16 +172,16 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveDetected);
-    expect(decodedEvent.Disposition).toBe('na');
-    expect(decodedEvent.Sequence).toBe('0');
-    expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
-    expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
-    expect(decodedEvent.Description).toBe('i know the deal');
-    expect(decodedEvent.Details).toBe(
+    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveDetected);
+    expect(decodedEvent.Disposition).toEqual('na');
+    expect(decodedEvent.Sequence).toEqual('0');
+    expect(decodedEvent.TimeStamp).toEqual('2021-11-03T16:38:09.384062-07:00');
+    expect(decodedEvent.Type).toEqual(LogEventType.ApplicationStatus);
+    expect(decodedEvent.Description).toEqual('i know the deal');
+    expect(decodedEvent.Details).toEqual(
       JSON.stringify({ source: 'vx-admin-frontend' })
     );
-    expect('otherDisposition' in decodedEvent).toBe(false);
+    expect('otherDisposition' in decodedEvent).toEqual(false);
     expect(logSpy).toHaveBeenCalledWith(
       LogEventId.LogConversionToCdfComplete,
       'election_manager',
@@ -211,7 +211,7 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Disposition).toBe('na');
+    expect(decodedEvent.Disposition).toEqual('na');
   });
 
   test('converts log with custom disposition and extra details as expected', () => {
@@ -233,13 +233,13 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toBe(LogEventId.UsbDriveDetected);
-    expect(decodedEvent.Disposition).toBe('other');
-    expect(decodedEvent.OtherDisposition).toBe('dinosaurs');
-    expect(decodedEvent.Sequence).toBe('0');
-    expect(decodedEvent.TimeStamp).toBe('2021-11-03T16:38:09.384062-07:00');
-    expect(decodedEvent.Type).toBe(LogEventType.ApplicationStatus);
-    expect(decodedEvent.Description).toBe('glistened as it fell');
+    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveDetected);
+    expect(decodedEvent.Disposition).toEqual('other');
+    expect(decodedEvent.OtherDisposition).toEqual('dinosaurs');
+    expect(decodedEvent.Sequence).toEqual('0');
+    expect(decodedEvent.TimeStamp).toEqual('2021-11-03T16:38:09.384062-07:00');
+    expect(decodedEvent.Type).toEqual(LogEventType.ApplicationStatus);
+    expect(decodedEvent.Description).toEqual('glistened as it fell');
     expect(decodedEvent.Details).toMatchInlineSnapshot(
       `"{\\"host\\":\\"ubuntu\\",\\"newStatus\\":\\"absent\\",\\"source\\":\\"vx-admin-frontend\\"}"`
     );
@@ -342,7 +342,7 @@ describe('test cdf conversion', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    expect(cdfLog.ElectionId).toBe(
+    expect(cdfLog.ElectionId).toEqual(
       electionMinimalExhaustiveSampleDefinition.electionHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
@@ -350,9 +350,9 @@ describe('test cdf conversion', () => {
     );
     const cdfLogDevice = cdfLog.Device?.[0];
     assert(cdfLogDevice);
-    expect(cdfLogDevice.Id).toBe('1234');
-    expect(cdfLogDevice.Version).toBe('codeversion');
-    expect(cdfLogDevice.Type).toBe('ems');
+    expect(cdfLogDevice.Id).toEqual('1234');
+    expect(cdfLogDevice.Version).toEqual('codeversion');
+    expect(cdfLogDevice.Type).toEqual('ems');
     const events = cdfLogDevice.Event!;
     // There are 35 log lines in the sample file.
     expect(events).toHaveLength(35);

@@ -88,10 +88,10 @@ it('gamepad controls work', async () => {
   // select and unselect
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset['selected']).toBe('true');
+  expect(getActiveElement().dataset['selected']).toEqual('true');
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset['selected']).toBe('false');
+  expect(getActiveElement().dataset['selected']).toEqual('false');
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
   fireEvent.click(screen.getByText(contest0candidate0.name));
@@ -99,7 +99,7 @@ it('gamepad controls work', async () => {
   handleGamepadButtonDown('DPadDown'); // selects Okay button
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
-  expect(getActiveElement().textContent).toBe('Okay');
+  expect(getActiveElement().textContent).toEqual('Okay');
 
   await advanceTimersAndPromises();
 });

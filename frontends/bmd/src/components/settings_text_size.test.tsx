@@ -17,7 +17,7 @@ it('renders SettingsTextSize', () => {
   );
   expect(container.firstChild).toMatchSnapshot();
   const buttons = getAllByText('A');
-  expect(buttons.length).toBe(3);
+  expect(buttons.length).toEqual(3);
   fireEvent.click(buttons[0]);
   expect(setUserSettings).toBeCalledWith({ textSize: 0 });
   fireEvent.click(buttons[1]);

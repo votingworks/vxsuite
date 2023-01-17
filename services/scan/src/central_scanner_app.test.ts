@@ -474,7 +474,7 @@ test('GET /scan/export', async () => {
     .set('Accept', 'application/json')
     .expect(200);
 
-  expect(response.get('Content-Disposition')).toBe(
+  expect(response.get('Content-Disposition')).toEqual(
     'attachment; filename="new_cvr_export.jsonl"'
   );
   expect(Buffer.from(response.body).toString()).toEqual('cvr file contents\n');

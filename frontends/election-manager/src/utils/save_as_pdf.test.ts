@@ -44,12 +44,12 @@ test('file path name is generated properly', () => {
   for (const { prefix, precinctName, expected } of testCases) {
     expect(
       generateDefaultReportFilename(prefix, electionSample, precinctName)
-    ).toBe(expected);
+    ).toEqual(expected);
   }
 });
 
 test('precinct name fills in all-precincts as default value', () => {
-  expect(generateDefaultReportFilename('test', electionSample)).toBe(
+  expect(generateDefaultReportFilename('test', electionSample)).toEqual(
     'test-franklin-county-general-election-all-precincts.pdf'
   );
 });

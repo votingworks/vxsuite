@@ -36,8 +36,8 @@ test('interpret', async () => {
 
   const [frontResult, backResult] = result.unsafeUnwrap();
 
-  expect(frontResult.interpretation.type).toBe('InterpretedHmpbPage');
-  expect(backResult.interpretation.type).toBe('InterpretedHmpbPage');
+  expect(frontResult.interpretation.type).toEqual('InterpretedHmpbPage');
+  expect(backResult.interpretation.type).toEqual('InterpretedHmpbPage');
 
   const images = (await readdir(ballotImagesPath)).map((filename) =>
     join(ballotImagesPath, filename)

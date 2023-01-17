@@ -17,7 +17,7 @@ test('normalizes intentionally-empty pages correctly', async () => {
   );
 
   // there was a bug where all pixels were white
-  expect(mappedBallot.data.some((px) => px !== 0xff)).toBe(true);
+  expect(mappedBallot.data.some((px) => px !== 0xff)).toEqual(true);
 
   // ensure the size is the same as the template
   expect(mappedBallot.width).toEqual(page2Template.imageData.width);

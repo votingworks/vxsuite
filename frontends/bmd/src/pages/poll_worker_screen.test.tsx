@@ -89,9 +89,9 @@ function renderScreen(
 test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
   renderScreen(undefined, undefined, undefined, MarkAndPrint);
   screen.getByText('Poll Worker Actions');
-  expect(screen.getByText('Ballots Printed:').parentElement!.textContent).toBe(
-    'Ballots Printed: 0'
-  );
+  expect(
+    screen.getByText('Ballots Printed:').parentElement!.textContent
+  ).toEqual('Ballots Printed: 0');
 });
 
 test('renders PollWorkerScreen', () => {

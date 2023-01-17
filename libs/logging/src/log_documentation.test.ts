@@ -24,9 +24,9 @@ describe('test cdf documentation generation', () => {
       ElectionEventLogDocumentationSchema
     );
     const structuredData = structuredDataResult.unsafeUnwrap();
-    expect(structuredData.DeviceManufacturer).toBe('VotingWorks');
-    expect(structuredData.DeviceModel).toBe('VxAdmin 1.0');
-    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
+    expect(structuredData.DeviceManufacturer).toEqual('VotingWorks');
+    expect(structuredData.DeviceModel).toEqual('VxAdmin 1.0');
+    expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
     expect(structuredData.EventIdDescription).toHaveLength(58);
     // Make sure VxAdminFrontend specific logs are included.
@@ -62,9 +62,9 @@ describe('test cdf documentation generation', () => {
     expect(structuredDataResult.isOk()).toBeTruthy();
     const structuredData = structuredDataResult.ok();
     assert(structuredData);
-    expect(structuredData.DeviceManufacturer).toBe('V oting Works');
-    expect(structuredData.DeviceModel).toBe('VxCentralScan');
-    expect(structuredData.GeneratedDate).toBe('2020-07-24T00:00:00.000Z');
+    expect(structuredData.DeviceManufacturer).toEqual('V oting Works');
+    expect(structuredData.DeviceModel).toEqual('VxCentralScan');
+    expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
     expect(structuredData.EventIdDescription).toHaveLength(60);
     // Make sure VxCentralScanApp specific logs are included.

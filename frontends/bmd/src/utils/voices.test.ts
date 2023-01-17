@@ -33,7 +33,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name }),
     ]);
 
-    expect(getUsEnglishVoice()?.name).toBe(name);
+    expect(getUsEnglishVoice()?.name).toEqual(name);
   });
 
   it('prefers US English to UK English', () => {
@@ -42,7 +42,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google US English' }),
     ]);
 
-    expect(getUsEnglishVoice()?.name).toBe('Google US English');
+    expect(getUsEnglishVoice()?.name).toEqual('Google US English');
   });
 
   it('prefers en-US over en', () => {
@@ -51,7 +51,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ lang: 'en-US' }),
     ]);
 
-    expect(getUsEnglishVoice()?.lang).toBe('en-US');
+    expect(getUsEnglishVoice()?.lang).toEqual('en-US');
   });
 
   it('prefers en over en-GB', () => {
@@ -60,7 +60,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ lang: 'en' }),
     ]);
 
-    expect(getUsEnglishVoice()?.lang).toBe('en');
+    expect(getUsEnglishVoice()?.lang).toEqual('en');
   });
 
   it('falls back to the default if there is one', () => {
@@ -70,7 +70,7 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google 普通话（中国大陆）', default: false }),
     ]);
 
-    expect(getUsEnglishVoice()?.default).toBe(true);
+    expect(getUsEnglishVoice()?.default).toEqual(true);
   });
 
   it('falls back to the first one if none match or are the default', () => {
@@ -79,6 +79,6 @@ describe('getUSEnglishVoice', () => {
       fakeVoice({ name: 'Google 普通话（中国大陆）', default: false }),
     ]);
 
-    expect(getUsEnglishVoice()?.lang).toBe('af');
+    expect(getUsEnglishVoice()?.lang).toEqual('af');
   });
 });

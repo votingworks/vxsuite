@@ -8,7 +8,7 @@ test('help', async () => {
   const stderr = fakeWritable();
   const io: IO = { stdin, stdout, stderr };
 
-  expect(await main(['node', 'read-qrcode', '-h'], io)).toBe(0);
+  expect(await main(['node', 'read-qrcode', '-h'], io)).toEqual(0);
 
   expect(stdout.toString()).toMatchInlineSnapshot(`
     "read-qrcode [IMAGE_PATH …]
@@ -22,7 +22,7 @@ test('no args', async () => {
   const stderr = fakeWritable();
   const io: IO = { stdin, stdout, stderr };
 
-  expect(await main(['node', 'read-qrcode'], io)).toBe(0);
+  expect(await main(['node', 'read-qrcode'], io)).toEqual(0);
 
   expect(stdout.toString()).toMatchInlineSnapshot(`""`);
 });
@@ -33,7 +33,9 @@ test('invalid option', async () => {
   const stderr = fakeWritable();
   const io: IO = { stdin, stdout, stderr };
 
-  expect(await main(['node', 'read-qrcode', '--invalid-option'], io)).toBe(1);
+  expect(await main(['node', 'read-qrcode', '--invalid-option'], io)).toEqual(
+    1
+  );
 
   expect(stdout.toString()).toMatchInlineSnapshot(`""`);
   expect(stderr.toString()).toMatchInlineSnapshot(`

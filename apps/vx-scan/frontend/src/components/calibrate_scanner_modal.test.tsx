@@ -57,7 +57,7 @@ test('waiting for paper', async () => {
 
   expect(
     (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
-  ).toBe(true);
+  ).toEqual(true);
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();
@@ -72,7 +72,7 @@ test('scanner not available', async () => {
 
   expect(
     (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
-  ).toBe(true);
+  ).toEqual(true);
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();

@@ -13,11 +13,13 @@ test('grayscale input, binarized output', () => {
       fc.integer({ min: 0, max: 255 }),
       (image, threshold) => {
         const binarized = binarize(image, threshold);
-        expect(binarized.width).toBe(image.width);
-        expect(binarized.height).toBe(image.height);
-        expect(binarized.data.length).toBe(image.data.length);
+        expect(binarized.width).toEqual(image.width);
+        expect(binarized.height).toEqual(image.height);
+        expect(binarized.data.length).toEqual(image.data.length);
         for (let i = 0; i < image.data.length; i += 1) {
-          expect(binarized.data[i]).toBe(image.data[i]! > threshold ? 255 : 0);
+          expect(binarized.data[i]).toEqual(
+            image.data[i]! > threshold ? 255 : 0
+          );
         }
       }
     )

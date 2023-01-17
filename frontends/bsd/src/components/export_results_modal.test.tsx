@@ -99,7 +99,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
-  expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
+  expect(fetchMock.called('/central-scanner/scan/export')).toEqual(true);
 
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
@@ -129,7 +129,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
-  expect(fetchMock.called('/central-scanner/scan/export-to-usb-drive')).toBe(
+  expect(fetchMock.called('/central-scanner/scan/export-to-usb-drive')).toEqual(
     true
   );
 

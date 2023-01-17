@@ -119,7 +119,7 @@ test('PrintOnly flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // ---------------
 
@@ -131,7 +131,7 @@ test('PrintOnly flow', async () => {
   // Set to Live Mode
   card.insertCard(electionManagerCard, electionData);
   await enterPin();
-  expect(window.document.documentElement.style.fontSize).toBe('28px');
+  expect(window.document.documentElement.style.fontSize).toEqual('28px');
   fireEvent.click(screen.getByText('Live Election Mode'));
 
   // Remove card
@@ -154,7 +154,7 @@ test('PrintOnly flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Check Printed Ballots Count
   getAllByTextWithMarkup('Ballots Printed: 0');
@@ -165,13 +165,13 @@ test('PrintOnly flow', async () => {
   card.insertCard(makeExpiredVoterCard());
   await advanceTimersAndPromises();
   screen.getByText('Expired Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // ---------------
 
@@ -179,13 +179,13 @@ test('PrintOnly flow', async () => {
   card.insertCard(makeUsedVoterCard());
   await advanceTimersAndPromises();
   screen.getByText('Used Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // ---------------
 
@@ -193,26 +193,26 @@ test('PrintOnly flow', async () => {
   card.insertCard(makeVoterCard(election));
   await advanceTimersAndPromises();
   screen.getByText('Empty Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Insert Voter for Alternate Precinct
   card.insertCard(makeAlternateNewVoterCard());
   await advanceTimersAndPromises();
   screen.getByText('Invalid Card Data');
   screen.getByText('Card is not configured for this precinct.');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // ---------------
 
@@ -248,7 +248,7 @@ test('PrintOnly flow', async () => {
   getAllByTextWithMarkup('Ballots Printed: 1');
 
   // font size should not have changed (regression check)
-  expect(window.document.documentElement.style.fontSize).toBe('48px');
+  expect(window.document.documentElement.style.fontSize).toEqual('48px');
 
   // ---------------
 

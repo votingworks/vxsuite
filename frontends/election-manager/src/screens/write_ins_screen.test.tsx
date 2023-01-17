@@ -100,7 +100,7 @@ test('ballot pagination', async () => {
     const previousButton = await screen.findByText<HTMLButtonElement>(
       'Previous'
     );
-    expect(previousButton.disabled).toBe(pageNumber === 1);
+    expect(previousButton.disabled).toEqual(pageNumber === 1);
 
     const nextButton = await screen.findByText<HTMLButtonElement>('Next');
     if (pageNumber === pageCount) {

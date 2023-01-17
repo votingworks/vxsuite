@@ -50,7 +50,7 @@ test('Hides the other row in the voting method table when empty', () => {
       election={electionSampleDefinition.election}
     />
   );
-  expect(queryAllByText('Other').length).toBe(0);
+  expect(queryAllByText('Other').length).toEqual(0);
 
   unmount();
 
@@ -65,7 +65,7 @@ test('Hides the other row in the voting method table when empty', () => {
       election={electionSampleDefinition.election}
     />
   );
-  expect(queryAllByText2('Other').length).toBe(0);
+  expect(queryAllByText2('Other').length).toEqual(0);
 });
 
 test('Is empty element if voting methods cannot be distinguished for election', () => {

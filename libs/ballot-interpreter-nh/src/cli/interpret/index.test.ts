@@ -37,7 +37,7 @@ test('--help', async () => {
   expect(io.stdout.toString()).toContain(
     'interpret [options] <election.json> <front-ballot.jpg> <back-ballot.jpg>'
   );
-  expect(exitCode).toBe(0);
+  expect(exitCode).toEqual(0);
 });
 
 test('-h', async () => {
@@ -52,7 +52,7 @@ test('-h', async () => {
   expect(io.stdout.toString()).toContain(
     'interpret [options] <election.json> <front-ballot.jpg> <back-ballot.jpg>'
   );
-  expect(exitCode).toBe(0);
+  expect(exitCode).toEqual(0);
 });
 
 test('unexpected option', async () => {
@@ -68,7 +68,7 @@ test('unexpected option', async () => {
     "error: unknown option: --nope
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('unexpected argument', async () => {
@@ -87,7 +87,7 @@ test('unexpected argument', async () => {
     "error: unexpected argument: what-is-this.json
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing definition path', async () => {
@@ -103,7 +103,7 @@ test('missing definition path', async () => {
     "error: missing definition path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing front ballot path', async () => {
@@ -119,7 +119,7 @@ test('missing front ballot path', async () => {
     "error: missing front ballot path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('missing back ballot path', async () => {
@@ -135,7 +135,7 @@ test('missing back ballot path', async () => {
     "error: missing back ballot path
     "
   `);
-  expect(exitCode).toBe(1);
+  expect(exitCode).toEqual(1);
 });
 
 test('--mark-thresholds DEFINITE', async () => {

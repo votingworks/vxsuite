@@ -42,31 +42,31 @@ function falses(count: number): boolean[] {
 }
 
 test('can detect an encoded ballot', () => {
-  expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude))).toBe(true);
-  expect(detectRawBytesBmdBallot(Uint8Array.of())).toBe(false);
-  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...Prelude))).toBe(false);
-  expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toBe(
-    false
-  );
+  expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(detectRawBytesBmdBallot(Uint8Array.of())).toEqual(false);
+  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
+  expect(
+    detectRawBytesBmdBallot(Uint8Array.of(...Prelude.slice(0, -2)))
+  ).toEqual(false);
 
-  expect(isVxBallot(Uint8Array.of(...Prelude))).toBe(true);
-  expect(isVxBallot(Uint8Array.of())).toBe(false);
-  expect(isVxBallot(Uint8Array.of(0, ...Prelude))).toBe(false);
-  expect(isVxBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toBe(false);
+  expect(isVxBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(isVxBallot(Uint8Array.of())).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toEqual(false);
 });
 
 test('can detect an hmpb ballot', () => {
-  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude))).toBe(true);
-  expect(isHmpbMetadata(Uint8Array.of())).toBe(false);
-  expect(isHmpbMetadata(Uint8Array.of(0, ...HmpbPrelude))).toBe(false);
-  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toBe(
+  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude))).toEqual(true);
+  expect(isHmpbMetadata(Uint8Array.of())).toEqual(false);
+  expect(isHmpbMetadata(Uint8Array.of(0, ...HmpbPrelude))).toEqual(false);
+  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toEqual(
     false
   );
 
-  expect(isVxBallot(Uint8Array.of(...HmpbPrelude))).toBe(true);
-  expect(isVxBallot(Uint8Array.of())).toBe(false);
-  expect(isVxBallot(Uint8Array.of(0, ...HmpbPrelude))).toBe(false);
-  expect(isVxBallot(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toBe(false);
+  expect(isVxBallot(Uint8Array.of(...HmpbPrelude))).toEqual(true);
+  expect(isVxBallot(Uint8Array.of())).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(0, ...HmpbPrelude))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toEqual(false);
 });
 
 test('can detect our legacy formats', () => {
@@ -74,8 +74,8 @@ test('can detect our legacy formats', () => {
     'https://ballot.page/?t=_&pr=23&bs=12&l1=en-US&l2=es-US&p=5-5';
   const bmdData = 'https://vx.vote/?t=_&pr=42&bs=77&p=2-2';
 
-  expect(isVxBallot(Utf8Encoding.encode(hmpbMetadata))).toBe(true);
-  expect(isVxBallot(Utf8Encoding.encode(bmdData))).toBe(true);
+  expect(isVxBallot(Utf8Encoding.encode(hmpbMetadata))).toEqual(true);
+  expect(isVxBallot(Utf8Encoding.encode(bmdData))).toEqual(true);
 });
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
@@ -1103,17 +1103,17 @@ test('detect HMPB ballot page metadata', () => {
   };
 
   // empty
-  expect(detectHmpbBallotPageMetadata(Uint8Array.of())).toBe(false);
+  expect(detectHmpbBallotPageMetadata(Uint8Array.of())).toEqual(false);
 
   // gibberish
-  expect(detectHmpbBallotPageMetadata(Uint8Array.of(1, 2, 3))).toBe(false);
+  expect(detectHmpbBallotPageMetadata(Uint8Array.of(1, 2, 3))).toEqual(false);
 
   // HMPB
   expect(
     detectHmpbBallotPageMetadata(
       encodeHmpbBallotPageMetadata(election, ballotMetadata)
     )
-  ).toBe(true);
+  ).toEqual(true);
 
   // BMD
   expect(
@@ -1127,7 +1127,7 @@ test('detect HMPB ballot page metadata', () => {
         votes: {},
       })
     )
-  ).toBe(false);
+  ).toEqual(false);
 });
 
 test('decode election hash from HMPB metadata', () => {

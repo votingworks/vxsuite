@@ -43,7 +43,7 @@ it('accepts a voice getter', async () => {
 it('is unmuted by default, which means utterances are spoken', async () => {
   const tts = new SpeechSynthesisTextToSpeech();
 
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
   await tts.speak('hello');
   expect(speechSynthesis.speak).toHaveBeenCalledWith(
     expect.objectContaining({ text: 'hello' })
@@ -54,7 +54,7 @@ it('can be muted, which means no utterances are spoken', async () => {
   const tts = new SpeechSynthesisTextToSpeech();
 
   tts.mute();
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
   await tts.speak('hello');
   expect(speechSynthesis.speak).not.toHaveBeenCalled();
 });
@@ -74,18 +74,18 @@ it('can toggle muting', () => {
   const tts = new SpeechSynthesisTextToSpeech();
 
   tts.toggleMuted();
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 
   tts.toggleMuted();
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 });
 
 it('can set muted by calling toggle with an argument', () => {
   const tts = new SpeechSynthesisTextToSpeech();
 
   tts.toggleMuted(false);
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 
   tts.toggleMuted(true);
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 });

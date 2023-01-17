@@ -383,7 +383,7 @@ async function scanBallot() {
   apiMock.expectGetScannerStatus(statusBallotCounted);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
-  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+  expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
 
 test('voter can cast a ballot that scans successfully ', async () => {
@@ -537,7 +537,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
-  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+  expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 });
 
 test('voter tries to cast ballot that is rejected', async () => {
@@ -579,7 +579,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   );
   renderApp();
   await screen.findByText('Your ballot was counted!');
-  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+  expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();

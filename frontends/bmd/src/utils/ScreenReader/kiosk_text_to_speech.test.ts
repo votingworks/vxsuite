@@ -30,7 +30,7 @@ it('is unmuted by default, which means utterances are spoken', async () => {
   window.kiosk = fakeKiosk();
   const tts = new KioskTextToSpeech();
 
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
     volume: 44,
@@ -42,7 +42,7 @@ it('can be muted, which means no utterances are spoken', async () => {
   const tts = new KioskTextToSpeech();
 
   tts.mute();
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
   await tts.speak('hello world');
   expect(window.kiosk.speak).not.toHaveBeenCalled();
 });
@@ -64,10 +64,10 @@ it('can toggle muting', () => {
   const tts = new KioskTextToSpeech();
 
   tts.toggleMuted();
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 
   tts.toggleMuted();
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 });
 
 it('can set muted by calling toggle with an argument', () => {
@@ -75,10 +75,10 @@ it('can set muted by calling toggle with an argument', () => {
   const tts = new KioskTextToSpeech();
 
   tts.toggleMuted(false);
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 
   tts.toggleMuted(true);
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 });
 
 it('changeVolume cycles through volumes and announces the change', async () => {

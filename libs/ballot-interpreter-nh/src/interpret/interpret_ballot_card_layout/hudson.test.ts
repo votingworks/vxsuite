@@ -33,7 +33,7 @@ test.each([
     frontImageData,
     { geometry, debug: testImageDebugger(frontImageData) }
   );
-  expect(imageData instanceof ImageData).toBe(true);
+  expect(imageData instanceof ImageData).toEqual(true);
   expect(frontLayout).toEqual(
     expect.objectContaining(
       typedAs<Partial<InterpretBallotCardLayoutResult>>({
@@ -80,7 +80,7 @@ test.each([
     backImageData,
     { geometry, debug: testImageDebugger(backImageData) }
   );
-  expect(imageData instanceof ImageData).toBe(true);
+  expect(imageData instanceof ImageData).toEqual(true);
   expect(backLayout).toEqual(
     expect.objectContaining(
       typedAs<Partial<InterpretBallotCardLayoutResult>>({

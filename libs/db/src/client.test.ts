@@ -10,8 +10,8 @@ test('file database client', () => {
   client.reset();
   fs.accessSync(dbFile.name);
 
-  expect(client.getDatabasePath()).toBe(dbFile.name);
-  expect(client.isMemoryDatabase()).toBe(false);
+  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.isMemoryDatabase()).toEqual(false);
 
   client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
@@ -45,8 +45,8 @@ test('file database client with a schema', () => {
   client.reset();
   fs.accessSync(dbFile.name);
 
-  expect(client.getDatabasePath()).toBe(dbFile.name);
-  expect(client.isMemoryDatabase()).toBe(false);
+  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.isMemoryDatabase()).toEqual(false);
 
   expect(client.one('select count(*) as count from users')).toEqual({
     count: 0,
@@ -91,7 +91,7 @@ test('memory database client', () => {
   client.reset();
 
   expect(client.getDatabasePath()).toEqual(':memory:');
-  expect(client.isMemoryDatabase()).toBe(true);
+  expect(client.isMemoryDatabase()).toEqual(true);
 
   client.destroy();
 });

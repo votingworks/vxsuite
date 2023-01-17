@@ -32,7 +32,7 @@ test('renders StartPage in Landscape Orientation', () => {
     route: '/',
     machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
   });
-  expect(screen.getByText('22 contests').parentNode?.textContent).toBe(
+  expect(screen.getByText('22 contests').parentNode?.textContent).toEqual(
     'Your ballot has 22 contests.'
   );
 });

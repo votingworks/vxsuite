@@ -165,19 +165,19 @@ describe('Screens display properly when USB is mounted', () => {
     expect(tableRows).toHaveLength(3);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
-    expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
-      false
-    );
+    expect(
+      domGetByText(tableRows[0], 'Load').closest('button')!.disabled
+    ).toEqual(false);
     domGetByText(tableRows[1], '12/09/2020 03:49:32 PM');
     domGetByText(tableRows[1], '0001');
-    expect(domGetByText(tableRows[1], 'Load').closest('button')!.disabled).toBe(
-      false
-    );
+    expect(
+      domGetByText(tableRows[1], 'Load').closest('button')!.disabled
+    ).toEqual(false);
     domGetByText(tableRows[2], '12/07/2020 03:49:32 PM');
     domGetByText(tableRows[2], '0003');
-    expect(domGetByText(tableRows[2], 'Load').closest('button')!.disabled).toBe(
-      false
-    );
+    expect(
+      domGetByText(tableRows[2], 'Load').closest('button')!.disabled
+    ).toEqual(false);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'election_manager',
@@ -283,14 +283,14 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '0001');
     expect(
       domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
-    ).toBe(true);
+    ).toEqual(true);
     expect(domGetByTestId(tableRows[0], 'cvr-count')).toHaveTextContent('0');
     domGetByText(tableRows[1], '12/07/2020 03:49:32 PM');
     domGetByText(tableRows[1], '0003');
     expect(domGetByTestId(tableRows[1], 'cvr-count')).toHaveTextContent('5');
-    expect(domGetByText(tableRows[1], 'Load').closest('button')!.disabled).toBe(
-      false
-    );
+    expect(
+      domGetByText(tableRows[1], 'Load').closest('button')!.disabled
+    ).toEqual(false);
 
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
@@ -397,9 +397,9 @@ describe('Screens display properly when USB is mounted', () => {
       id: 'cvr-file-1',
       scannerIds: ['scanner-2', 'scanner-3'],
     });
-    expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
-      false
-    );
+    expect(
+      domGetByText(tableRows[0], 'Load').closest('button')!.disabled
+    ).toEqual(false);
 
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
@@ -461,7 +461,7 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '0002');
     expect(
       domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
-    ).toBe(true);
+    ).toEqual(true);
 
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);

@@ -140,7 +140,7 @@ test('can edit counts and update totals', async () => {
   // Input elements start as 0
   expect(
     screen.getByTestId('president-undervotes-input').closest('input')!.value
-  ).toBe('0');
+  ).toEqual('0');
 
   // We can not change the input to a non number
   userEvent.type(
@@ -149,7 +149,7 @@ test('can edit counts and update totals', async () => {
   );
   expect(
     screen.getByTestId('president-undervotes-input').closest('input')!.value
-  ).toBe('0');
+  ).toEqual('0');
 
   // We can change the input to an empty string
   userEvent.type(
@@ -158,7 +158,7 @@ test('can edit counts and update totals', async () => {
   );
   expect(
     screen.getByTestId('president-undervotes-input').closest('input')!.value
-  ).toBe('');
+  ).toEqual('');
 
   // We can change the input to a number
   userEvent.type(
@@ -167,7 +167,7 @@ test('can edit counts and update totals', async () => {
   );
   expect(
     screen.getByTestId('president-undervotes-input').closest('input')!.value
-  ).toBe('4');
+  ).toEqual('4');
 
   userEvent.type(
     screen.getByTestId('president-overvotes-input').closest('input')!,
@@ -378,7 +378,7 @@ test('can enter data for yes no contests as expected', async () => {
   expect(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!
       .value
-  ).toBe('0');
+  ).toEqual('0');
   // We can not change the input to a non number
   fireEvent.change(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!,
@@ -389,7 +389,7 @@ test('can enter data for yes no contests as expected', async () => {
   expect(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!
       .value
-  ).toBe('0');
+  ).toEqual('0');
 
   // We can change the input to a number
   fireEvent.change(
@@ -401,7 +401,7 @@ test('can enter data for yes no contests as expected', async () => {
   expect(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!
       .value
-  ).toBe('50');
+  ).toEqual('50');
   fireEvent.change(
     screen
       .getByTestId('judicial-robert-demergue-undervotes-input')
@@ -426,7 +426,7 @@ test('can enter data for yes no contests as expected', async () => {
   );
 
   // A yes no contest does not allow write ins has no write in row.
-  expect(screen.queryAllByTestId('president-write-in').length).toBe(0);
+  expect(screen.queryAllByTestId('president-write-in').length).toEqual(0);
   fireEvent.click(
     screen.getByText('Save Precinct Results for Center Springfield')
   );
@@ -503,15 +503,15 @@ test('loads preexisting manual data to edit', async () => {
     screen
       .getByTestId('county-commissioners-undervotes-input')
       .closest('input')!.value
-  ).toBe('4');
+  ).toEqual('4');
   expect(
     screen.getByTestId('county-commissioners-overvotes-input').closest('input')!
       .value
-  ).toBe('4');
+  ).toEqual('4');
   expect(
     screen.getByTestId('county-commissioners-argent-input').closest('input')!
       .value
-  ).toBe('4');
+  ).toEqual('4');
 
   expect(
     screen.getByTestId('judicial-robert-demergue-numBallots')
@@ -520,18 +520,18 @@ test('loads preexisting manual data to edit', async () => {
     screen
       .getByTestId('judicial-robert-demergue-undervotes-input')
       .closest('input')!.value
-  ).toBe('1');
+  ).toEqual('1');
   expect(
     screen
       .getByTestId('judicial-robert-demergue-overvotes-input')
       .closest('input')!.value
-  ).toBe('1');
+  ).toEqual('1');
   expect(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!
       .value
-  ).toBe('1');
+  ).toEqual('1');
   expect(
     screen.getByTestId('judicial-robert-demergue-no-input').closest('input')!
       .value
-  ).toBe('1');
+  ).toEqual('1');
 });

@@ -108,7 +108,7 @@ describe('printElement', () => {
     try {
       await printElement(simpleElement, fakeOptions);
     } catch (e) {
-      expect(e).toBe(printError);
+      expect(e).toEqual(printError);
     }
 
     expect(screen.queryByTestId('print-root')).not.toBeInTheDocument();

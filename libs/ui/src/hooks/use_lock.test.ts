@@ -4,10 +4,10 @@ import { useLock } from './use_lock';
 test('locks and unlocks', () => {
   const { result } = renderHook(() => useLock());
   const { current: lock } = result;
-  expect(lock.lock()).toBe(true);
-  expect(lock.lock()).toBe(false);
+  expect(lock.lock()).toEqual(true);
+  expect(lock.lock()).toEqual(false);
   lock.unlock();
-  expect(lock.lock()).toBe(true);
+  expect(lock.lock()).toEqual(true);
 });
 
 test('doesnt trigger a rerender on lock', () => {
@@ -17,7 +17,7 @@ test('doesnt trigger a rerender on lock', () => {
     numRenders += 1;
     return lock;
   });
-  expect(numRenders).toBe(1);
+  expect(numRenders).toEqual(1);
   result.current.lock();
-  expect(numRenders).toBe(1);
+  expect(numRenders).toEqual(1);
 });

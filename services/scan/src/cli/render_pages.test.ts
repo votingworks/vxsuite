@@ -68,7 +68,7 @@ test('render from PDF to JPEG by default', async () => {
       height: 1584,
     });
   }
-  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toBe(false);
+  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toEqual(false);
 });
 
 test('--format jpeg', async () => {
@@ -103,7 +103,7 @@ test('--format jpeg', async () => {
       height: 1584,
     });
   }
-  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toBe(false);
+  expect(await pathExists(join(tmpDir, 'ballot-p3.jpg'))).toEqual(false);
 });
 
 test('--format png', async () => {
@@ -138,7 +138,7 @@ test('--format png', async () => {
       height: 1584,
     });
   }
-  expect(await pathExists(join(tmpDir, 'ballot-p3.png'))).toBe(false);
+  expect(await pathExists(join(tmpDir, 'ballot-p3.png'))).toEqual(false);
 });
 
 test('invalid --format value', async () => {
@@ -206,7 +206,7 @@ test('render from db', async () => {
       height: 1584,
     });
   }
-  expect(await pathExists(join(tmpDir, 'ballots-1-Bywy-LIVE-p3.jpg'))).toBe(
+  expect(await pathExists(join(tmpDir, 'ballots-1-Bywy-LIVE-p3.jpg'))).toEqual(
     false
   );
 });

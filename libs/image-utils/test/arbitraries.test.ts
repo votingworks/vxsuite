@@ -18,7 +18,7 @@ test('arbitraryChannelCount', () => {
         channels === GRAY_CHANNEL_COUNT ||
           channels === RGB_CHANNEL_COUNT ||
           channels === RGBA_CHANNEL_COUNT
-      ).toBe(true);
+      ).toEqual(true);
     })
   );
 });
@@ -40,7 +40,7 @@ test('arbitraryImageData has sensible values', () => {
 test('arbitraryImageData can constrain width', () => {
   fc.assert(
     fc.property(arbitraryImageData({ width: 9 }), (imageData) => {
-      expect(imageData.width).toBe(9);
+      expect(imageData.width).toEqual(9);
     })
   );
 
@@ -58,7 +58,7 @@ test('arbitraryImageData can constrain width', () => {
 test('arbitraryImageData can constrain height', () => {
   fc.assert(
     fc.property(arbitraryImageData({ height: 9 }), (imageData) => {
-      expect(imageData.height).toBe(9);
+      expect(imageData.height).toEqual(9);
     })
   );
 
@@ -76,9 +76,9 @@ test('arbitraryImageData can constrain height', () => {
 test('arbitraryImageData can constrain channels', () => {
   fc.assert(
     fc.property(arbitraryImageData({ channels: 6 }), (imageData) => {
-      expect(imageData.data.length / imageData.width / imageData.height).toBe(
-        6
-      );
+      expect(
+        imageData.data.length / imageData.width / imageData.height
+      ).toEqual(6);
     })
   );
 });

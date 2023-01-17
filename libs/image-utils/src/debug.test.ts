@@ -13,7 +13,7 @@ test('canvas debug', async () => {
     write: writeFn,
   });
 
-  expect(imdebug.isEnabled()).toBe(true);
+  expect(imdebug.isEnabled()).toEqual(true);
 
   // explicitly write image
   imdebug.write('test');
@@ -21,9 +21,9 @@ test('canvas debug', async () => {
   expect(writeFn).toHaveBeenNthCalledWith(1, ['test'], expect.any(Buffer));
   {
     const imageData = toImageData(await loadImage(writeFn.mock.calls[0][1]));
-    expect(imageData.width).toBe(1);
-    expect(imageData.height).toBe(1);
-    expect(imageData.data.length).toBe(4);
+    expect(imageData.width).toEqual(1);
+    expect(imageData.height).toEqual(1);
+    expect(imageData.data.length).toEqual(4);
   }
 
   // write image after capture callback
@@ -32,7 +32,7 @@ test('canvas debug', async () => {
       imdebug.rect(0, 0, 1, 1, '#ff0000');
       return 1;
     })
-  ).toBe(1);
+  ).toEqual(1);
 
   expect(writeFn).toHaveBeenNthCalledWith(
     2,
@@ -174,20 +174,20 @@ test('noDebug', () => {
   const imdebug = noDebug();
 
   imdebug.group('test').groupEnd('test');
-  expect(imdebug.isEnabled()).toBe(false);
-  expect(imdebug.capture('test', () => 1)).toBe(1);
+  expect(imdebug.isEnabled()).toEqual(false);
+  expect(imdebug.capture('test', () => 1)).toEqual(1);
 });
 
 test('imageDebugger returns noDebug when disabled', () => {
   const tmp = fileSync().name;
   const imdebug = imageDebugger(tmp, createImageData(1, 1), false);
-  expect(imdebug.isEnabled()).toBe(false);
+  expect(imdebug.isEnabled()).toEqual(false);
 });
 
 test('imageDebugger returns canvasDebugger when enabled', () => {
   const tmp = fileSync().name;
   const imdebug = imageDebugger(tmp, createImageData(1, 1), true);
-  expect(imdebug.isEnabled()).toBe(true);
+  expect(imdebug.isEnabled()).toEqual(true);
 });
 
 test('imageDebugger is enabled when image-utils:debug-images is enabled', () => {
@@ -197,14 +197,14 @@ test('imageDebugger is enabled when image-utils:debug-images is enabled', () => 
   try {
     expect(
       imageDebugger(fileSync().name, createImageData(1, 1)).isEnabled()
-    ).toBe(true);
+    ).toEqual(true);
   } finally {
     debug.enable('-image-utils:debug-images');
   }
 
   expect(
     imageDebugger(fileSync().name, createImageData(1, 1)).isEnabled()
-  ).toBe(false);
+  ).toEqual(false);
 
   debug.enable(`${wasEnabled ? '' : '-'}image-utils:debug-images`);
 });
@@ -214,9 +214,9 @@ test('imageDebugger writes to a directory named for the base path', async () => 
   const imdebug = imageDebugger(tmp, createImageData(1, 1), true);
   imdebug.write('test');
   imdebug.write('another');
-  expect((await stat(`${tmp}-debug`)).isDirectory()).toBe(true);
-  expect((await stat(`${tmp}-debug/00-test.png`)).isFile()).toBe(true);
-  expect((await stat(`${tmp}-debug/01-another.png`)).isFile()).toBe(true);
+  expect((await stat(`${tmp}-debug`)).isDirectory()).toEqual(true);
+  expect((await stat(`${tmp}-debug/00-test.png`)).isFile()).toEqual(true);
+  expect((await stat(`${tmp}-debug/01-another.png`)).isFile()).toEqual(true);
 });
 
 test('setEnabled configures image-utils:debug-images enabled state', () => {
@@ -224,10 +224,10 @@ test('setEnabled configures image-utils:debug-images enabled state', () => {
 
   try {
     setDebug(false);
-    expect(debug.enabled('image-utils:debug-images')).toBe(false);
+    expect(debug.enabled('image-utils:debug-images')).toEqual(false);
 
     setDebug(true);
-    expect(debug.enabled('image-utils:debug-images')).toBe(true);
+    expect(debug.enabled('image-utils:debug-images')).toEqual(true);
   } finally {
     setDebug(wasEnabled);
   }

@@ -6,17 +6,17 @@ import {
 } from './util';
 
 test('makeIdentifier', () => {
-  expect(makeIdentifier('foo')).toBe('Foo');
-  expect(makeIdentifier('foo-bar')).toBe('FooBar');
-  expect(makeIdentifier('abc-123')).toBe('Abc123');
-  expect(makeIdentifier('123-abc')).toBe('_123Abc');
-  expect(makeIdentifier('1.2.3')).toBe('v1_2_3');
+  expect(makeIdentifier('foo')).toEqual('Foo');
+  expect(makeIdentifier('foo-bar')).toEqual('FooBar');
+  expect(makeIdentifier('abc-123')).toEqual('Abc123');
+  expect(makeIdentifier('123-abc')).toEqual('_123Abc');
+  expect(makeIdentifier('1.2.3')).toEqual('v1_2_3');
 });
 
 test('isValidIdentifier', () => {
-  expect(isValidIdentifier('foo')).toBe(true);
-  expect(isValidIdentifier('a b')).toBe(false);
-  expect(isValidIdentifier('1ab')).toBe(false);
+  expect(isValidIdentifier('foo')).toEqual(true);
+  expect(isValidIdentifier('a b')).toEqual(false);
+  expect(isValidIdentifier('1ab')).toEqual(false);
 });
 
 test('renderTypeAsDeclaration', () => {

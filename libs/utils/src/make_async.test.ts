@@ -4,7 +4,7 @@ test('makes function async', async () => {
   const concatenate = jest.fn((num: number, str: string) => {
     return `${num} ${str}`;
   });
-  expect(concatenate(1, 'thing')).toBe('1 thing');
+  expect(concatenate(1, 'thing')).toEqual('1 thing');
   expect(concatenate).toHaveBeenCalledTimes(1);
 
   const asyncConcatenate = makeAsync(concatenate);

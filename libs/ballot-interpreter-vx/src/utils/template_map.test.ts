@@ -22,7 +22,7 @@ test('no locale info', () => {
   };
   const key: TemplateMapKey = [undefined, '1', '2', 1];
   map.set(key, layout);
-  expect(map.get(key)).toBe(layout);
+  expect(map.get(key)).toEqual(layout);
   expect(map.get([{ primary: 'en-US' }, '1', '2', 1])).toBeUndefined();
 });
 
@@ -46,7 +46,7 @@ test('with primary-only locale info', () => {
   };
   const key: TemplateMapKey = [{ primary: 'en-US' }, '1', '2', 1];
   map.set(key, layout);
-  expect(map.get(key)).toBe(layout);
+  expect(map.get(key)).toEqual(layout);
   expect(map.get([undefined, '1', '2', 1])).toBeUndefined();
 });
 
@@ -75,6 +75,6 @@ test('with primary+secondary locale info', () => {
     1,
   ];
   map.set(key, layout);
-  expect(map.get(key)).toBe(layout);
+  expect(map.get(key)).toEqual(layout);
   expect(map.get([{ primary: 'en-US' }, '1', '2', 1])).toBeUndefined();
 });

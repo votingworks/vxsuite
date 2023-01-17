@@ -124,17 +124,17 @@ describe('generateOvervoteBallot', () => {
 describe('numBallotPositions', () => {
   test('returns 2 for yes-no contests', () => {
     const yesNoContest = electionSample.contests[13];
-    expect(numBallotPositions(yesNoContest)).toBe(2);
+    expect(numBallotPositions(yesNoContest)).toEqual(2);
   });
 
   test('returns correct count for candidate contest without write-in', () => {
     const contest = electionSample.contests[0] as CandidateContest;
-    expect(numBallotPositions(contest)).toBe(contest.candidates.length);
+    expect(numBallotPositions(contest)).toEqual(contest.candidates.length);
   });
 
   test('returns correct count for candidate contest with write-in', () => {
     const contest = electionSample.contests[8] as CandidateContest;
-    expect(numBallotPositions(contest)).toBe(
+    expect(numBallotPositions(contest)).toEqual(
       contest.candidates.length + contest.seats
     );
   });
@@ -143,16 +143,18 @@ describe('numBallotPositions', () => {
 test('generateTestDeckWriteIn generates valid write-in candidate', () => {
   const testIndex = 0;
   const testDeckWriteIn = generateTestDeckWriteIn(testIndex);
-  expect(testDeckWriteIn.isWriteIn).toBe(true);
-  expect(testDeckWriteIn.id).toBe('write-in');
-  expect(testDeckWriteIn.name).toBe('WRITE-IN');
-  expect(testDeckWriteIn.writeInIndex).toBe(testIndex);
+  expect(testDeckWriteIn.isWriteIn).toEqual(true);
+  expect(testDeckWriteIn.id).toEqual('write-in');
+  expect(testDeckWriteIn.name).toEqual('WRITE-IN');
+  expect(testDeckWriteIn.writeInIndex).toEqual(testIndex);
 });
 
 describe('getTestDeckCandidateAtIndex', () => {
   test('returns candidate if index is less than number of candidates', () => {
     const contest = electionSample.contests[0] as CandidateContest;
-    expect(getTestDeckCandidateAtIndex(contest, 0)).toBe(contest.candidates[0]);
+    expect(getTestDeckCandidateAtIndex(contest, 0)).toEqual(
+      contest.candidates[0]
+    );
   });
 
   test('returns test deck write in if allowed and in range', () => {
@@ -161,9 +163,9 @@ describe('getTestDeckCandidateAtIndex', () => {
       contest,
       contest.candidates.length
     );
-    expect(candidate.id).toBe('write-in');
-    expect(candidate.isWriteIn).toBe(true);
-    expect(candidate.writeInIndex).toBe(0);
+    expect(candidate.id).toEqual('write-in');
+    expect(candidate.isWriteIn).toEqual(true);
+    expect(candidate.writeInIndex).toEqual(0);
   });
 
   test('throws error if index out of bounds', () => {

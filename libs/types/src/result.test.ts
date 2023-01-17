@@ -2,16 +2,16 @@ import { inspect } from 'util';
 import { err, isResult, ok, wrapException } from './result';
 
 test('ok is Ok', () => {
-  expect(ok(0).isOk()).toBe(true);
+  expect(ok(0).isOk()).toEqual(true);
 });
 
 test('ok is not Err', () => {
-  expect(ok(0).isErr()).toBe(false);
+  expect(ok(0).isErr()).toEqual(false);
 });
 
 test('ok has contained value', () => {
   const value: unknown = {};
-  expect(ok(value).ok()).toBe(value);
+  expect(ok(value).ok()).toEqual(value);
 });
 
 test('ok without contained value', () => {
@@ -23,7 +23,7 @@ test('ok has no contained error', () => {
 });
 
 test('ok unsafeUnwrap', () => {
-  expect(ok(0).unsafeUnwrap()).toBe(0);
+  expect(ok(0).unsafeUnwrap()).toEqual(0);
 });
 
 test('ok unsafeUnwrapErr', () => {
@@ -31,7 +31,7 @@ test('ok unsafeUnwrapErr', () => {
 });
 
 test('ok assertOk', () => {
-  expect(ok(0).assertOk('a value')).toBe(0);
+  expect(ok(0).assertOk('a value')).toEqual(0);
 });
 
 test('ok assertErr', () => {
@@ -39,32 +39,32 @@ test('ok assertErr', () => {
 });
 
 test('ok is Result', () => {
-  expect(isResult(ok())).toBe(true);
+  expect(isResult(ok())).toEqual(true);
 });
 
 test('ok inspect', () => {
-  expect(inspect(ok(0))).toBe('ok(0)');
+  expect(inspect(ok(0))).toEqual('ok(0)');
   expect(
     inspect(
       ok({
         a: { nested: { object: 99 } },
       })
     )
-  ).toBe('ok({ a: { nested: [Object] } })');
-  expect(inspect(ok(0), undefined, -1)).toBe('ok(…)');
+  ).toEqual('ok({ a: { nested: [Object] } })');
+  expect(inspect(ok(0), undefined, -1)).toEqual('ok(…)');
 });
 
 test('err is Err', () => {
-  expect(err(0).isErr()).toBe(true);
+  expect(err(0).isErr()).toEqual(true);
 });
 
 test('err is not Ok', () => {
-  expect(err(0).isOk()).toBe(false);
+  expect(err(0).isOk()).toEqual(false);
 });
 
 test('err has contained error', () => {
   const error: unknown = {};
-  expect(err(error).err()).toBe(error);
+  expect(err(error).err()).toEqual(error);
 });
 
 test('err has no contained value', () => {
@@ -76,7 +76,7 @@ test('err unsafeUnwrap', () => {
 });
 
 test('err unsafeUnwrapErr', () => {
-  expect(err('error').unsafeUnwrapErr()).toBe('error');
+  expect(err('error').unsafeUnwrapErr()).toEqual('error');
 });
 
 test('err assertOk', () => {
@@ -84,30 +84,30 @@ test('err assertOk', () => {
 });
 
 test('err assertErr', () => {
-  expect(err('error').assertErr('what?')).toBe('error');
+  expect(err('error').assertErr('what?')).toEqual('error');
 });
 
 test('err is Result', () => {
-  expect(isResult(err(0))).toBe(true);
+  expect(isResult(err(0))).toEqual(true);
 });
 
 test('non-ok/non-err are not Result', () => {
-  expect(isResult(0)).toBe(false);
-  expect(isResult('')).toBe(false);
-  expect(isResult(undefined)).toBe(false);
-  expect(isResult({})).toBe(false);
+  expect(isResult(0)).toEqual(false);
+  expect(isResult('')).toEqual(false);
+  expect(isResult(undefined)).toEqual(false);
+  expect(isResult({})).toEqual(false);
 });
 
 test('err inspect', () => {
-  expect(inspect(err(0))).toBe('err(0)');
+  expect(inspect(err(0))).toEqual('err(0)');
   expect(
     inspect(
       err({
         a: { nested: { object: 99 } },
       })
     )
-  ).toBe('err({ a: { nested: [Object] } })');
-  expect(inspect(err(0), undefined, -1)).toBe('err(…)');
+  ).toEqual('err({ a: { nested: [Object] } })');
+  expect(inspect(err(0), undefined, -1)).toEqual('err(…)');
 });
 
 test('wrapException', () => {

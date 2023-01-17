@@ -166,8 +166,8 @@ test('create election works', async () => {
 
   // Verify editing an election is disabled
   fireEvent.click(getByText('View Definition JSON'));
-  expect(queryAllByText('Reset').length).toBe(0);
-  expect(getByTestId('json-input').hasAttribute('disabled')).toBe(true);
+  expect(queryAllByText('Reset').length).toEqual(0);
+  expect(getByTestId('json-input').hasAttribute('disabled')).toEqual(true);
 
   // remove the election
   fireEvent.click(getByText('Remove'));
@@ -595,7 +595,7 @@ test('tabulating CVRs', async () => {
     expect(
       getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
         .length
-    ).toBe(2);
+    ).toEqual(2);
   });
 
   userEvent.click(screen.getByText('Print Report'));
@@ -655,7 +655,7 @@ test('tabulating CVRs', async () => {
   }
   // The election title is written once for each precinct the preview, and in
   // the footer of the page
-  expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
+  expect(getAllByText('Mock General Election Choctaw 2020').length).toEqual(
     eitherNeitherElectionDefinition.election.precincts.length + 1
   );
 
@@ -692,11 +692,11 @@ test('tabulating CVRs', async () => {
     LogEventId.ConvertingResultsToSemsFormat,
     expect.any(String)
   );
-  expect(fetchMock.called('/convert/tallies/files')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/process')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true);
-  expect(fetchMock.called('/convert/reset')).toBe(true);
+  expect(fetchMock.called('/convert/tallies/files')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/submitfile')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/process')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toEqual(true);
+  expect(fetchMock.called('/convert/reset')).toEqual(true);
 
   fireEvent.click(getByText('Close'));
 
@@ -736,7 +736,7 @@ test('tabulating CVRs', async () => {
   );
 
   const reportPreview2 = getByTestId('report-preview');
-  expect(within(reportPreview2).getAllByText('0').length).toBe(40);
+  expect(within(reportPreview2).getAllByText('0').length).toEqual(40);
   // useQuery's in AppRoot are refetching data, and there's no change to wait on.
   // TODO: Remove after upgrade to React 18, which does not warn in this case.
   await advanceTimersAndPromises();
@@ -786,7 +786,7 @@ test('tabulating CVRs with SEMS file', async () => {
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(2);
+  ).toEqual(2);
 
   function checkTallyReport(reportContent: ReactTestingLibraryQueryable) {
     reportContent.getByText(
@@ -844,11 +844,11 @@ test('tabulating CVRs with SEMS file', async () => {
       'test-content'
     );
   });
-  expect(fetchMock.called('/convert/tallies/files')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/process')).toBe(true);
-  expect(fetchMock.called('/convert/tallies/output?name=name')).toBe(true);
-  expect(fetchMock.called('/convert/reset')).toBe(true);
+  expect(fetchMock.called('/convert/tallies/files')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/submitfile')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/process')).toEqual(true);
+  expect(fetchMock.called('/convert/tallies/output?name=name')).toEqual(true);
+  expect(fetchMock.called('/convert/reset')).toEqual(true);
 
   fireEvent.click(getByText('Close'));
 
@@ -941,7 +941,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(2);
+  ).toEqual(2);
 
   const reportPreview = screen.getByTestId('report-preview');
   within(reportPreview).getByText(
@@ -1013,7 +1013,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
-  ).toBe(2);
+  ).toEqual(2);
   const reportPreview2 = screen.getByTestId('report-preview');
   within(reportPreview).getByText(
     'Unofficial Mock General Election Choctaw 2020 Tally Report'
@@ -1041,7 +1041,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-cvr-count').textContent).toEqual('200');
     expect(
       queryAllByText('External Results (Manually Added Data)').length
-    ).toBe(0);
+    ).toEqual(0);
   });
 });
 

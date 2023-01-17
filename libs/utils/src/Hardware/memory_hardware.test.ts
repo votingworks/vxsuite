@@ -37,7 +37,7 @@ it('has no connected devices by default', async () => {
 
 it('does not have devices that have not been added', () => {
   const hardware = MemoryHardware.build();
-  expect(hardware.hasDevice(fakeDevice())).toBe(false);
+  expect(hardware.hasDevice(fakeDevice())).toEqual(false);
 });
 
 it('has devices that have been added', () => {
@@ -45,7 +45,7 @@ it('has devices that have been added', () => {
   const device = fakeDevice();
 
   hardware.addDevice(device);
-  expect(hardware.hasDevice(device)).toBe(true);
+  expect(hardware.hasDevice(device)).toEqual(true);
 });
 
 it('sets connected to true by adding a missing device', () => {
@@ -54,7 +54,7 @@ it('sets connected to true by adding a missing device', () => {
 
   jest.spyOn(hardware, 'addDevice');
   hardware.setDeviceConnected(device, true);
-  expect(hardware.hasDevice(device)).toBe(true);
+  expect(hardware.hasDevice(device)).toEqual(true);
   expect(hardware.addDevice).toHaveBeenCalledWith(device);
 });
 
@@ -65,7 +65,7 @@ it('does nothing when setting connected to true for an already added device', ()
   hardware.addDevice(device);
   jest.spyOn(hardware, 'addDevice');
   hardware.setDeviceConnected(device, true);
-  expect(hardware.hasDevice(device)).toBe(true);
+  expect(hardware.hasDevice(device)).toEqual(true);
   expect(hardware.addDevice).not.toHaveBeenCalled();
 });
 
@@ -76,7 +76,7 @@ it('sets connected to false by removing a connected device', () => {
   hardware.addDevice(device);
   jest.spyOn(hardware, 'removeDevice');
   hardware.setDeviceConnected(device, false);
-  expect(hardware.hasDevice(device)).toBe(false);
+  expect(hardware.hasDevice(device)).toEqual(false);
   expect(hardware.removeDevice).toHaveBeenCalledWith(device);
 });
 
@@ -86,7 +86,7 @@ it('does nothing when setting connected to false for an already missing device',
 
   jest.spyOn(hardware, 'removeDevice');
   hardware.setDeviceConnected(device, false);
-  expect(hardware.hasDevice(device)).toBe(false);
+  expect(hardware.hasDevice(device)).toEqual(false);
   expect(hardware.removeDevice).not.toHaveBeenCalled();
 });
 

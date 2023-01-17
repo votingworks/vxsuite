@@ -107,9 +107,9 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(getWithinKeyboard('A').closest('button')!);
   fireEvent.click(getWithinKeyboard('L').closest('button')!);
   fireEvent.click(screen.getByText('Accept'));
-  expect(screen.getByText('SAL').closest('button')!.dataset['selected']).toBe(
-    'true'
-  );
+  expect(
+    screen.getByText('SAL').closest('button')!.dataset['selected']
+  ).toEqual('true');
 
   // Try to Select Other Candidate when max candidates are selected.
   fireEvent.click(

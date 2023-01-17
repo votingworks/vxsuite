@@ -212,16 +212,16 @@ it('toggling enabled/disabled mutes or unmutes the tts', async () => {
   const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 
   await asr.toggle();
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 
   await asr.toggle();
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 
   await asr.toggle();
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 });
 
 it('toggle can explicitly set enabled/disabled', async () => {
@@ -229,13 +229,13 @@ it('toggle can explicitly set enabled/disabled', async () => {
   const asr = new AriaScreenReader(tts);
 
   await asr.toggle(false);
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 
   await asr.toggle(true);
-  expect(tts.isMuted()).toBe(false);
+  expect(tts.isMuted()).toEqual(false);
 
   await asr.toggle(false);
-  expect(tts.isMuted()).toBe(true);
+  expect(tts.isMuted()).toEqual(true);
 });
 
 it('does not describe elements hidden by aria-hidden', () => {
@@ -246,7 +246,7 @@ it('does not describe elements hidden by aria-hidden', () => {
     asr.describe(
       h('span', { 'aria-hidden': 'true' }, text('Nothing to see here'))
     )
-  ).toBe(undefined);
+  ).toEqual(undefined);
 });
 
 it('does not describe elements hidden by display:none', () => {
@@ -257,7 +257,7 @@ it('does not describe elements hidden by display:none', () => {
     asr.describe(
       h('span', { style: 'display: none' }, text('Nothing to see here'))
     )
-  ).toBe(undefined);
+  ).toEqual(undefined);
 });
 
 it('does not describe elements hidden by visibility:hidden', () => {
@@ -268,14 +268,14 @@ it('does not describe elements hidden by visibility:hidden', () => {
     asr.describe(
       h('span', { style: 'visibility: hidden' }, text('Nothing to see here'))
     )
-  ).toBe(undefined);
+  ).toEqual(undefined);
 });
 
 it('does not describe document fragments', () => {
   const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
-  expect(asr.describe(document.createDocumentFragment())).toBe(undefined);
+  expect(asr.describe(document.createDocumentFragment())).toEqual(undefined);
 });
 
 it('describes event targets if present', async () => {

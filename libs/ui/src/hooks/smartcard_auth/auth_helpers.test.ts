@@ -64,7 +64,7 @@ describe('Card interface', () => {
     assert(isPollWorkerAuth(result.current));
 
     // Initially, there's no data stored on the card, so reading should return undefined
-    expect(result.current.card.hasStoredData).toBe(false);
+    expect(result.current.card.hasStoredData).toEqual(false);
     expect((await result.current.card.readStoredString()).ok()).toBeUndefined();
     expect(
       (await result.current.card.readStoredUint8Array()).ok()
@@ -82,7 +82,7 @@ describe('Card interface', () => {
     await waitForNextUpdate();
 
     // Now reading should return the written data
-    expect(result.current.card.hasStoredData).toBe(true);
+    expect(result.current.card.hasStoredData).toEqual(true);
     expect((await result.current.card.readStoredString()).ok()).toEqual(
       JSON.stringify(electionDefinition)
     );
@@ -119,7 +119,7 @@ describe('Card interface', () => {
     await waitForNextUpdate();
 
     // Data should read as undefined again
-    expect(result.current.card.hasStoredData).toBe(false);
+    expect(result.current.card.hasStoredData).toEqual(false);
     expect((await result.current.card.readStoredString()).ok()).toBeUndefined();
     expect(
       (await result.current.card.readStoredUint8Array()).ok()
@@ -192,16 +192,16 @@ describe('Card interface', () => {
       result.current.card.writeStoredData(electionDefinition),
     ]);
 
-    expect(write1.isErr()).toBe(false);
-    expect(write2.isErr()).toBe(true);
+    expect(write1.isErr()).toEqual(false);
+    expect(write2.isErr()).toEqual(true);
     expect(write2.err()?.message).toEqual('Card write in progress');
 
     const [write3, clear4] = await Promise.all([
       result.current.card.writeStoredData(electionDefinition),
       result.current.card.clearStoredData(),
     ]);
-    expect(write3.isErr()).toBe(false);
-    expect(clear4.isErr()).toBe(true);
+    expect(write3.isErr()).toEqual(false);
+    expect(clear4.isErr()).toEqual(true);
     expect(clear4.err()?.message).toEqual('Card write in progress');
 
     // Make sure failed writes still release the lock
@@ -210,8 +210,8 @@ describe('Card interface', () => {
       .mockRejectedValue(new Error('error'));
     expect(
       (await result.current.card.writeStoredData(electionDefinition)).isErr()
-    ).toBe(true);
-    expect((await result.current.card.clearStoredData()).isOk()).toBe(true);
+    ).toEqual(true);
+    expect((await result.current.card.clearStoredData()).isOk()).toEqual(true);
   });
 
   it('programs and unprograms cards', async () => {
@@ -763,40 +763,46 @@ describe('Type guards', () => {
   test('isSystemAdministratorAuth', () => {
     expect(
       isSystemAdministratorAuth(Inserted.fakeSystemAdministratorAuth())
-    ).toBe(true);
-    expect(isSystemAdministratorAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isSystemAdministratorAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
-    expect(
-      isSystemAdministratorAuth(Dipped.fakeSystemAdministratorAuth())
-    ).toBe(true);
-    expect(isSystemAdministratorAuth(Dipped.fakeElectionManagerAuth())).toBe(
+    ).toEqual(true);
+    expect(isSystemAdministratorAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(isSystemAdministratorAuth(Inserted.fakeLoggedOutAuth())).toEqual(
       false
     );
-    expect(isSystemAdministratorAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
+    expect(
+      isSystemAdministratorAuth(Dipped.fakeSystemAdministratorAuth())
+    ).toEqual(true);
+    expect(isSystemAdministratorAuth(Dipped.fakeElectionManagerAuth())).toEqual(
+      false
+    );
+    expect(isSystemAdministratorAuth(Dipped.fakeLoggedOutAuth())).toEqual(
+      false
+    );
   });
 
   test('isElectionManagerAuth', () => {
-    expect(isElectionManagerAuth(Inserted.fakeElectionManagerAuth())).toBe(
+    expect(isElectionManagerAuth(Inserted.fakeElectionManagerAuth())).toEqual(
       true
     );
-    expect(isElectionManagerAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isElectionManagerAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
-    expect(isElectionManagerAuth(Dipped.fakeElectionManagerAuth())).toBe(true);
-    expect(isElectionManagerAuth(Dipped.fakeSystemAdministratorAuth())).toBe(
+    expect(isElectionManagerAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(isElectionManagerAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
+    expect(isElectionManagerAuth(Dipped.fakeElectionManagerAuth())).toEqual(
+      true
+    );
+    expect(isElectionManagerAuth(Dipped.fakeSystemAdministratorAuth())).toEqual(
       false
     );
-    expect(isElectionManagerAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
+    expect(isElectionManagerAuth(Dipped.fakeLoggedOutAuth())).toEqual(false);
   });
 
   test('isPollWorkerAuth', () => {
-    expect(isPollWorkerAuth(Inserted.fakePollWorkerAuth())).toBe(true);
-    expect(isPollWorkerAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isPollWorkerAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
+    expect(isPollWorkerAuth(Inserted.fakePollWorkerAuth())).toEqual(true);
+    expect(isPollWorkerAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(isPollWorkerAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
   });
 
   test('isVoterAuth', () => {
-    expect(isVoterAuth(Inserted.fakeVoterAuth())).toBe(true);
-    expect(isVoterAuth(Inserted.fakePollWorkerAuth())).toBe(false);
-    expect(isVoterAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
+    expect(isVoterAuth(Inserted.fakeVoterAuth())).toEqual(true);
+    expect(isVoterAuth(Inserted.fakePollWorkerAuth())).toEqual(false);
+    expect(isVoterAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
   });
 });

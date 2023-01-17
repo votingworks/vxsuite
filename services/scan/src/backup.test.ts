@@ -274,7 +274,7 @@ test('does not have vx-logs.log if file does not exist', async () => {
 
   const zipfile = await openZip(result.toBuffer());
   const entries = getEntries(zipfile);
-  expect(!entries.some(({ name }) => name === 'vx-logs.log')).toBe(true);
+  expect(!entries.some(({ name }) => name === 'vx-logs.log')).toEqual(true);
 });
 
 test('has vx-logs.log if file exists', async () => {

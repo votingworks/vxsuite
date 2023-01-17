@@ -40,19 +40,19 @@ test('Get contest candidates in rotated order', () => {
       contest: singleSeatCandidateContest,
       precinctIndex: 0,
     }).findIndex((c) => c.id === 'white')
-  ).toBe(0);
+  ).toEqual(0);
   expect(
     getContestCandidatesInRotatedOrder({
       contest: singleSeatCandidateContest,
       precinctIndex: 1,
     }).findIndex((c) => c.id === 'white')
-  ).toBe(3);
+  ).toEqual(3);
   expect(
     getContestCandidatesInRotatedOrder({
       contest: singleSeatCandidateContest,
       precinctIndex: 2,
     }).findIndex((c) => c.id === 'white')
-  ).toBe(2);
+  ).toEqual(2);
 
   const nonRotationSingleCandidateContest = electionSample.contests.find(
     (c) => c.type === 'candidate' && c.seats === 1
@@ -62,7 +62,7 @@ test('Get contest candidates in rotated order', () => {
       contest: nonRotationSingleCandidateContest,
       precinctIndex: 0,
     }).findIndex((c) => c.id === 'barchi-hallaren')
-  ).toBe(0);
+  ).toEqual(0);
 });
 
 test('Get contest vote in rotated order', () => {

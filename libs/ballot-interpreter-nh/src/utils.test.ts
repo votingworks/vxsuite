@@ -40,15 +40,15 @@ function arbitraryRect(): fc.Arbitrary<Rect> {
 }
 
 test('distance (basics)', () => {
-  expect(distance(loc(1, 1), loc(0, 0))).toBe(Math.sqrt(2));
-  expect(distance(loc(3, 3), loc(6, 7))).toBe(5);
+  expect(distance(loc(1, 1), loc(0, 0))).toEqual(Math.sqrt(2));
+  expect(distance(loc(3, 3), loc(6, 7))).toEqual(5);
 });
 
 test('distance along axes', () => {
   fc.assert(
     fc.property(fc.integer(), fc.integer(), fc.integer(), (ox, oy, n) => {
-      expect(distance(loc(ox + n, oy), loc(ox, oy))).toBe(Math.abs(n));
-      expect(distance(loc(ox, oy + n), loc(ox, oy))).toBe(Math.abs(n));
+      expect(distance(loc(ox + n, oy), loc(ox, oy))).toEqual(Math.abs(n));
+      expect(distance(loc(ox, oy + n), loc(ox, oy))).toEqual(Math.abs(n));
     })
   );
 });
@@ -56,7 +56,7 @@ test('distance along axes', () => {
 test('distance is symmetric', () => {
   fc.assert(
     fc.property(fc.integer(), fc.integer(), (x, y) => {
-      expect(distance(loc(x, y), loc(0, 0))).toBe(
+      expect(distance(loc(x, y), loc(0, 0))).toEqual(
         distance(loc(0, 0), loc(x, y))
       );
     })
@@ -74,15 +74,15 @@ test('distance exceeds maximum distance along an axis', () => {
 });
 
 test('median (basics)', () => {
-  expect(median([1, 2, 3])).toBe(2);
-  expect(median([2, 3, 1])).toBe(2);
-  expect(median([1, 2, 3, 4])).toBe(2.5);
+  expect(median([1, 2, 3])).toEqual(2);
+  expect(median([2, 3, 1])).toEqual(2);
+  expect(median([1, 2, 3, 4])).toEqual(2.5);
 });
 
 test('median does not depend on ordering', () => {
   fc.assert(
     fc.property(fc.array(fc.integer()), (values) => {
-      expect(median(values)).toBe(
+      expect(median(values)).toEqual(
         median([...values].sort(() => Math.random() - 0.5))
       );
     })
@@ -101,15 +101,15 @@ test('median is one of the array values for odd-length arrays', () => {
 });
 
 test('crossProduct', () => {
-  expect(crossProduct(vec(1, 1), vec(1, 1))).toBe(0);
-  expect(crossProduct(vec(1, 0), vec(1, 1))).toBe(1);
-  expect(crossProduct(vec(1, 2), vec(3, 4))).toBe(-2);
+  expect(crossProduct(vec(1, 1), vec(1, 1))).toEqual(0);
+  expect(crossProduct(vec(1, 0), vec(1, 1))).toEqual(1);
+  expect(crossProduct(vec(1, 2), vec(3, 4))).toEqual(-2);
 });
 
 test('dotProduct', () => {
-  expect(dotProduct(vec(1, 1), vec(1, 1))).toBe(2);
-  expect(dotProduct(vec(1, 0), vec(1, 1))).toBe(1);
-  expect(dotProduct(vec(1, 2), vec(3, 4))).toBe(11);
+  expect(dotProduct(vec(1, 1), vec(1, 1))).toEqual(2);
+  expect(dotProduct(vec(1, 0), vec(1, 1))).toEqual(1);
+  expect(dotProduct(vec(1, 2), vec(3, 4))).toEqual(11);
 });
 
 test('vectorAdd (basics)', () => {
@@ -188,8 +188,8 @@ test('vectorMult result components are divisible by the scalar value', () => {
         ),
       ([x, y, s]) => {
         const result = vectorMult(vec(x, y), s);
-        expect(Math.abs(result.x % s)).toBe(0);
-        expect(Math.abs(result.y % s)).toBe(0);
+        expect(Math.abs(result.x % s)).toEqual(0);
+        expect(Math.abs(result.y % s)).toEqual(0);
       }
     )
   );
@@ -314,14 +314,14 @@ test('calculateIntersection', () => {
 });
 
 test('bitsToNumber', () => {
-  expect(bitsToNumber([])).toBe(0);
-  expect(bitsToNumber([1])).toBe(1);
-  expect(bitsToNumber([1], 1)).toBe(0);
-  expect(bitsToNumber([0, 1])).toBe(2);
-  expect(bitsToNumber([0, 1], 1)).toBe(1);
-  expect(bitsToNumber([0, 1], 0, 1)).toBe(0);
-  expect(bitsToNumber([0, 1], 1, 2)).toBe(1);
-  expect(bitsToNumber([1, 1, 1, 1, 1, 1, 1, 1])).toBe(0xff);
+  expect(bitsToNumber([])).toEqual(0);
+  expect(bitsToNumber([1])).toEqual(1);
+  expect(bitsToNumber([1], 1)).toEqual(0);
+  expect(bitsToNumber([0, 1])).toEqual(2);
+  expect(bitsToNumber([0, 1], 1)).toEqual(1);
+  expect(bitsToNumber([0, 1], 0, 1)).toEqual(0);
+  expect(bitsToNumber([0, 1], 1, 2)).toEqual(1);
+  expect(bitsToNumber([1, 1, 1, 1, 1, 1, 1, 1])).toEqual(0xff);
 });
 
 test('segmentIntersectionWithRect', () => {
@@ -341,22 +341,22 @@ test('segmentIntersectionWithRect', () => {
 
 test('checkApproximatelyColinear', () => {
   const degree = Math.PI / 180;
-  expect(checkApproximatelyColinear(0, 0, 0)).toBe(true);
-  expect(checkApproximatelyColinear(0, Math.PI, 0)).toBe(true);
-  expect(checkApproximatelyColinear(1 * degree, 0, 1 * degree)).toBe(true);
-  expect(checkApproximatelyColinear(1 * degree, Math.PI, 1 * degree)).toBe(
+  expect(checkApproximatelyColinear(0, 0, 0)).toEqual(true);
+  expect(checkApproximatelyColinear(0, Math.PI, 0)).toEqual(true);
+  expect(checkApproximatelyColinear(1 * degree, 0, 1 * degree)).toEqual(true);
+  expect(checkApproximatelyColinear(1 * degree, Math.PI, 1 * degree)).toEqual(
     true
   );
-  expect(checkApproximatelyColinear(1 * degree, Math.PI, 0)).toBe(false);
-  expect(checkApproximatelyColinear(1 * degree, -1 * degree, 2 * degree)).toBe(
-    true
-  );
+  expect(checkApproximatelyColinear(1 * degree, Math.PI, 0)).toEqual(false);
+  expect(
+    checkApproximatelyColinear(1 * degree, -1 * degree, 2 * degree)
+  ).toEqual(true);
 });
 
 test('rectsOverlap(A, A) is always true', () => {
   fc.assert(
     fc.property(arbitraryRect(), (rect) => {
-      expect(rectsOverlap(rect, rect)).toBe(true);
+      expect(rectsOverlap(rect, rect)).toEqual(true);
     })
   );
 });
@@ -382,7 +382,7 @@ test(`rectsOverlap(A, A') is always true when A' is shifted less than width/heig
           maxX: rect.maxX + offset.x,
           maxY: rect.maxY + offset.y,
         });
-        expect(rectsOverlap(rect, shifted)).toBe(true);
+        expect(rectsOverlap(rect, shifted)).toEqual(true);
       }
     )
   );
@@ -411,7 +411,7 @@ test(`rectsOverlap(A, A') is always false when A' is shifted more than either wi
           maxX: rect.maxX + offset.x,
           maxY: rect.maxY + offset.y,
         });
-        expect(rectsOverlap(rect, shifted)).toBe(false);
+        expect(rectsOverlap(rect, shifted)).toEqual(false);
       }
     )
   );

@@ -68,13 +68,13 @@ it('Single Seat Contest', async () => {
   fireEvent.click(contestChoices.getByText('Yes'));
   expect(
     contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toBe('true');
+  ).toEqual('true');
 
   // Unselect Yes
   fireEvent.click(contestChoices.getByText('Yes'));
   expect(
     contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toBe('false');
+  ).toEqual('false');
 
   // Check that the aria label was updated to be deselected properly and is then removed
   expect(contestChoices.getByText('Yes').getAttribute('aria-label')).toContain(
@@ -94,13 +94,13 @@ it('Single Seat Contest', async () => {
   fireEvent.click(contestChoices.getByText('Yes'));
   expect(
     contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toBe('true');
+  ).toEqual('true');
 
   // Select No
   fireEvent.click(contestChoices.getByText('No'));
   expect(
     contestChoices.getByText('No').closest('button')!.dataset['selected']
-  ).toBe('false');
+  ).toEqual('false');
 
   // Overvote modal is displayed
   getByTextWithMarkup(
@@ -120,7 +120,7 @@ it('Single Seat Contest', async () => {
   );
   const siblingTextContent =
     (reviewTitle.nextSibling && reviewTitle.nextSibling.textContent) || '';
-  expect(siblingTextContent.trim()).toBe(
+  expect(siblingTextContent.trim()).toEqual(
     `Yes on ${measure102Contest.shortTitle}`
   );
 });

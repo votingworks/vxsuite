@@ -67,7 +67,7 @@ test('generatePin defaults to MIN_PIN_LENGTH', () => {
 
 test('generatePin generates PINs of specified length', () => {
   setMockRandomBytesResultOnce('1020304050');
-  expect(generatePin(7)).toBe('1020304');
+  expect(generatePin(7)).toEqual('1020304');
 });
 
 test('generatePin throws on invalid PIN length', () => {
@@ -102,7 +102,7 @@ test('generatePin returns first non-weak random PIN', () => {
     setMockRandomBytesResultOnce(weakPin);
   }
 
-  expect(generatePin()).toBe(nonWeakPin);
+  expect(generatePin()).toEqual(nonWeakPin);
   expect(mockOf(randomBytes)).toBeCalledTimes(1);
 });
 
@@ -114,7 +114,7 @@ test('generatePin skips weak PINs', () => {
   }
   setMockRandomBytesResultOnce(nonWeakPin);
 
-  expect(generatePin()).toBe(nonWeakPin);
+  expect(generatePin()).toEqual(nonWeakPin);
 });
 
 test('hyphenatePin hyphenates PINs', () => {

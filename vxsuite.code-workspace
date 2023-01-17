@@ -131,6 +131,10 @@
     {
       "name": "integration-testing/election-manager",
       "path": "integration-testing/election-manager"
+    },
+    {
+      "name": "libs/eslint-plugin-vx",
+      "path": "libs/eslint-plugin-vx"
     }
   ],
   "settings": {

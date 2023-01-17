@@ -7,10 +7,10 @@ const ONE_EIGHTY_DEG = Math.PI;
 const ONE_SEC = ONE_DEG / 3600;
 
 test('normalizeHalfAngle', () => {
-  expect(normalizeHalfAngle(0)).toBe(0);
-  expect(normalizeHalfAngle(ONE_EIGHTY_DEG)).toBe(0);
-  expect(normalizeHalfAngle(NINETY_DEG)).toBe(NINETY_DEG);
-  expect(normalizeHalfAngle(NINETY_DEG + ONE_EIGHTY_DEG)).toBe(NINETY_DEG);
+  expect(normalizeHalfAngle(0)).toEqual(0);
+  expect(normalizeHalfAngle(ONE_EIGHTY_DEG)).toEqual(0);
+  expect(normalizeHalfAngle(NINETY_DEG)).toEqual(NINETY_DEG);
+  expect(normalizeHalfAngle(NINETY_DEG + ONE_EIGHTY_DEG)).toEqual(NINETY_DEG);
 });
 
 test('normalizeHalfAngle is always the same +/- 2Nπ', () => {
@@ -31,16 +31,16 @@ test('normalizeHalfAngle is always the same +/- 2Nπ', () => {
 });
 
 test('checkApproximatelyColinear', () => {
-  expect(checkApproximatelyColinear(0, 0, 0)).toBe(true);
-  expect(checkApproximatelyColinear(0, ONE_EIGHTY_DEG, 0)).toBe(true);
-  expect(checkApproximatelyColinear(0, NINETY_DEG, 0)).toBe(false);
+  expect(checkApproximatelyColinear(0, 0, 0)).toEqual(true);
+  expect(checkApproximatelyColinear(0, ONE_EIGHTY_DEG, 0)).toEqual(true);
+  expect(checkApproximatelyColinear(0, NINETY_DEG, 0)).toEqual(false);
 
   // any angle is colinear with itself
   fc.assert(
     fc.property(
       fc.float({ min: -ONE_EIGHTY_DEG, max: ONE_EIGHTY_DEG }),
       (angle) => {
-        expect(checkApproximatelyColinear(angle, angle, ONE_SEC)).toBe(true);
+        expect(checkApproximatelyColinear(angle, angle, ONE_SEC)).toEqual(true);
       }
     )
   );
@@ -53,7 +53,7 @@ test('checkApproximatelyColinear', () => {
       (angle, n) => {
         expect(
           checkApproximatelyColinear(angle, angle + n * ONE_EIGHTY_DEG, ONE_SEC)
-        ).toBe(true);
+        ).toEqual(true);
       }
     )
   );
@@ -64,9 +64,9 @@ test('checkApproximatelyColinear', () => {
       fc.float({ min: -ONE_EIGHTY_DEG, max: ONE_EIGHTY_DEG }),
       fc.float({ min: -ONE_EIGHTY_DEG, max: ONE_EIGHTY_DEG }),
       (angle1, angle2) => {
-        expect(checkApproximatelyColinear(angle1, angle2, ONE_EIGHTY_DEG)).toBe(
-          true
-        );
+        expect(
+          checkApproximatelyColinear(angle1, angle2, ONE_EIGHTY_DEG)
+        ).toEqual(true);
       }
     )
   );

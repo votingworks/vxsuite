@@ -38,9 +38,9 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
     />
   );
 
-  expect((getByText('Toggle to Test Mode') as HTMLButtonElement).disabled).toBe(
-    true
-  );
+  expect(
+    (getByText('Toggle to Test Mode') as HTMLButtonElement).disabled
+  ).toEqual(true);
 });
 
 test('shows a disabled button with "Toggling" when toggling', () => {
@@ -53,7 +53,7 @@ test('shows a disabled button with "Toggling" when toggling', () => {
     />
   );
 
-  expect((getByText('Toggling…') as HTMLButtonElement).disabled).toBe(true);
+  expect((getByText('Toggling…') as HTMLButtonElement).disabled).toEqual(true);
 });
 
 test('calls the callback on confirmation', () => {

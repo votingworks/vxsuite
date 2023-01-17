@@ -61,7 +61,7 @@ test('clicking "Save Backup" shows progress', async () => {
     // Trigger backup finished, verify back to normal.
     resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
     await waitFor(() => screen.getByText('Save Backup'));
-    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
+    expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
   });
 });
 
@@ -240,7 +240,7 @@ test('override mark thresholds button shows when there are no overrides', () => 
       getByText(testCase.expectedText)
         .closest('button')!
         .hasAttribute('disabled')
-    ).toBe(testCase.expectButtonDisabled);
+    ).toEqual(testCase.expectButtonDisabled);
     unmount();
   }
 });

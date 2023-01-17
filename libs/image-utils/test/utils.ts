@@ -72,7 +72,7 @@ export function assertBinaryImageDatasEqual(
   actual: ImageData,
   expected: ImageData
 ): void {
-  expect(describeBinaryImageData(actual)).toBe(
+  expect(describeBinaryImageData(actual)).toEqual(
     describeBinaryImageData(expected)
   );
 }

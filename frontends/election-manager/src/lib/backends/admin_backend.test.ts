@@ -272,7 +272,7 @@ test('addCastVoteRecordFile happy path', async () => {
       assert(mockRequest.body instanceof FormData);
 
       const formData: FormData = mockRequest.body;
-      expect(formData.get('exportedTimestamp')).toBe(exportedTimestamp);
+      expect(formData.get('exportedTimestamp')).toEqual(exportedTimestamp);
 
       return apiResponse;
     }
@@ -332,7 +332,7 @@ test('addCastVoteRecordFile prioritizes export timestamp in filename', async () 
       assert(mockRequest.body instanceof FormData);
 
       const formData: FormData = mockRequest.body;
-      expect(formData.get('exportedTimestamp')).toBe(
+      expect(formData.get('exportedTimestamp')).toEqual(
         timestampFromFilenameIsoString
       );
 

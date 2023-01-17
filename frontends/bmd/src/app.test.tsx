@@ -42,7 +42,7 @@ it('uses the card service and machine config service by default', async () => {
   render(<App hardware={hardware} />);
 
   await screen.findByText('Card is Backwards');
-  expect(fetchMock.done()).toBe(true);
+  expect(fetchMock.done()).toEqual(true);
 });
 
 it('prevents context menus from appearing', async () => {
