@@ -39,7 +39,7 @@ sudo ./initialize.sh -s 1000
 
 ### Inspect Drive Contents
 
-After you "insert" the virtual USB drive with `insert.sh` and then open up your
+After you "insert" the virtual USB drive with `insert.sh`, you can open your
 operating system's file navigator and mount the drive from there.
 
 If you'd rather not rely on the file navigator, you could mount it yourself with
