@@ -10,7 +10,7 @@ fi
 if [ -f "$DIR/usb-mock.img" ]; then
     echo "Virtual USB drive image found..."
 else
-    echo "No virtual USB drivei image found. Initializing a virtual USB drive image with default size of 64MB..."
+    echo "No virtual USB drive image found. Initializing a virtual USB drive image with default size of 64MB..."
     bash "$DIR/initialize.sh" -s 64
     echo "To create a larger virtual USB drive image, run 'sudo bash initalize.sh -s <size>' where <size> is the desired size in megabytes."
 fi

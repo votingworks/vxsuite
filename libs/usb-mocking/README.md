@@ -13,7 +13,7 @@ at a time. You can reset and resize whenever necessary.
 "Inserts" the virtual USB drive. Does not mount the drive.
 
 ```bash
-sudo bash insert.sh
+sudo ./insert.sh
 ```
 
 ### `remove.sh` - Remove Drive
@@ -21,7 +21,7 @@ sudo bash insert.sh
 "Removes" the virtual USB drive.
 
 ```bash
-sudo bash remove.sh
+sudo ./remove.sh
 ```
 
 ### `initialize.sh` - Initializing (Resizing)
@@ -34,5 +34,20 @@ is not compressed on your device and will take up the equivalent amount of
 space.
 
 ```bash
-sudo bash initialize.sh -s 1000
+sudo ./initialize.sh -s 1000
 ```
+
+### Inspect Drive Contents
+
+After you "insert" the virtual USB drive with `insert.sh` and then open up your
+operating system's file navigator and mount the drive from there.
+
+If you'd rather not rely on the file navigator, you could mount it yourself with
+the following:
+
+```bash
+sudo mount -w /dev/loop0p1 /media/vx/usb-drive
+```
+
+It is necessary to first `insert` the drive before mounting because the
+filesystem is on a partition of the image and cannot be mounted directly.
