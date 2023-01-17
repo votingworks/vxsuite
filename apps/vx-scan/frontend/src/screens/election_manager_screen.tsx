@@ -1,4 +1,4 @@
-import { MarkThresholds, ok, PollsState } from '@votingworks/types';
+import { ok, PollsState } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -37,7 +37,6 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   pollsState: PollsState;
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   usbDrive: UsbDrive;
 }
 
@@ -45,7 +44,6 @@ export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
   pollsState,
-  setMarkThresholdOverrides,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
@@ -225,7 +223,6 @@ export function ElectionManagerScreen({
       <ScannedBallotCount count={scannerStatus.ballotsCounted} />
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
-          setMarkThresholdOverrides={setMarkThresholdOverrides}
           markThresholds={electionDefinition.election.markThresholds}
           markThresholdOverrides={markThresholdOverrides}
           onClose={() => setIsMarkThresholdModalOpen(false)}
@@ -349,7 +346,6 @@ export function DefaultPreview(): JSX.Element {
         }}
         isTestMode={false}
         pollsState="polls_closed_initial"
-        setMarkThresholdOverrides={() => Promise.resolve()}
         usbDrive={mockUsbDrive('absent')}
       />
     </AppContext.Provider>

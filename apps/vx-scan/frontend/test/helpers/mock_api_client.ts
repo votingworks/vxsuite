@@ -2,6 +2,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   CastVoteRecord,
+  MarkThresholds,
   ok,
   PollsState,
   PrecinctSelection,
@@ -64,6 +65,14 @@ export function createApiMock() {
 
     expectSetTestMode(isTestMode: boolean): void {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
+    },
+
+    expectSetMarkThresholdOverrides(
+      markThresholdOverrides?: MarkThresholds
+    ): void {
+      mockApiClient.setMarkThresholdOverrides
+        .expectCallWith({ markThresholdOverrides })
+        .resolves();
     },
 
     expectGetScannerStatus(status: PrecinctScannerStatus, times = 1): void {

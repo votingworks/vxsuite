@@ -11,12 +11,12 @@ import {
   Text,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/utils';
+import { setMarkThresholdOverrides } from '../api';
 
-export interface Props {
+export interface SetMarkThresholdsModalProps {
   onClose: () => void;
   markThresholds?: MarkThresholds;
   markThresholdOverrides?: MarkThresholds;
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
 }
 
 const ThresholdColumns = styled.div`
@@ -44,8 +44,9 @@ export function SetMarkThresholdsModal({
   onClose,
   markThresholds,
   markThresholdOverrides,
-  setMarkThresholdOverrides,
-}: Props): JSX.Element {
+}: SetMarkThresholdsModalProps): JSX.Element {
+  const setMarkThresholdOverridesMutation =
+    setMarkThresholdOverrides.useMutation();
   const [currentState, setCurrentState] = useState<ModalState>(
     markThresholdOverrides === undefined
       ? ModalState.CONFIRM_INTENT
@@ -64,45 +65,43 @@ export function SetMarkThresholdsModal({
     defaultMarginalThreshold.toString()
   );
 
-  async function overrideThresholds(definite: string, marginal: string) {
+  function overrideThresholds(definite: string, marginal: string) {
     setCurrentState(ModalState.SAVING);
-    try {
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      const definiteFloat = parseFloat(definite);
-      if (Number.isNaN(definiteFloat) || definiteFloat > 1) {
-        throw new Error(
-          `Inputted definite threshold invalid: ${definite}. Please enter a number from 0 to 1.`
-        );
-      }
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      const marginalFloat = parseFloat(marginal);
-      if (Number.isNaN(marginalFloat) || marginalFloat > 1) {
-        throw new Error(
-          `Inputted marginal threshold invalid: ${marginal}. Please enter a number from 0 to 1.`
-        );
-      }
-      await setMarkThresholdOverrides({
-        definite: definiteFloat,
-        marginal: marginalFloat,
-      });
-      onClose();
-    } catch (error) {
-      assert(error instanceof Error);
+    // eslint-disable-next-line vx/gts-safe-number-parse
+    const definiteFloat = parseFloat(definite);
+    if (Number.isNaN(definiteFloat) || definiteFloat > 1) {
       setCurrentState(ModalState.ERROR);
-      setErrorMessage(`Error setting thresholds: ${error.message}`);
+      setErrorMessage(
+        `Inputted definite threshold invalid: ${definite}. Please enter a number from 0 to 1.`
+      );
+      return;
     }
+    // eslint-disable-next-line vx/gts-safe-number-parse
+    const marginalFloat = parseFloat(marginal);
+    if (Number.isNaN(marginalFloat) || marginalFloat > 1) {
+      setCurrentState(ModalState.ERROR);
+      setErrorMessage(
+        `Inputted marginal threshold invalid: ${marginal}. Please enter a number from 0 to 1.`
+      );
+      return;
+    }
+    setMarkThresholdOverridesMutation.mutate(
+      {
+        markThresholdOverrides: {
+          definite: definiteFloat,
+          marginal: marginalFloat,
+        },
+      },
+      { onSuccess: onClose }
+    );
   }
 
-  async function resetThresholds() {
+  function resetThresholds() {
     setCurrentState(ModalState.SAVING);
-    try {
-      await setMarkThresholdOverrides(undefined);
-      onClose();
-    } catch (error) {
-      assert(error instanceof Error);
-      setCurrentState(ModalState.ERROR);
-      setErrorMessage(`Error setting thresholds: ${error.message}`);
-    }
+    setMarkThresholdOverridesMutation.mutate(
+      { markThresholdOverrides: undefined },
+      { onSuccess: onClose }
+    );
   }
 
   switch (currentState) {

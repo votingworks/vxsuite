@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import 'normalize.css';
 
-import { Card, MarkThresholds } from '@votingworks/types';
+import { Card } from '@votingworks/types';
 import {
   useUsbDrive,
   SetupCardReaderPage,
@@ -39,7 +39,6 @@ import {
   getMachineConfig,
   getScannerStatus,
   recordBallotBagReplaced,
-  setMarkThresholdOverrides,
   setPollsState,
   unconfigureElection,
 } from './api';
@@ -77,16 +76,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const setMarkThresholdOverridesMutation =
-    setMarkThresholdOverrides.useMutation();
-  async function updateMarkThresholds(
-    newMarkThresholdOverrides?: MarkThresholds
-  ) {
-    await setMarkThresholdOverridesMutation.mutateAsync({
-      markThresholdOverrides: newMarkThresholdOverrides,
-    });
-  }
 
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -213,7 +202,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}
-          setMarkThresholdOverrides={updateMarkThresholds}
           usbDrive={usbDrive}
         />
       </AppContext.Provider>
