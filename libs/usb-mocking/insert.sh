@@ -2,6 +2,11 @@
 
 DIR=$( dirname $0 )
 
+if [ -e "/dev/disk/by-id/usb-mock-part1" ]; then
+    echo "There is currently a virtual USB drive inserted. Remove it before re-initializing the virtual USB drive."
+    exit 1
+fi
+
 if [ -f "$DIR/usb-mock.img" ]; then
     echo "Virtual USB drive image found..."
 else
