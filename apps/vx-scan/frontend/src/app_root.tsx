@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import 'normalize.css';
 
-import { Card, MarkThresholds, PrecinctSelection } from '@votingworks/types';
+import { Card, MarkThresholds } from '@votingworks/types';
 import {
   useUsbDrive,
   SetupCardReaderPage,
@@ -41,7 +41,6 @@ import {
   recordBallotBagReplaced,
   setMarkThresholdOverrides,
   setPollsState,
-  setPrecinctSelection,
   unconfigureElection,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
@@ -78,15 +77,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     scope: { electionDefinition: configQuery.data?.electionDefinition },
     logger,
   });
-
-  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
-  async function updatePrecinctSelection(
-    newPrecinctSelection: PrecinctSelection
-  ) {
-    await setPrecinctSelectionMutation.mutateAsync({
-      precinctSelection: newPrecinctSelection,
-    });
-  }
 
   const setMarkThresholdOverridesMutation =
     setMarkThresholdOverrides.useMutation();
@@ -220,7 +210,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         }}
       >
         <ElectionManagerScreen
-          updatePrecinctSelection={updatePrecinctSelection}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}

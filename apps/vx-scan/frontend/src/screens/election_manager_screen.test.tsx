@@ -64,7 +64,6 @@ function renderScreen({
           scannerStatus={statusNoPaper}
           isTestMode={false}
           pollsState="polls_closed_initial"
-          updatePrecinctSelection={jest.fn()}
           setMarkThresholdOverrides={jest.fn()}
           usbDrive={mockUsbDrive('absent')}
           {...electionManagerScreenProps}
@@ -108,18 +107,13 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
-  const updatePrecinctSelection = jest.fn();
-  renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
-
   const precinct = electionSampleDefinition.election.precincts[0];
-  const selectPrecinct = await screen.findByTestId('selectPrecinct');
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  apiMock.expectSetPrecinct(precinctSelection);
+  renderScreen();
 
-  // set precinct
+  const selectPrecinct = await screen.findByTestId('selectPrecinct');
   userEvent.selectOptions(selectPrecinct, precinct.id);
-  expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
-    1,
-    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
-  );
 });
 
 test('no option to change precinct if there is only one precinct', async () => {

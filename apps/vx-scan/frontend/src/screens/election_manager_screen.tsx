@@ -1,9 +1,4 @@
-import {
-  MarkThresholds,
-  ok,
-  PrecinctSelection,
-  PollsState,
-} from '@votingworks/types';
+import { MarkThresholds, ok, PollsState } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -29,7 +24,12 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { setIsSoundMuted, setTestMode, unconfigureElection } from '../api';
+import {
+  setIsSoundMuted,
+  setPrecinctSelection,
+  setTestMode,
+  unconfigureElection,
+} from '../api';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -37,7 +37,6 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   pollsState: PollsState;
-  updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   usbDrive: UsbDrive;
 }
@@ -46,10 +45,10 @@ export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
   pollsState,
-  updatePrecinctSelection,
   setMarkThresholdOverrides,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
+  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
@@ -129,7 +128,15 @@ export function ElectionManagerScreen({
         {election.precincts.length > 1 && (
           <ChangePrecinctButton
             appPrecinctSelection={precinctSelection}
-            updatePrecinctSelection={updatePrecinctSelection}
+            updatePrecinctSelection={async (newPrecinctSelection) => {
+              try {
+                await setPrecinctSelectionMutation.mutateAsync({
+                  precinctSelection: newPrecinctSelection,
+                });
+              } catch (error) {
+                // Handled by default query client error handling
+              }
+            }}
             election={election}
             mode={
               pollsState === 'polls_closed_initial'
@@ -306,15 +313,13 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
-  const [precinctSelection, setPrecinctSelection] =
-    useState<PrecinctSelection>();
   assert(electionDefinition);
   return (
     <AppContext.Provider
       value={{
         machineConfig,
         electionDefinition,
-        precinctSelection,
+        precinctSelection: undefined,
         markThresholdOverrides: undefined,
         isSoundMuted: false,
         auth: {
@@ -345,10 +350,6 @@ export function DefaultPreview(): JSX.Element {
         isTestMode={false}
         pollsState="polls_closed_initial"
         setMarkThresholdOverrides={() => Promise.resolve()}
-        // eslint-disable-next-line @typescript-eslint/require-await
-        updatePrecinctSelection={async (newPrecinctSelection) =>
-          setPrecinctSelection(newPrecinctSelection)
-        }
         usbDrive={mockUsbDrive('absent')}
       />
     </AppContext.Provider>

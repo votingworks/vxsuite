@@ -220,26 +220,27 @@ test('election manager and poll worker configuration', async () => {
     'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
-  await waitFor(() => {
-    expect(screen.queryByText('Loading')).not.toBeInTheDocument();
-  });
 
   // Change precinct as Election Manager
+  const precinct = electionDefinition.election.precincts[0];
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
-  config = { ...config, precinctSelection: singlePrecinctSelectionFor('23') };
+  apiMock.expectSetPrecinct(precinctSelection);
+  config = { ...config, precinctSelection };
   apiMock.expectGetConfig(config);
-  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      expect.objectContaining({
-        disposition: 'success',
-        message: expect.stringContaining('Center Springfield'),
-      })
-    );
-  });
+  userEvent.selectOptions(
+    await screen.findByTestId('selectPrecinct'),
+    precinct.id
+  );
+  await screen.findByDisplayValue(precinct.name);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrecinctConfigurationChanged,
+    'election_manager',
+    expect.objectContaining({
+      disposition: 'success',
+      message: expect.stringContaining('Center Springfield'),
+    })
+  );
   card.removeCard();
   await advanceTimersAndPromises(1);
 
