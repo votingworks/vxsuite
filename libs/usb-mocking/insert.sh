@@ -26,17 +26,18 @@ DELAY_COUNTER=0
 DELAY_MAX_TIMES=10
 until [[ $( lsblk -fl | grep "${DEVICE_BASENAME}p1 vfat" ) ]]
 do
-    echo "Waiting for OS to detect virtual USB drive filesystem..."
+    echo "Waiting for OS to detect filesystem on virtual USB drive partition..."
     sleep $DELAY
     let DELAY_COUNTER++
-    if [ $WAIT_COUNTER > $DELAY_MAX_TIMES ]; then
-        echo "Timed out waiting for OS to detect virtual USB drive filesystem."
-        break
+    if [[ $DELAY_COUNTER -ge $DELAY_MAX_TIMES ]]; then
+        echo "Timed out waiting for OS to detect virtual USB drive filesystem. Exiting."
+        losetup -d "$DEVICE"
+        exit 1
     fi
 done
-echo "Virtual USB drive filesystem detected."
+echo "Filesystem detected."
 
 # Create a mock entry in /dev/disk/by-id that kiosk-browser can use to detect the USB drive
 ln -s "../../${DEVICE_BASENAME}p1" /dev/disk/by-id/usb-mock-part1
 
-echo "Virtual USB drive mock complete."
+echo "Virtual USB drive inserted and ready for use."
