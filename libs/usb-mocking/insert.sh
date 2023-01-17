@@ -3,7 +3,7 @@
 DIR=$( dirname $0 )
 
 if [ -e "/dev/disk/by-id/usb-mock-part1" ]; then
-    echo "There is currently a virtual USB drive inserted. Remove it before re-initializing the virtual USB drive."
+    echo "There is currently a virtual USB drive already inserted."
     exit 1
 fi
 
