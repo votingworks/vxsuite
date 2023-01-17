@@ -74,7 +74,7 @@ test('doMount & doEject', async () => {
 
   await doEject();
   expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
-  expect(window.kiosk.unmountUsbDrive).toBeCalledWith('sdb');
+  expect(window.kiosk.unmountUsbDrive).toBeCalledWith();
 });
 
 test('doSync', async () => {
