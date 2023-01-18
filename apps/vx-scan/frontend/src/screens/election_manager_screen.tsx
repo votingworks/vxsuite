@@ -12,7 +12,7 @@ import {
   ChangePrecinctButton,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Logger, LogSource } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
@@ -67,43 +67,18 @@ export function ElectionManagerScreen({
     isShowingToggleTestModeWarningModal,
     setIsShowingToggleTestModeWarningModal,
   ] = useState(false);
-  const openToggleTestModeWarningModal = useCallback(
-    () => setIsShowingToggleTestModeWarningModal(true),
-    []
-  );
-  const closeToggleTestModeWarningModal = useCallback(
-    () => setIsShowingToggleTestModeWarningModal(false),
-    []
-  );
 
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
-  const openConfirmUnconfigureModal = useCallback(
-    () => setConfirmUnconfigure(true),
-    []
-  );
-  const closeConfirmUnconfigureModal = useCallback(
-    () => setConfirmUnconfigure(false),
-    []
-  );
   const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
-  const openCalibrateScannerModal = useCallback(
-    () => setIsCalibratingScanner(true),
-    []
-  );
-  const closeCalibrateScannerModal = useCallback(
-    () => setIsCalibratingScanner(false),
-    []
-  );
-
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
   function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
-      openToggleTestModeWarningModal();
+      setIsShowingToggleTestModeWarningModal(true);
     } else {
       setTestModeMutation.mutate({ isTestMode: !isTestMode });
     }
@@ -187,7 +162,9 @@ export function ElectionManagerScreen({
           </Button>
         </p>
         <p>
-          <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
+          <Button onPress={() => setIsCalibratingScanner(true)}>
+            Calibrate Scanner
+          </Button>
         </p>
         <p>
           <Button
@@ -205,7 +182,7 @@ export function ElectionManagerScreen({
             disabled={!scannerStatus.canUnconfigure}
             danger
             small
-            onPress={openConfirmUnconfigureModal}
+            onPress={() => setConfirmUnconfigure(true)}
           >
             <span role="img" aria-label="Warning">
               ⚠️
@@ -244,16 +221,20 @@ export function ElectionManagerScreen({
               <Button
                 primary
                 onPress={() => {
-                  closeToggleTestModeWarningModal();
+                  setIsShowingToggleTestModeWarningModal(false);
                   setIsExportingBackup(true);
                 }}
               >
                 Save Backup
               </Button>
-              <Button onPress={closeToggleTestModeWarningModal}>Cancel</Button>
+              <Button
+                onPress={() => setIsShowingToggleTestModeWarningModal(false)}
+              >
+                Cancel
+              </Button>
             </React.Fragment>
           }
-          onOverlayClick={closeToggleTestModeWarningModal}
+          onOverlayClick={() => setIsShowingToggleTestModeWarningModal(false)}
         />
       )}
       {confirmUnconfigure && (
@@ -277,18 +258,20 @@ export function ElectionManagerScreen({
                 <Button danger onPress={handleUnconfigure}>
                   Yes, Delete All
                 </Button>
-                <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
+                <Button onPress={() => setConfirmUnconfigure(false)}>
+                  Cancel
+                </Button>
               </React.Fragment>
             )
           }
-          onOverlayClick={closeConfirmUnconfigureModal}
+          onOverlayClick={() => setConfirmUnconfigure(false)}
         />
       )}
 
       {isCalibratingScanner && (
         <CalibrateScannerModal
           scannerStatus={scannerStatus}
-          onCancel={closeCalibrateScannerModal}
+          onCancel={() => setIsCalibratingScanner(false)}
         />
       )}
       {isExportingResults && (
