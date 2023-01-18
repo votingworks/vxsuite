@@ -4,7 +4,6 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -110,7 +109,6 @@ test('render export modal when a usb drive is mounted as expected and allows exp
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
       <ApiClientContext.Provider value={apiMock.mockApiClient}>

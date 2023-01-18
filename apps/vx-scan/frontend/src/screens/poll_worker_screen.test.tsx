@@ -65,6 +65,7 @@ function renderScreen({
           isLiveMode
           hasPrinterAttached={false}
           auth={Inserted.fakePollWorkerAuth()}
+          logger={fakeLogger()}
           {...pollWorkerScreenProps}
         />
       </QueryClientProvider>
@@ -128,8 +129,6 @@ describe('transitions from polls closed', () => {
         scannedBallotCount: 0,
         pollsState: 'polls_closed_initial',
         auth: readableFakePollWorkerAuth(),
-      },
-      appContextProps: {
         logger,
       },
     });
@@ -177,8 +176,6 @@ describe('transitions from polls open', () => {
         scannedBallotCount: 7,
         pollsState: 'polls_open',
         auth: readableFakePollWorkerAuth(),
-      },
-      appContextProps: {
         logger,
       },
     });
@@ -244,8 +241,6 @@ describe('transitions from polls paused', () => {
         scannedBallotCount: 7,
         pollsState: 'polls_paused',
         auth: readableFakePollWorkerAuth(),
-      },
-      appContextProps: {
         logger,
       },
     });
@@ -321,8 +316,6 @@ test('there is a warning if we attempt to polls with ballots scanned', async () 
     pollWorkerScreenProps: {
       scannedBallotCount: 1,
       pollsState: 'polls_closed_initial',
-    },
-    appContextProps: {
       logger,
     },
   });

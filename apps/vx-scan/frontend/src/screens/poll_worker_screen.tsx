@@ -49,6 +49,7 @@ import {
 import {
   getLogEventIdForPollsTransition,
   LogEventId,
+  Logger,
 } from '@votingworks/logging';
 import {
   CenteredLargeProse,
@@ -113,6 +114,7 @@ export interface PollWorkerScreenProps {
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
   auth: InsertedSmartcardAuth.PollWorkerLoggedIn;
+  logger: Logger;
 }
 
 export function PollWorkerScreen({
@@ -122,11 +124,12 @@ export function PollWorkerScreen({
   isLiveMode,
   hasPrinterAttached: printerFromProps,
   auth,
+  logger,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { precinctSelection, machineConfig, logger } = useContext(AppContext);
+  const { precinctSelection, machineConfig } = useContext(AppContext);
   assert(precinctSelection);
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<

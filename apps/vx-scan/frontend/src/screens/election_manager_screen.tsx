@@ -15,9 +15,9 @@ import {
   ChangePrecinctButton,
 } from '@votingworks/ui';
 import React, { useContext, useState } from 'react';
-import { Logger, LogSource } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -44,6 +44,7 @@ export interface ElectionManagerScreenProps {
   markThresholdOverrides?: MarkThresholds;
   pollsState: PollsState;
   usbDrive: UsbDrive;
+  logger: Logger;
 }
 
 export function ElectionManagerScreen({
@@ -54,12 +55,13 @@ export function ElectionManagerScreen({
   markThresholdOverrides,
   pollsState,
   usbDrive,
+  logger,
 }: ElectionManagerScreenProps): JSX.Element {
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const { precinctSelection, logger } = useContext(AppContext);
+  const { precinctSelection } = useContext(AppContext);
   const { election } = electionDefinition;
 
   const [
@@ -299,7 +301,6 @@ export function DefaultPreview(): JSX.Element {
         machineConfig,
         electionDefinition,
         precinctSelection: undefined,
-        logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
       <ElectionManagerScreen
@@ -314,6 +315,7 @@ export function DefaultPreview(): JSX.Element {
         markThresholdOverrides={undefined}
         pollsState="polls_closed_initial"
         usbDrive={mockUsbDrive('absent')}
+        logger={fakeLogger()}
       />
     </AppContext.Provider>
   );

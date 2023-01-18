@@ -172,7 +172,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           electionDefinition,
           precinctSelection,
           machineConfig,
-          logger,
         }}
       >
         <ElectionManagerScreen
@@ -183,6 +182,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           markThresholdOverrides={markThresholdOverrides}
           pollsState={pollsState}
           usbDrive={usbDrive}
+          logger={logger}
         />
       </AppContext.Provider>
     );
@@ -213,7 +213,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         value={{
           precinctSelection,
           machineConfig,
-          logger,
         }}
       >
         <PollWorkerScreen
@@ -223,6 +222,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
           auth={auth}
+          logger={logger}
         />
       </AppContext.Provider>
     );
@@ -242,7 +242,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           electionDefinition,
           precinctSelection,
           machineConfig,
-          logger,
         }}
       >
         <PollsNotOpenScreen
@@ -261,7 +260,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         electionDefinition,
         precinctSelection,
         machineConfig,
-        logger,
       }}
     >
       <VoterScreen

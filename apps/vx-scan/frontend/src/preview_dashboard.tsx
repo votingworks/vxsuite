@@ -1,6 +1,5 @@
 /* istanbul ignore file */
 
-import { Logger, LogSource } from '@votingworks/logging';
 import {
   ElectionDefinition,
   safeParseElectionDefinition,
@@ -166,7 +165,6 @@ export function PreviewDashboard({
             machineId: '000',
           },
           electionDefinition,
-          logger: new Logger(LogSource.VxScanFrontend),
         }}
       >
         <BrowserRouter>

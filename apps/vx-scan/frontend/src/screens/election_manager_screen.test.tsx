@@ -11,6 +11,7 @@ import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
+import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
@@ -66,6 +67,7 @@ function renderScreen({
           isSoundMuted={false}
           pollsState="polls_closed_initial"
           usbDrive={mockUsbDrive('absent')}
+          logger={fakeLogger()}
           {...electionManagerScreenProps}
         />
       </QueryClientProvider>

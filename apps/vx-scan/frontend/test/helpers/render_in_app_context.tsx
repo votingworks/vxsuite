@@ -1,6 +1,5 @@
 import { render, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { Logger, LogSource } from '@votingworks/logging';
 import React from 'react';
 import {
   AppContext,
@@ -17,7 +16,6 @@ export function renderInAppContext(
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        logger: new Logger(LogSource.VxScanFrontend),
         ...context,
       }}
     >
