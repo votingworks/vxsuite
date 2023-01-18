@@ -14,7 +14,6 @@ export interface AppContextInterface {
   precinctSelection?: PrecinctSelection;
   markThresholdOverrides?: MarkThresholds;
   auth: InsertedSmartcardAuth.Auth;
-  isSoundMuted: boolean;
   logger: Logger;
 }
 
@@ -22,7 +21,6 @@ const appContext: AppContextInterface = {
   electionDefinition: undefined,
   precinctSelection: undefined,
   markThresholdOverrides: undefined,
-  isSoundMuted: false,
   machineConfig: {
     machineId: '0000',
     codeVersion: '',

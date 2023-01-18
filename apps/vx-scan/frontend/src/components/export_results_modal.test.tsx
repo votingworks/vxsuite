@@ -111,7 +111,6 @@ test('render export modal when a usb drive is mounted as expected and allows exp
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
         machineConfig,
         auth,
         logger: new Logger(LogSource.VxScanFrontend),

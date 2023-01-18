@@ -38,6 +38,7 @@ export interface ElectionManagerScreenProps {
   electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
+  isSoundMuted: boolean;
   pollsState: PollsState;
   usbDrive: UsbDrive;
 }
@@ -46,6 +47,7 @@ export function ElectionManagerScreen({
   electionDefinition,
   scannerStatus,
   isTestMode,
+  isSoundMuted,
   pollsState,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
@@ -53,13 +55,8 @@ export function ElectionManagerScreen({
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const {
-    precinctSelection,
-    markThresholdOverrides,
-    auth,
-    isSoundMuted,
-    logger,
-  } = useContext(AppContext);
+  const { precinctSelection, markThresholdOverrides, auth, logger } =
+    useContext(AppContext);
   const { election } = electionDefinition;
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
@@ -302,7 +299,6 @@ export function DefaultPreview(): JSX.Element {
         electionDefinition,
         precinctSelection: undefined,
         markThresholdOverrides: undefined,
-        isSoundMuted: false,
         auth: {
           status: 'logged_in',
           user: {
@@ -330,6 +326,7 @@ export function DefaultPreview(): JSX.Element {
           canUnconfigure: true,
         }}
         isTestMode={false}
+        isSoundMuted={false}
         pollsState="polls_closed_initial"
         usbDrive={mockUsbDrive('absent')}
       />

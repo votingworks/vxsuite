@@ -63,6 +63,7 @@ function renderScreen({
           electionDefinition={electionSampleDefinition}
           scannerStatus={statusNoPaper}
           isTestMode={false}
+          isSoundMuted={false}
           pollsState="polls_closed_initial"
           usbDrive={mockUsbDrive('absent')}
           {...electionManagerScreenProps}
@@ -214,6 +215,6 @@ test('when sounds are muted, shows a button to unmute sounds', () => {
   apiMock.mockApiClient.setIsSoundMuted
     .expectCallWith({ isSoundMuted: false })
     .resolves();
-  renderScreen({ appContextProps: { isSoundMuted: true } });
+  renderScreen({ electionManagerScreenProps: { isSoundMuted: true } });
   userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
 });

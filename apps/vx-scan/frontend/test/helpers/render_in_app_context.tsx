@@ -18,7 +18,6 @@ export function renderInAppContext(
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        isSoundMuted: false,
         auth: Inserted.fakeLoggedOutAuth(),
         logger: new Logger(LogSource.VxScanFrontend),
         ...context,

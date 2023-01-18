@@ -175,7 +175,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           markThresholdOverrides,
           machineConfig,
           auth,
-          isSoundMuted,
           logger,
         }}
       >
@@ -183,6 +182,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           electionDefinition={electionDefinition}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
+          isSoundMuted={isSoundMuted}
           pollsState={pollsState}
           usbDrive={usbDrive}
         />
@@ -217,7 +217,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           markThresholdOverrides,
           machineConfig,
           auth,
-          isSoundMuted,
           logger,
         }}
       >
@@ -248,7 +247,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           markThresholdOverrides,
           machineConfig,
           auth,
-          isSoundMuted,
           logger,
         }}
       >
@@ -270,7 +268,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         markThresholdOverrides,
         machineConfig,
         auth,
-        isSoundMuted,
         logger,
       }}
     >
