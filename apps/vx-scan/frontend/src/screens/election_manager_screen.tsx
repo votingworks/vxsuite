@@ -1,4 +1,9 @@
-import { ElectionDefinition, ok, PollsState } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  ok,
+  PollsState,
+} from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -39,6 +44,7 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   isSoundMuted: boolean;
+  markThresholdOverrides?: MarkThresholds;
   pollsState: PollsState;
   usbDrive: UsbDrive;
 }
@@ -48,6 +54,7 @@ export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
   isSoundMuted,
+  markThresholdOverrides,
   pollsState,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
@@ -55,8 +62,7 @@ export function ElectionManagerScreen({
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const { precinctSelection, markThresholdOverrides, auth, logger } =
-    useContext(AppContext);
+  const { precinctSelection, auth, logger } = useContext(AppContext);
   const { election } = electionDefinition;
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
@@ -298,7 +304,6 @@ export function DefaultPreview(): JSX.Element {
         machineConfig,
         electionDefinition,
         precinctSelection: undefined,
-        markThresholdOverrides: undefined,
         auth: {
           status: 'logged_in',
           user: {
@@ -327,6 +332,7 @@ export function DefaultPreview(): JSX.Element {
         }}
         isTestMode={false}
         isSoundMuted={false}
+        markThresholdOverrides={undefined}
         pollsState="polls_closed_initial"
         usbDrive={mockUsbDrive('absent')}
       />

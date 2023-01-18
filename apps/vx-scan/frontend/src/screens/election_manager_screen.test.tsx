@@ -62,6 +62,7 @@ function renderScreen({
         <ElectionManagerScreen
           electionDefinition={electionSampleDefinition}
           scannerStatus={statusNoPaper}
+          markThresholdOverrides={undefined}
           isTestMode={false}
           isSoundMuted={false}
           pollsState="polls_closed_initial"

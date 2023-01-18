@@ -2,7 +2,6 @@ import { Logger, LogSource } from '@votingworks/logging';
 import {
   ElectionDefinition,
   InsertedSmartcardAuth,
-  MarkThresholds,
   PrecinctSelection,
 } from '@votingworks/types';
 import { createContext } from 'react';
@@ -12,7 +11,6 @@ export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
   machineConfig: Readonly<MachineConfig>;
   precinctSelection?: PrecinctSelection;
-  markThresholdOverrides?: MarkThresholds;
   auth: InsertedSmartcardAuth.Auth;
   logger: Logger;
 }
@@ -20,7 +18,6 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
   precinctSelection: undefined,
-  markThresholdOverrides: undefined,
   machineConfig: {
     machineId: '0000',
     codeVersion: '',

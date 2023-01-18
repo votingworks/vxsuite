@@ -18,7 +18,6 @@ import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
@@ -172,7 +171,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         value={{
           electionDefinition,
           precinctSelection,
-          markThresholdOverrides,
           machineConfig,
           auth,
           logger,
@@ -183,6 +181,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           isSoundMuted={isSoundMuted}
+          markThresholdOverrides={markThresholdOverrides}
           pollsState={pollsState}
           usbDrive={usbDrive}
         />
@@ -214,7 +213,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
       <AppContext.Provider
         value={{
           precinctSelection,
-          markThresholdOverrides,
           machineConfig,
           auth,
           logger,
@@ -244,7 +242,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         value={{
           electionDefinition,
           precinctSelection,
-          markThresholdOverrides,
           machineConfig,
           auth,
           logger,
@@ -265,7 +262,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
       value={{
         electionDefinition,
         precinctSelection,
-        markThresholdOverrides,
         machineConfig,
         auth,
         logger,
