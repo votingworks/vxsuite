@@ -564,7 +564,12 @@ test('tabulating CVRs', async () => {
   const logger = fakeLogger();
   const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
-      <App card={card} hardware={hardware} printer={printer} />,
+      <App
+        card={card}
+        hardware={hardware}
+        printer={printer}
+        converter="ms-sems"
+      />,
       { backend, logger }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
@@ -764,7 +769,7 @@ test('tabulating CVRs with SEMS file', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, getAllByText } = renderRootElement(
-    <App card={card} hardware={hardware} />,
+    <App card={card} hardware={hardware} converter="ms-sems" />,
     { backend }
   );
   jest.advanceTimersByTime(2000);
