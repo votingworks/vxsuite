@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
-  fireEvent,
   RenderResult,
   screen,
   waitFor,
@@ -64,12 +63,7 @@ function renderScreen({
           scannerStatus={statusNoPaper}
           isTestMode={false}
           pollsState="polls_closed_initial"
-          updatePrecinctSelection={jest.fn()}
-          toggleLiveMode={jest.fn()}
-          setMarkThresholdOverrides={jest.fn()}
-          unconfigure={jest.fn()}
           usbDrive={mockUsbDrive('absent')}
-          toggleIsSoundMuted={jest.fn()}
           {...electionManagerScreenProps}
         />
       </QueryClientProvider>
@@ -86,19 +80,19 @@ test('renders date and time settings modal', async () => {
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
 
   // Open Modal and change date
-  fireEvent.click(screen.getByText(startDate));
+  userEvent.click(screen.getByText(startDate));
 
   within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
 
   const selectYear = screen.getByTestId('selectYear');
   const optionYear =
     within(selectYear).getByText<HTMLOptionElement>('2025').value;
-  fireEvent.change(selectYear, { target: { value: optionYear } });
+  userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
-    fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
   expect(window.kiosk?.setClock).toHaveBeenCalledWith({
     isoDatetime: '2025-10-31T00:00:00.000+00:00',
@@ -111,18 +105,13 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
-  const updatePrecinctSelection = jest.fn();
-  renderScreen({ electionManagerScreenProps: { updatePrecinctSelection } });
-
   const precinct = electionSampleDefinition.election.precincts[0];
-  const selectPrecinct = await screen.findByTestId('selectPrecinct');
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  apiMock.expectSetPrecinct(precinctSelection);
+  renderScreen();
 
-  // set precinct
+  const selectPrecinct = await screen.findByTestId('selectPrecinct');
   userEvent.selectOptions(selectPrecinct, precinct.id);
-  expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
-    1,
-    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
-  );
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
@@ -141,41 +130,37 @@ test('no option to change precinct if there is only one precinct', async () => {
 test('export from admin screen', () => {
   renderScreen();
 
-  fireEvent.click(screen.getByText('Save Backup'));
+  userEvent.click(screen.getByText('Save Backup'));
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', () => {
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   const usbDrive = mockUsbDrive('absent');
-  const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      unconfigure: unconfigureFn,
       usbDrive,
     },
   });
 
-  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
-  fireEvent.click(screen.getByText('Yes, Delete All'));
-  expect(unconfigureFn).toHaveBeenCalledTimes(1);
+  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
+  userEvent.click(screen.getByText('Yes, Delete All'));
   expect(usbDrive.eject).toHaveBeenCalledTimes(0);
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   const usbDrive = mockUsbDrive('mounted');
-  const unconfigureFn = jest.fn();
   renderScreen({
     electionManagerScreenProps: {
       scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      unconfigure: unconfigureFn,
       usbDrive,
     },
   });
 
-  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
-  fireEvent.click(screen.getByText('Yes, Delete All'));
+  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
+  userEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
-    expect(unconfigureFn).toHaveBeenCalledTimes(1);
     expect(usbDrive.eject).toHaveBeenCalledTimes(1);
   });
 });
@@ -183,42 +168,47 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
 test('unconfigure button is disabled when the machine cannot be unconfigured', () => {
   renderScreen();
 
-  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
+  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
 });
 
 test('cannot toggle to testing mode when the machine cannot be unconfigured', () => {
-  const toggleLiveModeFn = jest.fn();
-  renderScreen({
-    electionManagerScreenProps: { toggleLiveMode: toggleLiveModeFn },
-  });
+  renderScreen();
 
-  fireEvent.click(screen.getByText('Testing Mode'));
-  expect(toggleLiveModeFn).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByText('Cancel'));
+  userEvent.click(screen.getByText('Testing Mode'));
+  screen.getByText('Save Backup to switch to Test Mode');
+  userEvent.click(screen.getByText('Cancel'));
 });
 
-test('Allows overriding mark thresholds', async () => {
-  const setMarkThresholdOverridesFn = jest.fn();
-  renderScreen({
-    electionManagerScreenProps: {
-      setMarkThresholdOverrides: setMarkThresholdOverridesFn,
-    },
-  });
-
-  fireEvent.click(screen.getByText('Override Mark Thresholds'));
-  fireEvent.click(screen.getByText('Proceed to Override Thresholds'));
-  fireEvent.change(screen.getByTestId('definite-text-input'), {
-    target: { value: '.5' },
-  });
-  fireEvent.change(screen.getByTestId('marginal-text-input'), {
-    target: { value: '.25' },
-  });
-  fireEvent.click(screen.getByText('Override Thresholds'));
-  expect(setMarkThresholdOverridesFn).toHaveBeenCalledWith({
+test('allows overriding mark thresholds', async () => {
+  apiMock.expectSetMarkThresholdOverrides({
     definite: 0.5,
     marginal: 0.25,
   });
+  renderScreen();
 
+  userEvent.click(screen.getByText('Override Mark Thresholds'));
+  userEvent.click(screen.getByText('Proceed to Override Thresholds'));
+  userEvent.clear(screen.getByTestId('definite-text-input'));
+  userEvent.type(screen.getByTestId('definite-text-input'), '.5');
+  userEvent.clear(screen.getByTestId('marginal-text-input'));
+  userEvent.type(screen.getByTestId('marginal-text-input'), '.25');
+  userEvent.click(screen.getByText('Override Thresholds'));
   await screen.findByText('Override Mark Thresholds');
+});
+
+test('when sounds are not muted, shows a button to mute sounds', () => {
+  apiMock.mockApiClient.setIsSoundMuted
+    .expectCallWith({ isSoundMuted: true })
+    .resolves();
+  renderScreen();
+  userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
+});
+
+test('when sounds are muted, shows a button to unmute sounds', () => {
+  apiMock.mockApiClient.setIsSoundMuted
+    .expectCallWith({ isSoundMuted: false })
+    .resolves();
+  renderScreen({ appContextProps: { isSoundMuted: true } });
+  userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
 });

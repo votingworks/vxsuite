@@ -1,28 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Text } from '@votingworks/ui';
+import React, { useState } from 'react';
+import { Button, Text, useExternalStateChangeListener } from '@votingworks/ui';
+import { fakeLogger, LogEventId, Logger } from '@votingworks/logging';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { CenteredLargeProse, ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { ExclamationTriangle } from './graphics';
+import { recordBallotBagReplaced } from '../api';
 
 interface Props {
   scannedBallotCount: number;
   pollWorkerAuthenticated: boolean;
-  onComplete: VoidFunction;
+  logger: Logger;
 }
 
 export function ReplaceBallotBagScreen({
   scannedBallotCount,
   pollWorkerAuthenticated,
-  onComplete,
+  logger,
 }: Props): JSX.Element {
+  const recordBallotBagReplacedMutation = recordBallotBagReplaced.useMutation();
   const [confirmed, setConfirmed] = useState(false);
 
-  useEffect(() => {
-    if (confirmed && !pollWorkerAuthenticated) {
-      onComplete();
+  useExternalStateChangeListener(
+    pollWorkerAuthenticated,
+    (newPollWorkerAuthenticated) => {
+      if (confirmed && !newPollWorkerAuthenticated) {
+        recordBallotBagReplacedMutation.mutate(undefined, {
+          onSuccess: async () => {
+            await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
+              disposition: 'success',
+              message:
+                'Poll worker confirmed that they replaced the ballot bag.',
+            });
+          },
+        });
+      }
     }
-  }, [confirmed, pollWorkerAuthenticated, onComplete]);
+  );
 
   const mainContent = (() => {
     if (!confirmed && !pollWorkerAuthenticated) {
@@ -86,7 +100,7 @@ export function BallotBagFullAlertPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated={false}
-      onComplete={() => console.log('disabled')} // eslint-disable-line no-console
+      logger={fakeLogger()}
     />
   );
 }
@@ -96,7 +110,7 @@ export function PollWorkerConfirmationFlowPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated
-      onComplete={() => console.log('disabled')} // eslint-disable-line no-console
+      logger={fakeLogger()}
     />
   );
 }

@@ -61,7 +61,6 @@ function renderScreen({
         <PollWorkerScreen
           scannedBallotCount={0}
           pollsState="polls_closed_initial"
-          updatePollsState={jest.fn()}
           isLiveMode
           hasPrinterAttached={false}
           {...pollWorkerScreenProps}
@@ -119,16 +118,13 @@ describe('shows Livecheck button only when enabled', () => {
 });
 
 describe('transitions from polls closed', () => {
-  let updatePollsState = jest.fn();
   let logger = fakeLogger();
   beforeEach(async () => {
-    updatePollsState = jest.fn();
     logger = fakeLogger();
     renderScreen({
       pollWorkerScreenProps: {
         scannedBallotCount: 0,
         pollsState: 'polls_closed_initial',
-        updatePollsState,
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
@@ -139,10 +135,10 @@ describe('transitions from polls closed', () => {
   });
 
   test('open polls happy path', async () => {
+    apiMock.expectSetPollsState('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
       'poll_worker',
@@ -154,11 +150,11 @@ describe('transitions from polls closed', () => {
   });
 
   test('open polls from landing screen', async () => {
+    apiMock.expectSetPollsState('polls_open');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
       'poll_worker',
@@ -171,16 +167,13 @@ describe('transitions from polls closed', () => {
 });
 
 describe('transitions from polls open', () => {
-  let updatePollsState = jest.fn();
   let logger = fakeLogger();
   beforeEach(async () => {
     logger = fakeLogger();
-    updatePollsState = jest.fn();
     renderScreen({
       pollWorkerScreenProps: {
         scannedBallotCount: 7,
         pollsState: 'polls_open',
-        updatePollsState,
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
@@ -192,10 +185,10 @@ describe('transitions from polls open', () => {
 
   test('close polls happy path', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive();
+    apiMock.expectSetPollsState('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',
@@ -208,11 +201,11 @@ describe('transitions from polls open', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive();
+    apiMock.expectSetPollsState('polls_closed_final');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',
@@ -224,11 +217,11 @@ describe('transitions from polls open', () => {
   });
 
   test('pause voting', async () => {
+    apiMock.expectSetPollsState('polls_paused');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting paused.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_paused');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingPaused,
       'poll_worker',
@@ -241,16 +234,13 @@ describe('transitions from polls open', () => {
 });
 
 describe('transitions from polls paused', () => {
-  let updatePollsState = jest.fn();
   let logger = fakeLogger();
   beforeEach(async () => {
-    updatePollsState = jest.fn();
     logger = fakeLogger();
     renderScreen({
       pollWorkerScreenProps: {
         scannedBallotCount: 7,
         pollsState: 'polls_paused',
-        updatePollsState,
       },
       appContextProps: {
         auth: readableFakePollWorkerAuth(),
@@ -261,10 +251,10 @@ describe('transitions from polls paused', () => {
   });
 
   test('resume voting happy path', async () => {
+    apiMock.expectSetPollsState('polls_open');
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
       'poll_worker',
@@ -276,11 +266,11 @@ describe('transitions from polls paused', () => {
   });
 
   test('resume voting from landing screen', async () => {
+    apiMock.expectSetPollsState('polls_open');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_open');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
       'poll_worker',
@@ -292,12 +282,12 @@ describe('transitions from polls paused', () => {
   });
 
   test('close polls from landing screen', async () => {
+    apiMock.expectSetPollsState('polls_closed_final');
     apiMock.expectExportCastVoteRecordsToUsbDrive();
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(updatePollsState).toHaveBeenLastCalledWith('polls_closed_final');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
       'poll_worker',

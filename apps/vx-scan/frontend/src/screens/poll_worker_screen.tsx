@@ -64,6 +64,7 @@ import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
   getCastVoteRecordsForTally,
+  setPollsState,
 } from '../api';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
@@ -108,7 +109,6 @@ const BallotsAlreadyScannedScreen = (
 export interface PollWorkerScreenProps {
   scannedBallotCount: number;
   pollsState: PollsState;
-  updatePollsState: (newPollsState: PollsState) => void;
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
 }
@@ -116,10 +116,10 @@ export interface PollWorkerScreenProps {
 export function PollWorkerScreen({
   scannedBallotCount,
   pollsState,
-  updatePollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
 }: PollWorkerScreenProps): JSX.Element {
+  const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
   const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
@@ -377,47 +377,52 @@ export function PollWorkerScreen({
     }
   }
 
-  async function exportCvrs(): Promise<void> {
-    assert(electionDefinition);
-    const result = await exportCastVoteRecordsMutation.mutateAsync();
-    if (result.isErr()) {
-      throw new Error(result.err().message);
-    }
-  }
-
   async function transitionPolls(pollsTransition: PollsTransition) {
-    // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
-    // ballots before opening polls, even though this should be an impossible
-    // state in production.
-    if (pollsTransition === 'open_polls' && scannedBallotCount > 0) {
-      setIsShowingBallotsAlreadyScannedScreen(true);
-      await logger.log(LogEventId.PollsOpened, 'poll_worker', {
-        disposition: 'failure',
-        message:
-          'Non-zero ballots scanned count detected upon attempt to open polls.',
-        scannedBallotCount,
-      });
-      return;
-    }
-
-    const timePollsTransitioned = Date.now();
-    setCurrentPollsTransition(pollsTransition);
-    setPollWorkerFlowState('polls_transition_processing');
-    await dispatchReport(pollsTransition, timePollsTransitioned);
-    if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
-      await exportCvrs();
-    }
-    setCurrentPollsTransitionTime(timePollsTransitioned);
-    updatePollsState(getPollsTransitionDestinationState(pollsTransition));
-    await logger.log(
-      getLogEventIdForPollsTransition(pollsTransition),
-      'poll_worker',
-      {
-        disposition: 'success',
-        scannedBallotCount,
+    try {
+      // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
+      // ballots before opening polls, even though this should be an impossible
+      // state in production.
+      if (pollsTransition === 'open_polls' && scannedBallotCount > 0) {
+        setIsShowingBallotsAlreadyScannedScreen(true);
+        await logger.log(LogEventId.PollsOpened, 'poll_worker', {
+          disposition: 'failure',
+          message:
+            'Non-zero ballots scanned count detected upon attempt to open polls.',
+          scannedBallotCount,
+        });
+        return;
       }
-    );
-    setPollWorkerFlowState('polls_transition_complete');
+
+      const timePollsTransitioned = Date.now();
+      setCurrentPollsTransition(pollsTransition);
+      setPollWorkerFlowState('polls_transition_processing');
+      await dispatchReport(pollsTransition, timePollsTransitioned);
+      if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
+        (await exportCastVoteRecordsMutation.mutateAsync()).unsafeUnwrap();
+      }
+      setCurrentPollsTransitionTime(timePollsTransitioned);
+      await setPollsStateMutation.mutateAsync({
+        pollsState: getPollsTransitionDestinationState(pollsTransition),
+      });
+      await logger.log(
+        getLogEventIdForPollsTransition(pollsTransition),
+        'poll_worker',
+        {
+          disposition: 'success',
+          scannedBallotCount,
+        }
+      );
+      setPollWorkerFlowState('polls_transition_complete');
+    } catch (error) {
+      await logger.log(
+        getLogEventIdForPollsTransition(pollsTransition),
+        'poll_worker',
+        {
+          disposition: 'failure',
+          error: (error as Error).message,
+        }
+      );
+    }
   }
 
   function openPolls() {

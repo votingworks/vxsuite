@@ -1,9 +1,4 @@
-import {
-  MarkThresholds,
-  ok,
-  PrecinctSelection,
-  PollsState,
-} from '@votingworks/types';
+import { ok, PollsState } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -17,7 +12,7 @@ import {
   ChangePrecinctButton,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Logger, LogSource } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
@@ -29,6 +24,12 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import {
+  setIsSoundMuted,
+  setPrecinctSelection,
+  setTestMode,
+  unconfigureElection,
+} from '../api';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -36,11 +37,6 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   pollsState: PollsState;
-  updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
-  toggleLiveMode(): Promise<void>;
-  toggleIsSoundMuted(): void;
-  unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
 }
 
@@ -48,13 +44,12 @@ export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
   pollsState,
-  updatePrecinctSelection,
-  toggleLiveMode,
-  toggleIsSoundMuted,
-  setMarkThresholdOverrides,
-  unconfigure,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element {
+  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
+  const setTestModeMutation = setTestMode.useMutation();
+  const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
+  const unconfigureMutation = unconfigureElection.useMutation();
   const {
     electionDefinition,
     precinctSelection,
@@ -68,67 +63,35 @@ export function ElectionManagerScreen({
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [
-    isShowingToggleLiveModeWarningModal,
-    setIsShowingToggleLiveModeWarningModal,
+    isShowingToggleTestModeWarningModal,
+    setIsShowingToggleTestModeWarningModal,
   ] = useState(false);
-  const openToggleLiveModeWarningModal = useCallback(
-    () => setIsShowingToggleLiveModeWarningModal(true),
-    []
-  );
-  const closeToggleLiveModeWarningModal = useCallback(
-    () => setIsShowingToggleLiveModeWarningModal(false),
-    []
-  );
 
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
-  const openConfirmUnconfigureModal = useCallback(
-    () => setConfirmUnconfigure(true),
-    []
-  );
-  const closeConfirmUnconfigureModal = useCallback(
-    () => setConfirmUnconfigure(false),
-    []
-  );
   const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
-  const openCalibrateScannerModal = useCallback(
-    () => setIsCalibratingScanner(true),
-    []
-  );
-  const closeCalibrateScannerModal = useCallback(
-    () => setIsCalibratingScanner(false),
-    []
-  );
-
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
-  async function handleTogglingLiveMode() {
+  function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
-      openToggleLiveModeWarningModal();
+      setIsShowingToggleTestModeWarningModal(true);
     } else {
-      setIsLoading(true);
-      const minimumDelay = new Promise((resolve) => {
-        setTimeout(resolve, 2000);
-      });
-      await toggleLiveMode();
-      await minimumDelay;
-      setIsLoading(false);
+      setTestModeMutation.mutate({ isTestMode: !isTestMode });
     }
   }
 
+  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
   async function handleUnconfigure() {
-    setIsLoading(true);
+    setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === 'mounted') {
       await usbDrive.eject(userRole);
     }
-    await unconfigure();
+    unconfigureMutation.mutate({});
   }
 
   return (
@@ -138,7 +101,15 @@ export function ElectionManagerScreen({
         {election.precincts.length > 1 && (
           <ChangePrecinctButton
             appPrecinctSelection={precinctSelection}
-            updatePrecinctSelection={updatePrecinctSelection}
+            updatePrecinctSelection={async (newPrecinctSelection) => {
+              try {
+                await setPrecinctSelectionMutation.mutateAsync({
+                  precinctSelection: newPrecinctSelection,
+                });
+              } catch (error) {
+                // Handled by default query client error handling
+              }
+            }}
             election={election}
             mode={
               pollsState === 'polls_closed_initial'
@@ -155,15 +126,15 @@ export function ElectionManagerScreen({
           <SegmentedButton>
             <Button
               large
-              onPress={handleTogglingLiveMode}
-              disabled={isTestMode}
+              onPress={handleTogglingTestMode}
+              disabled={isTestMode || setTestModeMutation.isLoading}
             >
               Testing Mode
             </Button>
             <Button
               large
-              onPress={handleTogglingLiveMode}
-              disabled={!isTestMode}
+              onPress={handleTogglingTestMode}
+              disabled={!isTestMode || setTestModeMutation.isLoading}
             >
               Live Election Mode
             </Button>
@@ -191,10 +162,18 @@ export function ElectionManagerScreen({
           </Button>
         </p>
         <p>
-          <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
+          <Button onPress={() => setIsCalibratingScanner(true)}>
+            Calibrate Scanner
+          </Button>
         </p>
         <p>
-          <Button onPress={toggleIsSoundMuted}>
+          <Button
+            onPress={() =>
+              setIsSoundMutedMutation.mutate({
+                isSoundMuted: !isSoundMuted,
+              })
+            }
+          >
             {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
           </Button>
         </p>
@@ -203,7 +182,7 @@ export function ElectionManagerScreen({
             disabled={!scannerStatus.canUnconfigure}
             danger
             small
-            onPress={openConfirmUnconfigureModal}
+            onPress={() => setConfirmUnconfigure(true)}
           >
             <span role="img" aria-label="Warning">
               ⚠️
@@ -221,13 +200,12 @@ export function ElectionManagerScreen({
       <ScannedBallotCount count={scannerStatus.ballotsCounted} />
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
-          setMarkThresholdOverrides={setMarkThresholdOverrides}
           markThresholds={electionDefinition.election.markThresholds}
           markThresholdOverrides={markThresholdOverrides}
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
-      {isShowingToggleLiveModeWarningModal && (
+      {isShowingToggleTestModeWarningModal && (
         <Modal
           content={
             <Prose>
@@ -243,47 +221,59 @@ export function ElectionManagerScreen({
               <Button
                 primary
                 onPress={() => {
-                  closeToggleLiveModeWarningModal();
+                  setIsShowingToggleTestModeWarningModal(false);
                   setIsExportingBackup(true);
                 }}
               >
                 Save Backup
               </Button>
-              <Button onPress={closeToggleLiveModeWarningModal}>Cancel</Button>
+              <Button
+                onPress={() => setIsShowingToggleTestModeWarningModal(false)}
+              >
+                Cancel
+              </Button>
             </React.Fragment>
           }
-          onOverlayClick={closeToggleLiveModeWarningModal}
+          onOverlayClick={() => setIsShowingToggleTestModeWarningModal(false)}
         />
       )}
       {confirmUnconfigure && (
         <Modal
           content={
-            <Prose>
-              <h1>Delete All Election Data?</h1>
-              <p>
-                Do you want to remove all election information and data from
-                this machine?
-              </p>
-            </Prose>
+            isUnconfiguring ? (
+              <Loading />
+            ) : (
+              <Prose>
+                <h1>Delete All Election Data?</h1>
+                <p>
+                  Do you want to remove all election information and data from
+                  this machine?
+                </p>
+              </Prose>
+            )
           }
           actions={
-            <React.Fragment>
-              <Button danger onPress={handleUnconfigure}>
-                Yes, Delete All
-              </Button>
-              <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
-            </React.Fragment>
+            !isUnconfiguring && (
+              <React.Fragment>
+                <Button danger onPress={handleUnconfigure}>
+                  Yes, Delete All
+                </Button>
+                <Button onPress={() => setConfirmUnconfigure(false)}>
+                  Cancel
+                </Button>
+              </React.Fragment>
+            )
           }
-          onOverlayClick={closeConfirmUnconfigureModal}
+          onOverlayClick={() => setConfirmUnconfigure(false)}
         />
       )}
+
       {isCalibratingScanner && (
         <CalibrateScannerModal
           scannerStatus={scannerStatus}
-          onCancel={closeCalibrateScannerModal}
+          onCancel={() => setIsCalibratingScanner(false)}
         />
       )}
-      {isLoading && <Modal content={<Loading />} />}
       {isExportingResults && (
         <ExportResultsModal
           onClose={() => setIsExportingResults(false)}
@@ -303,19 +293,15 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
-  const [isTestMode, setIsTestMode] = useState(false);
-  const [isSoundMuted, setIsSoundMuted] = useState(false);
-  const [precinctSelection, setPrecinctSelection] =
-    useState<PrecinctSelection>();
   assert(electionDefinition);
   return (
     <AppContext.Provider
       value={{
         machineConfig,
         electionDefinition,
-        precinctSelection,
+        precinctSelection: undefined,
         markThresholdOverrides: undefined,
-        isSoundMuted,
+        isSoundMuted: false,
         auth: {
           status: 'logged_in',
           user: {
@@ -341,17 +327,8 @@ export function DefaultPreview(): JSX.Element {
           ballotsCounted: 1234,
           canUnconfigure: true,
         }}
-        isTestMode={isTestMode}
+        isTestMode={false}
         pollsState="polls_closed_initial"
-        // eslint-disable-next-line @typescript-eslint/require-await
-        toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
-        toggleIsSoundMuted={() => setIsSoundMuted((prev) => !prev)}
-        unconfigure={() => Promise.resolve()}
-        setMarkThresholdOverrides={() => Promise.resolve()}
-        // eslint-disable-next-line @typescript-eslint/require-await
-        updatePrecinctSelection={async (newPrecinctSelection) =>
-          setPrecinctSelection(newPrecinctSelection)
-        }
         usbDrive={mockUsbDrive('absent')}
       />
     </AppContext.Provider>

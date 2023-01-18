@@ -54,14 +54,14 @@ describe('mockFunction', () => {
       "Mismatched call to mock function:
       Expected: add(1, 2)
       Actual: add(1, 3)
-      Input diff: \u001b[32m- Expected\u001b[39m
-      \u001b[31m+ Received\u001b[39m
+      Input diff: [32m- Expected[39m
+      [31m+ Received[39m
 
-      \u001b[2m  Array [\u001b[22m
-      \u001b[2m    1,\u001b[22m
-      \u001b[32m-   3,\u001b[39m
-      \u001b[31m+   2,\u001b[39m
-      \u001b[2m  ]\u001b[22m"
+      [2m  Array [[22m
+      [2m    1,[22m
+      [32m-   2,[39m
+      [31m+   3,[39m
+      [2m  ][22m"
     `);
   });
 
@@ -100,24 +100,24 @@ describe('mockFunction', () => {
       "Mismatched call to mock function:
       Expected: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])
       Actual: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'wrong' }, [ 1, 2 ])
-      Input diff: \u001b[32m- Expected\u001b[39m
-      \u001b[31m+ Received\u001b[39m
+      Input diff: [32m- Expected[39m
+      [31m+ Received[39m
 
-      \u001b[2m  Array [\u001b[22m
-      \u001b[2m    \\"a\\",\u001b[22m
-      \u001b[2m    1,\u001b[22m
-      \u001b[2m    true,\u001b[22m
-      \u001b[2m    null,\u001b[22m
-      \u001b[2m    undefined,\u001b[22m
-      \u001b[2m    Object {\u001b[22m
-      \u001b[32m-     \\"foo\\": \\"wrong\\",\u001b[39m
-      \u001b[31m+     \\"foo\\": \\"bar\\",\u001b[39m
-      \u001b[2m    },\u001b[22m
-      \u001b[2m    Array [\u001b[22m
-      \u001b[2m      1,\u001b[22m
-      \u001b[2m      2,\u001b[22m
-      \u001b[2m    ],\u001b[22m
-      \u001b[2m  ]\u001b[22m"
+      [2m  Array [[22m
+      [2m    \\"a\\",[22m
+      [2m    1,[22m
+      [2m    true,[22m
+      [2m    null,[22m
+      [2m    undefined,[22m
+      [2m    Object {[22m
+      [32m-     \\"foo\\": \\"bar\\",[39m
+      [31m+     \\"foo\\": \\"wrong\\",[39m
+      [2m    },[22m
+      [2m    Array [[22m
+      [2m      1,[22m
+      [2m      2,[22m
+      [2m    ],[22m
+      [2m  ][22m"
     `);
   });
 
@@ -196,26 +196,26 @@ describe('mockFunction', () => {
       Call #0
       Expected: add(1, 2)
       Actual: add(1, 3)
-      Input diff: \u001b[32m- Expected\u001b[39m
-      \u001b[31m+ Received\u001b[39m
+      Input diff: [32m- Expected[39m
+      [31m+ Received[39m
 
-      \u001b[2m  Array [\u001b[22m
-      \u001b[2m    1,\u001b[22m
-      \u001b[32m-   3,\u001b[39m
-      \u001b[31m+   2,\u001b[39m
-      \u001b[2m  ]\u001b[22m
+      [2m  Array [[22m
+      [2m    1,[22m
+      [32m-   2,[39m
+      [31m+   3,[39m
+      [2m  ][22m
 
       Call #1
       Expected: add(1, 3)
       Actual: add(1, 2)
-      Input diff: \u001b[32m- Expected\u001b[39m
-      \u001b[31m+ Received\u001b[39m
+      Input diff: [32m- Expected[39m
+      [31m+ Received[39m
 
-      \u001b[2m  Array [\u001b[22m
-      \u001b[2m    1,\u001b[22m
-      \u001b[32m-   2,\u001b[39m
-      \u001b[31m+   3,\u001b[39m
-      \u001b[2m  ]\u001b[22m"
+      [2m  Array [[22m
+      [2m    1,[22m
+      [32m-   3,[39m
+      [31m+   2,[39m
+      [2m  ][22m"
     `);
   });
 

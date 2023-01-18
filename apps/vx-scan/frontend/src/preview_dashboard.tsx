@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { Prose, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from './contexts/app_context';
@@ -119,32 +119,29 @@ export function PreviewDashboard({
   );
   const electionDefinitionFileRef = useRef<HTMLInputElement>(null);
 
-  const onElectionDefinitionSelected: React.ChangeEventHandler<HTMLSelectElement> =
-    useCallback(
-      (event) => {
-        const { value } = event.target.selectedOptions[0];
-        if (value === 'custom') {
-          electionDefinitionFileRef.current?.click();
-        } else {
-          setElectionDefinition(
-            electionDefinitions[event.target.selectedIndex]
-          );
-        }
-      },
-      [electionDefinitions, electionDefinitionFileRef]
-    );
-  const onElectionDefinitionFileChosen: React.ChangeEventHandler<HTMLInputElement> =
-    useCallback(async (event) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        const json = await file.text();
-        const result = safeParseElectionDefinition(json);
-        if (result.isOk()) {
-          setElectionDefinitions((prev) => [...prev, result.ok()]);
-          setElectionDefinition(result.ok());
-        }
+  const onElectionDefinitionSelected: React.ChangeEventHandler<
+    HTMLSelectElement
+  > = (event) => {
+    const { value } = event.target.selectedOptions[0];
+    if (value === 'custom') {
+      electionDefinitionFileRef.current?.click();
+    } else {
+      setElectionDefinition(electionDefinitions[event.target.selectedIndex]);
+    }
+  };
+  const onElectionDefinitionFileChosen: React.ChangeEventHandler<
+    HTMLInputElement
+  > = async (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const json = await file.text();
+      const result = safeParseElectionDefinition(json);
+      if (result.isOk()) {
+        setElectionDefinitions((prev) => [...prev, result.ok()]);
+        setElectionDefinition(result.ok());
       }
-    }, []);
+    }
+  };
 
   return (
     <AppContext.Provider

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import {
@@ -63,17 +64,26 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('when backend does not respond shows loading screen', async () => {
+test('when backend does not respond shows error screen', async () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
   apiMock.mockApiClient.getConfig
     .expectCallWith()
     .throws(new ServerError('not responding'));
   apiMock.expectGetScannerStatus(statusNoPaper);
 
   renderApp();
-  await screen.findByText('Loading Configuration…');
+  await screen.findByText('Something went wrong');
+  expect(console.error).toHaveBeenCalled();
+
+  console.error = originalConsoleError;
 });
 
 test('backend fails to unconfigure', async () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
   apiMock.mockApiClient.unconfigureElection
@@ -93,7 +103,10 @@ test('backend fails to unconfigure', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
 
-  await screen.findByText('Loading');
+  await screen.findByText('Something went wrong');
+  expect(console.error).toHaveBeenCalled();
+
+  console.error = originalConsoleError;
 });
 
 test('Show invalid card screen when unsupported cards are given', async () => {
@@ -206,7 +219,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper, 7);
   const { card } = renderApp({ hardware });
   apiMock.expectGetCastVoteRecordsForTally([]);
   await screen.findByText('Polls Closed');
@@ -236,7 +249,6 @@ test('App shows warning message to connect to power when disconnected', async ()
   // Remove pollworker card
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
-  return;
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning

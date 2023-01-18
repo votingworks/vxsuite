@@ -61,7 +61,7 @@ function formatExpectedAndActualCalls(
     expectedCall &&
     actualCall &&
     !deepEqual(actualCall.input, expectedCall.input)
-      ? diff(actualCall.input, expectedCall.input)
+      ? diff(expectedCall.input, actualCall.input)
       : undefined;
   return [`Expected: ${expectedStr}`, `Actual: ${actualStr}`]
     .concat(diffStr ? [`Input diff: ${diffStr}`] : [])

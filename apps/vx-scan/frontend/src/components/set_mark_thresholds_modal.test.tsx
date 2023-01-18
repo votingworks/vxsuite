@@ -1,171 +1,125 @@
 import React from 'react';
-
-import {
-  render,
-  fireEvent,
-  getByText as domGetByText,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
+import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  SetMarkThresholdsModal,
+  SetMarkThresholdsModalProps,
+} from './set_mark_thresholds_modal';
+import { createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiClientContext, queryClientDefaultOptions } from '../api';
 
-import { SetMarkThresholdsModal } from './set_mark_thresholds_modal';
+const apiMock = createApiMock();
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
+function renderModal(props?: Partial<SetMarkThresholdsModalProps>) {
+  return render(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        <SetMarkThresholdsModal
+          onClose={jest.fn()}
+          markThresholds={electionSample.markThresholds}
+          markThresholdOverrides={undefined}
+          {...props}
+        />
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
+  );
+}
 
 test('renders warning message before allowing overrides to be set', () => {
-  const closeFn = jest.fn();
-  const { getByText } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={undefined}
-      setMarkThresholdOverrides={jest.fn()}
-    />
-  );
-  getByText('Override Mark Thresholds');
-  getByText(/WARNING: Do not proceed/);
-  fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
+  const onClose = jest.fn();
+  renderModal({ onClose });
+  screen.getByText('Override Mark Thresholds');
+  screen.getByText(/WARNING: Do not proceed/);
+  userEvent.click(screen.getByText('Close'));
+  expect(onClose).toHaveBeenCalled();
 });
 
 test('renders reset modal when overrides are set', async () => {
-  const closeFn = jest.fn();
-  const setMarkThresholdOverrides = jest.fn().mockResolvedValueOnce('');
-  const { getByText } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={{ definite: 0.32, marginal: 0.24 }}
-      setMarkThresholdOverrides={setMarkThresholdOverrides}
-    />
-  );
-  getByText('Reset Mark Thresholds');
-  const currentThresholds = getByText('Current Thresholds');
-  domGetByText(currentThresholds, /Definite: 0.32/);
-  domGetByText(currentThresholds, /Marginal: 0.24/);
-
-  const defaultThresholds = getByText('Default Thresholds');
-  domGetByText(defaultThresholds, /Definite: 0.25/);
-  domGetByText(defaultThresholds, /Marginal: 0.17/);
-
-  fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
-
-  fireEvent.click(getByText('Reset Thresholds'));
-  expect(setMarkThresholdOverrides).toHaveBeenCalledWith(undefined);
-  await waitFor(() => {
-    expect(closeFn).toHaveBeenCalledTimes(2);
+  apiMock.expectSetMarkThresholdOverrides(undefined);
+  const onClose = jest.fn();
+  renderModal({
+    onClose,
+    markThresholdOverrides: { definite: 0.32, marginal: 0.24 },
   });
-});
+  screen.getByText('Reset Mark Thresholds');
+  const currentThresholds = screen.getByText('Current Thresholds');
+  within(currentThresholds).getByText(/Definite: 0.32/);
+  within(currentThresholds).getByText(/Marginal: 0.24/);
 
-test('reset modal displays errors appropriately', async () => {
-  const closeFn = jest.fn();
-  const setMarkThresholdOverrides = jest
-    .fn()
-    .mockRejectedValueOnce(new Error('Hakuna Matata'));
-  const { getByText } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={{ definite: 0.32, marginal: 0.24 }}
-      setMarkThresholdOverrides={setMarkThresholdOverrides}
-    />
-  );
-  getByText('Reset Mark Thresholds');
-  fireEvent.click(getByText('Reset Thresholds'));
-  expect(setMarkThresholdOverrides).toHaveBeenCalledWith(undefined);
+  const defaultThresholds = screen.getByText('Default Thresholds');
+  within(defaultThresholds).getByText(/Definite: 0.25/);
+  within(defaultThresholds).getByText(/Marginal: 0.17/);
+
+  userEvent.click(screen.getByText('Close'));
+  expect(onClose).toHaveBeenCalled();
+
+  userEvent.click(screen.getByText('Reset Thresholds'));
   await waitFor(() => {
-    getByText('Error');
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
-  getByText(/Hakuna Matata/);
-  fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalledTimes(1);
 });
 
 test('allows users to set thresholds properly', async () => {
-  const closeFn = jest.fn();
-  const setThresholds = jest.fn();
-  const { getByText, getByTestId } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={undefined}
-      setMarkThresholdOverrides={setThresholds}
-    />
-  );
-  getByText('Override Mark Thresholds');
-  getByText(/WARNING: Do not proceed/);
-  fireEvent.click(getByText('Proceed to Override Thresholds'));
-
-  const definiteInput = getByTestId('definite-text-input').closest('input')!;
-  expect(definiteInput.value).toEqual('0.25');
-  fireEvent.change(definiteInput, { target: { value: '0.12' } });
-  expect(definiteInput.value).toEqual('0.12');
-
-  const marginalInput = getByTestId('marginal-text-input').closest('input')!;
-  expect(marginalInput.value).toEqual('0.17');
-  fireEvent.change(marginalInput, { target: { value: '0.21' } });
-  expect(marginalInput.value).toEqual('0.21');
-
-  fireEvent.click(getByText('Override Thresholds'));
-  expect(setThresholds).toHaveBeenCalledWith({
+  const onClose = jest.fn();
+  apiMock.expectSetMarkThresholdOverrides({
     definite: 0.12,
     marginal: 0.21,
   });
+  renderModal({ onClose });
+  screen.getByText('Override Mark Thresholds');
+  screen.getByText(/WARNING: Do not proceed/);
+  userEvent.click(screen.getByText('Proceed to Override Thresholds'));
+
+  const definiteInput = screen
+    .getByTestId('definite-text-input')
+    .closest('input')!;
+  expect(definiteInput.value).toEqual('0.25');
+  userEvent.clear(definiteInput);
+  userEvent.type(definiteInput, '0.12');
+  expect(definiteInput.value).toEqual('0.12');
+
+  const marginalInput = screen
+    .getByTestId('marginal-text-input')
+    .closest('input')!;
+  expect(marginalInput.value).toEqual('0.17');
+  userEvent.clear(marginalInput);
+  userEvent.type(marginalInput, '0.21');
+  expect(marginalInput.value).toEqual('0.21');
+
+  userEvent.click(screen.getByText('Override Thresholds'));
   await waitFor(() => {
-    expect(closeFn).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
 
 test('setting thresholds renders an error if given a number greater than 1', () => {
-  const closeFn = jest.fn();
-  const setThresholds = jest.fn();
-  const { getByText, getByTestId } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={undefined}
-      setMarkThresholdOverrides={setThresholds}
-    />
-  );
-  getByText('Override Mark Thresholds');
-  getByText(/WARNING: Do not proceed/);
-  fireEvent.click(getByText('Proceed to Override Thresholds'));
+  const onClose = jest.fn();
+  renderModal();
+  screen.getByText('Override Mark Thresholds');
+  screen.getByText(/WARNING: Do not proceed/);
+  userEvent.click(screen.getByText('Proceed to Override Thresholds'));
 
-  const definiteInput = getByTestId('definite-text-input').closest('input')!;
-  fireEvent.change(definiteInput, { target: { value: '314' } });
+  const definiteInput = screen
+    .getByTestId('definite-text-input')
+    .closest('input')!;
+  userEvent.clear(definiteInput);
+  userEvent.type(definiteInput, '314');
   expect(definiteInput.value).toEqual('314');
 
-  fireEvent.click(getByText('Override Thresholds'));
-  getByText('Error');
-  getByText(/Inputted definite threshold invalid: 314./);
-  expect(setThresholds).toHaveBeenCalledTimes(0);
-  expect(closeFn).toHaveBeenCalledTimes(0);
-});
-
-test('setting thresholds renders an error if saving throws an error', async () => {
-  const closeFn = jest.fn();
-  const setThresholds = jest
-    .fn()
-    .mockRejectedValueOnce(new Error('Hakuna Matata'));
-  const { getByText } = render(
-    <SetMarkThresholdsModal
-      onClose={closeFn}
-      markThresholds={electionSample.markThresholds}
-      markThresholdOverrides={undefined}
-      setMarkThresholdOverrides={setThresholds}
-    />
-  );
-  getByText('Override Mark Thresholds');
-  getByText(/WARNING: Do not proceed/);
-  fireEvent.click(getByText('Proceed to Override Thresholds'));
-
-  fireEvent.click(getByText('Override Thresholds'));
-  await waitFor(() => {
-    getByText('Error');
-  });
-  getByText(/Hakuna Matata/);
-  expect(setThresholds).toHaveBeenCalledTimes(1);
-  expect(closeFn).toHaveBeenCalledTimes(0);
-
-  fireEvent.click(getByText('Close'));
-  expect(closeFn).toHaveBeenCalledTimes(1);
+  userEvent.click(screen.getByText('Override Thresholds'));
+  screen.getByText('Error');
+  screen.getByText(/Inputted definite threshold invalid: 314./);
+  expect(onClose).toHaveBeenCalledTimes(0);
 });
