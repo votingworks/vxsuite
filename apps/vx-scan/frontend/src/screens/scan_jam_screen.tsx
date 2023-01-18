@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Text } from '@votingworks/ui';
 import { TimesCircle } from '../components/graphics';
 import {
@@ -6,16 +6,12 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
-import { useSound } from '../hooks/use_sound';
 
 interface Props {
   scannedBallotCount: number;
 }
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
-  const playError = useSound('error');
-  useEffect(playError, [playError]);
-
   return (
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />

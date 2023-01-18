@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -35,7 +35,6 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
-import { useSound } from '../hooks/use_sound';
 import { acceptBallot, returnBallot } from '../api';
 
 const ResponsiveButtonParagraph = styled.p`
@@ -361,9 +360,6 @@ export interface Props {
 export function ScanWarningScreen({
   adjudicationReasonInfo,
 }: Props): JSX.Element {
-  const playWarning = useSound('warning');
-  useEffect(playWarning, [playWarning]);
-
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 

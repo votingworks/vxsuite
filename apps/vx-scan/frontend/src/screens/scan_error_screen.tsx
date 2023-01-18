@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -12,7 +12,6 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
-import { useSound } from '../hooks/use_sound';
 
 interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
@@ -27,9 +26,6 @@ export function ScanErrorScreen({
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
-  const playError = useSound('error');
-  useEffect(playError, [playError]);
-
   const errorMessage = (() => {
     if (!error) return undefined;
     switch (error) {
