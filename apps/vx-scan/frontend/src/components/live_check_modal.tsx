@@ -1,13 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import {
-  Button,
-  Prose,
-  Modal,
-  QrCode,
-  isElectionManagerAuth,
-  isPollWorkerAuth,
-} from '@votingworks/ui';
+import { Button, Prose, Modal, QrCode } from '@votingworks/ui';
 
 import { assert } from '@votingworks/utils';
 
@@ -30,9 +23,8 @@ export function LiveCheckModal({
   onClose,
 }: Props): JSX.Element {
   const [livecheckUrl, setLivecheckUrl] = useState('');
-  const { machineConfig, auth } = useContext(AppContext);
+  const { machineConfig } = useContext(AppContext);
   assert(machineConfig);
-  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
 
   useEffect(() => {
     void (async () => {

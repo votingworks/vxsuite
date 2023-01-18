@@ -1,7 +1,6 @@
 import { render, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
-import { Inserted } from '@votingworks/test-utils';
 import React from 'react';
 import {
   AppContext,
@@ -18,7 +17,6 @@ export function renderInAppContext(
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        auth: Inserted.fakeLoggedOutAuth(),
         logger: new Logger(LogSource.VxScanFrontend),
         ...context,
       }}

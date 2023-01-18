@@ -11,7 +11,7 @@ import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { fakeKiosk, Inserted } from '@votingworks/test-utils';
+import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -51,7 +51,6 @@ function renderScreen({
   electionManagerScreenProps?: Partial<ElectionManagerScreenProps>;
 } = {}): RenderResult {
   const electionManagerScreenAppContextProps: Partial<AppContextInterface> = {
-    auth: Inserted.fakeElectionManagerAuth(),
     ...appContextProps,
   };
   return renderInAppContext(

@@ -1,7 +1,6 @@
 import {
   ElectionDefinition,
   MarkThresholds,
-  ok,
   PollsState,
 } from '@votingworks/types';
 import {
@@ -13,10 +12,8 @@ import {
   SegmentedButton,
   SetClockButton,
   UsbDrive,
-  isElectionManagerAuth,
   ChangePrecinctButton,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
 import React, { useContext, useState } from 'react';
 import { Logger, LogSource } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -62,10 +59,8 @@ export function ElectionManagerScreen({
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const { precinctSelection, auth, logger } = useContext(AppContext);
+  const { precinctSelection, logger } = useContext(AppContext);
   const { election } = electionDefinition;
-  assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -93,7 +88,7 @@ export function ElectionManagerScreen({
     setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === 'mounted') {
-      await usbDrive.eject(userRole);
+      await usbDrive.eject('election_manager');
     }
     unconfigureMutation.mutate({});
   }
@@ -304,22 +299,6 @@ export function DefaultPreview(): JSX.Element {
         machineConfig,
         electionDefinition,
         precinctSelection: undefined,
-        auth: {
-          status: 'logged_in',
-          user: {
-            role: 'election_manager',
-            electionHash: electionDefinition.electionHash,
-            passcode: '000000',
-          },
-          card: {
-            hasStoredData: false,
-            readStoredObject: () => Promise.resolve(ok(undefined)),
-            readStoredString: () => Promise.resolve(ok(undefined)),
-            readStoredUint8Array: () => Promise.resolve(ok(new Uint8Array())),
-            writeStoredData: () => Promise.resolve(ok()),
-            clearStoredData: () => Promise.resolve(ok()),
-          },
-        },
         logger: new Logger(LogSource.VxScanFrontend),
       }}
     >

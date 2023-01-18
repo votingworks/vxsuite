@@ -1,17 +1,14 @@
 import {
   Button,
-  isElectionManagerAuth,
-  isPollWorkerAuth,
   Loading,
   Modal,
   Prose,
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
-import React, { useContext, useState } from 'react';
+import { throwIllegalValue, usbstick } from '@votingworks/utils';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
 import { backupToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
@@ -40,10 +37,6 @@ export function ExportBackupModal({
   const backupToUsbDriveMutation = backupToUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const { auth } = useContext(AppContext);
-  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
-  const userRole = auth.user.role;
 
   async function exportBackup() {
     setCurrentState(ModalState.SAVING);
@@ -115,7 +108,7 @@ export function ExportBackupModal({
               small={false}
               primary
               usbDriveStatus={usbDrive.status}
-              usbDriveEject={() => usbDrive.eject(userRole)}
+              usbDriveEject={() => usbDrive.eject('election_manager')}
             />
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>

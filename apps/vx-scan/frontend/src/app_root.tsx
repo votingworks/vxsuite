@@ -172,7 +172,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           electionDefinition,
           precinctSelection,
           machineConfig,
-          auth,
           logger,
         }}
       >
@@ -214,7 +213,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         value={{
           precinctSelection,
           machineConfig,
-          auth,
           logger,
         }}
       >
@@ -224,6 +222,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           pollsState={pollsState}
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
+          auth={auth}
         />
       </AppContext.Provider>
     );
@@ -243,7 +242,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
           electionDefinition,
           precinctSelection,
           machineConfig,
-          auth,
           logger,
         }}
       >
@@ -263,7 +261,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         electionDefinition,
         precinctSelection,
         machineConfig,
-        auth,
         logger,
       }}
     >

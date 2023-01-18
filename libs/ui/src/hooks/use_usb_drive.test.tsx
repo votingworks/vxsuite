@@ -46,7 +46,7 @@ test('full lifecycle with USBControllerButton', async () => {
     return (
       <UsbControllerButton
         usbDriveStatus={usbDrive.status}
-        usbDriveEject={() => usbDrive.eject('admin')}
+        usbDriveEject={() => usbDrive.eject('election_manager')}
       />
     );
   }
@@ -101,12 +101,12 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(logger.log).toHaveBeenNthCalledWith(
     4,
     LogEventId.UsbDriveEjectInit,
-    'admin'
+    'election_manager'
   );
   expect(logger.log).toHaveBeenNthCalledWith(
     5,
     LogEventId.UsbDriveEjected,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -169,7 +169,7 @@ describe('removing USB in any unexpected states still resets to absent', () => {
     });
 
     await act(async () => {
-      const ejectPromise = result.current.eject('pollworker');
+      const ejectPromise = result.current.eject('poll_worker');
       await waitFor(() => {
         expect(result.current.status).toEqual('ejecting');
       });
@@ -226,7 +226,7 @@ test('error in ejecting gets logged as expected', async () => {
   expect(mockKiosk.mountUsbDrive).not.toHaveBeenCalled();
 
   await act(async () => {
-    const ejectPromise = result.current.eject('pollworker');
+    const ejectPromise = result.current.eject('poll_worker');
     await waitFor(() => {
       expect(result.current.status).toEqual('ejecting');
     });
@@ -236,7 +236,7 @@ test('error in ejecting gets logged as expected', async () => {
   expect(result.current.status).toEqual('mounted');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.UsbDriveEjected,
-    'pollworker',
+    'poll_worker',
     expect.objectContaining({
       disposition: 'failure',
       error: 'like pieces into place',

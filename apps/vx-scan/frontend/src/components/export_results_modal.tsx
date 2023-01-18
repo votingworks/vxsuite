@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -8,11 +8,8 @@ import {
   Modal,
   UsbControllerButton,
   UsbDrive,
-  isElectionManagerAuth,
-  isPollWorkerAuth,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue } from '@votingworks/utils';
-import { AppContext } from '../contexts/app_context';
+import { throwIllegalValue } from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
@@ -39,10 +36,6 @@ export function ExportResultsModal({
   const exportMutation = exportCastVoteRecordsToUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const { auth } = useContext(AppContext);
-  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
-  const userRole = auth.user.role;
 
   function exportResults() {
     setCurrentState(ModalState.SAVING);
@@ -107,7 +100,7 @@ export function ExportResultsModal({
               small={false}
               primary
               usbDriveStatus={usbDrive.status}
-              usbDriveEject={() => usbDrive.eject(userRole)}
+              usbDriveEject={() => usbDrive.eject('election_manager')}
             />
           </React.Fragment>
         }

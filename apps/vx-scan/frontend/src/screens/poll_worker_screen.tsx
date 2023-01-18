@@ -4,7 +4,6 @@ import {
   Button,
   Prose,
   Loading,
-  isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   fontSizeTheme,
   PrecinctScannerTallyReports,
@@ -113,6 +112,7 @@ export interface PollWorkerScreenProps {
   pollsState: PollsState;
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
+  auth: InsertedSmartcardAuth.PollWorkerLoggedIn;
 }
 
 export function PollWorkerScreen({
@@ -121,14 +121,13 @@ export function PollWorkerScreen({
   pollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
+  auth,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { precinctSelection, machineConfig, auth, logger } =
-    useContext(AppContext);
+  const { precinctSelection, machineConfig, logger } = useContext(AppContext);
   assert(precinctSelection);
-  assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -208,7 +207,6 @@ export function PollWorkerScreen({
     timePollsTransitioned: number
   ) {
     assert(precinctSelection);
-    assert(isPollWorkerAuth(auth));
     const reportBasicData: ScannerReportDataBase = {
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: machineConfig.machineId,

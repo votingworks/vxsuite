@@ -50,8 +50,11 @@ export type UsbDriveStatus =
 
 export interface UsbDrive {
   status: UsbDriveStatus;
-  eject(currentUser: string): Promise<void>;
-  format(currentUser: string, options: PostFormatUsbOptions): Promise<void>;
+  eject(currentUser: LoggingUserRole): Promise<void>;
+  format(
+    currentUser: LoggingUserRole,
+    options: PostFormatUsbOptions
+  ): Promise<void>;
 }
 
 export interface UsbDriveProps {

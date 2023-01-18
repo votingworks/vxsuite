@@ -49,7 +49,6 @@ function renderScreen({
   pollWorkerScreenProps?: Partial<PollWorkerScreenProps>;
 } = {}): RenderResult {
   const pollWorkerScreenAppContextProps: Partial<AppContextInterface> = {
-    auth: Inserted.fakePollWorkerAuth(),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ...appContextProps,
   };
@@ -65,6 +64,7 @@ function renderScreen({
           pollsState="polls_closed_initial"
           isLiveMode
           hasPrinterAttached={false}
+          auth={Inserted.fakePollWorkerAuth()}
           {...pollWorkerScreenProps}
         />
       </QueryClientProvider>
@@ -127,9 +127,9 @@ describe('transitions from polls closed', () => {
       pollWorkerScreenProps: {
         scannedBallotCount: 0,
         pollsState: 'polls_closed_initial',
+        auth: readableFakePollWorkerAuth(),
       },
       appContextProps: {
-        auth: readableFakePollWorkerAuth(),
         logger,
       },
     });
@@ -176,9 +176,9 @@ describe('transitions from polls open', () => {
       pollWorkerScreenProps: {
         scannedBallotCount: 7,
         pollsState: 'polls_open',
+        auth: readableFakePollWorkerAuth(),
       },
       appContextProps: {
-        auth: readableFakePollWorkerAuth(),
         logger,
       },
     });
@@ -243,9 +243,9 @@ describe('transitions from polls paused', () => {
       pollWorkerScreenProps: {
         scannedBallotCount: 7,
         pollsState: 'polls_paused',
+        auth: readableFakePollWorkerAuth(),
       },
       appContextProps: {
-        auth: readableFakePollWorkerAuth(),
         logger,
       },
     });

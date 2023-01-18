@@ -1,7 +1,7 @@
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import React from 'react';
@@ -13,8 +13,6 @@ import {
   ExportBackupModal,
   ExportBackupModalProps,
 } from './export_backup_modal';
-
-const auth = Inserted.fakeElectionManagerAuth();
 
 const apiMock = createApiMock();
 
@@ -38,8 +36,7 @@ function renderModal(props: Partial<ExportBackupModalProps> = {}) {
           {...props}
         />
       </QueryClientProvider>
-    </ApiClientContext.Provider>,
-    { auth }
+    </ApiClientContext.Provider>
   );
 }
 

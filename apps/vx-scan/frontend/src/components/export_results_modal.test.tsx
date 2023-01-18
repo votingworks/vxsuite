@@ -3,7 +3,7 @@ import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
-import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/types';
@@ -22,7 +22,6 @@ import { ApiClientContext, queryClientDefaultOptions } from '../api';
 
 const apiMock = createApiMock();
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
-const auth = Inserted.fakeElectionManagerAuth();
 
 function renderModal(props: Partial<ExportResultsModalProps> = {}) {
   return renderInAppContext(
@@ -36,8 +35,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
           {...props}
         />
       </QueryClientProvider>
-    </ApiClientContext.Provider>,
-    { auth }
+    </ApiClientContext.Provider>
   );
 }
 
@@ -112,7 +110,6 @@ test('render export modal when a usb drive is mounted as expected and allows exp
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        auth,
         logger: new Logger(LogSource.VxScanFrontend),
       }}
     >
