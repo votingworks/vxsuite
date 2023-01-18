@@ -28,15 +28,15 @@ Linux VM.
    details.
 5. [VM] Install Git v2.34+:
    1. Create and `cd` to a temp directory.
-   2. Download Git v2.39.0 source code:
-      `wget https://www.kernel.org/pub/software/scm/git/git-2.39.0.tar.gz`.
-   3. Unpack the source code: `tar -xzf git-2.39.0.tar.gz`.
-   4. `cd` into the unpacked directory: `cd git-2.39.0`.
+   2. Download Git v2.39.1 source code:
+      `wget https://www.kernel.org/pub/software/scm/git/git-2.39.1.tar.gz`.
+   3. Unpack the source code: `tar -xzf git-2.39.1.tar.gz`.
+   4. `cd` into the unpacked directory: `cd git-2.39.1`.
    5. Install dependencies:
       `sudo apt-get install libcurl4-openssl-dev gettext -y`.
    6. Make and install to your home directory: `make && make install` (see
       `INSTALL` for more options, or ensure `~/bin` is in your `PATH`).
-   7. Verify the installation: `git --version` (should be `2.39.0`).
+   7. Verify the installation: `git --version` (should be `2.39.1`).
 6. [Host] If you want to be able to sign commits in macOS, configure Git commit
    signing from the info screen of the SSH key you just created (the header will
    prompt you).
