@@ -3,6 +3,7 @@ import { assert, throwIllegalValue } from '@votingworks/utils';
 import React from 'react';
 import { acceptBallot, getScannerStatus, scanBallot } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
+import { useSound } from '../utils/use_sound';
 import { InsertBallotScreen } from './insert_ballot_screen';
 import { ScanBusyScreen } from './scan_busy_screen';
 import { ScanErrorScreen } from './scan_error_screen';
@@ -14,11 +15,13 @@ import { ScanWarningScreen } from './scan_warning_screen';
 
 interface VoterScreenProps {
   isTestMode: boolean;
+  isSoundMuted: boolean;
   batteryIsCharging: boolean;
 }
 
 export function VoterScreen({
   isTestMode,
+  isSoundMuted,
   batteryIsCharging,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
@@ -33,8 +36,37 @@ export function VoterScreen({
   useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
     if (newScannerStatus.state === 'ready_to_scan') {
       scanBallotMutation.mutate();
-    } else if (newScannerStatus.state === 'ready_to_accept') {
+    }
+    if (newScannerStatus.state === 'ready_to_accept') {
       acceptBallotMutation.mutate();
+    }
+  });
+
+  // Play sounds for scan result events
+  const playSuccess = useSound('success');
+  const playWarning = useSound('warning');
+  const playError = useSound('error');
+  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
+    if (isSoundMuted) return;
+    switch (newScannerStatus.state) {
+      case 'accepted': {
+        playSuccess();
+        break;
+      }
+      case 'needs_review':
+      case 'both_sides_have_paper': {
+        playWarning();
+        break;
+      }
+      case 'rejecting':
+      case 'jammed':
+      case 'unrecoverable_error': {
+        playError();
+        break;
+      }
+      default: {
+        // No sound
+      }
     }
   });
 

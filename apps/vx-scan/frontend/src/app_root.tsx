@@ -275,6 +275,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     >
       <VoterScreen
         isTestMode={isTestMode}
+        isSoundMuted={isSoundMuted}
         batteryIsCharging={computer.batteryIsCharging}
       />
     </AppContext.Provider>
