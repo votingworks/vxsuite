@@ -56,14 +56,14 @@ function createSafeMockMethod(methodName: string): AnyMockFunction {
  * Creates a client with methods that are all mock functions.
  * (see @votingworks/test-utils/mockFunction)
  *
- * Pass `catchErrors: true` to catch errors in mock methods (e.g. an unexpected
+ * Pass `catchUnexpectedErrors: true` to catch errors in mock methods (e.g. an unexpected
  * call) and return a dummy value. This can be useful to avoid difficult to
  * debug test crashes if you are working with legacy code that has no error
  * handling.
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function createMockClient<Api extends AnyApi>(options?: {
-  catchErrors: boolean;
+  catchUnexpectedErrors: boolean;
 }): MockClient<Api> {
   const mockMethods: Record<string, AnyMockFunction> = {};
 
@@ -91,7 +91,7 @@ export function createMockClient<Api extends AnyApi>(options?: {
         return Reflect.get(mockHelpers, methodName);
       }
 
-      mockMethods[methodName] ??= options?.catchErrors
+      mockMethods[methodName] ??= options?.catchUnexpectedErrors
         ? createSafeMockMethod(methodName)
         : mockFunction(methodName);
       return mockMethods[methodName];
