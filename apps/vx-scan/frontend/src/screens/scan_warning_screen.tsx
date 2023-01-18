@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -33,9 +33,9 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 
-import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { acceptBallot, returnBallot } from '../api';
+import { usePreviewContext } from '../preview_dashboard';
 
 const ResponsiveButtonParagraph = styled.p`
   @media (orientation: portrait) {
@@ -354,15 +354,14 @@ function OtherReasonWarningScreen(): JSX.Element {
 }
 
 export interface Props {
+  electionDefinition: ElectionDefinition;
   adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
 }
 
 export function ScanWarningScreen({
+  electionDefinition,
   adjudicationReasonInfo,
 }: Props): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
-
   let isBlank = false;
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
   const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
@@ -404,8 +403,7 @@ export function ScanWarningScreen({
 
 /* istanbul ignore next */
 export function OvervotePreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest =>
@@ -415,6 +413,7 @@ export function OvervotePreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Overvote,
@@ -437,8 +436,7 @@ export function OvervotePreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UndervoteNoVotes1ContestPreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -447,6 +445,7 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -462,8 +461,7 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
 
   const contests = electionDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -472,6 +470,7 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={contests.map((contest) => ({
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
@@ -485,8 +484,7 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function Undervote1ContestPreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
@@ -495,6 +493,7 @@ export function Undervote1ContestPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -512,8 +511,7 @@ export function Undervote1ContestPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UndervoteManyContestsPreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
 
   const contests = electionDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -522,6 +520,7 @@ export function UndervoteManyContestsPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={contests.map((contest) => ({
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
@@ -535,8 +534,11 @@ export function UndervoteManyContestsPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function BlankBallotPreview(): JSX.Element {
+  const { electionDefinition } = usePreviewContext();
+
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
     />
   );
@@ -544,8 +546,11 @@ export function BlankBallotPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UninterpretableBallotPreview(): JSX.Element {
+  const { electionDefinition } = usePreviewContext();
+
   return (
     <ScanWarningScreen
+      electionDefinition={electionDefinition}
       adjudicationReasonInfo={[
         { type: AdjudicationReason.UninterpretableBallot },
       ]}

@@ -60,6 +60,7 @@ function renderScreen({
         client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
       >
         <ElectionManagerScreen
+          electionDefinition={electionSampleDefinition}
           scannerStatus={statusNoPaper}
           isTestMode={false}
           pollsState="polls_closed_initial"
@@ -116,6 +117,10 @@ test('option to set precinct if more than one', async () => {
 
 test('no option to change precinct if there is only one precinct', async () => {
   renderScreen({
+    electionManagerScreenProps: {
+      electionDefinition:
+        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+    },
     appContextProps: {
       electionDefinition:
         electionMinimalExhaustiveSampleSinglePrecinctDefinition,

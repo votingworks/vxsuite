@@ -180,6 +180,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         }}
       >
         <ElectionManagerScreen
+          electionDefinition={electionDefinition}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           pollsState={pollsState}
@@ -212,7 +213,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return (
       <AppContext.Provider
         value={{
-          electionDefinition,
           precinctSelection,
           markThresholdOverrides,
           machineConfig,
@@ -222,6 +222,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         }}
       >
         <PollWorkerScreen
+          electionDefinition={electionDefinition}
           scannedBallotCount={scannerStatus.ballotsCounted}
           pollsState={pollsState}
           hasPrinterAttached={!!printerInfo}
@@ -274,6 +275,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
       }}
     >
       <VoterScreen
+        electionDefinition={electionDefinition}
         isTestMode={isTestMode}
         isSoundMuted={isSoundMuted}
         batteryIsCharging={computer.batteryIsCharging}

@@ -11,6 +11,7 @@ import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import { renderInAppContext } from '../../test/helpers/render_in_app_context';
@@ -59,6 +60,7 @@ function renderScreen({
         client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
       >
         <PollWorkerScreen
+          electionDefinition={electionSampleDefinition}
           scannedBallotCount={0}
           pollsState="polls_closed_initial"
           isLiveMode

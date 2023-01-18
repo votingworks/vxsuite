@@ -22,7 +22,10 @@ test('renders livecheck screen', async () => {
 
   const closeFn = jest.fn();
   const { getByText, unmount } = renderInAppContext(
-    <LiveCheckModal onClose={closeFn} />,
+    <LiveCheckModal
+      electionDefinition={electionDefinition}
+      onClose={closeFn}
+    />,
     { auth }
   );
 

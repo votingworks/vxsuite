@@ -12,6 +12,7 @@ import {
 import { assert } from '@votingworks/utils';
 
 import styled from 'styled-components';
+import { ElectionDefinition } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 
 const QrCodeWrapper = styled.div`
@@ -20,13 +21,16 @@ const QrCodeWrapper = styled.div`
 `;
 
 export interface Props {
+  electionDefinition: ElectionDefinition;
   onClose: () => void;
 }
 
-export function LiveCheckModal({ onClose }: Props): JSX.Element {
+export function LiveCheckModal({
+  electionDefinition,
+  onClose,
+}: Props): JSX.Element {
   const [livecheckUrl, setLivecheckUrl] = useState('');
-  const { electionDefinition, machineConfig, auth } = useContext(AppContext);
-  assert(electionDefinition);
+  const { machineConfig, auth } = useContext(AppContext);
   assert(machineConfig);
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
 

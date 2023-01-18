@@ -1,4 +1,4 @@
-import { ok, PollsState } from '@votingworks/types';
+import { ElectionDefinition, ok, PollsState } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -30,10 +30,12 @@ import {
   setTestMode,
   unconfigureElection,
 } from '../api';
+import { usePreviewContext } from '../preview_dashboard';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
 export interface ElectionManagerScreenProps {
+  electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
   isTestMode: boolean;
   pollsState: PollsState;
@@ -41,6 +43,7 @@ export interface ElectionManagerScreenProps {
 }
 
 export function ElectionManagerScreen({
+  electionDefinition,
   scannerStatus,
   isTestMode,
   pollsState,
@@ -51,14 +54,12 @@ export function ElectionManagerScreen({
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const {
-    electionDefinition,
     precinctSelection,
     markThresholdOverrides,
     auth,
     isSoundMuted,
     logger,
   } = useContext(AppContext);
-  assert(electionDefinition);
   const { election } = electionDefinition;
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
@@ -292,8 +293,8 @@ export function ElectionManagerScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  const { machineConfig, electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
+  const { machineConfig } = useContext(AppContext);
   return (
     <AppContext.Provider
       value={{
@@ -322,6 +323,7 @@ export function DefaultPreview(): JSX.Element {
       }}
     >
       <ElectionManagerScreen
+        electionDefinition={electionDefinition}
         scannerStatus={{
           state: 'no_paper',
           ballotsCounted: 1234,

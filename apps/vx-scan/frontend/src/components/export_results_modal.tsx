@@ -40,8 +40,7 @@ export function ExportResultsModal({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition, auth } = useContext(AppContext);
-  assert(electionDefinition);
+  const { auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 

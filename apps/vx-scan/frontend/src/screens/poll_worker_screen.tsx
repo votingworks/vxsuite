@@ -45,6 +45,7 @@ import {
   PollsState,
   PollsTransition,
   Optional,
+  ElectionDefinition,
 } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
@@ -107,6 +108,7 @@ const BallotsAlreadyScannedScreen = (
 );
 
 export interface PollWorkerScreenProps {
+  electionDefinition: ElectionDefinition;
   scannedBallotCount: number;
   pollsState: PollsState;
   isLiveMode: boolean;
@@ -114,6 +116,7 @@ export interface PollWorkerScreenProps {
 }
 
 export function PollWorkerScreen({
+  electionDefinition,
   scannedBallotCount,
   pollsState,
   isLiveMode,
@@ -122,9 +125,8 @@ export function PollWorkerScreen({
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
+  const { precinctSelection, machineConfig, auth, logger } =
     useContext(AppContext);
-  assert(electionDefinition);
   assert(precinctSelection);
   assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
@@ -651,7 +653,10 @@ export function PollWorkerScreen({
       </Prose>
       <ScannedBallotCount count={scannedBallotCount} />
       {isShowingLiveCheck && (
-        <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
+        <LiveCheckModal
+          electionDefinition={electionDefinition}
+          onClose={() => setIsShowingLiveCheck(false)}
+        />
       )}
     </ScreenMainCenterChild>
   );

@@ -33,13 +33,17 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen(props: Props) {
+function renderScreen(props: Partial<Props> = {}) {
   return renderInAppContext(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
       >
-        <ScanWarningScreen {...props} />
+        <ScanWarningScreen
+          adjudicationReasonInfo={[]}
+          electionDefinition={electionSampleDefinition}
+          {...props}
+        />
       </QueryClientProvider>
     </ApiClientContext.Provider>
   );

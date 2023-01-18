@@ -1,3 +1,4 @@
+import { ElectionDefinition } from '@votingworks/types';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import React from 'react';
@@ -14,12 +15,14 @@ import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
 
 interface VoterScreenProps {
+  electionDefinition: ElectionDefinition;
   isTestMode: boolean;
   isSoundMuted: boolean;
   batteryIsCharging: boolean;
 }
 
 export function VoterScreen({
+  electionDefinition,
   isTestMode,
   isSoundMuted,
   batteryIsCharging,
@@ -101,6 +104,7 @@ export function VoterScreen({
       assert(scannerStatus.interpretation?.type === 'NeedsReviewSheet');
       return (
         <ScanWarningScreen
+          electionDefinition={electionDefinition}
           adjudicationReasonInfo={scannerStatus.interpretation.reasons}
         />
       );
