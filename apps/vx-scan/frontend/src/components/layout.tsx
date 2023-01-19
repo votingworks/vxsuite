@@ -21,7 +21,7 @@ export function ScreenMainCenterChild({
   children,
   infoBar = true,
   infoBarMode,
-  isLiveMode,
+  isLiveMode = true,
 }: CenteredScreenProps): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
