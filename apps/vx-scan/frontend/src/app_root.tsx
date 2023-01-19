@@ -212,6 +212,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
       >
         <PollWorkerScreen
           electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
           scannedBallotCount={scannerStatus.ballotsCounted}
           pollsState={pollsState}
           hasPrinterAttached={!!printerInfo}

@@ -45,6 +45,7 @@ import {
   PollsTransition,
   Optional,
   ElectionDefinition,
+  PrecinctSelection,
 } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
@@ -109,6 +110,7 @@ const BallotsAlreadyScannedScreen = (
 
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
+  precinctSelection: PrecinctSelection;
   scannedBallotCount: number;
   pollsState: PollsState;
   isLiveMode: boolean;
@@ -119,6 +121,7 @@ export interface PollWorkerScreenProps {
 
 export function PollWorkerScreen({
   electionDefinition,
+  precinctSelection,
   scannedBallotCount,
   pollsState,
   isLiveMode,
@@ -129,8 +132,7 @@ export function PollWorkerScreen({
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { precinctSelection, machineConfig } = useContext(AppContext);
-  assert(precinctSelection);
+  const { machineConfig } = useContext(AppContext);
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -181,7 +183,6 @@ export function PollWorkerScreen({
         [TallyCategory.Party, TallyCategory.Precinct]
       );
       // Get all tallies by precinct and party
-      assert(precinctSelection);
       setCurrentSubTallies(
         getSubTalliesByPartyAndPrecinct({
           election,
@@ -209,7 +210,6 @@ export function PollWorkerScreen({
     pollsTransition: PollsTransition,
     timePollsTransitioned: number
   ) {
-    assert(precinctSelection);
     const reportBasicData: ScannerReportDataBase = {
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: machineConfig.machineId,
@@ -315,8 +315,6 @@ export function PollWorkerScreen({
     timePollsTransitioned: number,
     copies: number
   ) {
-    assert(electionDefinition);
-    assert(precinctSelection);
     assert(currentCompressedTally);
     assert(currentSubTallies);
 

@@ -49,7 +49,6 @@ function renderScreen({
   pollWorkerScreenProps?: Partial<PollWorkerScreenProps>;
 } = {}): RenderResult {
   const pollWorkerScreenAppContextProps: Partial<AppContextInterface> = {
-    precinctSelection: ALL_PRECINCTS_SELECTION,
     ...appContextProps,
   };
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -60,6 +59,7 @@ function renderScreen({
       >
         <PollWorkerScreen
           electionDefinition={electionSampleDefinition}
+          precinctSelection={ALL_PRECINCTS_SELECTION}
           scannedBallotCount={0}
           pollsState="polls_closed_initial"
           isLiveMode
