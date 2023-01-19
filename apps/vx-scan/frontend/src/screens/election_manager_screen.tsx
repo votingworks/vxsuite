@@ -10,7 +10,7 @@ import {
   UsbDrive,
   ChangePrecinctButton,
 } from '@votingworks/ui';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -19,7 +19,6 @@ import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
-import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
@@ -295,25 +294,16 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { electionDefinition } = usePreviewContext();
-  const { machineConfig } = useContext(AppContext);
   return (
-    <AppContext.Provider
-      value={{
-        machineConfig,
-        electionDefinition,
-        precinctSelection: undefined,
+    <ElectionManagerScreen
+      electionDefinition={electionDefinition}
+      scannerStatus={{
+        state: 'no_paper',
+        ballotsCounted: 1234,
+        canUnconfigure: true,
       }}
-    >
-      <ElectionManagerScreen
-        electionDefinition={electionDefinition}
-        scannerStatus={{
-          state: 'no_paper',
-          ballotsCounted: 1234,
-          canUnconfigure: true,
-        }}
-        usbDrive={mockUsbDrive('absent')}
-        logger={fakeLogger()}
-      />
-    </AppContext.Provider>
+      usbDrive={mockUsbDrive('absent')}
+      logger={fakeLogger()}
+    />
   );
 }

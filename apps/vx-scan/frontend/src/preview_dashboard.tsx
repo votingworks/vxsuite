@@ -9,7 +9,6 @@ import { assert } from '@votingworks/utils';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { AppContext } from './contexts/app_context';
 
 interface PreviewContextValues {
   electionDefinition: ElectionDefinition;
@@ -158,80 +157,70 @@ export function PreviewDashboard({
 
   return (
     <PreviewContext.Provider value={{ electionDefinition }}>
-      <AppContext.Provider
-        value={{
-          machineConfig: {
-            codeVersion: 'preview',
-            machineId: '000',
-          },
-          electionDefinition,
-        }}
-      >
-        <BrowserRouter>
-          <Route path="/preview" exact>
-            <h1>Previews</h1>
-            <PreviewColumns>
-              {previewables.map(({ componentName, previews }) => {
-                return (
-                  <Prose key={componentName}>
-                    <h4>{componentName}</h4>
-                    <ul>
-                      {previews.map((preview) => (
-                        <li key={preview.previewName}>
-                          <Link to={getPreviewUrl(preview)}>
-                            {preview.previewName}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </Prose>
-                );
-              })}
-            </PreviewColumns>
-            <ConfigBox>
-              <Select
-                value={electionDefinition.electionHash}
-                onChange={onElectionDefinitionSelected}
-              >
-                <optgroup label="Presets">
-                  {initialElectionDefinitions.map(
-                    ({ election, electionHash }) => (
-                      <option key={electionHash} value={electionHash}>
-                        {election.title}
-                      </option>
-                    )
-                  )}
-                </optgroup>
-                <optgroup label="Custom">
-                  {electionDefinitions
-                    .slice(initialElectionDefinitions.length)
-                    .map(({ election, electionHash }) => (
-                      <option key={electionHash} value={electionHash}>
-                        {election.title}
-                      </option>
+      <BrowserRouter>
+        <Route path="/preview" exact>
+          <h1>Previews</h1>
+          <PreviewColumns>
+            {previewables.map(({ componentName, previews }) => {
+              return (
+                <Prose key={componentName}>
+                  <h4>{componentName}</h4>
+                  <ul>
+                    {previews.map((preview) => (
+                      <li key={preview.previewName}>
+                        <Link to={getPreviewUrl(preview)}>
+                          {preview.previewName}
+                        </Link>
+                      </li>
                     ))}
-                  <option value="custom">Load from file…</option>
-                </optgroup>
-              </Select>
-              <input
-                ref={electionDefinitionFileRef}
-                style={{ display: 'none' }}
-                type="file"
-                onChange={onElectionDefinitionFileChosen}
-              />
-            </ConfigBox>
-          </Route>
-          {previewables.map((previewable) =>
-            previewable.previews.map((preview) => (
-              <Route
-                key={preview.previewName}
-                path={getPreviewUrl(preview)}
-                component={preview.previewComponent}
-              />
-            ))
-          )}
-        </BrowserRouter>
-      </AppContext.Provider>
+                  </ul>
+                </Prose>
+              );
+            })}
+          </PreviewColumns>
+          <ConfigBox>
+            <Select
+              value={electionDefinition.electionHash}
+              onChange={onElectionDefinitionSelected}
+            >
+              <optgroup label="Presets">
+                {initialElectionDefinitions.map(
+                  ({ election, electionHash }) => (
+                    <option key={electionHash} value={electionHash}>
+                      {election.title}
+                    </option>
+                  )
+                )}
+              </optgroup>
+              <optgroup label="Custom">
+                {electionDefinitions
+                  .slice(initialElectionDefinitions.length)
+                  .map(({ election, electionHash }) => (
+                    <option key={electionHash} value={electionHash}>
+                      {election.title}
+                    </option>
+                  ))}
+                <option value="custom">Load from file…</option>
+              </optgroup>
+            </Select>
+            <input
+              ref={electionDefinitionFileRef}
+              style={{ display: 'none' }}
+              type="file"
+              onChange={onElectionDefinitionFileChosen}
+            />
+          </ConfigBox>
+        </Route>
+        {previewables.map((previewable) =>
+          previewable.previews.map((preview) => (
+            <Route
+              key={preview.previewName}
+              path={getPreviewUrl(preview)}
+              component={preview.previewComponent}
+            />
+          ))
+        )}
+      </BrowserRouter>
     </PreviewContext.Provider>
   );
 }

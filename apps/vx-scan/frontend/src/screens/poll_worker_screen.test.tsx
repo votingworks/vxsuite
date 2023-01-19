@@ -12,7 +12,11 @@ import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  createApiMock,
+  machineConfig,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
 
@@ -47,6 +51,7 @@ function renderScreen(
     provideApi(
       apiMock,
       <PollWorkerScreen
+        machineConfig={machineConfig}
         electionDefinition={electionSampleDefinition}
         precinctSelection={ALL_PRECINCTS_SELECTION}
         scannedBallotCount={0}

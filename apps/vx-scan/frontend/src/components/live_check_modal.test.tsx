@@ -19,7 +19,11 @@ test('renders livecheck screen', async () => {
 
   const closeFn = jest.fn();
   const { getByText, unmount } = render(
-    <LiveCheckModal electionDefinition={electionDefinition} onClose={closeFn} />
+    <LiveCheckModal
+      machineConfig={machineConfig}
+      electionDefinition={electionDefinition}
+      onClose={closeFn}
+    />
   );
 
   await waitFor(() => {

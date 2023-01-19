@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import {
   Button,
@@ -59,7 +59,6 @@ import {
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
-import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
@@ -68,6 +67,7 @@ import {
   getCastVoteRecordsForTally,
   setPollsState,
 } from '../api';
+import { MachineConfig } from '../config/types';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -109,6 +109,7 @@ const BallotsAlreadyScannedScreen = (
 );
 
 export interface PollWorkerScreenProps {
+  machineConfig: MachineConfig;
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   scannedBallotCount: number;
@@ -120,6 +121,7 @@ export interface PollWorkerScreenProps {
 }
 
 export function PollWorkerScreen({
+  machineConfig,
   electionDefinition,
   precinctSelection,
   scannedBallotCount,
@@ -132,7 +134,6 @@ export function PollWorkerScreen({
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { machineConfig } = useContext(AppContext);
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -653,6 +654,7 @@ export function PollWorkerScreen({
       <ScannedBallotCount count={scannedBallotCount} />
       {isShowingLiveCheck && (
         <LiveCheckModal
+          machineConfig={machineConfig}
           electionDefinition={electionDefinition}
           onClose={() => setIsShowingLiveCheck(false)}
         />
