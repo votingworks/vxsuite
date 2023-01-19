@@ -13,7 +13,7 @@ import {
 } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
-interface Props {
+export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
   isTestMode: boolean;
   scannedBallotCount: number;

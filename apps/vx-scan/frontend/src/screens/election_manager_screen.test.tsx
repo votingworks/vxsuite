@@ -1,6 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
+  render,
   RenderResult,
   screen,
   waitFor,
@@ -18,12 +18,10 @@ import MockDate from 'mockdate';
 import React from 'react';
 import {
   createApiMock,
+  provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
-import { AppContextInterface } from '../contexts/app_context';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
@@ -37,6 +35,7 @@ beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
 });
 
 afterEach(() => {
@@ -44,31 +43,20 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen({
-  appContextProps = {},
-  electionManagerScreenProps = {},
-}: {
-  appContextProps?: Partial<AppContextInterface>;
-  electionManagerScreenProps?: Partial<ElectionManagerScreenProps>;
-} = {}): RenderResult {
-  const electionManagerScreenAppContextProps: Partial<AppContextInterface> = {
-    ...appContextProps,
-  };
-  return renderInAppContext(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <ElectionManagerScreen
-          electionDefinition={electionSampleDefinition}
-          scannerStatus={statusNoPaper}
-          usbDrive={mockUsbDrive('absent')}
-          logger={fakeLogger()}
-          {...electionManagerScreenProps}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>,
-    electionManagerScreenAppContextProps
+function renderScreen(
+  props: Partial<ElectionManagerScreenProps> = {}
+): RenderResult {
+  return render(
+    provideApi(
+      apiMock,
+      <ElectionManagerScreen
+        electionDefinition={electionSampleDefinition}
+        scannerStatus={statusNoPaper}
+        usbDrive={mockUsbDrive('absent')}
+        logger={fakeLogger()}
+        {...props}
+      />
+    )
   );
 }
 
@@ -126,14 +114,7 @@ test('no option to change precinct if there is only one precinct', async () => {
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
   });
-  renderScreen({
-    electionManagerScreenProps: {
-      electionDefinition,
-    },
-    appContextProps: {
-      electionDefinition,
-    },
-  });
+  renderScreen({ electionDefinition });
 
   await screen.findByText('Election Manager Settings');
   expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
@@ -152,10 +133,8 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('absent');
   renderScreen({
-    electionManagerScreenProps: {
-      scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      usbDrive,
-    },
+    scannerStatus: { ...statusNoPaper, canUnconfigure: true },
+    usbDrive,
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
@@ -170,10 +149,8 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('mounted');
   renderScreen({
-    electionManagerScreenProps: {
-      scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-      usbDrive,
-    },
+    scannerStatus: { ...statusNoPaper, canUnconfigure: true },
+    usbDrive,
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 

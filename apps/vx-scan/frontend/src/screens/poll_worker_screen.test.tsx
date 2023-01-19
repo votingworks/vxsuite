@@ -1,4 +1,4 @@
-import { screen, RenderResult } from '@testing-library/react';
+import { screen, RenderResult, render } from '@testing-library/react';
 import { fakeKiosk, Inserted, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -10,13 +10,9 @@ import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { AppContextInterface } from '../contexts/app_context';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
-import { createApiMock } from '../../test/helpers/mock_api_client';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
 
@@ -34,6 +30,8 @@ beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetConfig();
 });
 
 afterEach(() => {
@@ -41,36 +39,25 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen({
-  appContextProps = {},
-  pollWorkerScreenProps = {},
-}: {
-  appContextProps?: Partial<AppContextInterface>;
-  pollWorkerScreenProps?: Partial<PollWorkerScreenProps>;
-} = {}): RenderResult {
-  const pollWorkerScreenAppContextProps: Partial<AppContextInterface> = {
-    ...appContextProps,
-  };
+function renderScreen(
+  props: Partial<PollWorkerScreenProps> = {}
+): RenderResult {
   apiMock.expectGetCastVoteRecordsForTally([]);
-  return renderInAppContext(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <PollWorkerScreen
-          electionDefinition={electionSampleDefinition}
-          precinctSelection={ALL_PRECINCTS_SELECTION}
-          scannedBallotCount={0}
-          pollsState="polls_closed_initial"
-          isLiveMode
-          hasPrinterAttached={false}
-          auth={Inserted.fakePollWorkerAuth()}
-          logger={fakeLogger()}
-          {...pollWorkerScreenProps}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>,
-    pollWorkerScreenAppContextProps
+  return render(
+    provideApi(
+      apiMock,
+      <PollWorkerScreen
+        electionDefinition={electionSampleDefinition}
+        precinctSelection={ALL_PRECINCTS_SELECTION}
+        scannedBallotCount={0}
+        pollsState="polls_closed_initial"
+        isLiveMode
+        hasPrinterAttached={false}
+        auth={Inserted.fakePollWorkerAuth()}
+        logger={fakeLogger()}
+        {...props}
+      />
+    )
   );
 }
 
@@ -92,10 +79,8 @@ describe('shows Livecheck button only when enabled', () => {
     mocked(isFeatureFlagEnabled).mockReturnValue(true);
 
     renderScreen({
-      pollWorkerScreenProps: {
-        scannedBallotCount: 5,
-        pollsState: 'polls_open',
-      },
+      scannedBallotCount: 5,
+      pollsState: 'polls_open',
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -109,10 +94,8 @@ describe('shows Livecheck button only when enabled', () => {
     mocked(isFeatureFlagEnabled).mockReturnValue(false);
 
     renderScreen({
-      pollWorkerScreenProps: {
-        scannedBallotCount: 5,
-        pollsState: 'polls_open',
-      },
+      scannedBallotCount: 5,
+      pollsState: 'polls_open',
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -125,18 +108,17 @@ describe('transitions from polls closed', () => {
   beforeEach(async () => {
     logger = fakeLogger();
     renderScreen({
-      pollWorkerScreenProps: {
-        scannedBallotCount: 0,
-        pollsState: 'polls_closed_initial',
-        auth: readableFakePollWorkerAuth(),
-        logger,
-      },
+      scannedBallotCount: 0,
+      pollsState: 'polls_closed_initial',
+      auth: readableFakePollWorkerAuth(),
+      logger,
     });
     await screen.findByText('Do you want to open the polls?');
   });
 
   test('open polls happy path', async () => {
     apiMock.expectSetPollsState('polls_open');
+    apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
@@ -152,6 +134,7 @@ describe('transitions from polls closed', () => {
 
   test('open polls from landing screen', async () => {
     apiMock.expectSetPollsState('polls_open');
+    apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
@@ -172,12 +155,10 @@ describe('transitions from polls open', () => {
   beforeEach(async () => {
     logger = fakeLogger();
     renderScreen({
-      pollWorkerScreenProps: {
-        scannedBallotCount: 7,
-        pollsState: 'polls_open',
-        auth: readableFakePollWorkerAuth(),
-        logger,
-      },
+      scannedBallotCount: 7,
+      pollsState: 'polls_open',
+      auth: readableFakePollWorkerAuth(),
+      logger,
     });
     await screen.findByText('Do you want to close the polls?');
   });
@@ -185,6 +166,7 @@ describe('transitions from polls open', () => {
   test('close polls happy path', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive();
     apiMock.expectSetPollsState('polls_closed_final');
+    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
@@ -201,6 +183,7 @@ describe('transitions from polls open', () => {
   test('close polls from landing screen', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive();
     apiMock.expectSetPollsState('polls_closed_final');
+    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -217,6 +200,7 @@ describe('transitions from polls open', () => {
 
   test('pause voting', async () => {
     apiMock.expectSetPollsState('polls_paused');
+    apiMock.expectGetConfig({ pollsState: 'polls_paused' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
@@ -237,18 +221,17 @@ describe('transitions from polls paused', () => {
   beforeEach(async () => {
     logger = fakeLogger();
     renderScreen({
-      pollWorkerScreenProps: {
-        scannedBallotCount: 7,
-        pollsState: 'polls_paused',
-        auth: readableFakePollWorkerAuth(),
-        logger,
-      },
+      scannedBallotCount: 7,
+      pollsState: 'polls_paused',
+      auth: readableFakePollWorkerAuth(),
+      logger,
     });
     await screen.findByText('Do you want to resume voting?');
   });
 
   test('resume voting happy path', async () => {
     apiMock.expectSetPollsState('polls_open');
+    apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
@@ -264,6 +247,7 @@ describe('transitions from polls paused', () => {
 
   test('resume voting from landing screen', async () => {
     apiMock.expectSetPollsState('polls_open');
+    apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
@@ -280,6 +264,7 @@ describe('transitions from polls paused', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectSetPollsState('polls_closed_final');
+    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     apiMock.expectExportCastVoteRecordsToUsbDrive();
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
@@ -298,10 +283,8 @@ describe('transitions from polls paused', () => {
 
 test('no transitions from polls closed final', async () => {
   renderScreen({
-    pollWorkerScreenProps: {
-      scannedBallotCount: 0,
-      pollsState: 'polls_closed_final',
-    },
+    scannedBallotCount: 0,
+    pollsState: 'polls_closed_final',
   });
   await screen.findByText(
     'Voting is complete and the polls cannot be reopened.'
@@ -313,11 +296,9 @@ test('no transitions from polls closed final', async () => {
 test('there is a warning if we attempt to polls with ballots scanned', async () => {
   const logger = fakeLogger();
   renderScreen({
-    pollWorkerScreenProps: {
-      scannedBallotCount: 1,
-      pollsState: 'polls_closed_initial',
-      logger,
-    },
+    scannedBallotCount: 1,
+    pollsState: 'polls_closed_initial',
+    logger,
   });
   await screen.findByText('Do you want to open the polls?');
   userEvent.click(screen.getByText('Yes, Open the Polls'));

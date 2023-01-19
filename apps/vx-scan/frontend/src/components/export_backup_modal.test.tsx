@@ -1,14 +1,11 @@
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import React from 'react';
-import { createApiMock } from '../../test/helpers/mock_api_client';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
 import {
   ExportBackupModal,
   ExportBackupModalProps,
@@ -25,18 +22,15 @@ afterEach(() => {
 });
 
 function renderModal(props: Partial<ExportBackupModalProps> = {}) {
-  return renderInAppContext(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <ExportBackupModal
-          onClose={jest.fn()}
-          usbDrive={mockUsbDrive('mounting')}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+  return render(
+    provideApi(
+      apiMock,
+      <ExportBackupModal
+        onClose={jest.fn()}
+        usbDrive={mockUsbDrive('mounting')}
+        {...props}
+      />
+    )
   );
 }
 

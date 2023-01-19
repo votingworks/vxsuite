@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
@@ -8,13 +9,9 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import React from 'react';
 import { mockOf } from '@votingworks/test-utils';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -27,6 +24,8 @@ const apiMock = createApiMock();
 
 beforeEach(() => {
   apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetConfig();
 });
 
 afterEach(() => {
@@ -34,22 +33,19 @@ afterEach(() => {
 });
 
 function renderScreen(props: Partial<Props> = {}) {
-  return renderInAppContext(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <ScanWarningScreen
-          adjudicationReasonInfo={[]}
-          electionDefinition={electionSampleDefinition}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+  return render(
+    provideApi(
+      apiMock,
+      <ScanWarningScreen
+        electionDefinition={electionSampleDefinition}
+        adjudicationReasonInfo={[]}
+        {...props}
+      />
+    )
   );
 }
 
-test('overvote', () => {
+test('overvote', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -67,7 +63,7 @@ test('overvote', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Too Many Votes' });
+  await screen.findByRole('heading', { name: 'Too Many Votes' });
   screen.getByText(
     new RegExp(
       `There are too many votes marked in the contest: ${contest.title}.`
@@ -81,7 +77,7 @@ test('overvote', () => {
   expect(confirmButton).toBeDisabled();
 });
 
-test('overvote when casting overvotes is disallowed', () => {
+test('overvote when casting overvotes is disallowed', async () => {
   apiMock.mockApiClient.returnBallot.expectCallWith().resolves();
   mockOf(isFeatureFlagEnabled).mockImplementation(
     (flag: BooleanEnvironmentVariableName) => {
@@ -105,7 +101,7 @@ test('overvote when casting overvotes is disallowed', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Too Many Votes' });
+  await screen.findByRole('heading', { name: 'Too Many Votes' });
   screen.getByText(
     new RegExp(
       `There are too many votes marked in the contest: ${contest.title}.`
@@ -118,13 +114,13 @@ test('overvote when casting overvotes is disallowed', () => {
   userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
 });
 
-test('blank ballot', () => {
+test('blank ballot', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   renderScreen({
     adjudicationReasonInfo: [{ type: AdjudicationReason.BlankBallot }],
   });
 
-  screen.getByRole('heading', {
+  await screen.findByRole('heading', {
     name: 'Review Your Ballot',
   });
   screen.getByText('No votes were found when scanning this ballot.');
@@ -136,7 +132,7 @@ test('blank ballot', () => {
   expect(confirmButton).toBeDisabled();
 });
 
-test('undervote no votes', () => {
+test('undervote no votes', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -154,7 +150,7 @@ test('undervote no votes', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Review Your Ballot' });
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(`No votes detected in contest: ${contest.title}.`)
   );
@@ -166,7 +162,7 @@ test('undervote no votes', () => {
   expect(confirmButton).toBeDisabled();
 });
 
-test('undervote by 1', () => {
+test('undervote by 1', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
@@ -186,7 +182,7 @@ test('undervote by 1', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Review Your Ballot' });
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(
       `You may vote for more candidates in the contest: ${contest.title}.`
@@ -198,7 +194,7 @@ test('undervote by 1', () => {
   );
 });
 
-test('multiple undervotes', () => {
+test('multiple undervotes', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contests = electionSampleDefinition.election.contests
     .filter((c): c is CandidateContest => c.type === 'candidate')
@@ -214,7 +210,7 @@ test('multiple undervotes', () => {
     })),
   });
 
-  screen.getByRole('heading', { name: 'Review Your Ballot' });
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(
       `You may vote for more candidates in the contests: ${contests[0].title} and ${contests[1].title}.`
@@ -226,7 +222,7 @@ test('multiple undervotes', () => {
   );
 });
 
-test('unreadable', () => {
+test('unreadable', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   renderScreen({
     adjudicationReasonInfo: [
@@ -234,7 +230,7 @@ test('unreadable', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Scanning Failed' });
+  await screen.findByRole('heading', { name: 'Scanning Failed' });
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   const confirmButton = screen.getByRole('button', {
     name: 'Yes, Cast Ballot As Is',

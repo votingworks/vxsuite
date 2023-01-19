@@ -1,25 +1,44 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   PollsNotOpenScreen,
   PollsNotOpenScreenProps,
 } from './polls_not_open_screen';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { machineConfig } from '../../test/helpers/mock_api_client';
+import {
+  createApiMock,
+  machineConfig,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
 const TEST_BALLOT_COUNT = 50;
 
+const apiMock = createApiMock();
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetConfig({
+    precinctSelection: singlePrecinctSelectionFor('23'),
+  });
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
 function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
-  renderInAppContext(
-    <PollsNotOpenScreen
-      showNoChargerWarning={false}
-      isLiveMode
-      pollsState="polls_closed_initial"
-      scannedBallotCount={TEST_BALLOT_COUNT}
-      {...props}
-    />,
-    { precinctSelection: singlePrecinctSelectionFor('23') }
+  return render(
+    provideApi(
+      apiMock,
+      <PollsNotOpenScreen
+        showNoChargerWarning={false}
+        isLiveMode
+        pollsState="polls_closed_initial"
+        scannedBallotCount={TEST_BALLOT_COUNT}
+        {...props}
+      />
+    )
   );
 }
 
