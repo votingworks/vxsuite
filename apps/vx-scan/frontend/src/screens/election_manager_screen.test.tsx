@@ -62,10 +62,6 @@ function renderScreen({
         <ElectionManagerScreen
           electionDefinition={electionSampleDefinition}
           scannerStatus={statusNoPaper}
-          markThresholdOverrides={undefined}
-          isTestMode={false}
-          isSoundMuted={false}
-          pollsState="polls_closed_initial"
           usbDrive={mockUsbDrive('absent')}
           logger={fakeLogger()}
           {...electionManagerScreenProps}
@@ -77,7 +73,9 @@ function renderScreen({
 }
 
 test('renders date and time settings modal', async () => {
+  apiMock.expectGetConfig();
   renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
@@ -109,25 +107,31 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
+  apiMock.expectGetConfig();
   const precinct = electionSampleDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectSetPrecinct(precinctSelection);
   renderScreen();
 
+  apiMock.expectGetConfig({ precinctSelection });
   const selectPrecinct = await screen.findByTestId('selectPrecinct');
   userEvent.selectOptions(selectPrecinct, precinct.id);
+  await screen.findByDisplayValue(precinct.name);
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
+  const electionDefinition =
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+  });
   renderScreen({
     electionManagerScreenProps: {
-      electionDefinition:
-        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+      electionDefinition,
     },
     appContextProps: {
-      electionDefinition:
-        electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-      precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+      electionDefinition,
     },
   });
 
@@ -135,14 +139,17 @@ test('no option to change precinct if there is only one precinct', async () => {
   expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
 });
 
-test('export from admin screen', () => {
+test('export from admin screen', async () => {
+  apiMock.expectGetConfig();
   renderScreen();
 
-  userEvent.click(screen.getByText('Save Backup'));
+  userEvent.click(await screen.findByText('Save Backup'));
+  await screen.findByRole('heading', { name: 'No USB Drive Detected' });
+  // Tested in export_backup_modal.test.tsx
 });
 
-test('unconfigure does not eject a usb drive that is not mounted', () => {
-  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+test('unconfigure does not eject a usb drive that is not mounted', async () => {
+  apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('absent');
   renderScreen({
     electionManagerScreenProps: {
@@ -150,14 +157,17 @@ test('unconfigure does not eject a usb drive that is not mounted', () => {
       usbDrive,
     },
   });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+  apiMock.expectGetConfig({ electionDefinition: undefined });
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
   expect(usbDrive.eject).toHaveBeenCalledTimes(0);
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
-  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+  apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('mounted');
   renderScreen({
     electionManagerScreenProps: {
@@ -165,7 +175,10 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
       usbDrive,
     },
   });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
+  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+  apiMock.expectGetConfig({ electionDefinition: undefined });
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
@@ -173,15 +186,19 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   });
 });
 
-test('unconfigure button is disabled when the machine cannot be unconfigured', () => {
+test('unconfigure button is disabled when the machine cannot be unconfigured', async () => {
+  apiMock.expectGetConfig();
   renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
 });
 
-test('cannot toggle to testing mode when the machine cannot be unconfigured', () => {
+test('cannot toggle to testing mode when the machine cannot be unconfigured', async () => {
+  apiMock.expectGetConfig({ isTestMode: false });
   renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByText('Testing Mode'));
   screen.getByText('Save Backup to switch to Test Mode');
@@ -189,11 +206,9 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
 });
 
 test('allows overriding mark thresholds', async () => {
-  apiMock.expectSetMarkThresholdOverrides({
-    definite: 0.5,
-    marginal: 0.25,
-  });
+  apiMock.expectGetConfig();
   renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByText('Override Mark Thresholds'));
   userEvent.click(screen.getByText('Proceed to Override Thresholds'));
@@ -201,22 +216,40 @@ test('allows overriding mark thresholds', async () => {
   userEvent.type(screen.getByTestId('definite-text-input'), '.5');
   userEvent.clear(screen.getByTestId('marginal-text-input'));
   userEvent.type(screen.getByTestId('marginal-text-input'), '.25');
+
+  apiMock.expectSetMarkThresholdOverrides({
+    definite: 0.5,
+    marginal: 0.25,
+  });
+  apiMock.expectGetConfig({
+    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
+  });
   userEvent.click(screen.getByText('Override Thresholds'));
-  await screen.findByText('Override Mark Thresholds');
+  await screen.findByText('Reset Mark Thresholds');
 });
 
-test('when sounds are not muted, shows a button to mute sounds', () => {
+test('when sounds are not muted, shows a button to mute sounds', async () => {
+  apiMock.expectGetConfig({ isSoundMuted: false });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
   apiMock.mockApiClient.setIsSoundMuted
     .expectCallWith({ isSoundMuted: true })
     .resolves();
-  renderScreen();
+  apiMock.expectGetConfig({ isSoundMuted: true });
   userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
+  await screen.findByRole('button', { name: 'Unmute Sounds' });
 });
 
-test('when sounds are muted, shows a button to unmute sounds', () => {
+test('when sounds are muted, shows a button to unmute sounds', async () => {
+  apiMock.expectGetConfig({ isSoundMuted: true });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
   apiMock.mockApiClient.setIsSoundMuted
     .expectCallWith({ isSoundMuted: false })
     .resolves();
-  renderScreen({ electionManagerScreenProps: { isSoundMuted: true } });
+  apiMock.expectGetConfig({ isSoundMuted: false });
   userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
+  await screen.findByRole('button', { name: 'Mute Sounds' });
 });

@@ -94,7 +94,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     electionDefinition,
     isTestMode,
     precinctSelection,
-    markThresholdOverrides,
     pollsState,
     isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
@@ -177,10 +176,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         <ElectionManagerScreen
           electionDefinition={electionDefinition}
           scannerStatus={scannerStatus}
-          isTestMode={isTestMode}
-          isSoundMuted={isSoundMuted}
-          markThresholdOverrides={markThresholdOverrides}
-          pollsState={pollsState}
           usbDrive={usbDrive}
           logger={logger}
         />

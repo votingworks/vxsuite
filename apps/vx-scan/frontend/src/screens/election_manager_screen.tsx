@@ -1,8 +1,4 @@
-import {
-  ElectionDefinition,
-  MarkThresholds,
-  PollsState,
-} from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -27,6 +23,7 @@ import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
+  getConfig,
   setIsSoundMuted,
   setPrecinctSelection,
   setTestMode,
@@ -37,12 +34,10 @@ import { usePreviewContext } from '../preview_dashboard';
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
 export interface ElectionManagerScreenProps {
+  // We pass electionDefinition in as a prop because the preview dashboard needs
+  // to be able to change it (otherwise we would just use the configQuery
   electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
-  isTestMode: boolean;
-  isSoundMuted: boolean;
-  markThresholdOverrides?: MarkThresholds;
-  pollsState: PollsState;
   usbDrive: UsbDrive;
   logger: Logger;
 }
@@ -50,19 +45,14 @@ export interface ElectionManagerScreenProps {
 export function ElectionManagerScreen({
   electionDefinition,
   scannerStatus,
-  isTestMode,
-  isSoundMuted,
-  markThresholdOverrides,
-  pollsState,
   usbDrive,
   logger,
-}: ElectionManagerScreenProps): JSX.Element {
+}: ElectionManagerScreenProps): JSX.Element | null {
+  const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const { precinctSelection } = useContext(AppContext);
-  const { election } = electionDefinition;
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -76,6 +66,18 @@ export function ElectionManagerScreen({
   const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
+  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
+
+  if (!configQuery.isSuccess) return null;
+
+  const { election } = electionDefinition;
+  const {
+    precinctSelection,
+    isTestMode,
+    isSoundMuted,
+    markThresholdOverrides,
+    pollsState,
+  } = configQuery.data;
 
   function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
@@ -85,7 +87,6 @@ export function ElectionManagerScreen({
     }
   }
 
-  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
   async function handleUnconfigure() {
     setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
@@ -310,10 +311,6 @@ export function DefaultPreview(): JSX.Element {
           ballotsCounted: 1234,
           canUnconfigure: true,
         }}
-        isTestMode={false}
-        isSoundMuted={false}
-        markThresholdOverrides={undefined}
-        pollsState="polls_closed_initial"
         usbDrive={mockUsbDrive('absent')}
         logger={fakeLogger()}
       />
