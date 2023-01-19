@@ -1,14 +1,30 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ScanErrorScreen } from './scan_error_screen';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
+
+beforeEach(() => {
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetConfig();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
 
 test('render correct test ballot error screen when we are in test mode', async () => {
   render(
-    <ScanErrorScreen
-      error="invalid_test_mode"
-      isTestMode
-      scannedBallotCount={42}
-    />
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="invalid_test_mode"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
@@ -18,11 +34,14 @@ test('render correct test ballot error screen when we are in test mode', async (
 
 test('render correct test ballot error screen when we are in live mode', async () => {
   render(
-    <ScanErrorScreen
-      error="invalid_test_mode"
-      isTestMode={false}
-      scannedBallotCount={42}
-    />
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="invalid_test_mode"
+        isTestMode={false}
+        scannedBallotCount={42}
+      />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
@@ -32,11 +51,14 @@ test('render correct test ballot error screen when we are in live mode', async (
 
 test('render correct invalid precinct screen', async () => {
   render(
-    <ScanErrorScreen
-      error="invalid_precinct"
-      isTestMode
-      scannedBallotCount={42}
-    />
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="invalid_precinct"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
@@ -46,11 +68,14 @@ test('render correct invalid precinct screen', async () => {
 
 test('render correct invalid election hash screen', async () => {
   render(
-    <ScanErrorScreen
-      error="invalid_election_hash"
-      isTestMode={false}
-      scannedBallotCount={42}
-    />
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="invalid_election_hash"
+        isTestMode={false}
+        scannedBallotCount={42}
+      />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
@@ -60,7 +85,10 @@ test('render correct invalid election hash screen', async () => {
 
 test('render correct unreadable ballot screen', async () => {
   render(
-    <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
+    provideApi(
+      apiMock,
+      <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(

@@ -1,10 +1,9 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import {
   Button,
   Prose,
   Loading,
-  isPollWorkerAuth,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   fontSizeTheme,
   PrecinctScannerTallyReports,
@@ -45,10 +44,13 @@ import {
   PollsState,
   PollsTransition,
   Optional,
+  ElectionDefinition,
+  PrecinctSelection,
 } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
   LogEventId,
+  Logger,
 } from '@votingworks/logging';
 import {
   CenteredLargeProse,
@@ -57,7 +59,6 @@ import {
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
-import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
@@ -66,6 +67,7 @@ import {
   getCastVoteRecordsForTally,
   setPollsState,
 } from '../api';
+import { MachineConfig } from '../config/types';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -107,26 +109,31 @@ const BallotsAlreadyScannedScreen = (
 );
 
 export interface PollWorkerScreenProps {
+  machineConfig: MachineConfig;
+  electionDefinition: ElectionDefinition;
+  precinctSelection: PrecinctSelection;
   scannedBallotCount: number;
   pollsState: PollsState;
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
+  auth: InsertedSmartcardAuth.PollWorkerLoggedIn;
+  logger: Logger;
 }
 
 export function PollWorkerScreen({
+  machineConfig,
+  electionDefinition,
+  precinctSelection,
   scannedBallotCount,
   pollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
+  auth,
+  logger,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const { electionDefinition, precinctSelection, machineConfig, auth, logger } =
-    useContext(AppContext);
-  assert(electionDefinition);
-  assert(precinctSelection);
-  assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -177,7 +184,6 @@ export function PollWorkerScreen({
         [TallyCategory.Party, TallyCategory.Precinct]
       );
       // Get all tallies by precinct and party
-      assert(precinctSelection);
       setCurrentSubTallies(
         getSubTalliesByPartyAndPrecinct({
           election,
@@ -205,8 +211,6 @@ export function PollWorkerScreen({
     pollsTransition: PollsTransition,
     timePollsTransitioned: number
   ) {
-    assert(precinctSelection);
-    assert(isPollWorkerAuth(auth));
     const reportBasicData: ScannerReportDataBase = {
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: machineConfig.machineId,
@@ -312,8 +316,6 @@ export function PollWorkerScreen({
     timePollsTransitioned: number,
     copies: number
   ) {
-    assert(electionDefinition);
-    assert(precinctSelection);
     assert(currentCompressedTally);
     assert(currentSubTallies);
 
@@ -651,7 +653,11 @@ export function PollWorkerScreen({
       </Prose>
       <ScannedBallotCount count={scannedBallotCount} />
       {isShowingLiveCheck && (
-        <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
+        <LiveCheckModal
+          machineConfig={machineConfig}
+          electionDefinition={electionDefinition}
+          onClose={() => setIsShowingLiveCheck(false)}
+        />
       )}
     </ScreenMainCenterChild>
   );

@@ -4,13 +4,11 @@ import { deferred } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,
 } from './calibrate_scanner_modal';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
-import { createApiMock } from '../../test/helpers/mock_api_client';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
 const fakeScannerStatus: PrecinctScannerStatus = {
   state: 'no_paper',
@@ -22,17 +20,14 @@ const apiMock = createApiMock();
 
 function renderModal(props: Partial<CalibrateScannerModalProps> = {}) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <CalibrateScannerModal
-          scannerStatus={fakeScannerStatus}
-          onCancel={jest.fn()}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    provideApi(
+      apiMock,
+      <CalibrateScannerModal
+        scannerStatus={fakeScannerStatus}
+        onCancel={jest.fn()}
+        {...props}
+      />
+    )
   );
 }
 

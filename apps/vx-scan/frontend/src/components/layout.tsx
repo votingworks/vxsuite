@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   Screen,
   Main,
@@ -8,7 +8,7 @@ import {
   InfoBarMode,
   TestMode,
 } from '@votingworks/ui';
-import { AppContext } from '../contexts/app_context';
+import { getConfig, getMachineConfig } from '../api';
 
 interface CenteredScreenProps {
   children: React.ReactNode;
@@ -22,9 +22,17 @@ export function ScreenMainCenterChild({
   infoBar = true,
   infoBarMode,
   isLiveMode = true,
-}: CenteredScreenProps): JSX.Element {
-  const { electionDefinition, precinctSelection, machineConfig } =
-    useContext(AppContext);
+}: CenteredScreenProps): JSX.Element | null {
+  const machineConfigQuery = getMachineConfig.useQuery();
+  const configQuery = getConfig.useQuery();
+
+  if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
+    return null;
+  }
+
+  const { codeVersion, machineId } = machineConfigQuery.data;
+  const { electionDefinition, precinctSelection } = configQuery.data;
+
   return (
     <Screen>
       {!isLiveMode && <TestMode />}
@@ -36,8 +44,8 @@ export function ScreenMainCenterChild({
           mode={infoBarMode}
           precinctSelection={precinctSelection}
           electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
+          codeVersion={codeVersion}
+          machineId={machineId}
         />
       )}
     </Screen>

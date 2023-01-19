@@ -1,3 +1,4 @@
+import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
@@ -15,6 +16,8 @@ import type {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from '@votingworks/vx-scan-backend';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApiClientContext, queryClientDefaultOptions } from '../../src/api';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -97,4 +100,19 @@ export function createApiMock() {
         .resolves(ok());
     },
   };
+}
+
+export function provideApi(
+  apiMock: ReturnType<typeof createApiMock>,
+  children: React.ReactNode
+): JSX.Element {
+  return (
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+      >
+        {children}
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
+  );
 }

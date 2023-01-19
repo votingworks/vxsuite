@@ -2,13 +2,11 @@ import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   SetMarkThresholdsModal,
   SetMarkThresholdsModalProps,
 } from './set_mark_thresholds_modal';
-import { createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();
 
@@ -22,18 +20,15 @@ afterEach(() => {
 
 function renderModal(props?: Partial<SetMarkThresholdsModalProps>) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <SetMarkThresholdsModal
-          onClose={jest.fn()}
-          markThresholds={electionSample.markThresholds}
-          markThresholdOverrides={undefined}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    provideApi(
+      apiMock,
+      <SetMarkThresholdsModal
+        onClose={jest.fn()}
+        markThresholds={electionSample.markThresholds}
+        markThresholdOverrides={undefined}
+        {...props}
+      />
+    )
   );
 }
 

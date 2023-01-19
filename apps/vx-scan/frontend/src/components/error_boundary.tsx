@@ -1,8 +1,8 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Text, Screen, Main } from '@votingworks/ui';
 import { TimesCircle } from './graphics';
-import { ScreenMainCenterChild, CenteredLargeProse } from './layout';
+import { CenteredLargeProse } from './layout';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type Props = React.PropsWithChildren<{}>;
@@ -67,13 +67,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
     const { error } = this.state;
     if (error) {
       return (
-        <ScreenMainCenterChild infoBar={false}>
-          <TimesCircle />
-          <CenteredLargeProse>
-            <h1>Something went wrong</h1>
-            <Text>Ask a poll worker to restart the scanner.</Text>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
+        <Screen>
+          <Main padded centerChild style={{ position: 'relative' }}>
+            <TimesCircle />
+            <CenteredLargeProse>
+              <h1>Something went wrong</h1>
+              <Text>Ask a poll worker to restart the scanner.</Text>
+            </CenteredLargeProse>
+          </Main>
+        </Screen>
       );
     }
 

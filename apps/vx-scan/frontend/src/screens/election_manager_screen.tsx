@@ -1,4 +1,4 @@
-import { ok, PollsState } from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -8,60 +8,49 @@ import {
   SegmentedButton,
   SetClockButton,
   UsbDrive,
-  isElectionManagerAuth,
   ChangePrecinctButton,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
-import React, { useContext, useState } from 'react';
-import { Logger, LogSource } from '@votingworks/logging';
+import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
+import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
-import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
+  getConfig,
   setIsSoundMuted,
   setPrecinctSelection,
   setTestMode,
   unconfigureElection,
 } from '../api';
+import { usePreviewContext } from '../preview_dashboard';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
 export interface ElectionManagerScreenProps {
+  // We pass electionDefinition in as a prop because the preview dashboard needs
+  // to be able to change it (otherwise we would just use the configQuery
+  electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
-  isTestMode: boolean;
-  pollsState: PollsState;
   usbDrive: UsbDrive;
+  logger: Logger;
 }
 
 export function ElectionManagerScreen({
+  electionDefinition,
   scannerStatus,
-  isTestMode,
-  pollsState,
   usbDrive,
-}: ElectionManagerScreenProps): JSX.Element {
+  logger,
+}: ElectionManagerScreenProps): JSX.Element | null {
+  const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-  const {
-    electionDefinition,
-    precinctSelection,
-    markThresholdOverrides,
-    auth,
-    isSoundMuted,
-    logger,
-  } = useContext(AppContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-  assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -75,6 +64,18 @@ export function ElectionManagerScreen({
   const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
+  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
+
+  if (!configQuery.isSuccess) return null;
+
+  const { election } = electionDefinition;
+  const {
+    precinctSelection,
+    isTestMode,
+    isSoundMuted,
+    markThresholdOverrides,
+    pollsState,
+  } = configQuery.data;
 
   function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
@@ -84,12 +85,11 @@ export function ElectionManagerScreen({
     }
   }
 
-  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
   async function handleUnconfigure() {
     setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === 'mounted') {
-      await usbDrive.eject(userRole);
+      await usbDrive.eject('election_manager');
     }
     unconfigureMutation.mutate({});
   }
@@ -292,45 +292,25 @@ export function ElectionManagerScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  const { machineConfig, electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
+  const { electionDefinition } = usePreviewContext();
   return (
-    <AppContext.Provider
-      value={{
-        machineConfig,
-        electionDefinition,
-        precinctSelection: undefined,
-        markThresholdOverrides: undefined,
-        isSoundMuted: false,
-        auth: {
-          status: 'logged_in',
-          user: {
-            role: 'election_manager',
-            electionHash: electionDefinition.electionHash,
-            passcode: '000000',
-          },
-          card: {
-            hasStoredData: false,
-            readStoredObject: () => Promise.resolve(ok(undefined)),
-            readStoredString: () => Promise.resolve(ok(undefined)),
-            readStoredUint8Array: () => Promise.resolve(ok(new Uint8Array())),
-            writeStoredData: () => Promise.resolve(ok()),
-            clearStoredData: () => Promise.resolve(ok()),
-          },
-        },
-        logger: new Logger(LogSource.VxScanFrontend),
+    <ElectionManagerScreen
+      electionDefinition={electionDefinition}
+      scannerStatus={{
+        state: 'no_paper',
+        ballotsCounted: 1234,
+        canUnconfigure: true,
       }}
-    >
-      <ElectionManagerScreen
-        scannerStatus={{
-          state: 'no_paper',
-          ballotsCounted: 1234,
-          canUnconfigure: true,
-        }}
-        isTestMode={false}
-        pollsState="polls_closed_initial"
-        usbDrive={mockUsbDrive('absent')}
-      />
-    </AppContext.Provider>
+      usbDrive={{
+        status: 'absent',
+        eject: () => {
+          return Promise.resolve();
+        },
+        format: () => {
+          return Promise.resolve();
+        },
+      }}
+      logger={new Logger(LogSource.VxScanFrontend)}
+    />
   );
 }

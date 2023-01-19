@@ -1,43 +1,30 @@
 import React from 'react';
 
-import { fireEvent, waitFor } from '@testing-library/react';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/types';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ExportResultsModal,
   ExportResultsModalProps,
 } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
-import { AppContext } from '../contexts/app_context';
-import { MachineConfig } from '../config/types';
-import { renderInAppContext } from '../../test/helpers/render_in_app_context';
-import { createApiMock } from '../../test/helpers/mock_api_client';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { ApiClientContext, queryClientDefaultOptions } from '../api';
 
 const apiMock = createApiMock();
-const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
-const auth = Inserted.fakeElectionManagerAuth();
 
 function renderModal(props: Partial<ExportResultsModalProps> = {}) {
-  return renderInAppContext(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
-      >
-        <ExportResultsModal
-          onClose={jest.fn()}
-          usbDrive={mockUsbDrive('mounted')}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>,
-    { auth }
+  return render(
+    provideApi(
+      apiMock,
+      <ExportResultsModal
+        onClose={jest.fn()}
+        usbDrive={mockUsbDrive('mounted')}
+        {...props}
+      />
+    )
   );
 }
 
@@ -108,28 +95,13 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   expect(usbDrive.eject).toHaveBeenCalled();
 
   rerender(
-    <AppContext.Provider
-      value={{
-        electionDefinition: electionSampleDefinition,
-        isSoundMuted: false,
-        machineConfig,
-        auth,
-        logger: new Logger(LogSource.VxScanFrontend),
-      }}
-    >
-      <ApiClientContext.Provider value={apiMock.mockApiClient}>
-        <QueryClientProvider
-          client={
-            new QueryClient({ defaultOptions: queryClientDefaultOptions })
-          }
-        >
-          <ExportResultsModal
-            onClose={onClose}
-            usbDrive={mockUsbDrive('ejected')}
-          />
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
-    </AppContext.Provider>
+    provideApi(
+      apiMock,
+      <ExportResultsModal
+        onClose={onClose}
+        usbDrive={mockUsbDrive('ejected')}
+      />
+    )
   );
   getByText('USB Drive Ejected');
   getByText('You may now take the USB Drive to VxAdmin for tabulation.');

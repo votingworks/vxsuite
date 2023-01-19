@@ -18,12 +18,10 @@ import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
-import { AppContext } from './contexts/app_context';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
 import { ScreenMainCenterChild } from './components/layout';
@@ -95,7 +93,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     electionDefinition,
     isTestMode,
     precinctSelection,
-    markThresholdOverrides,
     pollsState,
     isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
@@ -168,24 +165,12 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
 
   if (isElectionManagerAuth(auth)) {
     return (
-      <AppContext.Provider
-        value={{
-          electionDefinition,
-          precinctSelection,
-          markThresholdOverrides,
-          machineConfig,
-          auth,
-          isSoundMuted,
-          logger,
-        }}
-      >
-        <ElectionManagerScreen
-          scannerStatus={scannerStatus}
-          isTestMode={isTestMode}
-          pollsState={pollsState}
-          usbDrive={usbDrive}
-        />
-      </AppContext.Provider>
+      <ElectionManagerScreen
+        electionDefinition={electionDefinition}
+        scannerStatus={scannerStatus}
+        usbDrive={usbDrive}
+        logger={logger}
+      />
     );
   }
 
@@ -210,24 +195,17 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
 
   if (isPollWorkerAuth(auth)) {
     return (
-      <AppContext.Provider
-        value={{
-          electionDefinition,
-          precinctSelection,
-          markThresholdOverrides,
-          machineConfig,
-          auth,
-          isSoundMuted,
-          logger,
-        }}
-      >
-        <PollWorkerScreen
-          scannedBallotCount={scannerStatus.ballotsCounted}
-          pollsState={pollsState}
-          hasPrinterAttached={!!printerInfo}
-          isLiveMode={!isTestMode}
-        />
-      </AppContext.Provider>
+      <PollWorkerScreen
+        machineConfig={machineConfig}
+        electionDefinition={electionDefinition}
+        precinctSelection={precinctSelection}
+        scannedBallotCount={scannerStatus.ballotsCounted}
+        pollsState={pollsState}
+        hasPrinterAttached={!!printerInfo}
+        isLiveMode={!isTestMode}
+        auth={auth}
+        logger={logger}
+      />
     );
   }
 
@@ -240,44 +218,21 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
 
   if (pollsState !== 'polls_open') {
     return (
-      <AppContext.Provider
-        value={{
-          electionDefinition,
-          precinctSelection,
-          markThresholdOverrides,
-          machineConfig,
-          auth,
-          isSoundMuted,
-          logger,
-        }}
-      >
-        <PollsNotOpenScreen
-          isLiveMode={!isTestMode}
-          pollsState={pollsState}
-          showNoChargerWarning={!computer.batteryIsCharging}
-          scannedBallotCount={scannerStatus.ballotsCounted}
-        />
-      </AppContext.Provider>
+      <PollsNotOpenScreen
+        isLiveMode={!isTestMode}
+        pollsState={pollsState}
+        showNoChargerWarning={!computer.batteryIsCharging}
+        scannedBallotCount={scannerStatus.ballotsCounted}
+      />
     );
   }
 
   return (
-    <AppContext.Provider
-      value={{
-        electionDefinition,
-        precinctSelection,
-        markThresholdOverrides,
-        machineConfig,
-        auth,
-        isSoundMuted,
-        logger,
-      }}
-    >
-      <VoterScreen
-        isTestMode={isTestMode}
-        isSoundMuted={isSoundMuted}
-        batteryIsCharging={computer.batteryIsCharging}
-      />
-    </AppContext.Provider>
+    <VoterScreen
+      electionDefinition={electionDefinition}
+      isTestMode={isTestMode}
+      isSoundMuted={isSoundMuted}
+      batteryIsCharging={computer.batteryIsCharging}
+    />
   );
 }

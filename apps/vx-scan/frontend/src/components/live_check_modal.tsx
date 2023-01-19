@@ -1,18 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-
-import {
-  Button,
-  Prose,
-  Modal,
-  QrCode,
-  isElectionManagerAuth,
-  isPollWorkerAuth,
-} from '@votingworks/ui';
-
-import { assert } from '@votingworks/utils';
-
+import React, { useEffect, useState } from 'react';
+import { Button, Prose, Modal, QrCode } from '@votingworks/ui';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
+import { ElectionDefinition } from '@votingworks/types';
+import { MachineConfig } from '../config/types';
 
 const QrCodeWrapper = styled.div`
   margin: auto;
@@ -20,15 +10,17 @@ const QrCodeWrapper = styled.div`
 `;
 
 export interface Props {
+  machineConfig: MachineConfig;
+  electionDefinition: ElectionDefinition;
   onClose: () => void;
 }
 
-export function LiveCheckModal({ onClose }: Props): JSX.Element {
+export function LiveCheckModal({
+  machineConfig,
+  electionDefinition,
+  onClose,
+}: Props): JSX.Element {
   const [livecheckUrl, setLivecheckUrl] = useState('');
-  const { electionDefinition, machineConfig, auth } = useContext(AppContext);
-  assert(electionDefinition);
-  assert(machineConfig);
-  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
 
   useEffect(() => {
     void (async () => {
