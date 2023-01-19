@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Text, useExternalStateChangeListener } from '@votingworks/ui';
-import { fakeLogger, LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { CenteredLargeProse, ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
@@ -100,7 +100,7 @@ export function BallotBagFullAlertPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated={false}
-      logger={fakeLogger()}
+      logger={new Logger(LogSource.VxScanFrontend)}
     />
   );
 }
@@ -110,7 +110,7 @@ export function PollWorkerConfirmationFlowPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated
-      logger={fakeLogger()}
+      logger={new Logger(LogSource.VxScanFrontend)}
     />
   );
 }

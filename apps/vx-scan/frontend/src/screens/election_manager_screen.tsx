@@ -13,14 +13,13 @@ import {
 import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
   getConfig,
   setIsSoundMuted,
@@ -302,8 +301,16 @@ export function DefaultPreview(): JSX.Element {
         ballotsCounted: 1234,
         canUnconfigure: true,
       }}
-      usbDrive={mockUsbDrive('absent')}
-      logger={fakeLogger()}
+      usbDrive={{
+        status: 'absent',
+        eject: () => {
+          return Promise.resolve();
+        },
+        format: () => {
+          return Promise.resolve();
+        },
+      }}
+      logger={new Logger(LogSource.VxScanFrontend)}
     />
   );
 }
