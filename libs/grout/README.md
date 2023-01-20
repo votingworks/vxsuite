@@ -115,8 +115,7 @@ try {
 ### Testing
 
 To test your server API, you can simply run the server and use the Grout client
-to call the API methods. Note that you'll need to patch `globals.fetch` with a
-Node implementation like `node-fetch`.
+to call the API methods.
 
 To mock your API in client-side tests, you can use the `createMockClient` method
 from `@votingworks/grout-test-utils`:

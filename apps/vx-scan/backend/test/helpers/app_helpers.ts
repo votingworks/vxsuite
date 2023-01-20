@@ -19,7 +19,6 @@ import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';
 import { AddressInfo } from 'net';
-import fetch from 'node-fetch';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { buildApp, Api } from '../../src/app';
@@ -34,12 +33,6 @@ import {
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 import { Usb } from '../../src/util/usb';
 import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
-
-// TODO(jonah) - Is there a way to ensure Grout always has access to node-fetch
-// in a node environment?
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global.fetch = fetch;
 
 type MockFileTree = MockFile | MockDirectory;
 type MockFile = Buffer;

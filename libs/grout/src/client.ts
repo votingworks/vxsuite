@@ -1,3 +1,4 @@
+import fetch from 'cross-fetch';
 import { deserialize, serialize } from './serialization';
 import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
 import { rootDebug } from './debug';

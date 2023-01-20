@@ -31,7 +31,6 @@ importers:
       '@types/luxon': ^1.26.5
       '@types/multer': ^1.4.7
       '@types/node': 16.11.29
-      '@types/node-fetch': ^2.6.2
       '@types/supertest': ^2.0.10
       '@types/tmp': ^0.2.0
       '@types/uuid': ^8.3.0
@@ -80,7 +79,6 @@ importers:
       memory-streams: ^0.1.3
       multer: ^1.4.2
       nock: ^13.1.0
-      node-fetch: ^2.6.0
       nodemon: ^2.0.20
       prettier: ^2.6.2
       rxjs: ^7.5.5
@@ -138,7 +136,6 @@ importers:
       '@types/luxon': 1.27.1
       '@types/multer': 1.4.7
       '@types/node': 16.11.29
-      '@types/node-fetch': 2.6.2
       '@types/supertest': 2.0.10
       '@types/tmp': 0.2.3
       '@types/uuid': 8.3.4
@@ -160,7 +157,6 @@ importers:
       jest-watch-typeahead: 0.6.5_jest@26.6.3
       lint-staged: 10.5.4
       nock: 13.1.0
-      node-fetch: 2.6.7
       nodemon: 2.0.20
       prettier: 2.7.1
       sort-package-json: 1.53.1
@@ -2386,6 +2382,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/types': workspace:*
+      cross-fetch: ^3.1.5
       debug: ^4.3.4
       deep-eql: ^4.1.3
       eslint: ^8.23.1
@@ -2402,7 +2399,6 @@ importers:
       jest-junit: ^14.0.1
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
-      node-fetch: ^2.6.0
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
@@ -2412,6 +2408,7 @@ importers:
       '@types/deep-eql': 4.0.0
       '@types/express': 4.17.14
       '@votingworks/types': link:../types
+      cross-fetch: 3.1.5
       debug: 4.3.4
       deep-eql: 4.1.3
     devDependencies:
@@ -2433,7 +2430,6 @@ importers:
       jest-junit: 14.0.1
       jest-watch-typeahead: 0.6.5_jest@27.5.1
       lint-staged: 11.0.0
-      node-fetch: 2.6.7
       prettier: 2.7.1
       sort-package-json: 1.53.1
       ts-jest: 27.1.5_pk4vsv2ithcqagckraecvsx2cu
@@ -13612,7 +13608,7 @@ packages:
     peerDependencies:
       styled-components: '>= 2'
     dependencies:
-      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-annotate-as-pure': 7.12.10
       '@babel/helper-module-imports': 7.12.5
       babel-plugin-syntax-jsx: 6.18.0
       lodash: 4.17.20
@@ -20439,6 +20435,16 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /follow-redirects/1.14.1:
+    resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /follow-redirects/1.14.1_debug@4.3.1:
     resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
     engines: {node: '>=4.0'}
@@ -20461,18 +20467,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.2
-
-  /follow-redirects/1.14.1_debug@4.3.4:
-    resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dependencies:
-      debug: 4.3.4
-    dev: false
 
   /for-each/0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -21495,7 +21489,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -21517,7 +21511,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.4
+      follow-redirects: 1.14.1_debug@4.3.2
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

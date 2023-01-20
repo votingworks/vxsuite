@@ -2,15 +2,10 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { AddressInfo } from 'net';
 import express from 'express';
-import fetch from 'node-fetch';
 import { err, ok, Result } from '@votingworks/types';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
 import { AnyApi, buildRouter, createApi } from './server';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global.fetch = fetch;
 
 function createTestApp(api: AnyApi) {
   const app = express();
