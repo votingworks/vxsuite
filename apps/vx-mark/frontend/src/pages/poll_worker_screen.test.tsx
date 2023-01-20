@@ -80,7 +80,7 @@ function renderScreen(
       screenReader={new AriaScreenReader(fakeTts())}
       updatePollsState={jest.fn()}
       reload={jest.fn()}
-      logger={new Logger(LogSource.VxBallotMarkingDeviceFrontend)}
+      logger={new Logger(LogSource.VxMarkFrontend)}
       {...props}
     />
   );

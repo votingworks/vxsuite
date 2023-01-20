@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/bmd",
+  "name": "@votingworks/vx-mark-frontend",
   "version": "0.1.0",
   "private": true,
   "files": [
@@ -16,8 +16,8 @@
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run --fix",
-    "start": "pnpm -w run-dev bmd",
-    "start:core": "pnpm -w run-dev bmd --core-only",
+    "start": "pnpm -w run-dev vx-mark",
+    "start:core": "pnpm -w run-dev vm-mark --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=7 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit && pnpm build:resources --check",
@@ -207,7 +207,8 @@
   "vx": {
     "isBundled": true,
     "services": [
-      "../../services/smartcards"
+      "../../../services/smartcards",
+      "../backend"
     ]
   }
 }

@@ -51,7 +51,7 @@ export function App({
   hardware = getHardware(),
   machineConfig = machineConfigProvider,
   reload = () => window.location.reload(),
-  logger = new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
+  logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
 }: Props): JSX.Element {
   screenReader.mute();
   /* istanbul ignore next - need to figure out how to test this */

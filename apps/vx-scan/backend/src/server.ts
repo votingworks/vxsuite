@@ -24,7 +24,7 @@ export interface StartOptions {
 export async function start({
   port = PORT,
   createPlustekClient = createClient,
-  logger = new Logger(LogSource.VxScanService),
+  logger = new Logger(LogSource.VxScanBackend),
   workspace,
 }: Partial<StartOptions> = {}): Promise<void> {
   let resolvedWorkspace: Workspace;
