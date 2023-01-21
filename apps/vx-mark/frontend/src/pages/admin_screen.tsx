@@ -20,7 +20,8 @@ import {
   Text,
 } from '@votingworks/ui';
 import { Logger } from '@votingworks/logging';
-import { MachineConfig, ScreenReader } from '../config/types';
+import { MachineConfig } from '@votingworks/vx-mark-backend';
+import { ScreenReader } from '../config/types';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;

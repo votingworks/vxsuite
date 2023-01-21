@@ -1,7 +1,8 @@
 import { createContext } from 'react';
+import { MarkOnly } from '@votingworks/types';
 import * as GLOBALS from '../config/globals';
 
-import { BallotContextInterface, MarkOnly } from '../config/types';
+import { BallotContextInterface } from '../config/types';
 
 const ballot: BallotContextInterface = {
   machineConfig: {

@@ -2,8 +2,7 @@ import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
 import { getMachineConfig } from './machine_config';
 
-function buildApi(
-) {
+function buildApi() {
   return grout.createApi({
     getMachineConfig,
   });

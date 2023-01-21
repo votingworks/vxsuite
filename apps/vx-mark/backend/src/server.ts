@@ -10,10 +10,10 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export async function start({
+export function start({
   port = PORT,
   logger = new Logger(LogSource.VxMarkBackend),
-}: Partial<StartOptions> = {}): Promise<void> {
+}: Partial<StartOptions> = {}): void {
   const app = buildApp();
 
   app.listen(port, async () => {

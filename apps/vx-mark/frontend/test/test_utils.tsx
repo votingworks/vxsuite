@@ -8,18 +8,15 @@ import {
   ElectionDefinition,
   PrecinctId,
   VotesDict,
+  MarkOnly,
 } from '@votingworks/types';
+import { MachineConfig } from '@votingworks/vx-mark-backend';
 
 import userEvent from '@testing-library/user-event';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import * as GLOBALS from '../src/config/globals';
 
-import {
-  MachineConfig,
-  MarkVoterCardFunction,
-  MarkOnly,
-  UserSettings,
-} from '../src/config/types';
+import { MarkVoterCardFunction, UserSettings } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';

@@ -58,8 +58,9 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
+import { MachineConfig } from '@votingworks/vx-mark-backend';
 import styled from 'styled-components';
-import { MachineConfig, ScreenReader } from '../config/types';
+import { ScreenReader } from '../config/types';
 
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';

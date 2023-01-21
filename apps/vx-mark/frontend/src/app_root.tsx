@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   OptionalElectionDefinition,
   OptionalVote,
-  Provider,
   VotesDict,
   getBallotStyle,
   getContests,
@@ -51,15 +50,16 @@ import {
   CARD_POLLING_INTERVAL,
   UnlockMachineScreen,
 } from '@votingworks/ui';
+
+import { getMachineConfig } from './api';
+
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import {
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
-  MachineConfig,
   PostVotingInstructions,
-  MarkAndPrint,
 } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
@@ -89,10 +89,6 @@ interface UserState {
   showPostVotingInstructions?: PostVotingInstructions;
 }
 
-interface HardwareState {
-  machineConfig: Readonly<MachineConfig>;
-}
-
 interface SharedState {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
@@ -111,7 +107,7 @@ interface OtherState {
 
 export interface InitialUserState extends UserState, SharedState {}
 
-export interface State extends InitialUserState, HardwareState, OtherState {}
+export interface State extends InitialUserState, OtherState {}
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition;
@@ -120,7 +116,6 @@ export interface AppStorage {
 export interface Props {
   card: Card;
   hardware: Hardware;
-  machineConfig: Provider<MachineConfig>;
   storage: Storage;
   screenReader: ScreenReader;
   reload: VoidFunction;
@@ -135,15 +130,6 @@ const initialVoterState: Readonly<UserState> = {
   userSettings: GLOBALS.DEFAULT_USER_SETTINGS,
   votes: undefined,
   showPostVotingInstructions: undefined,
-};
-
-const initialHardwareState: Readonly<HardwareState> = {
-  machineConfig: {
-    appMode: MarkAndPrint,
-    machineId: '0000',
-    codeVersion: 'dev',
-    screenOrientation: 'portrait',
-  },
 };
 
 const initialSharedState: Readonly<SharedState> = {
@@ -169,13 +155,11 @@ const initialUserState: Readonly<InitialUserState> = {
 
 const initialAppState: Readonly<State> = {
   ...initialUserState,
-  ...initialHardwareState,
   ...initialOtherState,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
-  | { type: 'setMachineConfig'; machineConfig: MachineConfig }
   | { type: 'updateLastVoteUpdateAt'; date: number }
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
@@ -198,12 +182,6 @@ function appReducer(state: State, action: AppAction): State {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
   };
   switch (action.type) {
-    case 'setMachineConfig':
-      return {
-        ...state,
-        machineConfig:
-          action.machineConfig ?? initialHardwareState.machineConfig,
-      };
     case 'updateLastVoteUpdateAt':
       return {
         ...state,
@@ -318,7 +296,6 @@ function appReducer(state: State, action: AppAction): State {
 export function AppRoot({
   card,
   hardware,
-  machineConfig: machineConfigProvider,
   screenReader,
   storage,
   reload,
@@ -333,14 +310,14 @@ export function AppRoot({
     isLiveMode,
     pollsState,
     initializedFromStorage,
-    machineConfig,
     showPostVotingInstructions,
     userSettings,
     votes,
   } = appState;
 
   const history = useHistory();
-  const { appMode } = machineConfig;
+
+  const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
   const {
@@ -673,22 +650,6 @@ export function AppRoot({
     void resetBallotOnPrinterDetach();
   }, [previousHasPrinterAttached, hasPrinterAttached, resetBallot]);
 
-  // Handle Machine Config
-  useEffect(() => {
-    async function setMachineConfig() {
-      try {
-        const newMachineConfig = await machineConfigProvider.get();
-        dispatchAppState({
-          type: 'setMachineConfig',
-          machineConfig: newMachineConfig,
-        });
-      } catch {
-        // Do nothing if machineConfig fails. Default values will be used.
-      }
-    }
-    void setMachineConfig();
-  }, [machineConfigProvider]);
-
   // Handle Keyboard Input
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -757,6 +718,15 @@ export function AppRoot({
     storage,
     initializedFromStorage,
   ]);
+  if (!machineConfigQuery.isSuccess) {
+    return (
+      <UnconfiguredScreen
+        hasElectionDefinition={Boolean(optionalElectionDefinition)}
+      />
+    );
+  }
+  const machineConfig = machineConfigQuery.data;
+  const { appMode } = machineConfig;
 
   if (!cardReader) {
     return (

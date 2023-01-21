@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import * as grout from '@votingworks/grout';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { Api } from '@votingworks/vx-mark-backend';
 
 import 'normalize.css';
 import './App.css';
@@ -12,6 +15,7 @@ import {
   isAccessibleController,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { memoize } from './utils/memoize';
 import {
   ScreenReader,
@@ -23,7 +27,8 @@ import { getUsEnglishVoice } from './utils/voices';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
-import { machineConfigProvider } from './utils/machine_config';
+import { ApiClientContext, queryClientDefaultOptions } from './api';
+import { ErrorBoundary } from './components/error_boundary';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -33,10 +38,11 @@ export interface Props {
   hardware?: AppRootProps['hardware'];
   card?: AppRootProps['card'];
   storage?: AppRootProps['storage'];
-  machineConfig?: AppRootProps['machineConfig'];
   screenReader?: ScreenReader;
   reload?: VoidFunction;
   logger?: AppRootProps['logger'];
+  apiClient?: grout.Client<Api>;
+  queryClient?: QueryClient;
 }
 
 export function App({
@@ -49,9 +55,10 @@ export function App({
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   hardware = getHardware(),
-  machineConfig = machineConfigProvider,
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
+  apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
+  queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
 }: Props): JSX.Element {
   screenReader.mute();
   /* istanbul ignore next - need to figure out how to test this */
@@ -118,22 +125,27 @@ export function App({
   );
   return (
     <BrowserRouter>
-      <FocusManager
-        screenReader={screenReader}
-        onKeyDown={onKeyDown}
-        onClickCapture={onClick}
-        onFocusCapture={onFocus}
-      >
-        <AppRoot
-          card={card}
-          hardware={hardware}
-          storage={storage}
-          machineConfig={machineConfig}
+      <ErrorBoundary>
+        <FocusManager
           screenReader={screenReader}
-          reload={reload}
-          logger={logger}
-        />
-      </FocusManager>
+          onKeyDown={onKeyDown}
+          onClickCapture={onClick}
+          onFocusCapture={onFocus}
+        >
+          <ApiClientContext.Provider value={apiClient}>
+            <QueryClientProvider client={queryClient}>
+              <AppRoot
+                card={card}
+                hardware={hardware}
+                storage={storage}
+                screenReader={screenReader}
+                reload={reload}
+                logger={logger}
+              />
+            </QueryClientProvider>
+          </ApiClientContext.Provider>
+        </FocusManager>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

@@ -6,6 +6,7 @@ import * as server from './server';
 import { NODE_ENV } from './globals';
 
 export type { Api } from './app';
+export * from './types';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotEnvPath = '.env';
@@ -34,21 +35,20 @@ for (const dotenvFile of dotenvFiles) {
 
 const logger = new Logger(LogSource.VxMarkBackend);
 
-async function main(): Promise<number> {
-  await server.start({});
+function main(): number {
+  server.start({});
   return 0;
 }
 
 if (require.main === module) {
-  void main()
-    .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting VxMark backend: ${error.stack}`,
-        disposition: 'failure',
-      });
-      return 1;
-    })
-    .then((code) => {
-      process.exitCode = code;
+  try {
+    const code = main();
+    process.exitCode = code;
+  } catch (error) {
+    void logger.log(LogEventId.ApplicationStartup, 'system', {
+      message: `Error in starting VxMark backend: ${(error as Error).stack}`,
+      disposition: 'failure',
     });
+    process.exitCode = 1;
+  }
 }

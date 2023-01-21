@@ -14,10 +14,11 @@ import {
   useCancelablePromise,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
+import { MachineConfig } from '@votingworks/vx-mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
-import { MachineConfig, ScreenReader } from '../config/types';
+import { ScreenReader } from '../config/types';
 
 interface Props {
   appPrecinct?: PrecinctSelection;
