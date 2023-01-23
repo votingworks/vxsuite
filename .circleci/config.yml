@@ -281,6 +281,28 @@ jobs:
       - store_test_results:
           path: libs/api/reports/
 
+  test-libs-auth:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/auth build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/auth lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/auth test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/auth/reports/
+
   test-libs-ballot-encoder:
     executor: nodejs
     resource_class: xlarge
@@ -855,6 +877,7 @@ workflows:
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
       - test-libs-api
+      - test-libs-auth
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
