@@ -89,7 +89,7 @@ describe('test cdf documentation generation', () => {
 });
 
 describe('test markdown documentation generation', () => {
-  test('generated documentation is up to date you need to run `pnpx esr --cache scripts/generate_documentation.ts` if this fails', () => {
+  test('generated documentation is up to date you need to run `pnpx esbuil-runner --cache scripts/generate_documentation.ts` if this fails', () => {
     const generatedFileContent = generateMarkdownDocumentationContent();
     const currentDocumentationContent = fs.readFileSync(
       'VotingWorksLoggingDocumentation.md'
