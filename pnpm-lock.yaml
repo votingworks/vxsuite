@@ -1614,7 +1614,6 @@ importers:
   libs/auth:
     specifiers:
       '@types/jest': ^27.0.3
-      '@types/node-fetch': ^2.6.0
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       eslint: ^8.23.1
@@ -1635,7 +1634,6 @@ importers:
       typescript: 4.6.3
     devDependencies:
       '@types/jest': 27.4.1
-      '@types/node-fetch': 2.6.2
       '@typescript-eslint/eslint-plugin': 5.37.0_srb6gpj27cpytxa4hvxonfqyzi
       '@typescript-eslint/parser': 5.37.0_fnqnj4wr4adlkzkgntzwybsmii
       eslint: 8.26.0
