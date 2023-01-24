@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "outDir": "build",
+    "rootDir": "src"
+  },
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
+}

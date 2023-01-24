@@ -1,12 +1,12 @@
 {
   "folders": [
     {
-      "name": "apps/vx-scan/frontend",
-      "path": "apps/vx-scan/frontend"
-    },
-    {
       "name": "apps/vx-scan/backend",
       "path": "apps/vx-scan/backend"
+    },
+    {
+      "name": "apps/vx-scan/frontend",
+      "path": "apps/vx-scan/frontend"
     },
     {
       "name": "frontends/bas",
@@ -25,24 +25,20 @@
       "path": "frontends/election-manager"
     },
     {
-      "name": "services/admin",
-      "path": "services/admin"
+      "name": "integration-testing/bsd",
+      "path": "integration-testing/bsd"
     },
     {
-      "name": "services/scan",
-      "path": "services/scan"
-    },
-    {
-      "name": "services/smartcards",
-      "path": "services/smartcards"
-    },
-    {
-      "name": "services/converter-ms-sems",
-      "path": "services/converter-ms-sems"
+      "name": "integration-testing/election-manager",
+      "path": "integration-testing/election-manager"
     },
     {
       "name": "libs/api",
       "path": "libs/api"
+    },
+    {
+      "name": "libs/auth",
+      "path": "libs/auth"
     },
     {
       "name": "libs/ballot-encoder",
@@ -81,6 +77,14 @@
       "path": "libs/db"
     },
     {
+      "name": "libs/eslint-plugin-vx",
+      "path": "libs/eslint-plugin-vx"
+    },
+    {
+      "name": "libs/fixtures",
+      "path": "libs/fixtures"
+    },
+    {
       "name": "libs/grout",
       "path": "libs/grout"
     },
@@ -97,22 +101,6 @@
       "path": "libs/logging"
     },
     {
-      "name": "libs/types",
-      "path": "libs/types"
-    },
-    {
-      "name": "libs/fixtures",
-      "path": "libs/fixtures"
-    },
-    {
-      "name": "libs/test-utils",
-      "path": "libs/test-utils"
-    },
-    {
-      "name": "libs/ui",
-      "path": "libs/ui"
-    },
-    {
       "name": "libs/plustek-sdk",
       "path": "libs/plustek-sdk"
     },
@@ -121,24 +109,40 @@
       "path": "libs/res-to-ts"
     },
     {
-      "name": "libs/utils",
-      "path": "libs/utils"
+      "name": "libs/test-utils",
+      "path": "libs/test-utils"
     },
     {
-      "name": "integration-testing/bsd",
-      "path": "integration-testing/bsd"
+      "name": "libs/types",
+      "path": "libs/types"
     },
     {
-      "name": "integration-testing/election-manager",
-      "path": "integration-testing/election-manager"
-    },
-    {
-      "name": "libs/eslint-plugin-vx",
-      "path": "libs/eslint-plugin-vx"
+      "name": "libs/ui",
+      "path": "libs/ui"
     },
     {
       "name": "libs/usb-mocking",
       "path": "libs/usb-mocking"
+    },
+    {
+      "name": "libs/utils",
+      "path": "libs/utils"
+    },
+    {
+      "name": "services/admin",
+      "path": "services/admin"
+    },
+    {
+      "name": "services/converter-ms-sems",
+      "path": "services/converter-ms-sems"
+    },
+    {
+      "name": "services/scan",
+      "path": "services/scan"
+    },
+    {
+      "name": "services/smartcards",
+      "path": "services/smartcards"
     }
   ],
   "settings": {
