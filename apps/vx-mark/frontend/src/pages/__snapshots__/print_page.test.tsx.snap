@@ -92,7 +92,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               President and Vice-President
@@ -114,7 +114,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Representative, District 6
@@ -130,7 +130,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Lieutenant Governor
@@ -152,7 +152,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Senator, District 31
@@ -168,7 +168,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Assembly Member, District 54
@@ -184,7 +184,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Registrar of Wills
@@ -200,7 +200,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
@@ -216,7 +216,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
@@ -234,7 +234,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question B: Separation of Powers
@@ -252,7 +252,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
@@ -268,7 +268,7 @@ exports[`prints correct ballot with votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
@@ -378,7 +378,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               President and Vice-President
@@ -394,7 +394,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Representative, District 6
@@ -410,7 +410,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Lieutenant Governor
@@ -426,7 +426,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Senator, District 31
@@ -442,7 +442,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Assembly Member, District 54
@@ -458,7 +458,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Registrar of Wills
@@ -474,7 +474,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
@@ -490,7 +490,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
@@ -506,7 +506,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question B: Separation of Powers
@@ -522,7 +522,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
@@ -538,7 +538,7 @@ exports[`prints correct ballot without votes 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
@@ -816,7 +816,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               President and Vice-President
@@ -832,7 +832,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Representative, District 6
@@ -848,7 +848,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Lieutenant Governor
@@ -864,7 +864,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Senator, District 31
@@ -880,7 +880,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Assembly Member, District 54
@@ -896,7 +896,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Registrar of Wills
@@ -912,7 +912,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
@@ -928,7 +928,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
@@ -944,7 +944,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question B: Separation of Powers
@@ -960,7 +960,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
@@ -976,7 +976,7 @@ exports[`prints correct ballot without votes and inline seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program
@@ -1086,7 +1086,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               President and Vice-President
@@ -1102,7 +1102,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Representative, District 6
@@ -1118,7 +1118,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Lieutenant Governor
@@ -1134,7 +1134,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Senator, District 31
@@ -1150,7 +1150,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Assembly Member, District 54
@@ -1166,7 +1166,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Registrar of Wills
@@ -1182,7 +1182,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Retain Robert Demergue as Chief Justice?
@@ -1198,7 +1198,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question A: Recovery of Property Damages
@@ -1214,7 +1214,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Question B: Separation of Powers
@@ -1230,7 +1230,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Proposition 1: Gambling in Franklin and Fromwit Counties
@@ -1246,7 +1246,7 @@ exports[`prints correct ballot without votes and no seal 1`] = `
           class="sc-kDThTU gkFLxJ"
         >
           <div
-            class="sc-hKwCoD sc-iqsfdx eDCLhO vjIZd"
+            class="sc-hKwCoD eDCLhO sc-iqsfdx vjIZd"
           >
             <h3>
               Measure 102: Vehicle Abatement Program

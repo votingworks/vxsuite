@@ -1,14 +1,18 @@
 // Inspiration: https://www.filamentgroup.com/lab/select-css.html
+import React from 'react';
 import styled from 'styled-components';
 
-interface Props {
+export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  children?: React.ReactNode;
   readonly fullWidth?: boolean;
   readonly large?: boolean;
   readonly small?: boolean;
   readonly primary?: boolean;
-}
+  readonly onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+  readonly value?: string | readonly string[] | number;
+};
 
-export const Select = styled.select<Props>`
+const StyledSelect = styled.select<SelectProps>`
   display: inline-block;
   margin: 0;
   border: none;
@@ -45,3 +49,9 @@ export const Select = styled.select<Props>`
     color: rgb(170, 170, 170);
   }
 `;
+
+export function Select(
+  props: SelectProps
+): React.ReactElement<SelectProps, typeof Select> {
+  return <StyledSelect {...props} />;
+}

@@ -16,6 +16,7 @@
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix",
+    "start": "storybook dev -p 6060",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
     "test:coverage": "TZ=UTC jest --coverage",
@@ -60,6 +61,8 @@
   },
   "devDependencies": {
     "@codemod/parser": "^1.0.6",
+    "@storybook/cli": "7.0.0-beta.31",
+    "@storybook/react": "7.0.0-beta.31",
     "@tanstack/react-query": "^4.22.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
@@ -82,6 +85,7 @@
     "@typescript-eslint/parser": "^5.37.0",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "buffer": "^6.0.3",
     "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
@@ -95,6 +99,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^0.6.10",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.18.0",
     "history": "4",
@@ -105,7 +110,9 @@
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
     "lodash.clonedeep": "^4.5.0",
+    "lorem-ipsum": "^2.0.8",
     "mockdate": "^3.0.5",
+    "path": "^0.12.7",
     "prettier": "^2.6.2",
     "react": "^17.0.1",
     "sort-package-json": "^1.50.0",
@@ -115,7 +122,8 @@
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.9.0",
     "ts-jest": "^27.0.7",
-    "typescript": "4.6.3"
+    "typescript": "4.6.3",
+    "vite": "^4.0.4"
   },
   "peerDependencies": {
     "react": "^17.0.1"

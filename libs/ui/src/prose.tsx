@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { Theme } from './themes';
 
@@ -17,15 +18,16 @@ import { Theme } from './themes';
 //
 // For example useage, search codebase for "<Prose" (without closing bracket)
 
-export interface ProseProps {
+export type ProseProps = React.HTMLAttributes<HTMLDivElement> & {
+  children?: React.ReactNode;
   theme?: Theme;
   compact?: boolean;
   maxWidth?: boolean;
   textCenter?: boolean;
   textRight?: boolean;
-}
+};
 
-export const Prose = styled('div')<ProseProps>`
+const ProseContainer = styled('div')<ProseProps>`
   margin: ${({ textCenter }) => (textCenter ? '0 auto' : undefined)};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter, textRight }) =>
@@ -95,3 +97,7 @@ export const Prose = styled('div')<ProseProps>`
     border-top: 0.1em solid #666666;
   }
 `;
+
+export function Prose(props: ProseProps): JSX.Element {
+  return <ProseContainer {...props} />;
+}

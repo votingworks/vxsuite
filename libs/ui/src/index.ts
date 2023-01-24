@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './app_base';
 export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';
@@ -8,6 +9,7 @@ export * from './contest_tally';
 export * from './contest_writein_tally';
 export * from './error_boundary';
 export * from './election_info_bar';
+export * from './global_styles';
 export * from './globals';
 export * from './hand_marked_paper_ballot_prose';
 export * from './hooks/use_autocomplete';
