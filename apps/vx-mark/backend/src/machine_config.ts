@@ -7,6 +7,7 @@ import {
   MarkOnly,
   PrintOnly,
 } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 import { MachineConfig } from './types';
 
 export function getAppMode(key: AppModeKeys): AppMode {
@@ -17,8 +18,9 @@ export function getAppMode(key: AppModeKeys): AppMode {
       return MarkOnly;
     case MarkAndPrint.key:
       return MarkAndPrint;
+    /* istanbul ignore next */
     default:
-      throw new Error(`unknown app mode: ${key}`);
+      throwIllegalValue(key);
   }
 }
 

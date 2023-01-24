@@ -1,11 +1,6 @@
+/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import { z } from 'zod';
-
-const NodeEnvSchema = z.union([
-  z.literal('development'),
-  z.literal('test'),
-  z.literal('production'),
-]);
 
 /**
  * Default port for the VxMark API.
@@ -13,10 +8,11 @@ const NodeEnvSchema = z.union([
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3002);
 
-/**
- * What's the unique ID for this machine?
- */
-export const VX_MACHINE_ID = process.env.VX_MACHINE_ID ?? '000';
+const NodeEnvSchema = z.union([
+  z.literal('development'),
+  z.literal('test'),
+  z.literal('production'),
+]);
 
 /**
  * Which node environment is this?

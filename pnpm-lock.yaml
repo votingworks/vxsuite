@@ -38,7 +38,9 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/grout': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
       debug: ^4.3.1
       dotenv: ^16.0.2
       dotenv-expand: ^9.0.0
@@ -74,6 +76,7 @@ importers:
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
       '@votingworks/types': link:../../../libs/types
+      '@votingworks/utils': link:../../../libs/utils
       debug: 4.3.4
       dotenv: 16.0.2
       dotenv-expand: 9.0.0
@@ -98,6 +101,7 @@ importers:
       '@types/uuid': 8.3.4
       '@typescript-eslint/eslint-plugin': 5.37.0_srb6gpj27cpytxa4hvxonfqyzi
       '@typescript-eslint/parser': 5.37.0_fnqnj4wr4adlkzkgntzwybsmii
+      '@votingworks/test-utils': link:../../../libs/test-utils
       esbuild: 0.14.42
       esbuild-runner: 2.2.1_esbuild@0.14.42
       eslint: 8.26.0

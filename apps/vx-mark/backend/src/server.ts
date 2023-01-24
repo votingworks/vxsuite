@@ -1,4 +1,5 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
+import { Server } from 'http';
 import { PORT } from './globals';
 import { buildApp } from './app';
 
@@ -13,13 +14,17 @@ export interface StartOptions {
 export function start({
   port = PORT,
   logger = new Logger(LogSource.VxMarkBackend),
-}: Partial<StartOptions> = {}): void {
+}: Partial<StartOptions> = {}): Server {
   const app = buildApp();
 
-  app.listen(port, async () => {
-    await logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `VxMark backend running at http://localhost:${port}/`,
-      disposition: 'success',
-    });
-  });
+  return app.listen(
+    port,
+    /* istanbul ignore next */
+    async () => {
+      await logger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `VxMark backend running at http://localhost:${port}/`,
+        disposition: 'success',
+      });
+    }
+  );
 }
