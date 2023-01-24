@@ -24,7 +24,7 @@
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:e2e": "is-ci \"test:e2e:ci\" \"test:e2e:watch\"",
     "test:e2e:ci": "start-server-and-test test:e2e:setup http-get://localhost:3000 cypress:run",
-    "test:e2e:setup": "pnpm build && make -C ../../services/smartcards install-smartcard build && concurrently --names frontend,smartcards \"make run\" \"make -C ../../services/smartcards run\"",
+    "test:e2e:setup": "make build-all && make run-all",
     "test:e2e:watch": "start-server-and-test start http-get://localhost:3000 cypress:open",
     "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",

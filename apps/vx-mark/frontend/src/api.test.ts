@@ -3,5 +3,7 @@ import { useApiClient } from './api';
 
 test('useApiClient', () => {
   const { result } = renderHook(() => useApiClient());
-  expect(result.error.message).toEqual('ApiClientContext.Provider not found');
+  expect(result.error && result.error.message).toEqual(
+    'ApiClientContext.Provider not found'
+  );
 });
