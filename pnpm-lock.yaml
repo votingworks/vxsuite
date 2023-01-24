@@ -223,6 +223,7 @@ importers:
       lint-staged: ^10.5.4
       mockdate: ^3.0.5
       normalize.css: ^8.0.1
+      path: ^0.12.7
       pluralize: ^8.0.0
       prettier: ^2.6.2
       react: 17.0.1
@@ -267,6 +268,7 @@ importers:
       http-proxy-middleware: 1.0.6_debug@4.3.4
       mockdate: 3.0.5
       normalize.css: 8.0.1
+      path: 0.12.7
       pluralize: 8.0.0
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
