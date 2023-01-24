@@ -17,12 +17,19 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { electionSampleDefinition } from './data';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 const electionDefinition = electionSampleDefinition;
@@ -163,7 +170,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
@@ -173,7 +180,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

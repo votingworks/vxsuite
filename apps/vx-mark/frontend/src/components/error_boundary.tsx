@@ -40,6 +40,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // known workaround), which leads to serious pain when debugging tests. So we
   // should still be dilligent about avoiding unhandled promise rejections at
   // the source.
+  /* istanbul ignore next */
   handleUnhandledRejection(event: PromiseRejectionEvent): void {
     // eslint-disable-next-line no-console
     console.error(

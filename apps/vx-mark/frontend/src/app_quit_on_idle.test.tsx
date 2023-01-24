@@ -12,24 +12,28 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
+  apiMock.mockApiClient.reset();
 });
 
 afterEach(() => {
   window.kiosk = undefined;
+  apiMock.mockApiClient.assertComplete();
 });
 
 test('Insert Card screen idle timeout to quit app', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
+  apiMock.expectGetMachineConfig({
     // machineId used to determine whether we quit. Now they all do.
     // making sure a machineId that ends in 0 still triggers.
     machineId: '0000',
@@ -43,7 +47,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

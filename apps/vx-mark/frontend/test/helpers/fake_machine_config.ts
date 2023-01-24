@@ -1,5 +1,5 @@
-import { Provider } from '@votingworks/types';
-import { MarkOnly, MachineConfig } from '../../src/config/types';
+import { MachineConfig } from '@votingworks/vx-mark-backend';
+import { MarkOnly } from '@votingworks/types';
 
 export function fakeMachineConfig({
   appMode = MarkOnly,
@@ -8,16 +8,4 @@ export function fakeMachineConfig({
   screenOrientation = 'portrait',
 }: Partial<MachineConfig> = {}): MachineConfig {
   return { appMode, machineId, codeVersion, screenOrientation };
-}
-
-export function fakeMachineConfigProvider(
-  props: Partial<MachineConfig> = {}
-): Provider<MachineConfig> {
-  const config = fakeMachineConfig(props);
-  return {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async get() {
-      return config;
-    },
-  };
 }

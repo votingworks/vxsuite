@@ -18,6 +18,7 @@ import {
   ReportSourceMachineType,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { MarkAndPrint } from '@votingworks/types';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -39,14 +40,20 @@ import {
   measure420Contest,
   voterContests,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { MarkAndPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(15000);
@@ -57,7 +64,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
+  apiMock.expectGetMachineConfig({
     appMode: MarkAndPrint,
     screenOrientation: 'portrait',
   });
@@ -68,10 +75,10 @@ test('MarkAndPrint end-to-end flow', async () => {
     <App
       card={card}
       hardware={hardware}
-      machineConfig={machineConfig}
       storage={storage}
       reload={reload}
       logger={logger}
+      apiClient={apiMock.mockApiClient}
     />
   );
   await advanceTimersAndPromises();

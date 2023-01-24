@@ -17,12 +17,18 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
+import { createApiMock } from '../test/helpers/mock_api_client';
 
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 it('Refresh window and expect to be on same contest', async () => {
@@ -31,7 +37,7 @@ it('Refresh window and expect to be on same contest', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
@@ -41,7 +47,7 @@ it('Refresh window and expect to be on same contest', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -74,12 +80,15 @@ it('Refresh window and expect to be on same contest', async () => {
   });
 
   unmount();
+  apiMock.mockApiClient.assertComplete();
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
   ({ getByText, unmount } = render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   ));

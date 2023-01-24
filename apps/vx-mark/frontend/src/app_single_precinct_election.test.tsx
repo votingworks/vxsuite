@@ -4,13 +4,20 @@ import { makeElectionManagerCard } from '@votingworks/test-utils';
 import { screen } from '@testing-library/react';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { enterPin, render } from '../test/test_utils';
 import { App } from './app';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(15000);
@@ -19,14 +26,14 @@ test('loading election with a single precinct automatically sets precinct', asyn
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

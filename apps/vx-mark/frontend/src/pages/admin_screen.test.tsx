@@ -12,13 +12,13 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
+import { PrintOnly, MarkAndPrint } from '@votingworks/types';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/smartcards';
 
 import { AdminScreen, AdminScreenProps } from './admin_screen';
-import { PrintOnly, MarkAndPrint } from '../config/types';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
   AriaScreenReader,

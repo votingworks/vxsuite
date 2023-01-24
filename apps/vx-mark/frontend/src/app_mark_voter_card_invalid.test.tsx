@@ -7,6 +7,7 @@ import {
 import { makePollWorkerCard, makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
+import { MarkAndPrint } from '@votingworks/types';
 import { App } from './app';
 
 import {
@@ -22,12 +23,18 @@ import {
   IDLE_TIMEOUT_SECONDS,
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { MarkAndPrint } from './config/types';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 const idleScreenCopy =
@@ -38,8 +45,8 @@ describe('Mark Card Void when voter is idle too long', () => {
     const card = new MemoryCard();
     const hardware = MemoryHardware.buildStandard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
 
+    apiMock.expectGetMachineConfig();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
 
@@ -48,7 +55,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -102,9 +109,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     const card = new MemoryCard();
     const hardware = MemoryHardware.buildStandard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({
-      appMode: MarkAndPrint,
-    });
+    apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
 
     await setElectionInStorage(storage, electionSampleDefinition);
     await setStateInStorage(storage);
@@ -117,7 +122,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -176,7 +181,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     const card = new MemoryCard();
     const hardware = MemoryHardware.buildStandard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
+    apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
 
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -186,7 +191,7 @@ describe('Mark Card Void when voter is idle too long', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );

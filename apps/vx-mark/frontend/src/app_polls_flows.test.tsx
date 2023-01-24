@@ -35,6 +35,7 @@ import {
   CompressedTally,
   ContestId,
   Dictionary,
+  MarkAndPrint,
   MsEitherNeitherContestCompressedTally,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
@@ -46,6 +47,9 @@ import {
 import { buildApp } from '../test/helpers/build_app';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 function expectBallotCountsInReport(
   container: HTMLElement,
@@ -115,6 +119,12 @@ async function printPollsClosedReport() {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(15000);
@@ -130,7 +140,7 @@ function checkPollsOpenedReport(printedElement: RenderResult) {
 }
 
 test('full polls flow with tally reports - general, single precinct', async () => {
-  const { renderApp, card, storage, logger } = buildApp();
+  const { renderApp, card, storage, logger } = buildApp(apiMock);
   jest.spyOn(card, 'writeLongUint8Array');
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
@@ -470,7 +480,7 @@ test('tally report: as expected with all precinct combined data for general elec
     pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
@@ -560,7 +570,7 @@ test('tally report: as expected with all precinct specific data for general elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
@@ -794,7 +804,7 @@ test('tally report: as expected with a single precinct for primary election', as
     },
   };
 
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -835,7 +845,7 @@ test('tally report: as expected with all precinct combined data for primary elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -954,7 +964,7 @@ test('tally report: as expected with all precinct specific data for primary elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -1394,7 +1404,7 @@ test('tally report: as expected with primary election with nonpartisan contests'
 });
 
 test('tally report: will print but not update polls state appropriate', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   // The polls have already been closed
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
@@ -1449,7 +1459,9 @@ test('tally report: will print but not update polls state appropriate', async ()
 });
 
 test('full polls flow without tally reports', async () => {
-  const { renderApp, card, storage, logger } = buildApp();
+  const { renderApp, card, storage, logger } = buildApp(apiMock);
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
@@ -1521,10 +1533,11 @@ test('full polls flow without tally reports', async () => {
     'poll_worker',
     expect.anything()
   );
+  apiMock.mockApiClient.assertComplete();
 });
 
 test('can close from paused without tally report', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
   renderApp();
@@ -1547,7 +1560,7 @@ test('can close from paused without tally report', async () => {
 });
 
 test('no buttons to change polls from closed final', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
@@ -1571,7 +1584,7 @@ test('no buttons to change polls from closed final', async () => {
 });
 
 test('can reset polls to paused with system administrator card', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
@@ -1594,7 +1607,7 @@ test('can reset polls to paused with system administrator card', async () => {
 });
 
 test('will not try to print report or change polls if report on card is in wrong mode', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_closed_initial',
@@ -1634,7 +1647,7 @@ test('will not try to print report or change polls if report on card is in wrong
 });
 
 test('cannot close polls from closed report on card if polls have not been opened', async () => {
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();

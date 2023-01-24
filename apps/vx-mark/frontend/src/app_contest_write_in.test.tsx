@@ -4,6 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import { expectPrint, makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MarkAndPrint } from '@votingworks/types';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
@@ -18,12 +19,18 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { MarkAndPrint } from './config/types';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 it('Single Seat Contest with Write In', async () => {
@@ -32,9 +39,7 @@ it('Single Seat Contest with Write In', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
-    appMode: MarkAndPrint,
-  });
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
@@ -44,7 +49,7 @@ it('Single Seat Contest with Write In', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

@@ -15,11 +15,18 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 it('Single Seat Contest', async () => {
@@ -28,17 +35,17 @@ it('Single Seat Contest', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
+  apiMock.expectGetMachineConfig();
 
   render(
     <App
+      apiClient={apiMock.mockApiClient}
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
       reload={jest.fn()}
     />
   );

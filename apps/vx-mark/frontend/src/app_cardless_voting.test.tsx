@@ -6,6 +6,7 @@ import {
   makePollWorkerCard,
   expectPrint,
 } from '@votingworks/test-utils';
+import { MarkAndPrint } from '@votingworks/types';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -23,13 +24,19 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { MarkAndPrint } from './config/types';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(15000);
@@ -42,14 +49,12 @@ test('Cardless Voting Flow', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
-    appMode: MarkAndPrint,
-  });
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
   render(
     <App
       card={card}
       hardware={hardware}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       storage={storage}
       reload={jest.fn()}
     />
@@ -208,9 +213,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
-    appMode: MarkAndPrint,
-  });
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
 
   card.removeCard();
 
@@ -222,7 +225,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -287,14 +290,12 @@ test('poll worker must select a precinct first', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
-    appMode: MarkAndPrint,
-  });
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
   render(
     <App
       card={card}
       hardware={hardware}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       storage={storage}
       reload={jest.fn()}
     />

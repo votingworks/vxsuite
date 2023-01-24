@@ -6,8 +6,9 @@ import { App } from '../../src/app';
 import { ScreenReader, TextToSpeech } from '../../src/config/types';
 import { AriaScreenReader } from '../../src/utils/ScreenReader';
 import { fakeTts } from './fake_tts';
+import { createApiMock } from './mock_api_client';
 
-export function buildApp(): {
+export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   mockTts: TextToSpeech;
   screenReader: ScreenReader;
   storage: MemoryStorage;
@@ -36,6 +37,7 @@ export function buildApp(): {
         storage={storage}
         reload={reload}
         logger={logger}
+        apiClient={apiMock.mockApiClient}
         screenReader={screenReader}
       />
     );

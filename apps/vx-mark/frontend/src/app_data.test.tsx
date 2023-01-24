@@ -1,8 +1,5 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { screen } from '@testing-library/react';
 
-import { App } from './app';
 import { electionStorageKey } from './app_root';
 
 import {
@@ -11,24 +8,26 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { buildApp } from '../test/helpers/build_app';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+  apiMock.expectGetMachineConfig();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    render(
-      <App
-        machineConfig={fakeMachineConfigProvider()}
-        card={new MemoryCard()}
-        hardware={hardware}
-        reload={jest.fn()}
-      />
-    );
+    const { renderApp } = buildApp(apiMock);
+    renderApp();
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
@@ -37,21 +36,10 @@ describe('loads election', () => {
   });
 
   it('from storage', async () => {
-    const card = new MemoryCard();
-    const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
-    const hardware = MemoryHardware.buildStandard();
+    const { storage, renderApp } = buildApp(apiMock);
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
-    render(
-      <App
-        card={card}
-        storage={storage}
-        machineConfig={machineConfig}
-        hardware={hardware}
-        reload={jest.fn()}
-      />
-    );
+    renderApp();
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();

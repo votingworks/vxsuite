@@ -22,12 +22,19 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 it('MarkOnly flow', async () => {
@@ -39,13 +46,13 @@ it('MarkOnly flow', async () => {
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
   render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

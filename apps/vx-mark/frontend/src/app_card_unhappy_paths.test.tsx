@@ -19,6 +19,7 @@ import {
 } from '@votingworks/utils';
 
 import { VOTER_CARD_EXPIRATION_SECONDS } from '@votingworks/ui';
+import { PrintOnly } from '@votingworks/types';
 import { App } from './app';
 
 import {
@@ -31,12 +32,18 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { PrintOnly } from './config/types';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 test('Display App Card Unhappy Paths', async () => {
@@ -45,7 +52,7 @@ test('Display App Card Unhappy Paths', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   card.removeCard();
 
@@ -57,8 +64,8 @@ test('Display App Card Unhappy Paths', async () => {
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
       reload={jest.fn()}
+      apiClient={apiMock.mockApiClient}
     />
   );
   await advanceTimersAndPromises();
@@ -140,6 +147,7 @@ test('Display App Card Unhappy Paths', async () => {
   fireEvent.click(screen.getByText('Next'));
 
   // Remove card
+  await advanceTimersAndPromises();
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
@@ -163,7 +171,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   card.removeCard();
 
@@ -172,7 +180,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -195,7 +203,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
+  apiMock.expectGetMachineConfig({ appMode: PrintOnly });
 
   card.removeCard();
 
@@ -209,7 +217,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -234,7 +242,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
+  apiMock.expectGetMachineConfig();
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
@@ -244,7 +252,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

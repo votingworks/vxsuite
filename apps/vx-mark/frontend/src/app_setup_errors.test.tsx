@@ -7,6 +7,7 @@ import {
   BATTERY_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
+import { PrintOnly } from '@votingworks/types';
 import { electionSampleDefinition } from './data';
 
 import { App } from './app';
@@ -19,13 +20,19 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { PrintOnly } from './config/types';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 const insertCardScreenText = 'Insert Card';
@@ -34,9 +41,9 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
+    apiMock.expectGetMachineConfig();
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
     const hardware = MemoryHardware.buildStandard();
     hardware.setAccessibleControllerConnected(true);
 
@@ -48,7 +55,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -56,6 +63,7 @@ describe('Displays setup warning messages and errors screens', () => {
       'Voting with an accessible controller is not currently available.';
 
     // Let the initial hardware detection run.
+    await advanceTimersAndPromises();
     await advanceTimersAndPromises();
 
     // Start on Insert Card screen
@@ -80,9 +88,9 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays error screen if Card Reader connection is lost', async () => {
+    apiMock.expectGetMachineConfig();
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -92,7 +100,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -119,9 +127,9 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays error screen if Printer connection is lost', async () => {
+    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -130,7 +138,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -159,9 +167,9 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays error screen if Power connection is lost', async () => {
+    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -170,7 +178,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -200,14 +208,12 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
+    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
     const card = new MemoryCard();
     const electionManagerCard = makeElectionManagerCard(
       electionDefinition.electionHash
     );
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider({
-      appMode: PrintOnly,
-    });
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage, electionDefinition);
     await setStateInStorage(storage);
@@ -216,7 +222,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -245,9 +251,9 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
+    apiMock.expectGetMachineConfig();
     const card = new MemoryCard();
     const storage = new MemoryStorage();
-    const machineConfig = fakeMachineConfigProvider();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
@@ -256,7 +262,7 @@ describe('Displays setup warning messages and errors screens', () => {
         card={card}
         hardware={hardware}
         storage={storage}
-        machineConfig={machineConfig}
+        apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -306,5 +312,6 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
+    await advanceTimersAndPromises();
   });
 });

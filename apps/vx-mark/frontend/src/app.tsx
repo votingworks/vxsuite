@@ -57,7 +57,9 @@ export function App({
   hardware = getHardware(),
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
-  apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
+  /* istanbul ignore next */ apiClient = grout.createClient<Api>({
+    baseUrl: '/api',
+  }),
   queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
 }: Props): JSX.Element {
   screenReader.mute();

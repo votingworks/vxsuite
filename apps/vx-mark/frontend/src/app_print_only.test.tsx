@@ -12,7 +12,12 @@ import {
   makePollWorkerCard,
   expectPrint,
 } from '@votingworks/test-utils';
-import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  BallotType,
+  unsafeParse,
+  PrintOnly,
+} from '@votingworks/types';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { App } from './app';
@@ -30,13 +35,19 @@ import {
 import { withMarkup } from '../test/helpers/with_markup';
 
 import * as GLOBALS from './config/globals';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { PrintOnly } from './config/types';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   window.location.href = '/';
   jest.useFakeTimers();
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(12000);
@@ -48,13 +59,13 @@ test('PrintOnly flow', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
+  apiMock.expectGetMachineConfig({ appMode: PrintOnly });
   render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -389,13 +400,13 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
+  apiMock.expectGetMachineConfig({ appMode: PrintOnly });
   render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -492,13 +503,13 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
+  apiMock.expectGetMachineConfig({ appMode: PrintOnly });
   render(
     <App
       card={card}
       hardware={hardware}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

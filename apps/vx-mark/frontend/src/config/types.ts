@@ -6,7 +6,6 @@ import {
   Contests,
   Election,
   ElectionDefinition,
-  MachineId,
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
@@ -14,70 +13,7 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
-import { z } from 'zod';
-
-// App
-export const PrintOnly = {
-  key: 'PrintOnly',
-  productName: 'VxPrint',
-  isMark: false,
-  isPrint: true,
-} as const;
-export const MarkOnly = {
-  key: 'MarkOnly',
-  productName: 'VxMark',
-  isMark: true,
-  isPrint: false,
-} as const;
-export const MarkAndPrint = {
-  key: 'MarkAndPrint',
-  productName: 'VxMark',
-  isPrint: true,
-  isMark: true,
-} as const;
-export type AppMode = typeof MarkOnly | typeof PrintOnly | typeof MarkAndPrint;
-export type AppModeKeys = AppMode['key'];
-export const AppModeKeysSchema: z.ZodSchema<AppModeKeys> = z.union([
-  z.literal(PrintOnly.key),
-  z.literal(MarkOnly.key),
-  z.literal(MarkAndPrint.key),
-]);
-
-export type ScreenOrientation = 'portrait' | 'landscape';
-
-export interface MachineConfig {
-  machineId: string;
-  appMode: AppMode;
-  codeVersion: string;
-  screenOrientation: ScreenOrientation;
-}
-
-export interface MachineConfigResponse {
-  machineId: string;
-  appModeKey: AppModeKeys;
-  codeVersion: string;
-  screenOrientation: ScreenOrientation;
-}
-export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> =
-  z.object({
-    machineId: MachineId,
-    appModeKey: AppModeKeysSchema,
-    codeVersion: z.string().nonempty(),
-    screenOrientation: z.union([z.literal('portrait'), z.literal('landscape')]),
-  });
-
-export function getAppMode(key: AppModeKeys): AppMode {
-  switch (key) {
-    case PrintOnly.key:
-      return PrintOnly;
-    case MarkOnly.key:
-      return MarkOnly;
-    case MarkAndPrint.key:
-      return MarkAndPrint;
-    default:
-      throw new Error(`unknown app mode: ${key}`);
-  }
-}
+import { MachineConfig } from '@votingworks/vx-mark-backend';
 
 export type PostVotingInstructions = 'card' | 'cardless';
 

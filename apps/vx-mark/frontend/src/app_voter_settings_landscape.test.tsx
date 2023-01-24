@@ -9,6 +9,7 @@ import {
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
+import { MarkAndPrint } from '@votingworks/types';
 import { electionSampleDefinition } from './data';
 
 import { App } from './app';
@@ -18,13 +19,19 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { voterContests } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { MarkAndPrint } from './config/types';
 import { enterPin } from '../test/test_utils';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 jest.setTimeout(15000);
@@ -35,7 +42,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider({
+  apiMock.expectGetMachineConfig({
     appMode: MarkAndPrint,
     screenOrientation: 'landscape',
   });
@@ -44,8 +51,8 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     <App
       card={card}
       hardware={hardware}
-      machineConfig={machineConfig}
       storage={storage}
+      apiClient={apiMock.mockApiClient}
       reload={reload}
       logger={logger}
     />

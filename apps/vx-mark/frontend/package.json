@@ -8,7 +8,6 @@
     "prodserver"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "pnpm type-check && vite build",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.json'",
     "cypress:open": "cypress open",
@@ -16,6 +15,7 @@
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run --fix",
+    "pre-commit": "lint-staged",
     "start": "pnpm -w run-dev vx-mark",
     "start:core": "pnpm -w run-dev vm-mark --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
@@ -28,7 +28,7 @@
     "test:e2e:watch": "start-server-and-test start http-get://localhost:3000 cypress:open",
     "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
-    "pre-commit": "lint-staged"
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
@@ -72,6 +72,7 @@
     "@babel/core": "7.12.3",
     "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "^4.22.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/dompurify": "^2.0.4",
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "25.2.2",
@@ -118,10 +119,10 @@
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "5.0.2",
     "prompts": "2.4.0",
-    "react": "^17.0.1",
+    "react": "17.0.1",
     "react-app-polyfill": "^2.0.0",
     "react-dev-utils": "^11.0.1",
-    "react-dom": "^17.0.1",
+    "react-dom": "17.0.1",
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "4.2.12",
     "react-refresh": "^0.8.3",

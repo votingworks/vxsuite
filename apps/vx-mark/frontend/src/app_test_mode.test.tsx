@@ -8,19 +8,26 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  apiMock.mockApiClient.reset();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 it('Displays testing message if not live mode', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
-  const machineConfig = fakeMachineConfigProvider();
   const hardware = MemoryHardware.buildStandard();
+  apiMock.expectGetMachineConfig();
   await setElectionInStorage(storage);
   await setStateInStorage(storage, {
     isLiveMode: false,
@@ -29,7 +36,7 @@ it('Displays testing message if not live mode', async () => {
     <App
       card={card}
       storage={storage}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       hardware={hardware}
       reload={jest.fn()}
     />

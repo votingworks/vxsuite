@@ -9,47 +9,87 @@ import {
 
 import fetchMock from 'fetch-mock';
 import * as React from 'react';
+import { MarkAndPrint } from '@votingworks/types';
 import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { fakeTts } from '../test/helpers/fake_tts';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { MarkAndPrint } from './config/types';
 import { electionSampleDefinition } from './data';
 import { AriaScreenReader } from './utils/ScreenReader';
+import { createApiMock } from '../test/helpers/mock_api_client';
+
+const apiMock = createApiMock();
 
 beforeEach(() => {
   jest.useFakeTimers();
+  apiMock.mockApiClient.reset();
 });
 
-it('uses the card service and machine config service by default', async () => {
-  fetchMock
-    .get('/machine-config', {
-      machineId: '0002',
-      codeVersion: '3.14',
-    })
-    .get('/card/read', {
-      body: {
-        status: 'error',
-      },
-    });
-  const hardware = MemoryHardware.buildStandard();
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
 
-  render(<App hardware={hardware} />);
+it('uses the card service by default', async () => {
+  fetchMock.get('/card/read', {
+    body: {
+      status: 'error',
+    },
+  });
+  const hardware = MemoryHardware.buildStandard();
+  apiMock.expectGetMachineConfig({ machineId: '0002', codeVersion: '3.14' });
+
+  render(<App hardware={hardware} apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Card is Backwards');
   expect(fetchMock.done()).toEqual(true);
 });
 
+it('will throw an error when using default api', async () => {
+  fetchMock.get('/api', {
+    body: {
+      machineId: '0002',
+      codeVersion: '3.14',
+    },
+  });
+  const hardware = MemoryHardware.buildStandard();
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  render(<App card={new MemoryCard()} hardware={hardware} />);
+
+  await screen.findByText('Something went wrong');
+});
+
+it('Displays error boundary if the api returns an unexpected error', async () => {
+  apiMock.expectGetMachineConfigToError();
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  const hardware = MemoryHardware.buildStandard();
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  render(
+    <App
+      card={card}
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+  await advanceTimersAndPromises();
+  screen.getByText('Something went wrong');
+});
+
 it('prevents context menus from appearing', async () => {
+  apiMock.expectGetMachineConfig();
   render(
     <App
       card={new MemoryCard()}
-      machineConfig={fakeMachineConfigProvider()}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -70,11 +110,12 @@ it('prevents context menus from appearing', async () => {
 
 it('uses kiosk storage when in kiosk-browser', async () => {
   const kiosk = fakeKiosk();
+  apiMock.expectGetMachineConfig();
   window.kiosk = kiosk;
   render(
     <App
       card={new MemoryCard()}
-      machineConfig={fakeMachineConfigProvider()}
+      apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -85,6 +126,7 @@ it('uses kiosk storage when in kiosk-browser', async () => {
 
 it('changes screen reader settings based on keyboard inputs', async () => {
   const mockTts = fakeTts();
+  apiMock.expectGetMachineConfig();
   const screenReader = new AriaScreenReader(mockTts);
   jest.spyOn(screenReader, 'toggle');
   jest.spyOn(screenReader, 'changeVolume');
@@ -93,7 +135,7 @@ it('changes screen reader settings based on keyboard inputs', async () => {
     <App
       screenReader={screenReader}
       card={new MemoryCard()}
-      machineConfig={fakeMachineConfigProvider()}
+      apiClient={apiMock.mockApiClient}
     />
   );
 
@@ -120,6 +162,7 @@ it('uses window.location.reload by default', async () => {
   // Stub location in a way that's good enough for this test, but not good
   // enough for general `window.location` use.
   const reload = jest.fn();
+  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
   jest.spyOn(window, 'location', 'get').mockReturnValue({
     ...window.location,
     reload,
@@ -131,9 +174,6 @@ it('uses window.location.reload by default', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  const machineConfig = fakeMachineConfigProvider({
-    appMode: MarkAndPrint,
-  });
 
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
@@ -145,7 +185,7 @@ it('uses window.location.reload by default', async () => {
     <App
       card={card}
       hardware={hardware}
-      machineConfig={machineConfig}
+      apiClient={apiMock.mockApiClient}
       storage={storage}
     />
   );

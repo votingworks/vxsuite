@@ -5,6 +5,9 @@ import {
   ElectionDefinition,
   ok,
   InsertedSmartcardAuth,
+  AppMode,
+  MarkAndPrint,
+  MarkOnly,
 } from '@votingworks/types';
 
 import { fireEvent, screen } from '@testing-library/react';
@@ -22,7 +25,6 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { Logger, LogSource } from '@votingworks/logging';
-import { AppMode, MarkAndPrint, MarkOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
 
