@@ -30,6 +30,9 @@ ruleTester.run('gts-spread-like-types', rule, {
 
     // `any`
     `declare const a: any; [...a]`,
+
+    // classes
+    `new A(...[1])`,
   ],
   invalid: [
     // arrays

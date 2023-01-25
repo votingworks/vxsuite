@@ -86,6 +86,7 @@ const rule: TSESLint.RuleModule<
 
         switch (node.parent.type) {
           case AST_NODE_TYPES.CallExpression:
+          case AST_NODE_TYPES.NewExpression:
           case AST_NODE_TYPES.ArrayExpression: {
             const isIterable = isIterableType(spreadArgumentType);
             if (!isIterable) {
