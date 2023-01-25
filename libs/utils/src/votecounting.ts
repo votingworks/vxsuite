@@ -12,11 +12,8 @@ import {
   Optional,
   FullElectionTally,
   TallyCategory,
-  VotingMethod,
   BatchTally,
   writeInCandidate,
-  PrecinctId,
-  PartyId,
   Tally,
   ContestTally,
   ContestOptionTally,
@@ -27,7 +24,9 @@ import { assert, throwIllegalValue } from './assert';
 import { find } from './find';
 import { typedAs } from './types';
 import {
+  CastVoteRecordFilters,
   computeTallyWithPrecomputedCategories,
+  ContestFilters,
   filterTalliesByParams,
   getEmptyTally,
   normalizeWriteInId,
@@ -245,24 +244,25 @@ export function filterTalliesByParamsAndBatchId(
     scannerId,
     partyId,
     votingMethod,
-  }: {
-    precinctId?: PrecinctId;
-    scannerId?: string;
-    partyId?: PartyId;
-    votingMethod?: VotingMethod;
-  }
+  }: Omit<CastVoteRecordFilters, 'batchId'>,
+  contestFilters?: ContestFilters
 ): BatchTally {
   const { resultsByCategory } = fullElectionTally;
   const batchTally = resultsByCategory.get(TallyCategory.Batch)?.[
     batchId
   ] as Optional<BatchTally>;
-  const filteredTally = filterTalliesByParams(fullElectionTally, election, {
-    precinctId,
-    scannerId,
-    partyId,
-    votingMethod,
-    batchId,
-  });
+  const filteredTally = filterTalliesByParams(
+    fullElectionTally,
+    election,
+    {
+      precinctId,
+      scannerId,
+      partyId,
+      votingMethod,
+      batchId,
+    },
+    contestFilters
+  );
   return typedAs<BatchTally>({
     ...filteredTally,
     batchLabel: batchTally?.batchLabel || '',

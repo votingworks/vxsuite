@@ -4,7 +4,7 @@ import {
   Dictionary,
   Election,
   FullElectionTally,
-  getPartyIdsInBallotStyles,
+  getPartyIdsWithContests,
   PrecinctSelection,
   Tally,
 } from '@votingworks/types';
@@ -41,6 +41,11 @@ export function combineContestTallies(
   };
 }
 
+/**
+ * Generates a dictionary a subtallies by party and precinct. Used for creating
+ * subtallies for precinct result reports. The dictionary is keyed by the
+ * `partyId,precinctId` format defined in {@link getTallyIdentifier}.
+ */
 export function getSubTalliesByPartyAndPrecinct({
   election,
   tally,
@@ -57,13 +62,15 @@ export function getSubTalliesByPartyAndPrecinct({
       : [precinctSelection.precinctId]
     : [undefined]; // an undefined precinct id represents "All Precincts" in getTallyIdentifier
 
-  for (const partyId of getPartyIdsInBallotStyles(election)) {
+  for (const partyId of getPartyIdsWithContests(election)) {
     for (const precinctId of precinctIdList) {
-      const filteredTally = filterTalliesByParams(tally, election, {
-        precinctId,
-        partyId,
-      });
-      newSubTallies.set(getTallyIdentifier(partyId, precinctId), filteredTally);
+      newSubTallies.set(
+        getTallyIdentifier(partyId, precinctId),
+        filterTalliesByParams(tally, election, {
+          precinctId,
+          partyId,
+        })
+      );
     }
   }
   return newSubTallies;

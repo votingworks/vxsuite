@@ -6,7 +6,7 @@ import {
 import { render, screen } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { PartyId } from '@votingworks/types';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
@@ -14,10 +14,13 @@ import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
 const currentTime = new Date('2022-10-31T16:24:00.000Z').getTime();
 
+const { electionDefinition: generalElectionDefinition } =
+  electionFamousNames2021Fixtures;
+
 test('general election, all precincts, polls open, test mode', () => {
   render(
     <PrecinctScannerReportHeader
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={generalElectionDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode={false}
@@ -28,9 +31,9 @@ test('general election, all precincts, polls open, test mode', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('TEST Polls Opened Report for All Precincts');
-  const electionTitle = screen.getByText('General Election:');
+  const electionTitle = screen.getByText('Lincoln Municipal General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
+    'Lincoln Municipal General Election: Sunday, June 6, 2021, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(

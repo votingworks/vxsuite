@@ -5,6 +5,7 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleWithReportingUrl,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+  electionPrimaryNonpartisanContestsFixtures,
   electionSample2,
   electionSample2Definition,
 } from '@votingworks/fixtures';
@@ -28,10 +29,13 @@ import {
   MemoryStorage,
 } from '@votingworks/utils';
 import {
+  CastVoteRecord,
   CompressedTally,
   ContestId,
   Dictionary,
+  ElectionDefinition,
   err,
+  PrecinctSelection,
   VotingMethod,
 } from '@votingworks/types';
 
@@ -115,6 +119,38 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
+
+async function closePolls({
+  electionDefinition,
+  castVoteRecords,
+  precinctSelection,
+  card,
+  removeCardAfter = true,
+}: {
+  electionDefinition: ElectionDefinition;
+  castVoteRecords: CastVoteRecord[];
+  precinctSelection: PrecinctSelection;
+  card: MemoryCard;
+  removeCardAfter?: boolean;
+}): Promise<void> {
+  apiMock.expectGetCastVoteRecordsForTally(castVoteRecords);
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
+  card.insertCard(pollWorkerCard);
+  await screen.findByText('Do you want to close the polls?');
+  apiMock.expectSetPollsState('polls_closed_final');
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection,
+    pollsState: 'polls_closed_final',
+  });
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
+  if (removeCardAfter) {
+    card.removeCard();
+    await screen.findByText('Voting is complete.');
+  }
+}
 
 test('printing: polls open, All Precincts, primary election + check additional report', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -314,18 +350,13 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    pollsState: 'polls_closed_final',
+    castVoteRecords: PRIMARY_ALL_PRECINCTS_CVRS,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
+
   await expectPrint((printedElement) => {
     expect(
       printedElement.queryAllByText('TEST Polls Closed Report for Precinct 1')
@@ -513,26 +544,19 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   const electionDefinition =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    pollsState: 'polls_closed_final',
+    castVoteRecords: PRIMARY_ALL_PRECINCTS_CVRS,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
+
   const expectedCombinedTally: CompressedTally = [
     [0, 1, 2, 0, 1, 0, 0], // best animal mammal
     [0, 0, 1, 1, 0, 0], // best animal fish
@@ -632,6 +656,7 @@ const PRIMARY_SINGLE_PRECINCT_CVRS = [
 test('printing: polls closed, primary election, single precinct + check additional report', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const { election } = electionDefinition;
+  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
@@ -642,19 +667,14 @@ test('printing: polls closed, primary election, single precinct + check addition
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-    pollsState: 'polls_closed_final',
+    castVoteRecords: PRIMARY_SINGLE_PRECINCT_CVRS,
+    precinctSelection,
+    card,
+    removeCardAfter: false,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
+
   async function checkReport() {
     await expectPrint((printedElement) => {
       expect(
@@ -770,33 +790,25 @@ test('printing: polls closed, primary election, single precinct + check addition
 
 test('saving to card: polls closed, primary election, single precinct', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   apiMock.expectGetConfig({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+    precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(PRIMARY_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  // Save the tally to card and get the expected tallies
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
-    pollsState: 'polls_closed_final',
+    castVoteRecords: PRIMARY_SINGLE_PRECINCT_CVRS,
+    precinctSelection,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
+
   const expectedCombinedTally: CompressedTally = [
     [0, 1, 2, 0, 1, 0, 0], // best animal mammal
     [0, 0, 1, 1, 0, 0], // best animal fish
@@ -867,18 +879,12 @@ test('printing: polls closed, general election, all precincts', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    pollsState: 'polls_closed_final',
+    castVoteRecords: GENERAL_ALL_PRECINCTS_CVRS,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    card,
   });
-  userEvent.click(screen.getByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
 
   await expectPrint((printedElement) => {
     printedElement.getByText('TEST Polls Closed Report for Center Springfield');
@@ -957,26 +963,18 @@ test('saving to card: polls closed, general election, all precincts', async () =
   const electionDefinition = electionSample2Definition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(GENERAL_ALL_PRECINCTS_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    pollsState: 'polls_closed_final',
+    castVoteRecords: GENERAL_ALL_PRECINCTS_CVRS,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
 
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
@@ -1046,9 +1044,10 @@ const GENERAL_SINGLE_PRECINCT_CVRS = [
 
 test('printing: polls closed, general election, single precinct', async () => {
   const electionDefinition = electionSample2Definition;
+  const precinctSelection = singlePrecinctSelectionFor('23');
   apiMock.expectGetConfig({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection,
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
@@ -1056,19 +1055,12 @@ test('printing: polls closed, general election, single precinct', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_closed_final',
+    castVoteRecords: GENERAL_SINGLE_PRECINCT_CVRS,
+    precinctSelection,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
 
   await expectPrint((printedElement) => {
     printedElement.getByText('TEST Polls Closed Report for Center Springfield');
@@ -1118,32 +1110,24 @@ test('printing: polls closed, general election, single precinct', async () => {
 test('saving to card: polls closed, general election, single precinct', async () => {
   const electionDefinition = electionSample2Definition;
   const { election } = electionDefinition;
+  const precinctSelection = singlePrecinctSelectionFor('23');
   apiMock.expectGetConfig({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
   const { card } = renderApp({ connectPrinter: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
-  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
-  await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
+  await closePolls({
     electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_closed_final',
+    castVoteRecords: GENERAL_SINGLE_PRECINCT_CVRS,
+    precinctSelection,
+    card,
   });
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  await screen.findByText('Polls are closed.');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
 
   const expectedCombinedTally = election.contests.map(() => expect.anything());
   expectedCombinedTally[0] = [0, 0, 2, 1, 0, 0, 1, 0, 0]; // president
@@ -1166,6 +1150,220 @@ test('saving to card: polls closed, general election, single precinct', async ()
       timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
+      tally: expectedCombinedTally,
+      talliesByPrecinct: expectedTalliesByPrecinct,
+      ballotCounts: expectedBallotCounts,
+      pollsTransition: 'close_polls',
+    })
+  );
+});
+
+const PRIMARY_NONPARTISAN_CONTESTS_CVR = [
+  generateCvr(
+    electionPrimaryNonpartisanContestsFixtures.election,
+    {
+      'best-animal-mammal': ['horse'],
+      kingdom: ['yes'],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionPrimaryNonpartisanContestsFixtures.election,
+    {
+      'best-animal-fish': ['seahorse'],
+      kingdom: ['no'],
+    },
+    {
+      precinctId: 'precinct-2',
+      ballotStyleId: '2F',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionPrimaryNonpartisanContestsFixtures.election,
+    {
+      'best-animal-mammal': ['horse'],
+      kingdom: ['yes'],
+    },
+    {
+      precinctId: 'precinct-2',
+      ballotStyleId: '1M',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+  generateCvr(
+    electionPrimaryNonpartisanContestsFixtures.election,
+    {
+      'best-animal-fish': ['seahorse'],
+      kingdom: ['no'],
+    },
+    {
+      precinctId: 'precinct-1',
+      ballotStyleId: '2F',
+      ballotType: VotingMethod.Precinct,
+    }
+  ),
+];
+
+test('printing: polls closed, general election with non-partisan contests, all precincts', async () => {
+  const { electionDefinition, election } =
+    electionPrimaryNonpartisanContestsFixtures;
+  const precinctSelection = ALL_PRECINCTS_SELECTION;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection,
+    pollsState: 'polls_open',
+  });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 3);
+  const { card } = renderApp({ connectPrinter: true });
+  await screen.findByText('Insert Your Ballot Below');
+
+  await closePolls({
+    electionDefinition,
+    castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
+    precinctSelection,
+    card,
+  });
+
+  await expectPrint((printedElement) => {
+    expect(
+      printedElement.getAllByText('TEST Polls Closed Report for Precinct 1')
+    ).toHaveLength(election.parties.length + 1);
+    expect(
+      printedElement.getAllByText('TEST Polls Closed Report for Precinct 2')
+    ).toHaveLength(election.parties.length + 1);
+
+    expect(
+      printedElement.getAllByText('Mammal Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.getAllByText('Fish Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.getAllByText(
+        'Example Primary Election Nonpartisan Contests:'
+      )
+    ).toHaveLength(election.precincts.length);
+
+    // Check for expected results on nonpartisan page for precinct 1
+    const nonpartisanPrecinct1Report = printedElement.getByTestId(
+      'tally-report-undefined-precinct-1'
+    );
+    expectBallotCountsInReport(nonpartisanPrecinct1Report, 2, 0, 2);
+    expectContestResultsInReport(
+      nonpartisanPrecinct1Report,
+      'kingdom',
+      2,
+      0,
+      0,
+      {
+        yes: 1,
+        no: 1,
+      }
+    );
+
+    // Check that partisan races do not appear on nonpartisan page
+    const partisanContestIds = election.contests
+      .filter((c) => c.partyId)
+      .map((c) => c.id);
+    for (const contestId of partisanContestIds) {
+      expect(
+        within(nonpartisanPrecinct1Report).queryByTestId(
+          `results-table-${contestId}`
+        )
+      ).toBeFalsy();
+    }
+
+    // Check that nonpartisan races do not appear on partisan pages
+    const nonpartisanContestId = election.contests.find((c) => !c.partyId)!.id;
+    expect(
+      within(
+        printedElement.getByTestId('tally-report-0-precinct-1')
+      ).queryByTestId(`results-table-${nonpartisanContestId}`)
+    ).toBeFalsy();
+    expect(
+      within(
+        printedElement.getByTestId('tally-report-1-precinct-1')
+      ).queryByTestId(`results-table-${nonpartisanContestId}`)
+    ).toBeFalsy();
+  });
+});
+
+test('saving to card: polls closed, general election with non-partisan contests, all precincts', async () => {
+  const { electionDefinition } = electionPrimaryNonpartisanContestsFixtures;
+  const precinctSelection = ALL_PRECINCTS_SELECTION;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection,
+    pollsState: 'polls_open',
+  });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 3);
+  const { card } = renderApp({ connectPrinter: false });
+  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Close the polls
+  await closePolls({
+    electionDefinition,
+    castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
+    precinctSelection,
+    card,
+  });
+
+  const expectedCombinedTally = [
+    [0, 0, 2, 2, 0, 0, 0], // best animal mammal
+    [0, 0, 2, 2, 0, 0], // best animal fish
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    [0, 0, 4, 2, 2], // kingdom preference
+  ];
+
+  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
+    'precinct-1': [
+      [0, 0, 1, 1, 0, 0, 0], // best animal mammal
+      [0, 0, 1, 1, 0, 0], // best animal fish
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      [0, 0, 2, 1, 1], // kingdom preference
+    ],
+    'precinct-2': [
+      [0, 0, 1, 1, 0, 0, 0], // best animal mammal
+      [0, 0, 1, 1, 0, 0], // best animal fish
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      [0, 0, 2, 1, 1], // kingdom preference
+    ],
+  };
+  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
+    '0,precinct-1': [1, 0],
+    '0,precinct-2': [1, 0],
+    '1,precinct-1': [1, 0],
+    '1,precinct-2': [1, 0],
+    'undefined,precinct-1': [2, 0],
+    'undefined,precinct-2': [2, 0],
+    '0,__ALL_PRECINCTS': [2, 0],
+    '1,__ALL_PRECINCTS': [2, 0],
+  };
+  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
+  expect(writeLongObjectMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      isLiveMode: false,
+      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+      totalBallotsScanned: 4,
+      machineId: '0002',
+      timePollsTransitioned: expect.anything(),
+      timeSaved: expect.anything(),
+      precinctSelection,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,

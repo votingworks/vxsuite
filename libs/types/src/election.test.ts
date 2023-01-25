@@ -11,6 +11,7 @@ import {
 import {
   election,
   electionMinimalExhaustive,
+  electionPrimaryNonpartisanContests,
   electionWithMsEitherNeither,
   primaryElection,
 } from '../test/election';
@@ -18,18 +19,25 @@ import {
   CandidateContest,
   CandidateSchema,
   ElectionDefinitionSchema,
+  electionHasPrimaryBallotStyle,
+  electionHasPrimaryContest,
   expandEitherNeitherContests,
+  getBallotStyle,
   getCandidateParties,
   getCandidatePartiesDescription,
+  getContests,
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
+  getPartyIdsWithContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  getPartySpecificElectionTitle,
   getPrecinctById,
   getPrecinctIndexById,
   isVotePresent,
+  PartyId,
   PartyIdSchema,
   PartySchema,
   validateVotes,
@@ -257,6 +265,75 @@ test('getPartyIdsInBallotStyles', () => {
   );
 });
 
+test('getContests', () => {
+  // general election ballot
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1',
+        election,
+      })!,
+      election,
+    }).map((c) => c.id)
+  ).toMatchObject(['CC', 'YNC']);
+
+  // primary ballots without non-partisan races
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1M',
+        election: electionMinimalExhaustive,
+      })!,
+      election: electionMinimalExhaustive,
+    }).map((c) => c.id)
+  ).toMatchObject([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either-neither',
+  ]);
+
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '2F',
+        election: electionMinimalExhaustive,
+      })!,
+      election: electionMinimalExhaustive,
+    }).map((c) => c.id)
+  ).toMatchObject(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
+
+  // primary ballots with non-partisan races
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1M',
+        election: electionPrimaryNonpartisanContests,
+      })!,
+      election: electionPrimaryNonpartisanContests,
+    }).map((c) => c.id)
+  ).toMatchObject([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either-neither',
+    'kingdom',
+  ]);
+
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '2F',
+        election: electionPrimaryNonpartisanContests,
+      })!,
+      election: electionPrimaryNonpartisanContests,
+    }).map((c) => c.id)
+  ).toMatchObject([
+    'best-animal-fish',
+    'aquarium-council-fish',
+    'fishing',
+    'kingdom',
+  ]);
+});
+
 test('getContestsFromIds', () => {
   expect(getContestsFromIds(electionMinimalExhaustive, [])).toEqual([]);
   expect(
@@ -271,6 +348,44 @@ test('getContestsFromIds', () => {
   expect(() =>
     getContestsFromIds(electionMinimalExhaustive, ['not-a-contest-id'])
   ).toThrowError('Contest not-a-contest-id not found');
+});
+
+test('electionHasPrimaryBallotStyle', () => {
+  expect(electionHasPrimaryBallotStyle(electionMinimalExhaustive)).toEqual(
+    true
+  );
+  expect(electionHasPrimaryBallotStyle(election)).toEqual(false);
+});
+
+test('electionHasPrimaryContest', () => {
+  expect(electionHasPrimaryContest(electionMinimalExhaustive)).toEqual(true);
+  expect(electionHasPrimaryContest(election)).toEqual(false);
+});
+
+test('getPartyIdsWithContests', () => {
+  expect(getPartyIdsWithContests(election)).toMatchObject([undefined]);
+  expect(getPartyIdsWithContests(electionMinimalExhaustive)).toMatchObject([
+    '0',
+    '1',
+  ]);
+  expect(
+    getPartyIdsWithContests(electionPrimaryNonpartisanContests)
+  ).toMatchObject(['0', '1', undefined]);
+});
+
+test('getPartySpecificElectionTitle', () => {
+  expect(getPartySpecificElectionTitle(election, undefined)).toEqual(
+    'ELECTION'
+  );
+  expect(
+    getPartySpecificElectionTitle(
+      electionPrimaryNonpartisanContests,
+      '0' as PartyId
+    )
+  ).toEqual('Mammal Party Example Primary Election');
+  expect(
+    getPartySpecificElectionTitle(electionPrimaryNonpartisanContests, undefined)
+  ).toEqual('Example Primary Election Nonpartisan Contests');
 });
 
 test('isVotePresent', () => {

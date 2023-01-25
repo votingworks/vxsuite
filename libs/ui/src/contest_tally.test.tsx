@@ -2,9 +2,8 @@ import React from 'react';
 import {
   assert,
   computeTallyWithPrecomputedCategories,
-  filterTalliesByParty,
 } from '@votingworks/utils';
-import { Election, ExternalTally, Tally } from '@votingworks/types';
+import { ExternalTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   hasTextAcrossElements,
@@ -15,26 +14,18 @@ import { render, screen, within } from '@testing-library/react';
 
 import { ContestTally } from './contest_tally';
 
-function constructTally(cvrsFileContents: string, election: Election): Tally {
-  const castVoteRecords = parseCvrsFileContents(cvrsFileContents);
-  const { overallTally } = computeTallyWithPrecomputedCategories(
-    election,
-    new Set(castVoteRecords),
-    []
-  );
-  return overallTally;
-}
-
 const { election } = electionMinimalExhaustiveSampleFixtures.electionDefinition;
-const allPartiesScannedTally = constructTally(
-  electionMinimalExhaustiveSampleFixtures.cvrData,
-  election
-);
-const scannedTally = filterTalliesByParty({
+const fullElectionTally = computeTallyWithPrecomputedCategories(
   election,
-  electionTally: allPartiesScannedTally,
-  party: election.parties[1], // Fish Party
-});
+  new Set(
+    parseCvrsFileContents(electionMinimalExhaustiveSampleFixtures.cvrData)
+  ),
+  [TallyCategory.Party]
+);
+const scannedTally = fullElectionTally.resultsByCategory.get(
+  TallyCategory.Party
+)?.['1'];
+assert(scannedTally);
 
 const candidateContestWithExternalDataId = 'best-animal-fish';
 const candidateContestWithExternalData = election.contests.find(

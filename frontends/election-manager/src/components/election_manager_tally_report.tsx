@@ -21,11 +21,15 @@ import {
   unsafeParse,
   VotingMethod,
   Optional,
+  PartyId,
+  getPartyIdsWithContests,
+  getPartySpecificElectionTitle,
 } from '@votingworks/types';
 import {
   filterTalliesByParams,
   find,
   modifyTallyWithWriteInInfo,
+  NONPARTISAN_FILTER,
 } from '@votingworks/utils';
 import React from 'react';
 
@@ -57,16 +61,33 @@ export function ElectionManagerTallyReport({
   fullElectionTally,
   generatedAtTime = new Date(),
   tallyReportType,
-  partyId: partyIdFromProps,
+  partyId: reportPartyIdFromProps,
   precinctId: precinctIdFromProps,
   scannerId,
   votingMethod,
   officialCandidateWriteIns,
 }: Props): JSX.Element {
-  const ballotStylePartyIds =
-    partyIdFromProps !== undefined
-      ? [unsafeParse(PartyIdSchema, partyIdFromProps)]
-      : Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
+  const reportPartyId: Optional<PartyId> = reportPartyIdFromProps
+    ? unsafeParse(PartyIdSchema, reportPartyIdFromProps)
+    : undefined;
+
+  // The report party id represents the party of the entire report. If it
+  // exists, the report only contains votes from ballots associated with that
+  // party. The section party id represents the party of an individual section
+  // (usually a a page) within the report.
+  const sectionPartyIds = (() => {
+    // If the report is not specific to a party, include page for each party
+    // including a page for nonpartisan races.
+    if (!reportPartyId) {
+      return getPartyIdsWithContests(election);
+    }
+
+    // If the report is specific to a party, there will only a section for that
+    // party or, if there are also nonpartisan races, a section for those as well.
+    return election.contests.some((c) => !c.partyId)
+      ? [reportPartyId, undefined]
+      : [reportPartyId];
+  })();
 
   const precinctIds =
     precinctIdFromProps === 'all'
@@ -75,17 +96,26 @@ export function ElectionManagerTallyReport({
 
   return (
     <TallyReport>
-      {ballotStylePartyIds.map((partyId) =>
+      {sectionPartyIds.map((sectionPartyId) =>
         precinctIds.map((precinctId) => {
-          const party = election.parties.find((p) => p.id === partyId);
-          const electionTitle = party
-            ? `${party.fullName} ${election.title}`
-            : election.title;
-
+          const electionTitle = getPartySpecificElectionTitle(
+            election,
+            sectionPartyId
+          );
           const filteredTally = filterTalliesByParams(
             fullElectionTally,
             election,
-            { precinctId, scannerId, partyId, votingMethod, batchId }
+            {
+              precinctId,
+              scannerId,
+              // in cases where there the entire report is party specific, we
+              // need to filter votes by party for all sections, both contests for that
+              // party and nonpartisan contests. Contests are still filtered by section.
+              partyId: reportPartyId ?? sectionPartyId,
+              votingMethod,
+              batchId,
+            },
+            { contestPartyFilter: sectionPartyId ?? NONPARTISAN_FILTER }
           );
           const tallyForReport = officialCandidateWriteIns
             ? modifyTallyWithWriteInInfo(
@@ -106,7 +136,7 @@ export function ElectionManagerTallyReport({
               election,
               {
                 precinctId,
-                partyId,
+                partyId: reportPartyId ?? sectionPartyId,
                 scannerId,
                 batchId,
                 votingMethod,
@@ -134,7 +164,7 @@ export function ElectionManagerTallyReport({
               (p) => p.id === precinctId
             ).name;
             return (
-              <ReportSection key={`${partyId}-${precinctId}`}>
+              <ReportSection key={`${sectionPartyId}-${precinctId}`}>
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
@@ -167,7 +197,7 @@ export function ElectionManagerTallyReport({
 
           if (scannerId) {
             return (
-              <ReportSection key={`${partyId}-${scannerId}`}>
+              <ReportSection key={`${sectionPartyId}-${scannerId}`}>
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
@@ -197,7 +227,7 @@ export function ElectionManagerTallyReport({
 
           if (batchId) {
             return (
-              <ReportSection key={`${partyId}-${batchId}`}>
+              <ReportSection key={`${sectionPartyId}-${batchId}`}>
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
@@ -227,7 +257,7 @@ export function ElectionManagerTallyReport({
           if (votingMethod) {
             const label = getLabelForVotingMethod(votingMethod);
             return (
-              <ReportSection key={`${partyId}-${votingMethod}`}>
+              <ReportSection key={`${sectionPartyId}-${votingMethod}`}>
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
@@ -253,7 +283,7 @@ export function ElectionManagerTallyReport({
 
           return (
             <ReportSection
-              key={partyId || 'none'}
+              key={sectionPartyId || 'none'}
               data-testid="election-full-tally-report"
             >
               <LogoMark />

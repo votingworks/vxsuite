@@ -265,11 +265,7 @@ export function generateTestDeckBallots({
     );
 
     for (const ballotStyle of precinctBallotStyles) {
-      const contests = election.contests.filter(
-        (c) =>
-          ballotStyle.districts.includes(c.districtId) &&
-          ballotStyle.partyId === c.partyId
-      );
+      const contests = getContests({ election, ballotStyle });
 
       const numBallots = Math.max(
         ...contests.map((c) => numBallotPositions(c))

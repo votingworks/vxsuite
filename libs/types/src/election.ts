@@ -1122,7 +1122,7 @@ export function getContests({
   return election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
-      ballotStyle.partyId === c.partyId
+      (ballotStyle.partyId === c.partyId || !c.partyId)
   );
 }
 
@@ -1310,6 +1310,20 @@ export function validateVotes({
 }
 
 /**
+ * Checks if an election has a ballot style affiliated with a party.
+ */
+export function electionHasPrimaryBallotStyle(election: Election): boolean {
+  return election.ballotStyles.some((bs) => Boolean(bs.partyId));
+}
+
+/**
+ * Checks if an election has a contest affiliated with a party.
+ */
+export function electionHasPrimaryContest(election: Election): boolean {
+  return election.contests.some((c) => Boolean(c.partyId));
+}
+
+/**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
  * election, e.g. "Republican" or "Democratic".
@@ -1366,6 +1380,37 @@ export function getDistrictIdsForPartyId(
   return election.ballotStyles
     .filter((bs) => bs.partyId === partyId)
     .flatMap((bs) => bs.districts);
+}
+
+/**
+ * Returns the ids of all parties with an associated contest defined. Will
+ * return `undefined` for nonpartisan contests.
+ */
+export function getPartyIdsWithContests(
+  election: Election
+): Array<PartyId | undefined> {
+  return [...new Set(election.contests.map((c) => c.partyId))];
+}
+
+/**
+ * Gets the party specific election title for use in reports. Prefixes with
+ * the party name or suffixes with "Nonpartisan Contests" if the election is
+ * a primary. Simply returns the election title if election is not a primary.
+ */
+export function getPartySpecificElectionTitle(
+  election: Election,
+  partyId?: PartyId
+): string {
+  const party = election.parties.find((p) => p.id === partyId);
+  if (party) {
+    return `${party.fullName} ${election.title}`;
+  }
+
+  if (electionHasPrimaryContest(election)) {
+    return `${election.title} Nonpartisan Contests`;
+  }
+
+  return election.title;
 }
 
 /**

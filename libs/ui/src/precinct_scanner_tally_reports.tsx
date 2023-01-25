@@ -1,6 +1,6 @@
 import {
   ElectionDefinition,
-  getPartyIdsInBallotStyles,
+  getPartyIdsWithContests,
   PrecinctSelection,
   StandardPollsTransition,
   Tally,
@@ -44,7 +44,7 @@ export function PrecinctScannerTallyReports({
   totalBallotsScanned,
 }: PrecinctScannerTallyReportsProps): JSX.Element {
   const currentTime = Date.now();
-  const parties = getPartyIdsInBallotStyles(electionDefinition.election);
+  const parties = getPartyIdsWithContests(electionDefinition.election);
   const showQuickResults =
     electionDefinition.election.quickResultsReportingUrl &&
     totalBallotsScanned > 0 &&

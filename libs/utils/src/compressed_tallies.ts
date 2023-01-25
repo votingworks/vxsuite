@@ -22,7 +22,6 @@ import {
 } from '@votingworks/types';
 import { BallotCountDetails, typedAs } from './types';
 import { assert, throwIllegalValue } from './assert';
-import { filterContestTalliesByPartyId } from './votes';
 
 const ALL_PRECINCTS = '__ALL_PRECINCTS';
 
@@ -222,32 +221,32 @@ function getContestTalliesForCompressedContest(
   }
 }
 
+/**
+ * Creates a tally from a serialized tally read from a smart card. If a
+ * `partyId` is provided, only includes contests associated with that party.
+ * If `partyId` is undefined, only includes nonpartisan races.
+ */
 export function readCompressedTally(
   election: Election,
   serializedTally: CompressedTally,
   ballotCounts: BallotCountDetails,
   partyId?: PartyId
 ): Tally {
-  let contestTallies: Dictionary<ContestTally> = {};
+  const contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
-    const serializedContestTally = serializedTally[contestIdx];
-    assert(serializedContestTally);
-    const tallies = getContestTalliesForCompressedContest(
-      contest,
-      serializedContestTally
-    );
-    for (const tally of tallies) {
-      contestTallies[tally.contest.id] = tally;
+    if (contest.partyId === partyId) {
+      const serializedContestTally = serializedTally[contestIdx];
+      assert(serializedContestTally);
+      const tallies = getContestTalliesForCompressedContest(
+        contest,
+        serializedContestTally
+      );
+      for (const tally of tallies) {
+        contestTallies[tally.contest.id] = tally;
+      }
     }
   }
 
-  if (partyId) {
-    contestTallies = filterContestTalliesByPartyId(
-      election,
-      contestTallies,
-      partyId
-    );
-  }
   return {
     numberOfBallotsCounted: ballotCounts.reduce(
       (prev, value) => prev + value,
