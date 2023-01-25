@@ -108,6 +108,9 @@ export function ElectionManagerTallyReport({
             {
               precinctId,
               scannerId,
+              // in cases where there the entire report is party specific, we
+              // need to filter votes by party for all sections, both contests for that
+              // party and nonpartisan contests. Contests are still filtered by section.
               partyId: reportPartyId ?? sectionPartyId,
               votingMethod,
               batchId,
