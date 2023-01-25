@@ -26,7 +26,6 @@ export * from './polls';
 export * from './precinct_selection';
 export * from './Printer';
 export * from './random';
-export * from './rotation';
 export * from './sleep';
 export * from './Storage';
 export * from './tallies';
