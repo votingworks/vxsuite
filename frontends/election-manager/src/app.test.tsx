@@ -18,6 +18,7 @@ import {
   electionSampleDefinition,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
+  electionPrimaryNonpartisanContestsFixtures,
 } from '@votingworks/fixtures';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
@@ -28,6 +29,7 @@ import {
   fakePrinter,
   fakePrinterInfo,
   fakeUsbDrive,
+  hasTextAcrossElements,
   makeElectionManagerCard,
   ReactTestingLibraryQueryable,
 } from '@votingworks/test-utils';
@@ -54,6 +56,7 @@ import {
 } from '../test/util/authenticate';
 import { ElectionManagerStoreMemoryBackend } from './lib/backends';
 import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
+import { buildApp } from '../test/helpers/build_app';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
@@ -1512,6 +1515,72 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByRole('button', { name: 'Print 1 Official Absentee Ballot' });
   screen.getByRole('button', { name: 'Save Ballot as PDF' });
   screen.getByText(/Ballot Package Filename/);
+});
+
+test('primary election with nonpartisan contests', async () => {
+  const { electionDefinition, cvrData } =
+    electionPrimaryNonpartisanContestsFixtures;
+  const { renderApp, card, backend } = buildApp(electionDefinition);
+  await backend.addCastVoteRecordFile(new File([cvrData], 'cvrs.txt'));
+  renderApp();
+  await authenticateWithElectionManagerCard(card, electionDefinition);
+
+  // Check "Ballots" page has correct contests count.
+  // TODO: Confirm ballot contents. Not possible currently because we don't
+  // render ballots in tests, only mocks.
+  userEvent.click(screen.getByText('Ballots'));
+  userEvent.click(screen.getAllByText('View Ballot')[0]);
+  screen.getByText(
+    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 4 contests')
+  );
+
+  // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+  await expectPrint((printedElement) => {
+    printedElement.getByText(
+      'Test Deck Mammal Party Example Primary Election Tally Report'
+    );
+    printedElement.getByText(
+      'Test Deck Fish Party Example Primary Election Tally Report'
+    );
+    printedElement.getByText(
+      'Test Deck Example Primary Election Nonpartisan Contests Tally Report'
+    );
+  });
+
+  // Check that nonpartisan races are separated in non party-specific reports
+  userEvent.click(screen.getByText('Reports'));
+  userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
+  const pages = screen.getAllByTestId('election-full-tally-report');
+  expect(pages).toHaveLength(3);
+  within(pages[0]).getByText(
+    'Unofficial Mammal Party Example Primary Election Tally Report'
+  );
+  within(pages[1]).getByText(
+    'Unofficial Fish Party Example Primary Election Tally Report'
+  );
+  within(pages[2]).getByText(
+    'Unofficial Example Primary Election Nonpartisan Contests Tally Report'
+  );
+  within(
+    within(pages[2]).getByText('Total Ballots Cast').closest('tr')!
+  ).getByText('5,000');
+
+  // Check that nonpartisan races are broken out in party-specific reports
+  userEvent.click(screen.getByText('Reports'));
+  userEvent.click(screen.getByText('Unofficial Fish Party Tally Report'));
+  const partyReportPages = screen.getAllByTestId('election-full-tally-report');
+  expect(partyReportPages).toHaveLength(2);
+  within(partyReportPages[0]).getByText(
+    'Unofficial Fish Party Example Primary Election Tally Report'
+  );
+  within(partyReportPages[1]).getByText(
+    'Unofficial Example Primary Election Nonpartisan Contests Tally Report'
+  );
+  within(
+    within(partyReportPages[1]).getByText('Total Ballots Cast').closest('tr')!
+  ).getByText('2,525');
 });
 
 test('usb formatting flows', async () => {

@@ -1,5 +1,6 @@
 import {
   electionMultiPartyPrimaryFixtures,
+  electionPrimaryNonpartisanContestsFixtures,
   electionSample,
   electionSample2,
   electionSample2Fixtures,
@@ -7,13 +8,13 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
-  BallotStyle,
   CandidateContest,
   CastVoteRecord,
   Election,
+  expandEitherNeitherContests,
   FullElectionTally,
   Id,
-  Party,
+  PartyId,
   PartyIdSchema,
   PrecinctId,
   Tally,
@@ -25,12 +26,13 @@ import {
 } from '@votingworks/types';
 import {
   calculateTallyForCastVoteRecords,
-  filterTalliesByParty,
+  filterTallyContestsByParty,
   getEmptyTally,
 } from '.';
 import { assert } from './assert';
 import { find } from './find';
 import {
+  ALL_PARTY_FILTER,
   buildVoteFromCvr,
   castVoteRecordHasWriteIns,
   castVoteRecordVotes,
@@ -40,6 +42,7 @@ import {
   getContestVoteOptionsForYesNoContest,
   getPartyIdForCvr,
   getSingleYesNoVote,
+  NONPARTISAN_FILTER,
   normalizeWriteInId,
   tallyVotesByContest,
 } from './votes';
@@ -234,35 +237,6 @@ test('tallyVotesByContest zeroes', () => {
   const contestTallies = tallyVotesByContest({
     election: electionSample,
     votes: [],
-  });
-
-  for (const [contestId, contestTally] of Object.entries(contestTallies)) {
-    expect(contestIds).toContain(contestId);
-    assert(contestTally);
-    for (const [optionId, optionTally] of Object.entries(
-      contestTally.tallies
-    )) {
-      expect(typeof optionId).toEqual('string');
-      expect(optionTally?.tally).toEqual(0);
-    }
-  }
-});
-
-test('tallyVotesByContest filtered by party', () => {
-  const ballotStyleWithParty = find(
-    electionSample.ballotStyles,
-    (bs): bs is BallotStyle & { partyId: Party['id'] } => !!bs.partyId
-  );
-  const filterContestsByParty = ballotStyleWithParty.partyId;
-  const contestIds = electionSample.contests
-    .filter(({ districtId }) =>
-      ballotStyleWithParty.districts.includes(districtId)
-    )
-    .map(({ id }) => id);
-  const contestTallies = tallyVotesByContest({
-    election: electionSample,
-    votes: [],
-    filterContestsByParty,
   });
 
   for (const [contestId, contestTally] of Object.entries(contestTallies)) {
@@ -1073,8 +1047,74 @@ describe('filterTalliesByParams in a primary election', () => {
   });
 });
 
-describe('filterTalliesByParty', () => {
-  test('returns the tally if no party is given', () => {
+test('filterTalliesByParams in a primary election with nonpartisan contests', () => {
+  const { election } = electionPrimaryNonpartisanContestsFixtures;
+
+  // get the CVRs
+  const cvrsFileContents = electionPrimaryNonpartisanContestsFixtures.cvrData;
+  const castVoteRecords = parseCvrs(cvrsFileContents);
+
+  const electionTally = computeTallyWithPrecomputedCategories(
+    election,
+    new Set(castVoteRecords),
+    Object.values(TallyCategory)
+  );
+
+  const allContestIds = expandEitherNeitherContests(election.contests).map(
+    (c) => c.id
+  );
+
+  const partyContestIds = expandEitherNeitherContests(election.contests)
+    .filter((c) => c.partyId === '0')
+    .map((c) => c.id);
+
+  const nonPartyContestIds = expandEitherNeitherContests(election.contests)
+    .filter((c) => !c.partyId)
+    .map((c) => c.id);
+
+  // Filtering on a party's CVRs only includes the party's contests by default
+  expect(
+    Object.keys(
+      filterTalliesByParams(electionTally, election, {
+        partyId: '0' as PartyId,
+      }).contestTallies
+    )
+  ).toMatchObject(partyContestIds);
+
+  // Not filtering on a party only includes nonpartisan contests by default
+  expect(
+    Object.keys(
+      filterTalliesByParams(electionTally, election, {}).contestTallies
+    )
+  ).toMatchObject(nonPartyContestIds);
+
+  // Can include all contests if specified
+  expect(
+    Object.keys(
+      filterTalliesByParams(
+        electionTally,
+        election,
+        {},
+        { contestPartyFilter: ALL_PARTY_FILTER }
+      ).contestTallies
+    )
+  ).toMatchObject(allContestIds);
+
+  // Can include nonpartisan contest tallies for partisan ballots if specified
+  expect(
+    Object.keys(
+      filterTalliesByParams(
+        electionTally,
+        election,
+        { partyId: '0' as PartyId },
+        { contestPartyFilter: NONPARTISAN_FILTER }
+      ).contestTallies
+    )
+  ).toMatchObject(nonPartyContestIds);
+});
+
+describe('filterTallyContestsByParty', () => {
+  test('returns the tally if the filter is all contests', () => {
     const election = electionSample2;
 
     // get the CVRs
@@ -1087,9 +1127,9 @@ describe('filterTalliesByParty', () => {
       new Set(castVoteRecords)
     );
 
-    expect(filterTalliesByParty({ election, electionTally })).toEqual(
-      electionTally
-    );
+    expect(
+      filterTallyContestsByParty(election, electionTally, ALL_PARTY_FILTER)
+    ).toEqual(electionTally);
   });
 
   test('can filter by party as expected', () => {
@@ -1108,46 +1148,61 @@ describe('filterTalliesByParty', () => {
     );
 
     // expected filtered result
-    const libertyPartyTally = calculateTallyForCastVoteRecords(
-      election,
-      new Set(castVoteRecords),
-      party0
-    );
 
-    const filteredTally = filterTalliesByParty({
+    const filteredTally = filterTallyContestsByParty(
       election,
       electionTally,
-      party,
-    });
-    expect(filteredTally).toStrictEqual(libertyPartyTally);
-    expect(Object.keys(filteredTally.contestTallies)).toContain(
-      'mayor-contest-liberty'
+      party.id
     );
-    expect(Object.keys(filteredTally.contestTallies)).not.toContain(
-      'mayor-contest-constitution'
+    expect(Object.keys(electionTally.contestTallies)).toEqual(
+      expandEitherNeitherContests(election.contests).map((c) => c.id)
     );
+    expect(Object.keys(filteredTally.contestTallies)).toMatchObject([
+      'governor-contest-liberty',
+      'mayor-contest-liberty',
+      'assistant-mayor-contest-liberty',
+      'chief-pokemon-liberty',
+      'schoolboard-liberty',
+    ]);
     expect(filteredTally.ballotCountsByVotingMethod).toStrictEqual(
       electionTally.ballotCountsByVotingMethod
     );
+    expect(filteredTally.numberOfBallotsCounted).toStrictEqual(
+      electionTally.numberOfBallotsCounted
+    );
+  });
 
-    const expectedCounts: Tally['ballotCountsByVotingMethod'] = {
-      [VotingMethod.Precinct]: 314,
-    };
-    const filteredTally2 = filterTalliesByParty({
+  test('can filter by nonpartisan contests as expected', () => {
+    const { election } = electionPrimaryNonpartisanContestsFixtures;
+
+    // get the CVRs
+    const cvrsFileContents = electionPrimaryNonpartisanContestsFixtures.cvrData;
+    const castVoteRecords = parseCvrs(cvrsFileContents);
+
+    // tabulate it
+    const electionTally = calculateTallyForCastVoteRecords(
+      election,
+      new Set(castVoteRecords)
+    );
+
+    // expected filtered result
+
+    const filteredTally = filterTallyContestsByParty(
       election,
       electionTally,
-      party,
-      ballotCountsByParty: { [party.id]: expectedCounts },
-    });
-    expect(filteredTally2.ballotCountsByVotingMethod).toEqual(expectedCounts);
-    const filteredTally3 = filterTalliesByParty({
-      election,
-      electionTally,
-      party,
-      ballotCountsByParty: {},
-    });
-    expect(filteredTally3.ballotCountsByVotingMethod).toEqual(
+      NONPARTISAN_FILTER
+    );
+    expect(Object.keys(electionTally.contestTallies)).toEqual(
+      expandEitherNeitherContests(election.contests).map((c) => c.id)
+    );
+    expect(Object.keys(filteredTally.contestTallies)).toMatchObject([
+      'kingdom',
+    ]);
+    expect(filteredTally.ballotCountsByVotingMethod).toStrictEqual(
       electionTally.ballotCountsByVotingMethod
+    );
+    expect(filteredTally.numberOfBallotsCounted).toStrictEqual(
+      electionTally.numberOfBallotsCounted
     );
   });
 });

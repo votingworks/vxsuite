@@ -10,6 +10,7 @@ export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimal
 export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as primaryElectionSampleFixtures from './data/electionPrimary';
+export * as electionPrimaryNonpartisanContestsFixtures from './data/electionPrimaryNonpartisanContests';
 export {
   electionDefinition as electionSampleDefinition,
   election as electionSample,

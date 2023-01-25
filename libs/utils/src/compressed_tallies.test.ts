@@ -23,7 +23,10 @@ import {
   getTallyIdentifier,
 } from './compressed_tallies';
 
-import { calculateTallyForCastVoteRecords } from './votes';
+import {
+  calculateTallyForCastVoteRecords,
+  filterTallyContestsByParty,
+} from './votes';
 import { find } from './find';
 import { assert } from './assert';
 
@@ -478,7 +481,7 @@ test('either neither tally can compress and be read back and end with the origin
   );
 });
 
-test('multi party primary tally can compress and be read back and end with the original tally', () => {
+test('primary tally can compress and be read back and end with the original tally', () => {
   const castVoteRecordsContent = electionMultiPartyPrimaryFixtures.cvrData;
   const lines = castVoteRecordsContent.split('\n');
   const castVoteRecords = lines.flatMap((line) =>
@@ -492,29 +495,18 @@ test('multi party primary tally can compress and be read back and end with the o
     new Set(castVoteRecords)
   );
   const compressedTally = compressTally(electionMultiParty, expectedTally);
-  const processedCompressedTally = readCompressedTally(
-    electionMultiParty,
-    compressedTally,
-    [
-      expectedTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
-      expectedTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
-    ]
-  );
-  delete expectedTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
-  expect(processedCompressedTally.ballotCountsByVotingMethod).toStrictEqual(
-    expectedTally.ballotCountsByVotingMethod
-  );
-  expect(processedCompressedTally.numberOfBallotsCounted).toStrictEqual(
-    778 // this is different then the total number of ballots as unknown ballots are ignored
-  );
-  expect(processedCompressedTally.contestTallies).toStrictEqual(
-    expectedTally.contestTallies
-  );
 
   const party0 = unsafeParse(PartyIdSchema, '0');
-  const expectedLibertyTally = calculateTallyForCastVoteRecords(
+  const expectedLibertyTally = filterTallyContestsByParty(
     electionMultiParty,
-    new Set(castVoteRecords),
+    calculateTallyForCastVoteRecords(
+      electionMultiParty,
+      new Set(
+        castVoteRecords.filter((cvr) =>
+          ['1L', '2L'].includes(cvr._ballotStyleId)
+        )
+      )
+    ),
     party0
   );
   // can read for a specific party id
@@ -534,7 +526,7 @@ test('multi party primary tally can compress and be read back and end with the o
     expectedLibertyTally.ballotCountsByVotingMethod
   );
   expect(processedLibertyTally.numberOfBallotsCounted).toStrictEqual(
-    778 // this is different then the total number of ballots as unknown ballots are ignored
+    342 // this is different then the total number of ballots as unknown ballots are ignored
   );
   expect(processedLibertyTally.contestTallies).toStrictEqual(
     expectedLibertyTally.contestTallies

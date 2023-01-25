@@ -1,4 +1,8 @@
-import { assert, filterTalliesByParamsAndBatchId } from '@votingworks/utils';
+import {
+  ALL_PARTY_FILTER,
+  assert,
+  filterTalliesByParamsAndBatchId,
+} from '@votingworks/utils';
 import {
   Election,
   expandEitherNeitherContests,
@@ -20,7 +24,8 @@ export function* generateRowsForBatchTallyResultsCsv(
       fullElectionTally,
       election,
       batchId,
-      {}
+      {},
+      { contestPartyFilter: ALL_PARTY_FILTER }
     );
     const contestVoteTotals: string[] = [];
     for (const contest of expandEitherNeitherContests(election.contests)) {

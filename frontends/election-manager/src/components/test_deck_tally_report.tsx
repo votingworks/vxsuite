@@ -1,20 +1,15 @@
 import React from 'react';
 import {
-  Dictionary,
+  CandidateVote,
+  CastVoteRecord,
   Election,
   FullElectionTally,
-  getBallotStyle,
-  PartyId,
-  Tally,
   TallyCategory,
-  VotingMethod,
+  YesNoVote,
 } from '@votingworks/types';
-import { tallyVotesByContest } from '@votingworks/utils';
+import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
 import { ElectionManagerTallyReport } from './election_manager_tally_report';
-import {
-  getPartiesWithPrimaryElections,
-  TestDeckBallot,
-} from '../utils/election';
+import { TestDeckBallot } from '../utils/election';
 
 export interface TestDeckTallyReportProps {
   election: Election;
@@ -22,41 +17,34 @@ export interface TestDeckTallyReportProps {
   precinctId?: string;
 }
 
-function getTallyFromTestDeckBallots({
-  election,
-  testDeckBallots,
-  partyId,
-}: {
-  election: Election;
-  testDeckBallots: TestDeckBallot[];
-  partyId?: PartyId;
-}): Tally {
-  let filteredTestDeckBallots = testDeckBallots;
+function testDeckBallotToCastVoteRecord(
+  testDeckBallot: TestDeckBallot
+): CastVoteRecord {
+  const castVoteRecord: CastVoteRecord = {
+    _precinctId: testDeckBallot.precinctId,
+    _ballotStyleId: testDeckBallot.ballotStyleId,
+    _ballotType: 'standard',
+    _scannerId: 'test-deck',
+    _batchId: 'test-deck',
+    _batchLabel: 'Test Deck',
+    _testBallot: true,
+  };
 
-  if (partyId) {
-    filteredTestDeckBallots = testDeckBallots.filter((testDeckBallot) => {
-      return (
-        getBallotStyle({
-          election,
-          ballotStyleId: testDeckBallot.ballotStyleId,
-        })?.partyId === partyId
-      );
-    });
+  for (const [contestId, vote] of Object.entries(testDeckBallot.votes)) {
+    if (vote) {
+      if (typeof vote[0] === 'string') {
+        // yes no vote
+        const yesNoVote = vote as YesNoVote;
+        castVoteRecord[contestId] = [...yesNoVote];
+      } else {
+        // candidate vote
+        const candidates = vote as CandidateVote;
+        castVoteRecord[contestId] = candidates.map((c) => c.id);
+      }
+    }
   }
 
-  return {
-    numberOfBallotsCounted: filteredTestDeckBallots.length,
-    castVoteRecords: new Set(),
-    contestTallies: tallyVotesByContest({
-      election,
-      votes: filteredTestDeckBallots.map(({ votes }) => votes),
-      filterContestsByParty: partyId,
-    }),
-    ballotCountsByVotingMethod: {
-      [VotingMethod.Precinct]: filteredTestDeckBallots.length,
-      [VotingMethod.Absentee]: 0,
-    },
-  };
+  return castVoteRecord;
 }
 
 export function TestDeckTallyReport({
@@ -64,39 +52,16 @@ export function TestDeckTallyReport({
   testDeckBallots,
   precinctId,
 }: TestDeckTallyReportProps): JSX.Element {
-  const overallTally = getTallyFromTestDeckBallots({
-    election,
-    testDeckBallots,
-  });
-
-  const fullElectionTally: FullElectionTally = (() => {
-    const resultsByCategory = new Map();
-
-    if (precinctId) {
-      resultsByCategory.set(TallyCategory.Precinct, {
-        [precinctId]: overallTally,
-      });
-    }
-
-    const primaryParties = getPartiesWithPrimaryElections(election);
-    if (primaryParties.length > 1) {
-      const resultsByParty: Dictionary<Tally> = {};
-      for (const party of primaryParties) {
-        resultsByParty[party.id] = getTallyFromTestDeckBallots({
-          election,
-          testDeckBallots,
-          partyId: party.id,
-        });
-      }
-
-      resultsByCategory.set(TallyCategory.Party, resultsByParty);
-    }
-
-    return {
-      overallTally,
-      resultsByCategory,
-    };
-  })();
+  const fullElectionTally: FullElectionTally =
+    computeTallyWithPrecomputedCategories(
+      election,
+      new Set(
+        testDeckBallots.map((testDeckBallot) =>
+          testDeckBallotToCastVoteRecord(testDeckBallot)
+        )
+      ),
+      [TallyCategory.Precinct, TallyCategory.Party]
+    );
 
   return (
     <ElectionManagerTallyReport

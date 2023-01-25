@@ -6,6 +6,7 @@ import {
   CastVoteRecord,
   ContestId,
   ContestOptionId,
+  getContests,
   InlineBallotImage,
   SheetOf,
   unsafeParse,
@@ -129,14 +130,14 @@ export async function* generateCvrs({
   }
 
   const { electionDefinition } = ballotPackage;
-  const { ballotStyles, contests } = electionDefinition.election;
+  const { ballotStyles } = electionDefinition.election;
   const ballotImageCache = new Map<
     BallotPackageEntry,
     SheetOf<InlineBallotImage>
   >();
   let ballotId = 0;
   for (const ballotStyle of ballotStyles) {
-    const { precincts, districts } = ballotStyle;
+    const { precincts } = ballotStyle;
     for (const ballotType of ['absentee', 'provisional', 'standard'] as const) {
       for (const precinct of precincts) {
         for (const scanner of scannerNames) {
@@ -156,37 +157,34 @@ export async function* generateCvrs({
             string,
             ReadonlyArray<readonly string[]>
           >();
-          for (const contest of contests) {
-            if (
-              districts.includes(contest.districtId) &&
-              (ballotStyle.partyId === undefined ||
-                contest.partyId === ballotStyle.partyId)
-            ) {
-              // Generate an array of all possible contest choice responses for this contest
-              switch (contest.type) {
-                case 'candidate':
-                  candidateOptionsForContest.set(
-                    contest.id,
-                    getCandidateOptionsForContest(contest)
-                  );
-                  break;
-                case 'yesno':
-                  candidateOptionsForContest.set(contest.id, YES_NO_OPTIONS);
-                  break;
-                case 'ms-either-neither':
-                  candidateOptionsForContest.set(
-                    contest.eitherNeitherContestId,
-                    YES_NO_OPTIONS
-                  );
-                  candidateOptionsForContest.set(
-                    contest.pickOneContestId,
-                    YES_NO_OPTIONS
-                  );
-                  break;
-                // istanbul ignore next
-                default:
-                  throwIllegalValue(contest);
-              }
+          for (const contest of getContests({
+            ballotStyle,
+            election: electionDefinition.election,
+          })) {
+            // Generate an array of all possible contest choice responses for this contest
+            switch (contest.type) {
+              case 'candidate':
+                candidateOptionsForContest.set(
+                  contest.id,
+                  getCandidateOptionsForContest(contest)
+                );
+                break;
+              case 'yesno':
+                candidateOptionsForContest.set(contest.id, YES_NO_OPTIONS);
+                break;
+              case 'ms-either-neither':
+                candidateOptionsForContest.set(
+                  contest.eitherNeitherContestId,
+                  YES_NO_OPTIONS
+                );
+                candidateOptionsForContest.set(
+                  contest.pickOneContestId,
+                  YES_NO_OPTIONS
+                );
+                break;
+              // istanbul ignore next
+              default:
+                throwIllegalValue(contest);
             }
           }
           // Generate as many vote combinations as necessary that contain all contest choice options

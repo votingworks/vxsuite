@@ -5,13 +5,13 @@ import {
   BallotStyleId,
   Election,
   ElectionDefinition,
-  getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
   PrecinctId,
   Tally,
   PrecinctSelection,
   PollsState,
   PollsTransition,
+  getPartyIdsWithContests,
 } from '@votingworks/types';
 import {
   Button,
@@ -73,7 +73,7 @@ function parseScannerReportTallyData(
     scannerTallyReportData.tallyMachineType ===
       ReportSourceMachineType.PRECINCT_SCANNER
   );
-  const parties = getPartyIdsInBallotStyles(election);
+  const partyIds = getPartyIdsWithContests(election);
   const newSubTallies = new Map<string, Tally>();
   // Read the tally for each precinct and each party
   if (scannerTallyReportData.talliesByPrecinct) {
@@ -82,7 +82,7 @@ function parseScannerReportTallyData(
     )) {
       assert(compressedTally);
       // partyId may be undefined in the case of a ballot style without a party in the election
-      for (const partyId of parties) {
+      for (const partyId of partyIds) {
         const key = getTallyIdentifier(partyId, precinctId);
         const tally = readCompressedTally(
           election,
@@ -94,7 +94,7 @@ function parseScannerReportTallyData(
       }
     }
   } else {
-    for (const partyId of parties) {
+    for (const partyId of partyIds) {
       const key = getTallyIdentifier(
         partyId,
         scannerTallyReportData.precinctSelection.kind === 'SinglePrecinct'

@@ -1,4 +1,4 @@
-import { filterTalliesByParams } from '@votingworks/utils';
+import { ALL_PARTY_FILTER, filterTalliesByParams } from '@votingworks/utils';
 import {
   Election,
   expandEitherNeitherContests,
@@ -34,14 +34,24 @@ export function* generateRows(
   election: Election
 ): Generator<string> {
   for (const precinct of election.precincts) {
-    const absenteeTally = filterTalliesByParams(fullElectionTally, election, {
-      precinctId: precinct.id,
-      votingMethod: VotingMethod.Absentee,
-    });
-    const precinctTally = filterTalliesByParams(fullElectionTally, election, {
-      precinctId: precinct.id,
-      votingMethod: VotingMethod.Precinct,
-    });
+    const absenteeTally = filterTalliesByParams(
+      fullElectionTally,
+      election,
+      {
+        precinctId: precinct.id,
+        votingMethod: VotingMethod.Absentee,
+      },
+      { contestPartyFilter: ALL_PARTY_FILTER }
+    );
+    const precinctTally = filterTalliesByParams(
+      fullElectionTally,
+      election,
+      {
+        precinctId: precinct.id,
+        votingMethod: VotingMethod.Precinct,
+      },
+      { contestPartyFilter: ALL_PARTY_FILTER }
+    );
     for (const contest of expandEitherNeitherContests(election.contests)) {
       const contestTallyAbsentee = absenteeTally.contestTallies[contest.id];
       const contestTallyPrecinct = precinctTally.contestTallies[contest.id];

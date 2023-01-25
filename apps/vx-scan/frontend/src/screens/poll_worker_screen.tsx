@@ -134,7 +134,13 @@ export function PollWorkerScreen({
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
+  // currentTally is the overall tally across parties and precincts
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
+  // currentSubTallies are tallies split by both party and precinct. Each
+  // section of the printed precinct tally report represents a subtally. We
+  // don't write all these subtallies to cards for VxMark printing, however.
+  // We write the ballot count details (precinct vs. absentee) and determine
+  // the rest from other subtallies split only by precinct.
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());

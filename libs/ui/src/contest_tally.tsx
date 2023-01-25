@@ -25,6 +25,8 @@ interface ContestProps {
   dim?: boolean;
 }
 
+// we do not plan to continue to support dimming irrelevant tallies, so
+// istanbul ignore next
 const Contest = styled.div<ContestProps>`
   margin: 1rem 0;
   color: ${({ dim }) => (dim ? '#cccccc' : undefined)};

@@ -1,5 +1,6 @@
 import {
   ElectionDefinition,
+  getPartySpecificElectionTitle,
   PartyId,
   PollsTransition,
   PrecinctSelection,
@@ -112,11 +113,9 @@ export function PrecinctScannerReportHeader({
   } ${getPollsReportTitle(pollsTransition)} for ${precinctName}`;
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
 
-  const party = election.parties.find((p) => p.id === partyId);
-  const electionTitle =
-    party && showTallies
-      ? `${party.fullName} ${election.title}`
-      : election.title;
+  const electionTitle = showTallies
+    ? getPartySpecificElectionTitle(election, partyId)
+    : election.title;
 
   return (
     <React.Fragment>

@@ -25,6 +25,7 @@ import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+  electionPrimaryNonpartisanContestsFixtures,
   electionSample,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
@@ -1155,6 +1156,239 @@ test('tally report: as expected with all precinct specific data for primary elec
       'fishing',
       { ballotsCast: 1, undervotes: 0, overvotes: 0 },
       { yes: 0, no: 1 }
+    );
+  });
+});
+
+test('tally report: as expected with primary election with nonpartisan contests', async () => {
+  const { electionDefinition, election } =
+    electionPrimaryNonpartisanContestsFixtures;
+
+  const tally: CompressedTally = [
+    // best animal mammal
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      2 /* for 'horse' */, 0 /* for 'otter' */, 0 /* for 'fox' */,
+      0 /* writeIns */,
+    ]),
+    // best animal fish
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      2 /* for 'seahorse' */, 0 /* for 'salmon' */, 0 /* writeIns */,
+    ]),
+    // zoo council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      6 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+      0 /* for 'elephant' */, 0 /* writeIns */,
+    ]),
+    // aquarium council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      4 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'manta-ray' */, 0 /* for 'pufferfish' */, 0 /* for 'rockfish' */,
+      0 /* for 'triggerfish' */, 0 /* writeIns */,
+    ]),
+    // new zoo either neither
+    typedAs<MsEitherNeitherContestCompressedTally>([
+      0 /* eitherOption */, 0 /* neitherOption */,
+      2 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */, 0 /* secondOption */, 2 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */, 2 /* ballotsCast */,
+    ]),
+    // fishing ban yes no
+    typedAs<YesNoContestCompressedTally>([
+      2 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'yes' */, 0 /* for 'no' */,
+    ]),
+    // kingdom preference yes no
+    typedAs<YesNoContestCompressedTally>([
+      0 /* undervotes */, 0 /* overvotes */, 4 /* ballotsCast */,
+      2 /* for 'yes' */, 2 /* for 'no' */,
+    ]),
+  ];
+
+  const talliesByPrecinct: Dictionary<CompressedTally> = {
+    'precinct-1': [
+      // best animal mammal
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'horse' */, 0 /* for 'otter' */, 0 /* for 'fox' */,
+        0 /* writeIns */,
+      ]),
+      // best animal fish
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'seahorse' */, 0 /* for 'salmon' */, 0 /* writeIns */,
+      ]),
+      // zoo council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        3 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+        0 /* for 'elephant' */, 0 /* writeIns */,
+      ]),
+      // aquarium council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        2 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'manta-ray' */, 0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
+      ]),
+      // new zoo either neither
+      typedAs<MsEitherNeitherContestCompressedTally>([
+        0 /* eitherOption */, 0 /* neitherOption */,
+        1 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      ]),
+      // fishing ban yes no
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // kingdom preference yes no
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+        1 /* for 'yes' */, 1 /* for 'no' */,
+      ]),
+    ],
+    'precinct-2': [
+      // best animal mammal
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'horse' */, 0 /* for 'otter' */, 0 /* for 'fox' */,
+        0 /* writeIns */,
+      ]),
+      // best animal fish
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'seahorse' */, 0 /* for 'salmon' */, 0 /* writeIns */,
+      ]),
+      // zoo council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        3 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+        0 /* for 'elephant' */, 0 /* writeIns */,
+      ]),
+      // aquarium council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        2 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'manta-ray' */, 0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
+      ]),
+      // new zoo either neither
+      typedAs<MsEitherNeitherContestCompressedTally>([
+        0 /* eitherOption */, 0 /* neitherOption */,
+        1 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      ]),
+      // fishing ban yes no
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // kingdom preference yes no
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+        1 /* for 'yes' */, 1 /* for 'no' */,
+      ]),
+    ],
+  };
+
+  const tallyOnCard: ScannerTallyReportData = {
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+    tally,
+    talliesByPrecinct,
+    totalBallotsScanned: 4,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    isLiveMode: true,
+    pollsTransition: 'close_polls',
+    ballotCounts: {
+      '0,precinct-1': [1, 0],
+      '0,precinct-2': [1, 0],
+      '1,precinct-1': [1, 0],
+      '1,precinct-2': [1, 0],
+      'undefined,precinct-1': [2, 0],
+      'undefined,precinct-2': [2, 0],
+      '0,__ALL_PRECINCTS': [2, 0],
+      '1,__ALL_PRECINCTS': [2, 0],
+    },
+  };
+
+  const { renderApp, card, storage } = buildApp();
+  await setElectionInStorage(storage, electionDefinition);
+  await setStateInStorage(storage, {
+    pollsState: 'polls_open',
+    appPrecinct: ALL_PRECINCTS_SELECTION,
+  });
+  renderApp();
+  await screen.findByText('Insert Card');
+  card.insertCard(
+    makePollWorkerCard(electionDefinition.electionHash),
+    JSON.stringify(tallyOnCard)
+  );
+
+  await printPollsClosedReport();
+
+  await expectPrint((printedElement) => {
+    expect(
+      printedElement.getAllByText('Official Polls Closed Report for Precinct 1')
+    ).toHaveLength(election.parties.length + 1);
+    expect(
+      printedElement.getAllByText('Official Polls Closed Report for Precinct 2')
+    ).toHaveLength(election.parties.length + 1);
+
+    expect(
+      printedElement.getAllByText('Mammal Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.getAllByText('Fish Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.getAllByText(
+        'Example Primary Election Nonpartisan Contests:'
+      )
+    ).toHaveLength(election.precincts.length);
+
+    // Check that the expected results are on the tally report for Precinct 1 Mammal Party
+    const precinct1MammalReport = printedElement.getByTestId(
+      'tally-report-0-precinct-1'
+    );
+    expectBallotCountsInReport(precinct1MammalReport, 1, 0, 1);
+    expect(
+      within(precinct1MammalReport).queryByTestId('results-table-kingdom')
+    ).toBeFalsy();
+    expectContestResultsInReport(
+      precinct1MammalReport,
+      'best-animal-mammal',
+      {
+        ballotsCast: 1,
+        undervotes: 0,
+        overvotes: 0,
+      },
+      { horse: 1, otter: 0, fox: 0 }
+    );
+    // Check that the expected results are on the tally report for nonpartisan contests
+    const precinct1NonpartisanReport = printedElement.getByTestId(
+      'tally-report-undefined-precinct-1'
+    );
+    expectBallotCountsInReport(precinct1NonpartisanReport, 2, 0, 2);
+    expect(
+      within(precinct1NonpartisanReport).queryByTestId(
+        'results-table-best-animal-mammal'
+      )
+    ).toBeFalsy();
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'kingdom',
+      {
+        ballotsCast: 2,
+        undervotes: 0,
+        overvotes: 0,
+      },
+      { yes: 1, no: 1 }
     );
   });
 });

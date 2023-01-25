@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import {
+  electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
-  electionSample,
-  electionSampleDefinition,
+  electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
@@ -14,6 +14,7 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   calculateTallyForCastVoteRecords,
+  filterTallyContestsByParty,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -23,23 +24,28 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
+const {
+  election: generalElection,
+  electionDefinition: generalElectionDefinition,
+} = electionFamousNames2021Fixtures;
+
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 const cvr: CastVoteRecord = {
-  _precinctId: electionSample.precincts[0].id,
+  _precinctId: generalElection.precincts[0].id,
   _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
-  _ballotStyleId: electionSample.ballotStyles[0].id,
+  _ballotStyleId: generalElection.ballotStyles[0].id,
   _batchId: 'batch-1',
   _batchLabel: 'batch-1',
   _ballotType: 'standard',
   _testBallot: false,
   _scannerId: 'DEMO-0000',
-  'county-commissioners': ['argent'],
+  'board-of-alderman': ['helen-keller'],
 };
 
 test('renders as expected for all precincts in a general election', () => {
   const tally = calculateTallyForCastVoteRecords(
-    electionSample,
+    generalElection,
     new Set([cvr])
   );
   render(
@@ -47,7 +53,7 @@ test('renders as expected for all precincts in a general election', () => {
       pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={generalElectionDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="close_polls"
       isLiveMode
@@ -56,9 +62,9 @@ test('renders as expected for all precincts in a general election', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Official Polls Closed Report for All Precincts');
-  const electionTitle = screen.getByText('General Election:');
+  const electionTitle = screen.getByText('Lincoln Municipal General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
+    'Lincoln Municipal General Election: Sunday, June 6, 2021, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Polls Closed:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -71,28 +77,24 @@ test('renders as expected for all precincts in a general election', () => {
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   const countyCommissioners = screen.getByTestId(
-    'results-table-county-commissioners'
+    'results-table-board-of-alderman'
   );
   within(countyCommissioners).getByText(/1 ballot cast/);
   within(countyCommissioners).getByText(/0 overvotes/);
   within(countyCommissioners).getByText(/3 undervotes/);
-  within(screen.getByTestId('county-commissioners-argent')).getByText('1');
-  within(
-    screen.getByTestId('county-commissioners-witherspoonsmithson')
-  ).getByText('0');
-  within(screen.getByTestId('county-commissioners-bainbridge')).getByText('0');
+  within(screen.getByTestId('board-of-alderman-helen-keller')).getByText('1');
+  within(screen.getByTestId('board-of-alderman-steve-jobs')).getByText('0');
+  within(screen.getByTestId('board-of-alderman-nikola-tesla')).getByText('0');
 
-  within(screen.getByTestId('results-table-president')).getByText(
+  within(screen.getByTestId('results-table-mayor')).getByText(/0 ballots cast/);
+  within(screen.getByTestId('results-table-controller')).getByText(
     /0 ballots cast/
   );
-  within(
-    screen.getByTestId('results-table-judicial-robert-demergue')
-  ).getByText(/0 ballots cast/);
 });
 
 test('renders as expected for a single precinct in a general election', () => {
   const tally = calculateTallyForCastVoteRecords(
-    electionSample,
+    generalElection,
     new Set([cvr])
   );
   render(
@@ -100,9 +102,9 @@ test('renders as expected for a single precinct in a general election', () => {
       pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={generalElectionDefinition}
       precinctSelection={singlePrecinctSelectionFor(
-        electionSample.precincts[0].id
+        generalElection.precincts[0].id
       )}
       pollsTransition="open_polls"
       isLiveMode={false}
@@ -110,10 +112,10 @@ test('renders as expected for a single precinct in a general election', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('TEST Polls Opened Report for Center Springfield');
-  const electionTitle = screen.getByText('General Election:');
+  screen.getByText('TEST Polls Opened Report for North Lincoln');
+  const electionTitle = screen.getByText('Lincoln Municipal General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
+    'Lincoln Municipal General Election: Sunday, June 6, 2021, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -126,23 +128,19 @@ test('renders as expected for a single precinct in a general election', () => {
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
   const countyCommissioners = screen.getByTestId(
-    'results-table-county-commissioners'
+    'results-table-board-of-alderman'
   );
   within(countyCommissioners).getByText(/1 ballot cast/);
   within(countyCommissioners).getByText(/0 overvotes/);
   within(countyCommissioners).getByText(/3 undervotes/);
-  within(screen.getByTestId('county-commissioners-argent')).getByText('1');
-  within(
-    screen.getByTestId('county-commissioners-witherspoonsmithson')
-  ).getByText('0');
-  within(screen.getByTestId('county-commissioners-bainbridge')).getByText('0');
+  within(screen.getByTestId('board-of-alderman-helen-keller')).getByText('1');
+  within(screen.getByTestId('board-of-alderman-steve-jobs')).getByText('0');
+  within(screen.getByTestId('board-of-alderman-nikola-tesla')).getByText('0');
 
-  within(screen.getByTestId('results-table-president')).getByText(
+  within(screen.getByTestId('results-table-mayor')).getByText(/0 ballots cast/);
+  within(screen.getByTestId('results-table-controller')).getByText(
     /0 ballots cast/
   );
-  within(
-    screen.getByTestId('results-table-judicial-robert-demergue')
-  ).getByText(/0 ballots cast/);
 });
 
 const primaryCvr: CastVoteRecord = {
@@ -162,9 +160,12 @@ const primaryCvr: CastVoteRecord = {
 
 test('renders as expected for all precincts in a primary election', () => {
   const party0 = unsafeParse(PartyIdSchema, '0');
-  const tally = calculateTallyForCastVoteRecords(
-    electionMinimalExhaustiveSampleDefinition.election,
-    new Set([primaryCvr]),
+  const tally = filterTallyContestsByParty(
+    electionMinimalExhaustiveSample,
+    calculateTallyForCastVoteRecords(
+      electionMinimalExhaustiveSample,
+      new Set([primaryCvr])
+    ),
     party0
   );
   render(
@@ -249,9 +250,12 @@ const primaryCvr2: CastVoteRecord = {
 
 test('renders as expected for a single precincts in a primary election', () => {
   const party1 = unsafeParse(PartyIdSchema, '1');
-  const tally = calculateTallyForCastVoteRecords(
-    electionMinimalExhaustiveSampleDefinition.election,
-    new Set([primaryCvr2]),
+  const tally = filterTallyContestsByParty(
+    electionMinimalExhaustiveSample,
+    calculateTallyForCastVoteRecords(
+      electionMinimalExhaustiveSample,
+      new Set([primaryCvr2])
+    ),
     party1
   );
   render(
