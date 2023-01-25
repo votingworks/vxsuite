@@ -1411,6 +1411,20 @@ export function getPartyIdsInBallotStyles(
   return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 }
 
+export function getContestDistrictName(
+  election: Election,
+  contest: Contest
+): string {
+  const district = election.districts.find((d) => d.id === contest.districtId);
+  // istanbul ignore next
+  if (!district) {
+    throw new Error(
+      `Contest's associated district ${contest.districtId} not found.`
+    );
+  }
+  return district.name;
+}
+
 /**
  * Helper function to build a `VotesDict` more easily, primarily for testing.
  *

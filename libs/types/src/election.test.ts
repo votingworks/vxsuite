@@ -26,6 +26,7 @@ import {
   getCandidateParties,
   getCandidatePartiesDescription,
   getContests,
+  getContestDistrictName,
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
@@ -386,6 +387,15 @@ test('getPartySpecificElectionTitle', () => {
   expect(
     getPartySpecificElectionTitle(electionPrimaryNonpartisanContests, undefined)
   ).toEqual('Example Primary Election Nonpartisan Contests');
+});
+
+test('getContestDistrictName', () => {
+  expect(
+    getContestDistrictName(
+      electionMinimalExhaustive,
+      electionMinimalExhaustive.contests[0]
+    )
+  ).toEqual('District 1');
 });
 
 test('isVotePresent', () => {
