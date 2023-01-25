@@ -32,7 +32,6 @@ export const electionData = `
       "id": "CC",
       "districtId": "D",
       "seats": 1,
-      "section": "SECTION",
       "title": "TITLE",
       "allowWriteIns": false,
       "candidates": [
@@ -46,7 +45,6 @@ export const electionData = `
       "type": "yesno",
       "id": "YNC",
       "districtId": "D",
-      "section": "SECTION",
       "title": "TITLE",
       "description": "DESCRIPTION"
     }
@@ -126,7 +124,6 @@ export const electionWithMsEitherNeither: Election = {
       id: 'MSC',
       title: 'MSC',
       description: 'MSC',
-      section: 'SECTION',
       districtId: unsafeParse(DistrictIdSchema, 'D'),
       eitherNeitherContestId: 'MSEN',
       eitherNeitherLabel: 'EITHER NEITHER',
@@ -189,7 +186,6 @@ const electionMinimalExhaustiveData = `
       "id": "best-animal-mammal",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State",
       "title": "Best Animal",
       "seats": 1,
       "partyId": "0",
@@ -216,7 +212,6 @@ const electionMinimalExhaustiveData = `
       "id": "best-animal-fish",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State",
       "title": "Best Animal",
       "seats": 1,
       "partyId": "1",
@@ -238,7 +233,6 @@ const electionMinimalExhaustiveData = `
       "id": "zoo-council-mammal",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "City",
       "title": "Zoo Council",
       "seats": 3,
       "partyId": "0",
@@ -270,7 +264,6 @@ const electionMinimalExhaustiveData = `
       "id": "aquarium-council-fish",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "City",
       "title": "Zoo Council",
       "seats": 2,
       "partyId": "1",
@@ -300,7 +293,6 @@ const electionMinimalExhaustiveData = `
     },
     {
       "id": "new-zoo-either-neither",
-      "section": "City",
       "districtId": "district-1",
       "type": "ms-either-neither",
       "title": "Ballot Measure 1",
@@ -329,7 +321,6 @@ const electionMinimalExhaustiveData = `
     },
     {
       "id": "fishing",
-      "section": "City",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 3",

@@ -172,7 +172,6 @@ export interface Contest {
   readonly id: ContestId;
   readonly districtId: DistrictId;
   readonly partyId?: PartyId;
-  readonly section: string;
   readonly title: string;
   readonly type: ContestTypes;
 }
@@ -181,7 +180,6 @@ const ContestInternalSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   partyId: PartyIdSchema.optional(),
-  section: z.string().nonempty(),
   title: z.string().nonempty(),
   type: ContestTypesSchema,
 });
@@ -1140,7 +1138,6 @@ export function expandEitherNeitherContests(
             id: contest.eitherNeitherContestId,
             title: `${contest.title} – Either/Neither`,
             districtId: contest.districtId,
-            section: contest.section,
             description: contest.description,
             yesOption: contest.eitherOption,
             noOption: contest.neitherOption,
@@ -1151,7 +1148,6 @@ export function expandEitherNeitherContests(
             id: contest.pickOneContestId,
             title: `${contest.title} – Pick One`,
             districtId: contest.districtId,
-            section: contest.section,
             description: contest.description,
             yesOption: contest.firstOption,
             noOption: contest.secondOption,

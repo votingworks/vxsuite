@@ -800,7 +800,7 @@ test('safeParseElectionDefinition computes the election hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
-    `"d5366378eeccc2fd38953e6e34c3069dea0dca4b7a8f5c789f3d108dc1807d3c"`
+    `"89d5b1e06c888634c318593eda29331adb9a74011178cdd7c9555cca06838e7d"`
   );
 });
 
@@ -813,7 +813,6 @@ test('specifying write-in candidates', () => {
     id: 'CC',
     type: 'candidate',
     title: 'CC',
-    section: 'Section',
     districtId: unsafeParse(t.DistrictIdSchema, 'D'),
     allowWriteIns: true,
     seats: 1,
@@ -838,7 +837,6 @@ test('specifying all write-in candidates is required if any are specified', () =
     id: 'CC',
     type: 'candidate',
     title: 'CC',
-    section: 'Section',
     districtId: unsafeParse(t.DistrictIdSchema, 'D'),
     allowWriteIns: true,
     seats: 2,
@@ -868,7 +866,6 @@ test('no write-in candidates may be specified if write-ins are not allowed', () 
     id: 'CC',
     type: 'candidate',
     title: 'CC',
-    section: 'Section',
     districtId: unsafeParse(t.DistrictIdSchema, 'D'),
     allowWriteIns: false,
     seats: 1,
