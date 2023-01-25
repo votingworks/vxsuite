@@ -677,6 +677,28 @@ jobs:
       - store_test_results:
           path: libs/logging/reports/
 
+  test-libs-message-coder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/message-coder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/message-coder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/message-coder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/message-coder/reports/
+
   test-libs-plustek-sdk:
     executor: nodejs
     resource_class: xlarge
@@ -939,6 +961,7 @@ workflows:
       - test-libs-grout-test-utils
       - test-libs-image-utils
       - test-libs-logging
+      - test-libs-message-coder
       - test-libs-plustek-sdk
       - test-libs-res-to-ts
       - test-libs-test-utils

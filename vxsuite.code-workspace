@@ -113,6 +113,10 @@
       "path": "libs/logging"
     },
     {
+      "name": "libs/message-coder",
+      "path": "libs/message-coder"
+    },
+    {
       "name": "libs/plustek-sdk",
       "path": "libs/plustek-sdk"
     },
