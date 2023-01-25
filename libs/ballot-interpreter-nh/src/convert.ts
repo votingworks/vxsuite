@@ -738,7 +738,6 @@ export function convertElectionDefinitionHeader(
       type: 'candidate',
       id: contestId,
       title: officeName,
-      section: officeName,
       districtId,
       seats,
       allowWriteIns: writeInIndex > 0,
@@ -787,7 +786,6 @@ export function convertElectionDefinitionHeader(
             contests.push({
               type: 'yesno',
               id: makeId(question.title),
-              section: contestTitle,
               title: contestTitle,
               description: question.title,
               districtId,
