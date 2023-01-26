@@ -47,6 +47,7 @@ importers:
       express: ^4.18.0
       is-ci-cli: ^2.1.2
       jest: ^26.6.3
+      jest-junit: ^14.0.1
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^10.5.3
       nodemon: ^2.0.20
@@ -83,6 +84,7 @@ importers:
       eslint-plugin-vx: link:../../../libs/eslint-plugin-vx
       is-ci-cli: 2.2.0
       jest: 26.6.3
+      jest-junit: 14.0.1
       jest-watch-typeahead: 0.6.5_jest@26.6.3
       lint-staged: 10.5.4
       nodemon: 2.0.20
@@ -10487,7 +10489,7 @@ packages:
   /axios/0.21.1_debug@4.3.2:
     resolution: {integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==}
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1_debug@4.3.4
     transitivePeerDependencies:
       - debug
     dev: true
@@ -17415,6 +17417,7 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.2
+    dev: false
 
   /follow-redirects/1.14.1_debug@4.3.4:
     resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
@@ -17426,7 +17429,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-    dev: false
 
   /for-each/0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -25891,7 +25893,7 @@ packages:
       open: 7.4.2
       pkg-up: 3.1.0
       prompts: 2.4.0
-      react-error-overlay: 6.0.9
+      react-error-overlay: 6.0.11
       recursive-readdir: 2.2.2
       shell-quote: 1.7.2
       strip-ansi: 6.0.0
@@ -26031,10 +26033,6 @@ packages:
 
   /react-error-overlay/6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}
-
-  /react-error-overlay/6.0.9:
-    resolution: {integrity: sha512-nQTTcUu+ATDbrSD1BZHr5kgSD4oF8OFjxun8uAaL8RwPBacGBNPf/yAuVVdx17N8XNzRDMrZ9XcKZHCjPW+9ew==}
-    dev: false
 
   /react-gamepad/1.0.3_react@17.0.1:
     resolution: {integrity: sha512-gMwITmfoHtCaMFpDaEshcjeibHAgynXD28NnS2pa+dG+stwNoN66YDVizN7GfyIrYiW5Ft1ubRxs6/2xW9sRhQ==}
@@ -27646,7 +27644,7 @@ packages:
       is-regexp: 1.0.0
 
   /strip-ansi/3.0.1:
-    resolution: {integrity: sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8=}
+    resolution: {integrity: sha512-VhumSSbBqDTP8p2ZLKj40UjBCV4+v8bUSEpUb4KjRgWk9pbqGF4REFj6KEagidb2f/M6AzC0EmFyDNGaw9OCzg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       ansi-regex: 2.1.1
