@@ -39,7 +39,7 @@ import {
   SheetOf,
   Side,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';

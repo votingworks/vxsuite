@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import * as interpretNhWorker from './interpret_nh';
 import * as interpretVxWorker from './interpret_vx';
 import * as qrcodeWorker from './qrcode';

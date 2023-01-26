@@ -14,6 +14,7 @@ import {
   metadataFromBytes,
   QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
+import { assert } from '@votingworks/basics';
 import { imageDebugger, loadImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -31,7 +32,6 @@ import {
 } from '@votingworks/types';
 import {
   adjudicationReasonDescription,
-  assert,
   ballotAdjudicationReasons,
   time,
 } from '@votingworks/utils';

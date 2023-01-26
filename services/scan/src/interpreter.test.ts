@@ -14,12 +14,12 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-  throwIllegalValue,
 } from '@votingworks/utils';
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
+import { throwIllegalValue } from '@votingworks/basics';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';

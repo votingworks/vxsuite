@@ -8,7 +8,7 @@ import {
   BallotSheetInfo,
   BallotType,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { join } from 'path';

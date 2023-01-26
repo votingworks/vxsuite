@@ -1,5 +1,4 @@
-import { err, isResult, ok } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { err, isResult, ok, assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import {

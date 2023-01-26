@@ -1,4 +1,5 @@
 import { Scan } from '@votingworks/api';
+import { assert } from '@votingworks/basics';
 import { Exporter } from '@votingworks/data';
 import {
   BallotPageLayout,
@@ -8,7 +9,6 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import {
-  assert,
   generateElectionBasedSubfolderName,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
