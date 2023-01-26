@@ -12,7 +12,6 @@ import {
   PrecinctScannerBallotCountReport,
 } from '@votingworks/ui';
 import {
-  assert,
   BallotCountDetails,
   compressTally,
   computeTallyWithPrecomputedCategories,
@@ -22,9 +21,7 @@ import {
   isFeatureFlagEnabled,
   ScannerReportData,
   ScannerReportDataSchema,
-  sleep,
   ReportSourceMachineType,
-  throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
   ScannerBallotCountReportData,
@@ -52,6 +49,7 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
+import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,

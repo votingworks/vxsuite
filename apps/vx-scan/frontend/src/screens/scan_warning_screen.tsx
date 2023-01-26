@@ -17,13 +17,10 @@ import {
   Text,
 } from '@votingworks/ui';
 import {
-  assert,
-  find,
-  integers,
-  take,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
+import { assert, find, integers, take } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 

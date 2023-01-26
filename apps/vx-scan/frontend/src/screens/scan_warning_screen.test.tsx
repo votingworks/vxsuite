@@ -4,12 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import {
-  integers,
-  take,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
+import { integers, take } from '@votingworks/basics';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 

@@ -34,7 +34,6 @@ import {
   ContestId,
   Dictionary,
   ElectionDefinition,
-  err,
   PrecinctSelection,
   VotingMethod,
 } from '@votingworks/types';
@@ -42,6 +41,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
+import { err } from '@votingworks/basics';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { App } from './app';
 import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';

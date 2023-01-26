@@ -12,9 +12,10 @@ import {
   isPollWorkerAuth,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
-import { Hardware, assert } from '@votingworks/utils';
+import { Hardware } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
+import { assert } from '@votingworks/basics';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';

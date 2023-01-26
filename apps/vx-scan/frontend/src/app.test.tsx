@@ -25,7 +25,8 @@ import {
   electionSample2Definition,
   electionSample,
 } from '@votingworks/fixtures';
-import { AdjudicationReason, err, ok } from '@votingworks/types';
+import { AdjudicationReason } from '@votingworks/types';
+import { err, ok } from '@votingworks/basics';
 
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {

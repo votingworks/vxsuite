@@ -9,7 +9,7 @@ import {
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { exportCastVoteRecordsToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
