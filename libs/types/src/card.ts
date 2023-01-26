@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { Result } from '@votingworks/basics';
 import { Optional } from './generic';
-import { Result } from './result';
 
 export interface CardSummaryNotReady {
   status: 'no_card' | 'error';

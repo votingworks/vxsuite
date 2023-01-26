@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@antongolub/iso8601": "^1.2.1",
+    "@votingworks/basics": "workspace:*",
     "js-sha256": "^0.9.0",
     "luxon": "^2.4.0",
     "util": "^0.12.4",

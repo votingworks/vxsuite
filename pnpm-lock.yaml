@@ -3023,6 +3023,7 @@ importers:
       '@types/react': 17.0.39
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -3047,6 +3048,7 @@ importers:
       zod: 3.14.4
     dependencies:
       '@antongolub/iso8601': 1.2.1
+      '@votingworks/basics': link:../basics
       js-sha256: 0.9.0
       luxon: 2.4.0
       util: 0.12.4

@@ -1,7 +1,7 @@
 import * as z from 'zod';
+import { Result } from '@votingworks/basics';
 import { BallotStyleId, PrecinctId } from '../election';
 import { ElectionHash, IdSchema, Optional } from '../generic';
-import { Result } from '../result';
 
 // User data types
 export interface SystemAdministratorUser {
