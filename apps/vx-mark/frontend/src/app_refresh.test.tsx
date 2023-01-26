@@ -80,8 +80,6 @@ it('Refresh window and expect to be on same contest', async () => {
   });
 
   unmount();
-  apiMock.mockApiClient.assertComplete();
-  apiMock.mockApiClient.reset();
   apiMock.expectGetMachineConfig();
   ({ getByText, unmount } = render(
     <App

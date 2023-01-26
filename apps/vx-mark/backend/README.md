@@ -14,8 +14,6 @@ cd apps/vx-mark/frontend
 pnpm start
 ```
 
-The commands below assume you'll be running them as described above.
-
 ## Testing
 
 ```sh

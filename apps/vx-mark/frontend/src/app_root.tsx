@@ -300,7 +300,7 @@ export function AppRoot({
   storage,
   reload,
   logger,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
@@ -719,11 +719,7 @@ export function AppRoot({
     initializedFromStorage,
   ]);
   if (!machineConfigQuery.isSuccess) {
-    return (
-      <UnconfiguredScreen
-        hasElectionDefinition={Boolean(optionalElectionDefinition)}
-      />
-    );
+    return null;
   }
   const machineConfig = machineConfigQuery.data;
   const { appMode } = machineConfig;
