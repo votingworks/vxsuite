@@ -2,15 +2,11 @@ import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   CastVoteRecord,
-  err,
   MarkThresholds,
-  ok,
   PollsState,
   PrecinctSelection,
-  Result,
 } from '@votingworks/types';
 import {
-  assert,
   BALLOT_PACKAGE_FOLDER,
   readBallotPackageFromBuffer,
   singlePrecinctSelectionFor,
@@ -20,6 +16,7 @@ import * as fs from 'fs/promises';
 import { ExportDataError } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,

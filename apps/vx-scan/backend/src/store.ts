@@ -39,7 +39,8 @@ import {
   SheetOf,
   Side,
 } from '@votingworks/types';
-import { assert, BallotPackageEntry, find } from '@votingworks/utils';
+import { BallotPackageEntry } from '@votingworks/utils';
+import { assert, find } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';

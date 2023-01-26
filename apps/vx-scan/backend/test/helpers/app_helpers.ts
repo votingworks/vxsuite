@@ -1,13 +1,11 @@
 import {
   ALL_PRECINCTS_SELECTION,
-  assert,
-  deferred,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
-import { ElectionDefinition, ok, PrecinctId, Result } from '@votingworks/types';
+import { ElectionDefinition, PrecinctId } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import {
@@ -21,6 +19,7 @@ import { join } from 'path';
 import { AddressInfo } from 'net';
 import fs from 'fs';
 import { execSync } from 'child_process';
+import { assert, deferred, ok, Result } from '@votingworks/basics';
 import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,

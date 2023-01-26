@@ -424,6 +424,7 @@ importers:
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
+      '@votingworks/basics': workspace:*
       '@votingworks/data': workspace:*
       '@votingworks/db': workspace:*
       '@votingworks/fixtures': workspace:*
@@ -479,6 +480,7 @@ importers:
       '@votingworks/ballot-encoder': link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter-nh': link:../../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../../libs/ballot-interpreter-vx
+      '@votingworks/basics': link:../../../libs/basics
       '@votingworks/data': link:../../../libs/data
       '@votingworks/db': link:../../../libs/db
       '@votingworks/fixtures': link:../../../libs/fixtures

@@ -3,15 +3,12 @@ import {
   BallotStyle,
   BallotType,
   ElectionDefinition,
-  err,
   HmpbBallotPageMetadata,
-  ok,
   PageInterpretation,
   Precinct,
-  Result,
   SheetOf,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue, Result, ok, err } from '@votingworks/basics';
 
 const BlankPageTypes: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',

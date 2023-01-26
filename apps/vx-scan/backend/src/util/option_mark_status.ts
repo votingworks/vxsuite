@@ -8,7 +8,7 @@ import {
   MarkThresholds,
   MsEitherNeitherContest,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { getMarkStatus } from '../types';
 
 function findMsEitherNeitherContestFromSubContest(
