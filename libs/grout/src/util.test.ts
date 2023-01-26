@@ -1,4 +1,4 @@
-import { ok } from '@votingworks/types';
+import { ok } from '@votingworks/basics';
 import {
   isArray,
   isBoolean,
