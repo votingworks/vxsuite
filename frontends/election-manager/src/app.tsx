@@ -23,7 +23,7 @@ export function App({
 }: Props): JSX.Element {
   // Copied from old App.css
   const baseFontSizePx = 20;
-  const printFontSizePx = 20;
+  const printFontSizePx = 14;
 
   // TODO: Default to medium contrast and vary based on user selection.
   const colorMode: ColorMode = 'legacy';
