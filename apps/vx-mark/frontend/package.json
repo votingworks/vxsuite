@@ -35,9 +35,6 @@
       "stylelint",
       "eslint --quiet --fix"
     ],
-    "*.css": [
-      "stylelint --config .stylelintrc-css.js --fix"
-    ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
       "prettier --write"
     ],
