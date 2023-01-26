@@ -3118,6 +3118,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -3183,6 +3184,7 @@ importers:
       '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/basics': link:../basics
       '@votingworks/logging': link:../logging
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils

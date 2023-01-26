@@ -6,10 +6,10 @@ import {
   formatFullDateTimeZone,
   formatTimeZoneName,
   getDaysInMonth,
-  integers,
   MONTHS_SHORT,
 } from '@votingworks/utils';
 import { SelectChangeEventFunction } from '@votingworks/types';
+import { integers } from '@votingworks/basics';
 import { Prose } from './prose';
 import { Select } from './select';
 import { Modal } from './modal';

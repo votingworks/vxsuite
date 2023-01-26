@@ -1,5 +1,6 @@
 import { act } from '@testing-library/react';
 import { renderHook, RenderResult } from '@testing-library/react-hooks';
+import { assert, err } from '@votingworks/basics';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
@@ -13,10 +14,9 @@ import {
   CardStorage,
   DippedSmartcardAuth,
   ElectionDefinitionSchema,
-  err,
   UserRole,
 } from '@votingworks/types';
-import { MemoryCard, assert } from '@votingworks/utils';
+import { MemoryCard } from '@votingworks/utils';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,

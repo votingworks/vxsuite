@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 
 interface Props {
   padded?: boolean;

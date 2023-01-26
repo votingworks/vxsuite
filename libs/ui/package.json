@@ -42,6 +42,7 @@
     "@types/react-modal": "^3.13.1",
     "@types/react-router-dom": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

@@ -6,7 +6,7 @@ import {
   fakePrinter,
 } from '@votingworks/test-utils';
 import { screen, waitFor, within } from '@testing-library/react';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 import { PrintOptions } from '@votingworks/types';
 import {
   printElement,

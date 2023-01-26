@@ -3,7 +3,8 @@ import ReactDom from 'react-dom';
 import styled from 'styled-components';
 
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
-import { assert, getPrinter } from '@votingworks/utils';
+import { getPrinter } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 
 const PrintOnly = styled.div`
   @media screen {

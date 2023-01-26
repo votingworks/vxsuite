@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+import { assert } from '@votingworks/basics';
 import {
   electionSample2Definition,
   electionSampleDefinition,
@@ -19,7 +20,6 @@ import {
 import { PrecinctSelection, UserRole } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  assert,
   MemoryCard,
   singlePrecinctSelectionFor,
   utcTimestamp,

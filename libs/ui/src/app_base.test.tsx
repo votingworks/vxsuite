@@ -2,7 +2,7 @@ import React from 'react';
 import parseCssColor from 'parse-css-color';
 import { render } from '@testing-library/react';
 
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { AppBase } from './app_base';
 import { makeTheme } from './themes/make_theme';
 
