@@ -6,6 +6,7 @@ import {
   YesNoOptionSchema,
 } from '@votingworks/types';
 import fc from 'fast-check';
+import { assert } from '@votingworks/basics';
 import { arbitraryDateTime } from '.';
 import {
   arbitraryCastVoteRecord,
@@ -16,7 +17,6 @@ import {
   arbitraryId,
   arbitraryYesNoOption,
 } from './arbitraries';
-import { assert } from './assert';
 
 test('arbitraryId', () => {
   fc.assert(
