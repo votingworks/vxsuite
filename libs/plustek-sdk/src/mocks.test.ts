@@ -1,5 +1,5 @@
 import { SheetOf } from '@votingworks/types';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
 import { PaperStatus } from './paper_status';

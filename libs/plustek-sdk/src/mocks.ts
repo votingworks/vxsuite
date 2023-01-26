@@ -1,5 +1,12 @@
-import { err, ok, Result, SheetOf } from '@votingworks/types';
-import { assert, sleep, throwIllegalValue } from '@votingworks/utils';
+import { SheetOf } from '@votingworks/types';
+import {
+  err,
+  ok,
+  Result,
+  assert,
+  sleep,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import makeDebug from 'debug';
 import {
   createMachine,
