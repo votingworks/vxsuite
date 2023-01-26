@@ -1,5 +1,5 @@
 import { safeParse } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import yargs from 'yargs/yargs';
 import * as fs from 'fs';
 import { CLIENT_SIDE_LOG_SOURCES, LogSource, LogSourceSchema } from '../src';

@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { LogEventType } from './log_event_types';
 import { LogSource } from './log_source';
 

@@ -2743,6 +2743,7 @@ importers:
       '@types/yargs': ^16.0.0
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/cdf-types-election-event-logging': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -2776,6 +2777,7 @@ importers:
     dependencies:
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/node': 16.11.29
+      '@votingworks/basics': link:../basics
       '@votingworks/cdf-types-election-event-logging': link:../cdf-types-election-event-logging
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils

@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 
 /**
  * In order to add a new log event type you must do three things:
