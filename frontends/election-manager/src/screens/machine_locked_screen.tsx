@@ -23,7 +23,11 @@ export function MachineLockedScreen(): JSX.Element {
       <Main centerChild>
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          <Prose
+            textCenter
+            themeDeprecated={fontSizeTheme.medium}
+            maxWidth={false}
+          >
             <h1>VxAdmin is Locked</h1>
             <p>
               {electionDefinition

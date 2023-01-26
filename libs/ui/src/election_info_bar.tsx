@@ -6,20 +6,16 @@ import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
-import { contrastTheme, Theme } from './themes';
+import { contrastTheme } from './themes';
 import { Seal } from './seal';
 
-interface BarProps {
-  theme?: Theme;
-}
-
-const Bar = styled.div<BarProps>`
+const Bar = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  background: ${({ theme: { background } }) => background};
+  background: ${contrastTheme.dark.background};
   padding: 0.5rem 0.75rem;
-  color: ${({ theme: { color } }) => color};
+  color: ${contrastTheme.dark.color};
   gap: 1rem;
 `;
 
@@ -44,11 +40,8 @@ export function ElectionInfoBar({
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
-  /* istanbul ignore next */
-  const theme: Theme = { ...(contrastTheme.dark ?? {}) };
-
   return (
-    <Bar theme={theme} data-testid="electionInfoBar">
+    <Bar data-testid="electionInfoBar">
       {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
       <Prose maxWidth={false} compact style={{ flex: 1 }}>
         <strong>{title}</strong> — <NoWrap>{electionDate}</NoWrap>

@@ -73,13 +73,13 @@ export function ProgramElectionCardView({
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
         <StatusMessageContainer>
-          <Prose textCenter theme={fontSizeTheme.medium}>
+          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
             <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
           </Prose>
         </StatusMessageContainer>
       )}
 
-      <Prose textCenter theme={fontSizeTheme.medium}>
+      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
         <h1>Create New Election Card</h1>
         {electionDefinition ? (
           <React.Fragment>

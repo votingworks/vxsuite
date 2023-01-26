@@ -1,3 +1,5 @@
+import { ColorMode } from '@votingworks/types';
+import { AppBase } from '@votingworks/ui';
 import {
   getHardware,
   getPrinter,
@@ -19,15 +21,28 @@ export function App({
   machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
 }: Props): JSX.Element {
+  // Copied from old App.css
+  const baseFontSizePx = 20;
+  const printFontSizePx = 14;
+
+  // TODO: Default to medium contrast and vary based on user selection.
+  const colorMode: ColorMode = 'legacy';
+
   return (
     <BrowserRouter>
-      <AppRoot
-        printer={printer}
-        hardware={hardware}
-        card={card}
-        machineConfigProvider={machineConfigProvider}
-        converter={converter}
-      />
+      <AppBase
+        colorMode={colorMode}
+        legacyBaseFontSizePx={baseFontSizePx}
+        legacyPrintFontSizePx={printFontSizePx}
+      >
+        <AppRoot
+          printer={printer}
+          hardware={hardware}
+          card={card}
+          machineConfigProvider={machineConfigProvider}
+          converter={converter}
+        />
+      </AppBase>
     </BrowserRouter>
   );
 }

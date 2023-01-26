@@ -189,13 +189,13 @@ export function CardDetailsView({
     <React.Fragment>
       {actionStatus?.status === 'Error' && (
         <StatusMessageContainer>
-          <Prose textCenter theme={fontSizeTheme.medium}>
+          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
             <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
           </Prose>
         </StatusMessageContainer>
       )}
 
-      <Prose textCenter theme={fontSizeTheme.medium}>
+      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
         <h1>{userRoleToReadableString(role)} Card</h1>
         {role !== 'system_administrator' && <p>{electionDisplayString}</p>}
         {bodyContent}

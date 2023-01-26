@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled, { css, StyledComponent } from 'styled-components';
+import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
 import { EventTargetFunction } from '@votingworks/types';
 
 export interface ButtonInterface {
@@ -73,7 +73,7 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
 `;
 
 export interface ButtonProps extends StyledButtonProps {
-  component?: StyledComponent<'button', never, StyledButtonProps, never>;
+  component?: StyledComponent<'button', DefaultTheme, StyledButtonProps, never>;
   onPress: EventTargetFunction;
   ref?: React.Ref<HTMLButtonElement>;
 }

@@ -18,7 +18,7 @@
     "pre-commit": "lint-staged",
     "start": "pnpm -w run-dev vx-mark",
     "start:core": "pnpm -w run-dev vm-mark --core-only",
-    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=7 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit && pnpm build:resources --check",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
@@ -34,9 +34,6 @@
     "*.+(js|jsx|ts|tsx)": [
       "stylelint",
       "eslint --quiet --fix"
-    ],
-    "*.css": [
-      "stylelint --config .stylelintrc-css.js --fix"
     ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
       "prettier --write"

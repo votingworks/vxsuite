@@ -16,10 +16,10 @@ export function ScannedBallotCount({ count }: Props): JSX.Element {
   return (
     <Absolute top left>
       <BallotsScannedContainer>
-        <Prose theme={{ fontSize: '1.25rem' }}>
+        <Prose themeDeprecated={{ fontSize: '1.25rem' }}>
           <p>Ballots Scanned</p>
         </Prose>
-        <Prose theme={{ fontSize: '3.5rem' }}>
+        <Prose themeDeprecated={{ fontSize: '3.5rem' }}>
           <p>
             <strong data-testid="ballot-count">{format.count(count)}</strong>
           </p>

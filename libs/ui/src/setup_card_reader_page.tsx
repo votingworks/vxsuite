@@ -27,7 +27,11 @@ export function SetupCardReaderPage({
   return (
     <Screen white>
       <Main centerChild>
-        <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+        <Prose
+          textCenter
+          maxWidth={false}
+          themeDeprecated={fontSizeTheme.large}
+        >
           <h1>Card Reader Not Detected</h1>
           <p>{connectMessage}</p>
         </Prose>

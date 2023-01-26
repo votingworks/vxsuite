@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useContext,
 } from 'react';
-import 'normalize.css';
 import { LogEventId } from '@votingworks/logging';
 import {
   Card,

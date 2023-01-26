@@ -1,5 +1,4 @@
 import React from 'react';
-import 'normalize.css';
 
 import { Card } from '@votingworks/types';
 import {

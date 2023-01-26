@@ -46,13 +46,13 @@ export function ProgramSystemAdministratorCardView({
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
         <StatusMessageContainer>
-          <Prose textCenter theme={fontSizeTheme.medium}>
+          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
             <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
           </Prose>
         </StatusMessageContainer>
       )}
 
-      <Prose textCenter theme={fontSizeTheme.medium}>
+      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
         <h1>Create New System Administrator Card</h1>
         <p>
           This card performs all system actions. Strictly limit the number

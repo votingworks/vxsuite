@@ -62,7 +62,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
 
   return (
     <Modal
-      theme={fontSizeTheme.large}
+      themeDeprecated={fontSizeTheme.large}
       modalWidth={ModalWidth.Wide}
       content={content}
       actions={

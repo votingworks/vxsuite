@@ -4,9 +4,6 @@ import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-mark-backend';
 
-import 'normalize.css';
-import './App.css';
-
 import {
   WebServiceCard,
   KioskStorage,
@@ -16,7 +13,8 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Prose, Text, ErrorBoundary } from '@votingworks/ui';
+import { AppBase, Prose, Text, ErrorBoundary } from '@votingworks/ui';
+import { ColorMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
   ScreenReader,
@@ -125,6 +123,13 @@ export function App({
     },
     [screenReader]
   );
+
+  // Copied from old App.css
+  const baseFontSizePx = 24;
+
+  // TODO: Default to high contrast and vary based on user selection.
+  const colorMode: ColorMode = 'legacy';
+
   return (
     <BrowserRouter>
       <ErrorBoundary
@@ -143,14 +148,20 @@ export function App({
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
-              <AppRoot
-                card={card}
-                hardware={hardware}
-                storage={storage}
-                screenReader={screenReader}
-                reload={reload}
-                logger={logger}
-              />
+              <AppBase
+                colorMode={colorMode}
+                isTouchscreen
+                legacyBaseFontSizePx={baseFontSizePx}
+              >
+                <AppRoot
+                  card={card}
+                  hardware={hardware}
+                  storage={storage}
+                  screenReader={screenReader}
+                  reload={reload}
+                  logger={logger}
+                />
+              </AppBase>
             </QueryClientProvider>
           </ApiClientContext.Provider>
         </FocusManager>

@@ -1,15 +1,14 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import './App.css';
-
 import { WebServiceCard, getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary, Text } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, Text } from '@votingworks/ui';
+import { ColorMode } from '@votingworks/types';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { ApiClientContext, queryClientDefaultOptions } from './api';
 import { TimesCircle } from './components/graphics';
@@ -30,6 +29,12 @@ export function App({
   apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
   queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
 }: AppProps): JSX.Element {
+  // Copied from old App.css
+  const baseFontSizePx = 28;
+
+  // TODO: Default to high contrast and vary based on user selection.
+  const colorMode: ColorMode = 'legacy';
+
   return (
     <BrowserRouter>
       <ErrorBoundary
@@ -45,7 +50,13 @@ export function App({
       >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
-            <AppRoot card={card} hardware={hardware} logger={logger} />
+            <AppBase
+              colorMode={colorMode}
+              isTouchscreen
+              legacyBaseFontSizePx={baseFontSizePx}
+            >
+              <AppRoot card={card} hardware={hardware} logger={logger} />
+            </AppBase>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ErrorBoundary>

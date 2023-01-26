@@ -60,7 +60,7 @@ describe('renders Prose', () => {
   test('with theme', () => {
     const { container } = render(
       <Prose
-        theme={{
+        themeDeprecated={{
           fontSize: '10px',
           color: '#666666',
         }}

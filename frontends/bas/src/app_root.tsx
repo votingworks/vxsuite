@@ -32,9 +32,6 @@ import { PrecinctsScreen } from './screens/precincts_screen';
 import { RemoveCardScreen } from './screens/remove_card_screen';
 import { WritingCardScreen } from './screens/writing_card_screen';
 
-import 'normalize.css';
-import './App.css';
-
 export interface Props {
   card: Card;
   hardware: Hardware;
