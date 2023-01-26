@@ -5,7 +5,7 @@ import {
   electionSample,
 } from '@votingworks/fixtures';
 import { ContestTally, FullElectionTally } from '@votingworks/types';
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 import { getEmptyTally, tallyVotesByContest } from './votes';
 import {
   combineContestTallies,

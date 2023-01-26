@@ -13,7 +13,7 @@ import { Buffer } from 'buffer';
 import 'fast-text-encoding';
 import JsZip, { JSZipObject } from 'jszip';
 import { z } from 'zod';
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;

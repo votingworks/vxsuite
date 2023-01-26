@@ -7,8 +7,8 @@ import {
   Contests,
   MarkStatus,
 } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from './all_contest_options';
-import { throwIllegalValue } from '../assert';
 
 export interface Options {
   optionMarkStatus: (option: ContestOption) => MarkStatus;

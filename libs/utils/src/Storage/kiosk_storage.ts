@@ -1,4 +1,4 @@
-import { assert } from '../assert';
+import { assert } from '@votingworks/basics';
 import { Storage } from '../types';
 
 /**

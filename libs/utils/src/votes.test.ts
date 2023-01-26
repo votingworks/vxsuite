@@ -24,13 +24,12 @@ import {
   writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
+import { assert, find } from '@votingworks/basics';
 import {
   calculateTallyForCastVoteRecords,
   filterTallyContestsByParty,
   getEmptyTally,
 } from '.';
-import { assert } from './assert';
-import { find } from './find';
 import {
   ALL_PARTY_FILTER,
   buildVoteFromCvr,

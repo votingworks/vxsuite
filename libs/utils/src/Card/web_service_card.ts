@@ -1,10 +1,9 @@
+import { Result, ok } from '@votingworks/basics';
 import {
   Card,
   CardSummary,
   CardSummarySchema,
-  ok,
   Optional,
-  Result,
   safeParseJson,
   ShortAndLongValues,
   unsafeParse,

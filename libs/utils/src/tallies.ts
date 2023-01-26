@@ -8,7 +8,7 @@ import {
   PrecinctSelection,
   Tally,
 } from '@votingworks/types';
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 import { getTallyIdentifier } from './compressed_tallies';
 import { filterTalliesByParams } from './votes';
 

@@ -29,8 +29,7 @@ import {
   YesNoVoteId,
   YesOrNo,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from './assert';
-import { find } from './find';
+import { assert, throwIllegalValue, find } from '@votingworks/basics';
 import { typedAs } from './types';
 
 const MISSING_BATCH_ID = 'missing-batch-id';

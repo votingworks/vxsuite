@@ -20,8 +20,8 @@ import {
   YesNoContestCompressedTally,
   YesNoContestCompressedTallySchema,
 } from '@votingworks/types';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { BallotCountDetails, typedAs } from './types';
-import { assert, throwIllegalValue } from './assert';
 
 const ALL_PRECINCTS = '__ALL_PRECINCTS';
 

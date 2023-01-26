@@ -17,6 +17,7 @@ import {
 } from '@votingworks/fixtures';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
 
+import { find, assert } from '@votingworks/basics';
 import {
   compressTally,
   readCompressedTally,
@@ -27,8 +28,6 @@ import {
   calculateTallyForCastVoteRecords,
   filterTallyContestsByParty,
 } from './votes';
-import { find } from './find';
-import { assert } from './assert';
 
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {

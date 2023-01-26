@@ -1,6 +1,6 @@
 import { ConverterClientTypeSchema } from '@votingworks/types';
 import { ZodSchema } from 'zod';
-import { throwIllegalValue } from './assert';
+import { throwIllegalValue } from '@votingworks/basics';
 
 export enum BooleanEnvironmentVariableName {
   // Enables the write in adjudication tab in VxAdmin, and enables exporting images with write ins in the scan service

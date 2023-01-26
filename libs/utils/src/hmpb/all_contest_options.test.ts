@@ -6,7 +6,7 @@ import {
 } from '@votingworks/test-utils';
 import { ContestOption } from '@votingworks/types';
 import fc from 'fast-check';
-import { assert } from '../assert';
+import { assert } from '@votingworks/basics';
 import { typedAs } from '../types';
 import { allContestOptions } from './all_contest_options';
 

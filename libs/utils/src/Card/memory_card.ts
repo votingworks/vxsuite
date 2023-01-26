@@ -1,9 +1,8 @@
+import { Result, ok } from '@votingworks/basics';
 import {
   Card,
   CardSummary,
-  ok,
   Optional,
-  Result,
   safeParseJson,
   ShortAndLongValues,
 } from '@votingworks/types';

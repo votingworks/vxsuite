@@ -2948,6 +2948,7 @@ importers:
       '@types/zip-stream': workspace:*
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/types': workspace:*
       buffer: ^6.0.3
       deep-eql: ^4.1.3
@@ -2978,6 +2979,7 @@ importers:
       '@testing-library/react': 12.1.5_w7o5yyljkiidx2s2nzb26ottzu
       '@types/deep-eql': 4.0.0
       '@types/node': 16.11.29
+      '@votingworks/basics': link:../basics
       '@votingworks/types': link:../types
       buffer: 6.0.3
       deep-eql: 4.1.3
@@ -3271,6 +3273,7 @@ importers:
       '@types/yargs': ^17.0.12
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -3307,6 +3310,7 @@ importers:
       zod: 3.14.4
     dependencies:
       '@types/node': 16.11.29
+      '@votingworks/basics': link:../basics
       '@votingworks/types': link:../types
       base64-js: 1.5.1
       buffer: 6.0.3
@@ -8794,7 +8798,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 18.8.0
+      '@types/node': 18.11.18
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
@@ -23839,7 +23843,7 @@ packages:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 18.8.0
+      '@types/node': 18.11.18
       jest-mock: 27.5.1
       jest-util: 27.5.1
       jsdom: 16.7.0_canvas@2.9.1
@@ -24706,7 +24710,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 18.8.0
+      '@types/node': 18.11.18
       chalk: 4.1.2
       emittery: 0.8.1
       graceful-fs: 4.2.10
@@ -25403,7 +25407,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0

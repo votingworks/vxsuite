@@ -5,7 +5,7 @@ import {
   MachineId,
   maybeParse,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from './assert';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
 const SECTION_SEPARATOR = '__';
 const SUBSECTION_SEPARATOR = '_';
