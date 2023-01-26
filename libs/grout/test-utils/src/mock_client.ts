@@ -81,7 +81,7 @@ export function createMockClient<Api extends AnyApi>(options?: {
     },
   };
 
-  // Simlar to how we build the real client, we use a Proxy to simulate having
+  // Similar to how we build the real client, we use a Proxy to simulate having
   // all the methods of the API, dynamically creating mock functions as needed
   // and storing them in mockMethods.
   return new Proxy(mockHelpers as MockClient<Api>, {

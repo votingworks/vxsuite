@@ -767,7 +767,7 @@ const PollsOpened: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has opened the polls.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };
@@ -777,7 +777,7 @@ const VotingPaused: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has paused voting and polls are now paused.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };
@@ -787,7 +787,7 @@ const VotingResumed: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has resumed voting and polls are now open.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };
@@ -797,7 +797,7 @@ const PollsClosed: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has closed the polls.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };
@@ -807,7 +807,7 @@ const ResetPollsToPaused: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has reset the polls from closed to paused.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };
@@ -824,7 +824,7 @@ const TallyReportClearedFromCard: LogDetails = {
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
     'The tally report has been cleared from the poll worker card.',
-  restrictInDocumentationToApps: [LogSource.VxBallotMarkingDeviceFrontend],
+  restrictInDocumentationToApps: [LogSource.VxMarkFrontend],
 };
 
 const PrecinctConfigurationChanged: LogDetails = {
@@ -832,7 +832,7 @@ const PrecinctConfigurationChanged: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has changed the precinct setting.',
   restrictInDocumentationToApps: [
-    LogSource.VxBallotMarkingDeviceFrontend,
+    LogSource.VxMarkFrontend,
     LogSource.VxScanFrontend,
   ],
 };

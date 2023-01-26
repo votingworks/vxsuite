@@ -52,6 +52,6 @@ export const DEVICE_TYPES_FOR_APP: Dictionary<DeviceType> = {
   [LogSource.VxAdminFrontend]: DeviceType.Ems,
   [LogSource.VxCentralScanFrontend]: DeviceType.ScanBatch,
   [LogSource.VxScanFrontend]: DeviceType.ScanSingle,
-  [LogSource.VxBallotMarkingDeviceFrontend]: DeviceType.Bmd,
+  [LogSource.VxMarkFrontend]: DeviceType.Bmd,
   [LogSource.VxBallotActivationFrontend]: DeviceType.BallotActivation,
 };

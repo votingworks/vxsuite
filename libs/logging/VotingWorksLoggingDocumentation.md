@@ -349,23 +349,23 @@ IDs are logged with each log to identify the log being written.
 ### polls-opened
 **Type:** [user-action](#user-action)  
 **Description:** User has opened the polls.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### voting-paused
 **Type:** [user-action](#user-action)  
 **Description:** User has paused voting and polls are now paused.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### voting-resumed
 **Type:** [user-action](#user-action)  
 **Description:** User has resumed voting and polls are now open.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### polls-closed
 **Type:** [user-action](#user-action)  
 **Description:** User has closed the polls.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### reset-polls-to-paused
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### ballot-bag-replaced
 **Type:** [user-action](#user-action)  
 **Description:** User confirmed that they replaced the ballot bag.  
@@ -373,11 +373,11 @@ IDs are logged with each log to identify the log being written.
 ### tally-report-cleared-from-card
 **Type:** [application-action](#application-action)  
 **Description:** The tally report has been cleared from the poll worker card.  
-**Machines:** vx-ballot-marking-device-frontend
+**Machines:** vx-mark-frontend
 ### precinct-configuration-changed
 **Type:** [user-action](#user-action)  
 **Description:** User has changed the precinct setting.  
-**Machines:** vx-ballot-marking-device-frontend, vx-scan-frontend
+**Machines:** vx-mark-frontend, vx-scan-frontend
 ### scanner-batch-started
 **Type:** [system-action](#system-action)  
 **Description:** The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.  

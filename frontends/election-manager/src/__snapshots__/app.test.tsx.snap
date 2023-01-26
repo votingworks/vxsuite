@@ -11,14 +11,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 
 <div>
   <div
-    class="juoSZf"
+    class="hfPnIU"
   >
     <section
-      class="hfDPnM"
+      class="hfivsF"
     >
       <img
         alt="VotingWorks logo"
-        class="hDrldN"
+        class="byCqlY"
         src="/votingworks-wordmark-black.svg"
       />
       <div
@@ -50,10 +50,10 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </p>
       </div>
       <div
-        class="eBLljE"
+        class="zVyqD"
       >
         <div
-          class="cdXoCo"
+          class="cNiWWZ"
         >
           <h3>
             Ballots by Voting Method
@@ -2573,15 +2573,15 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 exports[`tabulating CVRs 1`] = `
 <div>
   <div
-    class="juoSZf"
+    class="hfPnIU"
   >
     <section
-      class="hfDPnM"
+      class="hfivsF"
       data-testid="election-full-tally-report"
     >
       <img
         alt="VotingWorks logo"
-        class="hDrldN"
+        class="byCqlY"
         src="/votingworks-wordmark-black.svg"
       />
       <div
@@ -2610,10 +2610,10 @@ exports[`tabulating CVRs 1`] = `
         </p>
       </div>
       <div
-        class="eBLljE"
+        class="zVyqD"
       >
         <div
-          class="cdXoCo"
+          class="cNiWWZ"
         >
           <h3>
             Ballots by Voting Method

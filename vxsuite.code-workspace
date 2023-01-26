@@ -9,6 +9,14 @@
       "path": "apps/vx-scan/frontend"
     },
     {
+      "name": "apps/vx-mark/frontend",
+      "path": "apps/vx-mark/frontend"
+    },
+    {
+      "name": "apps/vx-mark/backend",
+      "path": "apps/vx-mark/backend"
+    },
+    {
       "name": "frontends/bas",
       "path": "frontends/bas"
     },

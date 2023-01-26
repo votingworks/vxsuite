@@ -17,3 +17,4 @@ export * from './result';
 export * from './smartcard_auth';
 export * from './tallies';
 export * from './voting_method';
+export * from './mark_app_mode';

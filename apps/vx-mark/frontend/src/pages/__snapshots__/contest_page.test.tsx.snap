@@ -1,0 +1,979 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders ContestPage 1`] = `
+.c7 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c7::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #ffffff;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c1 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem 30px 0.5rem;
+}
+
+.c2 {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  overflow: auto;
+}
+
+.c3::before,
+.c3::after {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.c3::before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c3::after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c4 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c5 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 0.25rem 20px 0;
+}
+
+.c6 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 20px;
+  margin-bottom: 40px;
+}
+
+.c9 {
+  white-space: nowrap;
+}
+
+.c9::after {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: url('/images/arrow-right-open-black.svg') no-repeat;
+  width: 1.375rem;
+  height: 1.375rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c10 {
+  white-space: nowrap;
+}
+
+.c10::before {
+  display: inline-block;
+  margin-right: 0.5rem;
+  background: url('/images/arrow-left-open-black.svg') no-repeat;
+  width: 1.375rem;
+  height: 1.375rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c8 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #333333;
+  padding: 20px;
+  color: #ffffff;
+  gap: 20px;
+}
+
+.c8 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c8 > *:first-child {
+  -webkit-flex: 2 1;
+  -ms-flex: 2 1;
+  flex: 2 1;
+  -webkit-order: 1;
+  -ms-flex-order: 1;
+  order: 1;
+}
+
+.c8 button {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.c0 {
+  padding: 30px 30px 0;
+}
+
+@media (min-width:480px) {
+  .c7 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+<div>
+  <div
+    class="sc-fKVsgm gRfIaj"
+  >
+    <div
+      class="c0"
+    >
+      <div
+        class="sc-hKwCoD gmiWky"
+      >
+        <p
+          class="sc-bdvvaa iybVtA"
+        >
+          This is the
+           
+          <strong>
+            1st
+             contest
+          </strong>
+           of
+           
+          22 contests
+           on your ballot.
+        </p>
+      </div>
+    </div>
+    <main
+      class="sc-bBHwJV hlTQmY"
+    >
+      <div
+        class="c1"
+        id="contest-header"
+      >
+        <div
+          class="sc-hKwCoD gmiWky"
+          id="audiofocus"
+        >
+          <h1
+            aria-label="United States President and Vice-President."
+          >
+            <div
+              class="c2"
+            >
+              United States
+            </div>
+            President and Vice-President
+          </h1>
+          <p>
+            <span
+              class="sc-bdvvaa NLRzK"
+            >
+              Vote for 
+              1
+              .
+            </span>
+             
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
+          <div
+            class="c5"
+          >
+            <div
+              class="c6"
+            >
+              <button
+                aria-label=" Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c7"
+                data-choice="barchi-hallaren"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Joseph Barchi and Joseph Hallaren
+                    </strong>
+                    <br />
+                    Federalist
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Adam Cramer and Greg Vuocolo, People's."
+                class="c7"
+                data-choice="cramer-vuocolo"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Adam Cramer and Greg Vuocolo
+                    </strong>
+                    <br />
+                    People's
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Daniel Court and Amy Blumhardt, Liberty."
+                class="c7"
+                data-choice="court-blumhardt"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Daniel Court and Amy Blumhardt
+                    </strong>
+                    <br />
+                    Liberty
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Alvin Boone and James Lian, Constitution."
+                class="c7"
+                data-choice="boone-lian"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Alvin Boone and James Lian
+                    </strong>
+                    <br />
+                    Constitution
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
+                class="c7"
+                data-choice="hildebrand-garritty"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Ashley Hildebrand-McDougall and James Garritty
+                    </strong>
+                    <br />
+                    Whig
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Martin Patterson and Clay Lariviere, Labor."
+                class="c7"
+                data-choice="patterson-lariviere"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Martin Patterson and Clay Lariviere
+                    </strong>
+                    <br />
+                    Labor
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <nav
+      class="c8"
+    >
+      <button
+        aria-label="next contest"
+        class="sc-egiSv iFSayO"
+        id="next"
+        role="option"
+        type="button"
+      >
+        <span
+          class="c9"
+        >
+          Next
+        </span>
+      </button>
+      <button
+        aria-label="previous contest"
+        class="sc-egiSv iFSayO"
+        id="previous"
+        role="option"
+        type="button"
+      >
+        <span
+          class="c10"
+        >
+          Back
+        </span>
+      </button>
+      <button
+        aria-label="Change Settings"
+        class="sc-egiSv iFSayO"
+        type="button"
+      >
+        Settings
+      </button>
+    </nav>
+  </div>
+</div>
+`;
+
+exports[`Renders ContestPage in Landscape orientation 1`] = `
+.c6 {
+  position: relative;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
+  background: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem 0.5rem 4rem;
+  text-align: left;
+  -webkit-transition: background 0.25s,color 0.25s;
+  transition: background 0.25s,color 0.25s;
+}
+
+.c6::before {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px solid;
+  border-color: rgb(211,211,211);
+  border-radius: 0.125rem 0 0 0.125rem;
+  background: #ffffff;
+  width: 3rem;
+  text-align: center;
+  color: #028099;
+  font-size: 2rem;
+  font-weight: 700;
+  content: '';
+}
+
+.c0 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem 30px 0.5rem;
+}
+
+.c1 {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.c2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  overflow: auto;
+}
+
+.c2::before,
+.c2::after {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 0.25rem;
+  content: '';
+  -webkit-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.c2::before {
+  top: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
+}
+
+.c2::after {
+  bottom: 0;
+  opacity: 0;
+  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
+}
+
+.c3 {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow: auto;
+}
+
+.c4 {
+  margin: 0 auto;
+  width: 100%;
+  padding: 0.25rem 20px 0;
+}
+
+.c5 {
+  display: grid;
+  grid-auto-rows: minmax(auto,1fr);
+  grid-gap: 20px;
+  margin-bottom: 40px;
+}
+
+.c15 {
+  max-width: 250px;
+}
+
+.c13 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 1.5rem 1rem 0;
+}
+
+.c14 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin: auto;
+}
+
+.c14 div:first-child {
+  margin-right: 1rem;
+  min-width: 5rem;
+}
+
+.c7 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 0 1;
+  -ms-flex: 0 1;
+  flex: 0 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.c8 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.c8 p > button {
+  width: 100%;
+}
+
+.c11 {
+  margin: 1rem;
+}
+
+.c9 {
+  white-space: nowrap;
+}
+
+.c9::after {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: url('/images/arrow-right-open-black.svg') no-repeat;
+  width: 1.375rem;
+  height: 1.375rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c10 {
+  white-space: nowrap;
+}
+
+.c10::before {
+  display: inline-block;
+  margin-right: 0.5rem;
+  background: url('/images/arrow-left-open-black.svg') no-repeat;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  content: '';
+}
+
+.c12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 20px;
+}
+
+.c12 > * {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.c12 button {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+@media (min-width:480px) {
+  .c6 {
+    padding: 1rem 1rem 1rem 4rem;
+  }
+}
+
+<div>
+  <div
+    class="sc-fKVsgm jUYFlj"
+  >
+    <main
+      class="sc-bBHwJV hlTQmY"
+    >
+      <div
+        class="c0"
+        id="contest-header"
+      >
+        <div
+          class="sc-hKwCoD gmiWky"
+          id="audiofocus"
+        >
+          <h1
+            aria-label="United States President and Vice-President."
+          >
+            <div
+              class="c1"
+            >
+              United States
+            </div>
+            President and Vice-President
+          </h1>
+          <p>
+            <span
+              class="sc-bdvvaa NLRzK"
+            >
+              Vote for 
+              1
+              .
+            </span>
+             
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c2"
+      >
+        <div
+          class="c3"
+        >
+          <div
+            class="c4"
+          >
+            <div
+              class="c5"
+            >
+              <button
+                aria-label=" Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c6"
+                data-choice="barchi-hallaren"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Joseph Barchi and Joseph Hallaren
+                    </strong>
+                    <br />
+                    Federalist
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Adam Cramer and Greg Vuocolo, People's."
+                class="c6"
+                data-choice="cramer-vuocolo"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Adam Cramer and Greg Vuocolo
+                    </strong>
+                    <br />
+                    People's
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Daniel Court and Amy Blumhardt, Liberty."
+                class="c6"
+                data-choice="court-blumhardt"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Daniel Court and Amy Blumhardt
+                    </strong>
+                    <br />
+                    Liberty
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Alvin Boone and James Lian, Constitution."
+                class="c6"
+                data-choice="boone-lian"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Alvin Boone and James Lian
+                    </strong>
+                    <br />
+                    Constitution
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
+                class="c6"
+                data-choice="hildebrand-garritty"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Ashley Hildebrand-McDougall and James Garritty
+                    </strong>
+                    <br />
+                    Whig
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Martin Patterson and Clay Lariviere, Labor."
+                class="c6"
+                data-choice="patterson-lariviere"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-hKwCoD gmiWky"
+                >
+                  <p
+                    class="sc-bdvvaa eSpfPW"
+                  >
+                    <strong>
+                      Martin Patterson and Clay Lariviere
+                    </strong>
+                    <br />
+                    Labor
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <nav
+      class="c7"
+    >
+      <div
+        class="c8"
+      >
+        <div
+          class="sc-hKwCoD gmiWky"
+        >
+          <p
+            class="sc-bdvvaa cFJatN"
+          >
+            This is the 
+            <strong>
+              1st
+            </strong>
+             of
+             
+            22 contests
+            .
+          </p>
+          <p>
+            <button
+              aria-label="next contest"
+              class="sc-egiSv iFSayO"
+              id="next"
+              role="option"
+              type="button"
+            >
+              <span
+                class="c9"
+              >
+                Next
+              </span>
+            </button>
+          </p>
+          <p>
+            <button
+              aria-label="previous contest"
+              class="sc-egiSv feoAXt"
+              id="previous"
+              role="option"
+              type="button"
+            >
+              <span
+                class="c10"
+              >
+                Back
+              </span>
+            </button>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c11"
+      >
+        <div
+          class="c12"
+        >
+          <button
+            aria-label="Change Settings"
+            class="sc-egiSv dHUDgX"
+            type="button"
+          >
+            Settings
+          </button>
+        </div>
+        <div
+          aria-hidden="true"
+          class="c13"
+          data-testid="election-info"
+        >
+          <div
+            class="c14"
+          >
+            <div
+              aria-hidden="true"
+              class="c15"
+            />
+            <div
+              class="sc-hKwCoD eDCLhO"
+            >
+              <h5
+                aria-label=" General Election."
+              >
+                 General Election
+              </h5>
+              <p
+                class="sc-bdvvaa iybVtA"
+              >
+                November 3, 2020
+                <br />
+                <span
+                  class="sc-gsDJrp fUIxJs"
+                >
+                  Franklin County
+                  ,
+                </span>
+                 
+                <span
+                  class="sc-gsDJrp fUIxJs"
+                >
+                  State of Hamilton
+                </span>
+              </p>
+              <p
+                class="sc-bdvvaa kKHwYn"
+              >
+                <span
+                  class="sc-gsDJrp fUIxJs"
+                >
+                  Center Springfield
+                  , 
+                </span>
+                <span
+                  class="sc-gsDJrp fUIxJs"
+                >
+                  ballot style 
+                  12
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+`;

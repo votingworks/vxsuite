@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders NotFoundPage 1`] = `
+<div
+  class="sc-fKVsgm gRfIaj"
+>
+  <main
+    class="sc-bBHwJV vLZzE"
+  >
+    <div
+      class="sc-hKwCoD dOmxmu"
+    >
+      <h1>
+        Page Not Found.
+      </h1>
+      <p>
+        No page exists at 
+        <code>
+          /foobar-not-found-path
+        </code>
+        .
+      </p>
+      <p>
+        <button
+          class="sc-egiSv dHUDgX"
+          type="button"
+        >
+          Start Over
+        </button>
+      </p>
+    </div>
+  </main>
+</div>
+`;
