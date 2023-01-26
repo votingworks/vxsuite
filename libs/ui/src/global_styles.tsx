@@ -1,7 +1,7 @@
 import 'normalize.css';
 import { createGlobalStyle } from 'styled-components';
 
-export interface GlobalStlyesProps {
+export interface GlobalStylesProps {
   isTouchscreen: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
@@ -18,7 +18,7 @@ export interface GlobalStlyesProps {
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
-export const GlobalStyles = createGlobalStyle<GlobalStlyesProps>`
+export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   *,
   *::before,
   *::after {
@@ -126,7 +126,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStlyesProps>`
     clip-path: polygon(0 0, 0 0, 0 0);
   }
 
-  /* TODO: Create compponents for these: */
+  /* TODO: Create components for these: */
   .print-only {
     display: none;
   }
