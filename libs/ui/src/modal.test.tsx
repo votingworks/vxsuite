@@ -65,7 +65,7 @@ describe('Modal', () => {
   it('can use theme', () => {
     render(
       <Modal
-        theme={fontSizeTheme.large}
+        themeDeprecated={fontSizeTheme.large}
         content="Do you want to do the thing?"
       />
     );

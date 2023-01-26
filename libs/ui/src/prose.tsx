@@ -20,7 +20,7 @@ import { Theme } from './themes';
 
 export type ProseProps = React.HTMLAttributes<HTMLDivElement> & {
   children?: React.ReactNode;
-  theme?: Theme;
+  themeDeprecated?: Theme;
   compact?: boolean;
   maxWidth?: boolean;
   textCenter?: boolean;
@@ -33,8 +33,8 @@ const ProseContainer = styled('div')<ProseProps>`
   text-align: ${({ textCenter, textRight }) =>
     (textCenter && 'center') || (textRight && 'right')};
   line-height: 1.2;
-  color: ${({ theme }) => theme.color};
-  font-size: ${({ theme }) => theme.fontSize};
+  color: ${({ themeDeprecated }) => themeDeprecated?.color};
+  font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   & h1 {
     margin: 2em 0 1em;
     line-height: 1.1;

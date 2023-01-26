@@ -3096,6 +3096,8 @@ importers:
       lorem-ipsum: ^2.0.8
       luxon: 1.26.0
       mockdate: ^3.0.5
+      normalize.css: ^8.0.1
+      parse-css-color: ^0.2.1
       path: ^0.12.7
       pluralize: ^8.0.0
       prettier: ^2.6.2
@@ -3130,6 +3132,7 @@ importers:
       deep-eql: 4.0.0
       dompurify: 2.3.8
       luxon: 1.26.0
+      normalize.css: 8.0.1
       pluralize: 8.0.0
       qrcode.react: 3.0.1_react@17.0.1
       react-dom: 17.0.1_react@17.0.1
@@ -3191,6 +3194,7 @@ importers:
       lodash.clonedeep: 4.5.0
       lorem-ipsum: 2.0.8
       mockdate: 3.0.5
+      parse-css-color: 0.2.1
       path: 0.12.7
       prettier: 2.6.2
       react: 17.0.1
@@ -18256,8 +18260,8 @@ packages:
       '@babel/plugin-transform-react-jsx': ^7.14.9
       eslint: ^8.1.0
     dependencies:
-      '@babel/plugin-syntax-flow': 7.18.6_@babel+core@7.12.3
-      '@babel/plugin-transform-react-jsx': 7.20.13_@babel+core@7.12.3
+      '@babel/plugin-syntax-flow': 7.18.6_@babel+core@7.20.12
+      '@babel/plugin-transform-react-jsx': 7.20.13_@babel+core@7.20.12
       eslint: 8.23.1
       lodash: 4.17.21
       string-natural-compare: 3.0.1
@@ -21023,6 +21027,11 @@ packages:
   /hex-color-regex/1.1.0:
     resolution: {integrity: sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==}
     dev: false
+
+  /hex-rgb/4.3.0:
+    resolution: {integrity: sha512-Ox1pJVrDCyGHMG9CFg1tmrRUMRPRsAWYc/PinY0XzJU4K7y7vjNoLKIQ7BR5UJMCxNN8EM1MNDmHWA/B3aZUuw==}
+    engines: {node: '>=6'}
+    dev: true
 
   /history/4.10.1:
     resolution: {integrity: sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==}
@@ -24749,7 +24758,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.3.1_canvas@2.9.1
+      jest: 27.3.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -27391,6 +27400,13 @@ packages:
       evp_bytestokey: 1.0.3
       pbkdf2: 3.1.1
       safe-buffer: 5.2.1
+
+  /parse-css-color/0.2.1:
+    resolution: {integrity: sha512-bwS/GGIFV3b6KS4uwpzCFj4w297Yl3uqnSgIPsoQkx7GMLROXfMnWvxfNkL0oh8HVhZA4hvJoEoEIqonfJ3BWg==}
+    dependencies:
+      color-name: 1.1.4
+      hex-rgb: 4.3.0
+    dev: true
 
   /parse-entities/2.0.0:
     resolution: {integrity: sha512-kkywGpCcRYhqQIchaWqZ875wzpS/bMKhz5HnN3p7wveJTkTtyAB/AlnS0f8DFSqYW1T82t6yEAkEcB+A1I3MbQ==}

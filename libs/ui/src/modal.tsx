@@ -17,7 +17,7 @@ export enum ModalWidth {
 interface ReactModalContentInterface {
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
-  theme?: Theme;
+  themeDeprecated?: Theme;
 }
 const ReactModalContent = styled('div')<ReactModalContentInterface>`
   display: flex;
@@ -32,7 +32,7 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   background: #ffffff;
   width: 100%;
   overflow: auto;
-  font-size: ${({ theme }) => theme.fontSize};
+  font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
   @media (min-width: 480px) {
     position: static;
@@ -110,7 +110,7 @@ interface Props {
   onOverlayClick?: () => void;
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
-  theme?: Theme;
+  themeDeprecated?: Theme;
 }
 
 /* istanbul ignore next - unclear why this isn't covered */
@@ -146,7 +146,7 @@ export function Modal({
   onAfterClose = focusScreenAudio,
   onOverlayClick,
   modalWidth,
-  theme,
+  themeDeprecated,
 }: Props): JSX.Element {
   /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
@@ -170,7 +170,7 @@ export function Modal({
         <ReactModalContent
           modalWidth={modalWidth}
           fullscreen={fullscreen}
-          theme={theme}
+          themeDeprecated={themeDeprecated}
           {...props}
         >
           {children}

@@ -49,8 +49,6 @@ import { DashboardScreen } from './screens/dashboard_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { AdminActionsScreen } from './screens/admin_actions_screen';
 
-import 'normalize.css';
-import './App.css';
 import * as config from './api/config';
 import { LinkButton } from './components/link_button';
 import { MainNav } from './components/main_nav';

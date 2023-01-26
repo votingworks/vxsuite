@@ -18,11 +18,9 @@ import {
   PollsState,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
-import 'normalize.css';
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
-import './App.css';
 import IdleTimer from 'react-idle-timer';
 import useInterval from '@rooks/use-interval';
 import {

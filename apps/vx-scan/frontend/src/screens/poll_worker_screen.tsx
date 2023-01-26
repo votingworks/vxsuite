@@ -563,7 +563,7 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <h1>{pollsTransitionCompleteText}</h1>
           {hasPrinterAttached ? (
-            <Prose theme={fontSizeTheme.medium}>
+            <Prose themeDeprecated={fontSizeTheme.medium}>
               <Button onPress={reprintReport}>
                 Print Additional {getPollsReportTitle(currentPollsTransition)}
               </Button>

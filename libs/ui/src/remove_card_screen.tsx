@@ -18,7 +18,7 @@ export function RemoveCardScreen({ productName }: Props): JSX.Element {
   return (
     <Screen white>
       <Main centerChild>
-        <Prose textCenter theme={fontSizeTheme.medium}>
+        <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
           <RemoveCardImage aria-hidden src="/assets/remove-card.svg" alt="" />
           <h1>{productName} Unlocked</h1>
           <p>Remove card to continue.</p>

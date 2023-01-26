@@ -93,7 +93,11 @@ export function UnlockMachineScreen({
   return (
     <Screen white={!grayBackground}>
       <Main centerChild>
-        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+        <Prose
+          textCenter
+          themeDeprecated={fontSizeTheme.medium}
+          maxWidth={false}
+        >
           {primarySentence}
           <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
           <NumberPadWrapper>

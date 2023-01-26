@@ -24,7 +24,11 @@ export function MachineLockedScreen(): JSX.Element {
       <Main padded centerChild>
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          <Prose
+            textCenter
+            themeDeprecated={fontSizeTheme.medium}
+            maxWidth={false}
+          >
             {electionDefinition ? (
               <React.Fragment>
                 <h1>VxCentralScan is Locked</h1>

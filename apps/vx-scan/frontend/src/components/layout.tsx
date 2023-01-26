@@ -60,7 +60,7 @@ export function CenteredLargeProse({
   children,
 }: CenteredLargeProseProps): JSX.Element {
   return (
-    <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+    <Prose textCenter maxWidth={false} themeDeprecated={fontSizeTheme.large}>
       {children}
     </Prose>
   );

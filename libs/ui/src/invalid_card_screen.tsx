@@ -58,7 +58,7 @@ export function InvalidCardScreen({
     <Screen white>
       <Main centerChild padded>
         {graphic}
-        <Prose textCenter theme={fontSizeTheme.medium}>
+        <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
           <h1>{heading}</h1>
           <p>
             {errorDescription} {recommendedActionOverride || recommendedAction}
