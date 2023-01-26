@@ -14,7 +14,8 @@ import {
   useCancelablePromise,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
-import { MachineConfig } from '@votingworks/vx-mark-backend';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { MachineConfig } from '@votingworks/vx-mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';

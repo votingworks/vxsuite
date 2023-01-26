@@ -20,7 +20,8 @@ import {
   Text,
 } from '@votingworks/ui';
 import { Logger } from '@votingworks/logging';
-import { MachineConfig } from '@votingworks/vx-mark-backend';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { MachineConfig } from '@votingworks/vx-mark-backend';
 import { ScreenReader } from '../config/types';
 
 export interface AdminScreenProps {

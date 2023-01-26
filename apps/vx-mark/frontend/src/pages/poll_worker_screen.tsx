@@ -58,7 +58,8 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
-import { MachineConfig } from '@votingworks/vx-mark-backend';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { MachineConfig } from '@votingworks/vx-mark-backend';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
 
