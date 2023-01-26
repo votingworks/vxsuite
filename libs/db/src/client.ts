@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';

@@ -2391,7 +2391,7 @@ importers:
       '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
-      '@votingworks/utils': workspace:*
+      '@votingworks/basics': workspace:*
       better-sqlite3: ^7.5.3
       debug: ^4.3.4
       eslint: ^8.26.0
@@ -2401,7 +2401,6 @@ importers:
       eslint-plugin-jest: ^26.5.3
       eslint-plugin-prettier: ^4.2.1
       eslint-plugin-vx: workspace:*
-      fast-check: 2.18.0
       is-ci-cli: ^2.2.0
       jest: ^28.1.3
       jest-junit: ^14.0.1
@@ -2411,7 +2410,7 @@ importers:
       ts-jest: ^28.0.5
       typescript: 4.6.3
     dependencies:
-      '@votingworks/utils': link:../utils
+      '@votingworks/basics': link:../basics
       better-sqlite3: 7.5.3
       debug: 4.3.4
     devDependencies:
@@ -2430,7 +2429,6 @@ importers:
       eslint-plugin-jest: 26.6.0_4rhbl2u5cwr5asblcuddcnjhaa
       eslint-plugin-prettier: 4.2.1_aniwkeyvlpmwkidetuytnokvcm
       eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.18.0
       is-ci-cli: 2.2.0
       jest: 28.1.3_@types+node@18.8.0
       jest-junit: 14.0.1
