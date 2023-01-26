@@ -1003,6 +1003,7 @@ importers:
       '@votingworks/api': workspace:*
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -1077,6 +1078,7 @@ importers:
       '@types/styled-components': 5.1.7
       '@votingworks/api': link:../../libs/api
       '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
+      '@votingworks/basics': link:../../libs/basics
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -25434,7 +25436,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 26.6.3_canvas@2.9.1
+      jest: 26.6.3
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0

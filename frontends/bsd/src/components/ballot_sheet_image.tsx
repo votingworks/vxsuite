@@ -1,5 +1,5 @@
 import { BallotPageLayout, Contest } from '@votingworks/types';
-import { zip } from '@votingworks/utils';
+import { zip } from '@votingworks/basics';
 import React, { useCallback, useRef, useState } from 'react';
 
 export interface Props {

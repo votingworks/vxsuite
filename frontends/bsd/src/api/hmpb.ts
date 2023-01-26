@@ -1,8 +1,9 @@
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { ElectionDefinition, unsafeParse } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { assert, BallotPackage, BallotPackageEntry } from '@votingworks/utils';
+import { BallotPackage, BallotPackageEntry } from '@votingworks/utils';
 import { EventEmitter } from 'events';
+import { assert } from '@votingworks/basics';
 import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {

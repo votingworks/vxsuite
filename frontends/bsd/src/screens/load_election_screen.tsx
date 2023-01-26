@@ -4,13 +4,13 @@ import {
 } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
 import {
-  assert,
   BallotPackage,
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
 import { Screen, Main, isElectionManagerAuth } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
 import { ElectionConfiguration } from '../components/election_configuration';

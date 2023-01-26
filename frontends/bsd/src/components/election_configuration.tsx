@@ -3,7 +3,6 @@ import { join } from 'path';
 
 import styled from 'styled-components';
 import {
-  assert,
   parseBallotExportPackageInfoFromFilename,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
@@ -17,6 +16,7 @@ import {
   UsbControllerButton,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import { Prose } from './prose';
 import { MainNav } from './main_nav';
 import { Loading } from './loading';

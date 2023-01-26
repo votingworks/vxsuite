@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { MarkThresholds } from '@votingworks/types';
 import { Modal, Text } from '@votingworks/ui';
 
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';

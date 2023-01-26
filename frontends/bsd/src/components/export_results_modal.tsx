@@ -9,7 +9,6 @@ import {
   UsbControllerButton,
 } from '@votingworks/ui';
 import {
-  assert,
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
@@ -18,6 +17,7 @@ import {
 
 import { LogEventId } from '@votingworks/logging';
 import { Scan } from '@votingworks/api';
+import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
 import { Prose } from './prose';

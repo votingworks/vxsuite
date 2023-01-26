@@ -1,7 +1,7 @@
-import { ElectionDefinition, MarkThresholds, Result } from '@votingworks/types';
+import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { assert } from '@votingworks/utils';
+import { assert, Result } from '@votingworks/basics';
 import {
   ExportLogsButtonRow,
   isElectionManagerAuth,

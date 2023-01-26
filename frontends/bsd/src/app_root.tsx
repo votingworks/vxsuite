@@ -3,22 +3,14 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   Card,
   ElectionDefinition,
-  err,
   MarkThresholds,
-  ok,
   Optional,
-  Result,
   safeParseJson,
 } from '@votingworks/types';
 import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
-import {
-  KioskStorage,
-  LocalStorage,
-  Hardware,
-  assert,
-} from '@votingworks/utils';
+import { KioskStorage, LocalStorage, Hardware } from '@votingworks/utils';
 import {
   ElectionInfoBar,
   isSystemAdministratorAuth,
@@ -37,6 +29,7 @@ import {
   useUsbDrive,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { assert, Result, ok, err } from '@votingworks/basics';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
