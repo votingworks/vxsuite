@@ -1,4 +1,3 @@
-import { Optional } from '@votingworks/types';
 import { assert, assertDefined, fail, throwIllegalValue } from './assert';
 
 test('assert', () => {
@@ -16,7 +15,7 @@ test('assertDefined', () => {
   expect(() => assertDefined(null, 'message')).toThrow('message');
 
   // compile-time test checking that `value`'s type is narrowed by TS
-  const value = 'value' as Optional<string>;
+  const value = 'value' as string | undefined;
   assertDefined(value).startsWith('hey');
 });
 

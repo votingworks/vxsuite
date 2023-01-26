@@ -57,6 +57,7 @@ export function zip<T, U, V, W, X>(
 export function zip(
   ...iterables: Array<Iterable<unknown>>
 ): Generator<unknown[]>;
+// eslint-disable-next-line vx/gts-jsdoc
 export function* zip(
   ...iterables: Array<Iterable<unknown>>
 ): Generator<unknown[]> {
@@ -125,6 +126,7 @@ export function zipMin<T, U, V, W, X>(
 export function zipMin(
   ...iterables: Array<Iterable<unknown>>
 ): Generator<unknown[]>;
+// eslint-disable-next-line vx/gts-jsdoc
 export function* zipMin(
   ...iterables: Array<Iterable<unknown>>
 ): Generator<unknown[]> {
@@ -261,6 +263,7 @@ export function integers(opts: {
   from: number;
   through: number;
 }): Generator<number>;
+// eslint-disable-next-line vx/gts-jsdoc
 export function* integers({
   from = 0,
   through = Infinity,

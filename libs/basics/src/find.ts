@@ -8,11 +8,13 @@ export function find<T, S extends T>(
   array: readonly T[],
   predicate: (element: T) => element is S
 ): S;
+// eslint-disable-next-line vx/gts-jsdoc
 export function find<T>(
   array: readonly T[],
   predicate: (element: T) => boolean,
   defaultValue?: T
 ): T;
+// eslint-disable-next-line vx/gts-jsdoc
 export function find<T>(
   array: readonly T[],
   predicate: (element: T) => boolean,
