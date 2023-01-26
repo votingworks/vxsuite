@@ -800,6 +800,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@vitejs/plugin-react': ^1.3.2
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -873,6 +874,7 @@ importers:
       vite: ^2.9.12
       zod: 3.14.4
     dependencies:
+      '@votingworks/basics': link:../../libs/basics
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/test-utils': link:../../libs/test-utils
@@ -6772,11 +6774,15 @@ packages:
       '@babel/core': 7.12.3
       '@babel/helper-annotate-as-pure': 7.18.6
       '@babel/helper-module-imports': 7.18.6
-      '@babel/helper-plugin-utils': 7.19.0
+      '@babel/helper-plugin-utils': 7.18.6
       '@babel/plugin-syntax-jsx': 7.18.6_@babel+core@7.12.3
+<<<<<<< HEAD
       '@babel/types': 7.20.2
 <<<<<<< HEAD
 =======
+=======
+      '@babel/types': 7.18.7
+>>>>>>> f38be7309 (Update frontends/bas)
     dev: true
 
   /@babel/plugin-transform-react-jsx/7.18.6_@babel+core@7.18.6:
@@ -6803,11 +6809,15 @@ packages:
       '@babel/core': 7.19.0
       '@babel/helper-annotate-as-pure': 7.18.6
       '@babel/helper-module-imports': 7.18.6
-      '@babel/helper-plugin-utils': 7.19.0
+      '@babel/helper-plugin-utils': 7.18.6
       '@babel/plugin-syntax-jsx': 7.18.6_@babel+core@7.19.0
+<<<<<<< HEAD
       '@babel/types': 7.20.2
 <<<<<<< HEAD
 =======
+=======
+      '@babel/types': 7.18.7
+>>>>>>> f38be7309 (Update frontends/bas)
     dev: true
 >>>>>>> 61ff916fb (refactor(libs): Extract `basics` lib)
 
@@ -7730,8 +7740,12 @@ packages:
       '@babel/helper-plugin-utils': 7.20.2
 =======
       '@babel/helper-plugin-utils': 7.19.0
+<<<<<<< HEAD
 >>>>>>> 61ff916fb (refactor(libs): Extract `basics` lib)
       '@babel/helper-validator-option': 7.18.6
+=======
+      '@babel/helper-validator-option': 7.16.7
+>>>>>>> f38be7309 (Update frontends/bas)
       '@babel/plugin-transform-typescript': 7.16.8_@babel+core@7.19.0
     transitivePeerDependencies:
       - supports-color
@@ -30944,7 +30958,7 @@ packages:
       split-string: 3.1.0
 
   /setimmediate/1.0.5:
-    resolution: {integrity: sha1-KQy7Iy4waULX1+qbg3Mqt4VvgoU=}
+    resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
 
   /setprototypeof/1.1.0:
     resolution: {integrity: sha512-BvE/TwpZX4FXExxOxZyRGQQv651MSwmWKZGqvmPcRIjDqWub67kTKuIMx43cZZrS/cBBzwBcNDWoFxt2XEFIpQ==}
