@@ -3410,6 +3410,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/api': workspace:*
+      '@votingworks/basics': workspace:*
       '@votingworks/db': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
@@ -3450,6 +3451,7 @@ importers:
       zod: 3.14.4
     dependencies:
       '@votingworks/api': link:../../libs/api
+      '@votingworks/basics': link:../../libs/basics
       '@votingworks/db': link:../../libs/db
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging
@@ -19242,7 +19244,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/utils': 5.22.0_2owex2qphpdtje5ztrbqluisqa
       eslint: 8.23.1
-      jest: 26.6.3_canvas@2.9.1
+      jest: 26.6.3
     transitivePeerDependencies:
       - supports-color
       - typescript
