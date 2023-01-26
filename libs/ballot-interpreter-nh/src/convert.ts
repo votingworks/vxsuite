@@ -26,7 +26,7 @@ import {
   throwIllegalValue,
   zip,
   zipMin,
-} from '@votingworks/utils';
+} from '@votingworks/basics';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';

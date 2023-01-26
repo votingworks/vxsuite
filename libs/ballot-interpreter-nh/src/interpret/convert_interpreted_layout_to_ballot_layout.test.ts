@@ -5,7 +5,7 @@ import {
   getContests,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { assert, zip } from '@votingworks/utils';
+import { assert, zip } from '@votingworks/basics';
 import { readFixtureImage } from '../../test/fixtures';
 import {
   getScannedBallotCardGeometry,

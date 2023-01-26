@@ -1,5 +1,5 @@
 import { getImageChannelCount } from '@votingworks/image-utils';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { createImageData } from 'canvas';
 import { Point } from './types';
 

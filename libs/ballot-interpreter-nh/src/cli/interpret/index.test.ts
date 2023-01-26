@@ -1,9 +1,9 @@
+import { ok } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import {
   BallotType,
   HmpbBallotPageMetadata,
-  ok,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   safeParseJson,

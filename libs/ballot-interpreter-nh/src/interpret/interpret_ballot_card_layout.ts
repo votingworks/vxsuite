@@ -5,7 +5,7 @@ import {
   otsu,
   rotate180,
 } from '@votingworks/image-utils';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { decodeTimingMarkBits, getSearchInset } from '../accuvote';
 import {
   BestFitLineSegmentResult,

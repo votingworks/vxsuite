@@ -1822,6 +1822,7 @@ importers:
       '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/res-to-ts': workspace:*
@@ -1856,6 +1857,7 @@ importers:
       typescript: 4.6.3
       zod: 3.14.4
     dependencies:
+      '@votingworks/basics': link:../basics
       '@votingworks/image-utils': link:../image-utils
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils

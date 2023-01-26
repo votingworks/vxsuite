@@ -9,7 +9,6 @@ import {
   AdjudicationReason,
   BallotType,
   ElectionDefinition,
-  err,
   getBallotStyle,
   getContests,
   getContestsFromIds,
@@ -17,12 +16,11 @@ import {
   InterpretedHmpbPage,
   mapSheet,
   MarkThresholds,
-  ok,
   PageInterpretation,
-  Result,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
+import { err, ok, Result } from '@votingworks/basics';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
 import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';

@@ -1,5 +1,6 @@
+import { assert } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/utils';
 import {
   generateTemplateTimingMarkRects,
   Hudson03Nov2020BackPageBottomTimingMarkBits,

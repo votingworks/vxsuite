@@ -1,6 +1,6 @@
 import { electionSample } from '@votingworks/fixtures';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { makeRect, vec } from '../utils';
 import { convertMarksToVotes } from './convert_marks_to_votes';
 
