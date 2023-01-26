@@ -1,4 +1,4 @@
-import { inGroupsOf } from '@votingworks/utils';
+import { inGroupsOf } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { createImageData, loadImage } from 'canvas';
 import { fileSync } from 'tmp';

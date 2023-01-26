@@ -2682,6 +2682,7 @@ importers:
       '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       canvas: 2.9.1
@@ -2703,6 +2704,7 @@ importers:
       ts-jest: ^28.0.5
       typescript: 4.6.3
     dependencies:
+      '@votingworks/basics': link:../basics
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       canvas: 2.9.1
