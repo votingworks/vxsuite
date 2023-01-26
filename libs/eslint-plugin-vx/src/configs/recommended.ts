@@ -93,6 +93,8 @@ export = {
           'src/setupTests.ts',
           'src/setupTests.tsx',
           'cypress/**/*',
+          '**/*.stories.ts',
+          '**/*.stories.tsx',
         ],
       },
     ],
@@ -155,6 +157,13 @@ export = {
         'jest/no-identical-title': 'error',
         'jest/no-focused-tests': 'error',
         'jest/valid-expect': ['error', { alwaysAwait: true }],
+      },
+    },
+    {
+      files: ['**/*.stories.ts', '**/*.stories.tsx'],
+      rules: {
+        // Default exports are required in the Common Story Format (CSF) used by storybook.js
+        'vx/gts-no-default-exports': 'off',
       },
     },
   ],
