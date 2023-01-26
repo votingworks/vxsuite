@@ -11,7 +11,6 @@ import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
-  getPrecinctIndexById,
   getCandidatePartiesDescription,
 } from '@votingworks/types';
 import {
@@ -29,7 +28,6 @@ import {
 import {
   assert,
   getSingleYesNoVote,
-  getContestVoteInRotatedOrder,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
@@ -226,21 +224,14 @@ function CandidateContestResult({
   contest,
   vote = [],
   election,
-  precinctId,
 }: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
-  const precinctIndex = getPrecinctIndexById({ election, precinctId });
-  const sortedVotes = getContestVoteInRotatedOrder({
-    contest,
-    vote,
-    precinctIndex,
-  });
 
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
-      {sortedVotes.map((candidate, index, array) => {
+      {vote.map((candidate, index, array) => {
         const partiesDescription = getCandidatePartiesDescription(
           election,
           candidate

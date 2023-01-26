@@ -166,13 +166,6 @@ export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('yesno'),
   z.literal('ms-either-neither'),
 ]);
-export type RotationType = 'candidateShiftByPrecinctIndex';
-export interface Rotation {
-  readonly type: RotationType;
-}
-export const RotationSchema: z.ZodSchema<Rotation> = z.object({
-  type: z.literal('candidateShiftByPrecinctIndex'),
-});
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 export interface Contest {
@@ -198,7 +191,6 @@ export interface CandidateContest extends Contest {
   readonly seats: number;
   readonly candidates: readonly Candidate[];
   readonly allowWriteIns: boolean;
-  readonly rotation?: Rotation;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestInternalSchema.merge(
@@ -207,7 +199,6 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       seats: z.number().int().positive(),
       candidates: z.array(CandidateSchema),
       allowWriteIns: z.boolean(),
-      rotation: RotationSchema.optional(),
     })
   ).superRefine((contest, ctx) => {
     for (const [index, id] of findDuplicateIds(contest.candidates)) {

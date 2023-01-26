@@ -12,11 +12,10 @@ import {
   Candidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
-  getPrecinctIndexById,
   getCandidatePartiesDescription,
 } from '@votingworks/types';
 import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
-import { assert, getContestCandidatesInRotatedOrder } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 
 import { stripQuotes } from '../utils/strip_quotes';
 
@@ -295,11 +294,6 @@ export function CandidateContest({
   }
 
   const hasReachedMaxSelections = contest.seats === vote.length;
-  const precinctIndex = getPrecinctIndexById({ election, precinctId });
-  const rotatedCandidates = getContestCandidatesInRotatedOrder({
-    contest,
-    precinctIndex,
-  });
 
   return (
     <React.Fragment>
@@ -339,7 +333,7 @@ export function CandidateContest({
           >
             <ScrollableContentWrapper isScrollable={isScrollable}>
               <ChoicesGrid>
-                {rotatedCandidates.map((candidate) => {
+                {contest.candidates.map((candidate) => {
                   const isChecked = !!findCandidateById(vote, candidate.id);
                   const isDisabled = hasReachedMaxSelections && !isChecked;
                   function handleDisabledClick() {

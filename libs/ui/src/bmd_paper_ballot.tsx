@@ -16,7 +16,6 @@ import {
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
-  getPrecinctIndexById,
   MsEitherNeitherContest,
   OptionalYesNoVote,
   PrecinctId,
@@ -28,7 +27,6 @@ import {
   assert,
   formatLongDate,
   getSingleYesNoVote,
-  getContestVoteInRotatedOrder,
   randomBallotId,
 } from '@votingworks/utils';
 
@@ -142,29 +140,21 @@ function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
 interface CandidateContestResultProps {
   contest: CandidateContest;
   election: Election;
-  precinctId: PrecinctId;
   vote?: CandidateVote;
 }
 
 function CandidateContestResult({
   contest,
   election,
-  precinctId,
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
-  const precinctIndex = getPrecinctIndexById({ election, precinctId });
-  const sortedVotes = getContestVoteInRotatedOrder({
-    contest,
-    vote,
-    precinctIndex,
-  });
 
   return vote === undefined || vote.length === 0 ? (
     <NoSelection />
   ) : (
     <React.Fragment>
-      {sortedVotes.map((candidate) => (
+      {vote.map((candidate) => (
         <Text key={candidate.id} wordBreak>
           <Text bold as="span">
             {candidate.name}
@@ -363,7 +353,6 @@ export function BmdPaperBallot({
                   <CandidateContestResult
                     contest={contest}
                     election={election}
-                    precinctId={precinctId}
                     vote={votes[contest.id] as CandidateVote}
                   />
                 )}
