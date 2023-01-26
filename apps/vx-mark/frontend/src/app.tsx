@@ -16,6 +16,7 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Prose, Text, ErrorBoundary } from '@votingworks/ui';
 import { memoize } from './utils/memoize';
 import {
   ScreenReader,
@@ -28,7 +29,6 @@ import { getUsEnglishVoice } from './utils/voices';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
 import { ApiClientContext, queryClientDefaultOptions } from './api';
-import { ErrorBoundary } from './components/error_boundary';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -127,7 +127,14 @@ export function App({
   );
   return (
     <BrowserRouter>
-      <ErrorBoundary>
+      <ErrorBoundary
+        errorMessage={
+          <Prose textCenter>
+            <h1>Something went wrong</h1>
+            <Text>Ask a poll worker to restart the ballot marking device.</Text>
+          </Prose>
+        }
+      >
         <FocusManager
           screenReader={screenReader}
           onKeyDown={onKeyDown}

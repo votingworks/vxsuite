@@ -1,11 +1,11 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
-import { Text, Screen, Main } from '@votingworks/ui';
-import { TimesCircle } from './graphics';
-import { CenteredLargeProse } from './layout';
+import { Screen } from './screen';
+import { Main } from './main';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Props = React.PropsWithChildren<{}>;
+type Props = React.PropsWithChildren<{
+  errorMessage: React.ReactNode;
+}>;
 
 interface State {
   error?: unknown;
@@ -42,6 +42,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // known workaround), which leads to serious pain when debugging tests. So we
   // should still be dilligent about avoiding unhandled promise rejections at
   // the source.
+  /* istanbul ignore next */
   handleUnhandledRejection(event: PromiseRejectionEvent): void {
     // eslint-disable-next-line no-console
     console.error(
@@ -65,21 +66,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   render(): React.ReactNode {
     const { error } = this.state;
+    const { errorMessage, children } = this.props;
     if (error) {
       return (
         <Screen>
-          <Main padded centerChild style={{ position: 'relative' }}>
-            <TimesCircle />
-            <CenteredLargeProse>
-              <h1>Something went wrong</h1>
-              <Text>Ask a poll worker to restart the scanner.</Text>
-            </CenteredLargeProse>
-          </Main>
+          <Main centerChild>{errorMessage}</Main>
         </Screen>
       );
     }
 
-    const { children } = this.props;
     return children;
   }
 }

@@ -9,9 +9,11 @@ import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary, Text } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { ApiClientContext, queryClientDefaultOptions } from './api';
-import { ErrorBoundary } from './components/error_boundary';
+import { TimesCircle } from './components/graphics';
+import { CenteredLargeProse } from './components/layout';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -30,7 +32,17 @@ export function App({
 }: AppProps): JSX.Element {
   return (
     <BrowserRouter>
-      <ErrorBoundary>
+      <ErrorBoundary
+        errorMessage={
+          <React.Fragment>
+            <TimesCircle />
+            <CenteredLargeProse>
+              <h1>Something went wrong</h1>
+              <Text>Ask a poll worker to restart the scanner.</Text>
+            </CenteredLargeProse>
+          </React.Fragment>
+        }
+      >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <AppRoot card={card} hardware={hardware} logger={logger} />
