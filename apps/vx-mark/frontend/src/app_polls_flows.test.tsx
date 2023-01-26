@@ -1327,7 +1327,7 @@ test('tally report: as expected with primary election with nonpartisan contests'
     },
   };
 
-  const { renderApp, card, storage } = buildApp();
+  const { renderApp, card, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
