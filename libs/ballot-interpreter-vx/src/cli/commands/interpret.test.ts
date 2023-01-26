@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { writeFileSync } from 'fs';
 import { relative } from 'path';
 import { tmpNameSync } from 'tmp';

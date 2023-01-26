@@ -9,7 +9,7 @@ import {
   YesNoOptionId,
   YesNoVote,
 } from '@votingworks/types';
-import { assert, find, throwIllegalValue } from '@votingworks/utils';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 
 export function addVote(
   election: Election,

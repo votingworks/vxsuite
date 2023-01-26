@@ -11,7 +11,7 @@ import {
   Corners,
   Rect,
 } from '@votingworks/types';
-import { zip } from '@votingworks/utils';
+import { zip } from '@votingworks/basics';
 import makeDebug from 'debug';
 import {
   CONTEST_BOUNDING_BOX_COLOR,

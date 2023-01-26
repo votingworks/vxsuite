@@ -1,12 +1,9 @@
 import {
   Candidate,
   ElectionDefinition,
-  err,
-  ok,
-  Result,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { table } from 'table';

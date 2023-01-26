@@ -6,7 +6,7 @@ import {
   VotesDict,
   WriteInCandidateSchema,
 } from '@votingworks/types';
-import { find, throwIllegalValue } from '@votingworks/utils';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { addVote } from './hmpb/votes';
 

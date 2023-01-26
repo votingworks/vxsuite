@@ -1915,6 +1915,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/qrdetect': ^1.0.1
@@ -1956,6 +1957,7 @@ importers:
       uuid: ^8.3.1
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/basics': link:../basics
       '@votingworks/image-utils': link:../image-utils
       '@votingworks/qrdetect': 1.0.1
       '@votingworks/types': link:../types
