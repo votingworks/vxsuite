@@ -1754,6 +1754,7 @@ importers:
       '@types/text-encoding': ^0.0.35
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
@@ -1779,6 +1780,7 @@ importers:
       zod: 3.14.4
     dependencies:
       '@antongolub/iso8601': 1.2.1
+      '@votingworks/basics': link:../basics
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       js-sha256: 0.9.0
