@@ -479,6 +479,28 @@ jobs:
       - store_test_results:
           path: libs/cdf-types-election-event-logging/reports/
 
+  test-libs-custom-scanner:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/custom-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/custom-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/custom-scanner test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/custom-scanner/reports/
+
   test-libs-cvr-fixture-generator:
     executor: nodejs
     resource_class: xlarge
@@ -952,6 +974,7 @@ workflows:
       - test-libs-cdf-schema-builder
       - test-libs-cdf-types-cast-vote-records
       - test-libs-cdf-types-election-event-logging
+      - test-libs-custom-scanner
       - test-libs-cvr-fixture-generator
       - test-libs-data
       - test-libs-db

@@ -117,6 +117,10 @@
       "path": "libs/message-coder"
     },
     {
+      "name": "libs/custom-scanner",
+      "path": "libs/custom-scanner"
+    },
+    {
       "name": "libs/plustek-scanner",
       "path": "libs/plustek-scanner"
     },
