@@ -7,9 +7,8 @@ import { BallotType, SheetOf } from '@votingworks/types';
 import {
   castVoteRecordHasWriteIns,
   readBallotPackageFromBuffer,
-  takeAsync,
-  throwIllegalValue,
 } from '@votingworks/utils';
+import { takeAsync, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 
 test('fails on ballot package with more than one sheet', async () => {

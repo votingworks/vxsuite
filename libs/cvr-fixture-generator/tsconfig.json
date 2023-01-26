@@ -11,6 +11,7 @@
     "skipLibCheck": true
   },
   "references": [
+    { "path": "../basics/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },

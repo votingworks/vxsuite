@@ -2247,6 +2247,7 @@ importers:
       '@types/yargs': ^17.0.12
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': '*'
       '@votingworks/fixtures': '*'
       '@votingworks/image-utils': '*'
       '@votingworks/test-utils': '*'
@@ -2272,6 +2273,7 @@ importers:
       yargs: ^17.5.1
       zod: 3.14.4
     dependencies:
+      '@votingworks/basics': link:../basics
       '@votingworks/fixtures': link:../fixtures
       '@votingworks/image-utils': link:../image-utils
       '@votingworks/types': link:../types
