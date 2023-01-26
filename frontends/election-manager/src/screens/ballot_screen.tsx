@@ -1,4 +1,4 @@
-import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
+import { BALLOT_PDFS_FOLDER } from '@votingworks/utils';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,6 +26,7 @@ import {
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
+import { assert } from '@votingworks/basics';
 import { BallotScreenProps, PrintableBallotType } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 

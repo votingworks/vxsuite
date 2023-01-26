@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { ConverterClientType } from '@votingworks/types';
 import { MsSemsConverterClient } from './ms_sems_converter_client';
 import { NhConverterClient } from './nh_converter_client';

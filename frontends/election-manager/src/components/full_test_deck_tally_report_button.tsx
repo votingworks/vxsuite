@@ -1,5 +1,5 @@
 import React, { useContext, useCallback } from 'react';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { isElectionManagerAuth, printElement } from '@votingworks/ui';

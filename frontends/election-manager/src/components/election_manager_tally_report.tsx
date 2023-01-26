@@ -27,12 +27,12 @@ import {
 } from '@votingworks/types';
 import {
   filterTalliesByParams,
-  find,
   modifyTallyWithWriteInInfo,
   NONPARTISAN_FILTER,
 } from '@votingworks/utils';
 import React from 'react';
 
+import { find } from '@votingworks/basics';
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 

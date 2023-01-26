@@ -1,11 +1,8 @@
 import React, { useContext, useState, useMemo } from 'react';
 
 import { useParams } from 'react-router-dom';
-import {
-  assert,
-  find,
-  filterTalliesByParamsAndBatchId,
-} from '@votingworks/utils';
+import { filterTalliesByParamsAndBatchId } from '@votingworks/utils';
+import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   VotingMethod,

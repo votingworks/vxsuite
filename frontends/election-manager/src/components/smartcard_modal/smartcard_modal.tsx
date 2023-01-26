@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   InvalidCardScreen,
   isSystemAdministratorAuth,

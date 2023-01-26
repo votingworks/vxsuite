@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Contest } from '@votingworks/types';
 import styled from 'styled-components';
 
-import { assert, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 
 import { Prose, Text } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';

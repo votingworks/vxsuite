@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import React from 'react';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInAdjudicationTable } from './write_in_adjudication_table';

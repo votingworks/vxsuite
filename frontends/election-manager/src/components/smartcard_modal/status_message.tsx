@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Loading, Modal, Text } from '@votingworks/ui';
-import { hyphenatePin, throwIllegalValue } from '@votingworks/utils';
+import { hyphenatePin } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { User, UserRole } from '@votingworks/types';
 
 import { userRoleToReadableString } from './user_roles';

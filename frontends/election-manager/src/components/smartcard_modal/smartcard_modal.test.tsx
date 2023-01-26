@@ -7,11 +7,9 @@ import {
   PollWorkerUser,
 } from '@votingworks/types';
 import {
-  assert,
   generatePin,
   MemoryCard,
   MemoryHardware,
-  throwIllegalValue,
   typedAs,
 } from '@votingworks/utils';
 import {
@@ -27,6 +25,7 @@ import {
 } from '@votingworks/test-utils';
 import { screen, waitFor, within } from '@testing-library/react';
 
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { App } from '../../app';
 import { authenticateWithSystemAdministratorCard } from '../../../test/util/authenticate';
 import { MachineConfig } from '../../config/types';

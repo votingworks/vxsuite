@@ -14,12 +14,11 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/ui';
 import {
-  assert,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
-  throwIllegalValue,
   usbstick,
 } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { AppContext } from '../contexts/app_context';

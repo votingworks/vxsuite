@@ -1,4 +1,4 @@
-import { assert, integers, take, throwIllegalValue } from '@votingworks/utils';
+import { assert, integers, take, throwIllegalValue } from '@votingworks/basics';
 import React, { useLayoutEffect, useRef } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';

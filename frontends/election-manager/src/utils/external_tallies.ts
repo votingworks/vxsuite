@@ -17,11 +17,8 @@ import {
   FullElectionExternalTallies,
   ContestId,
 } from '@votingworks/types';
-import {
-  assert,
-  throwIllegalValue,
-  combineContestTallies,
-} from '@votingworks/utils';
+import { combineContestTallies } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import {
   getDistrictIdsForPartyId,

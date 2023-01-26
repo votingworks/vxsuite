@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { join } from 'path';
 import { configure, Uint8ArrayReader, ZipWriter, Writer } from '@zip.js/zip.js';

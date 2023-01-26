@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import pluralize from 'pluralize';
 
 import {
-  assert,
   canDistinguishVotingMethods,
   generateSemsFinalExportDefaultFilename,
   format,
@@ -17,6 +16,7 @@ import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
 import { Admin } from '@votingworks/api';
+import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 

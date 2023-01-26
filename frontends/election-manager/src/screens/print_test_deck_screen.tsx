@@ -8,7 +8,7 @@ import {
   getPrecinctById,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   BmdPaperBallot,

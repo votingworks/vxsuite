@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { UserRole } from '@votingworks/types';
 
 export function userRoleToReadableString(userRole: UserRole): string {

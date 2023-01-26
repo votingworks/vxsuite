@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { LinkButton, Prose } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 

@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { join } from 'path';
 import fileDownload from 'js-file-download';
-import { assert, usbstick, throwIllegalValue, sleep } from '@votingworks/utils';
+import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
+import { usbstick } from '@votingworks/utils';
 
 import {
   Button,

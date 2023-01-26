@@ -1,9 +1,6 @@
+import { assert } from '@votingworks/basics';
 import { CastVoteRecord, Election } from '@votingworks/types';
-import {
-  assert,
-  parseCvrFileInfoFromFilename,
-  parseCvrs,
-} from '@votingworks/utils';
+import { parseCvrFileInfoFromFilename, parseCvrs } from '@votingworks/utils';
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
 import {

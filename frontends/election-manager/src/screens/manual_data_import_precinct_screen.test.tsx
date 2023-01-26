@@ -22,7 +22,7 @@ import {
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/basics';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyExternalTalliesByPrecinct,

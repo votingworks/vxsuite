@@ -8,7 +8,8 @@ import {
   Modal,
   Prose,
 } from '@votingworks/ui';
-import { assert, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
