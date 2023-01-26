@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import {
   CandidateContest,
   getBallotStyle,
@@ -5,11 +6,7 @@ import {
   MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/types';
-import {
-  assert,
-  singlePrecinctSelectionFor,
-  Storage,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
 import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
 import { electionSampleDefinition } from '../../src/data';
 

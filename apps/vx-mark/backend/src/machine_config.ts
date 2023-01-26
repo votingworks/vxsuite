@@ -7,7 +7,7 @@ import {
   MarkOnly,
   PrintOnly,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { MachineConfig } from './types';
 
 export function getAppMode(key: AppModeKeys): AppMode {

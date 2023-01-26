@@ -24,10 +24,8 @@ import { useHistory } from 'react-router-dom';
 import IdleTimer from 'react-idle-timer';
 import useInterval from '@rooks/use-interval';
 import {
-  assert,
   Storage,
   Hardware,
-  throwIllegalValue,
   singlePrecinctSelectionFor,
   makeAsync,
 } from '@votingworks/utils';
@@ -49,6 +47,7 @@ import {
   UnlockMachineScreen,
 } from '@votingworks/ui';
 
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { getMachineConfig } from './api';
 
 import { Ballot } from './components/ballot';

@@ -15,7 +15,7 @@ import {
   getCandidatePartiesDescription,
 } from '@votingworks/types';
 import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 
 import { stripQuotes } from '../utils/strip_quotes';
 

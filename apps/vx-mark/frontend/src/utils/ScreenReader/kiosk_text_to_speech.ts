@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { SpeakOptions, TextToSpeech } from '../../config/types';
 
 // Default volume, range, and increment are

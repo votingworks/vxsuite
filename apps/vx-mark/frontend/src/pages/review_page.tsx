@@ -26,10 +26,10 @@ import {
 } from '@votingworks/ui';
 
 import {
-  assert,
   getSingleYesNoVote,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
   EventTargetFunction,

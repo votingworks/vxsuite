@@ -18,7 +18,7 @@ import {
   Text,
 } from '@votingworks/ui';
 
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { MarkVoterCardFunction } from '../config/types';
 
 const Graphic = styled.img`

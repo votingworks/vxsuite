@@ -34,10 +34,10 @@
     ]
   },
   "dependencies": {
+    "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "dotenv": "^16.0.2",
     "dotenv-expand": "^9.0.0",
     "express": "^4.18.0",

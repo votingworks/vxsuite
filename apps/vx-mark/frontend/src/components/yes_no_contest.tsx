@@ -22,7 +22,8 @@ import {
   TextWithLineBreaks,
 } from '@votingworks/ui';
 
-import { assert, getSingleYesNoVote } from '@votingworks/utils';
+import { getSingleYesNoVote } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   EventTargetFunction,
   ScrollDirections,

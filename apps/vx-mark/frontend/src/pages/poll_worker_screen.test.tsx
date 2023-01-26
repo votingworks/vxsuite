@@ -3,7 +3,6 @@ import React from 'react';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
-  ok,
   InsertedSmartcardAuth,
   AppMode,
   MarkAndPrint,
@@ -25,6 +24,7 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { Logger, LogSource } from '@votingworks/logging';
+import { ok } from '@votingworks/basics';
 
 import { render } from '../../test/test_utils';
 
