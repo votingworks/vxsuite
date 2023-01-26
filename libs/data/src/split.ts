@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { createWriteStream, renameSync } from 'fs';
 import { join, parse } from 'path';
 import StreamChopper from 'stream-chopper';

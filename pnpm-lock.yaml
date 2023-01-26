@@ -2314,9 +2314,8 @@ importers:
       '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
       '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       buffer: ^6.0.3
       debug: ^4.3.2
       eslint: ^8.23.1
@@ -2343,8 +2342,7 @@ importers:
       typescript: 4.6.3
       zod: 3.14.4
     dependencies:
-      '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
+      '@votingworks/basics': link:../basics
       buffer: 6.0.3
       debug: 4.3.4
       micromatch: 4.0.5
