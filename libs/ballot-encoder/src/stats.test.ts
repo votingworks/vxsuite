@@ -26,7 +26,6 @@ const election: Election = {
       districtId: district1Id,
       title: 'Ever dance with the devil in the pale moonlight?',
       description: 'See ya round, kid.',
-      section: 'DC',
     },
   ],
 };
