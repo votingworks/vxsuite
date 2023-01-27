@@ -1,11 +1,13 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Server } from 'http';
-import { PORT } from './globals';
+import { MARK_WORKSPACE, PORT } from './globals';
 import { buildApp } from './app';
+import { createWorkspace, Workspace } from './util/workspace';
 
 export interface StartOptions {
   port: number | string;
   logger: Logger;
+  workspace: Workspace;
 }
 
 /**
@@ -14,8 +16,20 @@ export interface StartOptions {
 export function start({
   port = PORT,
   logger = new Logger(LogSource.VxMarkBackend),
+  workspace,
 }: Partial<StartOptions> = {}): Server {
-  const app = buildApp();
+  let resolvedWorkspace: Workspace;
+
+  if (workspace) {
+    resolvedWorkspace = workspace;
+  } else {
+    const workspacePath = MARK_WORKSPACE;
+    if (!workspacePath) {
+      throw new Error('workspace path could not be determined');
+    }
+    resolvedWorkspace = createWorkspace(workspacePath);
+  }
+  const app = buildApp(resolvedWorkspace);
 
   return app.listen(
     port,

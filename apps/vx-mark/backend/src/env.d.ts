@@ -7,5 +7,6 @@ declare namespace NodeJS {
     readonly VX_MACHINE_ID?: string;
     readonly VX_CODE_VERSION?: string;
     readonly VX_SCREEN_ORIENTATION?: 'portrait' | 'landscape';
+    readonly MARK_WORKSPACE?: string;
   }
 }
