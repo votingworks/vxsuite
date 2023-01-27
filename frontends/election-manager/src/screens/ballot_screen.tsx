@@ -147,8 +147,7 @@ export function BallotScreen(): JSX.Element {
 
   const filename = getBallotPath({
     ballotStyleId,
-    election,
-    electionHash,
+    electionDefinition,
     precinctId,
     locales,
     ballotMode,

@@ -33,7 +33,7 @@ export function generatePdfExportMetadataCsv({
   isAbsentee: boolean;
   ballotLocales: BallotLocale;
 }): string {
-  const { election, electionHash } = electionDefinition;
+  const { election } = electionDefinition;
   const ballotStyleList = sortBallotStyleDataByPrecinct(
     election,
     getBallotStylesData(election)
@@ -46,8 +46,7 @@ export function generatePdfExportMetadataCsv({
       precinctId: ballotStyle.precinctId,
       ballotMode,
       isAbsentee,
-      election,
-      electionHash,
+      electionDefinition,
       locales: ballotLocales,
     });
     const precinctName = getPrecinctById({

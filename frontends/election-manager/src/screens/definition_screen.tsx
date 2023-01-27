@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Contest } from '@votingworks/types';
+import { Contest, getContestDistrictName } from '@votingworks/types';
 import styled from 'styled-components';
 
 import { format } from '@votingworks/utils';
@@ -19,7 +19,7 @@ const ButtonListItem = styled.span`
   margin-bottom: 0.25em;
 `;
 
-interface ContestSection {
+interface ContestGroup {
   name: string;
   contests: Contest[];
 }
@@ -31,18 +31,21 @@ export function DefinitionScreen(): JSX.Element {
 
   const [isRemovingElection, setIsRemovingElection] = useState(false);
 
-  const electionsBySection = election.contests.reduce<ContestSection[]>(
-    (prev, curr) => {
-      const existingIndex = prev.findIndex((s) => s.name === curr.section);
+  const electionsByDistrict = election.contests.reduce<ContestGroup[]>(
+    (groups, contest) => {
+      const contestDistrictName = getContestDistrictName(election, contest);
+      const existingIndex = groups.findIndex(
+        (group) => group.name === contestDistrictName
+      );
       if (existingIndex >= 0) {
-        prev[existingIndex].contests.push(curr);
+        groups[existingIndex].contests.push(contest);
       } else {
-        prev.push({
-          name: curr.section,
-          contests: [curr],
+        groups.push({
+          name: contestDistrictName,
+          contests: [contest],
         });
       }
-      return prev;
+      return groups;
     },
     []
   );
@@ -72,11 +75,11 @@ export function DefinitionScreen(): JSX.Element {
             <br />
           </p>
           <h2>Contests</h2>
-          {electionsBySection.map((section) => (
-            <React.Fragment key={section.name}>
-              <h3>{section.name}</h3>
+          {electionsByDistrict.map((district) => (
+            <React.Fragment key={district.name}>
+              <h3>{district.name}</h3>
               <p>
-                {section.contests.map((contest) => (
+                {district.contests.map((contest) => (
                   <ButtonListItem key={contest.id}>
                     <LinkButton
                       small

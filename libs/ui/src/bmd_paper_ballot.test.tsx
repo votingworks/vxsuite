@@ -17,11 +17,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BmdPaperBallot } from './bmd_paper_ballot';
 
-// mock election hash so snapshots don't change with every change to the election definition
-jest.mock('@votingworks/types', () => {
+jest.mock('@votingworks/ballot-encoder', () => {
   return {
-    ...jest.requireActual('@votingworks/types'),
-    getDisplayElectionHash: () => '0000000000',
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
+    encodeBallot: () => new Uint8Array(),
   };
 });
 

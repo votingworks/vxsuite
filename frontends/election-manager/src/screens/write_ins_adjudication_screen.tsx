@@ -1,11 +1,17 @@
-import { CandidateContest, ContestOptionId, Id } from '@votingworks/types';
+import {
+  CandidateContest,
+  ContestOptionId,
+  getContestDistrictName,
+  Id,
+} from '@votingworks/types';
 import { Button, Loading, Main, Prose, Screen, Text } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
+import { assert, format } from '@votingworks/utils';
 import pluralize from 'pluralize';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Navigation } from '../components/navigation';
 import { WriteInAdjudicationTable } from '../components/write_in_adjudication_table';
+import { AppContext } from '../contexts/app_context';
 import { useWriteInAdjudicationTableQuery } from '../hooks/use_write_in_adjudication_table_query';
 
 const ContentWrapper = styled.div`
@@ -47,6 +53,9 @@ export function WriteInsAdjudicationScreen({
   adjudicateTranscription,
   updateAdjudication,
 }: Props): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+
   const writeInAdjudicationTableQuery = useWriteInAdjudicationTableQuery({
     contestId: contest.id,
   });
@@ -90,7 +99,12 @@ export function WriteInsAdjudicationScreen({
             <ContestAdjudication>
               <Header>
                 <Prose>
-                  <p>{contest.section}</p>
+                  <p>
+                    {getContestDistrictName(
+                      electionDefinition.election,
+                      contest
+                    )}
+                  </p>
                   <h2>{contest.title}</h2>
                   <p>Total write-ins: {format.count(contestWriteInCount)}</p>
                 </Prose>

@@ -37,6 +37,8 @@ import {
   BallotTargetMarkPosition,
   getCandidatePartiesDescription,
   BallotStyle,
+  getContestDistrictName,
+  District,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
@@ -445,13 +447,13 @@ export const StyledContest = styled.div<{ density?: number }>`
   }
 `;
 interface ContestProps {
-  section: React.ReactNode;
+  districtName: React.ReactNode;
   title: React.ReactNode;
   children: React.ReactNode;
   density?: number;
 }
 export function Contest({
-  section,
+  districtName,
   title,
   children,
   density,
@@ -460,7 +462,7 @@ export function Contest({
     <StyledContest density={density}>
       <HandMarkedPaperBallotProse density={density}>
         <Text small bold>
-          {section}
+          {districtName}
         </Text>
         <h3>{title}</h3>
         {children}
@@ -635,6 +637,16 @@ export function HandMarkedPaperBallot({
     getContests({ ballotStyle, election: localeElection }).reduce<
       Dictionary<AnyContest>
     >(
+      (prev, curr) => ({
+        ...prev,
+        [curr.id]: curr,
+      }),
+      {}
+    );
+  const localeDistrictsById =
+    ballotStyle &&
+    localeElection &&
+    localeElection.districts.reduce<Dictionary<District>>(
       (prev, curr) => ({
         ...prev,
         [curr.id]: curr,
@@ -998,9 +1010,9 @@ export function HandMarkedPaperBallot({
               <Contest
                 key={contest.id}
                 density={layoutDensity}
-                section={dualPhraseWithSlash(
-                  contest.section,
-                  localeContestsById?.[contest.id]?.section,
+                districtName={dualPhraseWithSlash(
+                  getContestDistrictName(election, contest),
+                  localeDistrictsById?.[contest.districtId]?.name,
                   { normal: true }
                 )}
                 title={dualPhraseWithSlash(
@@ -1044,9 +1056,9 @@ export function HandMarkedPaperBallot({
                   key={contest.id}
                   data-contest
                   data-contest-title={contest.title}
-                  section={dualPhraseWithSlash(
-                    contest.section,
-                    localeContestsById?.[contest.id]?.section,
+                  districtName={dualPhraseWithSlash(
+                    getContestDistrictName(election, contest),
+                    localeDistrictsById?.[contest.districtId]?.name,
                     { normal: true }
                   )}
                   title={dualPhraseWithSlash(

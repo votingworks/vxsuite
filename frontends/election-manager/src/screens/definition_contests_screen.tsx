@@ -12,6 +12,7 @@ import {
   ContestId,
   PartyIdSchema,
   unsafeParse,
+  getContestDistrictName,
 } from '@votingworks/types';
 
 import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
@@ -339,7 +340,10 @@ ${fileContent}`;
               <h3>Sample Render</h3>
             </Prose>
             <Paper isNarrow={contest.type === 'candidate'}>
-              <Contest section={contest.section} title={contest.title}>
+              <Contest
+                districtName={getContestDistrictName(election, contest)}
+                title={contest.title}
+              >
                 {contest.type === 'candidate' && (
                   <React.Fragment>
                     <p>
@@ -459,13 +463,6 @@ ${fileContent}`;
               optional
               onChange={saveTextField}
               disabled
-            />
-            <TextField
-              name="section"
-              label="Section Name"
-              value={contest.section}
-              onChange={saveTextField}
-              disabled={!allowEditing}
             />
             <TextField
               label="Title"

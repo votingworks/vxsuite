@@ -6,6 +6,7 @@ import {
   CandidateContest,
   ContestId,
   ContestOptionId,
+  getContestDistrictName,
   getPartyAbbreviationByPartyId,
   Id,
 } from '@votingworks/types';
@@ -189,13 +190,8 @@ export function WriteInsScreen(): JSX.Element {
                   <tr key={contest.id}>
                     <TD nowrap>
                       <Text as="span" muted={!hasWriteIns}>
-                        {contest.section === contest.title ? (
-                          contest.title
-                        ) : (
-                          <React.Fragment>
-                            {contest.section}, <strong>{contest.title}</strong>
-                          </React.Fragment>
-                        )}
+                        {getContestDistrictName(election, contest)},{' '}
+                        <strong>{contest.title}</strong>
                       </Text>
                     </TD>
                     {isPrimaryElection && (

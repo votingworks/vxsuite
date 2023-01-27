@@ -1,5 +1,8 @@
 import { Admin } from '@votingworks/api';
-import { electionSample } from '@votingworks/fixtures';
+import {
+  electionSample,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import {
   BallotStyle,
   CandidateContest,
@@ -20,11 +23,18 @@ import {
   generateTestDeckBallots,
 } from './election';
 
+jest.mock('@votingworks/types', () => {
+  return {
+    ...jest.requireActual('@votingworks/types'),
+    // mock election hash so snapshots don't change with every change to the election definition
+    getDisplayElectionHash: () => '0000000000',
+  };
+});
+
 test('getBallotPath allows digits in file names', () => {
   expect(
     getBallotPath({
-      election: electionSample,
-      electionHash: 'd34db33f',
+      electionDefinition: electionSampleDefinition,
       ballotStyleId: '77',
       precinctId: '21',
       locales: { primary: 'en-US' },
@@ -32,7 +42,7 @@ test('getBallotPath allows digits in file names', () => {
       isAbsentee: true,
     })
   ).toEqual(
-    'election-d34db33f-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf'
+    'election-0000000000-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf'
   );
 });
 

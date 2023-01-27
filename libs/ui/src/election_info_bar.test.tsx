@@ -11,11 +11,11 @@ import {
 import { getDisplayElectionHash } from '@votingworks/types';
 import { ElectionInfoBar } from './election_info_bar';
 
-// mock election hash so snapshots don't change with every change to the election definition
 jest.mock('@votingworks/types', () => {
   return {
     ...jest.requireActual('@votingworks/types'),
-    getDisplayElectionHash: () => '0000000000',
+    // mock election hash so snapshots don't change with every change to the election definition
+    getDisplayElectionHash: () => '0000000001',
   };
 });
 

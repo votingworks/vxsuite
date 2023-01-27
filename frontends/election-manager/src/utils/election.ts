@@ -15,6 +15,8 @@ import {
   PrecinctId,
   WriteInCandidate,
   YesNoVote,
+  ElectionDefinition,
+  getDisplayElectionHash,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import { BallotStyleData } from '@votingworks/utils';
@@ -138,8 +140,7 @@ export function getHumanBallotLanguageFormat(locales: BallotLocale): string {
 
 export function getBallotPath({
   ballotStyleId,
-  election,
-  electionHash,
+  electionDefinition,
   precinctId,
   locales,
   ballotMode,
@@ -148,8 +149,7 @@ export function getBallotPath({
   extension = '.pdf',
 }: {
   ballotStyleId: BallotStyleId;
-  election: Election;
-  electionHash: string;
+  electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
   locales: BallotLocale;
   ballotMode: Admin.BallotMode;
@@ -157,12 +157,15 @@ export function getBallotPath({
   variant?: string;
   extension?: string;
 }): string {
+  const { election } = electionDefinition;
   const precinctName = isSuperBallotStyle(ballotStyleId)
     ? 'All'
     : getPrecinctById({ election, precinctId })?.name;
   assert(typeof precinctName !== 'undefined');
 
-  return `election-${electionHash.slice(0, 10)}-precinct-${dashify(
+  return `election-${getDisplayElectionHash(
+    electionDefinition
+  )}-precinct-${dashify(
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
@@ -172,13 +175,13 @@ export function getBallotPath({
 }
 
 export function getBallotArchiveFilename(
-  electionHash: string,
+  electionDefinition: ElectionDefinition,
   ballotMode: Admin.BallotMode,
   isAbsentee: boolean
 ): string {
-  return `ballot-pdfs-election-${electionHash.slice(0, 10)}-${ballotMode}${
-    isAbsentee ? '-absentee' : ''
-  }`;
+  return `ballot-pdfs-election-${getDisplayElectionHash(
+    electionDefinition
+  )}-${ballotMode}${isAbsentee ? '-absentee' : ''}`;
 }
 
 export function getAllPossibleCandidatesForCandidateContest(
