@@ -55,10 +55,6 @@ export {
   electionDefinition as electionSampleLongContentDefinition,
   election as electionSampleLongContent,
 } from './data/electionSampleLongContent.json';
-export {
-  electionDefinition as electionSampleRotationDefinition,
-  election as electionSampleRotation,
-} from './data/electionSampleRotation.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
