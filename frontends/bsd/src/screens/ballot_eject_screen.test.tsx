@@ -9,6 +9,14 @@ import { act } from 'react-dom/test-utils';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
 
+jest.mock('@votingworks/types', () => {
+  return {
+    ...jest.requireActual('@votingworks/types'),
+    // mock election hash so snapshots don't change with every change to the election definition
+    getDisplayElectionHash: () => '0000000000',
+  };
+});
+
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
