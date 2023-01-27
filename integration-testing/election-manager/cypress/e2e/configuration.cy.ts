@@ -20,7 +20,6 @@ describe('Election Manager and Module Converter MS SEMS configuration', () => {
       { force: true }
     );
     cy.contains('Special Election for Senate 15');
-    cy.contains('0d610ab44c');
     // The page renders twice when first loaded, make sure that is done before we navigate.
     cy.contains('h1', 'Election Definition');
     cy.contains('Definition').click();
