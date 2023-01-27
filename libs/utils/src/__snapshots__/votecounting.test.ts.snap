@@ -6,7 +6,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
         },
       },
@@ -30,7 +29,6 @@ Object {
       "districtId": "district-1",
       "id": "Chief-Justice-1",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Chief Justice, 1st Court of Appeals",
       "type": "candidate",
     },
@@ -60,7 +58,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, Distrito Judicial 11",
         },
       },
@@ -91,7 +88,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-11",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 11th Judicial District",
       "type": "candidate",
     },
@@ -159,7 +155,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 125º Distrito Judicial",
         },
       },
@@ -183,7 +178,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-125",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 125th Judicial District",
       "type": "candidate",
     },
@@ -213,7 +207,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 127º Distrito Judicial",
         },
       },
@@ -237,7 +230,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-127",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 127th Judicial District",
       "type": "candidate",
     },
@@ -267,7 +259,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 129° Distrito Judicial",
         },
       },
@@ -291,7 +282,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-129",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 129th Judicial District",
       "type": "candidate",
     },
@@ -321,7 +311,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 61° Distrito Judicial",
         },
       },
@@ -345,7 +334,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-61",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 61st Judicial District",
       "type": "candidate",
     },
@@ -375,7 +363,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 80º Distrito Judicial",
         },
       },
@@ -399,7 +386,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-80",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 80th Judicial District",
       "type": "candidate",
     },
@@ -429,7 +415,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
         },
       },
@@ -453,7 +438,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-1-4",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 1st Court of Appeals, Place 4",
       "type": "candidate",
     },
@@ -483,7 +467,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
         },
       },
@@ -507,7 +490,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-14-2",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 14th Court of Appeals, Place 2",
       "type": "candidate",
     },
@@ -537,7 +519,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
         },
       },
@@ -561,7 +542,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-14-9",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 14th Court of Appeals, Place 9",
       "type": "candidate",
     },
@@ -591,7 +571,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Juez de Paz, Precinto 1, Lugar 1",
         },
       },
@@ -615,7 +594,6 @@ Object {
       "districtId": "district-2",
       "id": "Justice-peace-1-1",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Justice of the Peace, Precinct 1, Place 1",
       "type": "candidate",
     },
@@ -645,7 +623,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Comisionado de Agricultura",
         },
       },
@@ -669,7 +646,6 @@ Object {
       "districtId": "district-1",
       "id": "comm-ag",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Commissioner of Agriculture",
       "type": "candidate",
     },
@@ -699,7 +675,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Contralor Estatal",
         },
       },
@@ -737,7 +712,6 @@ Object {
       "districtId": "district-1",
       "id": "comptroller",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "State Comptroller",
       "type": "candidate",
     },
@@ -862,7 +836,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Alguacil, distrito 1",
         },
       },
@@ -886,7 +859,6 @@ Object {
       "districtId": "district-2",
       "id": "constable-1",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Constable, Precinct 1",
       "type": "candidate",
     },
@@ -916,7 +888,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Abogado del Condado",
         },
       },
@@ -940,7 +911,6 @@ Object {
       "districtId": "district-2",
       "id": "county-attorney",
       "seats": 1,
-      "section": "Franklin County",
       "title": "County Attorney",
       "type": "candidate",
     },
@@ -970,7 +940,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Asesor-Recaudador de Impuestos del País",
         },
       },
@@ -994,7 +963,6 @@ Object {
       "districtId": "district-2",
       "id": "county-tax-assessor",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Country Tax Assessor-Collector",
       "type": "candidate",
     },
@@ -1024,7 +992,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Fiscal de Distrito",
         },
       },
@@ -1048,7 +1015,6 @@ Object {
       "districtId": "district-2",
       "id": "district-attorney",
       "seats": 1,
-      "section": "Franklin County",
       "title": "District Attorney",
       "type": "candidate",
     },
@@ -1078,7 +1044,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Gobernador",
         },
       },
@@ -1102,7 +1067,6 @@ Object {
       "districtId": "district-2",
       "id": "governor",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Governor",
       "type": "candidate",
     },
@@ -1132,7 +1096,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Vicegobernador",
         },
       },
@@ -1163,7 +1126,6 @@ Object {
       "districtId": "district-1",
       "id": "lieutenant-governor",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Lieutenant Governor",
       "type": "candidate",
     },
@@ -1231,7 +1193,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Presidente",
         },
       },
@@ -1276,7 +1237,6 @@ Object {
       "districtId": "district-1",
       "id": "president",
       "seats": 1,
-      "section": "United States",
       "title": "President",
       "type": "candidate",
     },
@@ -1477,7 +1437,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Representante, Distrito 18",
         },
       },
@@ -1508,7 +1467,6 @@ Object {
       "districtId": "district-1",
       "id": "representative-district-18",
       "seats": 1,
-      "section": "United States",
       "title": "Representative, District 18",
       "type": "candidate",
     },
@@ -1576,7 +1534,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Senador",
         },
       },
@@ -1607,7 +1564,6 @@ Object {
       "districtId": "district-2",
       "id": "senator",
       "seats": 1,
-      "section": "United States",
       "title": "Senator",
       "type": "candidate",
     },
@@ -1675,7 +1631,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Alguacil",
         },
       },
@@ -1706,7 +1661,6 @@ Object {
       "districtId": "district-2",
       "id": "sheriff",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Sheriff",
       "type": "candidate",
     },
@@ -1774,7 +1728,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, Corte Suprema, Lugar 3",
         },
       },
@@ -1798,7 +1751,6 @@ Object {
       "districtId": "district-2",
       "id": "ss-justic-3",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, Supreme Court, Place 3",
       "type": "candidate",
     },
@@ -1828,7 +1780,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, Corte Suprema, Lugar 5",
         },
       },
@@ -1859,7 +1810,6 @@ Object {
       "districtId": "district-2",
       "id": "ss-justic-5",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, Supreme Court, Place 5",
       "type": "candidate",
     },
@@ -1894,7 +1844,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
         },
       },
@@ -1918,7 +1867,6 @@ Object {
       "districtId": "district-1",
       "id": "Chief-Justice-1",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Chief Justice, 1st Court of Appeals",
       "type": "candidate",
     },
@@ -1962,7 +1910,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, Distrito Judicial 11",
         },
       },
@@ -1993,7 +1940,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-11",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 11th Judicial District",
       "type": "candidate",
     },
@@ -2047,7 +1993,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 125º Distrito Judicial",
         },
       },
@@ -2071,7 +2016,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-125",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 125th Judicial District",
       "type": "candidate",
     },
@@ -2115,7 +2059,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 127º Distrito Judicial",
         },
       },
@@ -2139,7 +2082,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-127",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 127th Judicial District",
       "type": "candidate",
     },
@@ -2183,7 +2125,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 129° Distrito Judicial",
         },
       },
@@ -2207,7 +2148,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-129",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 129th Judicial District",
       "type": "candidate",
     },
@@ -2251,7 +2191,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 61° Distrito Judicial",
         },
       },
@@ -2275,7 +2214,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-61",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 61st Judicial District",
       "type": "candidate",
     },
@@ -2319,7 +2257,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Juez de Distrito, 80º Distrito Judicial",
         },
       },
@@ -2343,7 +2280,6 @@ Object {
       "districtId": "district-1",
       "id": "District-judge-80",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "District Judge, 80th Judicial District",
       "type": "candidate",
     },
@@ -2387,7 +2323,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
         },
       },
@@ -2411,7 +2346,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-1-4",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 1st Court of Appeals, Place 4",
       "type": "candidate",
     },
@@ -2455,7 +2389,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
         },
       },
@@ -2479,7 +2412,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-14-2",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 14th Court of Appeals, Place 2",
       "type": "candidate",
     },
@@ -2523,7 +2455,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
         },
       },
@@ -2547,7 +2478,6 @@ Object {
       "districtId": "district-1",
       "id": "Justice-14-9",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, 14th Court of Appeals, Place 9",
       "type": "candidate",
     },
@@ -2591,7 +2521,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Juez de Paz, Precinto 1, Lugar 1",
         },
       },
@@ -2615,7 +2544,6 @@ Object {
       "districtId": "district-2",
       "id": "Justice-peace-1-1",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Justice of the Peace, Precinct 1, Place 1",
       "type": "candidate",
     },
@@ -2659,7 +2587,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Comisionado de Agricultura",
         },
       },
@@ -2683,7 +2610,6 @@ Object {
       "districtId": "district-1",
       "id": "comm-ag",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Commissioner of Agriculture",
       "type": "candidate",
     },
@@ -2727,7 +2653,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Contralor Estatal",
         },
       },
@@ -2765,7 +2690,6 @@ Object {
       "districtId": "district-1",
       "id": "comptroller",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "State Comptroller",
       "type": "candidate",
     },
@@ -2829,7 +2753,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Alguacil, distrito 1",
         },
       },
@@ -2853,7 +2776,6 @@ Object {
       "districtId": "district-2",
       "id": "constable-1",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Constable, Precinct 1",
       "type": "candidate",
     },
@@ -2897,7 +2819,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Abogado del Condado",
         },
       },
@@ -2921,7 +2842,6 @@ Object {
       "districtId": "district-2",
       "id": "county-attorney",
       "seats": 1,
-      "section": "Franklin County",
       "title": "County Attorney",
       "type": "candidate",
     },
@@ -2965,7 +2885,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Asesor-Recaudador de Impuestos del País",
         },
       },
@@ -2989,7 +2908,6 @@ Object {
       "districtId": "district-2",
       "id": "county-tax-assessor",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Country Tax Assessor-Collector",
       "type": "candidate",
     },
@@ -3033,7 +2951,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Fiscal de Distrito",
         },
       },
@@ -3057,7 +2974,6 @@ Object {
       "districtId": "district-2",
       "id": "district-attorney",
       "seats": 1,
-      "section": "Franklin County",
       "title": "District Attorney",
       "type": "candidate",
     },
@@ -3101,7 +3017,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Gobernador",
         },
       },
@@ -3125,7 +3040,6 @@ Object {
       "districtId": "district-2",
       "id": "governor",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Governor",
       "type": "candidate",
     },
@@ -3169,7 +3083,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Vicegobernador",
         },
       },
@@ -3200,7 +3113,6 @@ Object {
       "districtId": "district-1",
       "id": "lieutenant-governor",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Lieutenant Governor",
       "type": "candidate",
     },
@@ -3254,7 +3166,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Presidente",
         },
       },
@@ -3299,7 +3210,6 @@ Object {
       "districtId": "district-1",
       "id": "president",
       "seats": 1,
-      "section": "United States",
       "title": "President",
       "type": "candidate",
     },
@@ -3374,14 +3284,12 @@ Object {
       "_lang": Object {
         "es-US": Object {
           "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "section": "Estado de Hamilton",
           "title": "Proposición 1",
         },
       },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
-      "section": "State of Hamilton",
       "title": "Proposition 1",
       "type": "yesno",
     },
@@ -3410,7 +3318,6 @@ Object {
       "_lang": Object {
         "es-US": Object {
           "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "section": "Estado de Hamilton",
           "shortTitle": "Proposición 2",
           "title": "Proposición 2",
         },
@@ -3418,7 +3325,6 @@ Object {
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
-      "section": "State of Hamilton",
       "shortTitle": "Proposition 2",
       "title": "Proposition 2",
       "type": "yesno",
@@ -3447,7 +3353,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Representante, Distrito 18",
         },
       },
@@ -3478,7 +3383,6 @@ Object {
       "districtId": "district-1",
       "id": "representative-district-18",
       "seats": 1,
-      "section": "United States",
       "title": "Representative, District 18",
       "type": "candidate",
     },
@@ -3532,7 +3436,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estados Unidos",
           "title": "Senador",
         },
       },
@@ -3563,7 +3466,6 @@ Object {
       "districtId": "district-2",
       "id": "senator",
       "seats": 1,
-      "section": "United States",
       "title": "Senator",
       "type": "candidate",
     },
@@ -3617,7 +3519,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Condado de Franklin",
           "title": "Alguacil",
         },
       },
@@ -3648,7 +3549,6 @@ Object {
       "districtId": "district-2",
       "id": "sheriff",
       "seats": 1,
-      "section": "Franklin County",
       "title": "Sheriff",
       "type": "candidate",
     },
@@ -3702,7 +3602,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, Corte Suprema, Lugar 3",
         },
       },
@@ -3726,7 +3625,6 @@ Object {
       "districtId": "district-2",
       "id": "ss-justic-3",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, Supreme Court, Place 3",
       "type": "candidate",
     },
@@ -3770,7 +3668,6 @@ Object {
     "contest": Object {
       "_lang": Object {
         "es-US": Object {
-          "section": "Estado de Hamilton",
           "title": "Justicia, Corte Suprema, Lugar 5",
         },
       },
@@ -3801,7 +3698,6 @@ Object {
       "districtId": "district-2",
       "id": "ss-justic-5",
       "seats": 1,
-      "section": "State of Hamilton",
       "title": "Justice, Supreme Court, Place 5",
       "type": "candidate",
     },
