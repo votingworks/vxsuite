@@ -1,6 +1,9 @@
 from unittest.mock import patch
 
-import pytest, json, io, os
+import pytest
+import json
+import io
+import os
 
 from converter.SEMSinput import main
 
@@ -28,23 +31,23 @@ TESTS = [
         'main': '10_8-26-2020.txt',
         'candmap': '10_CANDMAP_8-26-2020.txt',
         'expected': '10_8-26-2020-expected-election.json'
-    }        
+    }
 ]
+
 
 def get_sample_file(filename):
     return os.path.join(SAMPLE_FILES, filename)
+
 
 def test_general_conversion():
     for test in TESTS:
         main_file = get_sample_file(test['main'])
         candmap_file = get_sample_file(test['candmap'])
         expected_file = get_sample_file(test['expected'])
-        
+
         result = main(main_file, candmap_file)
 
         expected_result_file = open(expected_file, "r")
         expected_result = expected_result_file.read()
 
-        assert result.strip() == expected_result.strip()
-
-    
+        assert json.loads(result) == json.loads(expected_result)
