@@ -1,3 +1,4 @@
+import { stripElectionHash } from '../../test/helpers/strip_election_hash';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { Interpreter } from '.';
 
@@ -8,11 +9,12 @@ test('interpret three-column template with instructions', async () => {
   const imageData = await fixtures.blankPage1.imageData();
   const template = await interpreter.interpretTemplate(imageData);
 
-  expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
+  expect(stripElectionHash(template.ballotPageLayout.metadata))
+    .toMatchInlineSnapshot(`
     Object {
       "ballotStyleId": "77",
       "ballotType": 0,
-      "electionHash": "81dd1469d19d1be870c459760a3a9f2e51c1871280d3de44be1aaff354b2e82c",
+      "electionHash": Anything,
       "isTestMode": false,
       "locales": Object {
         "primary": "en-US",

@@ -1,4 +1,5 @@
 import { BallotType } from '@votingworks/types';
+import { sha256 } from 'js-sha256';
 import { croppedQrCode } from '../test/fixtures';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import {
@@ -51,8 +52,7 @@ describe('old-style URL-based metadata', () => {
       precinctId: 'Acme & Co',
       isTestMode: true,
       pageNumber: 2,
-      electionHash:
-        '845b9260b4aca656759b0f90a6b5f13e477fba279c5c717c07910cc661459453',
+      electionHash: sha256(choctaw2020Special.electionDefinition.electionData),
       ballotType: BallotType.Standard,
     });
   });
@@ -75,8 +75,7 @@ describe('old-style URL-based metadata', () => {
       precinctId: 'Acme & Co',
       isTestMode: true,
       pageNumber: 2,
-      electionHash:
-        '845b9260b4aca656759b0f90a6b5f13e477fba279c5c717c07910cc661459453',
+      electionHash: sha256(choctaw2020Special.electionDefinition.electionData),
       ballotType: BallotType.Standard,
     });
   });

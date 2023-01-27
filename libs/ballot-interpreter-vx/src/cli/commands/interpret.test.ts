@@ -2,6 +2,7 @@ import { assert } from '@votingworks/basics';
 import { writeFileSync } from 'fs';
 import { relative } from 'path';
 import { tmpNameSync } from 'tmp';
+import { stripElectionHash } from '../../../test/helpers/strip_election_hash';
 import { parseGlobalOptions } from '..';
 import {
   blankPage1,
@@ -462,340 +463,340 @@ test('run interpret with JSON output', async () => {
   ]);
 
   expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
-  expect(stdout).toMatchInlineSnapshot(`
-    "[
-      {
-        \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",
-        \\"interpreted\\": {
-          \\"metadata\\": {
-            \\"electionHash\\": \\"81dd1469d19d1be870c459760a3a9f2e51c1871280d3de44be1aaff354b2e82c\\",
-            \\"ballotType\\": 0,
-            \\"locales\\": {
-              \\"primary\\": \\"en-US\\"
+  expect(stripElectionHash(JSON.parse(stdout))).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "input": "test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg",
+        "interpreted": Object {
+          "marks": Array [
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 471,
+                "y": 411,
+              },
+              "contest": "us-senate",
+              "option": "tim-smith",
+              "score": 0.8765432098765432,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 411,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 29,
+                  "x": 472,
+                  "y": 413,
+                },
+              },
+              "type": "candidate",
             },
-            \\"ballotStyleId\\": \\"77\\",
-            \\"precinctId\\": \\"42\\",
-            \\"isTestMode\\": false,
-            \\"pageNumber\\": 1
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 471,
+                "y": 489,
+              },
+              "contest": "us-senate",
+              "option": "arjun-srinivasan",
+              "score": 0.0024630541871921183,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 489,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 29,
+                  "x": 472,
+                  "y": 491,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 471,
+                "y": 566,
+              },
+              "contest": "us-senate",
+              "option": "ricardo-turullols-bonilla",
+              "score": 0.007407407407407408,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 567,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 29,
+                  "x": 472,
+                  "y": 569,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 470,
+                "y": 832,
+              },
+              "contest": "us-house-district-30",
+              "option": "eddie-bernice-johnson",
+              "score": 0.7832512315270936,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 831,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 29,
+                  "x": 472,
+                  "y": 833,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 470,
+                "y": 909,
+              },
+              "contest": "us-house-district-30",
+              "option": "tre-pennie",
+              "score": 0.0024449877750611247,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 909,
+                },
+                "inner": Object {
+                  "height": 19,
+                  "width": 29,
+                  "x": 472,
+                  "y": 911,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 471,
+                "y": 1174,
+              },
+              "contest": "texas-sc-judge-place-6",
+              "option": "jane-bland",
+              "score": 0.7524509803921569,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 470,
+                  "y": 1173,
+                },
+                "inner": Object {
+                  "height": 19,
+                  "width": 29,
+                  "x": 472,
+                  "y": 1175,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 23,
+                "width": 33,
+                "x": 470,
+                "y": 1251,
+              },
+              "contest": "texas-sc-judge-place-6",
+              "option": "kathy-cheng",
+              "score": 0.004889975550122249,
+              "target": Object {
+                "bounds": Object {
+                  "height": 23,
+                  "width": 33,
+                  "x": 470,
+                  "y": 1251,
+                },
+                "inner": Object {
+                  "height": 19,
+                  "width": 29,
+                  "x": 472,
+                  "y": 1253,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 872,
+                "y": 321,
+              },
+              "contest": "texas-house-district-111",
+              "option": "write-in-0",
+              "score": 0.8029556650246306,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 872,
+                  "y": 320,
+                },
+                "inner": Object {
+                  "height": 19,
+                  "width": 29,
+                  "x": 874,
+                  "y": 322,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 872,
+                "y": 555,
+              },
+              "contest": "dallas-county-tax-assessor",
+              "option": "john-ames",
+              "score": 0.8866995073891626,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 872,
+                  "y": 556,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 29,
+                  "x": 874,
+                  "y": 558,
+                },
+              },
+              "type": "candidate",
+            },
+            Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 33,
+                "x": 872,
+                "y": 916,
+              },
+              "contest": "dallas-county-sheriff",
+              "option": "chad-prda",
+              "score": 0.7,
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 33,
+                  "x": 872,
+                  "y": 916,
+                },
+                "inner": Object {
+                  "height": 19,
+                  "width": 29,
+                  "x": 874,
+                  "y": 917,
+                },
+              },
+              "type": "candidate",
+            },
+          ],
+          "metadata": Object {
+            "ballotStyleId": "77",
+            "ballotType": 0,
+            "electionHash": Anything,
+            "isTestMode": false,
+            "locales": Object {
+              "primary": "en-US",
+            },
+            "pageNumber": 1,
+            "precinctId": "42",
           },
-          \\"votes\\": {
-            \\"us-senate\\": [
-              {
-                \\"id\\": \\"tim-smith\\",
-                \\"name\\": \\"Tim Smith\\",
-                \\"partyIds\\": [
-                  \\"6\\"
-                ]
-              }
+          "votes": Object {
+            "dallas-county-sheriff": Array [
+              Object {
+                "id": "chad-prda",
+                "name": "Chad Prda",
+                "partyIds": Array [
+                  "3",
+                ],
+              },
             ],
-            \\"us-house-district-30\\": [
-              {
-                \\"id\\": \\"eddie-bernice-johnson\\",
-                \\"name\\": \\"Eddie Bernice Johnson\\",
-                \\"partyIds\\": [
-                  \\"2\\"
-                ]
-              }
+            "dallas-county-tax-assessor": Array [
+              Object {
+                "id": "john-ames",
+                "name": "John Ames",
+                "partyIds": Array [
+                  "2",
+                ],
+              },
             ],
-            \\"texas-sc-judge-place-6\\": [
-              {
-                \\"id\\": \\"jane-bland\\",
-                \\"name\\": \\"Jane Bland\\",
-                \\"partyIds\\": [
-                  \\"3\\"
-                ]
-              }
+            "texas-house-district-111": Array [
+              Object {
+                "id": "write-in-0",
+                "isWriteIn": true,
+                "name": "Write-In",
+              },
             ],
-            \\"texas-house-district-111\\": [
-              {
-                \\"id\\": \\"write-in-0\\",
-                \\"name\\": \\"Write-In\\",
-                \\"isWriteIn\\": true
-              }
+            "texas-sc-judge-place-6": Array [
+              Object {
+                "id": "jane-bland",
+                "name": "Jane Bland",
+                "partyIds": Array [
+                  "3",
+                ],
+              },
             ],
-            \\"dallas-county-tax-assessor\\": [
-              {
-                \\"id\\": \\"john-ames\\",
-                \\"name\\": \\"John Ames\\",
-                \\"partyIds\\": [
-                  \\"2\\"
-                ]
-              }
+            "us-house-district-30": Array [
+              Object {
+                "id": "eddie-bernice-johnson",
+                "name": "Eddie Bernice Johnson",
+                "partyIds": Array [
+                  "2",
+                ],
+              },
             ],
-            \\"dallas-county-sheriff\\": [
-              {
-                \\"id\\": \\"chad-prda\\",
-                \\"name\\": \\"Chad Prda\\",
-                \\"partyIds\\": [
-                  \\"3\\"
-                ]
-              }
-            ]
+            "us-senate": Array [
+              Object {
+                "id": "tim-smith",
+                "name": "Tim Smith",
+                "partyIds": Array [
+                  "6",
+                ],
+              },
+            ],
           },
-          \\"marks\\": [
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"us-senate\\",
-              \\"option\\": \\"tim-smith\\",
-              \\"score\\": 0.8765432098765432,
-              \\"bounds\\": {
-                \\"x\\": 471,
-                \\"y\\": 411,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 411,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 413,
-                  \\"width\\": 29,
-                  \\"height\\": 18
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"us-senate\\",
-              \\"option\\": \\"arjun-srinivasan\\",
-              \\"score\\": 0.0024630541871921183,
-              \\"bounds\\": {
-                \\"x\\": 471,
-                \\"y\\": 489,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 489,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 491,
-                  \\"width\\": 29,
-                  \\"height\\": 18
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"us-senate\\",
-              \\"option\\": \\"ricardo-turullols-bonilla\\",
-              \\"score\\": 0.007407407407407408,
-              \\"bounds\\": {
-                \\"x\\": 471,
-                \\"y\\": 566,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 567,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 569,
-                  \\"width\\": 29,
-                  \\"height\\": 18
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"us-house-district-30\\",
-              \\"option\\": \\"eddie-bernice-johnson\\",
-              \\"score\\": 0.7832512315270936,
-              \\"bounds\\": {
-                \\"x\\": 470,
-                \\"y\\": 832,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 831,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 833,
-                  \\"width\\": 29,
-                  \\"height\\": 18
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"us-house-district-30\\",
-              \\"option\\": \\"tre-pennie\\",
-              \\"score\\": 0.0024449877750611247,
-              \\"bounds\\": {
-                \\"x\\": 470,
-                \\"y\\": 909,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 909,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 911,
-                  \\"width\\": 29,
-                  \\"height\\": 19
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"texas-sc-judge-place-6\\",
-              \\"option\\": \\"jane-bland\\",
-              \\"score\\": 0.7524509803921569,
-              \\"bounds\\": {
-                \\"x\\": 471,
-                \\"y\\": 1174,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 1173,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 1175,
-                  \\"width\\": 29,
-                  \\"height\\": 19
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"texas-sc-judge-place-6\\",
-              \\"option\\": \\"kathy-cheng\\",
-              \\"score\\": 0.004889975550122249,
-              \\"bounds\\": {
-                \\"x\\": 470,
-                \\"y\\": 1251,
-                \\"width\\": 33,
-                \\"height\\": 23
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 470,
-                  \\"y\\": 1251,
-                  \\"width\\": 33,
-                  \\"height\\": 23
-                },
-                \\"inner\\": {
-                  \\"x\\": 472,
-                  \\"y\\": 1253,
-                  \\"width\\": 29,
-                  \\"height\\": 19
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"texas-house-district-111\\",
-              \\"option\\": \\"write-in-0\\",
-              \\"score\\": 0.8029556650246306,
-              \\"bounds\\": {
-                \\"x\\": 872,
-                \\"y\\": 321,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 872,
-                  \\"y\\": 320,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 874,
-                  \\"y\\": 322,
-                  \\"width\\": 29,
-                  \\"height\\": 19
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"dallas-county-tax-assessor\\",
-              \\"option\\": \\"john-ames\\",
-              \\"score\\": 0.8866995073891626,
-              \\"bounds\\": {
-                \\"x\\": 872,
-                \\"y\\": 555,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 872,
-                  \\"y\\": 556,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 874,
-                  \\"y\\": 558,
-                  \\"width\\": 29,
-                  \\"height\\": 18
-                }
-              }
-            },
-            {
-              \\"type\\": \\"candidate\\",
-              \\"contest\\": \\"dallas-county-sheriff\\",
-              \\"option\\": \\"chad-prda\\",
-              \\"score\\": 0.7,
-              \\"bounds\\": {
-                \\"x\\": 872,
-                \\"y\\": 916,
-                \\"width\\": 33,
-                \\"height\\": 22
-              },
-              \\"target\\": {
-                \\"bounds\\": {
-                  \\"x\\": 872,
-                  \\"y\\": 916,
-                  \\"width\\": 33,
-                  \\"height\\": 22
-                },
-                \\"inner\\": {
-                  \\"x\\": 874,
-                  \\"y\\": 917,
-                  \\"width\\": 29,
-                  \\"height\\": 19
-                }
-              }
-            }
-          ]
-        }
-      }
-    ]"
+        },
+      },
+    ]
   `);
 });
