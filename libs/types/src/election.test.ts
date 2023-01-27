@@ -45,6 +45,8 @@ import {
   vote,
   withLocale,
   YesNoContest,
+  getDisplayElectionHash,
+  safeParseElectionDefinition,
 } from './election';
 import { unsafeParse } from './generic';
 
@@ -724,4 +726,11 @@ test('ElectionDefinitionSchema', () => {
       election,
     }).election
   ).toEqual(election);
+});
+
+test('getDisplayElectionHash', () => {
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify(election)
+  ).ok();
+  expect(getDisplayElectionHash(electionDefinition!)).toEqual('7dcbb8f101');
 });

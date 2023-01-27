@@ -17,6 +17,14 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BmdPaperBallot } from './bmd_paper_ballot';
 
+// mock election hash so snapshots don't change with every change to the election definition
+jest.mock('@votingworks/types', () => {
+  return {
+    ...jest.requireActual('@votingworks/types'),
+    getDisplayElectionHash: () => '0000000000',
+  };
+});
+
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   const original =
     jest.requireActual<typeof import('@votingworks/utils')>(

@@ -1750,3 +1750,11 @@ export function safeParseElectionDefinition(
         electionHash: sha256(value),
       });
 }
+
+export const ELECTION_HASH_DISPLAY_LENGTH = 10;
+
+export function getDisplayElectionHash(
+  electionDefinition: ElectionDefinition
+): string {
+  return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
+}
