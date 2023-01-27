@@ -15,7 +15,7 @@ jest.mock('@votingworks/types', () => {
   return {
     ...jest.requireActual('@votingworks/types'),
     // mock election hash so snapshots don't change with every change to the election definition
-    getDisplayElectionHash: () => '0000000001',
+    getDisplayElectionHash: () => '0000000000',
   };
 });
 
