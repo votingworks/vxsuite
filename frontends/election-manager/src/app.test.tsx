@@ -76,6 +76,7 @@ jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
+    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
     encodeBallot: () => new Uint8Array(),
   };
 });
