@@ -10,6 +10,17 @@ import {
   electionSampleWithSealDefinition,
 } from '../data';
 
+jest.mock(
+  '@votingworks/ballot-encoder',
+  (): typeof import('@votingworks/ballot-encoder') => {
+    return {
+      ...jest.requireActual('@votingworks/ballot-encoder'),
+      // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
+      encodeBallot: () => new Uint8Array(),
+    };
+  }
+);
+
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   const original =
     jest.requireActual<typeof import('@votingworks/utils')>(

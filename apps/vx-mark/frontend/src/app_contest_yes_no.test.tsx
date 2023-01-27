@@ -4,6 +4,7 @@ import { electionSample } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
+import { getContestDistrictName } from '@votingworks/types';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
@@ -123,7 +124,9 @@ it('Single Seat Contest', async () => {
   }
 
   const reviewTitle = getByTextWithMarkup(
-    `${measure102Contest.section}${measure102Contest.title}`
+    `${getContestDistrictName(electionSample, measure102Contest)}${
+      measure102Contest.title
+    }`
   );
   const siblingTextContent =
     (reviewTitle.nextSibling && reviewTitle.nextSibling.textContent) || '';

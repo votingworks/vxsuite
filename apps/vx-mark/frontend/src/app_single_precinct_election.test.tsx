@@ -4,6 +4,7 @@ import { makeElectionManagerCard } from '@votingworks/test-utils';
 import { screen } from '@testing-library/react';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { getDisplayElectionHash } from '@votingworks/types';
 import { enterPin, render } from '../test/test_utils';
 import { App } from './app';
 import { createApiMock } from '../test/helpers/mock_api_client';
@@ -49,7 +50,11 @@ test('loading election with a single precinct automatically sets precinct', asyn
   );
   await enterPin();
   userEvent.click(await screen.findByText('Load Election Definition'));
-  await screen.findByText('10edbc8d2c');
+  await screen.findByText(
+    getDisplayElectionHash(
+      electionMinimalExhaustiveSampleSinglePrecinctDefinition
+    )
+  );
   // Should not be able to select a precinct
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
   screen.getByText(

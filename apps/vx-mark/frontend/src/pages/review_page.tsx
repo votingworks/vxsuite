@@ -12,6 +12,7 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   getCandidatePartiesDescription,
+  getContestDistrictName,
 } from '@votingworks/types';
 import {
   Button,
@@ -57,7 +58,7 @@ const ContentHeader = styled.div`
   width: 100%;
   padding: 1rem 5rem 0.5rem 3rem;
 `;
-const ContestSection = styled.div`
+const DistrictName = styled.div`
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
@@ -476,8 +477,15 @@ export function ReviewPage(): JSX.Element {
                   to={`/contests/${i}#review`}
                 >
                   <ContestProse compact>
-                    <h2 aria-label={`${contest.section} ${contest.title},`}>
-                      <ContestSection>{contest.section}</ContestSection>
+                    <h2
+                      aria-label={`${getContestDistrictName(
+                        election,
+                        contest
+                      )} ${contest.title},`}
+                    >
+                      <DistrictName>
+                        {getContestDistrictName(election, contest)}
+                      </DistrictName>
                       {contest.title}
                     </h2>
 

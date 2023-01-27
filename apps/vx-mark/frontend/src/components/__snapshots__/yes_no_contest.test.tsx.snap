@@ -135,14 +135,14 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         id="audiofocus"
       >
         <h1
-          aria-label="County Prop 1: Garbage Collection Program."
+          aria-label="District 1 Ballot Measure 3."
         >
           <div
             class="c1"
           >
-            County
+            District 1
           </div>
-          Prop 1: Garbage Collection Program
+          Ballot Measure 3
         </h1>
         <p>
           Vote 
@@ -157,7 +157,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           <span
             class="screen-reader-only"
           >
-            Institute a garbage collection program that collects garbage on weekdays across the county.
+            Should fishing be banned in all city owned lakes and rivers?
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
@@ -182,7 +182,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 class="sc-bdvvaa NLRzK"
               >
                 <span>
-                  Institute a garbage collection program that collects garbage on weekdays across the county.
+                  Should fishing be banned in all city owned lakes and rivers?
                 </span>
               </p>
             </div>
@@ -208,7 +208,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="sc-hKwCoD gmiWky"
           >
             <p
-              aria-label=" Yes on Prop 1"
+              aria-label=" Yes on Ballot Measure 3"
               class="sc-bdvvaa eSpfPW"
             >
               Yes
@@ -226,7 +226,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="sc-hKwCoD gmiWky"
           >
             <p
-              aria-label=" No on Prop 1"
+              aria-label=" No on Ballot Measure 3"
               class="sc-bdvvaa eSpfPW"
             >
               No
@@ -422,14 +422,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         id="audiofocus"
       >
         <h1
-          aria-label="County Prop 1: Garbage Collection Program."
+          aria-label="District 1 Ballot Measure 3."
         >
           <div
             class="c1"
           >
-            County
+            District 1
           </div>
-          Prop 1: Garbage Collection Program
+          Ballot Measure 3
         </h1>
         <p>
           Vote 
@@ -444,7 +444,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           <span
             class="screen-reader-only"
           >
-            Institute a garbage collection program that collects garbage on weekdays across the county.
+            Should fishing be banned in all city owned lakes and rivers?
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
         </p>
@@ -469,7 +469,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 class="sc-bdvvaa NLRzK"
               >
                 <span>
-                  Institute a garbage collection program that collects garbage on weekdays across the county.
+                  Should fishing be banned in all city owned lakes and rivers?
                 </span>
               </p>
             </div>
@@ -495,7 +495,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="sc-hKwCoD gmiWky"
           >
             <p
-              aria-label="Selected, Yes on Prop 1"
+              aria-label="Selected, Yes on Ballot Measure 3"
               class="sc-bdvvaa eSpfPW"
             >
               Yes
@@ -513,7 +513,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="sc-hKwCoD gmiWky"
           >
             <p
-              aria-label=" No on Prop 1"
+              aria-label=" No on Ballot Measure 3"
               class="sc-bdvvaa eSpfPW"
             >
               No

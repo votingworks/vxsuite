@@ -224,12 +224,12 @@ exports[`Single Seat Contest 1`] = `
           id="audiofocus"
         >
           <h1
-            aria-label="United States President and Vice-President."
+            aria-label="District 1 President and Vice-President."
           >
             <div
               class="c3"
             >
-              United States
+              District 1
             </div>
             President and Vice-President
           </h1>

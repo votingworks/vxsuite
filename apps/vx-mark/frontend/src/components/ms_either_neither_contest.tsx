@@ -12,6 +12,7 @@ import {
   YesNoVote,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
+  getContestDistrictName,
 } from '@votingworks/types';
 import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
 
@@ -26,7 +27,7 @@ import { FONT_SIZES } from '../config/globals';
 import { ChoiceButton } from './choice_button';
 import {
   ContentHeader,
-  ContestSection,
+  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
@@ -74,7 +75,9 @@ export function MsEitherNeitherContest({
   pickOneContestVote,
   updateVote,
 }: Props): JSX.Element {
-  const { userSettings } = useContext(BallotContext);
+  const { userSettings, electionDefinition } = useContext(BallotContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
   const scrollContainer = useRef<HTMLDivElement>(null);
   const [isScrollable, setIsScrollable] = useState(true);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
@@ -182,6 +185,7 @@ export function MsEitherNeitherContest({
     updateContestChoicesScrollStates,
   ]);
 
+  const districtName = getContestDistrictName(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const forEither = '“for either”';
   const againstBoth = '“against both”';
@@ -204,8 +208,8 @@ export function MsEitherNeitherContest({
     <Main flexColumn>
       <ContentHeader>
         <Prose>
-          <h1 aria-label={`${contest.section} ${contest.title}.`}>
-            <ContestSection>{contest.section}</ContestSection>
+          <h1 aria-label={`${districtName} ${contest.title}.`}>
+            <DistrictName>{districtName}</DistrictName>
             {contest.title}
           </h1>
           <p>
