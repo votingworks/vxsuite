@@ -22,7 +22,6 @@
   "contests": [
     {
       "id": "775018633",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -47,7 +46,6 @@
     },
     {
       "id": "775018635",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -61,7 +59,6 @@
     },
     {
       "id": "775018637",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -76,7 +73,6 @@
     },
     {
       "id": "775018628",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -90,7 +86,6 @@
     },
     {
       "id": "775018640",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -104,7 +99,6 @@
     },
     {
       "id": "775018642",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -118,7 +112,6 @@
     },
     {
       "id": "775018631",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "2",
       "type": "candidate",
@@ -132,7 +125,6 @@
     },
     {
       "id": "775018666",
-      "section": "Public Service Commissioner",
       "districtId": "575001705",
       "partyId": "2",
       "type": "candidate",
@@ -146,7 +138,6 @@
     },
     {
       "id": "775018673",
-      "section": "Transportation Commissioner",
       "districtId": "575001697",
       "partyId": "2",
       "type": "candidate",
@@ -160,7 +151,6 @@
     },
     {
       "id": "775018647",
-      "section": "District Attorney 05",
       "districtId": "100000362",
       "partyId": "2",
       "type": "candidate",
@@ -174,7 +164,6 @@
     },
     {
       "id": "775019193",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "2",
       "type": "candidate",
@@ -188,7 +177,6 @@
     },
     {
       "id": "775019197",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "2",
       "type": "candidate",
@@ -202,7 +190,6 @@
     },
     {
       "id": "775019199",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "2",
       "type": "candidate",
@@ -217,7 +204,6 @@
     },
     {
       "id": "775019203",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "2",
       "type": "candidate",
@@ -231,7 +217,6 @@
     },
     {
       "id": "775019213",
-      "section": "Supervisor 01",
       "districtId": "575000496",
       "partyId": "2",
       "type": "candidate",
@@ -246,7 +231,6 @@
     },
     {
       "id": "775019215",
-      "section": "Supervisor 02",
       "districtId": "575000497",
       "partyId": "2",
       "type": "candidate",
@@ -261,7 +245,6 @@
     },
     {
       "id": "775019217",
-      "section": "Supervisor 03",
       "districtId": "575000498",
       "partyId": "2",
       "type": "candidate",
@@ -275,7 +258,6 @@
     },
     {
       "id": "775019219",
-      "section": "Supervisor 04",
       "districtId": "575000499",
       "partyId": "2",
       "type": "candidate",
@@ -295,7 +277,6 @@
     },
     {
       "id": "775019221",
-      "section": "Supervisor 05",
       "districtId": "575000500",
       "partyId": "2",
       "type": "candidate",
@@ -310,7 +291,6 @@
     },
     {
       "id": "775019209",
-      "section": "Justice Court Judge Post 1",
       "districtId": "575000506",
       "partyId": "2",
       "type": "candidate",
@@ -328,7 +308,6 @@
     },
     {
       "id": "775019211",
-      "section": "Justice Court Judge Post 2",
       "districtId": "575000507",
       "partyId": "2",
       "type": "candidate",
@@ -343,7 +322,6 @@
     },
     {
       "id": "775019207",
-      "section": "Constable Post 02",
       "districtId": "575000509",
       "partyId": "2",
       "type": "candidate",
@@ -358,7 +336,6 @@
     },
     {
       "id": "775018634",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -374,7 +351,6 @@
     },
     {
       "id": "775018636",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -389,7 +365,6 @@
     },
     {
       "id": "775018638",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -404,7 +379,6 @@
     },
     {
       "id": "775018629",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -420,7 +394,6 @@
     },
     {
       "id": "775018639",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -434,7 +407,6 @@
     },
     {
       "id": "775018641",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -453,7 +425,6 @@
     },
     {
       "id": "775018630",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -467,7 +438,6 @@
     },
     {
       "id": "775018632",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "partyId": "3",
       "type": "candidate",
@@ -481,7 +451,6 @@
     },
     {
       "id": "775018674",
-      "section": "Transportation Commissioner",
       "districtId": "575001697",
       "partyId": "3",
       "type": "candidate",
@@ -499,7 +468,6 @@
     },
     {
       "id": "575019339",
-      "section": "State Senate 15",
       "districtId": "100000234",
       "partyId": "3",
       "type": "candidate",
@@ -513,7 +481,6 @@
     },
     {
       "id": "775018735",
-      "section": "State House Of Rep 35",
       "districtId": "100000085",
       "partyId": "3",
       "type": "candidate",
@@ -528,7 +495,6 @@
     },
     {
       "id": "775019194",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "3",
       "type": "candidate",
@@ -542,7 +508,6 @@
     },
     {
       "id": "775019196",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "3",
       "type": "candidate",
@@ -556,7 +521,6 @@
     },
     {
       "id": "775019200",
-      "section": "Choctaw",
       "districtId": "100000285",
       "partyId": "3",
       "type": "candidate",
@@ -570,7 +534,6 @@
     },
     {
       "id": "775019214",
-      "section": "Supervisor 01",
       "districtId": "575000496",
       "partyId": "3",
       "type": "candidate",
@@ -584,7 +547,6 @@
     },
     {
       "id": "775019216",
-      "section": "Supervisor 02",
       "districtId": "575000497",
       "partyId": "3",
       "type": "candidate",
@@ -600,7 +562,6 @@
     },
     {
       "id": "775019218",
-      "section": "Supervisor 03",
       "districtId": "575000498",
       "partyId": "3",
       "type": "candidate",
@@ -614,7 +575,6 @@
     },
     {
       "id": "775019220",
-      "section": "Supervisor 04",
       "districtId": "575000499",
       "partyId": "3",
       "type": "candidate",
@@ -628,7 +588,6 @@
     },
     {
       "id": "775019222",
-      "section": "Supervisor 05",
       "districtId": "575000500",
       "partyId": "3",
       "type": "candidate",
@@ -643,7 +602,6 @@
     },
     {
       "id": "775019210",
-      "section": "Justice Court Judge Post 1",
       "districtId": "575000506",
       "partyId": "3",
       "type": "candidate",
@@ -657,7 +615,6 @@
     },
     {
       "id": "775019206",
-      "section": "Constable Post 01",
       "districtId": "575000508",
       "partyId": "3",
       "type": "candidate",

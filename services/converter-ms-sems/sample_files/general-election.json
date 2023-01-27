@@ -81,7 +81,6 @@
   "contests": [
     {
       "id": "575021152",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Governor",
@@ -113,7 +112,6 @@
     },
     {
       "id": "575020972",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Lieutenant Governor",
@@ -135,7 +133,6 @@
     },
     {
       "id": "575020973",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Secretary Of State",
@@ -157,7 +154,6 @@
     },
     {
       "id": "575021151",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Attorney General",
@@ -179,7 +175,6 @@
     },
     {
       "id": "575020974",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "State Auditor",
@@ -196,7 +191,6 @@
     },
     {
       "id": "575020975",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "State Treasurer",
@@ -218,7 +212,6 @@
     },
     {
       "id": "575020970",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Commissioner Of Agriculture & Commerce",
@@ -240,7 +233,6 @@
     },
     {
       "id": "575020971",
-      "section": "State Of Mississippi",
       "districtId": "100000275",
       "type": "candidate",
       "official_label": "Commissioner Of Insurance",
@@ -262,7 +254,6 @@
     },
     {
       "id": "575021144",
-      "section": "Northern District",
       "districtId": "575001705",
       "type": "candidate",
       "official_label": "Public Service Commissioner",
@@ -279,7 +270,6 @@
     },
     {
       "id": "575021153",
-      "section": "Northern District",
       "districtId": "575001697",
       "type": "candidate",
       "official_label": "Transportation Commissioner",
@@ -301,7 +291,6 @@
     },
     {
       "id": "575020980",
-      "section": "District 05",
       "districtId": "100000362",
       "type": "candidate",
       "official_label": "District Attorney 05",
@@ -318,7 +307,6 @@
     },
     {
       "id": "575021007",
-      "section": "District 15",
       "districtId": "100000234",
       "type": "candidate",
       "official_label": "State Senate 15",
@@ -335,7 +323,6 @@
     },
     {
       "id": "575021090",
-      "section": "District 35",
       "districtId": "100000085",
       "type": "candidate",
       "official_label": "State House Of Rep 35",
@@ -352,7 +339,6 @@
     },
     {
       "id": "575021524",
-      "section": "Choctaw",
       "districtId": "100000285",
       "type": "candidate",
       "official_label": "Chancery Clerk",
@@ -374,7 +360,6 @@
     },
     {
       "id": "575021525",
-      "section": "Choctaw",
       "districtId": "100000285",
       "type": "candidate",
       "official_label": "Circuit Clerk",
@@ -391,7 +376,6 @@
     },
     {
       "id": "575021526",
-      "section": "Choctaw",
       "districtId": "100000285",
       "type": "candidate",
       "official_label": "Coroner",
@@ -408,7 +392,6 @@
     },
     {
       "id": "575021527",
-      "section": "Choctaw",
       "districtId": "100000285",
       "type": "candidate",
       "official_label": "Sheriff",
@@ -430,7 +413,6 @@
     },
     {
       "id": "575021528",
-      "section": "Choctaw",
       "districtId": "100000285",
       "type": "candidate",
       "official_label": "Tax Assessor Collector",
@@ -447,7 +429,6 @@
     },
     {
       "id": "575021533",
-      "section": "Supervisor 01",
       "districtId": "575000496",
       "type": "candidate",
       "official_label": "Supervisor 01",
@@ -469,7 +450,6 @@
     },
     {
       "id": "575021534",
-      "section": "Supervisor 02",
       "districtId": "575000497",
       "type": "candidate",
       "official_label": "Supervisor 02",
@@ -491,7 +471,6 @@
     },
     {
       "id": "575021535",
-      "section": "Supervisor 03",
       "districtId": "575000498",
       "type": "candidate",
       "official_label": "Supervisor 03",
@@ -513,7 +492,6 @@
     },
     {
       "id": "575021536",
-      "section": "Supervisor 04",
       "districtId": "575000499",
       "type": "candidate",
       "official_label": "Supervisor 04",
@@ -535,7 +513,6 @@
     },
     {
       "id": "575021537",
-      "section": "Supervisor 05",
       "districtId": "575000500",
       "type": "candidate",
       "official_label": "Supervisor 05",
@@ -557,7 +534,6 @@
     },
     {
       "id": "575021531",
-      "section": "Justice Court Judge Post 1",
       "districtId": "575000506",
       "type": "candidate",
       "official_label": "Justice Court Judge Post 1",
@@ -579,7 +555,6 @@
     },
     {
       "id": "575021532",
-      "section": "Justice Court Judge Post 2",
       "districtId": "575000507",
       "type": "candidate",
       "official_label": "Justice Court Judge Post 2",
@@ -596,7 +571,6 @@
     },
     {
       "id": "575021529",
-      "section": "Constable Post 01",
       "districtId": "575000508",
       "type": "candidate",
       "official_label": "Constable Post 01",
@@ -613,7 +587,6 @@
     },
     {
       "id": "575021530",
-      "section": "Constable Post 02",
       "districtId": "575000509",
       "type": "candidate",
       "official_label": "Constable Post 02",

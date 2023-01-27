@@ -82,7 +82,6 @@
       "id": "president",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "United States",
       "title": "President and Vice-President",
       "seats": 1,
       "candidates": [
@@ -123,7 +122,6 @@
       "id": "senator",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "United States",
       "title": "Senator",
       "seats": 1,
       "candidates": [
@@ -169,7 +167,6 @@
       "id": "representative-district-6",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "United States",
       "title": "Representative, District 6",
       "seats": 1,
       "candidates": [
@@ -205,7 +202,6 @@
       "id": "governor",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Governor",
       "seats": 1,
       "candidates": [
@@ -346,7 +342,6 @@
       "id": "lieutenant-governor",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Lieutenant Governor",
       "seats": 1,
       "candidates": [
@@ -402,7 +397,6 @@
       "id": "secretary-of-state",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Secretary of State",
       "seats": 1,
       "candidates": [
@@ -423,7 +417,6 @@
       "id": "state-senator-district-31",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Senator, District 31",
       "seats": 1,
       "candidates": [
@@ -439,7 +432,6 @@
       "id": "state-assembly-district-54",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Assembly Member, District 54",
       "seats": 1,
       "candidates": [
@@ -465,7 +457,6 @@
       "id": "county-commissioners",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "County Commissioners",
       "seats": 4,
       "candidates": [
@@ -551,7 +542,6 @@
       "id": "county-registrar-of-wills",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "Registrar of Wills",
       "seats": 1,
       "candidates": [
@@ -567,7 +557,6 @@
       "id": "city-mayor",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "City of Springfield",
       "title": "Mayor",
       "seats": 1,
       "candidates": [
@@ -588,7 +577,6 @@
       "id": "city-council",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "City of Springfield",
       "title": "City Council",
       "seats": 3,
       "candidates": [
@@ -629,7 +617,6 @@
       "id": "judicial-robert-demergue",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "Hamilton Court of Appeals",
       "title": "Retain Robert Demergue as Chief Justice?",
       "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
       "yesOption": {
@@ -645,7 +632,6 @@
       "id": "judicial-elmer-hull",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "Hamilton Court of Appeals",
       "title": "Retain Elmer Hull as Associate Justice?",
       "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
       "yesOption": {
@@ -661,7 +647,6 @@
       "id": "question-a",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question A",
       "title": "Question A: Recovery of Property Damages",
       "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
@@ -678,7 +663,6 @@
       "id": "question-b",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question B",
       "title": "Question B: Separation of Powers",
       "yesOption": {
@@ -695,7 +679,6 @@
       "id": "question-c",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question C",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
       "yesOption": {
@@ -712,7 +695,6 @@
       "id": "proposition-1",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Proposition 1",
       "yesOption": {
         "id": "750000094",
@@ -729,7 +711,6 @@
       "id": "measure-101",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 101",
       "title": "Measure 101: College District",
       "yesOption": {
@@ -746,7 +727,6 @@
       "id": "102",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 102",
       "title": "Measure 102: Vehicle Abatement Program",
       "yesOption": {
@@ -764,7 +744,6 @@
       "districtId": "district-1",
       "partyId": "2",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 666",
       "title": "Measure 666: The Question No One Gets To",
       "yesOption": {
@@ -782,7 +761,6 @@
       "districtId": "7",
       "partyId": "3",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "Head of Constitution Party",
       "seats": 1,
       "candidates": [

@@ -113,7 +113,6 @@
           "name": "Vicki Slater"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Governor",
       "type": "candidate",
       "id": "775013743"
@@ -135,7 +134,6 @@
           "name": "Tim Johnson"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Lieutenant Governor",
       "type": "candidate",
       "id": "775013745"
@@ -152,7 +150,6 @@
           "name": "Charles E. Graham"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Secretary Of State",
       "type": "candidate",
       "id": "775013747"
@@ -169,7 +166,6 @@
           "name": "Jim Hood"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Attorney General",
       "type": "candidate",
       "id": "775013738"
@@ -186,7 +182,6 @@
           "name": "Jocelyn Pepper Pritchett"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "State Auditor",
       "type": "candidate",
       "id": "775013749"
@@ -203,7 +198,6 @@
           "name": "Addie Lee Green"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Commissioner Of Agriculture & Commerce",
       "type": "candidate",
       "id": "775013740"
@@ -220,7 +214,6 @@
           "name": "Brandon Presley"
         }
       ],
-      "section": "Public Service Commissioner",
       "title": "Northern District",
       "type": "candidate",
       "id": "775013573"
@@ -237,7 +230,6 @@
           "name": "Danny Woods"
         }
       ],
-      "section": "Transportation Commissioner",
       "title": "Northern District",
       "type": "candidate",
       "id": "775013819"
@@ -254,7 +246,6 @@
           "name": "Scott Colom"
         }
       ],
-      "section": "District Attorney 16",
       "title": "District 16",
       "type": "candidate",
       "id": "775013566"
@@ -271,7 +262,6 @@
           "name": "Cecil L. Simmons"
         }
       ],
-      "section": "State Senate 15",
       "title": "District 15",
       "type": "candidate",
       "id": "775013767"
@@ -288,7 +278,6 @@
           "name": "Angela Turner"
         }
       ],
-      "section": "State Senate 16",
       "title": "District 16",
       "type": "candidate",
       "id": "775013769"
@@ -305,7 +294,6 @@
           "name": "Tyrone Ellis"
         }
       ],
-      "section": "State House Of Rep 38",
       "title": "District 38",
       "type": "candidate",
       "id": "775013660"
@@ -322,7 +310,6 @@
           "name": "Paul Millsaps"
         }
       ],
-      "section": "State House Of Rep 43",
       "title": "District 43",
       "type": "candidate",
       "id": "775013667"
@@ -339,7 +326,6 @@
           "name": "Monica W. Banks"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Chancery Court Clerk",
       "type": "candidate",
       "id": "775014094"
@@ -356,7 +342,6 @@
           "name": "E. Regina Evans"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Circuit Court Clerk",
       "type": "candidate",
       "id": "775014096"
@@ -373,7 +358,6 @@
           "name": "Michael R. Hunt"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Coroner",
       "type": "candidate",
       "id": "775014098"
@@ -390,7 +374,6 @@
           "name": "Haley Brown"
         }
       ],
-      "section": "Oktibbeha",
       "title": "County Attorney",
       "type": "candidate",
       "id": "775014100"
@@ -407,7 +390,6 @@
           "name": "Steve C. Gladney"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Sheriff",
       "type": "candidate",
       "id": "775014101"
@@ -424,7 +406,6 @@
           "name": "Tom L. Gregory"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Surveyor",
       "type": "candidate",
       "id": "775014103"
@@ -441,7 +422,6 @@
           "name": "John S. Brown"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Tax Accessor/Collector",
       "type": "candidate",
       "id": "775014104"
@@ -458,7 +438,6 @@
           "name": "Donald Thompson"
         }
       ],
-      "section": "Supervisor Dist 1",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014106"
@@ -485,7 +464,6 @@
           "name": "Orlando K. Trainer"
         }
       ],
-      "section": "Supervisor Dist 2",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014108"
@@ -502,7 +480,6 @@
           "name": "Marvell Howard"
         }
       ],
-      "section": "Supervisor Dist 3",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014109"
@@ -519,7 +496,6 @@
           "name": "Daniel Jackson"
         }
       ],
-      "section": "Supervisor Dist 4",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014111"
@@ -546,7 +522,6 @@
           "name": "Joe L. Williams"
         }
       ],
-      "section": "Supervisor Dist 5",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014113"
@@ -573,7 +548,6 @@
           "name": "Lynn Williams"
         }
       ],
-      "section": "Justice Court Judge Dist 1",
       "title": "Justice Court Judge Dist 1",
       "type": "candidate",
       "id": "775014090"
@@ -600,7 +574,6 @@
           "name": "Kennedy Neal"
         }
       ],
-      "section": "Justice Court Judge Dist 2",
       "title": "Justice Court Judge Dist 2",
       "type": "candidate",
       "id": "775014091"
@@ -632,7 +605,6 @@
           "name": "Cheikh A. Taylor"
         }
       ],
-      "section": "Justice Court Judge Dist 3",
       "title": "Justice Court Judge Dist 3",
       "type": "candidate",
       "id": "775014092"
@@ -649,7 +621,6 @@
           "name": "Andre Quinn"
         }
       ],
-      "section": "Constable Dist 2",
       "title": "Constable District 2",
       "type": "candidate",
       "id": "775014086"
@@ -666,7 +637,6 @@
           "name": "Curtis D. Randle"
         }
       ],
-      "section": "Constable Dist 2",
       "title": "Constable District 2",
       "type": "candidate",
       "id": "775014087"
@@ -683,7 +653,6 @@
           "name": "James Lindsey"
         }
       ],
-      "section": "Constable Dist 3",
       "title": "Constable District 3",
       "type": "candidate",
       "id": "775014089"
@@ -705,7 +674,6 @@
           "name": "Mitch Young"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Governor",
       "type": "candidate",
       "id": "775013744"
@@ -727,7 +695,6 @@
           "name": "Tate Reeves"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Lieutenant Governor",
       "type": "candidate",
       "id": "775013746"
@@ -744,7 +711,6 @@
           "name": "Delbert Hosemann"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Secretary Of State",
       "type": "candidate",
       "id": "775013748"
@@ -761,7 +727,6 @@
           "name": "Mike Hurst"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Attorney General",
       "type": "candidate",
       "id": "775013739"
@@ -783,7 +748,6 @@
           "name": "Stacey E. Pickering"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "State Auditor",
       "type": "candidate",
       "id": "775013750"
@@ -805,7 +769,6 @@
           "name": "David McRae"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "State Treasurer",
       "type": "candidate",
       "id": "775013751"
@@ -822,7 +785,6 @@
           "name": "Cindy Hyde-Smith"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Commissioner Of Agriculture & Commerce",
       "type": "candidate",
       "id": "775013741"
@@ -844,7 +806,6 @@
           "name": "John Mosley"
         }
       ],
-      "section": "State Of Mississippi",
       "title": "Commissioner Of Insurance",
       "type": "candidate",
       "id": "775013742"
@@ -861,7 +822,6 @@
           "name": "Mike Maynard"
         }
       ],
-      "section": "Public Service Commissioner",
       "title": "Northern District",
       "type": "candidate",
       "id": "775013574"
@@ -883,7 +843,6 @@
           "name": "Mike Tagert"
         }
       ],
-      "section": "Transportation Commissioner",
       "title": "Northern District",
       "type": "candidate",
       "id": "775013820"
@@ -900,7 +859,6 @@
           "name": "Gary Jackson"
         }
       ],
-      "section": "State Senate 15",
       "title": "District 15",
       "type": "candidate",
       "id": "775013768"
@@ -917,7 +875,6 @@
           "name": "Gary A. Chism"
         }
       ],
-      "section": "State House Of Rep 37",
       "title": "District 37",
       "type": "candidate",
       "id": "775013659"
@@ -939,7 +896,6 @@
           "name": "Mac Smith"
         }
       ],
-      "section": "State House Of Rep 43",
       "title": "District 43",
       "type": "candidate",
       "id": "775013668"
@@ -961,7 +917,6 @@
           "name": "Glenn Hamilton"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Circuit Court Clerk",
       "type": "candidate",
       "id": "775014097"
@@ -983,7 +938,6 @@
           "name": "Doug Hamiton"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Coroner",
       "type": "candidate",
       "id": "775014099"
@@ -1000,7 +954,6 @@
           "name": "George Carrithers"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Sheriff",
       "type": "candidate",
       "id": "775014102"
@@ -1017,7 +970,6 @@
           "name": "Allen Morgan"
         }
       ],
-      "section": "Oktibbeha",
       "title": "Tax Accessor/Collector",
       "type": "candidate",
       "id": "775014105"
@@ -1034,7 +986,6 @@
           "name": "John Prate Montgomery, Jr."
         }
       ],
-      "section": "Supervisor Dist 1",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014107"
@@ -1051,7 +1002,6 @@
           "name": "Dennis Denny\" Daniels\""
         }
       ],
-      "section": "Supervisor Dist 3",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014110"
@@ -1073,7 +1023,6 @@
           "name": "Bricklee Miller"
         }
       ],
-      "section": "Supervisor Dist 4",
       "title": "Supervisor ",
       "type": "candidate",
       "id": "775014112"
@@ -1090,7 +1039,6 @@
           "name": "Buddy Johnston"
         }
       ],
-      "section": "Justice Court Judge Dist 3",
       "title": "Justice Court Judge Dist 3",
       "type": "candidate",
       "id": "775014093"
@@ -1107,7 +1055,6 @@
           "name": "Shank Phelps"
         }
       ],
-      "section": "Constable Dist 1",
       "title": "Constable District 1",
       "type": "candidate",
       "id": "775014085"
@@ -1124,7 +1071,6 @@
           "name": "Tim Cook"
         }
       ],
-      "section": "Constable Dist 3",
       "title": "Constable District 3",
       "type": "candidate",
       "id": "775014088"
