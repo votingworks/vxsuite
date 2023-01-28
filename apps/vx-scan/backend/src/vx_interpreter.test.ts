@@ -36,7 +36,7 @@ jest.mock('@votingworks/ballot-encoder', () => {
     ...jest.requireActual('@votingworks/ballot-encoder'),
     // to allow changing election definitions without changing the image fixtures
     // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the MS demo fixtures
+    // this election hash is for the MS demo fixture images
     sliceElectionHash: () => 'b0260b4e9d492dab3813',
   };
 });
