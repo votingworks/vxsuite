@@ -17,6 +17,7 @@ import { Scan } from '@votingworks/api';
 import {
   BallotConfig,
   generateElectionBasedSubfolderName,
+  readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -329,8 +330,13 @@ test('PUT /config/package', async () => {
       'ballot-package.zip'
     )
     .expect(200, { status: 'ok' });
+
+  const ballotPackage = await readBallotPackageFromBuffer(
+    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+  );
+
   expect(importer.configure).toBeCalledWith(
-    electionFamousNames2021Fixtures.electionDefinition
+    expect.objectContaining(ballotPackage.electionDefinition)
   );
   expect(importer.addHmpbTemplates).toHaveBeenCalledTimes(
     2 /* test & live */ *
