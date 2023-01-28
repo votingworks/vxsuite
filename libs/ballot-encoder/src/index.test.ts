@@ -35,11 +35,18 @@ import {
   Prelude,
   HmpbPrelude,
   WriteInEncoding,
+  sliceElectionHash,
 } from './index';
 
 function falses(count: number): boolean[] {
   return Array.from({ length: count }, () => false);
 }
+
+test('sliceElectionHash', () => {
+  expect(sliceElectionHash('0000000000000000000000000')).toEqual(
+    '00000000000000000000'
+  );
+});
 
 test('can detect an encoded ballot', () => {
   expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude))).toEqual(true);
