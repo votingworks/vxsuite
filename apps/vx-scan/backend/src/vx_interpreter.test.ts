@@ -20,6 +20,7 @@ import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
+import { replaceSnapshotValues } from '@votingworks/test-utils';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
@@ -29,6 +30,16 @@ import { createInterpreter } from './interpret';
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
+
+jest.mock('@votingworks/ballot-encoder', () => {
+  return {
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // to allow changing election definitions without changing the image fixtures
+    // TODO: generate image fixtures from election definitions more easily
+    // this election hash is for the MS demo fixtures
+    sliceElectionHash: () => 'b0260b4e9d492dab3813',
+  };
+});
 
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
@@ -294,16 +305,19 @@ test('interprets marks on an upside-down HMPB', async () => {
 
   const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
   expect(
-    (
-      await interpreter.interpretFile({
-        ballotImagePath,
-        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-      })
-    ).interpretation as InterpretedHmpbPage
+    replaceSnapshotValues(
+      (
+        await interpreter.interpretFile({
+          ballotImagePath,
+          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+        })
+      ).interpretation as InterpretedHmpbPage,
+      { expectedElectionHash: expect.anything() }
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "actualElectionHash": "602c9b551d08a348c3e1",
-      "expectedElectionHash": "965aa0b918b9bab9a2a4",
+      "expectedElectionHash": Anything,
       "type": "InvalidElectionHashPage",
     }
   `);

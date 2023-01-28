@@ -26,6 +26,14 @@ import { Api } from './app';
 import { SheetInterpretation } from './types';
 
 jest.setTimeout(20_000);
+jest.mock('@votingworks/ballot-encoder', () => {
+  return {
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // to allow changing election definitions without changing the image fixtures
+    // TODO: generate image fixtures from election definitions more easily
+    sliceElectionHash: () => 'da81438d51136692b43c',
+  };
+});
 
 async function scanBallot(
   mockPlustek: MockScannerClient,

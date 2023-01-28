@@ -50,6 +50,14 @@ export const MAXIMUM_PAGE_NUMBERS = 30;
 export const ELECTION_HASH_LENGTH = 20;
 
 /**
+ * Slices an election hash down to the length used in ballot encoding. Useful
+ * to have this as a utility function so it can be mocked in other modules' tests.
+ */
+export function sliceElectionHash(electionHash: string): string {
+  return electionHash.slice(0, ELECTION_HASH_LENGTH);
+}
+
+/**
  * Which locales we support as ISO 639-1 codes.
  *
  * Pad this locale array so the same code can later be upgraded to support other
