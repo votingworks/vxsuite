@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AdjudicationReason, BallotType } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
@@ -6,16 +6,9 @@ import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
+import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
-
-jest.mock('@votingworks/types', () => {
-  return {
-    ...jest.requireActual('@votingworks/types'),
-    // mock election hash so snapshots don't change with every change to the election definition
-    getDisplayElectionHash: () => '0000000000',
-  };
-});
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
@@ -40,7 +33,7 @@ test('says the sheet is unreadable if it is', async () => {
   const logger = fakeLogger();
   const continueScanning = jest.fn();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
     { logger }
   );
@@ -49,7 +42,14 @@ test('says the sheet is unreadable if it is', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Unreadable');
+  screen.getByText('The last scanned ballot was not tabulated.');
+  screen.getByText(
+    'There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.'
+  );
+  expect(screen.getByRole('button').textContent).toEqual(
+    'The ballot has been removed'
+  );
 
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
@@ -59,7 +59,7 @@ test('says the sheet is unreadable if it is', async () => {
       adjudicationTypes: 'BlankPage',
     })
   );
-  fireEvent.click(getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -138,7 +138,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   const continueScanning = jest.fn();
   const logger = fakeLogger();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
     { logger }
   );
@@ -147,7 +147,10 @@ test('says the ballot sheet is overvoted if it is', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Overvote');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because an overvote was detected.'
+  );
 
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
@@ -158,14 +161,14 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Remove to Adjudicate'));
-  fireEvent.click(getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to Adjudicate'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate As Is'));
-  fireEvent.click(getByText('Yes, tabulate ballot as is'));
+  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
   });
@@ -246,7 +249,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   const continueScanning = jest.fn();
   const logger = fakeLogger();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
     { logger }
   );
@@ -255,7 +258,11 @@ test('says the ballot sheet is undervoted if it is', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Undervote');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because an undervote was detected.'
+  );
+
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
@@ -265,14 +272,14 @@ test('says the ballot sheet is undervoted if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Remove to Adjudicate'));
-  fireEvent.click(getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to Adjudicate'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate As Is'));
-  fireEvent.click(getByText('Yes, tabulate ballot as is'));
+  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
   });
@@ -360,7 +367,7 @@ test('says the ballot sheet is blank if it is', async () => {
   const continueScanning = jest.fn();
   const logger = fakeLogger();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
     { logger }
   );
@@ -369,7 +376,11 @@ test('says the ballot sheet is blank if it is', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Blank Ballot');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because no votes were detected.'
+  );
+
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
@@ -379,14 +390,14 @@ test('says the ballot sheet is blank if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Remove to Adjudicate'));
-  fireEvent.click(getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to Adjudicate'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate As Is'));
-  fireEvent.click(getByText('Yes, tabulate ballot as is'));
+  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
   });
@@ -437,7 +448,7 @@ test('calls out live ballot sheets in test mode', async () => {
   const continueScanning = jest.fn();
   const logger = fakeLogger();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
     { logger }
   );
@@ -446,7 +457,13 @@ test('calls out live ballot sheets in test mode', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Live Ballot');
+  screen.getByText('The last scanned ballot was not tabulated.');
+  screen.getByText('Remove the LIVE ballot before continuing.');
+  expect(screen.getByRole('button').textContent).toEqual(
+    'The ballot has been removed'
+  );
+
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
@@ -456,7 +473,7 @@ test('calls out live ballot sheets in test mode', async () => {
     })
   );
 
-  fireEvent.click(getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -505,7 +522,7 @@ test('calls out test ballot sheets in live mode', async () => {
   const continueScanning = jest.fn();
   const logger = fakeLogger();
 
-  const { container, getByText } = renderInAppContext(
+  renderInAppContext(
     <BallotEjectScreen
       continueScanning={continueScanning}
       isTestMode={false}
@@ -517,7 +534,13 @@ test('calls out test ballot sheets in live mode', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(container).toMatchSnapshot();
+  screen.getByText('Test Ballot');
+  screen.getByText('The last scanned ballot was not tabulated.');
+  screen.getByText('Remove the TEST ballot before continuing.');
+  expect(screen.getByRole('button').textContent).toEqual(
+    'The ballot has been removed'
+  );
+
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
@@ -527,7 +550,7 @@ test('calls out test ballot sheets in live mode', async () => {
     })
   );
 
-  fireEvent.click(getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -582,6 +605,6 @@ test('shows invalid election screen when appropriate', async () => {
     })
   );
 
-  fireEvent.click(getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
