@@ -1,7 +1,63 @@
 import React from 'react';
-import { DecoratorFunction, Parameters } from '@storybook/types';
+import { DecoratorFunction, GlobalTypes, InputType, Parameters } from '@storybook/types';
 
 import { AppBase } from '../src';
+import { ColorMode, SizeMode } from '@votingworks/types';
+
+// TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
+// the @storybook/types repo.
+interface ToolbarItem<T> {
+  value: T, title: string, left?: string
+}
+
+type ColorModeToolBarItem = ToolbarItem<ColorMode>;
+
+type SizeModeToolBarItem = ToolbarItem<SizeMode>;
+
+const DEFAULT_SIZE_MODE: SizeMode = "l";
+const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
+  s: { title: 'Size Theme - S', value: 's'},
+  m: { title: 'Size Theme - M', value: 'm'},
+  l: { title: 'Size Theme - L', value: 'l'},
+  xl: { title: 'Size Theme - XL', value: 'xl'},
+  legacy: { title: 'Size Theme - Legacy', value: 'legacy'},
+}
+
+const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
+const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
+  contrastHighLight: { title: 'Color Theme - Light', value: 'contrastHighLight'},
+  contrastHighDark: { title: 'Color Theme - Dark', value: 'contrastHighDark'},
+  contrastMedium: { title: 'Color Theme - Medium', value: 'contrastMedium'},
+  legacy: { title: 'Color Theme - Legacy', value: 'legacy'},
+}
+
+/**
+ * Defines global types that are passed through the story context to all stories
+ * rendered in the storybook UI.
+ *
+ * The theme types are consumed below in {@link decorators} to set the VX theme
+ * for all components that support theming.
+ */
+export const globalTypes: GlobalTypes = {
+  colorMode: {
+    name: 'Color Theme',
+    toolbar: {
+      icon: 'sun',
+      items: Object.values(colorThemeToolBarItems),
+      dynamicTitle: true,
+    },
+    defaultValue: DEFAULT_COLOR_MODE,
+  },
+  sizeMode: {
+    name: 'Size Theme',
+    toolbar: {
+      icon: 'ruler',
+      items: Object.values(sizeThemeToolBarItems),
+      dynamicTitle: true,
+    },
+    defaultValue: DEFAULT_SIZE_MODE,
+  },
+};
 
 export const parameters: Parameters = {
   // This defines which prop name patterns are recognized as event handler
@@ -28,11 +84,16 @@ export const parameters: Parameters = {
 export const decorators: DecoratorFunction[] = [
   (
     Story: any, // Original type here isn't inferred as a React render function
+    context
   ) => {
     return (
-      <AppBase>
+      <AppBase
+        colorMode={context.globals.colorMode}
+        sizeMode={context.globals.sizeMode}
+      >
         <Story />
       </AppBase>
     );
   },
 ];
+
