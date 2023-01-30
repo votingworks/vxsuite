@@ -11,6 +11,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  getDisplayElectionHash,
   YesNoVote,
 } from '@votingworks/types';
 import arrayUnique from 'array-unique';
@@ -23,14 +24,6 @@ import {
   generateTestDeckBallots,
 } from './election';
 
-jest.mock('@votingworks/types', () => {
-  return {
-    ...jest.requireActual('@votingworks/types'),
-    // mock election hash so snapshots don't change with every change to the election definition
-    getDisplayElectionHash: () => '0000000000',
-  };
-});
-
 test('getBallotPath allows digits in file names', () => {
   expect(
     getBallotPath({
@@ -42,7 +35,9 @@ test('getBallotPath allows digits in file names', () => {
       isAbsentee: true,
     })
   ).toEqual(
-    'election-0000000000-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf'
+    `election-${getDisplayElectionHash(
+      electionSampleDefinition
+    )}-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf`
   );
 });
 

@@ -1,7 +1,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { getDisplayElectionHash } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';
@@ -11,14 +13,6 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportBallotPdfsButton } from './export_ballot_pdfs_button';
 
 jest.mock('../components/hand_marked_paper_ballot');
-
-jest.mock('@votingworks/types', () => {
-  return {
-    ...jest.requireActual('@votingworks/types'),
-    // mock election hash so snapshots don't change with every change to the election definition
-    getDisplayElectionHash: () => '0000000000',
-  };
-});
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
@@ -93,7 +87,9 @@ test('modal happy path flow works', async () => {
   expect(window.kiosk.makeDirectory).toHaveBeenCalledTimes(1);
   expect(window.kiosk.writeFile).toHaveBeenCalledTimes(1);
   expect(window.kiosk.writeFile).toHaveBeenCalledWith(
-    'fake mount point/ballot-pdfs/ballot-pdfs-election-0000000000-live.zip'
+    `fake mount point/ballot-pdfs/ballot-pdfs-election-${getDisplayElectionHash(
+      electionWithMsEitherNeitherDefinition
+    )}-live.zip`
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -121,7 +117,9 @@ test('can select options to save different ballots', async () => {
   await within(modal).findByText('Ballot PDFs Saved');
 
   expect(window.kiosk!.writeFile).toHaveBeenCalledWith(
-    'fake mount point/ballot-pdfs/ballot-pdfs-election-0000000000-sample-absentee.zip'
+    `fake mount point/ballot-pdfs/ballot-pdfs-election-${getDisplayElectionHash(
+      electionWithMsEitherNeitherDefinition
+    )}-sample-absentee.zip`
   );
 });
 
