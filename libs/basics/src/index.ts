@@ -8,3 +8,4 @@ export * from './in_groups_of';
 export * from './iterators';
 export * from './result';
 export * from './sleep';
+export * from './typed_as';

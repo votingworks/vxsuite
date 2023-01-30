@@ -1,11 +1,11 @@
 import { Exporter } from '@votingworks/data';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { CastVoteRecord } from '@votingworks/types';
+import { typedAs } from '@votingworks/basics';
 import {
   BallotPackageManifest,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
-  typedAs,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';

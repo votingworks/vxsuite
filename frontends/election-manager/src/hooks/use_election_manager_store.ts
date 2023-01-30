@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   LogDispositionStandardTypes,
   LogEventId,
@@ -11,7 +11,6 @@ import {
   FullElectionExternalTallies,
   FullElectionExternalTally,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';

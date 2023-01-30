@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import * as config from './config';
 

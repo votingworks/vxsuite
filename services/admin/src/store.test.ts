@@ -10,7 +10,7 @@ import {
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
 import { BallotId, CastVoteRecord } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
 import { join } from 'path';

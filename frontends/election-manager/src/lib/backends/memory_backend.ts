@@ -16,9 +16,8 @@ import {
 import {
   castVoteRecordVoteIsWriteIn,
   castVoteRecordVotes,
-  typedAs,
 } from '@votingworks/utils';
-import { assert, find, groupBy } from '@votingworks/basics';
+import { assert, find, groupBy, typedAs } from '@votingworks/basics';
 import { v4 as uuid } from 'uuid';
 import { CastVoteRecordFile } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';

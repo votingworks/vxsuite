@@ -1,5 +1,5 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { ImageData } from 'canvas';
 import { readFixtureImage } from '../../../test/fixtures';
 import { testImageDebugger } from '../../../test/utils';

@@ -13,11 +13,11 @@ import {
   makePollWorkerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
+import { typedAs } from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
   ReportSourceMachineType,
-  typedAs,
   ScannerBallotCountReportData,
   ScannerTallyReportData,
 } from '@votingworks/utils';

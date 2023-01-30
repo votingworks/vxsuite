@@ -4,7 +4,7 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import {
   describeValidationError,
   validateSheetInterpretation,

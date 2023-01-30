@@ -2,7 +2,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AdjudicationReason, BallotType } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';

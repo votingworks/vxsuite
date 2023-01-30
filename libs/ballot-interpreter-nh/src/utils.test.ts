@@ -1,4 +1,4 @@
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { Rect, Segment } from './types';
 import {

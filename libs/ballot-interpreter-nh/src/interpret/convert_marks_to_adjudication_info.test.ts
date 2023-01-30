@@ -4,8 +4,7 @@ import {
   AdjudicationReason,
   GridPosition,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { typedAs, assert } from '@votingworks/basics';
 import { makeRect, vec } from '../utils';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 

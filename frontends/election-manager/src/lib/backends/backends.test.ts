@@ -12,7 +12,8 @@ import {
   safeParseJson,
   VotingMethod,
 } from '@votingworks/types';
-import { MemoryStorage, typedAs } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';

@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { BallotId, CastVoteRecord, Id, unsafeParse } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import { promises as fs } from 'fs';

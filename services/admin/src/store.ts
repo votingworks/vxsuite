@@ -3,7 +3,7 @@
 //
 
 import { Admin } from '@votingworks/api';
-import { assert, Result, err, ok } from '@votingworks/basics';
+import { assert, Result, err, ok, typedAs } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
@@ -18,11 +18,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import {
-  ParseCastVoteRecordResult,
-  parseCvrs,
-  typedAs,
-} from '@votingworks/utils';
+import { ParseCastVoteRecordResult, parseCvrs } from '@votingworks/utils';
 import * as fs from 'fs';
 import { join } from 'path';
 import * as readline from 'readline';

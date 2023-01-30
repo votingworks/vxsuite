@@ -19,7 +19,8 @@ import {
   makeElectionManagerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { typedAs, sleep } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import {
   ElectionManagerCardData,
@@ -27,7 +28,6 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { sleep } from '@votingworks/basics';
 import { download } from './util/download';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';

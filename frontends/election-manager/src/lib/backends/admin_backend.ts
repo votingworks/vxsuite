@@ -1,5 +1,5 @@
 import { Admin, fetchWithSchema } from '@votingworks/api';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   CastVoteRecord,
@@ -18,7 +18,6 @@ import {
   fetchJson,
   parseCvrFileInfoFromFilename,
   Storage,
-  typedAs,
 } from '@votingworks/utils';
 import { z } from 'zod';
 import {

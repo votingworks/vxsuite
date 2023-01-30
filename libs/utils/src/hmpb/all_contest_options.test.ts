@@ -7,7 +7,7 @@ import {
 import { ContestOption } from '@votingworks/types';
 import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
-import { typedAs } from '../types';
+import { typedAs } from '@votingworks/basics';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
