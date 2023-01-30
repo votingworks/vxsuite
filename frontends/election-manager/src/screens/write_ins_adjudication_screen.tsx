@@ -5,7 +5,8 @@ import {
   Id,
 } from '@votingworks/types';
 import { Button, Loading, Main, Prose, Screen, Text } from '@votingworks/ui';
-import { assert, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
