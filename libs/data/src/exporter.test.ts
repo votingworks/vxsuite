@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { err, ok } from '@votingworks/types';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { readFile, symlink, writeFile } from 'fs/promises';
 import { join } from 'path';

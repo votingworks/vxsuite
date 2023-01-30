@@ -13,7 +13,7 @@ import {
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import { zip } from '@votingworks/utils';
+import { zip } from '@votingworks/basics';
 import express, { Application } from 'express';
 import compression from 'compression';
 import * as fs from 'fs/promises';

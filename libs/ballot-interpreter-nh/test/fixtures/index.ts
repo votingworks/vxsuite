@@ -1,6 +1,6 @@
 import { toImageData } from '@votingworks/image-utils';
 import { BallotPaperSize } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { Image } from 'canvas';
 import { BallotCardTemplateMargins } from '../../src/accuvote';

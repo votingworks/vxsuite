@@ -8,8 +8,14 @@ import {
   ScannerError,
 } from '@votingworks/plustek-sdk';
 import { v4 as uuid } from 'uuid';
-import { err, Id, ok, Result, SheetOf } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { Id, SheetOf } from '@votingworks/types';
+import {
+  assert,
+  throwIllegalValue,
+  err,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import {
   assign as xassign,

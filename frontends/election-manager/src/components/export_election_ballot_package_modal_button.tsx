@@ -14,13 +14,12 @@ import {
 
 import { Admin } from '@votingworks/api';
 import {
-  assert,
   generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
   usbstick,
-  throwIllegalValue,
   BallotConfig,
 } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Monospace,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   UsbDriveStatus,
   useExternalStateChangeListener,

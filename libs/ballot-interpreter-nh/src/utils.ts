@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Bit, Point, Rect, Segment, Vector } from './types';
 
 /**

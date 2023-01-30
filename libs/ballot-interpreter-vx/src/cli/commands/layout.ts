@@ -7,15 +7,12 @@ import {
 import {
   BallotTargetMarkPosition,
   BallotTargetMarkPositionSchema,
-  err,
-  ok,
   Point,
   Rect,
-  Result,
   safeParse,
   TargetShape,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { createImageData } from 'canvas';
 import chalk from 'chalk';
 import { basename } from 'path';

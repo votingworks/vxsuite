@@ -19,7 +19,8 @@ import {
   makeElectionManagerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { typedAs, sleep } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import {
   ElectionManagerCardData,

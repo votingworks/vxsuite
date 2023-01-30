@@ -1,17 +1,14 @@
+import { Result, groupBy, err, ok } from '@votingworks/basics';
 import { Debugger, noDebug } from '@votingworks/image-utils';
 import {
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotPageLayout,
   Contests,
-  err,
   GridLayout,
   HmpbBallotPageMetadata,
-  ok,
   Rect,
-  Result,
 } from '@votingworks/types';
-import { groupBy } from '@votingworks/utils';
 import { Size } from '../types';
 import { loc } from '../utils';
 import { InterpretBallotCardLayoutResult } from './interpret_ballot_card_layout';

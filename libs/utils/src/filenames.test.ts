@@ -4,6 +4,7 @@ import {
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { Election, ElectionDefinition } from '@votingworks/types';
+import { typedAs } from '@votingworks/basics';
 import {
   parseBallotExportPackageInfoFromFilename,
   generateElectionBasedSubfolderName,
@@ -19,7 +20,6 @@ import {
   LogFileType,
   generateSemsFinalExportDefaultFilename,
 } from './filenames';
-import { typedAs } from './types';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
   test('parses a basic name properly', () => {

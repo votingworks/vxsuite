@@ -2,11 +2,12 @@ import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
-import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { assert } from '@votingworks/basics';
 import { ordinal } from '../utils/ordinal';
 
 import { BallotContext } from '../contexts/ballot_context';

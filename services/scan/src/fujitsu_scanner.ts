@@ -1,4 +1,4 @@
-import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
+import { assert, deferredQueue, throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';

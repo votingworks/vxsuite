@@ -11,7 +11,7 @@ import {
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
 
 // Events

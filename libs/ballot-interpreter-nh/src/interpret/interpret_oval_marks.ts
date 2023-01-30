@@ -11,7 +11,8 @@ import {
   writeImageData,
 } from '@votingworks/image-utils';
 import { GridLayout, GridPosition } from '@votingworks/types';
-import { assert, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import makeDebug, { Debugger } from 'debug';
 import { BallotCardGeometry, InterpretedOvalMark, Point } from '../types';
 import { loc, makeRect, vec } from '../utils';

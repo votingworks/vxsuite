@@ -35,6 +35,7 @@
     ]
   },
   "dependencies": {
+    "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "jsdom": "^19.0.0",

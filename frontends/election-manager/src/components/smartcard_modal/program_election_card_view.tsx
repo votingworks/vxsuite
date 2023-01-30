@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert, generatePin } from '@votingworks/utils';
+import { generatePin } from '@votingworks/utils';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
+import { assert } from '@votingworks/basics';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {

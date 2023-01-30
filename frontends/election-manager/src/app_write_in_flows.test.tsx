@@ -5,7 +5,8 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,
   fakeKiosk,

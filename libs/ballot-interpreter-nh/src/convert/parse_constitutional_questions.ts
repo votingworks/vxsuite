@@ -1,4 +1,5 @@
-import { err, ok, Result, safeParseInt } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
+import { safeParseInt } from '@votingworks/types';
 import makeDebug from 'debug';
 import { parseHtml } from './dom_parser';
 

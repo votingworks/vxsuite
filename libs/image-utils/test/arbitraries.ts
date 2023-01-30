@@ -1,5 +1,5 @@
 import { Rect } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
 import {

@@ -1,4 +1,4 @@
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { join } from 'path';
 import * as general2020Fixtures from '../../test/fixtures/2020-general';

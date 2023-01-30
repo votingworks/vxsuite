@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+import { assert } from '@votingworks/basics';
 import {
   electionSampleDefinition,
   electionSample2Definition,
@@ -11,7 +12,7 @@ import {
   makePollWorkerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { assert, MemoryCard } from '@votingworks/utils';
+import { MemoryCard } from '@votingworks/utils';
 
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 

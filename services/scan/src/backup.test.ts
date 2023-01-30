@@ -1,7 +1,7 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import { writeFileSync } from 'fs';

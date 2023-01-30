@@ -20,9 +20,7 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { assert, throwIllegalValue } from './assert';
-import { find } from './find';
-import { typedAs } from './types';
+import { assert, throwIllegalValue, find, typedAs } from '@votingworks/basics';
 import {
   CastVoteRecordFilters,
   computeTallyWithPrecomputedCategories,

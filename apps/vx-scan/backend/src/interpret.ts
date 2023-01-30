@@ -4,14 +4,11 @@ import {
   AdjudicationReasonInfo,
   BallotPageLayoutWithImage,
   ElectionDefinition,
-  err,
   Id,
   MarkThresholds,
-  ok,
   Optional,
   PageInterpretationWithFiles,
   PrecinctSelection,
-  Result,
   mapSheet,
   SheetOf,
 } from '@votingworks/types';
@@ -20,6 +17,7 @@ import {
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
+import { err, ok, Result } from '@votingworks/basics';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';

@@ -11,7 +11,7 @@ import {
   PartyId,
   writeInCandidate,
 } from '@votingworks/types';
-import { assert, collections, groupBy } from '@votingworks/utils';
+import { assert, collections, groupBy } from '@votingworks/basics';
 
 export type CountsByContestAndCandidateName = Map<
   ContestId,

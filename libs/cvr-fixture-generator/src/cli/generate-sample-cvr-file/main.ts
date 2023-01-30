@@ -3,7 +3,8 @@ import {
   CastVoteRecord,
   unsafeParse,
 } from '@votingworks/types';
-import { readBallotPackageFromBuffer, takeAsync } from '@votingworks/utils';
+import { takeAsync } from '@votingworks/basics';
+import { readBallotPackageFromBuffer } from '@votingworks/utils';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
 import { generateCvrs, IncludeBallotImagesOption } from '../../generate_cvrs';

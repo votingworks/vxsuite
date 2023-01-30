@@ -1,3 +1,4 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Loading,
@@ -6,7 +7,7 @@ import {
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
-import { throwIllegalValue, usbstick } from '@votingworks/utils';
+import { usbstick } from '@votingworks/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { backupToUsbDrive } from '../api';

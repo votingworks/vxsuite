@@ -1,5 +1,5 @@
 import { fakeChildProcess } from '@votingworks/test-utils';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 import * as cp from 'child_process';
 import { mocked } from 'ts-jest/utils';
 import { DEFAULT_CONFIG } from './config';

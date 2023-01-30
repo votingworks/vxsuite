@@ -1,4 +1,4 @@
-import { err, isResult, ok, Result } from '@votingworks/types';
+import { err, isResult, ok, Result } from '@votingworks/basics';
 import {
   isArray,
   isBoolean,

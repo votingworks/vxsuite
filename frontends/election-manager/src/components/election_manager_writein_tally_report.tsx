@@ -15,7 +15,7 @@ import {
   unsafeParse,
   VotingMethod,
 } from '@votingworks/types';
-import { find } from '@votingworks/utils';
+import { find } from '@votingworks/basics';
 import React from 'react';
 import {
   combineWriteInCounts,

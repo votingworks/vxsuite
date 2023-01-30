@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 
-import { assert, find } from '@votingworks/utils';
+import { assert, find } from '@votingworks/basics';
 import {
   Button,
   SegmentedButton,

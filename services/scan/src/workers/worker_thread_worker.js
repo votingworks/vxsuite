@@ -6,7 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('esbuild-runner/register');
 }
 
-const { ok, wrapException } = require('@votingworks/types');
+const { ok, wrapException } = require('@votingworks/basics');
 const { resolve } = require('path');
 const { parentPort, workerData } = require('worker_threads');
 const json = require('./json_serialization');

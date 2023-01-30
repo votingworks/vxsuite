@@ -10,7 +10,6 @@ import {
   makeVoterCard,
 } from '@votingworks/test-utils';
 import {
-  assert,
   MemoryCard,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
@@ -18,6 +17,7 @@ import {
   OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
 import { useSmartcard } from './use_smartcard';
 
 const cardReader: KioskBrowser.Device = {

@@ -4,7 +4,7 @@ import {
   BallotPageMetadata,
   ElectionDefinition,
 } from '@votingworks/types';
-import { map, reversed } from '@votingworks/utils';
+import { map, reversed } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';

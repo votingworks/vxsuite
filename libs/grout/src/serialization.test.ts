@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { err, ok } from '@votingworks/types';
+import { err, ok } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization';
 
 // Note that instead of using a table of test cases, we're using a series of

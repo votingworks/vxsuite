@@ -14,9 +14,10 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false,
+    "noUncheckedIndexedAccess": false
   },
   "references": [
+    { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },

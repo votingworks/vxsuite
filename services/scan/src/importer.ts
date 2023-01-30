@@ -3,20 +3,18 @@ import {
   normalizeSheetOutput,
   QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
+import { err, find, ok, Result, sleep } from '@votingworks/basics';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
-  err,
   MarkThresholds,
-  ok,
   PageInterpretation,
   PageInterpretationWithFiles,
-  Result,
   SheetOf,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION, find, sleep } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';

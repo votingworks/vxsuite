@@ -18,7 +18,7 @@ import {
   FullElectionExternalTally,
 } from '@votingworks/types';
 
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';

@@ -1,4 +1,4 @@
-import { err, ok } from '@votingworks/types';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { makeMockWorkerOps } from '../../test/util/mocks';

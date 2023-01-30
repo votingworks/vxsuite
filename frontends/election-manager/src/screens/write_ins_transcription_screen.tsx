@@ -17,7 +17,8 @@ import {
   Prose,
   HorizontalRule,
 } from '@votingworks/ui';
-import { assert, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';

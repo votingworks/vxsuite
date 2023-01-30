@@ -7,11 +7,11 @@ import {
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
-  assert,
   getPrecinctSelectionName,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import { Select } from './select';
 import { Button } from './button';
 import { Modal } from './modal';

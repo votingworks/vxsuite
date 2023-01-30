@@ -7,7 +7,7 @@ import {
   useCancelablePromise,
   Prose,
 } from '@votingworks/ui';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
 import { AppContext } from '../contexts/app_context';
 

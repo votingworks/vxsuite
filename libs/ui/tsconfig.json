@@ -13,12 +13,13 @@
   "include": ["src"],
   "exclude": [],
   "references": [
-    { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
-    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/logging/tsconfig.build.json" },
-    { "path": "../../libs/test-utils/tsconfig.build.json" },
-    { "path": "../../libs/types/tsconfig.build.json" },
-    { "path": "../../libs/utils/tsconfig.build.json" }
+    { "path": "../ballot-encoder/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../logging/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

@@ -14,7 +14,7 @@ import {
   ElectionInfoBar,
 } from '@votingworks/ui';
 
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 const InsertCardImage = styled.img`

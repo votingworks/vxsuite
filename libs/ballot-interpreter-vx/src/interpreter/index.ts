@@ -35,7 +35,8 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
-import { assert, format, map, zip, zipMin } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
+import { assert, map, zip, zipMin } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';

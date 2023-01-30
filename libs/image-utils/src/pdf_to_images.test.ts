@@ -1,5 +1,5 @@
 import { Size } from '@votingworks/types';
-import { takeAsync } from '@votingworks/utils';
+import { takeAsync } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { GlobalWorkerOptions } from 'pdfjs-dist';

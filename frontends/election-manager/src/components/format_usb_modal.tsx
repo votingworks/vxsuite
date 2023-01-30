@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import {
   Button,

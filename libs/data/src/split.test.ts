@@ -1,4 +1,4 @@
-import { zip } from '@votingworks/utils';
+import { zip } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { execFileSync } from 'child_process';
 import * as fc from 'fast-check';

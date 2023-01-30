@@ -1,6 +1,6 @@
 import { ElectionDefinition } from '@votingworks/types';
 import { useQueryChangeListener } from '@votingworks/ui';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import { acceptBallot, getScannerStatus, scanBallot } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';

@@ -2,6 +2,7 @@
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import * as z from 'zod';
+import { ok, Result } from '@votingworks/basics';
 import {
   Dictionary,
   ElectionHash,
@@ -23,7 +24,6 @@ import {
   Size,
   SizeSchema,
 } from './geometry';
-import { ok, Result } from './result';
 
 // Generic
 export type Translations = Record<string, Record<string, string> | undefined>;

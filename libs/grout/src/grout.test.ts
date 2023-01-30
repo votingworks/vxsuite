@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { AddressInfo } from 'net';
 import express from 'express';
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
 import { AnyApi, buildRouter, createApi } from './server';

@@ -1,7 +1,7 @@
 import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
 import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Interpreter } from '../interpreter';
 import { Store } from '../store';

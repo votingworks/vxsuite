@@ -1,5 +1,5 @@
 import { CandidateContest } from '@votingworks/types';
-import { collections, groupBy, take } from '@votingworks/utils';
+import { collections, groupBy, take } from '@votingworks/basics';
 import {
   WriteInAdjudicationTable,
   WriteInAdjudicationTableAdjudicatedRow,

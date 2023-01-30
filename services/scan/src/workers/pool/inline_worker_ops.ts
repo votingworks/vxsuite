@@ -1,5 +1,4 @@
-import { ok, Result, wrapException } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { ok, Result, wrapException, assert } from '@votingworks/basics';
 import { EventEmitter } from 'events';
 import * as json from '../json_serialization';
 import { WorkerOps } from './types';

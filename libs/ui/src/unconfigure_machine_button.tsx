@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 
 import { Button } from './button';
 import { Loading } from './loading';

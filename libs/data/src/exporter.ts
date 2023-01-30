@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
 import { mkdir, writeFile } from 'fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';

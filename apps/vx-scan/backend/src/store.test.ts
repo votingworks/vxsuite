@@ -16,14 +16,13 @@ import {
   BallotConfig,
   BallotPackageEntry,
   singlePrecinctSelectionFor,
-  sleep,
-  typedAs,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { readFileSync } from 'fs';
+import { sleep, typedAs } from '@votingworks/basics';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { ResultSheet, Store } from './store';

@@ -391,6 +391,28 @@ jobs:
       - store_test_results:
           path: libs/ballot-interpreter-vx/reports/
 
+  test-libs-basics:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/basics build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/basics lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/basics test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/basics/reports/
+
   test-libs-cdf-schema-builder:
     executor: nodejs
     resource_class: xlarge
@@ -904,6 +926,7 @@ workflows:
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
+      - test-libs-basics
       - test-libs-cdf-schema-builder
       - test-libs-cdf-types-cast-vote-records
       - test-libs-cdf-types-election-event-logging

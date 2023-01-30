@@ -22,6 +22,9 @@ export function map<T, U>(
   fn: (value: T, index: number) => U
 ): U[];
 
+/**
+ * Maps values from a map, set, or array to another map, set, or array.
+ */
 export function map<T, U>(
   collection: ReadonlyMap<unknown, T> | ReadonlySet<T> | readonly T[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,6 +74,9 @@ export function reduce<T, U>(
   initial: U
 ): U;
 
+/**
+ * Reduces values from a map, set, or array to a single value.
+ */
 export function reduce<T, U>(
   collection: ReadonlyMap<unknown, T> | ReadonlySet<T> | readonly T[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

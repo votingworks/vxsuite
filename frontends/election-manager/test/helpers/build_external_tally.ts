@@ -5,7 +5,7 @@ import {
   Election,
   ExternalTally,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,

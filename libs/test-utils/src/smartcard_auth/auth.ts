@@ -6,8 +6,8 @@ import {
   PollWorkerUser,
   VoterUser,
   CardlessVoterUser,
-  ok,
 } from '@votingworks/types';
+import { ok } from '@votingworks/basics';
 
 export function fakeCardStorage(props: Partial<CardStorage> = {}): CardStorage {
   return {

@@ -174,7 +174,7 @@ export function ok<E>(): Result<void, E>;
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function ok<T, E>(value: T): Result<T, E>;
-// eslint-disable-next-line vx/gts-no-return-type-only-generics
+// eslint-disable-next-line vx/gts-no-return-type-only-generics, vx/gts-jsdoc
 export function ok<T, E>(value: T = undefined as unknown as T): Result<T, E> {
   return new Ok(value);
 }
@@ -196,7 +196,9 @@ export function wrapException<T>(error: unknown): Result<T, Error> {
 
 // Export just the interfaces, not the classes. This encourages the use of
 // `ok` and `err` constructors instead of the class constructors.
+// eslint-disable-next-line vx/gts-jsdoc
 type OkInterface<T> = Ok<T>;
+// eslint-disable-next-line vx/gts-jsdoc
 type ErrInterface<T> = Err<T>;
 // Allow `export type` here so we can use `isolatedModules`.
 // eslint-disable-next-line vx/gts-no-import-export-type

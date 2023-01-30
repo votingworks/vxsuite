@@ -6,12 +6,11 @@ import { BallotLocale } from '@votingworks/types';
 
 import { Admin } from '@votingworks/api';
 import {
-  assert,
   usbstick,
-  throwIllegalValue,
   BallotStyleData,
   BALLOT_PDFS_FOLDER,
 } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Modal,

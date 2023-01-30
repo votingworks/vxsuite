@@ -1,4 +1,5 @@
 import { Admin, fetchWithSchema } from '@votingworks/api';
+import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   CastVoteRecord,
@@ -14,11 +15,9 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
-  assert,
   fetchJson,
   parseCvrFileInfoFromFilename,
   Storage,
-  typedAs,
 } from '@votingworks/utils';
 import { z } from 'zod';
 import {

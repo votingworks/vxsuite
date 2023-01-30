@@ -1,11 +1,12 @@
 import { Admin } from '@votingworks/api';
+import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { BallotId, CastVoteRecord, Id, unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import { promises as fs } from 'fs';

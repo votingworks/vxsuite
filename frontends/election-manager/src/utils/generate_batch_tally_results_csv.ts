@@ -1,6 +1,5 @@
 import {
   ALL_PARTY_FILTER,
-  assert,
   filterTalliesByParamsAndBatchId,
 } from '@votingworks/utils';
 import {
@@ -10,6 +9,7 @@ import {
   FullElectionTally,
   TallyCategory,
 } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 
 export function* generateRowsForBatchTallyResultsCsv(
   fullElectionTally: FullElectionTally,

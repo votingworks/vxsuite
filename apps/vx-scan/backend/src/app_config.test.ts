@@ -8,11 +8,10 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
-  assert,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { err, ok } from '@votingworks/types';
+import { assert, err, ok } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import { generateCvr } from '@votingworks/test-utils';

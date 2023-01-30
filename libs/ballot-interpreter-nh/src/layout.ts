@@ -1,3 +1,4 @@
+import { assert, err, find, groupBy, ok, Result } from '@votingworks/basics';
 import {
   BallotMetadata,
   BallotPageContestLayout,
@@ -5,11 +6,8 @@ import {
   BallotPageLayout,
   CandidateContest,
   Election,
-  err,
-  ok,
-  Result,
 } from '@votingworks/types';
-import { allContestOptions, assert, find, groupBy } from '@votingworks/utils';
+import { allContestOptions } from '@votingworks/utils';
 import { getScannedBallotCardGeometry } from './accuvote';
 import { computeTimingMarkGrid } from './timing_marks';
 import {

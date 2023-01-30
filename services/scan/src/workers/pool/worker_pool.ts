@@ -1,5 +1,4 @@
-import { Result } from '@votingworks/types';
-import { deferred, Deferred } from '@votingworks/utils';
+import { Result, deferred, Deferred } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { EventEmitter } from 'events';
 import { inspect } from 'util';

@@ -10,12 +10,11 @@ import {
   Tally,
 } from '@votingworks/types';
 import {
-  assert,
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   combineContestTallies,
-  throwIllegalValue,
 } from '@votingworks/utils';
+import { throwIllegalValue, assert } from '@votingworks/basics';
 
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';

@@ -16,7 +16,8 @@ import {
   WriteInCandidate,
   YesNoVote,
 } from '@votingworks/types';
-import { assert, BallotStyleData, find } from '@votingworks/utils';
+import { assert, find } from '@votingworks/basics';
+import { BallotStyleData } from '@votingworks/utils';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 

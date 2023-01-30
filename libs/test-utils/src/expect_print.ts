@@ -4,7 +4,7 @@ import {
   Optional,
   PrintOptions,
 } from '@votingworks/types';
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 
 export class ExpectPrintError extends Error {}
 

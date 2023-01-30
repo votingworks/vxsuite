@@ -18,7 +18,6 @@ import {
   BallotConfig,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
-  typedAs,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
@@ -27,6 +26,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
+import { typedAs } from '@votingworks/basics';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';

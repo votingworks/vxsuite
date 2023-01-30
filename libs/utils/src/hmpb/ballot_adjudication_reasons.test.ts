@@ -7,12 +7,12 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { assert } from '@votingworks/basics';
+import { typedAs } from '@votingworks/basics';
 import {
   ballotAdjudicationReasons,
   adjudicationReasonDescription,
 } from './ballot_adjudication_reasons';
-import { typedAs } from '../types';
-import { assert } from '../assert';
 
 const bestAnimalMammal =
   electionMinimalExhaustiveSampleDefinition.election.contests.find(

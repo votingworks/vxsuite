@@ -1,5 +1,5 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from './button';

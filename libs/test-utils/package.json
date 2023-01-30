@@ -36,6 +36,7 @@
     "@testing-library/react": "^12.1.5",
     "@types/deep-eql": "^4.0.0",
     "@types/node": "16.11.29",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
     "deep-eql": "^4.1.3",

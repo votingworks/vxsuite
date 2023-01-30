@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
 import { findDocForProperty, findDocForType } from './docs';
 import {
   createInterfaceFromDefinition,

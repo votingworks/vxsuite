@@ -1,7 +1,8 @@
 import { Admin } from '@votingworks/api';
+import { assert } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';

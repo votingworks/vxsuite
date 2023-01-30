@@ -5,7 +5,7 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { ElectionEventLogSchema } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';

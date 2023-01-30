@@ -36,6 +36,7 @@
   "dependencies": {
     "@types/kiosk-browser": "workspace:*",
     "@types/node": "16.11.29",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/cdf-types-election-event-logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

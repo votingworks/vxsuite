@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/basics';
 import {
   AdjudicationStatus,
   AdjudicationStatusSchema,
@@ -19,7 +20,6 @@ import {
   PollsStateSchema,
   PrecinctSelection,
   PrecinctSelectionSchema,
-  Result,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {

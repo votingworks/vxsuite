@@ -5,7 +5,7 @@ import {
   PrecinctSelection,
   SinglePrecinctSelection,
 } from '@votingworks/types';
-import { find } from './find';
+import { find } from '@votingworks/basics';
 
 export function singlePrecinctSelectionFor(
   precinctId: PrecinctId

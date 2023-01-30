@@ -1,9 +1,10 @@
+import { typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   HmpbBallotPageMetadata,
   HmpbPageInterpretation,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION, typedAs } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'fs/promises';
 import { dirSync } from 'tmp';
 import { createInterpreter } from './interpret';

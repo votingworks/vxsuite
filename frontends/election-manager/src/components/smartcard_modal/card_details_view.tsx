@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert, generatePin, throwIllegalValue } from '@votingworks/utils';
+import { generatePin } from '@votingworks/utils';
 import {
   Button,
   fontSizeTheme,
@@ -10,6 +10,7 @@ import {
 } from '@votingworks/ui';
 import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {

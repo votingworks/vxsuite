@@ -1,16 +1,16 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { sleep } from '@votingworks/utils';
+import { sleep } from '@votingworks/basics';
 
 import {
   MIN_TIME_TO_UNCONFIGURE_MACHINE_MS,
   UnconfigureMachineButton,
 } from './unconfigure_machine_button';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/basics'),
     sleep: jest.fn(),
   };
 });

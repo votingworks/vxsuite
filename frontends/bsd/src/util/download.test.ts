@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk } from '@votingworks/test-utils';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Optional } from '@votingworks/types';
 import { download } from './download';
 

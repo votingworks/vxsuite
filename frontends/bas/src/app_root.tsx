@@ -15,9 +15,10 @@ import {
   useDevices,
   useStoredState,
 } from '@votingworks/ui';
-import { assert, Hardware, sleep, Storage } from '@votingworks/utils';
+import { Hardware, Storage } from '@votingworks/utils';
 
 import { z } from 'zod';
+import { assert, sleep } from '@votingworks/basics';
 import { EventTargetFunction } from './config/types';
 import { useSmartcard } from './utils/use_smartcard';
 

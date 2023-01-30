@@ -1,5 +1,5 @@
 import { AnyContest, ContestOption } from '@votingworks/types';
-import { throwIllegalValue } from '../assert';
+import { throwIllegalValue } from '@votingworks/basics';
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.

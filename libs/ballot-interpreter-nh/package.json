@@ -21,6 +21,7 @@
   },
   "packageManager": "pnpm@7.24.3",
   "dependencies": {
+    "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

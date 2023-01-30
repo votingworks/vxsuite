@@ -1,4 +1,4 @@
-import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
 import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
+import { assert } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { Wobble } from '../components/animations';

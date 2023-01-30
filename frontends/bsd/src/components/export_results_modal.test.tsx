@@ -7,10 +7,11 @@ import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
 import { Dipped, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { assert, MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { safeParseJson } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';

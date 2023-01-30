@@ -29,6 +29,7 @@
     "**/*.{md,json}": "prettier --write"
   },
   "dependencies": {
+    "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "^4.3.2",

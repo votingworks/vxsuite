@@ -6,7 +6,7 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/utils';
+import { assert, find } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { InterpretedOvalMark } from '../types';
 

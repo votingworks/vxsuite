@@ -24,7 +24,7 @@ import {
   PartyIdSchema,
 } from '@votingworks/types';
 
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import {
   convertTalliesByPrecinctToFullExternalTally,

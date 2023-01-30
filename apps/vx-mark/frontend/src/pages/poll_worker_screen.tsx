@@ -35,15 +35,11 @@ import {
 } from '@votingworks/ui';
 
 import {
-  assert,
   ReportSourceMachineType,
-  find,
   readCompressedTally,
   getPrecinctSelectionName,
   getTallyIdentifier,
   Hardware,
-  sleep,
-  throwIllegalValue,
   getPollsTransitionDestinationState,
   getPollsStateName,
   getPollsReportTitle,
@@ -61,6 +57,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/vx-mark-backend';
 import styled from 'styled-components';
+import { assert, find, sleep, throwIllegalValue } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
 
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';

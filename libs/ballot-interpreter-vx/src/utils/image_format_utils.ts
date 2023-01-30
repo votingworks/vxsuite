@@ -4,7 +4,7 @@ import {
   isRgba,
 } from '@votingworks/image-utils';
 import { Size } from '@votingworks/types';
-import { assert, fail } from '@votingworks/utils';
+import { assert, fail } from '@votingworks/basics';
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
   srcImageData: ImageData,

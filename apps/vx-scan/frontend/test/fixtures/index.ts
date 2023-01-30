@@ -6,7 +6,7 @@ import {
   ElectionDefinition,
   InterpretedHmpbPage,
 } from '@votingworks/types';
-import { find } from '@votingworks/utils';
+import { find } from '@votingworks/basics';
 
 export function interpretedHmpb({
   electionDefinition,

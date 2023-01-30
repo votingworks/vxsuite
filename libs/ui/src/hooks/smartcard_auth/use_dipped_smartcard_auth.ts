@@ -8,14 +8,17 @@ import {
   CardSummary,
   DippedSmartcardAuth,
   ElectionDefinition,
-  err,
-  ok,
   Optional,
-  Result,
   User,
 } from '@votingworks/types';
+import {
+  err,
+  ok,
+  Result,
+  assert,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
-import { assert, throwIllegalValue } from '@votingworks/utils';
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';

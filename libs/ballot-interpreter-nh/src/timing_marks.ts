@@ -4,7 +4,7 @@ import {
   Debugger,
   noDebug,
 } from '@votingworks/image-utils';
-import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
+import { assert, integers, map, zip, zipMin } from '@votingworks/basics';
 import {
   Bit,
   CompleteTimingMarks,

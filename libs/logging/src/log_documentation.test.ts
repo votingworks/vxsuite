@@ -1,6 +1,6 @@
 import { ElectionEventLogDocumentationSchema } from '@votingworks/cdf-types-election-event-logging';
 import { safeParseJson } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import MockDate from 'mockdate';
 import * as fs from 'fs';
 import { LogEventId } from './log_event_ids';

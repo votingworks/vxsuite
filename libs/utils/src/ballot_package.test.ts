@@ -4,6 +4,7 @@ import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { typedAs } from '@votingworks/basics';
 import {
   BallotPackageEntry,
   BallotPackageManifest,
@@ -11,7 +12,6 @@ import {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from './ballot_package';
-import { typedAs } from './types';
 
 test('readBallotPackageFromFile finds all expected ballots', async () => {
   const file = new File(

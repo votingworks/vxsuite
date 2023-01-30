@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import MemoryStream from 'memorystream';
 import { Readable } from 'stream';
 import { main } from '../src/cli';

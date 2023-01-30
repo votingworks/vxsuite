@@ -13,14 +13,16 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import {
-  assert,
   BallotPackage,
   BallotPackageEntry,
   castVoteRecordHasWriteIns,
+} from '@votingworks/utils';
+import {
+  assert,
   mapAsync,
   takeAsync,
   throwIllegalValue,
-} from '@votingworks/utils';
+} from '@votingworks/basics';
 import { generateCombinations } from './utils';
 
 // All valid contest choice options for a yes no contest

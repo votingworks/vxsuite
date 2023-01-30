@@ -1,13 +1,10 @@
 import { interpret } from '@votingworks/ballot-interpreter-nh';
 import {
   ElectionDefinition,
-  err,
-  ok,
   PageInterpretationWithFiles,
-  Result,
   SheetOf,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue, Result, err, ok } from '@votingworks/basics';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
 

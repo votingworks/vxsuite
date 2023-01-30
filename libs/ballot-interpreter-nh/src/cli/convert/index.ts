@@ -3,7 +3,7 @@ import {
   toImageData,
   imageDebugger,
 } from '@votingworks/image-utils';
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';

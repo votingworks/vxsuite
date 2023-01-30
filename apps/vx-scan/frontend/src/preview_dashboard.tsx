@@ -5,7 +5,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { Prose, Select } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';

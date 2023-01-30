@@ -6,7 +6,7 @@ import {
   fakeWritable,
 } from '@votingworks/test-utils';
 import { SheetOf } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';

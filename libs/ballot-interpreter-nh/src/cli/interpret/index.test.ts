@@ -1,15 +1,14 @@
+import { ok, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import {
   BallotType,
   HmpbBallotPageMetadata,
-  ok,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   safeParseJson,
   VotesDict,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
 import { z } from 'zod';
 import { main } from '.';
 import { Stdio } from '..';

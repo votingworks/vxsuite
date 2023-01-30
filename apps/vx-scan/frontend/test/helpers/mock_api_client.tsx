@@ -4,7 +4,6 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   CastVoteRecord,
   MarkThresholds,
-  ok,
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -17,6 +16,7 @@ import type {
   PrecinctScannerStatus,
 } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ok } from '@votingworks/basics';
 import { ApiClientContext, queryClientDefaultOptions } from '../../src/api';
 
 export const machineConfig: MachineConfig = {

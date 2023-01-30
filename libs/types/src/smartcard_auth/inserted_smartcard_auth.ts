@@ -1,5 +1,5 @@
+import { Result } from '@votingworks/basics';
 import { BallotStyleId, PrecinctId } from '../election';
-import { Result } from '../result';
 import {
   ElectionManagerUser,
   CardlessVoterUser,

@@ -6,7 +6,7 @@ import {
   Side,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   ElectionInfoBar,
   isElectionManagerAuth,

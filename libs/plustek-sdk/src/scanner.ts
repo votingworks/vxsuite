@@ -1,6 +1,13 @@
 /* eslint-disable max-classes-per-file */
-import { err, ok, Result, safeParse, SheetOf } from '@votingworks/types';
-import { deferred, throwIllegalValue, time } from '@votingworks/utils';
+import {
+  err,
+  ok,
+  Result,
+  deferred,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import { safeParse, SheetOf } from '@votingworks/types';
+import { time } from '@votingworks/utils';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
 import path from 'path';

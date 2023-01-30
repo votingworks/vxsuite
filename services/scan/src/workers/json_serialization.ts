@@ -1,5 +1,5 @@
-import { err, isResult, ok } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { err, isResult, ok } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 
 /* eslint-disable no-underscore-dangle */

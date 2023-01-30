@@ -13,17 +13,13 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import {
-  deferred,
-  MemoryCard,
-  MemoryHardware,
-  MemoryStorage,
-} from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
+import { deferred } from '@votingworks/basics';
 import {
   authenticateElectionManagerCard,
   scannerStatus,

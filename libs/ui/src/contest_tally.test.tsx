@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  assert,
-  computeTallyWithPrecomputedCategories,
-} from '@votingworks/utils';
+import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
 import { ExternalTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
@@ -12,6 +9,7 @@ import {
 import cloneDeep from 'lodash.clonedeep';
 import { render, screen, within } from '@testing-library/react';
 
+import { assert } from '@votingworks/basics';
 import { ContestTally } from './contest_tally';
 
 const { election } = electionMinimalExhaustiveSampleFixtures.electionDefinition;

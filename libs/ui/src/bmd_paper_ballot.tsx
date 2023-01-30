@@ -24,12 +24,12 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import {
-  assert,
   formatLongDate,
   getSingleYesNoVote,
   randomBallotId,
 } from '@votingworks/utils';
 
+import { assert } from '@votingworks/basics';
 import { DisplayTextForYesOrNo } from './globals';
 import { NoWrap, Text } from './text';
 import { Prose } from './prose';

@@ -9,7 +9,7 @@ import {
   getContests,
   PrecinctId,
 } from '@votingworks/types';
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 
 export interface CastVoteRecordOptions {
   readonly precinctId?: PrecinctId;

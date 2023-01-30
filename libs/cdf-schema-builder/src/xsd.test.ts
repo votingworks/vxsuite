@@ -1,4 +1,4 @@
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { DocumentedEntity } from './types';
 import {
   extractDocumentation,

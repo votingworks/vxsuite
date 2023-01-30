@@ -16,8 +16,6 @@ import {
   ConverterClientType,
 } from '@votingworks/types';
 import {
-  assert,
-  throwIllegalValue,
   Hardware,
   computeFullElectionTally,
   getEmptyFullElectionTally,
@@ -28,6 +26,7 @@ import {
   useDippedSmartcardAuth,
 } from '@votingworks/ui';
 
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
 import {

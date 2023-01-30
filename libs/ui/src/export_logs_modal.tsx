@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { join } from 'path';
-import {
-  assert,
-  usbstick,
-  throwIllegalValue,
-  generateLogFilename,
-  LogFileType,
-  sleep,
-} from '@votingworks/utils';
+import { usbstick, generateLogFilename, LogFileType } from '@votingworks/utils';
 
 import {
   LogEventId,
@@ -18,6 +11,7 @@ import {
 } from '@votingworks/logging';
 
 import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
+import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';

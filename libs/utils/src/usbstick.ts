@@ -1,4 +1,4 @@
-import { assert } from './assert';
+import { assert } from '@votingworks/basics';
 
 export type UsbDriveAvailability = 'absent' | 'present' | 'mounted';
 

@@ -1,6 +1,6 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/utils';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   readFixtureBallotCardDefinition,
   readFixtureImage,

@@ -12,7 +12,7 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import {
   readFixtureBallotCardDefinition,
   readFixtureDefinition,

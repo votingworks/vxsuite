@@ -6,7 +6,7 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { z } from 'zod';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   Device,
   ElectionEventLog,

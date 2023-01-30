@@ -1,6 +1,6 @@
+import { find, typedAs } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import { find, typedAs } from '@votingworks/utils';
 import * as Admin from '../index';
 import * as view from './write_in_adjudication_table';
 

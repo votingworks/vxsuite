@@ -4,12 +4,8 @@ import styled from 'styled-components';
 import { Admin } from '@votingworks/api';
 import { LogEventId } from '@votingworks/logging';
 import { BallotLocale, getPrecinctById } from '@votingworks/types';
-import {
-  assert,
-  throwIllegalValue,
-  BallotStyleData,
-  sleep,
-} from '@votingworks/utils';
+import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
+import { BallotStyleData } from '@votingworks/utils';
 import {
   Button,
   Modal,

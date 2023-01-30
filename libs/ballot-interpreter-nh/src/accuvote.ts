@@ -1,5 +1,6 @@
+import { Result, err } from '@votingworks/basics';
 import { Debugger, noDebug } from '@votingworks/image-utils';
-import { BallotPaperSize, err, Result, safeParse } from '@votingworks/types';
+import { BallotPaperSize, safeParse } from '@votingworks/types';
 import { matchTemplate } from './images';
 import { computeTimingMarkGrid } from './timing_marks';
 import {

@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import {
   ElectionDefinition,
   getPartyIdsWithContests,
@@ -6,7 +7,6 @@ import {
   Tally,
 } from '@votingworks/types';
 import {
-  assert,
   getTallyIdentifier,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';

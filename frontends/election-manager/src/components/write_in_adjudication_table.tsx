@@ -9,7 +9,8 @@ import {
   Text,
   TH,
 } from '@votingworks/ui';
-import { find, format } from '@votingworks/utils';
+import { find } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 

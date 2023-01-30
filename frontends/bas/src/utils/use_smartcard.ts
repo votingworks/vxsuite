@@ -1,15 +1,12 @@
+import { err, ok, Result, wrapException } from '@votingworks/basics';
 import {
   AnyCardData,
   AnyCardDataSchema,
   Card,
   CardSummary,
   CardSummaryNotReady,
-  err,
-  ok,
   Optional,
-  Result,
   safeParseJson,
-  wrapException,
 } from '@votingworks/types';
 import {
   CARD_POLLING_INTERVAL,

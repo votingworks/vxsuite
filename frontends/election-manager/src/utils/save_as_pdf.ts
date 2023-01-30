@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 
 export async function generateFileContentToSaveAsPdf(): Promise<Uint8Array> {

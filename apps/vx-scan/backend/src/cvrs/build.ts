@@ -22,11 +22,8 @@ import {
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
-import {
-  allContestOptions,
-  assert,
-  throwIllegalValue,
-} from '@votingworks/utils';
+import { allContestOptions } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '../globals';
 import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from '../types';
 import {

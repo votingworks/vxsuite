@@ -1,5 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { readFixtureImage } from '../../test/fixtures';
 import { testImageDebugger } from '../../test/utils';
 import {

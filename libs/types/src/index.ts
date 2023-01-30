@@ -13,7 +13,6 @@ export * from './numeric';
 export * from './polls';
 export * from './precinct_selection';
 export * from './printing';
-export * from './result';
 export * from './smartcard_auth';
 export * from './tallies';
 export * from './ui_theme';

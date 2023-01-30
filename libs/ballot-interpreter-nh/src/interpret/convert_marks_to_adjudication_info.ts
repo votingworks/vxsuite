@@ -1,3 +1,4 @@
+import { assert, find } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   AdjudicationReason,
@@ -6,7 +7,7 @@ import {
   MarkStatus,
   MarkThresholds,
 } from '@votingworks/types';
-import { assert, ballotAdjudicationReasons, find } from '@votingworks/utils';
+import { ballotAdjudicationReasons } from '@votingworks/utils';
 import { InterpretedOvalMark } from '../types';
 
 /**

@@ -1,7 +1,7 @@
 import { ExportDataError } from '@votingworks/data';
 import { FULL_LOG_PATH } from '@votingworks/logging';
-import { ok, Result } from '@votingworks/types';
-import { assert, generateElectionBasedSubfolderName } from '@votingworks/utils';
+import { assert, ok, Result } from '@votingworks/basics';
+import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import { createReadStream, existsSync } from 'fs-extra';

@@ -10,7 +10,7 @@ import {
   Prose,
   Text,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { setMarkThresholdOverrides } from '../api';
 
 export interface SetMarkThresholdsModalProps {

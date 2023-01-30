@@ -1,4 +1,5 @@
-import { ok, Result, safeParseInt } from '@votingworks/types';
+import { ok, Result } from '@votingworks/basics';
+import { safeParseInt } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import {
   getImageChannelCount,

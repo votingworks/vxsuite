@@ -1,3 +1,4 @@
+import { mapAsync } from '@votingworks/basics';
 import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   BallotIdSchema,
@@ -13,7 +14,6 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  mapAsync,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
 import { Store } from '../store';

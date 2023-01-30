@@ -4,7 +4,7 @@ import {
   MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/types';
-import { find } from '@votingworks/utils';
+import { find } from '@votingworks/basics';
 import { election } from '../test/fixtures/choctaw-county-2020-general-election';
 import { getVotesFromMarks } from './get_votes_from_marks';
 

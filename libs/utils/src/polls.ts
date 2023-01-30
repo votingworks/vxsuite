@@ -3,7 +3,7 @@ import {
   PollsSuspensionTransition,
   PollsTransition,
 } from '@votingworks/types';
-import { throwIllegalValue } from './assert';
+import { throwIllegalValue } from '@votingworks/basics';
 
 export function getPollsTransitionDestinationState(
   transition: PollsTransition

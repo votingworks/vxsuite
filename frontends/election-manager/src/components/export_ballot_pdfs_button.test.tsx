@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import React from 'react';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';

@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { Result } from '@votingworks/basics';
 import { safeParse } from './generic';
-import { Result } from './result';
 
 export interface SafeParseNumberOptions {
   min?: number;

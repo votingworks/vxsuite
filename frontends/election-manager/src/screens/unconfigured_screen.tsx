@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Button, Prose, useMountedState } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 
 import {
   getElectionDefinitionConverterClient,

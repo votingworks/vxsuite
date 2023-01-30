@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
 import {
-  assert,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
+import { assert } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
 import { Text } from './text';

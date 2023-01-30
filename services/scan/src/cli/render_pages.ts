@@ -4,7 +4,7 @@ import {
   getPrecinctById,
   safeParseNumber,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';

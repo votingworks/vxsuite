@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Modal, Prose, Button } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
