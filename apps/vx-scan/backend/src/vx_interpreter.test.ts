@@ -20,7 +20,6 @@ import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
-import { replaceSnapshotValues } from '@votingworks/test-utils';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
@@ -305,22 +304,17 @@ test('interprets marks on an upside-down HMPB', async () => {
 
   const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
   expect(
-    replaceSnapshotValues(
-      (
-        await interpreter.interpretFile({
-          ballotImagePath,
-          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-        })
-      ).interpretation as InterpretedHmpbPage,
-      { expectedElectionHash: expect.anything() }
-    )
-  ).toMatchInlineSnapshot(`
-    Object {
-      "actualElectionHash": "602c9b551d08a348c3e1",
-      "expectedElectionHash": Anything,
-      "type": "InvalidElectionHashPage",
-    }
-  `);
+    (
+      await interpreter.interpretFile({
+        ballotImagePath,
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+      })
+    ).interpretation as InterpretedHmpbPage
+  ).toMatchObject({
+    actualElectionHash: '602c9b551d08a348c3e1',
+    expectedElectionHash: expect.anything(),
+    type: 'InvalidElectionHashPage',
+  });
 });
 
 test('interprets marks in ballots', async () => {

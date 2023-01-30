@@ -1,5 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { replaceSnapshotValues } from '@votingworks/test-utils';
+import { stripElectionHash } from '@votingworks/test-utils';
 import { interpret } from '.';
 
 test('interpret marked', async () => {
@@ -16,11 +16,7 @@ test('interpret marked', async () => {
   const pageInterpretations = interpretResult
     .unsafeUnwrap()
     .map(({ interpretation }) => interpretation);
-  expect(
-    replaceSnapshotValues(pageInterpretations, {
-      electionHash: expect.anything(),
-    })
-  ).toMatchInlineSnapshot(`
+  expect(stripElectionHash(pageInterpretations)).toMatchInlineSnapshot(`
     Array [
       Object {
         "adjudicationInfo": Object {

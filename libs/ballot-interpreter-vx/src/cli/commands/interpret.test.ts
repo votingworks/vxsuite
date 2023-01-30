@@ -2,7 +2,7 @@ import { assert } from '@votingworks/basics';
 import { writeFileSync } from 'fs';
 import { relative } from 'path';
 import { tmpNameSync } from 'tmp';
-import { replaceSnapshotValues } from '../../../test/helpers/replace_snapshot_values';
+import { stripElectionHash } from '../../../test/helpers/strip_election_hash';
 import { parseGlobalOptions } from '..';
 import {
   blankPage1,
@@ -463,11 +463,7 @@ test('run interpret with JSON output', async () => {
   ]);
 
   expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
-  expect(
-    replaceSnapshotValues(JSON.parse(stdout), {
-      electionHash: expect.anything(),
-    })
-  ).toMatchInlineSnapshot(`
+  expect(stripElectionHash(JSON.parse(stdout))).toMatchInlineSnapshot(`
     Array [
       Object {
         "input": "test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg",
