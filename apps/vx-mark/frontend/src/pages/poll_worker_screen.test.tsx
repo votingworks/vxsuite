@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { asElectionDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import {
   ElectionDefinition,
   InsertedSmartcardAuth,
@@ -35,9 +38,8 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
-import { electionSampleWithSealDefinition } from '../data';
 
-const electionSampleWithSeal = electionSampleWithSealDefinition.election;
+const electionSampleWithSeal = electionSampleDefinition.election;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -59,9 +61,9 @@ function fakePollworkerAuth(
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
-    electionSampleWithSealDefinition
+    electionSampleDefinition
   ),
-  electionDefinition: ElectionDefinition = electionSampleWithSealDefinition,
+  electionDefinition: ElectionDefinition = electionSampleDefinition,
   appMode: AppMode = MarkOnly
 ) {
   return render(

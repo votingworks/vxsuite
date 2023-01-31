@@ -1,14 +1,14 @@
-import { electionSample } from '@votingworks/fixtures';
+import {
+  electionSample,
+  electionSampleNoSealDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { expectPrintToMatchSnapshot } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
 import { PrintPage } from './print_page';
-import {
-  electionSampleNoSealDefinition,
-  electionSampleWithSealDefinition,
-} from '../data';
 
 jest.mock(
   '@votingworks/ballot-encoder',
@@ -70,7 +70,7 @@ it('prints correct ballot with votes', async () => {
 });
 
 it('prints correct ballot without votes and inline seal', async () => {
-  const electionDefinition = electionSampleWithSealDefinition;
+  const electionDefinition = electionSampleDefinition;
   render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,

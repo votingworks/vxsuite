@@ -1,17 +1,17 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import {
+  primaryElectionSampleDefinition,
+  electionSampleNoSealDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
-import {
-  electionPrimarySampleDefinition,
-  electionSampleNoSealDefinition,
-  electionSampleWithSealDefinition,
-} from '../data';
 import { StartPage } from './start_page';
 
 test('renders StartPage', () => {
-  const electionDefinition = electionPrimarySampleDefinition;
+  const electionDefinition = primaryElectionSampleDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
     electionDefinition,
@@ -24,7 +24,7 @@ test('renders StartPage', () => {
 });
 
 test('renders StartPage in Landscape Orientation', () => {
-  const electionDefinition = electionPrimarySampleDefinition;
+  const electionDefinition = primaryElectionSampleDefinition;
   render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
     electionDefinition,
@@ -38,7 +38,7 @@ test('renders StartPage in Landscape Orientation', () => {
 });
 
 test('renders StartPage with inline SVG', () => {
-  const electionDefinition = electionSampleWithSealDefinition;
+  const electionDefinition = electionSampleDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',

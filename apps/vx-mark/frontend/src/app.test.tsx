@@ -10,6 +10,7 @@ import {
 import fetchMock from 'fetch-mock';
 import * as React from 'react';
 import { MarkAndPrint } from '@votingworks/types';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   setElectionInStorage,
   setStateInStorage,
@@ -18,7 +19,6 @@ import { fakeTts } from '../test/helpers/fake_tts';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { electionSampleDefinition } from './data';
 import { AriaScreenReader } from './utils/ScreenReader';
 import { createApiMock } from '../test/helpers/mock_api_client';
 

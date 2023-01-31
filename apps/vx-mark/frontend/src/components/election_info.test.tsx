@@ -2,11 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
+import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { ElectionInfo } from './election_info';
-import {
-  electionSampleWithSealDefinition as electionDefinition,
-  electionSampleDefinition,
-} from '../data';
 
 test('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
@@ -33,7 +30,7 @@ test('renders horizontal ElectionInfo without hash by default', () => {
 test('renders with ballot style id', () => {
   render(
     <ElectionInfo
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionDefinition}
       precinctSelection={singlePrecinctSelectionFor('23')}
       ballotStyleId="12"
       horizontal

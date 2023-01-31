@@ -3,12 +3,11 @@ import {
   CandidateContest,
   getBallotStyle,
   getContests,
-  MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
-import { electionSampleDefinition } from '../../src/data';
 
 export const electionDefinition = electionSampleDefinition;
 export const { election } = electionDefinition;
@@ -43,10 +42,6 @@ export const measure102Contest = election.contests.find(
   (c) =>
     c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
 ) as YesNoContest;
-
-export const measure420Contest = election.contests.find(
-  (c) => c.title === 'Measure 420A/420B: Medical Marijuana Initiative'
-) as MsEitherNeitherContest;
 
 export const singleSeatContestWithWriteIn = election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1

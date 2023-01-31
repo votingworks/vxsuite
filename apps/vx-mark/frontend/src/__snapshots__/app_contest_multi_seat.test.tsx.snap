@@ -255,7 +255,7 @@ exports[`Single Seat Contest 1`] = `
           </strong>
            of
            
-          21 contests
+          20 contests
            on your ballot.
         </p>
       </div>
@@ -384,7 +384,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label="Selected, Charlene Hennessey, People's."
+                aria-label="Selected, Charlene Hennessey, People’s."
                 class="c8"
                 data-choice="hennessey"
                 data-selected="true"
@@ -401,12 +401,12 @@ exports[`Single Seat Contest 1`] = `
                       Charlene Hennessey
                     </strong>
                     <br />
-                    People's
+                    People’s
                   </p>
                 </div>
               </button>
               <button
-                aria-label=" Eric Savoy, People's."
+                aria-label=" Eric Savoy, People’s."
                 class="c9"
                 data-choice="savoy"
                 data-selected="false"
@@ -423,12 +423,12 @@ exports[`Single Seat Contest 1`] = `
                       Eric Savoy
                     </strong>
                     <br />
-                    People's
+                    People’s
                   </p>
                 </div>
               </button>
               <button
-                aria-label=" Susan Tawa, People's."
+                aria-label=" Susan Tawa, People’s."
                 class="c9"
                 data-choice="tawa"
                 data-selected="false"
@@ -445,12 +445,12 @@ exports[`Single Seat Contest 1`] = `
                       Susan Tawa
                     </strong>
                     <br />
-                    People's
+                    People’s
                   </p>
                 </div>
               </button>
               <button
-                aria-label=" Mary Tawa, People's."
+                aria-label=" Mary Tawa, People’s."
                 class="c9"
                 data-choice="tawa-mary"
                 data-selected="false"
@@ -467,7 +467,7 @@ exports[`Single Seat Contest 1`] = `
                       Mary Tawa
                     </strong>
                     <br />
-                    People's
+                    People’s
                   </p>
                 </div>
               </button>
@@ -534,94 +534,6 @@ exports[`Single Seat Contest 1`] = `
                     </strong>
                     <br />
                     Constitution
-                  </p>
-                </div>
-              </button>
-              <button
-                aria-label=" John White, Whig."
-                class="c9"
-                data-choice="white"
-                data-selected="false"
-                role="option"
-                type="button"
-              >
-                <div
-                  class="sc-hKwCoD gmiWky"
-                >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
-                  >
-                    <strong>
-                      John White
-                    </strong>
-                    <br />
-                    Whig
-                  </p>
-                </div>
-              </button>
-              <button
-                aria-label=" Joe Schmidt, Whig."
-                class="c9"
-                data-choice="schmidt"
-                data-selected="false"
-                role="option"
-                type="button"
-              >
-                <div
-                  class="sc-hKwCoD gmiWky"
-                >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
-                  >
-                    <strong>
-                      Joe Schmidt
-                    </strong>
-                    <br />
-                    Whig
-                  </p>
-                </div>
-              </button>
-              <button
-                aria-label=" Joe Smith, Whig."
-                class="c9"
-                data-choice="smith"
-                data-selected="false"
-                role="option"
-                type="button"
-              >
-                <div
-                  class="sc-hKwCoD gmiWky"
-                >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
-                  >
-                    <strong>
-                      Joe Smith
-                    </strong>
-                    <br />
-                    Whig
-                  </p>
-                </div>
-              </button>
-              <button
-                aria-label=" Amanda Marracini, Labor."
-                class="c9"
-                data-choice="marracini"
-                data-selected="false"
-                role="option"
-                type="button"
-              >
-                <div
-                  class="sc-hKwCoD gmiWky"
-                >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
-                  >
-                    <strong>
-                      Amanda Marracini
-                    </strong>
-                    <br />
-                    Labor
                   </p>
                 </div>
               </button>

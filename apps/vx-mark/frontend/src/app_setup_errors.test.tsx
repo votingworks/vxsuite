@@ -8,7 +8,7 @@ import {
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
 import { PrintOnly } from '@votingworks/types';
-import { electionSampleDefinition } from './data';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';
 

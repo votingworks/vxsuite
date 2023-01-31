@@ -10,7 +10,7 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
 import { MarkAndPrint } from '@votingworks/types';
-import { electionSampleDefinition } from './data';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';
 
@@ -106,7 +106,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
 
   // Adjust Text Size on Start Page
   expect(

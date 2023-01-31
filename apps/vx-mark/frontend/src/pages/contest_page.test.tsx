@@ -1,10 +1,10 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { Route } from 'react-router-dom';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
-import { electionSampleDefinition } from '../data';
 
 import { ContestPage } from './contest_page';
 
