@@ -12,7 +12,7 @@ import {
   MockScannerClient,
   MockScannerClientOptions,
   ScannerClient,
-} from '@votingworks/plustek-sdk';
+} from '@votingworks/plustek-scanner';
 import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { join } from 'path';

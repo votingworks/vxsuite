@@ -6,7 +6,7 @@ import {
   PaperStatus,
   ScannerClient,
   ScannerError,
-} from '@votingworks/plustek-sdk';
+} from '@votingworks/plustek-scanner';
 import { v4 as uuid } from 'uuid';
 import { Id, SheetOf } from '@votingworks/types';
 import {

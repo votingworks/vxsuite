@@ -1,4 +1,4 @@
-import { MockScannerClient } from '@votingworks/plustek-sdk';
+import { MockScannerClient } from '@votingworks/plustek-scanner';
 import { safeParse } from '@votingworks/types';
 import express, { Application } from 'express';
 import * as z from 'zod';

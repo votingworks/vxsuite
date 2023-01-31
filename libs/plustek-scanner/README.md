@@ -10,7 +10,7 @@ then:
 1. Install [`plustekctl`](https://github.com/votingworks/plustekctl) (private
    😢).
 2. Reference it like any other monorepo library:
-   `pnpm install @votingworks/plustek-sdk@workspace:*`.
+   `pnpm install @votingworks/plustek-scanner@workspace:*`.
 
 ## Usage
 

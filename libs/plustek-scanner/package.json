@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/plustek-sdk",
+  "name": "@votingworks/plustek-scanner",
   "version": "1.0.0",
   "private": true,
   "description": "Wraps the official plustek SDK for use with the VTM 300 via NodeJS.",
@@ -12,16 +12,16 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
-    "test": "is-ci test:ci test:watch",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "package.json": "sort-package-json",

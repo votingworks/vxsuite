@@ -45,7 +45,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
-    "@votingworks/plustek-sdk": "workspace:*",
+    "@votingworks/plustek-scanner": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

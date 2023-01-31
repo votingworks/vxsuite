@@ -699,7 +699,7 @@ jobs:
       - store_test_results:
           path: libs/message-coder/reports/
 
-  test-libs-plustek-sdk:
+  test-libs-plustek-scanner:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -707,19 +707,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir libs/plustek-sdk build
+            pnpm --dir libs/plustek-scanner build
       - run:
           name: Lint
           command: |
-            pnpm --dir libs/plustek-sdk lint
+            pnpm --dir libs/plustek-scanner lint
       - run:
           name: Test
           command: |
-            pnpm --dir libs/plustek-sdk test
+            pnpm --dir libs/plustek-scanner test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: libs/plustek-sdk/reports/
+          path: libs/plustek-scanner/reports/
 
   test-libs-res-to-ts:
     executor: nodejs
@@ -962,7 +962,7 @@ workflows:
       - test-libs-image-utils
       - test-libs-logging
       - test-libs-message-coder
-      - test-libs-plustek-sdk
+      - test-libs-plustek-scanner
       - test-libs-res-to-ts
       - test-libs-test-utils
       - test-libs-types

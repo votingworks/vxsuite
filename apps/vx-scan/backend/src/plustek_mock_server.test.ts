@@ -1,4 +1,4 @@
-import { MockScannerClient } from '@votingworks/plustek-sdk';
+import { MockScannerClient } from '@votingworks/plustek-scanner';
 import request from 'supertest';
 import { plustekMockServer } from './plustek_mock_server';
 

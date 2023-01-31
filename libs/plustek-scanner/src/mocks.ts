@@ -34,7 +34,7 @@ import {
 
 /* eslint-disable @typescript-eslint/require-await */
 
-const debug = makeDebug('plustek-sdk:mock-client');
+const debug = makeDebug('plustek-scanner:mock-client');
 
 interface Context {
   sheetFiles?: SheetOf<string>;
