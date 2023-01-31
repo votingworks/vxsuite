@@ -3,7 +3,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { CandidateContest, Election } from '@votingworks/types';
-import { asElectionDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { App } from './app';
 
@@ -11,7 +14,6 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { setStateInStorage } from '../test/helpers/election';
 import { electionStorageKey } from './app_root';
-import { electionSampleDefinition } from './data';
 import { createApiMock } from '../test/helpers/mock_api_client';
 
 const apiMock = createApiMock();

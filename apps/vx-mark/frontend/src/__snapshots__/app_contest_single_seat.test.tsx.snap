@@ -255,7 +255,7 @@ exports[`Single Seat Contest 1`] = `
           </strong>
            of
            
-          21 contests
+          20 contests
            on your ballot.
         </p>
       </div>
@@ -340,7 +340,7 @@ exports[`Single Seat Contest 1`] = `
                 </div>
               </button>
               <button
-                aria-label=" Adam Cramer and Greg Vuocolo, People's."
+                aria-label=" Adam Cramer and Greg Vuocolo, People’s."
                 class="c9"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
@@ -357,7 +357,7 @@ exports[`Single Seat Contest 1`] = `
                       Adam Cramer and Greg Vuocolo
                     </strong>
                     <br />
-                    People's
+                    People’s
                   </p>
                 </div>
               </button>

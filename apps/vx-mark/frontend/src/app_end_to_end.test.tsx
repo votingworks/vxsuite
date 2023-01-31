@@ -19,9 +19,8 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { getContestDistrictName, MarkAndPrint } from '@votingworks/types';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from './config/globals';
-
-import { electionSampleDefinition } from './data';
 
 import { App } from './app';
 
@@ -37,7 +36,6 @@ import {
   presidentContest,
   countyCommissionersContest,
   measure102Contest,
-  measure420Contest,
   voterContests,
 } from '../test/helpers/election';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
@@ -184,7 +182,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(/Center Springfield/);
   expect(screen.queryByText(expectedElectionHash)).toBeNull();
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
 
   // Remove card
   card.removeCard();
@@ -213,7 +211,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
 
   // Adjust Text Size on Start Page
   expect(
@@ -298,12 +296,6 @@ test('MarkAndPrint end-to-end flow', async () => {
       userEvent.click(
         within(screen.getByTestId('contest-choices')).getByText('Yes')
       );
-    }
-
-    // Vote for MsEitherNeither contest
-    else if (title === measure420Contest.title) {
-      userEvent.click(screen.getByText(measure420Contest.neitherOption.label));
-      userEvent.click(screen.getByText(measure420Contest.firstOption.label));
     }
 
     userEvent.click(screen.getByText('Next'));

@@ -14,13 +14,13 @@ import { MachineConfig } from '@votingworks/vx-mark-backend';
 
 import userEvent from '@testing-library/user-event';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from '../src/config/globals';
 
 import { MarkVoterCardFunction, UserSettings } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
-import { electionSampleNoSealDefinition } from '../src/data';
 
 export function render(
   component: React.ReactNode,

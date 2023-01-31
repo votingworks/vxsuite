@@ -6,7 +6,7 @@ import {
   makePollWorkerCard,
 } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import { electionSampleDefinition } from './data';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';
 
@@ -155,7 +155,7 @@ it('MarkOnly flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Advance through every contest

@@ -7,9 +7,8 @@ import {
   expectPrint,
 } from '@votingworks/test-utils';
 import { MarkAndPrint } from '@votingworks/types';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from './config/globals';
-
-import { electionSampleDefinition } from './data';
 
 import { App } from './app';
 
@@ -136,7 +135,7 @@ test('Cardless Voting Flow', async () => {
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
@@ -164,7 +163,7 @@ test('Cardless Voting Flow', async () => {
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
@@ -178,7 +177,6 @@ test('Cardless Voting Flow', async () => {
     if (title === presidentContest.title) {
       fireEvent.click(screen.getByText(presidentContest.candidates[0].name));
     }
-
     fireEvent.click(screen.getByText('Next'));
   }
 
@@ -247,7 +245,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter advances through contests without voting in any
@@ -382,7 +380,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
@@ -414,7 +412,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 21 contests.');
+  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
