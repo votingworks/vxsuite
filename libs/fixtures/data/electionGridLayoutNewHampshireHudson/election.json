@@ -6,23 +6,15 @@
   "ballotStyles": [
     {
       "id": "card-number-54",
-      "precincts": [
-        "town-id-12101-precinct-id-"
-      ],
-      "districts": [
-        "town-id-12101-precinct-id-"
-      ]
+      "precincts": ["town-id-12101-precinct-id-"],
+      "districts": ["town-id-12101-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote"
-  ],
+  "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
   "contests": [
     {
       "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "President and Vice-President of the United States",
       "title": "President and Vice-President of the United States",
       "type": "candidate",
       "seats": 1,
@@ -30,23 +22,17 @@
         {
           "id": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
           "name": "Donald J. Trump  and Michael R. Pence",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
           "name": "Joseph R. Biden  and Kamala D. Harris",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
           "name": "Jo Jorgensen  and Jeremy Cohen",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -54,7 +40,6 @@
     {
       "id": "Governor-061a401b",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Governor",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
@@ -62,23 +47,17 @@
         {
           "id": "Chris-Sununu-130124f7",
           "name": "Chris Sununu",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Dan-Feltes-3fadf798",
           "name": "Dan Feltes",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Darryl-W-Perry-2f07c455",
           "name": "Darryl W. Perry",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -86,7 +65,6 @@
     {
       "id": "United-States-Senator-d3f1c75b",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "United States Senator",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
@@ -94,23 +72,17 @@
         {
           "id": "Corky-Messner-b6eb216d",
           "name": "Corky Messner",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Jeanne-Shaheen-6e19622d",
           "name": "Jeanne Shaheen",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Justin-O-Donnell-ec71760c",
           "name": "Justin O'Donnell",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -118,7 +90,6 @@
     {
       "id": "Representative-in-Congress-24683b44",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Representative in Congress",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
@@ -126,23 +97,17 @@
         {
           "id": "Steven-Negron-5d482d72",
           "name": "Steven Negron",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Ann-McLane-Kuster-67fdf060",
           "name": "Ann McLane Kuster",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Andrew-Olding-bed33f08",
           "name": "Andrew Olding",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -150,7 +115,6 @@
     {
       "id": "Executive-Councilor-bb22557f",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Executive Councilor",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
@@ -158,16 +122,12 @@
         {
           "id": "Dave-Wheeler-de2242ee",
           "name": "Dave Wheeler",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Debora-B-Pignatelli-8c4cc1d3",
           "name": "Debora B. Pignatelli",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -175,7 +135,6 @@
     {
       "id": "State-Senator-391381f8",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "State Senator",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
@@ -183,16 +142,12 @@
         {
           "id": "Sharon-M-Carson-0316308e",
           "name": "Sharon M. Carson",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Nancy-Hendricks-d330559d",
           "name": "Nancy Hendricks",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -200,7 +155,6 @@
     {
       "id": "State-Representatives-7d3a8821",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "State Representatives",
       "title": "State Representatives",
       "type": "candidate",
       "seats": 11,
@@ -208,156 +162,112 @@
         {
           "id": "Tony-Lekas-a06f7364",
           "name": "Tony Lekas",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Hershel-Nunez-6862315f",
           "name": "Hershel Nunez",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Lynne-Ober-f704df17",
           "name": "Lynne Ober",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Russell-Ober-e433afea",
           "name": "Russell Ober",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Andrew-Prout-1cd243e0",
           "name": "Andrew Prout",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Andrew-Renzullo-b0428370",
           "name": "Andrew Renzullo",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Kimberly-Rice-faaed16a",
           "name": "Kimberly Rice",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Denise-Smith-0a6359c3",
           "name": "Denise Smith",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Jordan-Ulery-28553627",
           "name": "Jordan Ulery",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Bob-Greene-c006a3bd",
           "name": "Bob Greene",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Alicia-Lekas-271048d8",
           "name": "Alicia Lekas",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Brett-Gagnon-7a8c9838",
           "name": "Brett Gagnon",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "David-Hennessey-f1343f4f",
           "name": "David Hennessey",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Beatriz-Jauregui-11b83653",
           "name": "Beatriz Jauregui",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Steven-Katsos-077584b8",
           "name": "Steven Katsos",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Harold-Lynde-a54df7d7",
           "name": "Harold Lynde",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Lana-Paliy-595b276a",
           "name": "Lana Paliy",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Robert-S-Sherman-f10f4a3f",
           "name": "Robert S. Sherman",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Alejandro-Urrutia-1b574b86",
           "name": "Alejandro Urrutia",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Timothy-Wyatt-0105b8de",
           "name": "Timothy Wyatt",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Barbara-A-Blue-14608463",
           "name": "Barbara A. Blue",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Nancy-S-Brucker-4471faf7",
           "name": "Nancy S. Brucker",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -365,7 +275,6 @@
     {
       "id": "Sheriff-4243fe0b",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Sheriff",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
@@ -373,16 +282,12 @@
         {
           "id": "Christopher-Connelly-970b2364",
           "name": "Christopher Connelly",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Bill-Barry-0e677ca6",
           "name": "Bill Barry",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -390,7 +295,6 @@
     {
       "id": "County-Attorney-133f910f",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "County Attorney",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
@@ -398,23 +302,17 @@
         {
           "id": "John-J-Coughlin-0e7bf93c",
           "name": "John J. Coughlin",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Michael-Conlon-1a61fa16",
           "name": "Michael Conlon",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Nicholas-Sarwark-c8f115e2",
           "name": "Nicholas Sarwark",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -422,7 +320,6 @@
     {
       "id": "County-Treasurer-87d25a31",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "County Treasurer",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
@@ -430,23 +327,17 @@
         {
           "id": "David-G-Fredette-687f01ae",
           "name": "David G. Fredette",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "William-Bryk-eaf936ec",
           "name": "William Bryk",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Richard-Manzo-c5fcc876",
           "name": "Richard Manzo",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -454,7 +345,6 @@
     {
       "id": "Register-of-Deeds-a1278df2",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Register of Deeds",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
@@ -462,16 +352,12 @@
         {
           "id": "Jack-Flanagan-78e24cab",
           "name": "Jack Flanagan",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Mary-Ann-Crowell-e1ff59b9",
           "name": "Mary Ann Crowell",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -479,7 +365,6 @@
     {
       "id": "Register-of-Probate-a4117da8",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "Register of Probate",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
@@ -487,16 +372,12 @@
         {
           "id": "Elizabeth-Ann-Moreau-aec07bb4",
           "name": "Elizabeth Ann Moreau",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Elizabeth-Ropp-4035eed1",
           "name": "Elizabeth Ropp",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -504,7 +385,6 @@
     {
       "id": "County-Commissioner-d6feed25",
       "districtId": "town-id-12101-precinct-id-",
-      "section": "County Commissioner",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
@@ -512,16 +392,12 @@
         {
           "id": "Michael-Soucy-b23f7c2d",
           "name": "Michael Soucy",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Daniel-C-Hansberry-8c0291ec",
           "name": "Daniel C. Hansberry",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -1172,10 +1048,7 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote"
-  ],
+  "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
   "precincts": [
     {
       "id": "town-id-12101-precinct-id-",

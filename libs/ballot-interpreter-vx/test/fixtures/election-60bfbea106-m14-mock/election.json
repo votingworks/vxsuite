@@ -107,7 +107,6 @@
   "contests": [
     {
       "id": "congress",
-      "section": "2nd Congressional District",
       "districtId": "congress",
       "type": "candidate",
       "title": "US House of Representatives",
@@ -128,7 +127,6 @@
     },
     {
       "id": "courtappeals",
-      "section": "Court of Appeals District 4",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Court of Appeals Judge",
@@ -147,7 +145,6 @@
     },
     {
       "id": "chancerycourt-9-1",
-      "section": "District 9",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Chancery Court Judge Position 1",
@@ -162,7 +159,6 @@
     },
     {
       "id": "chancerycourt-9-2",
-      "section": "District 9",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Chancery Court Judge Position 2",
@@ -181,7 +177,6 @@
     },
     {
       "id": "chancerycourt-9-3",
-      "section": "District 9",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Chancery Court Judge Position 3",
@@ -196,7 +191,6 @@
     },
     {
       "id": "circuit-9-1",
-      "section": "District 9",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Circuit Court Judge Position 1",
@@ -211,7 +205,6 @@
     },
     {
       "id": "circuit-9-2",
-      "section": "District 9",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Circuit Court Judge Position 2",
@@ -226,7 +219,6 @@
     },
     {
       "id": "warren-judge",
-      "section": "Warren County",
       "districtId": "county",
       "type": "candidate",
       "title": "County Judge",
@@ -257,7 +249,6 @@
     },
     {
       "id": "warren-school-board-1",
-      "section": "Warren County",
       "districtId": "school-board-district-1",
       "type": "candidate",
       "title": "School Board Position 1",
@@ -288,7 +279,6 @@
     },
     {
       "id": "warren-school-board-2",
-      "section": "Warren County",
       "districtId": "school-board-district-2",
       "type": "candidate",
       "title": "School Board Position 2",

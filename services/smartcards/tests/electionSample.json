@@ -66,7 +66,6 @@
       "id": "president",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "United States",
       "title": "President and Vice-President",
       "seats": 1,
       "candidates": [
@@ -107,7 +106,6 @@
       "id": "senator",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "United States",
       "title": "Senator",
       "seats": 1,
       "candidates": [
@@ -153,7 +151,6 @@
       "id": "representative-district-6",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "United States",
       "title": "Representative, District 6",
       "seats": 1,
       "candidates": [
@@ -189,7 +186,6 @@
       "id": "governor",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Governor",
       "seats": 1,
       "candidates": [
@@ -330,7 +326,6 @@
       "id": "lieutenant-governor",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Lieutenant Governor",
       "seats": 1,
       "candidates": [
@@ -386,7 +381,6 @@
       "id": "secretary-of-state",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Secretary of State",
       "seats": 1,
       "candidates": [
@@ -407,7 +401,6 @@
       "id": "state-senator-district-31",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Senator, District 31",
       "seats": 1,
       "candidates": [
@@ -423,7 +416,6 @@
       "id": "state-assembly-district-54",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "State of Hamilton",
       "title": "Assembly Member, District 54",
       "seats": 1,
       "candidates": [
@@ -449,7 +441,6 @@
       "id": "county-commissioners",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "County Commissioners",
       "seats": 4,
       "candidates": [
@@ -535,7 +526,6 @@
       "id": "county-registrar-of-wills",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "Registrar of Wills",
       "seats": 1,
       "candidates": [
@@ -551,7 +541,6 @@
       "id": "city-mayor",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "City of Springfield",
       "title": "Mayor",
       "seats": 1,
       "candidates": [
@@ -572,7 +561,6 @@
       "id": "city-council",
       "districtId": "district-2",
       "type": "candidate",
-      "section": "City of Springfield",
       "title": "City Council",
       "seats": 3,
       "candidates": [
@@ -613,7 +601,6 @@
       "id": "judicial-robert-demergue",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "Hamilton Court of Appeals",
       "title": "Retain Robert Demergue as Chief Justice?",
       "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
     },
@@ -621,7 +608,6 @@
       "id": "judicial-elmer-hull",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "Hamilton Court of Appeals",
       "title": "Retain Elmer Hull as Associate Justice?",
       "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
     },
@@ -629,7 +615,6 @@
       "id": "question-a",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question A",
       "title": "Question A: Recovery of Property Damages",
       "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
@@ -638,7 +623,6 @@
       "id": "question-b",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question B",
       "title": "Question B: Separation of Powers",
       "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch?\n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.\n\nNo person holding any office under the government of the United States, or of any other state or country, shall act as a general officer or as a member of the general assembly, unless at the time of taking such engagement that person shall have resigned the office under such government; and if any general officer, senator, representative, or judge shall, after election and engagement, accept any appointment under any other government, the office under this shall be immediately vacated; but this restriction shall not apply to any person appointed to take deposition or acknowledgement of deeds, or other legal instruments, by the authority of any other state or country.\n\nNo senator or representative shall, during the time for which he or she was elected, be appointed to any state office, board, commission or other state or quasi-public entity exercising executive power under the laws of this state, and no person holding any executive office or serving as a member of any board, commission or other state or quasi-public entity exercising executive power under the laws of this state shall be a member of the senate or the house of representatives during his or her continuance in such office.\n\nb. Article V of the Constitution shall be amended to read as follows: The powers of the government shall be distributed into three (3) separate and distinct departments: the legislative, the executive and the judicial.\n\nc. Article VI, Section 10 of the Constitution shall be deleted in its entirety.\n\nd. Article IX, Section 5 of the Constitution shall be amended to read as follows:\n\nSection 5. Powers of appointment.- The governor shall, by and with the advice and consent of the senate, appoint all officers of the state whose appointment is not herein otherwise provided for and all members of any board, commission or other state or quasi-public entity which exercises executive power under the laws of this state; but the general assembly may by law vest the appointment of such inferior officers, as they deem proper, in the governor, or within their respective departments in the other general officers, the judiciary or in the heads of departments."
@@ -647,7 +631,6 @@
       "id": "question-c",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Question C",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
       "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider? \"Non-economic loss\" generally includes, but is not limited to, losses such as pain and suffering, inconvenience, mental anguish, loss of capacity for enjoyment of life, loss of consortium, and other losses the claimant is entitled to recover as damages under general law.\n\n This amendment will not in any way affect the recovery of damages for economic loss under State law. \"Economic loss\" generally includes, but is not limited to, monetary losses such as past and future medical expenses, loss of past and future earnings, loss of use of property, costs of repair or replacement, the economic value of domestic services, loss of employment or business opportunities. This amendment will not in any way affect the recovery of any additional damages known under State law as exemplary or punitive damages, which are damages allowed by law to punish a defendant and to deter persons from engaging in similar conduct in the future."
@@ -656,7 +639,6 @@
       "id": "proposition-1",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "State of Hamilton",
       "shortTitle": "Proposition 1",
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
       "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
@@ -665,7 +647,6 @@
       "id": "measure-101",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 101",
       "title": "Measure 101: College District",
       "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
@@ -674,7 +655,6 @@
       "id": "102",
       "districtId": "district-1",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 102",
       "title": "Measure 102: Vehicle Abatement Program",
       "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
@@ -684,7 +664,6 @@
       "districtId": "district-1",
       "partyId": "2",
       "type": "yesno",
-      "section": "Franklin County",
       "shortTitle": "Measure 666",
       "title": "Measure 666: The Question No One Gets To",
       "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage."
@@ -694,7 +673,6 @@
       "districtId": "7",
       "partyId": "3",
       "type": "candidate",
-      "section": "Franklin County",
       "title": "Head of Constitution Party",
       "seats": 1,
       "candidates": [

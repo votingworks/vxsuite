@@ -35,7 +35,6 @@
   "contests": [
     {
       "id": "mayor",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Mayor",
@@ -56,7 +55,6 @@
     },
     {
       "id": "controller",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Controller",
@@ -82,7 +80,6 @@
     },
     {
       "id": "attorney",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Attorney",
@@ -103,7 +100,6 @@
     },
     {
       "id": "public-works-director",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Public Works Director",
@@ -129,7 +125,6 @@
     },
     {
       "id": "chief-of-police",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Chief of Police",
@@ -160,7 +155,6 @@
     },
     {
       "id": "parks-and-recreation-director",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Parks and Recreation Director",
@@ -191,7 +185,6 @@
     },
     {
       "id": "board-of-alderman",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "Board of Alderman",
@@ -232,7 +225,6 @@
     },
     {
       "id": "city-council",
-      "section": "City of Lincoln",
       "districtId": "district-1",
       "type": "candidate",
       "title": "City Council",

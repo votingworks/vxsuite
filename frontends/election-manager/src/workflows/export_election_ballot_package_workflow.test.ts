@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import * as workflow from './export_election_ballot_package_workflow';
 import { DownloadableArchive } from '../utils/downloadable_archive';
@@ -8,13 +8,13 @@ beforeEach(() => {
 });
 
 test('initializes with an Election, hash, and locales', () => {
-  expect(workflow.init(electionSample, 'abcde', ['en-US']).type).toEqual(
+  expect(workflow.init(electionSampleDefinition, ['en-US']).type).toEqual(
     'Init'
   );
 });
 
 test('advances from Init to ArchiveBegin', () => {
-  const state = workflow.init(electionSample, 'abcde', ['en-US']);
+  const state = workflow.init(electionSampleDefinition, ['en-US']);
   expect(workflow.next(state).type).toEqual('ArchiveBegin');
 });
 
@@ -22,8 +22,7 @@ test('makes the first ballot config the current one moving from ArchiveBegin to 
   expect(
     workflow.next({
       type: 'ArchiveBegin',
-      election: electionSample,
-      electionHash: 'abcde',
+      electionDefinition: electionSampleDefinition,
       ballotConfigs: [
         {
           ballotStyleId: '77',
@@ -60,8 +59,7 @@ test('advances to the next ballot config if there is one', () => {
   expect(
     workflow.next({
       type: 'RenderBallot',
-      election: electionSample,
-      electionHash: 'abcde',
+      electionDefinition: electionSampleDefinition,
       archive: new DownloadableArchive(),
       currentBallotConfig: {
         ballotStyleId: '77',
@@ -110,8 +108,7 @@ test('advances to ArchiveEnd if there are no more ballot configs', () => {
   expect(
     workflow.next({
       type: 'RenderBallot',
-      election: electionSample,
-      electionHash: 'abcde',
+      electionDefinition: electionSampleDefinition,
       archive: new DownloadableArchive(),
       currentBallotConfig: {
         ballotStyleId: '77',
@@ -154,8 +151,7 @@ test('advances to Failed on render error', () => {
     workflow.error(
       {
         type: 'RenderBallot',
-        election: electionSample,
-        electionHash: 'abcde',
+        electionDefinition: electionSampleDefinition,
         archive: new DownloadableArchive(),
         currentBallotConfig: {
           ballotStyleId: '77',

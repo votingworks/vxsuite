@@ -13,5 +13,6 @@ export * from './mock_of';
 export * from './observable';
 export * from './smartcards';
 export * from './smartcard_auth';
+export * from './strip_election_hash';
 export * from './types';
 export * from './zip';

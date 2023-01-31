@@ -11,6 +11,7 @@ import {
   YesNoContest as YesNoContestInterface,
   Optional,
   YesOrNo,
+  getContestDistrictName,
 } from '@votingworks/types';
 import {
   Button,
@@ -38,7 +39,7 @@ import { ChoiceButton } from './choice_button';
 import {
   ContentHeader,
   ContestFooter,
-  ContestSection,
+  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
@@ -58,7 +59,10 @@ export function YesNoContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { userSettings } = useContext(BallotContext);
+  const { userSettings, electionDefinition } = useContext(BallotContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
+  const districtName = getContestDistrictName(election, contest);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   const [isScrollable, setIsScrollable] = useState(false);
@@ -158,8 +162,8 @@ export function YesNoContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${contest.section} ${contest.title}.`}>
-              <ContestSection>{contest.section}</ContestSection>
+            <h1 aria-label={`${districtName} ${contest.title}.`}>
+              <DistrictName>{districtName}</DistrictName>
               {contest.title}
             </h1>
             <p>

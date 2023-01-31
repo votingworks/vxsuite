@@ -95,7 +95,6 @@
   "contests": [
     {
       "id": "775020858",
-      "section": "State Senate 15",
       "districtId": "100000234",
       "type": "candidate",
       "title": "District 15",
@@ -199,9 +198,7 @@
         "6537",
         "6539"
       ],
-      "districts": [
-        "100000234"
-      ]
+      "districts": ["100000234"]
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",

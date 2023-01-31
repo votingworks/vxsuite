@@ -32,7 +32,6 @@
   "contests": [
     {
       "id": "justice-sc",
-      "section": "Judicial",
       "districtId": "1",
       "type": "candidate",
       "official_label": "Justice of the Supreme Court",

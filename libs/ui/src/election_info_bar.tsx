@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  getDisplayElectionHash,
+  PrecinctSelection,
+} from '@votingworks/types';
 import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
@@ -76,7 +80,7 @@ export function ElectionInfoBar({
         <Text as="div" small>
           Election ID
         </Text>
-        <strong>{electionDefinition.electionHash.slice(0, 10)}</strong>
+        <strong>{getDisplayElectionHash(electionDefinition)}</strong>
       </Prose>
     </Bar>
   );

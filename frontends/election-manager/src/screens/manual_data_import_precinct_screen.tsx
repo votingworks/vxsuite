@@ -18,6 +18,7 @@ import {
   Candidate,
   CandidateId,
   Election,
+  getContestDistrictName,
 } from '@votingworks/types';
 import {
   Button,
@@ -687,7 +688,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
           return (
             <ContestData key={contest.id}>
-              <Text small>{contest.section}</Text>
+              <Text small>{getContestDistrictName(election, contest)}</Text>
               <h3>{contestTitle}</h3>
               <Table borderTop condensed>
                 <tbody>

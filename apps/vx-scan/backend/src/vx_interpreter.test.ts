@@ -30,6 +30,16 @@ const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
 
+jest.mock('@votingworks/ballot-encoder', () => {
+  return {
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // to allow changing election definitions without changing the image fixtures
+    // TODO: generate image fixtures from election definitions more easily
+    // this election hash is for the MS demo fixture images
+    sliceElectionHash: () => 'b0260b4e9d492dab3813',
+  };
+});
+
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
     sampleBallotImagesPath,
@@ -300,13 +310,11 @@ test('interprets marks on an upside-down HMPB', async () => {
         detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
     ).interpretation as InterpretedHmpbPage
-  ).toMatchInlineSnapshot(`
-    Object {
-      "actualElectionHash": "602c9b551d08a348c3e1",
-      "expectedElectionHash": "965aa0b918b9bab9a2a4",
-      "type": "InvalidElectionHashPage",
-    }
-  `);
+  ).toMatchObject({
+    actualElectionHash: '602c9b551d08a348c3e1',
+    expectedElectionHash: expect.anything(),
+    type: 'InvalidElectionHashPage',
+  });
 });
 
 test('interprets marks in ballots', async () => {

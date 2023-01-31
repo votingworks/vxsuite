@@ -107,7 +107,6 @@
   "contests": [
     {
       "id": "tractor",
-      "section": "State of Mississippi",
       "districtId": "demo-district",
       "type": "candidate",
       "title": "Tractor",
@@ -126,7 +125,6 @@
     },
     {
       "id": "flower",
-      "section": "1st Congressional District",
       "districtId": "demo-district",
       "type": "candidate",
       "title": "Flower",
@@ -145,7 +143,6 @@
     },
     {
       "id": "dessert",
-      "section": "Calhoun County",
       "districtId": "demo-district",
       "type": "candidate",
       "title": "Dessert",

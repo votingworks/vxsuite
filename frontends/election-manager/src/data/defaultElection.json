@@ -129,7 +129,6 @@
       "id": "mayor-contest",
       "districtId": "district-1",
       "type": "candidate",
-      "section": "City",
       "title": "Mayor",
       "seats": 1,
       "candidates": [
@@ -147,7 +146,6 @@
       "allowWriteIns": false,
       "_lang": {
         "es-US": {
-          "section": "Ciudad",
           "title": "Alcalde"
         }
       }
@@ -156,13 +154,11 @@
       "id": "proposition-r",
       "districtId": "district-2",
       "type": "yesno",
-      "section": "City",
       "title": "Prop R: City Recycling Program",
       "shortTitle": "Prop R",
       "description": "Shall the city start a recycling program?",
       "_lang": {
         "es-US": {
-          "section": "Ciudad",
           "title": "Prop R: Programa de reciclaje de la ciudad",
           "shortTitle": "Prop R",
           "description": "¿Deberá la ciudad comenzar un programa de reciclaje?"

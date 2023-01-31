@@ -11,7 +11,7 @@ export const ContestFooter = styled.div`
   width: 100%;
   padding: 30px 20px 0;
 `;
-export const ContestSection = styled.div`
+export const DistrictName = styled.div`
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;

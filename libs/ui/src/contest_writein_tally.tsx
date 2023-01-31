@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Election, ContestId } from '@votingworks/types';
+import {
+  Election,
+  ContestId,
+  getContestDistrictName,
+} from '@votingworks/types';
 
 import { Table, TD } from './table';
 import { Prose } from './prose';
@@ -68,9 +72,7 @@ export function ContestWriteInTally({
                 maxWidth={false}
                 data-testid={`results-table-${contest.id}`}
               >
-                {contest.section !== contest.title && (
-                  <Text small>{contest.section}</Text>
-                )}
+                <Text small>{getContestDistrictName(election, contest)}</Text>
                 <h3>{contest.title}</h3>
                 <Table borderTop condensed>
                   <tbody>{contestOptionTableRows}</tbody>

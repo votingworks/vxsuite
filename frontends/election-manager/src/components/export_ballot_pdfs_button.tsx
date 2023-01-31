@@ -73,7 +73,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   const [isAbsentee, setIsAbsentee] = useState(false);
 
   const defaultArchiveFilename = getBallotArchiveFilename(
-    electionHash,
+    electionDefinition,
     ballotMode,
     isAbsentee
   );
@@ -117,13 +117,13 @@ export function ExportBallotPdfsButton(): JSX.Element {
 
   async function exportBallotStyle(ballotStyle: BallotStyleData) {
     const { ballotStyleId, precinctId } = ballotStyle;
+    assert(electionDefinition);
     const ballotFilename = getBallotPath({
       ballotStyleId: ballotStyle.ballotStyleId,
       precinctId: ballotStyle.precinctId,
       ballotMode,
       isAbsentee,
-      election,
-      electionHash,
+      electionDefinition,
       locales: defaultBallotLocales,
     });
 

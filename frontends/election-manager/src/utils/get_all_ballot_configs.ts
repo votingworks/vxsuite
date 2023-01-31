@@ -1,14 +1,14 @@
 import { Admin } from '@votingworks/api';
-import { BallotLocale, Election } from '@votingworks/types';
+import { BallotLocale, ElectionDefinition } from '@votingworks/types';
 import { BallotConfig } from '@votingworks/utils';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
 export function getAllBallotConfigs(
-  election: Election,
-  electionHash: string,
+  electionDefinition: ElectionDefinition,
   localeCodes: readonly string[]
 ): BallotConfig[] {
+  const { election } = electionDefinition;
   const ballotStyles = getBallotStylesDataByStyle(election);
   const allLocaleConfigs = localeCodes.map<BallotLocale>((localeCode) => ({
     primary: DEFAULT_LOCALE,
@@ -27,8 +27,7 @@ export function getAllBallotConfigs(
           locales,
           filename: getBallotPath({
             ...ballotStyle,
-            election,
-            electionHash,
+            electionDefinition,
             locales,
             ballotMode: isLiveMode
               ? Admin.BallotMode.Official
@@ -37,8 +36,7 @@ export function getAllBallotConfigs(
           }),
           layoutFilename: getBallotPath({
             ...ballotStyle,
-            election,
-            electionHash,
+            electionDefinition,
             locales,
             ballotMode: isLiveMode
               ? Admin.BallotMode.Official

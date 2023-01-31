@@ -59,7 +59,6 @@
       "districtId": "1",
       "id": "775020876",
       "seats": 1,
-      "section": "United States",
       "title": "President",
       "type": "candidate"
     },
@@ -85,7 +84,6 @@
       "districtId": "1",
       "id": "775020877",
       "seats": 1,
-      "section": "United States",
       "title": "Senate ",
       "type": "candidate"
     },
@@ -106,7 +104,6 @@
       "districtId": "100000047",
       "id": "775020872",
       "seats": 1,
-      "section": "US House Of Representatives",
       "title": "1st Congressional District",
       "type": "candidate"
     },
@@ -127,7 +124,6 @@
       "districtId": "100000174",
       "id": "775020870",
       "seats": 1,
-      "section": "Northern District",
       "title": "Supreme Court District 3(Northern) Position 3",
       "type": "candidate"
     },
@@ -142,7 +138,6 @@
       "districtId": "575000501",
       "id": "775020899",
       "seats": 1,
-      "section": "Election Commissioner 01",
       "title": "Election Commissioner  01",
       "type": "candidate"
     },
@@ -161,7 +156,6 @@
       "districtId": "575000502",
       "id": "775020900",
       "seats": 1,
-      "section": "Election Commissioner 02",
       "title": "Election Commissioner 02",
       "type": "candidate"
     },
@@ -176,7 +170,6 @@
       "districtId": "575000503",
       "id": "775020901",
       "seats": 1,
-      "section": "Election Commissioner 03",
       "title": "Election Commissioner 03",
       "type": "candidate"
     },
@@ -195,7 +188,6 @@
       "districtId": "575000504",
       "id": "775020902",
       "seats": 1,
-      "section": "Election Commissioner 04",
       "title": "Election Commissioner 04",
       "type": "candidate"
     },
@@ -215,7 +207,6 @@
       "districtId": "575000505",
       "id": "775020903",
       "seats": 1,
-      "section": "Election Commissioner 05",
       "title": "Election Commissioner 05",
       "type": "candidate"
     },
@@ -230,7 +221,6 @@
       "districtId": "575000084",
       "id": "775020904",
       "seats": 1,
-      "section": "School Board District 5",
       "title": "School Board 05",
       "type": "candidate"
     },
@@ -258,7 +248,6 @@
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A"
       },
-      "section": "State Of Mississippi",
       "title": "Ballot Measure 1",
       "type": "ms-either-neither"
     },
@@ -270,7 +259,6 @@
         "id": "750000095",
         "label": "NO"
       },
-      "section": "State Of Mississippi",
       "title": "Ballot Measure 2: House Concurrent Resolution No. 47",
       "type": "yesno",
       "yesOption": {
@@ -286,7 +274,6 @@
         "id": "750000093",
         "label": "NO"
       },
-      "section": "State Of Mississippi",
       "title": "Ballot Measure 3: House Bill 1796 - Flag Referendum",
       "type": "yesno",
       "yesOption": {

@@ -1,4 +1,4 @@
-import { Election } from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import { BallotConfig } from '@votingworks/utils';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 import { getAllBallotConfigs } from '../utils/get_all_ballot_configs';
@@ -13,23 +13,20 @@ export type State =
 
 export interface Init {
   type: 'Init';
-  election: Election;
-  electionHash: string;
+  electionDefinition: ElectionDefinition;
   ballotConfigs: readonly BallotConfig[];
 }
 
 export interface ArchiveBegin {
   type: 'ArchiveBegin';
-  election: Election;
-  electionHash: string;
+  electionDefinition: ElectionDefinition;
   ballotConfigs: readonly BallotConfig[];
   archive: DownloadableArchive;
 }
 
 export interface RenderBallot {
   type: 'RenderBallot';
-  election: Election;
-  electionHash: string;
+  electionDefinition: ElectionDefinition;
   archive: DownloadableArchive;
   ballotConfigsCount: number;
   remainingBallotConfigs: readonly BallotConfig[];
@@ -53,19 +50,15 @@ export interface Failed {
 }
 
 export function init(
-  election: Election,
-  electionHash: string,
+  electionDefinition: ElectionDefinition,
   localeCodes: readonly string[]
 ): Init {
   return {
     type: 'Init',
-    election,
-    electionHash,
-    ballotConfigs: getAllBallotConfigs(
-      election,
-      electionHash,
-      localeCodes
-    ).filter(({ isAbsentee }) => !isAbsentee),
+    electionDefinition,
+    ballotConfigs: getAllBallotConfigs(electionDefinition, localeCodes).filter(
+      ({ isAbsentee }) => !isAbsentee
+    ),
   };
 }
 
@@ -74,8 +67,7 @@ export function next(state: State): State {
     case 'Init':
       return {
         type: 'ArchiveBegin',
-        election: state.election,
-        electionHash: state.electionHash,
+        electionDefinition: state.electionDefinition,
         ballotConfigs: state.ballotConfigs,
         archive: new DownloadableArchive(),
       };
@@ -86,8 +78,7 @@ export function next(state: State): State {
 
       return {
         type: 'RenderBallot',
-        election: state.election,
-        electionHash: state.electionHash,
+        electionDefinition: state.electionDefinition,
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigs.length,
         currentBallotConfig,
@@ -109,8 +100,7 @@ export function next(state: State): State {
 
       return {
         type: 'RenderBallot',
-        election: state.election,
-        electionHash: state.electionHash,
+        electionDefinition: state.electionDefinition,
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigsCount,
         currentBallotConfig,

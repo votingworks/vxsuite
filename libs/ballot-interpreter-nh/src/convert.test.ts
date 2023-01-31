@@ -62,8 +62,8 @@ test('converting the Hudson ballot', async () => {
     issues: [],
   });
 
-  expect(JSON.stringify(convertResult.election, null, 2)).toEqual(
-    electionGridLayoutNewHampshireHudsonFixtures.electionDefinition.electionData
+  expect(convertResult.election).toMatchObject(
+    electionGridLayoutNewHampshireHudsonFixtures.electionDefinition.election
   );
 });
 
@@ -438,7 +438,6 @@ test('constitutional questions become yesno contests', async () => {
       {
         type: 'yesno',
         id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-        section: 'Constitutional Amendment Question #1',
         title: 'Constitutional Amendment Question #1',
         description:
           'Shall there be a convention to amend or revise the constitution?',
@@ -478,7 +477,6 @@ test('constitutional question ovals get placed on the grid correctly', async () 
           {
             type: 'yesno',
             id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-            section: 'Constitutional Amendment Question #1',
             title: 'Constitutional Amendment Question #1',
             description:
               'Shall there be a convention to amend or revise the constitution?',
@@ -524,8 +522,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     });
   }
 
-  expect(JSON.stringify(convertResult.election, null, 2)).toEqual(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData
+  expect(convertResult.election).toMatchObject(
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election
   );
 });

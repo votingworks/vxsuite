@@ -58,7 +58,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
 
   const [state, setState] = useState<workflow.State>(
-    workflow.init(election, electionHash, electionLocaleCodes)
+    workflow.init(electionDefinition, electionLocaleCodes)
   );
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -162,7 +162,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   function closeModal() {
     setIsModalOpen(false);
-    setState(workflow.init(election, electionHash, electionLocaleCodes));
+    assert(electionDefinition);
+    setState(workflow.init(electionDefinition, electionLocaleCodes));
   }
 
   const now = new Date();

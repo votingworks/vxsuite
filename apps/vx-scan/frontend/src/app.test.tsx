@@ -25,7 +25,7 @@ import {
   electionSample2Definition,
   electionSample,
 } from '@votingworks/fixtures';
-import { AdjudicationReason } from '@votingworks/types';
+import { AdjudicationReason, getDisplayElectionHash } from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
 
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -402,7 +402,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
   screen.getByText(/Franklin County/);
   screen.getByText(/State of Hamilton/);
   screen.getByText('Election ID');
-  screen.getByText('748dc61ad3');
+  within(screen.getByText('Election ID').parentElement!).getByText(
+    getDisplayElectionHash(electionSampleDefinition)
+  );
 
   await scanBallot();
 

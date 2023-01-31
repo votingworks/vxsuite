@@ -6,23 +6,15 @@
   "ballotStyles": [
     {
       "id": "card-number-3",
-      "precincts": [
-        "town-id-00701-precinct-id-"
-      ],
-      "districts": [
-        "town-id-00701-precinct-id-"
-      ]
+      "precincts": ["town-id-00701-precinct-id-"],
+      "districts": ["town-id-00701-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote"
-  ],
+  "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
   "contests": [
     {
       "id": "Governor-061a401b",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Governor",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
@@ -30,23 +22,17 @@
         {
           "id": "Josiah-Bartlett-1bb99985",
           "name": "Josiah Bartlett",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Hannah-Dustin-ab4ef7c8",
           "name": "Hannah Dustin",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "John-Spencer-9ffb5970",
           "name": "John Spencer",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -54,7 +40,6 @@
     {
       "id": "United-States-Senator-d3f1c75b",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "United States Senator",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
@@ -62,16 +47,12 @@
         {
           "id": "John-Langdon-5951c8e1",
           "name": "John Langdon",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "William-Preston-3778fcd5",
           "name": "William Preston",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -79,7 +60,6 @@
     {
       "id": "Representative-in-Congress-24683b44",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Representative in Congress",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
@@ -87,23 +67,17 @@
         {
           "id": "Jeremiah-Smith-469560c9",
           "name": "Jeremiah Smith",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Nicholas-Gilman-1791aed7",
           "name": "Nicholas Gilman",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Richard-Coote-b9095636",
           "name": "Richard Coote",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -111,7 +85,6 @@
     {
       "id": "Executive-Councilor-bb22557f",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Executive Councilor",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
@@ -119,16 +92,12 @@
         {
           "id": "Anne-Waldron-ee0cbc85",
           "name": "Anne Waldron",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Daniel-Webster-13f77b2d",
           "name": "Daniel Webster",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -136,7 +105,6 @@
     {
       "id": "State-Senator-391381f8",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "State Senator",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
@@ -144,16 +112,12 @@
         {
           "id": "James-Poole-db5ef4bd",
           "name": "James Poole",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Matthew-Thornton-f66fec5e",
           "name": "Matthew Thornton",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -161,7 +125,6 @@
     {
       "id": "State-Representatives-Hillsborough-District-34-b1012d38",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "State Representatives  Hillsborough District 34",
       "title": "State Representatives  Hillsborough District 34",
       "type": "candidate",
       "seats": 3,
@@ -169,58 +132,42 @@
         {
           "id": "Obadiah-Carrigan-5c95145a",
           "name": "Obadiah Carrigan",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Mary-Baker-Eddy-350785d5",
           "name": "Mary Baker Eddy",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Samuel-Bell-17973275",
           "name": "Samuel Bell",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Samuel-Livermore-f927fef1",
           "name": "Samuel Livermore",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Elijah-Miller-a52e6988",
           "name": "Elijah Miller",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Isaac-Hill-d6c9deeb",
           "name": "Isaac Hill",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Abigail-Bartlett-4e46c9d4",
           "name": "Abigail Bartlett",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         },
         {
           "id": "Jacob-Freese-b5146505",
           "name": "Jacob Freese",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -228,7 +175,6 @@
     {
       "id": "State-Representative-Hillsborough-District-37-f3bde894",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "State Representative  Hillsborough District 37",
       "title": "State Representative  Hillsborough District 37",
       "type": "candidate",
       "seats": 1,
@@ -236,23 +182,17 @@
         {
           "id": "Abeil-Foster-ded38e36",
           "name": "Abeil Foster",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Charles-H-Hersey-096286a4",
           "name": "Charles H. Hersey",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "William-Lovejoy-fde3c2df",
           "name": "William Lovejoy",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
@@ -260,7 +200,6 @@
     {
       "id": "Sheriff-4243fe0b",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Sheriff",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
@@ -268,10 +207,7 @@
         {
           "id": "Edward-Randolph-bf4c848a",
           "name": "Edward Randolph",
-          "partyIds": [
-            "Democratic-aea20adb",
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Democratic-aea20adb", "Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -279,7 +215,6 @@
     {
       "id": "County-Attorney-133f910f",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "County Attorney",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
@@ -287,16 +222,12 @@
         {
           "id": "Ezra-Bartlett-8f95223c",
           "name": "Ezra Bartlett",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Mary-Woolson-dc0b854a",
           "name": "Mary Woolson",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -304,7 +235,6 @@
     {
       "id": "County-Treasurer-87d25a31",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "County Treasurer",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
@@ -312,16 +242,12 @@
         {
           "id": "John-Smith-ef61a579",
           "name": "John Smith",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Jane-Jones-9caa141f",
           "name": "Jane Jones",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -329,7 +255,6 @@
     {
       "id": "Register-of-Deeds-a1278df2",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Register of Deeds",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
@@ -337,16 +262,12 @@
         {
           "id": "John-Mann-b56bbdd3",
           "name": "John Mann",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Ellen-A-Stileman-14408737",
           "name": "Ellen A. Stileman",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -354,7 +275,6 @@
     {
       "id": "Register-of-Probate-a4117da8",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Register of Probate",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
@@ -362,16 +282,12 @@
         {
           "id": "Nathaniel-Parker-56a06c29",
           "name": "Nathaniel Parker",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Claire-Cutts-07a436e7",
           "name": "Claire Cutts",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -379,7 +295,6 @@
     {
       "id": "County-Commissioner-d6feed25",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "County Commissioner",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
@@ -387,16 +302,12 @@
         {
           "id": "Ichabod-Goodwin-55e8de1f",
           "name": "Ichabod Goodwin",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Valbe-Cady-ba3af3af",
           "name": "Valbe Cady",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
@@ -404,7 +315,6 @@
     {
       "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
       "districtId": "town-id-00701-precinct-id-",
-      "section": "Constitutional Amendment Question #1",
       "title": "Constitutional Amendment Question #1",
       "type": "yesno",
       "description": "Shall there be a convention to amend or revise the constitution?"
@@ -871,10 +781,7 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote"
-  ],
+  "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
   "precincts": [
     {
       "id": "town-id-00701-precinct-id-",

@@ -172,7 +172,6 @@ export interface Contest {
   readonly id: ContestId;
   readonly districtId: DistrictId;
   readonly partyId?: PartyId;
-  readonly section: string;
   readonly title: string;
   readonly type: ContestTypes;
 }
@@ -181,7 +180,6 @@ const ContestInternalSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   partyId: PartyIdSchema.optional(),
-  section: z.string().nonempty(),
   title: z.string().nonempty(),
   type: ContestTypesSchema,
 });
@@ -1140,7 +1138,6 @@ export function expandEitherNeitherContests(
             id: contest.eitherNeitherContestId,
             title: `${contest.title} – Either/Neither`,
             districtId: contest.districtId,
-            section: contest.section,
             description: contest.description,
             yesOption: contest.eitherOption,
             noOption: contest.neitherOption,
@@ -1151,7 +1148,6 @@ export function expandEitherNeitherContests(
             id: contest.pickOneContestId,
             title: `${contest.title} – Pick One`,
             districtId: contest.districtId,
-            section: contest.section,
             description: contest.description,
             yesOption: contest.firstOption,
             noOption: contest.secondOption,
@@ -1413,6 +1409,20 @@ export function getPartyIdsInBallotStyles(
   election: Election
 ): Array<PartyId | undefined> {
   return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
+}
+
+export function getContestDistrictName(
+  election: Election,
+  contest: Contest
+): string {
+  const district = election.districts.find((d) => d.id === contest.districtId);
+  // istanbul ignore next
+  if (!district) {
+    throw new Error(
+      `Contest's associated district ${contest.districtId} not found.`
+    );
+  }
+  return district.name;
 }
 
 /**
@@ -1739,4 +1749,12 @@ export function safeParseElectionDefinition(
         electionData: value,
         electionHash: sha256(value),
       });
+}
+
+export const ELECTION_HASH_DISPLAY_LENGTH = 10;
+
+export function getDisplayElectionHash(
+  electionDefinition: ElectionDefinition
+): string {
+  return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
 }

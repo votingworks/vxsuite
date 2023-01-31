@@ -73,6 +73,13 @@ const EITHER_NEITHER_SEMS_DATA = electionWithMsEitherNeitherFixtures.semsData;
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
+jest.mock('@votingworks/ballot-encoder', () => {
+  return {
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
+    encodeBallot: () => new Uint8Array(),
+  };
+});
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   const original: typeof import('@votingworks/utils') =
     jest.requireActual('@votingworks/utils');

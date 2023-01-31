@@ -180,7 +180,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     sql = "select contest_id, contests.label as contest_label, type, contests.district_id as district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label as district_label from contests, districts where contests.district_id = districts.district_id order by cast(_sort_index as integer)"
     contests = [{
         "id": r['contest_id'],
-        "section": r['district_label'],
         "districtId": r['district_id'],
         "type": "candidate",
         "partyId": None if r['party_id'] == "0" else r['party_id'],
@@ -189,7 +188,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "allowWriteIns": int(r['num_write_ins']) > 0
     } if r[2] == "0" else {
         "id": r['contest_id'],
-        "section": r['district_label'],
         "districtId": r['district_id'],
         "type": "yesno",
         "title": cleanup_text(r['contest_text']).split("\n")[0] + ": " + r[1],
@@ -210,7 +208,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         either_neither_contest_ids.append(pick_one_contest['contest_id'])
         new_contest = {
             "id": f"{either_neither_contest['contest_id']}-{pick_one_contest['contest_id']}-either-neither",
-            "section": either_neither_contest['district_label'],
             "districtId": either_neither_contest['district_id'],
             "type": "ms-either-neither",
             "title": text[0],

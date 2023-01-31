@@ -15,7 +15,22 @@ import {
 } from '@votingworks/fixtures';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { encodeBallot } from '@votingworks/ballot-encoder';
+import { mockOf } from '@votingworks/test-utils';
+import { fromByteArray } from 'base64-js';
 import { BmdPaperBallot } from './bmd_paper_ballot';
+import * as QrCodeModule from './qrcode';
+
+jest.mock('@votingworks/ballot-encoder', () => {
+  return {
+    ...jest.requireActual('@votingworks/ballot-encoder'),
+    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
+    encodeBallot: jest.fn(),
+  };
+});
+
+const encodeBallotMock = mockOf(encodeBallot);
+const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   const original =
@@ -28,6 +43,11 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     ...original,
     randomBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
   };
+});
+
+beforeEach(() => {
+  encodeBallotMock.mockReset();
+  encodeBallotMock.mockReturnValue(mockEncodedBallotData);
 });
 
 function renderBmdPaperBallot({
@@ -226,6 +246,46 @@ test('BmdPaperBallot renders no seal when not provided', () => {
   });
 
   expect(screen.queryByTestId('printed-ballot-seal')).not.toBeInTheDocument();
+});
+
+test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', () => {
+  const QrCodeSpy = jest.spyOn(QrCodeModule, 'QrCode');
+
+  renderBmdPaperBallot({
+    electionDefinition: electionSampleDefinition,
+    ballotStyleId: '5',
+    precinctId: '21',
+    votes: {
+      president: 'barchi-hallaren',
+      'lieutenant-governor': 'norberg',
+      'question-a': ['yes'],
+      'question-b': ['no'],
+    },
+  });
+
+  expect(encodeBallot).toBeCalledWith(
+    electionSampleDefinition.election,
+    expect.objectContaining({
+      ballotStyleId: '5',
+      precinctId: '21',
+      ballotType: 0,
+      electionHash: electionSampleDefinition.electionHash,
+      isTestMode: true,
+      votes: {
+        president: [expect.objectContaining({ id: 'barchi-hallaren' })],
+        'lieutenant-governor': [expect.objectContaining({ id: 'norberg' })],
+        'question-a': ['yes'],
+        'question-b': ['no'],
+      },
+    })
+  );
+
+  expect(QrCodeSpy).toBeCalledWith(
+    expect.objectContaining({
+      value: fromByteArray(mockEncodedBallotData),
+    }),
+    expect.anything()
+  );
 });
 
 describe('BmdPaperBallot calls onRendered', () => {

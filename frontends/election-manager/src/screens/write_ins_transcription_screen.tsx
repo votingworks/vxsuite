@@ -5,6 +5,7 @@ import {
   Adjudication,
   CandidateContest,
   Election,
+  getContestDistrictName,
   getPartyAbbreviationByPartyId,
   Rect,
 } from '@votingworks/types';
@@ -282,11 +283,7 @@ export function WriteInsTranscriptionScreen({
                 <br />
                 <strong>{adjudicationId.substring(0, 4)}</strong>
               </TranscriptionId>
-              <Text>
-                {contest.section !== contest.title
-                  ? contest.section
-                  : 'Contest'}
-              </Text>
+              <Text>{getContestDistrictName(election, contest)}</Text>
               <h1>
                 {contest.title}
                 {contest.partyId &&

@@ -18,7 +18,7 @@ import {
   ReportSourceMachineType,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { MarkAndPrint } from '@votingworks/types';
+import { getContestDistrictName, MarkAndPrint } from '@votingworks/types';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -325,7 +325,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Change "County Commissioners" Contest
   userEvent.click(
     getByTextWithMarkup(
-      `${countyCommissionersContest.section}${countyCommissionersContest.title}`
+      `${getContestDistrictName(
+        electionDefinition.election,
+        countyCommissionersContest
+      )}${countyCommissionersContest.title}`
     )
   );
   await advanceTimersAndPromises();

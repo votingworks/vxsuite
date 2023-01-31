@@ -13,6 +13,7 @@ import {
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   getCandidatePartiesDescription,
+  getContestDistrictName,
 } from '@votingworks/types';
 import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
@@ -33,7 +34,7 @@ import { ChoiceButton } from './choice_button';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
-  ContestSection,
+  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
@@ -106,6 +107,7 @@ export function CandidateContest({
     'precinctId is required to render ContestPage'
   );
   const { election } = electionDefinition;
+  const districtName = getContestDistrictName(election, contest);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
@@ -300,8 +302,8 @@ export function CandidateContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${contest.section} ${contest.title}.`}>
-              <ContestSection>{contest.section}</ContestSection>
+            <h1 aria-label={`${districtName} ${contest.title}.`}>
+              <DistrictName>{districtName}</DistrictName>
               {contest.title}
             </h1>
             <p>

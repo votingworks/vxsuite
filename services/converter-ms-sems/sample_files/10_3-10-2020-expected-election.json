@@ -95,7 +95,6 @@
   "contests": [
     {
       "id": "775020738",
-      "section": "United States",
       "districtId": "1",
       "type": "candidate",
       "partyId": "2",
@@ -106,78 +105,57 @@
         {
           "id": "775031649",
           "name": "Joseph R. Biden",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031654",
           "name": "Michael R. Bloomberg",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031651",
           "name": "Pete Buttigieg",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031652",
           "name": "Tulsi Gabbard",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031646",
           "name": "Amy Klobuchar",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031653",
           "name": "Deval Patrick",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031650",
           "name": "Bernie Sanders",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031647",
           "name": "Tom Steyer",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031648",
           "name": "Elizabeth Warren",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031655",
           "name": "Andrew Yang",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         }
       ]
     },
     {
       "id": "775020740",
-      "section": "United States",
       "districtId": "1",
       "type": "candidate",
       "partyId": "2",
@@ -188,29 +166,22 @@
         {
           "id": "775031631",
           "name": "Tobey Bernard Bartee",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031632",
           "name": "Jensen Bohren",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         },
         {
           "id": "775031633",
           "name": "Mike Espy",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         }
       ]
     },
     {
       "id": "775020730",
-      "section": "US House Of Representatives",
       "districtId": "100000047",
       "type": "candidate",
       "partyId": "2",
@@ -221,15 +192,12 @@
         {
           "id": "775031635",
           "name": "Antonia Eliason",
-          "partyIds": [
-            "2"
-          ]
+          "partyIds": ["2"]
         }
       ]
     },
     {
       "id": "775020739",
-      "section": "United States",
       "districtId": "1",
       "type": "candidate",
       "partyId": "3",
@@ -240,29 +208,22 @@
         {
           "id": "775031657",
           "name": "Roque 'Rocky' De La Fuente",
-          "partyIds": [
-            "3"
-          ]
+          "partyIds": ["3"]
         },
         {
           "id": "775031656",
           "name": "Donald J. Trump",
-          "partyIds": [
-            "3"
-          ]
+          "partyIds": ["3"]
         },
         {
           "id": "775031658",
           "name": "Bill Weld",
-          "partyIds": [
-            "3"
-          ]
+          "partyIds": ["3"]
         }
       ]
     },
     {
       "id": "775020741",
-      "section": "United States",
       "districtId": "1",
       "type": "candidate",
       "partyId": "3",
@@ -273,15 +234,12 @@
         {
           "id": "775031639",
           "name": "Cindy Hyde-Smith",
-          "partyIds": [
-            "3"
-          ]
+          "partyIds": ["3"]
         }
       ]
     },
     {
       "id": "775020731",
-      "section": "US House Of Representatives",
       "districtId": "100000047",
       "type": "candidate",
       "partyId": "3",
@@ -292,9 +250,7 @@
         {
           "id": "775031626",
           "name": "Trent Kelly",
-          "partyIds": [
-            "3"
-          ]
+          "partyIds": ["3"]
         }
       ]
     }
@@ -382,10 +338,7 @@
         "6537",
         "6539"
       ],
-      "districts": [
-        "1",
-        "100000047"
-      ]
+      "districts": ["1", "100000047"]
     },
     {
       "id": "2R",
@@ -405,10 +358,7 @@
         "6537",
         "6539"
       ],
-      "districts": [
-        "1",
-        "100000047"
-      ]
+      "districts": ["1", "100000047"]
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",

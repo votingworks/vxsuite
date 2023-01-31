@@ -26,6 +26,7 @@ import {
   getCandidateParties,
   getCandidatePartiesDescription,
   getContests,
+  getContestDistrictName,
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
@@ -44,6 +45,8 @@ import {
   vote,
   withLocale,
   YesNoContest,
+  getDisplayElectionHash,
+  safeParseElectionDefinition,
 } from './election';
 import { unsafeParse } from './generic';
 
@@ -388,6 +391,15 @@ test('getPartySpecificElectionTitle', () => {
   ).toEqual('Example Primary Election Nonpartisan Contests');
 });
 
+test('getContestDistrictName', () => {
+  expect(
+    getContestDistrictName(
+      electionMinimalExhaustive,
+      electionMinimalExhaustive.contests[0]
+    )
+  ).toEqual('District 1');
+});
+
 test('isVotePresent', () => {
   expect(isVotePresent()).toEqual(false);
   expect(isVotePresent([])).toEqual(false);
@@ -714,4 +726,11 @@ test('ElectionDefinitionSchema', () => {
       election,
     }).election
   ).toEqual(election);
+});
+
+test('getDisplayElectionHash', () => {
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify(election)
+  ).ok();
+  expect(getDisplayElectionHash(electionDefinition!)).toEqual('7dcbb8f101');
 });

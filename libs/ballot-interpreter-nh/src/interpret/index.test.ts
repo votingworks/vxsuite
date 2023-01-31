@@ -1,4 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
+import { stripElectionHash } from '@votingworks/test-utils';
 import { interpret } from '.';
 
 test('interpret marked', async () => {
@@ -12,9 +13,10 @@ test('interpret marked', async () => {
     [frontImagePath, backImagePath],
     { isTestMode: false }
   );
-  expect(
-    interpretResult.unsafeUnwrap().map(({ interpretation }) => interpretation)
-  ).toMatchInlineSnapshot(`
+  const pageInterpretations = interpretResult
+    .unsafeUnwrap()
+    .map(({ interpretation }) => interpretation);
+  expect(stripElectionHash(pageInterpretations)).toMatchInlineSnapshot(`
     Array [
       Object {
         "adjudicationInfo": Object {
@@ -1613,7 +1615,7 @@ test('interpret marked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+            "electionHash": Anything,
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -3947,7 +3949,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+          "electionHash": Anything,
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -4948,7 +4950,7 @@ test('interpret marked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+            "electionHash": Anything,
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -5812,7 +5814,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+          "electionHash": Anything,
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -7462,7 +7464,7 @@ test('interpret unmarked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+            "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -9796,7 +9798,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+          "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -10480,7 +10482,7 @@ test('interpret unmarked', async () => {
           "metadata": Object {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+            "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
             "isTestMode": false,
             "locales": Object {
               "primary": "unknown",
@@ -11344,7 +11346,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "51e3d058b80ef04c6a91a4efafe4286fd3203998e94578c7e8804fd4491554e4",
+          "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",

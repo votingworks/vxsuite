@@ -6,6 +6,7 @@ import {
   Election,
   expandEitherNeitherContests,
   ExternalTally,
+  getContestDistrictName,
   PrecinctId,
   Tally,
 } from '@votingworks/types';
@@ -318,9 +319,7 @@ export function ContestTally({
         return (
           <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
             <Prose maxWidth={false} data-testid={`results-table-${contest.id}`}>
-              {contest.section !== contest.title && (
-                <Text small>{contest.section}</Text>
-              )}
+              <Text small>{getContestDistrictName(election, contest)}</Text>
               <h3>
                 {contest.title}
                 {contest.type === 'candidate' && contest.seats > 1 && (

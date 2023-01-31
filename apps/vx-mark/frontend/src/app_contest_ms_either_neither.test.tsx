@@ -2,7 +2,12 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
-import { getBallotStyle, getContests, vote } from '@votingworks/types';
+import {
+  getBallotStyle,
+  getContestDistrictName,
+  getContests,
+  vote,
+} from '@votingworks/types';
 import { expectPrint, makeVoterCard } from '@votingworks/test-utils';
 
 import { App } from './app';
@@ -224,8 +229,9 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   }
 
   // Confirm there is no vote
+  const districtName = getContestDistrictName(election, measure420Contest);
   let contestReviewTitle = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   );
   expect(contestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
     'You may still vote in this contest.'
@@ -243,10 +249,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   fireEvent.click(screen.getByText('Review'));
   await advanceTimersAndPromises();
   contestReviewTitle = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   );
   const eitherAndFirst = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   ).nextSibling;
   expect(eitherAndFirst?.textContent?.trim()).toEqual('For either');
   expect(eitherAndFirst?.nextSibling?.textContent?.trim()).toEqual(
@@ -265,10 +271,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   fireEvent.click(screen.getByText('Review'));
   await advanceTimersAndPromises();
   contestReviewTitle = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   );
   const neitherAndSecond = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   ).nextSibling;
   expect(neitherAndSecond?.textContent?.trim()).toEqual('Against both');
   expect(neitherAndSecond?.nextSibling?.textContent?.trim()).toEqual(
@@ -286,10 +292,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   fireEvent.click(screen.getByText('Review'));
   await advanceTimersAndPromises();
   contestReviewTitle = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   );
   const noneAndSecond = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   ).nextSibling;
   expect(noneAndSecond?.textContent?.trim()).toEqual(
     'You may still vote in this contest.'
@@ -310,10 +316,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   fireEvent.click(screen.getByText('Review'));
   await advanceTimersAndPromises();
   contestReviewTitle = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   );
   const eitherAndNone = getByTextWithMarkup(
-    `${measure420Contest.section}${measure420Contest.title}`
+    `${districtName}${measure420Contest.title}`
   ).nextSibling;
   expect(eitherAndNone?.textContent?.trim()).toEqual('For either');
   expect(eitherAndNone?.nextSibling?.textContent?.trim()).toEqual(

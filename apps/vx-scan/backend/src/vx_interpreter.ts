@@ -2,7 +2,7 @@ import {
   decodeBallot,
   decodeElectionHash,
   detectRawBytesBmdBallot,
-  ELECTION_HASH_LENGTH,
+  sliceElectionHash,
 } from '@votingworks/ballot-encoder';
 import {
   Interpreter as HmpbInterpreter,
@@ -223,11 +223,9 @@ export class Interpreter {
     if (!this.skipElectionHashCheck) {
       const actualElectionHash =
         decodeElectionHash(detectQrcodeResult.qrcode.data) ?? 'not found';
-      const expectedElectionHash = this.electionDefinition.electionHash.slice(
-        0,
-        ELECTION_HASH_LENGTH
+      const expectedElectionHash = sliceElectionHash(
+        this.electionDefinition.electionHash
       );
-
       debug(
         'comparing election hash (%s) to expected value (%s)',
         actualElectionHash,

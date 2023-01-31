@@ -107,7 +107,6 @@
   "contests": [
     {
       "id": "775023960",
-      "section": "2nd Congressional District",
       "districtId": "100000048",
       "type": "candidate",
       "partyId": "2",
@@ -129,7 +128,6 @@
     },
     {
       "id": "775023961",
-      "section": "2nd Congressional District",
       "districtId": "100000048",
       "type": "candidate",
       "partyId": "3",

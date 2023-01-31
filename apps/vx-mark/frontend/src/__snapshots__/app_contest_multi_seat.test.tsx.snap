@@ -272,12 +272,12 @@ exports[`Single Seat Contest 1`] = `
           id="audiofocus"
         >
           <h1
-            aria-label="Franklin County County Commissioners."
+            aria-label="District 2 County Commissioners."
           >
             <div
               class="c3"
             >
-              Franklin County
+              District 2
             </div>
             County Commissioners
           </h1>

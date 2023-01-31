@@ -8,19 +8,17 @@ test('interpret three-column template with instructions', async () => {
   const imageData = await fixtures.blankPage1.imageData();
   const template = await interpreter.interpretTemplate(imageData);
 
-  expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
-    Object {
-      "ballotStyleId": "77",
-      "ballotType": 0,
-      "electionHash": "81dd1469d19d1be870c459760a3a9f2e51c1871280d3de44be1aaff354b2e82c",
-      "isTestMode": false,
-      "locales": Object {
-        "primary": "en-US",
-      },
-      "pageNumber": 1,
-      "precinctId": "42",
-    }
-  `);
+  expect(template.ballotPageLayout.metadata).toMatchObject({
+    ballotStyleId: '77',
+    ballotType: 0,
+    electionHash: expect.anything(),
+    isTestMode: false,
+    locales: {
+      primary: 'en-US',
+    },
+    pageNumber: 1,
+    precinctId: '42',
+  });
 
   expect(template.ballotPageLayout.contests).toMatchInlineSnapshot(`
     Array [

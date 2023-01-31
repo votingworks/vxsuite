@@ -276,6 +276,8 @@ test('interprets marks on an upside-down HMPB', async () => {
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
   });
 
   for await (const { page, pageNumber } of pdfToImages(
@@ -299,9 +301,603 @@ test('interprets marks on an upside-down HMPB', async () => {
     ).interpretation as InterpretedHmpbPage
   ).toMatchInlineSnapshot(`
     Object {
-      "actualElectionHash": "602c9b551d08a348c3e1",
-      "expectedElectionHash": "965aa0b918b9bab9a2a4",
-      "type": "InvalidElectionHashPage",
+      "adjudicationInfo": Object {
+        "enabledReasonInfos": Array [],
+        "enabledReasons": Array [],
+        "ignoredReasonInfos": Array [],
+        "requiresAdjudication": false,
+      },
+      "markInfo": Object {
+        "ballotSize": Object {
+          "height": 1584,
+          "width": 1224,
+        },
+        "marks": Array [
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 455,
+              "y": 220,
+            },
+            "contestId": "president",
+            "optionId": "barchi-hallaren",
+            "score": 0.4644808743169399,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 219,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 221,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 455,
+              "y": 313,
+            },
+            "contestId": "president",
+            "optionId": "cramer-vuocolo",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 313,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 315,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 455,
+              "y": 407,
+            },
+            "contestId": "president",
+            "optionId": "court-blumhardt",
+            "score": 0.02185792349726776,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": -1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 408,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 410,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 455,
+              "y": 502,
+            },
+            "contestId": "president",
+            "optionId": "boone-lian",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 502,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 504,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 455,
+              "y": 574,
+            },
+            "contestId": "president",
+            "optionId": "hildebrand-garritty",
+            "score": 0.01912568306010929,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 573,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 575,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 667,
+            },
+            "contestId": "president",
+            "optionId": "patterson-lariviere",
+            "score": 0.005434782608695652,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 667,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 669,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 907,
+            },
+            "contestId": "senator",
+            "optionId": "weiford",
+            "score": 0.002717391304347826,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 907,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 909,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 978,
+            },
+            "contestId": "senator",
+            "optionId": "garriss",
+            "score": 0.00273224043715847,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 978,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 980,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 1047,
+            },
+            "contestId": "senator",
+            "optionId": "wentworthfarthington",
+            "score": 0.00546448087431694,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 1047,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 1049,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 1118,
+            },
+            "contestId": "senator",
+            "optionId": "hewetson",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 1117,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 1119,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 1188,
+            },
+            "contestId": "senator",
+            "optionId": "martinez",
+            "score": 0.01366120218579235,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 1188,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 1190,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 455,
+              "y": 1258,
+            },
+            "contestId": "senator",
+            "optionId": "brown",
+            "score": 0.3879781420765027,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 1257,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 1259,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 1327,
+            },
+            "contestId": "senator",
+            "optionId": "pound",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 1327,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 1329,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 842,
+              "y": 192,
+            },
+            "contestId": "representative-district-6",
+            "optionId": "plunkard",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 192,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 194,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 262,
+            },
+            "contestId": "representative-district-6",
+            "optionId": "reeder",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 262,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 264,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 842,
+              "y": 331,
+            },
+            "contestId": "representative-district-6",
+            "optionId": "schott",
+            "score": 0.41847826086956524,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 331,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 333,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 841,
+              "y": 402,
+            },
+            "contestId": "representative-district-6",
+            "optionId": "tawney",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 402,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 404,
+              },
+            },
+            "type": "candidate",
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 842,
+              "y": 472,
+            },
+            "contestId": "representative-district-6",
+            "optionId": "forrest",
+            "score": 0.002717391304347826,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 472,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 474,
+              },
+            },
+            "type": "candidate",
+          },
+        ],
+      },
+      "metadata": Object {
+        "ballotId": undefined,
+        "ballotStyleId": "12",
+        "ballotType": 0,
+        "electionHash": "602c9b551d08a348c3e1",
+        "isTestMode": false,
+        "locales": Object {
+          "primary": "en-US",
+          "secondary": "es-US",
+        },
+        "pageNumber": 1,
+        "precinctId": "23",
+      },
+      "type": "InterpretedHmpbPage",
+      "votes": Object {
+        "president": Array [
+          Object {
+            "id": "barchi-hallaren",
+            "name": "Joseph Barchi and Joseph Hallaren",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+        ],
+        "representative-district-6": Array [
+          Object {
+            "id": "schott",
+            "name": "Brad Schott",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        ],
+        "senator": Array [
+          Object {
+            "id": "brown",
+            "name": "David Brown",
+            "partyIds": Array [
+              "6",
+            ],
+          },
+        ],
+      },
     }
   `);
 });
