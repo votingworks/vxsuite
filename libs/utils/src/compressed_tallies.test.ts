@@ -3,7 +3,6 @@ import {
   CastVoteRecord,
   ContestOptionTally,
   Dictionary,
-  expandEitherNeitherContests,
   PartyIdSchema,
   Tally,
   unsafeParse,
@@ -52,15 +51,8 @@ describe('compressTally', () => {
       (contest) => contest.id === '750000017'
     );
     expect(compressedTally[yesNoContestIdx]).toStrictEqual([0, 0, 0, 0, 0]);
-
-    // An either neither contest compressed tally should be all zeros
-    const eitherNeitherContestIdx = electionEitherNeither.contests.findIndex(
-      (contest) => contest.id === '750000015-either-neither'
-    );
-    expect(compressedTally[eitherNeitherContestIdx]).toStrictEqual([
-      0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ]);
   });
+
   test('compressTally compresses a candidate tally properly', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.electionDefinition.election;
@@ -144,66 +136,6 @@ describe('compressTally', () => {
     );
     expect(compressedTally).toHaveLength(electionEitherNeither.contests.length);
     expect(compressedTally[yesNoContestIdx]).toStrictEqual([1, 3, 20, 7, 9]);
-  });
-
-  test('compressTally compresses an either neither tally properly', () => {
-    const electionEitherNeither =
-      electionWithMsEitherNeitherFixtures.electionDefinition.election;
-    const emptyTally = calculateTallyForCastVoteRecords(
-      electionEitherNeither,
-      new Set()
-    );
-    const eitherNeitherContestIdx = electionEitherNeither.contests.findIndex(
-      (contest) => contest.id === '750000015-either-neither'
-    );
-    const eitherNeitherContest =
-      electionEitherNeither.contests[eitherNeitherContestIdx];
-    assert(eitherNeitherContest);
-    const [eitherNeither, pickOne] = expandEitherNeitherContests([
-      eitherNeitherContest,
-    ]);
-    assert(eitherNeither?.type === 'yesno');
-    assert(pickOne?.type === 'yesno');
-    const optionTallies1: Dictionary<ContestOptionTally> = {
-      yes: { option: ['yes'], tally: 1 },
-      no: { option: ['no'], tally: 3 },
-    };
-    const optionTallies2: Dictionary<ContestOptionTally> = {
-      yes: { option: ['yes'], tally: 3 },
-      no: { option: ['no'], tally: 1 },
-    };
-    const tallyWithEitherNeitherTallies: Tally = {
-      ...emptyTally,
-      contestTallies: {
-        ...emptyTally.contestTallies,
-        [eitherNeither.id]: {
-          contest: eitherNeither,
-          tallies: optionTallies1,
-          metadata: {
-            undervotes: 2,
-            overvotes: 2,
-            ballots: 8,
-          },
-        },
-        [pickOne.id]: {
-          contest: pickOne,
-          tallies: optionTallies2,
-          metadata: {
-            undervotes: 0,
-            overvotes: 4,
-            ballots: 8,
-          },
-        },
-      },
-    };
-    const compressedTally = compressTally(
-      electionEitherNeither,
-      tallyWithEitherNeitherTallies
-    );
-    expect(compressedTally).toHaveLength(electionEitherNeither.contests.length);
-    expect(compressedTally[eitherNeitherContestIdx]).toStrictEqual([
-      1, 3, 2, 2, 3, 1, 0, 4, 8,
-    ]);
   });
 });
 
@@ -391,93 +323,6 @@ describe('readCompressTally', () => {
       no: { option: ['no'], tally: 7 },
     });
   });
-
-  test('reads an either neither tally as expected', () => {
-    const electionEitherNeither =
-      electionWithMsEitherNeitherFixtures.electionDefinition.election;
-    const compressedTally = getZeroCompressedTally(electionEitherNeither);
-    const eitherNeitherContestIdx = electionEitherNeither.contests.findIndex(
-      (contest) => contest.id === '750000015-either-neither'
-    );
-    compressedTally[eitherNeitherContestIdx] = [3, 7, 2, 3, 6, 4, 4, 1, 15];
-    const eitherNeitherContest =
-      electionEitherNeither.contests[eitherNeitherContestIdx];
-    assert(eitherNeitherContest);
-    const [eitherNeither, pickOne] = expandEitherNeitherContests([
-      eitherNeitherContest,
-    ]);
-    assert(eitherNeither?.type === 'yesno');
-    assert(pickOne?.type === 'yesno');
-    const votingMethodData: Tally['ballotCountsByVotingMethod'] = {
-      [VotingMethod.Absentee]: 8,
-      [VotingMethod.Precinct]: 7,
-    };
-    const tally = readCompressedTally(
-      electionEitherNeither,
-      compressedTally,
-      [7, 8]
-    );
-    expect(tally.numberOfBallotsCounted).toEqual(15);
-    expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
-    const eitherNeitherTally = tally.contestTallies[eitherNeither.id];
-    const pickOneTally = tally.contestTallies[pickOne.id];
-    assert(eitherNeitherTally);
-    expect(eitherNeitherTally.contest).toStrictEqual(eitherNeither);
-    expect(eitherNeitherTally.metadata).toStrictEqual({
-      ballots: 15,
-      undervotes: 2,
-      overvotes: 3,
-    });
-    expect(eitherNeitherTally.tallies).toStrictEqual({
-      yes: { option: ['yes'], tally: 3 },
-      no: { option: ['no'], tally: 7 },
-    });
-    assert(pickOneTally);
-    expect(pickOneTally.contest).toStrictEqual(pickOne);
-    expect(pickOneTally.metadata).toStrictEqual({
-      ballots: 15,
-      undervotes: 4,
-      overvotes: 1,
-    });
-    expect(pickOneTally.tallies).toStrictEqual({
-      yes: { option: ['yes'], tally: 6 },
-      no: { option: ['no'], tally: 4 },
-    });
-  });
-});
-
-test('either neither tally can compress and be read back and end with the original tally', () => {
-  const castVoteRecordsContent = electionWithMsEitherNeitherFixtures.cvrData;
-  const lines = castVoteRecordsContent.split('\n');
-  const castVoteRecords = lines.flatMap((line) =>
-    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
-  );
-  const electionEitherNeither =
-    electionWithMsEitherNeitherFixtures.electionDefinition.election;
-
-  const expectedTally = calculateTallyForCastVoteRecords(
-    electionEitherNeither,
-    new Set(castVoteRecords)
-  );
-  const compressedTally = compressTally(electionEitherNeither, expectedTally);
-  delete expectedTally.ballotCountsByVotingMethod[VotingMethod.Unknown];
-  const processedCompressedTally = readCompressedTally(
-    electionEitherNeither,
-    compressedTally,
-    [
-      expectedTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
-      expectedTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
-    ]
-  );
-  expect(processedCompressedTally.ballotCountsByVotingMethod).toStrictEqual(
-    expectedTally.ballotCountsByVotingMethod
-  );
-  expect(processedCompressedTally.numberOfBallotsCounted).toStrictEqual(
-    expectedTally.numberOfBallotsCounted
-  );
-  expect(processedCompressedTally.contestTallies).toStrictEqual(
-    expectedTally.contestTallies
-  );
 });
 
 test('primary tally can compress and be read back and end with the original tally', () => {

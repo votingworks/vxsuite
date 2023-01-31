@@ -11,7 +11,6 @@ import {
   CandidateContest,
   CastVoteRecord,
   Election,
-  expandEitherNeitherContests,
   FullElectionTally,
   Id,
   PartyId,
@@ -200,33 +199,6 @@ test('buildVoteFromCvr', () => {
       ],
     }
   `);
-
-  // Handles malformed either/neither data as expected.
-  const castVoteRecord2: CastVoteRecord = {
-    '750000015': ['yes'],
-    '750000017': ['no'],
-    '750000018': ['yes'],
-    '775020870': ['775031993'],
-    '775020872': ['775031979'],
-    '775020876': ['775031989'],
-    '775020877': ['775031985'],
-    '775020902': ['775032019'],
-    _precinctId: '6525',
-    _ballotType: 'absentee',
-    _ballotStyleId: '1',
-    _ballotId: unsafeParse(BallotIdSchema, 'b75FfAaktS5jbityDpkFag=='),
-    _batchId: '1',
-    _batchLabel: 'Batch 1',
-    _testBallot: false,
-    _scannerId: 'scanner-6',
-    _pageNumber: 1,
-  };
-  const votes = buildVoteFromCvr({
-    election: electionWithMsEitherNeither,
-    cvr: castVoteRecord2,
-  });
-  expect(votes).not.toHaveProperty('750000015'); // The either neither contest should be removed since the pick one result was missing
-  expect(votes).not.toHaveProperty('750000016');
 });
 
 test('tallyVotesByContest zeroes', () => {
@@ -1057,15 +1029,13 @@ test('filterTalliesByParams in a primary election with nonpartisan contests', ()
     Object.values(TallyCategory)
   );
 
-  const allContestIds = expandEitherNeitherContests(election.contests).map(
-    (c) => c.id
-  );
+  const allContestIds = election.contests.map((c) => c.id);
 
-  const partyContestIds = expandEitherNeitherContests(election.contests)
+  const partyContestIds = election.contests
     .filter((c) => c.partyId === '0')
     .map((c) => c.id);
 
-  const nonPartyContestIds = expandEitherNeitherContests(election.contests)
+  const nonPartyContestIds = election.contests
     .filter((c) => !c.partyId)
     .map((c) => c.id);
 
@@ -1152,7 +1122,7 @@ describe('filterTallyContestsByParty', () => {
       party.id
     );
     expect(Object.keys(electionTally.contestTallies)).toEqual(
-      expandEitherNeitherContests(election.contests).map((c) => c.id)
+      election.contests.map((c) => c.id)
     );
     expect(Object.keys(filteredTally.contestTallies)).toMatchObject([
       'governor-contest-liberty',
@@ -1190,7 +1160,7 @@ describe('filterTallyContestsByParty', () => {
       NONPARTISAN_FILTER
     );
     expect(Object.keys(electionTally.contestTallies)).toEqual(
-      expandEitherNeitherContests(election.contests).map((c) => c.id)
+      election.contests.map((c) => c.id)
     );
     expect(Object.keys(filteredTally.contestTallies)).toMatchObject([
       'kingdom',

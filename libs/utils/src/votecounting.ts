@@ -8,7 +8,6 @@ import {
   getBallotStyle,
   getContests,
   Dictionary,
-  expandEitherNeitherContests,
   Optional,
   FullElectionTally,
   TallyCategory,
@@ -45,7 +44,7 @@ export function* parseCvrs(
   const precinctIds = new Set(election.precincts.map(({ id }) => id));
   const ballotStyleContests = new Set(
     election.ballotStyles.flatMap((ballotStyle) =>
-      expandEitherNeitherContests(getContests({ ballotStyle, election })).map(
+      getContests({ ballotStyle, election }).map(
         ({ id }) => `${ballotStyle.id}/${id}`
       )
     )
@@ -95,10 +94,7 @@ export function* parseCvrs(
             );
           } else {
             const selectedChoices = votes[contestId] as string[];
-            const contest = find(
-              expandEitherNeitherContests(election.contests),
-              (c) => c.id === contestId
-            );
+            const contest = find(election.contests, (c) => c.id === contestId);
             for (const selectedChoice of selectedChoices) {
               switch (contest.type) {
                 case 'candidate': {
@@ -123,6 +119,7 @@ export function* parseCvrs(
                   }
                   break;
                 }
+                /* istanbul ignore next */
                 default:
                   throwIllegalValue(contest, 'type');
               }
@@ -322,9 +319,9 @@ function processCastVoteRecord({
   });
   assert(ballotStyle);
   if (!ballotStyle.precincts.includes(castVoteRecord._precinctId)) return;
-  const contestIds = expandEitherNeitherContests(
-    getContests({ ballotStyle, election })
-  ).map((contest) => contest.id);
+  const contestIds = getContests({ ballotStyle, election }).map(
+    (contest) => contest.id
+  );
   const newCvr: CastVoteRecord = {
     _precinctId: castVoteRecord._precinctId,
     _ballotStyleId: castVoteRecord._ballotStyleId,
