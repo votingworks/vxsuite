@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/utils';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   AdjudicationReason,
   BallotLayout,
@@ -8,6 +8,7 @@ import {
   Translations,
   Election as VxElectionData,
   Party as VxPartyData,
+  AnyContest as VxContestData,
 } from './election';
 
 export interface State {
@@ -49,15 +50,11 @@ export interface CandidateContest extends BaseContest {
 export interface Candidate {
   name(): string;
   party(): Party | undefined;
-  // TODO do we need these fields in election def?
-  // isWriteIn?: boolean;
-  // writeInIndex?: number;
 }
 
 export interface BallotMeasureContest extends BaseContest {
   readonly type: 'ballot-measure';
   description(): string;
-  shortTitle(): string | undefined;
   options(): readonly BallotMeasureOption[]; // Replaces yesOption/noOption
 }
 
@@ -118,12 +115,58 @@ export interface Election {
   ballotStrings?: BallotStrings;
 }
 
-function buildElectionFromVxf(electionData: VxElectionData): Election {
+export function buildElectionFromVxf(electionData: VxElectionData): Election {
   function buildParty(partyData: VxPartyData) {
     return {
       name: () => partyData.name,
       abbreviation: () => partyData.abbrev,
     };
+  }
+
+  function findAndBuildParty(partyId?: string): Party | undefined {
+    const partyData = electionData.parties.find(
+      (party) => party.id === partyId
+    );
+    return partyData && buildParty(partyData);
+  }
+
+  function buildContest(contestData: VxContestData): Contest {
+    switch (contestData.type) {
+      case 'candidate': {
+        return {
+          type: 'candidate',
+          title: () => contestData.title,
+          party: () => findAndBuildParty(contestData.partyId),
+          votesAllowed: () => contestData.seats,
+          candidates: () => {
+            return contestData.candidates.map((candidateData) => ({
+              name: () => candidateData.name,
+              party: () => findAndBuildParty(candidateData.partyIds?.[0]),
+            }));
+          },
+          allowWriteIns: () => contestData.allowWriteIns,
+        };
+      }
+      case 'yesno': {
+        return {
+          type: 'ballot-measure',
+          title: () => contestData.title,
+          party: () => findAndBuildParty(contestData.partyId),
+          description: () => contestData.description,
+          options: () => {
+            return [
+              { label: () => contestData.yesOption?.label ?? 'Yes' },
+              { label: () => contestData.noOption?.label ?? 'No' },
+            ];
+          },
+        };
+      }
+      case 'ms-either-neither': {
+        throw new Error('not implemented');
+      }
+      default:
+        return throwIllegalValue(contestData);
+    }
   }
 
   return {
@@ -164,39 +207,29 @@ function buildElectionFromVxf(electionData: VxElectionData): Election {
     },
 
     contests(): readonly Contest[] {
-      return electionData.contests.map((contest) => {
-        switch (contest.type) {
-          case 'candidate': {
-            return {
-              type: 'candidate',
-              title: () => contest.title,
-              party: () => {
-                const partyData =
-                  contest.partyId &&
-                  electionData.parties.find(
-                    (party) => party.id === contest.partyId
-                  );
-                return partyData && buildParty(partyData);
-              },
-              votesAllowed: () => contest.seats,
-              candidates: () => [], // TODO
-              allowWriteIns: () => contest.allowWriteIns,
-            };
-          }
-          case 'yesno': {
-            throw new Error('not implemented');
-          }
-          case 'ms-either-neither': {
-            throw new Error('not implemented');
-          }
-          default:
-            throwIllegalValue(contest);
-        }
-      });
+      return electionData.contests.map(buildContest);
     },
 
     ballotStyles(): readonly BallotStyle[] {
-      return []; // TODO
+      return electionData.ballotStyles.map((ballotStyle) => ({
+        precincts: () =>
+          ballotStyle.precincts.map((precinctId) => {
+            const precinctData = find(
+              electionData.precincts,
+              (precinct) => precinct.id === precinctId
+            );
+            return {
+              name: () => precinctData.name,
+            };
+          }),
+        contests: () =>
+          ballotStyle.districts.flatMap((districtId) =>
+            electionData.contests
+              .filter((contest) => contest.districtId === districtId)
+              .map(buildContest)
+          ),
+        party: () => findAndBuildParty(ballotStyle.partyId),
+      }));
     },
   };
 }
