@@ -1,4 +1,4 @@
-import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
+import { MockScannerClient, ScannerClient } from '@votingworks/plustek-scanner';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import { ok, Result } from '@votingworks/basics';
 import fs from 'fs';

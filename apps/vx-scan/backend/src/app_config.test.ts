@@ -1,4 +1,4 @@
-import { MockScannerClient } from '@votingworks/plustek-sdk';
+import { MockScannerClient } from '@votingworks/plustek-scanner';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,

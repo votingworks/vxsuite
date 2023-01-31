@@ -117,8 +117,8 @@
       "path": "libs/message-coder"
     },
     {
-      "name": "libs/plustek-sdk",
-      "path": "libs/plustek-sdk"
+      "name": "libs/plustek-scanner",
+      "path": "libs/plustek-scanner"
     },
     {
       "name": "libs/res-to-ts",

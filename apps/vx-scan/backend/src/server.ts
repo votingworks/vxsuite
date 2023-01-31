@@ -1,5 +1,5 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
-import { createClient } from '@votingworks/plustek-sdk';
+import { createClient } from '@votingworks/plustek-scanner';
 import { getUsbDrives } from '@votingworks/data';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';

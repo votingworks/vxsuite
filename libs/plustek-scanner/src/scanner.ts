@@ -18,7 +18,7 @@ import { parseScannerError, ScannerError } from './errors';
 import { PaperStatus, PaperStatusSchema } from './paper_status';
 import { dir as createTempDir, file as createTempFile } from './util/temp';
 
-const debug = makeDebug('plustek-sdk:scanner');
+const debug = makeDebug('plustek-scanner:scanner');
 
 const CLI_DELIMITER = '<<<>>>';
 
