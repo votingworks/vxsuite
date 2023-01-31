@@ -5,6 +5,7 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "composite": true,
     "esModuleInterop": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "commonjs",
@@ -16,10 +17,12 @@
   },
   "references": [
     { "path": "../../libs/api/tsconfig.build.json" },
+    { "path": "../../libs/auth/tsconfig.build.json" },
     { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/db/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/grout/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
