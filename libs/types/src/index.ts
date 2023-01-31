@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './auth';
 export * from './hmpb';
 export * from './card';
 export * from './cast_vote_record';
@@ -13,7 +14,6 @@ export * from './numeric';
 export * from './polls';
 export * from './precinct_selection';
 export * from './printing';
-export * from './smartcard_auth';
 export * from './tallies';
 export * from './ui_theme';
 export * from './voting_method';
