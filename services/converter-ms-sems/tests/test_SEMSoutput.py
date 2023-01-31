@@ -23,22 +23,18 @@ def test_general_results_from_tallies(snapshot):
         TESTS = [
             {
                 'election': get_sample_file('general-election.json'),
-                'cvrs': '10_cvrs.csv',
                 'tallies': '10_tallies.json',
             },
             {
                 'election': election_file.name,
-                'cvrs': '10_8-26-2020-cvrs.txt',
                 'tallies': '10_8-26-2020-tallies.json',
             },
             {
                 'election': election_file.name,
-                'cvrs': '10_8-26-2020-b-cvrs.txt',
                 'tallies': '10_8-26-2020-b-tallies.json',
             },
             {
                 'election': get_sample_file('electionPrimarySample.json'),
-                'cvrs': 'election-primary-sample-cvrs.txt',
                 'tallies': 'election-primary-sample-tallies.json',
             }
         ]
