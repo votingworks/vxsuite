@@ -1,14 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
-import { CardProgramming } from '@votingworks/types';
-import { generatePin } from '@votingworks/utils';
 
 import {
   isSmartcardActionComplete,
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
+import { useApiClient } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -16,24 +15,23 @@ const StatusMessageContainer = styled.div`
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
-  card: CardProgramming;
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramSystemAdministratorCardView({
   actionStatus,
-  card,
   setActionStatus,
 }: Props): JSX.Element {
+  const apiClient = useApiClient();
+
   async function programSystemAdministratorCard() {
     setActionStatus({
       action: 'Program',
       role: 'system_administrator',
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'system_administrator',
-      passcode: generatePin(),
+    const result = await apiClient.programCard({
+      userRole: 'system_administrator',
     });
     setActionStatus({
       action: 'Program',

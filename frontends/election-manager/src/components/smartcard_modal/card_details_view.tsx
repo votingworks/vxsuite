@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { generatePin } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   fontSizeTheme,
@@ -8,9 +8,8 @@ import {
   Prose,
   Text,
 } from '@votingworks/ui';
-import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
+import { ElectionDefinition, User } from '@votingworks/types';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {
@@ -18,6 +17,7 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
+import { useApiClient } from '../../api';
 import { userRoleToReadableString } from './user_roles';
 
 const StatusMessageContainer = styled.div`
@@ -36,18 +36,17 @@ function checkDoesCardElectionHashMatchMachineElectionHash(
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
-  card: CardProgramming;
+  programmedUser: User;
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function CardDetailsView({
   actionStatus,
-  card,
+  programmedUser,
   setActionStatus,
 }: Props): JSX.Element {
-  const { programmedUser } = card;
-  assert(programmedUser);
   const { electionDefinition } = useContext(AppContext);
+  const apiClient = useApiClient();
 
   const { role } = programmedUser;
   const doesCardElectionHashMatchMachineElectionHash =
@@ -68,19 +67,15 @@ export function CardDetailsView({
     let result;
     switch (role) {
       case 'system_administrator': {
-        result = await card.programUser({
-          role: 'system_administrator',
-          passcode: generatePin(),
+        result = await apiClient.programCard({
+          userRole: 'system_administrator',
         });
         break;
       }
       case 'election_manager': {
         assert(electionDefinition);
-        result = await card.programUser({
-          role: 'election_manager',
-          electionData: electionDefinition.electionData,
-          electionHash: electionDefinition.electionHash,
-          passcode: generatePin(),
+        result = await apiClient.programCard({
+          userRole: 'election_manager',
         });
         break;
       }
@@ -102,7 +97,7 @@ export function CardDetailsView({
       role,
       status: 'InProgress',
     });
-    const result = await card.unprogramUser();
+    const result = await apiClient.unprogramCard();
     setActionStatus({
       action: 'Unprogram',
       role,

@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { generatePin } from '@votingworks/utils';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
-import { CardProgramming } from '@votingworks/types';
-
 import { assert } from '@votingworks/basics';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {
@@ -12,6 +10,7 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
+import { useApiClient } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -19,16 +18,15 @@ const StatusMessageContainer = styled.div`
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
-  card: CardProgramming;
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramElectionCardView({
   actionStatus,
-  card,
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
+  const apiClient = useApiClient();
 
   async function programAdminCard() {
     assert(electionDefinition);
@@ -38,11 +36,8 @@ export function ProgramElectionCardView({
       role: 'election_manager',
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'election_manager',
-      electionData: electionDefinition.electionData,
-      electionHash: electionDefinition.electionHash,
-      passcode: generatePin(),
+    const result = await apiClient.programCard({
+      userRole: 'election_manager',
     });
     setActionStatus({
       action: 'Program',
@@ -59,9 +54,8 @@ export function ProgramElectionCardView({
       role: 'poll_worker',
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'poll_worker',
-      electionHash: electionDefinition.electionHash,
+    const result = await apiClient.programCard({
+      userRole: 'poll_worker',
     });
     setActionStatus({
       action: 'Program',

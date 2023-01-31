@@ -52,7 +52,7 @@ export function SmartcardModal(): JSX.Element | null {
         contents = (
           <CardDetailsView
             actionStatus={actionStatus}
-            card={auth.programmableCard}
+            programmedUser={auth.programmableCard.programmedUser}
             setActionStatus={setActionStatus}
           />
         );
@@ -60,7 +60,6 @@ export function SmartcardModal(): JSX.Element | null {
         contents = (
           <ProgramSystemAdministratorCardView
             actionStatus={actionStatus}
-            card={auth.programmableCard}
             setActionStatus={setActionStatus}
           />
         );
@@ -68,7 +67,6 @@ export function SmartcardModal(): JSX.Element | null {
         contents = (
           <ProgramElectionCardView
             actionStatus={actionStatus}
-            card={auth.programmableCard}
             setActionStatus={setActionStatus}
           />
         );

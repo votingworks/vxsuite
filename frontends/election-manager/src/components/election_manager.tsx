@@ -37,18 +37,25 @@ import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
+import { useApiClient } from '../api';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
     useContext(AppContext);
   const election = electionDefinition?.election;
+  const apiClient = useApiClient();
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
 
   if (auth.status === 'checking_passcode') {
-    return <UnlockMachineScreen auth={auth} />;
+    return (
+      <UnlockMachineScreen
+        auth={auth}
+        checkPin={(pin) => apiClient.checkPin({ pin })}
+      />
+    );
   }
 
   if (auth.status === 'remove_card') {

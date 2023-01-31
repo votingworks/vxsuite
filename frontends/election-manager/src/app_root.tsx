@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import {
-  Card,
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
@@ -23,7 +22,7 @@ import {
 import {
   useUsbDrive,
   useDevices,
-  useDippedSmartcardAuth,
+  useDippedSmartCardAuth,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -42,22 +41,21 @@ import { ServicesContext } from './contexts/services_context';
 import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
 import { useCurrentElectionMetadata } from './hooks/use_current_election_metadata';
 import { useCvrsQuery } from './hooks/use_cvrs_query';
+import { useApiClient } from './api';
 
 export interface Props {
   printer: Printer;
   hardware: Hardware;
-  card: Card;
   machineConfigProvider: Provider<MachineConfig>;
   converter?: ConverterClientType;
 }
 
 export function AppRoot({
   printer,
-  card,
   hardware,
   machineConfigProvider,
   converter,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const { logger } = useContext(ServicesContext);
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
@@ -77,11 +75,8 @@ export function AppRoot({
 
   const electionDefinition = currentElection.data?.electionDefinition;
 
-  const auth = useDippedSmartcardAuth({
-    cardApi: card,
-    logger,
-    scope: { electionDefinition },
-  });
+  const apiClient = useApiClient();
+  const auth = useDippedSmartCardAuth(apiClient);
   const currentUserRole =
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
@@ -217,6 +212,10 @@ export function AppRoot({
     },
     [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
   );
+
+  if (!currentElection.isSuccess) {
+    return null;
+  }
 
   return (
     <AppContext.Provider

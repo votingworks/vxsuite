@@ -3,7 +3,6 @@ import { AppBase } from '@votingworks/ui';
 import {
   getHardware,
   getPrinter,
-  WebServiceCard,
   getConverterClientType,
 } from '@votingworks/utils';
 import React from 'react';
@@ -11,15 +10,16 @@ import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { machineConfigProvider as defaultMachineConfigProvider } from './utils/machine_config';
+import { ApiClient, ApiClientContext, createApiClient } from './api';
 
-export type Props = Partial<AppRootProps>;
+export type Props = Partial<AppRootProps & { apiClient?: ApiClient }>;
 
 export function App({
   hardware = getHardware(),
-  card = new WebServiceCard(),
   printer = getPrinter(),
   machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
+  apiClient = createApiClient(),
 }: Props): JSX.Element {
   // Copied from old App.css
   const baseFontSizePx = 20;
@@ -35,13 +35,14 @@ export function App({
         legacyBaseFontSizePx={baseFontSizePx}
         legacyPrintFontSizePx={printFontSizePx}
       >
-        <AppRoot
-          printer={printer}
-          hardware={hardware}
-          card={card}
-          machineConfigProvider={machineConfigProvider}
-          converter={converter}
-        />
+        <ApiClientContext.Provider value={apiClient}>
+          <AppRoot
+            printer={printer}
+            hardware={hardware}
+            machineConfigProvider={machineConfigProvider}
+            converter={converter}
+          />
+        </ApiClientContext.Provider>
       </AppBase>
     </BrowserRouter>
   );

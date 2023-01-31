@@ -18,6 +18,7 @@ module.exports = function (app) {
   app.use(proxy('/card', { target: 'http://localhost:3001/' }));
   app.use(proxy('/convert', { target: 'http://localhost:3003/' }));
   app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
+  app.use(proxy('/api', { target: 'http://localhost:3004/' }));
 
   app.use('/machine-config', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
