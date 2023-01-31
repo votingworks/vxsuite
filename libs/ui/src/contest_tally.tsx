@@ -4,7 +4,6 @@ import pluralize from 'pluralize';
 
 import {
   Election,
-  expandEitherNeitherContests,
   ExternalTally,
   getContestDistrictName,
   PrecinctId,
@@ -188,7 +187,7 @@ export function ContestTally({
 
   return (
     <React.Fragment>
-      {expandEitherNeitherContests(election.contests).map((contest) => {
+      {election.contests.map((contest) => {
         if (!(contest.id in scannedTally.contestTallies)) {
           return null;
         }

@@ -16,7 +16,6 @@ import {
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
-  MsEitherNeitherContest,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
@@ -188,48 +187,6 @@ function YesNoContestResult({ vote }: YesNoContestResultProps): JSX.Element {
   );
 }
 
-interface MsEitherNeitherContestResultProps {
-  contest: MsEitherNeitherContest;
-  eitherNeitherContestVote: OptionalYesNoVote;
-  pickOneContestVote: OptionalYesNoVote;
-}
-
-function MsEitherNeitherContestResult({
-  contest,
-  eitherNeitherContestVote,
-  pickOneContestVote,
-}: MsEitherNeitherContestResultProps): JSX.Element {
-  const eitherNeitherVote = eitherNeitherContestVote?.[0];
-  const pickOneVote = pickOneContestVote?.[0];
-
-  return eitherNeitherVote || pickOneVote ? (
-    <React.Fragment>
-      {eitherNeitherVote ? (
-        <Text bold wordBreak>
-          •{' '}
-          {eitherNeitherVote === 'yes'
-            ? contest.eitherOption.label
-            : contest.neitherOption.label}
-        </Text>
-      ) : (
-        <NoSelection prefix="• " />
-      )}
-      {pickOneVote ? (
-        <Text bold wordBreak>
-          •{' '}
-          {pickOneVote === 'yes'
-            ? contest.firstOption.label
-            : contest.secondOption.label}
-        </Text>
-      ) : (
-        <NoSelection prefix="• " />
-      )}
-    </React.Fragment>
-  ) : (
-    <NoSelection />
-  );
-}
-
 interface Props {
   ballotStyleId: BallotStyleId;
   electionDefinition: ElectionDefinition;
@@ -352,17 +309,6 @@ export function BmdPaperBallot({
                 )}
                 {contest.type === 'yesno' && (
                   <YesNoContestResult vote={votes[contest.id] as YesNoVote} />
-                )}
-                {contest.type === 'ms-either-neither' && (
-                  <MsEitherNeitherContestResult
-                    contest={contest}
-                    eitherNeitherContestVote={
-                      votes[contest.eitherNeitherContestId] as YesNoVote
-                    }
-                    pickOneContestVote={
-                      votes[contest.pickOneContestId] as YesNoVote
-                    }
-                  />
                 )}
               </ContestProse>
             </Contest>

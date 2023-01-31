@@ -112,56 +112,6 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
   expect(container).toMatchSnapshot();
 });
 
-test('BmdPaperBallot renders votes for MS either-neither contests', () => {
-  const { container } = renderBmdPaperBallot({
-    electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
-    precinctId: '6525',
-    votes: {
-      '750000015': ['yes'],
-      '750000016': ['yes'],
-    },
-  });
-
-  screen.getByText(
-    '• FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A'
-  );
-  screen.getByText('• FOR Initiative Measure No. 65');
-
-  // Use a snapshot to avoid unintentional regressions to general layout
-  expect(container).toMatchSnapshot();
-});
-
-test('BmdPaperBallot renders votes for MS either-neither contests (only either-neither vote provided)', () => {
-  renderBmdPaperBallot({
-    electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
-    precinctId: '6525',
-    votes: {
-      '750000015': ['no'],
-    },
-  });
-
-  screen.getByText(
-    '• AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A'
-  );
-  screen.getByText('• [no selection]');
-});
-
-test('BmdPaperBallot renders votes for MS either-neither contests (only pick-one vote provided)', () => {
-  renderBmdPaperBallot({
-    electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
-    precinctId: '6525',
-    votes: {
-      '750000016': ['no'],
-    },
-  });
-
-  screen.getByText('• [no selection]');
-  screen.getByText('• FOR Alternative Measure 65 A');
-});
-
 test('BmdPaperBallot renders when no votes', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
@@ -170,7 +120,7 @@ test('BmdPaperBallot renders when no votes', () => {
     votes: {},
   });
 
-  expect(screen.getAllByText('[no selection]')).toHaveLength(8);
+  expect(screen.getAllByText('[no selection]')).toHaveLength(9);
 });
 
 test('BmdPaperBallot renders when not in live mode', () => {
