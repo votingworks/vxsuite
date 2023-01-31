@@ -228,11 +228,7 @@ test('getContests', () => {
       })!,
       election: electionMinimalExhaustive,
     }).map((c) => c.id)
-  ).toMatchObject([
-    'best-animal-mammal',
-    'zoo-council-mammal',
-    'new-zoo-either-neither',
-  ]);
+  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal']);
 
   expect(
     getContests({
@@ -253,12 +249,7 @@ test('getContests', () => {
       })!,
       election: electionPrimaryNonpartisanContests,
     }).map((c) => c.id)
-  ).toMatchObject([
-    'best-animal-mammal',
-    'zoo-council-mammal',
-    'new-zoo-either-neither',
-    'kingdom',
-  ]);
+  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal', 'kingdom']);
 
   expect(
     getContests({

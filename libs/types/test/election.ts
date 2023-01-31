@@ -254,34 +254,6 @@ const electionMinimalExhaustiveData = `
       "allowWriteIns": true
     },
     {
-      "id": "new-zoo-either-neither",
-      "districtId": "district-1",
-      "type": "ms-either-neither",
-      "title": "Ballot Measure 1",
-      "partyId": "0",
-      "eitherNeitherContestId": "new-zoo-either",
-      "pickOneContestId": "new-zoo-pick",
-      "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000? Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000",
-      "eitherNeitherLabel": "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH",
-      "pickOneLabel": "AND VOTE FOR ONE",
-      "eitherOption": {
-        "id": "new-zoo-either-approved",
-        "label": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A"
-      },
-      "neitherOption": {
-        "id": "new-zoo-neither-approved",
-        "label": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A"
-      },
-      "firstOption": {
-        "id": "new-zoo-safari",
-        "label": "FOR Initiative No. 12"
-      },
-      "secondOption": {
-        "id": "new-zoo-traditional",
-        "label": "FOR Alternative Measure No. 12 A"
-      }
-    },
-    {
       "id": "fishing",
       "districtId": "district-1",
       "type": "yesno",
@@ -471,34 +443,6 @@ const electionPrimaryNonpartisanContestsData = `
         }
       ],
       "allowWriteIns": true
-    },
-    {
-      "id": "new-zoo-either-neither",
-      "districtId": "district-1",
-      "type": "ms-either-neither",
-      "title": "Ballot Measure 1",
-      "partyId": "0",
-      "eitherNeitherContestId": "new-zoo-either",
-      "pickOneContestId": "new-zoo-pick",
-      "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000? Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000",
-      "eitherNeitherLabel": "VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH",
-      "pickOneLabel": "AND VOTE FOR ONE",
-      "eitherOption": {
-        "id": "new-zoo-either-approved",
-        "label": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A"
-      },
-      "neitherOption": {
-        "id": "new-zoo-neither-approved",
-        "label": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A"
-      },
-      "firstOption": {
-        "id": "new-zoo-safari",
-        "label": "FOR Initiative No. 12"
-      },
-      "secondOption": {
-        "id": "new-zoo-traditional",
-        "label": "FOR Alternative Measure No. 12 A"
-      }
     },
     {
       "id": "fishing",
