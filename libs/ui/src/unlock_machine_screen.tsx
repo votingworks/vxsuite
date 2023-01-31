@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  DippedSmartcardAuth,
+  InsertedSmartcardAuth,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -39,43 +43,67 @@ const EnteredCode = styled.div`
 
 type CheckingPassCodeAuth =
   | DippedSmartcardAuth.CheckingPasscode
+  | DippedSmartCardAuth.CheckingPin
   | InsertedSmartcardAuth.CheckingPasscode;
 
 interface Props {
   auth: CheckingPassCodeAuth;
   grayBackground?: boolean;
+  checkPin?: (pin: string) => Promise<void>;
 }
 
 export function UnlockMachineScreen({
   auth,
   grayBackground,
+  checkPin: checkPinFromProps,
 }: Props): JSX.Element {
   assert(auth.status === 'checking_passcode');
 
   const [currentPasscode, setCurrentPasscode] = useState('');
-  const handleNumberEntry = useCallback((digit: number) => {
-    setCurrentPasscode((prev) =>
-      `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
-    );
-  }, []);
+
+  const handleNumberEntry = useCallback(
+    async (digit: number) => {
+      const passcode = `${currentPasscode}${digit}`.slice(
+        0,
+        SECURITY_PIN_LENGTH
+      );
+      setCurrentPasscode(passcode);
+      if (passcode.length === SECURITY_PIN_LENGTH) {
+        if ('checkPasscode' in auth) {
+          auth.checkPasscode(passcode);
+        } else {
+          assert(checkPinFromProps !== undefined);
+          await checkPinFromProps(passcode);
+        }
+        setCurrentPasscode('');
+      }
+    },
+    [auth, checkPinFromProps, currentPasscode]
+  );
+
   const handleBackspace = useCallback(() => {
     setCurrentPasscode((prev) => prev.slice(0, -1));
   }, []);
+
   const handleClear = useCallback(() => {
     setCurrentPasscode('');
   }, []);
 
   useEffect(() => {
+    async function bypassPinEntry() {
+      if ('checkPasscode' in auth) {
+        auth.checkPasscode(auth.user.passcode);
+      } else {
+        assert(checkPinFromProps !== undefined);
+        await checkPinFromProps(auth.user.passcode);
+      }
+    }
     if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
-      auth.checkPasscode(auth.user.passcode);
-      return;
+      void bypassPinEntry();
     }
-
-    if (currentPasscode.length === SECURITY_PIN_LENGTH) {
-      auth.checkPasscode(currentPasscode);
-      setCurrentPasscode('');
-    }
-  }, [currentPasscode, auth]);
+    // Run this hook once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)

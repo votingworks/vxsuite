@@ -1,6 +1,11 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Dipped, mockOf } from '@votingworks/test-utils';
+import {
+  Dipped,
+  fakeSystemAdministratorUser,
+  mockOf,
+} from '@votingworks/test-utils';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -13,6 +18,10 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     ...jest.requireActual('@votingworks/utils'),
     isFeatureFlagEnabled: jest.fn(),
   };
+});
+
+beforeEach(() => {
+  mockOf(isFeatureFlagEnabled).mockReset();
 });
 
 test('Unlock machine screen submits passcode', async () => {
@@ -79,3 +88,40 @@ test('If SKIP_PIN_ENTRY flag is on in development, submits correct PIN immediate
     )
   );
 });
+
+test('Uses checkPin prop if auth object has no checkPasscode method', async () => {
+  const auth: DippedSmartCardAuth.CheckingPin = {
+    status: 'checking_passcode',
+    user: fakeSystemAdministratorUser(),
+  };
+  const checkPin = jest.fn();
+  render(<UnlockMachineScreen auth={auth} checkPin={checkPin} />);
+
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
+  await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '123456'));
+});
+
+test(
+  'Uses checkPin prop if auth object has no checkPasscode method, ' +
+    'when SKIP_PIN_ENTRY flag is on in development',
+  async () => {
+    mockOf(isFeatureFlagEnabled).mockImplementation(
+      (flag: BooleanEnvironmentVariableName) => {
+        return flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY;
+      }
+    );
+    const auth: DippedSmartCardAuth.CheckingPin = {
+      status: 'checking_passcode',
+      user: fakeSystemAdministratorUser(),
+    };
+    const checkPin = jest.fn();
+    render(<UnlockMachineScreen auth={auth} checkPin={checkPin} />);
+
+    await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '123456'));
+  }
+);

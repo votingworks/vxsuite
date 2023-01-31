@@ -10,15 +10,16 @@ import {
   Logger,
 } from '@votingworks/logging';
 
-import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  DippedSmartcardAuth,
+  ElectionDefinition,
+} from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
-import {
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from './hooks/smartcard_auth';
+import { isElectionManagerAuth, isSystemAdministratorAuth } from './hooks/auth';
 
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
@@ -27,7 +28,7 @@ import { UsbImage } from './graphics';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
-  auth: DippedSmartcardAuth.Auth;
+  auth: DippedSmartcardAuth.Auth | DippedSmartCardAuth.AuthStatus;
   logFileType: LogFileType;
   logger: Logger;
   electionDefinition?: ElectionDefinition;
