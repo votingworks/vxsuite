@@ -1,5 +1,4 @@
 import {
-  AnyContest,
   BallotId,
   BallotIdSchema,
   BallotLocale,
@@ -16,7 +15,6 @@ import {
   getPrecinctById,
   HmpbBallotPageMetadata,
   isVotePresent,
-  Optional,
   PrecinctId,
   unsafeParse,
   validateVotes,
@@ -386,35 +384,11 @@ function encodeBallotVotesInto(
 ): BitWriter {
   // write roll call
   for (const contest of contests) {
-    if (contest.type === 'ms-either-neither') {
-      bits.writeBoolean(isVotePresent(votes[contest.eitherNeitherContestId]));
-      bits.writeBoolean(isVotePresent(votes[contest.pickOneContestId]));
-    } else {
-      bits.writeBoolean(isVotePresent(votes[contest.id]));
-    }
+    bits.writeBoolean(isVotePresent(votes[contest.id]));
   }
 
   // write vote data
   for (const contest of contests) {
-    if (contest.type === 'ms-either-neither') {
-      const eitherNeitherYnVote = votes[
-        contest.eitherNeitherContestId
-      ] as Optional<YesNoVote>;
-      const pickOneYnVote = votes[
-        contest.pickOneContestId
-      ] as Optional<YesNoVote>;
-
-      if (eitherNeitherYnVote) {
-        writeYesNoVote(bits, eitherNeitherYnVote);
-      }
-
-      if (pickOneYnVote) {
-        writeYesNoVote(bits, pickOneYnVote);
-      }
-
-      continue;
-    }
-
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
@@ -546,37 +520,17 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   const votes: VotesDict = {};
 
   // read roll call
-  const contestsWithAnswers = contests.flatMap<{
-    contest: AnyContest;
-    hasEitherNeither?: boolean;
-    hasPickOne?: boolean;
-  }>((contest) => {
-    if (contest.type === 'ms-either-neither') {
-      const hasEitherNeither = bits.readBoolean();
-      const hasPickOne = bits.readBoolean();
-
-      if (hasEitherNeither || hasPickOne) {
-        return [{ contest, hasEitherNeither, hasPickOne }];
-      }
-    } else if (bits.readBoolean()) {
-      return [{ contest }];
+  const contestsWithAnswers = contests.flatMap((contest) => {
+    if (bits.readBoolean()) {
+      return [contest];
     }
 
     return [];
   });
 
   // read vote data
-  for (const { contest, hasEitherNeither, hasPickOne } of contestsWithAnswers) {
-    if (contest.type === 'ms-either-neither') {
-      if (hasEitherNeither) {
-        votes[contest.eitherNeitherContestId] = bits.readBoolean()
-          ? ['yes']
-          : ['no'];
-      }
-      if (hasPickOne) {
-        votes[contest.pickOneContestId] = bits.readBoolean() ? ['yes'] : ['no'];
-      }
-    } else if (contest.type === 'yesno') {
+  for (const contest of contestsWithAnswers) {
+    if (contest.type === 'yesno') {
       // yesno votes get a single bit
       votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no'];
     } else {
