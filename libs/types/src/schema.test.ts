@@ -1,8 +1,4 @@
-import {
-  election as electionSample,
-  electionData,
-  electionWithMsEitherNeither,
-} from '../test/election';
+import { election as electionSample, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
@@ -264,18 +260,6 @@ test('parsing a valid election object succeeds', () => {
 
   // Check the whole thing
   expect(parsed).toEqual(electionSample);
-});
-
-test('parsing a valid election with ms-either-neither succeeds', () => {
-  const parsed = t
-    .safeParseElection(electionWithMsEitherNeither as unknown)
-    .unsafeUnwrap();
-
-  // This check is here to prove TS inferred that `parsed` is an `Election`.
-  expect(parsed.title).toEqual(electionWithMsEitherNeither.title);
-
-  // Check the whole thing
-  expect(parsed).toEqual(electionWithMsEitherNeither);
 });
 
 test('parsing a valid election', () => {

@@ -1,9 +1,4 @@
-import {
-  DistrictIdSchema,
-  Election,
-  PartyIdSchema,
-  safeParseElection,
-} from '../src/election';
+import { Election, PartyIdSchema, safeParseElection } from '../src/election';
 import { unsafeParse } from '../src/generic';
 
 export const electionData = `
@@ -112,39 +107,6 @@ export const primaryElection: Election = {
       name: 'Republican',
       abbrev: 'R',
       fullName: 'Republican Party',
-    },
-  ],
-};
-export const electionWithMsEitherNeither: Election = {
-  ...election,
-  contests: [
-    ...election.contests,
-    {
-      type: 'ms-either-neither',
-      id: 'MSC',
-      title: 'MSC',
-      description: 'MSC',
-      districtId: unsafeParse(DistrictIdSchema, 'D'),
-      eitherNeitherContestId: 'MSEN',
-      eitherNeitherLabel: 'EITHER NEITHER',
-      eitherOption: {
-        id: 'EO',
-        label: 'EITHER OPTION',
-      },
-      neitherOption: {
-        id: 'NO',
-        label: 'NEITHER OPTION',
-      },
-      pickOneContestId: 'MSPO',
-      pickOneLabel: 'PICK ONE',
-      firstOption: {
-        id: 'FO',
-        label: 'FIRST OPTION',
-      },
-      secondOption: {
-        id: 'SO',
-        label: 'SECOND OPTION',
-      },
     },
   ],
 };
