@@ -8,17 +8,17 @@ import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-const dotEnvPath = '.env';
+const dotenvPath = '.env';
 const dotenvFiles: string[] = [
-  `${dotEnvPath}.${NODE_ENV}.local`,
+  `${dotenvPath}.${NODE_ENV}.local`,
   // Don't include `.env.local` for `test` environment
   // since normally you expect tests to produce the same
   // results for everyone
-  NODE_ENV !== 'test' ? `${dotEnvPath}.local` : '',
-  `${dotEnvPath}.${NODE_ENV}`,
-  dotEnvPath,
-  NODE_ENV !== 'test' ? `../../${dotEnvPath}.local` : '',
-  `../../${dotEnvPath}`,
+  NODE_ENV !== 'test' ? `${dotenvPath}.local` : '',
+  `${dotenvPath}.${NODE_ENV}`,
+  dotenvPath,
+  NODE_ENV !== 'test' ? `../../${dotenvPath}.local` : '',
+  `../../${dotenvPath}`,
 ].filter(Boolean);
 
 // Load environment variables from .env* files. Suppress warnings using silent
