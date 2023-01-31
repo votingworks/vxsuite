@@ -61,6 +61,12 @@ export function buildApp({
   workspace: Workspace;
 }): Application {
   const { store } = workspace;
+
+  const elections = store.getElections();
+  if (elections[0]?.electionDefinition) {
+    auth.setElectionDefinition(elections[0].electionDefinition);
+  }
+
   const app: Application = express();
 
   const api = buildApi(auth);
@@ -110,6 +116,7 @@ export function buildApp({
 
     const electionDefinition = parseResult.ok();
     const electionId = store.addElection(electionDefinition.electionData);
+    auth.setElectionDefinition(electionDefinition);
     response.json({ status: 'ok', id: electionId });
   });
 
@@ -156,6 +163,7 @@ export function buildApp({
     '/admin/elections/:electionId',
     (request, response) => {
       store.deleteElection(request.params.electionId);
+      auth.clearElectionDefinition();
       response.json({ status: 'ok' });
     }
   );
