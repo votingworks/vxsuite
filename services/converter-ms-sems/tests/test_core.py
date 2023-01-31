@@ -1,21 +1,17 @@
 
 from unittest.mock import patch
 
-import pytest, json, io, os
+import pytest, json, io, os, tempfile
 
 from converter.core import app, reset
 
 PARENT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-FILES_DIR = os.path.join(PARENT_DIR, 'election_files')
 SAMPLE_FILES = os.path.join(PARENT_DIR, 'sample_files')
 SAMPLE_MAIN_FILE = os.path.join(SAMPLE_FILES, '53_5-2-2019.txt')
 SAMPLE_CANDIDATE_MAPPING_FILE = os.path.join(SAMPLE_FILES, '53_CANDMAP_5-2-2019.txt')
-EXPECTED_ELECTION_FILE = os.path.join(SAMPLE_FILES, '53_expected-election.json')
 
 SAMPLE_TALLIES_FILE = os.path.join(SAMPLE_FILES, "53_tallies.json")
 SAMPLE_CVRS_FILE = os.path.join(SAMPLE_FILES, "CVRs.txt")
-EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results.txt')
-DOUBLED_EXPECTED_RESULTS_FILE = os.path.join(SAMPLE_FILES, '53_Results_Doubled.txt')
 
 def upload_file(client, url, filepath, extra_params={}):
     data = extra_params
@@ -56,7 +52,7 @@ def test_election_submitfile(client):
     filelist = json.loads(client.get('/convert/election/files').data)
     assert filelist['inputFiles'][0]['name'] == 'SEMS main file'
 
-def test_election_process(client):
+def test_election_and_tallies_process(client, snapshot):
     reset()
     
     # upload the sample files
@@ -78,9 +74,7 @@ def test_election_process(client):
 
     # download and check that it's the right file
     election = json.loads(client.get(election_url).data)
-    expected_election = json.loads(open(EXPECTED_ELECTION_FILE, "r").read())
-
-    assert election == expected_election
+    snapshot.assert_match(election)
 
     # request reset files
     reset_url = '/convert/reset'
@@ -90,10 +84,10 @@ def test_election_process(client):
     rv = client.get(election_url).data
     assert rv == b""
 
-def test_tallies_process(client):
-    reset()
-
-    upload_file(client, '/convert/tallies/submitfile', EXPECTED_ELECTION_FILE, {'name': 'Vx Election Definition'})
+    # after the election, convert the tallies
+    election_file = tempfile.NamedTemporaryFile('w')
+    election_file.write(json.dumps(election))
+    upload_file(client, '/convert/tallies/submitfile', election_file.name, {'name': 'Vx Election Definition'})
 
     rv = client.post("/convert/tallies/process").data
     assert b"not all files" in rv
@@ -110,9 +104,7 @@ def test_tallies_process(client):
     
     # download and check that it's the right file
     results = client.get(results_url).data
-    expected_results = open(EXPECTED_RESULTS_FILE, "rb").read()
-
-    assert results == expected_results
+    snapshot.assert_match(results)
     
     # request reset files
     reset_url = '/convert/reset'
@@ -121,3 +113,5 @@ def test_tallies_process(client):
     # try file after reset, shouldn't be there
     rv = client.get(results_url).data
     assert rv == b""
+
+    election_file.close()
