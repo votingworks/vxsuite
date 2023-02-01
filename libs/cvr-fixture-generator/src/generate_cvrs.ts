@@ -174,16 +174,6 @@ export async function* generateCvrs({
               case 'yesno':
                 candidateOptionsForContest.set(contest.id, YES_NO_OPTIONS);
                 break;
-              case 'ms-either-neither':
-                candidateOptionsForContest.set(
-                  contest.eitherNeitherContestId,
-                  YES_NO_OPTIONS
-                );
-                candidateOptionsForContest.set(
-                  contest.pickOneContestId,
-                  YES_NO_OPTIONS
-                );
-                break;
               // istanbul ignore next
               default:
                 throwIllegalValue(contest);

@@ -6,7 +6,7 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { InterpretedOvalMark } from '../types';
 
@@ -46,7 +46,7 @@ export function convertMarksToVotes(
       vote = [gridPosition.optionId] as Vote;
       optionId = gridPosition.optionId;
     } else {
-      throw new Error(`Unsupported contest type: ${contest.type}`);
+      throwIllegalValue(contest, 'type');
     }
 
     if (mark.score < markThresholds.marginal) {
