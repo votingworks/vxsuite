@@ -38,6 +38,8 @@ import {
   ElectionManagerStoreMemoryBackend,
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
+import { ApiClient, ApiClientContext } from '../src/api';
+import { createMockApiClient } from './helpers/api';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -70,6 +72,7 @@ interface RenderInAppContextParams {
   logger?: Logger;
   backend?: ElectionManagerStoreBackend;
   queryClient?: QueryClient;
+  apiClient?: ApiClient;
 }
 
 export function renderRootElement(
@@ -79,18 +82,22 @@ export function renderRootElement(
     logger = fakeLogger(),
     storage = new MemoryStorage(),
     queryClient = new QueryClient(),
+    apiClient = createMockApiClient(),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;
     storage?: Storage;
     queryClient?: QueryClient;
+    apiClient?: ApiClient;
   } = {}
 ): RenderResult {
   return testRender(
     <ServicesContext.Provider value={{ backend, logger, storage }}>
-      <QueryClientProvider client={queryClient}>
-        {component}
-      </QueryClientProvider>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          {component}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     </ServicesContext.Provider>
   );
 }
@@ -126,6 +133,7 @@ export function renderInAppContext(
     logger = new Logger(LogSource.VxAdminFrontend),
     backend,
     queryClient,
+    apiClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return renderRootElement(
@@ -157,6 +165,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { backend, logger, queryClient }
+    { apiClient, backend, logger, queryClient }
   );
 }
