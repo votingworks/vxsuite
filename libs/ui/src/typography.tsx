@@ -230,6 +230,5 @@ export function Pre(props: PreProps): JSX.Element {
       {...rest}
       dangerouslySetInnerHTML={{ __html: DomPurify.sanitize(children) }}
     />
-    // </StyledPre>
   );
 }
