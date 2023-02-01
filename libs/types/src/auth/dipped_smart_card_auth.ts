@@ -1,8 +1,5 @@
-import { Result } from '@votingworks/basics';
-
 import {
   ElectionManagerUser,
-  PollWorkerUser,
   SystemAdministratorUser,
   User,
   UserRole,
@@ -49,19 +46,6 @@ export interface ElectionManagerLoggedIn {
 export type LoggedIn = SystemAdministratorLoggedIn | ElectionManagerLoggedIn;
 
 export type AuthStatus = LoggedOut | CheckingPin | RemoveCard | LoggedIn;
-
-export interface ProgramCardInput {
-  userRole:
-    | SystemAdministratorUser['role']
-    | ElectionManagerUser['role']
-    | PollWorkerUser['role'];
-}
-
-export type ProgramCard = (
-  input: ProgramCardInput
-) => Promise<Result<{ pin?: string }, Error>>;
-
-export type UnprogramCard = () => Promise<Result<void, Error>>;
 
 export const DEFAULT_AUTH_STATUS: Readonly<AuthStatus> = {
   status: 'logged_out',

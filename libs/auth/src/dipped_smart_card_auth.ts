@@ -1,4 +1,11 @@
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  ElectionManagerUser,
+  PollWorkerUser,
+  SystemAdministratorUser,
+} from '@votingworks/types';
+import { Result } from '@votingworks/basics';
 
 /**
  * The API for a dipped smart card auth instance, "dipped" meaning that the card needs to be
@@ -10,8 +17,13 @@ export interface DippedSmartCardAuthApi {
   checkPin: (input: { pin: string }) => void;
   logOut: () => void;
 
-  programCard: DippedSmartCardAuth.ProgramCard;
-  unprogramCard: DippedSmartCardAuth.UnprogramCard;
+  programCard: (input: {
+    userRole:
+      | SystemAdministratorUser['role']
+      | ElectionManagerUser['role']
+      | PollWorkerUser['role'];
+  }) => Promise<Result<{ pin?: string }, Error>>;
+  unprogramCard: () => Promise<Result<void, Error>>;
 
   setElectionDefinition: (electionDefinition: ElectionDefinition) => void;
   clearElectionDefinition: () => void;
