@@ -226,7 +226,6 @@ exports[`prints correct ballot with votes 1`] = `
             >
               No
                
-              on Question A
             </p>
           </div>
         </div>
@@ -244,7 +243,6 @@ exports[`prints correct ballot with votes 1`] = `
             >
               Yes
                
-              on Question B
             </p>
           </div>
         </div>

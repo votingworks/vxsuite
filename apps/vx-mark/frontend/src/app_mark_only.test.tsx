@@ -183,7 +183,9 @@ it('MarkOnly flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Review Your Votes');
   screen.getByText(presidentContest.candidates[0].name);
-  screen.getByText(`Yes on ${measure102Contest.shortTitle}`);
+  within(screen.getByText(measure102Contest.title).parentElement!).getByText(
+    'Yes'
+  );
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
