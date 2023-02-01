@@ -4,7 +4,6 @@ import {
 } from '@votingworks/utils';
 import {
   Election,
-  expandEitherNeitherContests,
   writeInCandidate,
   FullElectionTally,
   TallyCategory,
@@ -28,7 +27,7 @@ export function* generateRowsForBatchTallyResultsCsv(
       { contestPartyFilter: ALL_PARTY_FILTER }
     );
     const contestVoteTotals: string[] = [];
-    for (const contest of expandEitherNeitherContests(election.contests)) {
+    for (const contest of election.contests) {
       const contestTally = batchTally.contestTallies[contest.id];
       contestVoteTotals.push(contestTally?.metadata.ballots.toString() ?? '0');
       contestVoteTotals.push(
@@ -72,7 +71,7 @@ export function generateHeaderRowForBatchResultsCsv(
   election: Election
 ): string {
   const contestSelectionHeaders: string[] = [];
-  for (const contest of expandEitherNeitherContests(election.contests)) {
+  for (const contest of election.contests) {
     let contestTitle = contest.title;
     if (contest.partyId) {
       const party = election.parties.find((p) => p.id === contest.partyId);

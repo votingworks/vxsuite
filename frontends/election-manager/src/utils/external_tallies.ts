@@ -2,7 +2,6 @@ import {
   Dictionary,
   Election,
   getContests,
-  expandEitherNeitherContests,
   ContestOptionTally,
   ContestTally,
   ExternalTally,
@@ -270,7 +269,7 @@ export function getEmptyContestTallies(
   allAdjudicatedValues?: Map<ContestId, string[]>
 ): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {};
-  for (const contest of expandEitherNeitherContests(election.contests)) {
+  for (const contest of election.contests) {
     const optionTallies: Dictionary<ContestOptionTally> = {};
     switch (contest.type) {
       case 'candidate': {

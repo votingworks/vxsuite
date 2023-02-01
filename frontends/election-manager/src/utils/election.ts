@@ -280,9 +280,6 @@ export function generateTestDeckBallots({
         for (const contest of contests) {
           if (contest.type === 'yesno') {
             votes[contest.id] = yesOrNo[ballotNum % 2];
-          } else if (contest.type === 'ms-either-neither') {
-            votes[contest.eitherNeitherContestId] = yesOrNo[ballotNum % 2];
-            votes[contest.pickOneContestId] = yesOrNo[ballotNum % 2];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
@@ -380,8 +377,6 @@ export function generateOvervoteBallot({
       const otherContest = otherContests[0];
       if (otherContest.type === 'yesno') {
         votes[otherContest.id] = ['yes', 'no'];
-      } else if (otherContest.type === 'ms-either-neither') {
-        votes[otherContest.eitherNeitherContestId] = ['yes', 'no'];
       }
       return {
         ballotStyleId: ballotStyle.id,

@@ -8,11 +8,10 @@ import {
   CandidateContest,
   YesNoContest,
   AnyContest,
-  MsEitherNeitherContest,
-  ContestId,
   PartyIdSchema,
   unsafeParse,
   getContestDistrictName,
+  ContestId,
 } from '@votingworks/types';
 
 import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
@@ -282,23 +281,6 @@ export function DefinitionContestsScreen({
     });
   };
 
-  const saveMsEitherNeitherOptionLabel: InputEventFunction = async (event) => {
-    const { name, value } = event.currentTarget;
-    const optionName = name as
-      | 'eitherOption'
-      | 'neitherOption'
-      | 'firstOption'
-      | 'secondOption';
-    const msEitherNeitherContest = contest as MsEitherNeitherContest;
-    await saveContest({
-      ...msEitherNeitherContest,
-      [optionName]: {
-        ...msEitherNeitherContest[optionName],
-        label: value,
-      },
-    });
-  };
-
   const appendSvgToDescription: InputEventFunction = async (event) => {
     const { files } = event.currentTarget;
     const file = files?.[0];
@@ -381,51 +363,6 @@ ${fileContent}`;
                         </BubbleMark>
                       </Text>
                     ))}
-                  </React.Fragment>
-                )}
-                {contest.type === 'ms-either-neither' && (
-                  <React.Fragment>
-                    <Text
-                      small
-                      preLine
-                      dangerouslySetInnerHTML={{
-                        __html: DomPurify.sanitize(contest.description),
-                      }}
-                    />
-                    <p>{contest.eitherNeitherLabel}</p>
-                    <Text key={contest.eitherOption.id} bold>
-                      <BubbleMark
-                        position={election.ballotLayout?.targetMarkPosition}
-                        checked={false}
-                      >
-                        <span>{contest.eitherOption.label}</span>
-                      </BubbleMark>
-                    </Text>
-                    <Text key={contest.neitherOption.id} bold>
-                      <BubbleMark
-                        position={election.ballotLayout?.targetMarkPosition}
-                        checked={false}
-                      >
-                        <span>{contest.neitherOption.label}</span>
-                      </BubbleMark>
-                    </Text>
-                    <p>{contest.pickOneLabel}</p>
-                    <Text key={contest.firstOption.id} bold>
-                      <BubbleMark
-                        position={election.ballotLayout?.targetMarkPosition}
-                        checked={false}
-                      >
-                        <span>{contest.firstOption.label}</span>
-                      </BubbleMark>
-                    </Text>
-                    <Text key={contest.secondOption.id} bold>
-                      <BubbleMark
-                        position={election.ballotLayout?.targetMarkPosition}
-                        checked={false}
-                      >
-                        <span>{contest.secondOption.label}</span>
-                      </BubbleMark>
-                    </Text>
                   </React.Fragment>
                 )}
               </Contest>
@@ -542,60 +479,6 @@ ${fileContent}`;
                 >
                   Append SVG Image to Description
                 </FileInputButton>
-              </React.Fragment>
-            )}
-            {contest.type === 'ms-either-neither' && (
-              <React.Fragment>
-                <TextField
-                  label="Description (Add bold formatting: <b>bold</b>)"
-                  name="description"
-                  type="textarea"
-                  value={contest.description}
-                  onChange={saveTextField}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="Either Neither Instruction Label"
-                  name="eitherNeitherLabel"
-                  value={contest.eitherNeitherLabel}
-                  onChange={saveTextField}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="Either Option Label"
-                  name="eitherOption"
-                  value={contest.eitherOption.label}
-                  onChange={saveMsEitherNeitherOptionLabel}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="Neither Option Label"
-                  name="neitherOption"
-                  value={contest.neitherOption.label}
-                  onChange={saveMsEitherNeitherOptionLabel}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="Pick One Instruction Label"
-                  name="pickOneLabel"
-                  value={contest.pickOneLabel}
-                  onChange={saveTextField}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="First Option Label"
-                  name="firstOption"
-                  value={contest.firstOption.label}
-                  onChange={saveMsEitherNeitherOptionLabel}
-                  disabled={!allowEditing}
-                />
-                <TextField
-                  label="First Option Label"
-                  name="secondOption"
-                  value={contest.secondOption.label}
-                  onChange={saveMsEitherNeitherOptionLabel}
-                  disabled={!allowEditing}
-                />
               </React.Fragment>
             )}
           </div>

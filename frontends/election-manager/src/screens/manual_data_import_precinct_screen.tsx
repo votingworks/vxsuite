@@ -6,7 +6,6 @@ import {
   CandidateContest,
   Contest,
   Dictionary,
-  expandEitherNeitherContests,
   ContestVoteOption,
   ContestOptionTally,
   ContestTally,
@@ -635,9 +634,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     setCandidateToRemove(undefined);
   }, []);
 
-  const currentContests = expandEitherNeitherContests(
-    getContestsForPrecinct(election, currentPrecinctId)
-  );
+  const currentContests = getContestsForPrecinct(election, currentPrecinctId);
 
   const votingMethodName =
     ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
