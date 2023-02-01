@@ -1,20 +1,20 @@
 {
   "folders": [
     {
-      "name": "apps/vx-scan/backend",
-      "path": "apps/vx-scan/backend"
-    },
-    {
-      "name": "apps/vx-scan/frontend",
-      "path": "apps/vx-scan/frontend"
+      "name": "apps/vx-mark/backend",
+      "path": "apps/vx-mark/backend"
     },
     {
       "name": "apps/vx-mark/frontend",
       "path": "apps/vx-mark/frontend"
     },
     {
-      "name": "apps/vx-mark/backend",
-      "path": "apps/vx-mark/backend"
+      "name": "apps/vx-scan/backend",
+      "path": "apps/vx-scan/backend"
+    },
+    {
+      "name": "apps/vx-scan/frontend",
+      "path": "apps/vx-scan/frontend"
     },
     {
       "name": "frontends/bmd",
