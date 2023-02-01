@@ -249,9 +249,7 @@ export function YesNoContest({
                 >
                   <Prose>
                     <Text
-                      aria-label={`${prefixAudioText} ${answer.label} on ${
-                        contest.shortTitle ?? contest.title
-                      }`}
+                      aria-label={`${prefixAudioText} ${answer.label} on ${contest.title}`}
                       wordBreak
                     >
                       {answer.label}

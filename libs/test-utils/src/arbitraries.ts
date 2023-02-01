@@ -191,7 +191,6 @@ export function arbitraryYesNoContest({
     fc.record({
       type: fc.constant('yesno'),
       title: fc.string({ minLength: 1 }),
-      shortTitle: fc.string({ minLength: 1 }),
       description: fc.string({ minLength: 1 }),
       id,
       districtId,

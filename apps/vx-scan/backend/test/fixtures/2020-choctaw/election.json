@@ -182,7 +182,6 @@
       "id": "initiative-65",
       "districtId": "100000275",
       "type": "yesno",
-      "shortTitle": "Initiative 65",
       "title": "Medical Marijuana Amendment - Initiative 65",
       "description": "Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?"
     },
@@ -190,7 +189,6 @@
       "id": "initiative-65-a",
       "districtId": "100000275",
       "type": "yesno",
-      "shortTitle": "Initiative 65A",
       "title": "Medical Marijuana Amendment - Initiative 65A",
       "description": "Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?"
     },
@@ -198,7 +196,6 @@
       "id": "flag-question",
       "districtId": "100000275",
       "type": "yesno",
-      "shortTitle": "Mississippi State Flag Referendum",
       "title": "Mississippi State Flag Referendum",
       "description": "Shall the State of Mississippi adopt the following proposed state flag to replace the current state flag? \n\n <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 625 375\"><path fill=\"#fff\" d=\"M0 0v375h625V0z\"/><path fill=\"#012369\" d=\"M243 243H0V0h243z\"/><path fill=\"#bc0a29\" d=\"M0 250h625v125H0z\"/><path fill=\"#012369\" d=\"M625 0v125H250V0z\"/><path id=\"a\" fill=\"#fff\" d=\"M121.499 57.502l3.407 10.716 11.092-.021-8.986 6.602 3.448 10.702-8.961-6.635-8.961 6.635 3.448-10.702L107 68.197l11.091.021z\"/><use transform=\"translate(43.298 26.307)\" xlink:href=\"#a\"/><use transform=\"translate(43.299 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(0 101.305)\" xlink:href=\"#a\"/><use transform=\"translate(-43.296 76.301)\" xlink:href=\"#a\"/><use transform=\"translate(-43.297 26.308)\" xlink:href=\"#a\"/><use transform=\"translate(-74.06 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(-89.326 40.456)\" xlink:href=\"#a\"/><use transform=\"translate(-84.155 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(-59.667 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(-21.539 138.691)\" xlink:href=\"#a\"/><use transform=\"translate(21.54 138.69)\" xlink:href=\"#a\"/><use transform=\"translate(59.669 118.656)\" xlink:href=\"#a\"/><use transform=\"translate(84.157 83.219)\" xlink:href=\"#a\"/><use transform=\"translate(89.327 40.458)\" xlink:href=\"#a\"/><use transform=\"translate(74.062 0.186)\" xlink:href=\"#a\"/><use transform=\"translate(41.823 -28.386)\" xlink:href=\"#a\"/><use transform=\"translate(0 -40)\" xlink:href=\"#a\"/><use transform=\"translate(-41.822 -29.688)\" xlink:href=\"#a\"/><use transform=\"scale(1.65) translate(-47.9 2.904)\" xlink:href=\"#a\"/></svg>"
     },
@@ -206,7 +203,6 @@
       "id": "runoffs-question",
       "districtId": "100000275",
       "type": "yesno",
-      "shortTitle": "Remove Electoral Vote Requirement and Establish Runoffs",
       "title": "Remove Electoral Vote Requirement and Establish Runoffs for Gubernatorial and State Office Elections",
       "description": "Should the state remove the requirement that a candidate for governor or elected state office receive the most votes in a majority of the state's 122 House of Representatives districts (the electoral vote requirement), remove the role of the Mississippi House of Representatives in choosing a winner if no candidate receives majority approval, and provide that a candidate for governor or state office must receive a majority vote of the people to win and that a runoff election will be held between the two highest vote-getters in the event that no candidate receives a majority vote?"
     }

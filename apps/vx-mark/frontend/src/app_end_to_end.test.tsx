@@ -312,7 +312,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Check for votes
   screen.getByText(presidentContest.candidates[0].name);
-  screen.getByText(`Yes on ${measure102Contest.shortTitle}`);
+  within(screen.getByText(measure102Contest.title).parentElement!).getByText(
+    'Yes'
+  );
 
   // Change "County Commissioners" Contest
   userEvent.click(

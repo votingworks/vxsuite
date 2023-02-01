@@ -253,7 +253,6 @@ export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
 export interface YesNoContest extends Contest {
   readonly type: 'yesno';
   readonly description: string;
-  readonly shortTitle?: string;
   readonly yesOption?: YesNoOption;
   readonly noOption?: YesNoOption;
 }
@@ -262,7 +261,6 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
     z.object({
       type: z.literal('yesno'),
       description: z.string().nonempty(),
-      shortTitle: z.string().nonempty().optional(),
       yesOption: YesNoOptionSchema.optional(),
       noOption: YesNoOptionSchema.optional(),
     })

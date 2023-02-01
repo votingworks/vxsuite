@@ -1324,8 +1324,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c14"
             >
               Yes
-               
-              on Question A
             </p>
           </div>
         </div>
@@ -1342,8 +1340,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c14"
             >
               No
-               
-              on Question B
             </p>
           </div>
         </div>

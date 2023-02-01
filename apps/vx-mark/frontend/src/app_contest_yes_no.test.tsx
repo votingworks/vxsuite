@@ -130,7 +130,5 @@ it('Single Seat Contest', async () => {
   );
   const siblingTextContent =
     (reviewTitle.nextSibling && reviewTitle.nextSibling.textContent) || '';
-  expect(siblingTextContent.trim()).toEqual(
-    `Yes on ${measure102Contest.shortTitle}`
-  );
+  expect(siblingTextContent.trim()).toEqual('Yes');
 });
