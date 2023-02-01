@@ -471,15 +471,6 @@ ${fileContent}`;
               onChange={saveTextField}
               disabled={!allowEditing}
             />
-            {contest.type === 'yesno' && (
-              <TextField
-                label="Short Title"
-                name="shortTitle"
-                value={contest.shortTitle}
-                onChange={saveTextField}
-                disabled={!allowEditing}
-              />
-            )}
             {contest.type === 'candidate' && (
               <React.Fragment>
                 <TextField
