@@ -3,7 +3,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import React from 'react';
 import { Admin } from '@votingworks/api';
@@ -20,8 +20,8 @@ import {
   renderRootElement,
 } from '../../test/render_in_app_context';
 import {
-  authenticateWithElectionManagerCard,
-  authenticateWithSystemAdministratorCard,
+  authenticateAsElectionManager,
+  authenticateAsSystemAdministrator,
 } from '../../test/util/authenticate';
 import { App } from '../app';
 import {
@@ -31,6 +31,7 @@ import {
 } from './print_all_ballots_button';
 import { MachineConfig } from '../config/types';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
+import { createMockApiClient, MockApiClient } from '../../test/helpers/api';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -42,8 +43,15 @@ fetchMock.get(
   })
 );
 
+let mockApiClient: MockApiClient;
+
 beforeEach(() => {
   jest.useFakeTimers();
+  mockApiClient = createMockApiClient();
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
 });
 
 test('button renders properly when not clicked', () => {
@@ -162,17 +170,19 @@ test('print sequence proceeds as expected', async () => {
 });
 
 test('initial modal state toggles based on printer state', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectCardReader: true,
   });
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   await screen.findByText('Print All');
@@ -190,7 +200,6 @@ test('initial modal state toggles based on printer state', async () => {
 test('modal shows "Printer Disconnected" if printer disconnected while printing', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectCardReader: true,
     connectPrinter: true,
@@ -199,13 +208,14 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
   const logger = fakeLogger();
-  renderRootElement(<App card={card} hardware={hardware} />, {
+  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
     backend,
     logger,
   });
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(await screen.findByText('Print All'));
@@ -233,7 +243,6 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
 });
 
 test('modal is different for system administrators', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectCardReader: true,
     connectPrinter: true,
@@ -241,10 +250,13 @@ test('modal is different for system administrators', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  mockApiClient.logOut.expectCallWith().resolves();
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(await screen.findByText('Print All'));
@@ -253,11 +265,12 @@ test('modal is different for system administrators', async () => {
     hasTextAcrossElements('Print 4 Official Absentee Ballots')
   );
   userEvent.click(within(modal).getByText('Cancel'));
+  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
   userEvent.click(screen.getByText('Lock Machine'));
 
   const electionManagerOptions = ['Official', 'Test', 'Sample'];
 
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator(mockApiClient);
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
@@ -269,10 +282,11 @@ test('modal is different for system administrators', async () => {
     ).not.toBeInTheDocument();
   }
   userEvent.click(within(modal).getByText('Cancel'));
+  mockApiClient.logOut.expectCallWith().resolves();
   userEvent.click(screen.getByText('Lock Machine'));
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(await screen.findByText('Print All'));

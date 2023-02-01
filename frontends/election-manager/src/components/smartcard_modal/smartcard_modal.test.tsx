@@ -3,30 +3,36 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import {
   ElectionManagerUser,
-  AnyCardData,
   PollWorkerUser,
+  SystemAdministratorUser,
+  User,
 } from '@votingworks/types';
-import { generatePin, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import {
   electionSampleDefinition,
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
-  makeElectionManagerCard,
-  makePollWorkerCard,
-  makeSystemAdministratorCard,
-  makeVoterCard,
+  fakeElectionManagerUser,
+  fakePollWorkerUser,
+  fakeSystemAdministratorUser,
+  fakeVoterUser,
   mockOf,
 } from '@votingworks/test-utils';
+import { generatePin, MemoryHardware } from '@votingworks/utils';
+import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '@testing-library/react';
 
-import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { App } from '../../app';
-import { authenticateWithSystemAdministratorCard } from '../../../test/util/authenticate';
-import { MachineConfig } from '../../config/types';
-import { VxFiles } from '../../lib/converters';
-import { renderRootElement } from '../../../test/render_in_app_context';
+import { authenticateAsSystemAdministrator } from '../../../test/util/authenticate';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+} from '../../../test/helpers/api';
 import { ElectionManagerStoreMemoryBackend } from '../../lib/backends';
+import { MachineConfig } from '../../config/types';
+import { renderRootElement } from '../../../test/render_in_app_context';
+import { VxFiles } from '../../lib/converters';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -36,10 +42,15 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 const electionDefinition = electionSampleDefinition;
-const { election, electionData, electionHash } = electionDefinition;
+const { electionHash } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 
+let mockApiClient: MockApiClient;
+
 beforeEach(() => {
+  mockApiClient = createMockApiClient();
+  mockApiClient.logOut.expectCallWith().resolves();
+
   fetchMock.reset();
   fetchMock.get(
     '/convert/election/files',
@@ -53,15 +64,20 @@ beforeEach(() => {
   mockOf(generatePin).mockImplementation(() => '123456');
 });
 
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
+
 test('Smartcard modal displays card details', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const testCases: Array<{
-    cardData: AnyCardData;
+    programmedUser: User;
     expectedHeading: string;
     expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
@@ -69,7 +85,7 @@ test('Smartcard modal displays card details', async () => {
     expectedFooter: string;
   }> = [
     {
-      cardData: makeSystemAdministratorCard(),
+      programmedUser: fakeSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
@@ -77,7 +93,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makeElectionManagerCard(electionHash),
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: true,
@@ -85,7 +101,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makePollWorkerCard(electionHash),
+      programmedUser: fakePollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -93,7 +109,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makeVoterCard(election),
+      programmedUser: fakeVoterUser(),
       expectedHeading: 'Voter Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -101,7 +117,9 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      cardData: makeElectionManagerCard(otherElectionHash),
+      programmedUser: fakeElectionManagerUser({
+        electionHash: otherElectionHash,
+      }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -109,7 +127,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makePollWorkerCard(otherElectionHash),
+      programmedUser: fakePollWorkerUser({ electionHash: otherElectionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -123,7 +141,7 @@ test('Smartcard modal displays card details', async () => {
 
   for (const testCase of testCases) {
     const {
-      cardData,
+      programmedUser,
       expectedHeading,
       expectedElectionString,
       shouldResetCardPinButtonBeDisplayed,
@@ -131,7 +149,11 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter,
     } = testCase;
 
-    card.insertCard(cardData);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
@@ -154,7 +176,11 @@ test('Smartcard modal displays card details', async () => {
     }
     within(modal).getByText(expectedFooter);
 
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -163,14 +189,15 @@ test('Smartcard modal displays card details', async () => {
 });
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const testCases: Array<{
-    cardData: AnyCardData;
+    programmedUser: User;
     expectedHeading: string;
     expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
@@ -178,7 +205,7 @@ test('Smartcard modal displays card details when no election definition on machi
     expectedFooter: string;
   }> = [
     {
-      cardData: makeSystemAdministratorCard(),
+      programmedUser: fakeSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
@@ -186,7 +213,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makeElectionManagerCard(electionHash),
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -194,7 +221,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      cardData: makePollWorkerCard(electionHash),
+      programmedUser: fakePollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -202,7 +229,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      cardData: makeVoterCard(election),
+      programmedUser: fakeVoterUser(),
       expectedHeading: 'Voter Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -215,7 +242,7 @@ test('Smartcard modal displays card details when no election definition on machi
 
   for (const testCase of testCases) {
     const {
-      cardData,
+      programmedUser,
       expectedHeading,
       expectedElectionString,
       shouldResetCardPinButtonBeDisplayed,
@@ -223,7 +250,11 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter,
     } = testCase;
 
-    card.insertCard(cardData);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
@@ -253,7 +284,11 @@ test('Smartcard modal displays card details when no election definition on machi
     }
     within(modal).getByText(expectedFooter);
 
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -262,29 +297,30 @@ test('Smartcard modal displays card details when no election definition on machi
 });
 
 test('Programming election manager and poll worker smartcards', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const testCases: Array<{
     role: ElectionManagerUser['role'] | PollWorkerUser['role'];
+    programmedUser: ElectionManagerUser | PollWorkerUser;
     expectedHeadingAfterProgramming: string;
     expectedSuccessText: Array<string | RegExp>;
-    expectedCardLongString?: string;
   }> = [
     {
       role: 'election_manager',
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
-      expectedCardLongString: electionData,
     },
     {
       role: 'poll_worker',
+      programmedUser: fakePollWorkerUser({ electionHash }),
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
-      expectedCardLongString: undefined,
     },
   ];
 
@@ -294,12 +330,16 @@ test('Programming election manager and poll worker smartcards', async () => {
   for (const testCase of testCases) {
     const {
       role,
+      programmedUser,
       expectedHeadingAfterProgramming,
       expectedSuccessText,
-      expectedCardLongString,
     } = testCase;
 
-    card.insertCard(); // Blank card
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser: undefined },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: 'Create New Election Card' });
@@ -311,6 +351,9 @@ test('Programming election manager and poll worker smartcards', async () => {
       name: 'Poll Worker Card',
     });
     within(modal).getByText('Remove card to cancel.');
+    mockApiClient.programCard
+      .expectCallWith({ userRole: role })
+      .resolves(ok({ pin: '123456' }));
     switch (role) {
       case 'election_manager': {
         userEvent.click(electionManagerCardButton);
@@ -325,6 +368,11 @@ test('Programming election manager and poll worker smartcards', async () => {
       }
     }
     await screen.findByText(/Programming card/);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
     await within(modal).findByRole('heading', {
       name: expectedHeadingAfterProgramming,
     });
@@ -333,9 +381,12 @@ test('Programming election manager and poll worker smartcards', async () => {
       within(modal).getByText(text);
     }
     within(modal).getByText('Remove card to continue.');
-    expect(await card.readLongString()).toEqual(expectedCardLongString);
 
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -346,17 +397,23 @@ test('Programming election manager and poll worker smartcards', async () => {
 });
 
 test('Programming system administrator smartcards', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   // Programming system administrator smartcards requires being on a specific screen
   userEvent.click(await screen.findByText('Smartcards'));
   userEvent.click(await screen.findByText('Create System Administrator Cards'));
   await screen.findByRole('heading', { name: 'System Administrator Cards' });
-  card.insertCard(); // Blank card
+
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'ready', programmedUser: undefined },
+  });
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
@@ -370,8 +427,19 @@ test('Programming system administrator smartcards', async () => {
     name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'system_administrator' })
+    .resolves(ok({ pin: '123456' }));
   userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: {
+      status: 'ready',
+      programmedUser: fakeSystemAdministratorUser(),
+    },
+  });
   await within(modal).findByRole('heading', {
     name: 'System Administrator Card',
   });
@@ -379,7 +447,11 @@ test('Programming system administrator smartcards', async () => {
   within(modal).getByText('123-456');
   within(modal).getByText('Remove card to continue.');
 
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  });
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -389,14 +461,20 @@ test('Programming system administrator smartcards', async () => {
 });
 
 test('Programming smartcards when no election definition on machine', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-  card.insertCard(); // Blank card
+
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'ready', programmedUser: undefined },
+  });
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Create New Election Card' });
@@ -411,7 +489,11 @@ test('Programming smartcards when no election definition on machine', async () =
   ).not.toBeInTheDocument();
   within(modal).getByText('Remove card to leave this screen.');
 
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  });
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -419,29 +501,23 @@ test('Programming smartcards when no election definition on machine', async () =
 });
 
 test('Resetting smartcard PINs', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
-
-  const oldPin = '000000';
-  const newPin = '123456';
-  mockOf(generatePin).mockImplementation(() => newPin);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const testCases: Array<{
-    cardData: AnyCardData;
-    cardLongValue?: string;
+    programmedUser: SystemAdministratorUser | ElectionManagerUser;
     expectedHeading: string;
   }> = [
     {
-      cardData: makeSystemAdministratorCard(oldPin),
-      cardLongValue: undefined,
+      programmedUser: fakeSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
     },
     {
-      cardData: makeElectionManagerCard(electionHash, oldPin),
-      cardLongValue: electionData,
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
     },
   ];
@@ -450,22 +526,19 @@ test('Resetting smartcard PINs', async () => {
   await screen.findByRole('heading', { name: 'Election Definition' });
 
   for (const testCase of testCases) {
-    const { cardData, cardLongValue, expectedHeading } = testCase;
+    const { programmedUser, expectedHeading } = testCase;
 
-    card.insertCard(cardData);
-    if (cardLongValue) {
-      await card.writeLongUint8Array(new TextEncoder().encode(cardLongValue));
-    }
-    const summaryBefore = await card.readSummary();
-    const shortValueBefore =
-      summaryBefore.status === 'ready' ? summaryBefore.shortValue : undefined;
-    const longValueBefore = await card.readLongString();
-    expect(shortValueBefore).toContain(oldPin);
-    assert(shortValueBefore !== undefined);
-    expect(longValueBefore).toEqual(cardLongValue);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
+    mockApiClient.programCard
+      .expectCallWith({ userRole: programmedUser.role })
+      .resolves(ok({ pin: '123456' }));
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
@@ -474,15 +547,11 @@ test('Resetting smartcard PINs', async () => {
     await within(modal).findByText('123-456');
     within(modal).getByText('Remove card to continue.');
 
-    // Verify that the card PIN and nothing else was changed under the hood
-    const summaryAfter = await card.readSummary();
-    const shortValueAfter =
-      summaryAfter.status === 'ready' ? summaryAfter.shortValue : undefined;
-    const longValueAfter = await card.readLongString();
-    expect(shortValueAfter).toEqual(shortValueBefore.replace(oldPin, newPin));
-    expect(longValueAfter).toEqual(longValueBefore);
-
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -493,27 +562,29 @@ test('Resetting smartcard PINs', async () => {
 });
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
-
-  const oldPin = '000000';
-  const newPin = '123456';
-  mockOf(generatePin).mockImplementation(() => newPin);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
-  card.insertCard(makeSystemAdministratorCard(oldPin));
-  const summaryBefore = await card.readSummary();
-  const shortValueBefore =
-    summaryBefore.status === 'ready' ? summaryBefore.shortValue : undefined;
-  expect(shortValueBefore).toContain(oldPin);
-  assert(shortValueBefore !== undefined);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: {
+      status: 'ready',
+      programmedUser: fakeSystemAdministratorUser(),
+    },
+  });
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'system_administrator' })
+    .resolves(ok({ pin: '123456' }));
   userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
@@ -522,13 +593,11 @@ test('Resetting system administrator smartcard PINs when no election definition 
   await within(modal).findByText('123-456');
   within(modal).getByText('Remove card to continue.');
 
-  // Verify that the card PIN and nothing else was changed under the hood
-  const summaryAfter = await card.readSummary();
-  const shortValueAfter =
-    summaryAfter.status === 'ready' ? summaryAfter.shortValue : undefined;
-  expect(shortValueAfter).toEqual(shortValueBefore.replace(oldPin, newPin));
-
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  });
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -538,27 +607,28 @@ test('Resetting system administrator smartcard PINs when no election definition 
 });
 
 test('Unprogramming smartcards', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
   await screen.findByRole('heading', { name: 'Election Definition' });
 
   const testCases: Array<{
-    cardData: AnyCardData;
+    programmedUser: User;
     expectedHeadingBeforeUnprogramming: string;
     expectedSuccessText: string;
   }> = [
     {
-      cardData: makeElectionManagerCard(electionHash),
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeadingBeforeUnprogramming: 'Election Manager Card',
       expectedSuccessText: 'Election Manager card has been unprogrammed.',
     },
     {
-      cardData: makePollWorkerCard(electionHash),
+      programmedUser: fakePollWorkerUser({ electionHash }),
       expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
       expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
@@ -566,27 +636,41 @@ test('Unprogramming smartcards', async () => {
 
   for (const testCase of testCases) {
     const {
-      cardData,
+      programmedUser,
       expectedHeadingBeforeUnprogramming,
       expectedSuccessText,
     } = testCase;
 
-    card.insertCard(cardData);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', {
       name: expectedHeadingBeforeUnprogramming,
     });
+    mockApiClient.unprogramCard.expectCallWith().resolves(ok());
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
     await screen.findByText(/Unprogramming card/);
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser: undefined },
+    });
     await within(modal).findByRole('heading', {
       name: 'Create New Election Card',
     });
     within(modal).getByText(expectedSuccessText);
 
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -597,61 +681,57 @@ test('Unprogramming smartcards', async () => {
 });
 
 test('Error handling', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
-
-  card.overrideWriteProtection = jest.fn();
-  mockOf(card.overrideWriteProtection).mockImplementation(() =>
-    Promise.reject(new Error('Whoa!'))
-  );
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const testCases: Array<{
     beginFromSuperAdminCardsScreen?: boolean;
-    cardData?: AnyCardData;
+    programmedUser?: User;
     buttonToPress: string;
     expectedProgressText: string;
     expectedErrorText: string;
   }> = [
     {
-      cardData: undefined,
+      programmedUser: undefined,
       buttonToPress: 'Election Manager Card',
       expectedProgressText: 'Programming card',
       expectedErrorText:
         'Error creating Election Manager card. Please try again.',
     },
     {
-      cardData: undefined,
+      programmedUser: undefined,
       buttonToPress: 'Poll Worker Card',
       expectedProgressText: 'Programming card',
       expectedErrorText: 'Error creating Poll Worker card. Please try again.',
     },
     {
       beginFromSuperAdminCardsScreen: true,
-      cardData: undefined,
+      programmedUser: undefined,
       buttonToPress: 'Create System Administrator Card',
       expectedProgressText: 'Programming card',
       expectedErrorText:
         'Error creating System Administrator card. Please try again.',
     },
     {
-      cardData: makeElectionManagerCard(electionHash),
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       buttonToPress: 'Reset Card PIN',
       expectedProgressText: 'Resetting card PIN',
       expectedErrorText:
         'Error resetting Election Manager card PIN. Please try again.',
     },
     {
-      cardData: makeElectionManagerCard(electionHash),
+      programmedUser: fakeElectionManagerUser({ electionHash }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:
         'Error unprogramming Election Manager card. Please try again.',
     },
     {
-      cardData: makePollWorkerCard(electionHash),
+      programmedUser: fakePollWorkerUser({ electionHash }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:
@@ -659,10 +739,29 @@ test('Error handling', async () => {
     },
   ];
 
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'election_manager' })
+    .resolves(err(new Error('Whoa!')));
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'poll_worker' })
+    .resolves(err(new Error('Whoa!')));
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'system_administrator' })
+    .resolves(err(new Error('Whoa!')));
+  mockApiClient.programCard
+    .expectCallWith({ userRole: 'election_manager' })
+    .resolves(err(new Error('Whoa!')));
+  mockApiClient.unprogramCard
+    .expectCallWith()
+    .resolves(err(new Error('Whoa!')));
+  mockApiClient.unprogramCard
+    .expectCallWith()
+    .resolves(err(new Error('Whoa!')));
+
   for (const testCase of testCases) {
     const {
       beginFromSuperAdminCardsScreen,
-      cardData,
+      programmedUser,
       buttonToPress,
       expectedProgressText,
       expectedErrorText,
@@ -678,14 +777,23 @@ test('Error handling', async () => {
       userEvent.click(screen.getByText('Smartcards'));
       await screen.findByText('Election Cards');
     }
-    card.insertCard(cardData);
+
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'ready', programmedUser },
+    });
 
     const modal = await screen.findByRole('alertdialog');
     userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByText(expectedErrorText);
 
-    card.removeCard();
+    setAuthStatus(mockApiClient, {
+      status: 'logged_in',
+      user: fakeSystemAdministratorUser(),
+      programmableCard: { status: 'no_card' },
+    });
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -693,16 +801,25 @@ test('Error handling', async () => {
 });
 
 test('Card inserted backwards is handled with message', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
-  card.insertCard(undefined, undefined, 'error');
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'error' },
+  });
   await screen.findByText('Card is Backwards');
 
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  });
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
