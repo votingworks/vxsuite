@@ -318,22 +318,22 @@ describe('convertSemsFileToExternalTally', () => {
     const eitherNeitherTally =
       convertedTally.overallTally.contestTallies['750000015']!;
     expect(eitherNeitherTally.metadata).toStrictEqual({
-      undervotes: 3,
+      undervotes: 4,
       overvotes: 3,
-      ballots: 98,
+      ballots: 100,
     });
     expect(eitherNeitherTally.tallies['yes']?.tally).toEqual(39);
-    expect(eitherNeitherTally.tallies['no']?.tally).toEqual(53);
+    expect(eitherNeitherTally.tallies['no']?.tally).toEqual(54);
 
     const pickOneTally =
       convertedTally.overallTally.contestTallies['750000016']!;
     expect(pickOneTally.metadata).toStrictEqual({
-      undervotes: 5,
+      undervotes: 6,
       overvotes: 4,
-      ballots: 98,
+      ballots: 100,
     });
     expect(pickOneTally.tallies['yes']?.tally).toEqual(40);
-    expect(pickOneTally.tallies['no']?.tally).toEqual(49);
+    expect(pickOneTally.tallies['no']?.tally).toEqual(50);
 
     // Check some specific tallies on a precinct tally, Fentress
     const fentressTally = convertedTally.resultsByCategory.get(

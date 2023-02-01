@@ -141,7 +141,7 @@ describe('generateBatchTallyResultsCSV', () => {
       '"Ballot Measure 2 House Concurrent Resolution No  47 - Ballots Cast","Ballot Measure 2 House Concurrent Resolution No  47 - Undervotes","Ballot Measure 2 House Concurrent Resolution No  47 - Overvotes","Ballot Measure 2 House Concurrent Resolution No  47 - Yes","Ballot Measure 2 House Concurrent Resolution No  47 - No'
     );
     expect(headerRow).toContain(
-      '"Ballot Measure 1   Either Neither - Ballots Cast","Ballot Measure 1   Either Neither - Undervotes","Ballot Measure 1   Either Neither - Overvotes","Ballot Measure 1   Either Neither - Yes","Ballot Measure 1   Either Neither - No","Ballot Measure 1   Pick One - Ballots Cast","Ballot Measure 1   Pick One - Undervotes","Ballot Measure 1   Pick One - Overvotes","Ballot Measure 1   Pick One - Yes","Ballot Measure 1   Pick One - No"'
+      '"Ballot Measure 1 - Ballots Cast","Ballot Measure 1 - Undervotes","Ballot Measure 1 - Overvotes","Ballot Measure 1 - Yes","Ballot Measure 1 - No","Ballot Measure 1 - Ballots Cast","Ballot Measure 1 - Undervotes","Ballot Measure 1 - Overvotes","Ballot Measure 1 - Yes","Ballot Measure 1 - No"'
     );
     let i = 0;
     for (const resultDataRow of generatedRows) {
