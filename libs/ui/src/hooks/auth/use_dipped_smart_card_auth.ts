@@ -2,7 +2,7 @@ import useInterval from 'use-interval';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { useEffect, useState } from 'react';
 
-const AUTH_STATUS_POLLING_INTERVAL = 100;
+const AUTH_STATUS_POLLING_INTERVAL_MS = 100;
 
 export interface AuthApiClient {
   getAuthStatus: () => Promise<DippedSmartCardAuth.AuthStatus>;
@@ -36,7 +36,7 @@ export function useDippedSmartCardAuth(
       const newAuthStatus = await authApiClient.getAuthStatus();
       setAuthStatus(newAuthStatus);
     },
-    AUTH_STATUS_POLLING_INTERVAL,
+    AUTH_STATUS_POLLING_INTERVAL_MS,
     true
   );
 
