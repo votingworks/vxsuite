@@ -13,7 +13,7 @@ import {
   electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import { mockOf } from '@votingworks/test-utils';
@@ -101,8 +101,12 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 
   screen.getByText('Joseph Barchi and Joseph Hallaren');
   screen.getByText('Chris Norberg');
-  screen.getByText('Yes on Question A');
-  screen.getByText('No on Question B');
+  within(
+    screen.getByText('Question A: Recovery of Property Damages').parentElement!
+  ).getByText('Yes');
+  within(
+    screen.getByText('Question B: Separation of Powers').parentElement!
+  ).getByText('No');
 
   // Use a snapshot to avoid unintentional regressions to general layout
   expect(container).toMatchSnapshot();

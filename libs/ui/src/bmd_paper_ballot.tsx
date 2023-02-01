@@ -20,7 +20,6 @@ import {
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
-  YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
 import {
@@ -175,19 +174,14 @@ function CandidateContestResult({
 }
 
 interface YesNoContestResultProps {
-  contest: YesNoContest;
   vote: OptionalYesNoVote;
 }
 
-function YesNoContestResult({
-  contest,
-  vote,
-}: YesNoContestResultProps): JSX.Element {
+function YesNoContestResult({ vote }: YesNoContestResultProps): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
-      {DisplayTextForYesOrNo[yesNo]}{' '}
-      {!!contest.shortTitle && `on ${contest.shortTitle}`}
+      {DisplayTextForYesOrNo[yesNo]}
     </Text>
   ) : (
     <NoSelection />
@@ -357,10 +351,7 @@ export function BmdPaperBallot({
                   />
                 )}
                 {contest.type === 'yesno' && (
-                  <YesNoContestResult
-                    contest={contest}
-                    vote={votes[contest.id] as YesNoVote}
-                  />
+                  <YesNoContestResult vote={votes[contest.id] as YesNoVote} />
                 )}
                 {contest.type === 'ms-either-neither' && (
                   <MsEitherNeitherContestResult
