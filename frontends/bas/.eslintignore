@@ -1,8 +1,0 @@
-/build
-/coverage
-/prodserver
-/src/setupProxy.js
-/config
-/scripts
-/*.config.js
-/*.config.ts
