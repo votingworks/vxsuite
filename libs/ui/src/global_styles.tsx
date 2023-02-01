@@ -2,6 +2,7 @@ import 'normalize.css';
 import { createGlobalStyle } from 'styled-components';
 
 export interface GlobalStylesProps {
+  enableScroll: boolean;
   isTouchscreen: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
@@ -29,9 +30,11 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     box-sizing: border-box;
     background: ${(p) => p.theme.colors.background};
     line-height: 1;
+    letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
     color: ${(p) => p.theme.colors.foreground};
     font-family: 'Vx Helvetica Neue', 'Noto Emoji', 'Helvetica Neue', sans-serif;
     font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
+    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
 
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
@@ -56,7 +59,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   body,
   #root {
     height: 100%;
-    overflow: hidden;
+    overflow: ${(p) => (p.enableScroll ? 'auto' : 'hidden')};
     touch-action: none;
   }
   @media print {
@@ -68,6 +71,10 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     #root {
       display: none; /* Do not print anything displayed in the app */
     }
+  }
+
+  b {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
   }
 
   table {

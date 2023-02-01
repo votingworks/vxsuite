@@ -24,6 +24,7 @@ declare module 'styled-components' {
 export interface AppBaseProps {
   children: React.ReactNode;
   colorMode?: ColorMode;
+  enableScroll?: boolean;
   isTouchscreen?: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
@@ -37,6 +38,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   const {
     children,
     colorMode = 'legacy',
+    enableScroll = false,
     isTouchscreen = false,
     legacyBaseFontSizePx,
     legacyPrintFontSizePx,
@@ -51,6 +53,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles
+        enableScroll={enableScroll}
         isTouchscreen={isTouchscreen}
         legacyBaseFontSizePx={legacyBaseFontSizePx}
         legacyPrintFontSizePx={legacyPrintFontSizePx}
