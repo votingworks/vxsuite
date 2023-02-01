@@ -63,7 +63,7 @@ export type ProgramCard = (
 
 export type UnprogramCard = () => Promise<Result<void, Error>>;
 
-export const DefaultAuthStatus: Readonly<AuthStatus> = {
+export const DEFAULT_AUTH_STATUS: Readonly<AuthStatus> = {
   status: 'logged_out',
   reason: 'machine_locked',
 };

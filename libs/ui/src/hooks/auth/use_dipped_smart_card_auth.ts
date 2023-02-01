@@ -13,7 +13,7 @@ export function useDippedSmartCardAuth(
   authApiClient: AuthApiClient
 ): DippedSmartCardAuth.AuthStatus {
   const [authStatus, setAuthStatus] = useState<DippedSmartCardAuth.AuthStatus>(
-    DippedSmartCardAuth.DefaultAuthStatus
+    DippedSmartCardAuth.DEFAULT_AUTH_STATUS
   );
   const [hasBeenReset, setHasBeenReset] = useState(false);
 

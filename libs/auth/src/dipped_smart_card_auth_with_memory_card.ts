@@ -111,7 +111,7 @@ export class DippedSmartCardAuthWithMemoryCard
     card: Card;
     config: Omit<DippedSmartCardAuthConfig, 'electionDefinition'>;
   }) {
-    this.authStatus = DippedSmartCardAuth.DefaultAuthStatus;
+    this.authStatus = DippedSmartCardAuth.DEFAULT_AUTH_STATUS;
     this.card = card;
     this.config = config;
 

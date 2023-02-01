@@ -71,7 +71,7 @@ const appContext: AppContextInterface = {
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
-  auth: DippedSmartCardAuth.DefaultAuthStatus,
+  auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: '0000',
     codeVersion: '',
