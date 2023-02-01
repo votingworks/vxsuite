@@ -1,31 +1,30 @@
-import * as choctawMock2020 from '../../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-a63f5c1f68';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Interpreter } from '.';
 
 test('interpret two-column template', async () => {
-  const { electionDefinition } = choctawMock2020;
+  const { electionDefinition } = electionFamousNames2021Fixtures;
   const interpreter = new Interpreter({ electionDefinition });
 
   {
     const template = interpreter.addTemplate(
       await interpreter.interpretTemplate(
-        await choctawMock2020.blankPage1.imageData(),
-        // provide the metadata because the QR code uses raw binary, not base64
-        // binary. this causes qrdetect (zbar) to read it incorrectly
-        await choctawMock2020.blankPage1.metadata()
+        await electionFamousNames2021Fixtures.blankPage1.asImageData()
       )
     );
 
     expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
       Object {
+        "ballotId": undefined,
         "ballotStyleId": "1",
         "ballotType": 0,
-        "electionHash": "a63f5c1f68ad809d879d91310ff98026fb293ff446ac3354b5c5b2c3b5600357",
+        "electionHash": "befef88b3a5092a41461",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
+          "secondary": undefined,
         },
         "pageNumber": 1,
-        "precinctId": "6525",
+        "precinctId": "21",
       }
     `);
 
@@ -33,231 +32,93 @@ test('interpret two-column template', async () => {
       Array [
         Object {
           "bounds": Object {
-            "height": 683,
-            "width": 381,
-            "x": 447,
-            "y": 45,
+            "height": 329,
+            "width": 366,
+            "x": 429,
+            "y": 43,
           },
           "corners": Array [
             Object {
-              "x": 447,
-              "y": 45,
+              "x": 429,
+              "y": 43,
             },
             Object {
-              "x": 827,
-              "y": 45,
+              "x": 794,
+              "y": 43,
             },
             Object {
-              "x": 447,
-              "y": 727,
+              "x": 429,
+              "y": 371,
             },
             Object {
-              "x": 827,
-              "y": 727,
+              "x": 794,
+              "y": 371,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 163,
-                "width": 381,
-                "x": 447,
-                "y": 168,
+                "height": 69,
+                "width": 366,
+                "x": 429,
+                "y": 163,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 173,
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 165,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 472,
-                  "y": 175,
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 167,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 162,
-                "width": 381,
-                "x": 447,
-                "y": 331,
+                "height": 70,
+                "width": 366,
+                "x": 429,
+                "y": 232,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 336,
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 234,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
-                  "x": 472,
-                  "y": 338,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 163,
-                "width": 381,
-                "x": 447,
-                "y": 493,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 498,
-                },
-                "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 472,
-                  "y": 500,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 67,
-                "width": 381,
-                "x": 447,
-                "y": 659,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 661,
-                },
-                "inner": Object {
-                  "height": 18,
-                  "width": 29,
-                  "x": 472,
-                  "y": 663,
-                },
-              },
-            },
-          ],
-        },
-        Object {
-          "bounds": Object {
-            "height": 430,
-            "width": 381,
-            "x": 447,
-            "y": 750,
-          },
-          "corners": Array [
-            Object {
-              "x": 447,
-              "y": 750,
-            },
-            Object {
-              "x": 827,
-              "y": 750,
-            },
-            Object {
-              "x": 447,
-              "y": 1179,
-            },
-            Object {
-              "x": 827,
-              "y": 1179,
-            },
-          ],
-          "options": Array [
-            Object {
-              "bounds": Object {
-                "height": 78,
-                "width": 381,
-                "x": 447,
-                "y": 876,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 878,
-                },
-                "inner": Object {
-                  "height": 18,
-                  "width": 29,
-                  "x": 472,
-                  "y": 880,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 78,
-                "width": 381,
-                "x": 447,
-                "y": 954,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 956,
-                },
-                "inner": Object {
-                  "height": 18,
-                  "width": 29,
-                  "x": 472,
-                  "y": 958,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 78,
-                "width": 381,
-                "x": 447,
-                "y": 1032,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 1034,
-                },
-                "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 472,
-                  "y": 1036,
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 236,
                 },
               },
             },
             Object {
               "bounds": Object {
                 "height": 68,
-                "width": 381,
-                "x": 447,
-                "y": 1110,
+                "width": 366,
+                "x": 429,
+                "y": 302,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 470,
-                  "y": 1112,
+                  "width": 32,
+                  "x": 454,
+                  "y": 304,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 472,
-                  "y": 1114,
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 306,
                 },
               },
             },
@@ -265,93 +126,115 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 352,
-            "width": 380,
-            "x": 850,
-            "y": 45,
+            "height": 398,
+            "width": 366,
+            "x": 429,
+            "y": 393,
           },
           "corners": Array [
             Object {
-              "x": 850,
-              "y": 45,
+              "x": 429,
+              "y": 393,
             },
             Object {
-              "x": 1229,
-              "y": 45,
+              "x": 794,
+              "y": 393,
             },
             Object {
-              "x": 850,
-              "y": 396,
+              "x": 429,
+              "y": 790,
             },
             Object {
-              "x": 1229,
-              "y": 396,
+              "x": 794,
+              "y": 790,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 78,
-                "width": 380,
-                "x": 850,
-                "y": 171,
+                "height": 69,
+                "width": 366,
+                "x": 429,
+                "y": 512,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 173,
+                  "width": 32,
+                  "x": 454,
+                  "y": 514,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 875,
-                  "y": 175,
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 516,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 79,
-                "width": 380,
-                "x": 850,
-                "y": 249,
+                "height": 71,
+                "width": 366,
+                "x": 429,
+                "y": 581,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 23,
-                  "width": 33,
-                  "x": 873,
-                  "y": 251,
+                  "height": 22,
+                  "width": 32,
+                  "x": 454,
+                  "y": 583,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 875,
-                  "y": 253,
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 585,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 366,
+                "x": 429,
+                "y": 652,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 654,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 656,
                 },
               },
             },
             Object {
               "bounds": Object {
                 "height": 67,
-                "width": 380,
-                "x": 850,
-                "y": 328,
+                "width": 366,
+                "x": 429,
+                "y": 722,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 330,
+                  "width": 32,
+                  "x": 454,
+                  "y": 724,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 875,
-                  "y": 331,
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 726,
                 },
               },
             },
@@ -359,164 +242,70 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 384,
-            "width": 380,
-            "x": 850,
-            "y": 419,
+            "height": 329,
+            "width": 366,
+            "x": 429,
+            "y": 811,
           },
           "corners": Array [
             Object {
-              "x": 850,
-              "y": 419,
+              "x": 429,
+              "y": 811,
             },
             Object {
-              "x": 1229,
-              "y": 419,
+              "x": 794,
+              "y": 811,
             },
             Object {
-              "x": 850,
-              "y": 802,
+              "x": 429,
+              "y": 1139,
             },
             Object {
-              "x": 1229,
-              "y": 802,
+              "x": 794,
+              "y": 1139,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 78,
-                "width": 380,
-                "x": 850,
-                "y": 578,
+                "height": 70,
+                "width": 366,
+                "x": 429,
+                "y": 931,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 580,
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 933,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 875,
-                  "y": 581,
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 935,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 78,
-                "width": 380,
-                "x": 850,
-                "y": 656,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 658,
-                },
-                "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 875,
-                  "y": 659,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 67,
-                "width": 380,
-                "x": 850,
-                "y": 734,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 736,
-                },
-                "inner": Object {
-                  "height": 18,
-                  "width": 30,
-                  "x": 875,
-                  "y": 738,
-                },
-              },
-            },
-          ],
-        },
-        Object {
-          "bounds": Object {
-            "height": 294,
-            "width": 380,
-            "x": 850,
-            "y": 825,
-          },
-          "corners": Array [
-            Object {
-              "x": 850,
-              "y": 825,
-            },
-            Object {
-              "x": 1229,
-              "y": 825,
-            },
-            Object {
-              "x": 850,
-              "y": 1118,
-            },
-            Object {
-              "x": 1229,
-              "y": 1118,
-            },
-          ],
-          "options": Array [
-            Object {
-              "bounds": Object {
-                "height": 50,
-                "width": 380,
-                "x": 850,
-                "y": 951,
-              },
-              "target": Object {
-                "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 953,
-                },
-                "inner": Object {
-                  "height": 18,
-                  "width": 30,
-                  "x": 875,
-                  "y": 955,
-                },
-              },
-            },
-            Object {
-              "bounds": Object {
-                "height": 50,
-                "width": 380,
-                "x": 850,
+                "height": 71,
+                "width": 366,
+                "x": 429,
                 "y": 1001,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 873,
+                  "width": 32,
+                  "x": 454,
                   "y": 1003,
                 },
                 "inner": Object {
                   "height": 18,
-                  "width": 30,
-                  "x": 875,
+                  "width": 28,
+                  "x": 456,
                   "y": 1005,
                 },
               },
@@ -524,22 +313,276 @@ test('interpret two-column template', async () => {
             Object {
               "bounds": Object {
                 "height": 66,
-                "width": 380,
-                "x": 850,
-                "y": 1051,
+                "width": 366,
+                "x": 429,
+                "y": 1072,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 1074,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 1076,
+                },
+              },
+            },
+          ],
+        },
+        Object {
+          "bounds": Object {
+            "height": 398,
+            "width": 365,
+            "x": 816,
+            "y": 43,
+          },
+          "corners": Array [
+            Object {
+              "x": 816,
+              "y": 43,
+            },
+            Object {
+              "x": 1180,
+              "y": 43,
+            },
+            Object {
+              "x": 816,
+              "y": 440,
+            },
+            Object {
+              "x": 1180,
+              "y": 440,
+            },
+          ],
+          "options": Array [
+            Object {
+              "bounds": Object {
+                "height": 69,
+                "width": 365,
+                "x": 816,
+                "y": 163,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 165,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 167,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 365,
+                "x": 816,
+                "y": 232,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 234,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 236,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 302,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 873,
-                  "y": 1053,
+                  "width": 32,
+                  "x": 841,
+                  "y": 304,
                 },
                 "inner": Object {
                   "height": 18,
-                  "width": 30,
-                  "x": 875,
-                  "y": 1055,
+                  "width": 28,
+                  "x": 843,
+                  "y": 306,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 66,
+                "width": 365,
+                "x": 816,
+                "y": 373,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 375,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 377,
+                },
+              },
+            },
+          ],
+        },
+        Object {
+          "bounds": Object {
+            "height": 470,
+            "width": 365,
+            "x": 816,
+            "y": 462,
+          },
+          "corners": Array [
+            Object {
+              "x": 816,
+              "y": 462,
+            },
+            Object {
+              "x": 1180,
+              "y": 462,
+            },
+            Object {
+              "x": 816,
+              "y": 931,
+            },
+            Object {
+              "x": 1180,
+              "y": 931,
+            },
+          ],
+          "options": Array [
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 581,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 583,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 585,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 365,
+                "x": 816,
+                "y": 652,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 654,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 656,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 722,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 724,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 726,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 69,
+                "width": 365,
+                "x": 816,
+                "y": 793,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 795,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 797,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 68,
+                "width": 365,
+                "x": 816,
+                "y": 862,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 864,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 866,
                 },
               },
             },
@@ -552,22 +595,23 @@ test('interpret two-column template', async () => {
   {
     const template = interpreter.addTemplate(
       await interpreter.interpretTemplate(
-        await choctawMock2020.blankPage2.imageData(),
-        await choctawMock2020.blankPage2.metadata()
+        await electionFamousNames2021Fixtures.blankPage2.asImageData()
       )
     );
 
     expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
       Object {
+        "ballotId": undefined,
         "ballotStyleId": "1",
         "ballotType": 0,
-        "electionHash": "a63f5c1f68ad809d879d91310ff98026fb293ff446ac3354b5c5b2c3b5600357",
+        "electionHash": "befef88b3a5092a41461",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
+          "secondary": undefined,
         },
         "pageNumber": 2,
-        "precinctId": "6525",
+        "precinctId": "21",
       }
     `);
 
@@ -575,115 +619,137 @@ test('interpret two-column template', async () => {
       Array [
         Object {
           "bounds": Object {
-            "height": 1144,
-            "width": 582,
-            "x": 45,
-            "y": 45,
+            "height": 494,
+            "width": 365,
+            "x": 43,
+            "y": 43,
           },
           "corners": Array [
             Object {
-              "x": 45,
-              "y": 45,
+              "x": 43,
+              "y": 43,
             },
             Object {
-              "x": 626,
-              "y": 45,
+              "x": 407,
+              "y": 43,
             },
             Object {
-              "x": 45,
-              "y": 1188,
+              "x": 43,
+              "y": 536,
             },
             Object {
-              "x": 626,
-              "y": 1188,
+              "x": 407,
+              "y": 536,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 78,
-                "width": 582,
-                "x": 45,
-                "y": 882,
+                "height": 71,
+                "width": 365,
+                "x": 43,
+                "y": 188,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
+                  "width": 32,
                   "x": 69,
-                  "y": 884,
+                  "y": 190,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 70,
-                  "y": 886,
+                  "height": 18,
+                  "width": 28,
+                  "x": 71,
+                  "y": 192,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 129,
-                "width": 582,
-                "x": 45,
-                "y": 958,
+                "height": 69,
+                "width": 365,
+                "x": 43,
+                "y": 259,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
+                  "height": 21,
+                  "width": 32,
                   "x": 69,
-                  "y": 962,
+                  "y": 261,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 70,
-                  "y": 964,
+                  "height": 17,
+                  "width": 28,
+                  "x": 71,
+                  "y": 263,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 50,
-                "width": 582,
-                "x": 45,
-                "y": 1089,
+                "height": 70,
+                "width": 365,
+                "x": 43,
+                "y": 328,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
+                  "height": 21,
+                  "width": 32,
                   "x": 69,
-                  "y": 1091,
+                  "y": 330,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 70,
-                  "y": 1092,
+                  "height": 17,
+                  "width": 28,
+                  "x": 71,
+                  "y": 332,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 48,
-                "width": 582,
-                "x": 45,
-                "y": 1140,
+                "height": 71,
+                "width": 365,
+                "x": 43,
+                "y": 398,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
+                  "width": 32,
                   "x": 69,
-                  "y": 1141,
+                  "y": 400,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 30,
-                  "x": 70,
-                  "y": 1142,
+                  "height": 18,
+                  "width": 28,
+                  "x": 71,
+                  "y": 402,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 66,
+                "width": 365,
+                "x": 43,
+                "y": 469,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 69,
+                  "y": 471,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 71,
+                  "y": 473,
                 },
               },
             },
@@ -691,71 +757,247 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 413,
-            "width": 582,
-            "x": 648,
-            "y": 45,
+            "height": 775,
+            "width": 366,
+            "x": 429,
+            "y": 43,
           },
           "corners": Array [
             Object {
-              "x": 648,
-              "y": 45,
+              "x": 429,
+              "y": 43,
             },
             Object {
-              "x": 1229,
-              "y": 45,
+              "x": 794,
+              "y": 43,
             },
             Object {
-              "x": 648,
-              "y": 457,
+              "x": 429,
+              "y": 817,
             },
             Object {
-              "x": 1229,
-              "y": 457,
+              "x": 794,
+              "y": 817,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 50,
-                "width": 582,
-                "x": 648,
-                "y": 357,
+                "height": 69,
+                "width": 366,
+                "x": 429,
+                "y": 163,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 672,
-                  "y": 359,
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 165,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 674,
-                  "y": 361,
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 167,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 49,
-                "width": 582,
-                "x": 648,
-                "y": 408,
+                "height": 70,
+                "width": 366,
+                "x": 429,
+                "y": 232,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 234,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 236,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 366,
+                "x": 429,
+                "y": 302,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 672,
-                  "y": 409,
+                  "width": 32,
+                  "x": 454,
+                  "y": 304,
                 },
                 "inner": Object {
-                  "height": 19,
-                  "width": 29,
-                  "x": 674,
-                  "y": 411,
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 306,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 366,
+                "x": 429,
+                "y": 373,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 375,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 377,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 69,
+                "width": 366,
+                "x": 429,
+                "y": 443,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 454,
+                  "y": 445,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 447,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 366,
+                "x": 429,
+                "y": 512,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 454,
+                  "y": 514,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 516,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 55,
+                "width": 366,
+                "x": 429,
+                "y": 583,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 585,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 587,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 56,
+                "width": 366,
+                "x": 429,
+                "y": 638,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 454,
+                  "y": 640,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 642,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 55,
+                "width": 366,
+                "x": 429,
+                "y": 694,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 454,
+                  "y": 696,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 456,
+                  "y": 698,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 67,
+                "width": 366,
+                "x": 429,
+                "y": 749,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 454,
+                  "y": 751,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 456,
+                  "y": 753,
                 },
               },
             },
@@ -763,71 +1005,313 @@ test('interpret two-column template', async () => {
         },
         Object {
           "bounds": Object {
-            "height": 625,
-            "width": 582,
-            "x": 648,
-            "y": 480,
+            "height": 985,
+            "width": 365,
+            "x": 816,
+            "y": 43,
           },
           "corners": Array [
             Object {
-              "x": 648,
-              "y": 480,
+              "x": 816,
+              "y": 43,
             },
             Object {
-              "x": 1229,
-              "y": 480,
+              "x": 1180,
+              "y": 43,
             },
             Object {
-              "x": 648,
-              "y": 1104,
+              "x": 816,
+              "y": 1027,
             },
             Object {
-              "x": 1229,
-              "y": 1104,
+              "x": 1180,
+              "y": 1027,
             },
           ],
           "options": Array [
             Object {
               "bounds": Object {
-                "height": 50,
-                "width": 582,
-                "x": 648,
-                "y": 1004,
+                "height": 69,
+                "width": 365,
+                "x": 816,
+                "y": 163,
               },
               "target": Object {
                 "bounds": Object {
-                  "height": 22,
-                  "width": 33,
-                  "x": 672,
-                  "y": 1006,
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 165,
                 },
                 "inner": Object {
-                  "height": 18,
-                  "width": 29,
-                  "x": 674,
-                  "y": 1008,
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 167,
                 },
               },
             },
             Object {
               "bounds": Object {
-                "height": 49,
-                "width": 582,
-                "x": 648,
-                "y": 1055,
+                "height": 70,
+                "width": 365,
+                "x": 816,
+                "y": 232,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 234,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 236,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 302,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 22,
-                  "width": 33,
-                  "x": 672,
-                  "y": 1056,
+                  "width": 32,
+                  "x": 841,
+                  "y": 304,
                 },
                 "inner": Object {
                   "height": 18,
-                  "width": 29,
-                  "x": 674,
-                  "y": 1058,
+                  "width": 28,
+                  "x": 843,
+                  "y": 306,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 365,
+                "x": 816,
+                "y": 373,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 375,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 377,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 69,
+                "width": 365,
+                "x": 816,
+                "y": 443,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 445,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 447,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 512,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 514,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 516,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 70,
+                "width": 365,
+                "x": 816,
+                "y": 583,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 585,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 587,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 69,
+                "width": 365,
+                "x": 816,
+                "y": 653,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 655,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 657,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 71,
+                "width": 365,
+                "x": 816,
+                "y": 722,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 724,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 726,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 55,
+                "width": 365,
+                "x": 816,
+                "y": 793,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 32,
+                  "x": 841,
+                  "y": 795,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 797,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 56,
+                "width": 365,
+                "x": 816,
+                "y": 848,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 850,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 852,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 55,
+                "width": 365,
+                "x": 816,
+                "y": 904,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 21,
+                  "width": 31,
+                  "x": 842,
+                  "y": 906,
+                },
+                "inner": Object {
+                  "height": 17,
+                  "width": 28,
+                  "x": 843,
+                  "y": 908,
+                },
+              },
+            },
+            Object {
+              "bounds": Object {
+                "height": 67,
+                "width": 365,
+                "x": 816,
+                "y": 959,
+              },
+              "target": Object {
+                "bounds": Object {
+                  "height": 22,
+                  "width": 32,
+                  "x": 841,
+                  "y": 961,
+                },
+                "inner": Object {
+                  "height": 18,
+                  "width": 28,
+                  "x": 843,
+                  "y": 963,
                 },
               },
             },
@@ -841,49 +1325,53 @@ test('interpret two-column template', async () => {
     const {
       ballot: { votes },
     } = await interpreter.interpretBallot(
-      await choctawMock2020.filledInPage1.imageData(),
-      await choctawMock2020.filledInPage1.metadata()
+      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asImageData()
     );
     expect(votes).toMatchInlineSnapshot(`
       Object {
-        "775020870": Array [
+        "attorney": Array [
           Object {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In",
+            "id": "john-snow",
+            "name": "John Snow",
+            "partyIds": Array [
+              "1",
+            ],
           },
         ],
-        "775020872": Array [
+        "chief-of-police": Array [
           Object {
-            "id": "775031979",
-            "name": "Trent Kelly",
+            "id": "andy-warhol",
+            "name": "Andy Warhol",
             "partyIds": Array [
               "3",
             ],
           },
         ],
-        "775020876": Array [
+        "controller": Array [
           Object {
-            "id": "775031989",
-            "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
+            "id": "winston-churchill",
+            "name": "Winston Churchill",
             "partyIds": Array [
-              "11",
+              "0",
             ],
           },
         ],
-        "775020877": Array [
+        "mayor": Array [
           Object {
-            "id": "775031985",
-            "name": "Mike Espy",
+            "id": "sherlock-holmes",
+            "name": "Sherlock Holmes",
             "partyIds": Array [
-              "2",
+              "0",
             ],
           },
         ],
-        "775020902": Array [
+        "public-works-director": Array [
           Object {
-            "id": "775032019",
-            "name": "Willie Mae Guillory",
+            "id": "robert-downey-jr",
+            "name": "Robert Downey Jr.",
+            "partyIds": Array [
+              "1",
+            ],
           },
         ],
       }
@@ -894,22 +1382,76 @@ test('interpret two-column template', async () => {
     const {
       ballot: { votes },
     } = await interpreter.interpretBallot(
-      await choctawMock2020.filledInPage2.imageData(),
-      await choctawMock2020.filledInPage2.metadata()
+      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asImageData()
     );
     expect(votes).toMatchInlineSnapshot(`
       Object {
-        "750000015": Array [
-          "yes",
+        "board-of-alderman": Array [
+          Object {
+            "id": "steve-jobs",
+            "name": "Steve Jobs",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          Object {
+            "id": "nikola-tesla",
+            "name": "Nikola Tesla",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          Object {
+            "id": "vincent-van-gogh",
+            "name": "Vincent Van Gogh",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          Object {
+            "id": "pablo-picasso",
+            "name": "Pablo Picasso",
+            "partyIds": Array [
+              "1",
+            ],
+          },
         ],
-        "750000016": Array [
-          "yes",
+        "city-council": Array [
+          Object {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          Object {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          Object {
+            "id": "tim-allen",
+            "name": "Tim Allen",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+          Object {
+            "id": "harriet-tubman",
+            "name": "Harriet Tubman",
+            "partyIds": Array [
+              "1",
+            ],
+          },
         ],
-        "750000017": Array [
-          "no",
-        ],
-        "750000018": Array [
-          "no",
+        "parks-and-recreation-director": Array [
+          Object {
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+          },
         ],
       }
     `);
