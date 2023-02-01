@@ -11,7 +11,6 @@ import {
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
-  YesNoContest,
 } from '@votingworks/types';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/vx-mark-backend';
@@ -60,7 +59,6 @@ export interface CandidateContestResultInterface {
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
-  contest: YesNoContest;
   vote: OptionalYesNoVote;
 }
 export interface MsEitherNeitherContestResultInterface {

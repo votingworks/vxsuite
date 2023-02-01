@@ -647,7 +647,6 @@
       "id": "question-a",
       "districtId": "district-1",
       "type": "yesno",
-      "shortTitle": "Question A",
       "title": "Question A: Recovery of Property Damages",
       "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
       "yesOption": {
@@ -663,7 +662,6 @@
       "id": "question-b",
       "districtId": "district-1",
       "type": "yesno",
-      "shortTitle": "Question B",
       "title": "Question B: Separation of Powers",
       "yesOption": {
         "id": "750000094",
@@ -679,7 +677,6 @@
       "id": "question-c",
       "districtId": "district-2",
       "type": "yesno",
-      "shortTitle": "Question C",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
       "yesOption": {
         "id": "750000094",
@@ -695,7 +692,6 @@
       "id": "proposition-1",
       "districtId": "district-1",
       "type": "yesno",
-      "shortTitle": "Proposition 1",
       "yesOption": {
         "id": "750000094",
         "label": "YES"
@@ -711,7 +707,6 @@
       "id": "measure-101",
       "districtId": "district-2",
       "type": "yesno",
-      "shortTitle": "Measure 101",
       "title": "Measure 101: College District",
       "yesOption": {
         "id": "750000094",
@@ -727,7 +722,6 @@
       "id": "102",
       "districtId": "district-1",
       "type": "yesno",
-      "shortTitle": "Measure 102",
       "title": "Measure 102: Vehicle Abatement Program",
       "yesOption": {
         "id": "750000094",
@@ -744,7 +738,6 @@
       "districtId": "district-1",
       "partyId": "2",
       "type": "yesno",
-      "shortTitle": "Measure 666",
       "title": "Measure 666: The Question No One Gets To",
       "yesOption": {
         "id": "750000094",

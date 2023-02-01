@@ -265,14 +265,12 @@ function CandidateContestResult({
 }
 
 function YesNoContestResult({
-  contest,
   vote,
 }: YesNoContestResultInterface): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak voteIcon>
-      {DisplayTextForYesOrNo[yesNo]}{' '}
-      {!!contest.shortTitle && `on ${contest.shortTitle}`}
+      {DisplayTextForYesOrNo[yesNo]}
     </Text>
   ) : (
     <NoSelection />
@@ -499,7 +497,6 @@ export function ReviewPage(): JSX.Element {
                     )}
                     {contest.type === 'yesno' && (
                       <YesNoContestResult
-                        contest={contest}
                         vote={votes[contest.id] as YesNoVote}
                       />
                     )}
