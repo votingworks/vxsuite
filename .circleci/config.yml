@@ -34,28 +34,6 @@ jobs:
       - store_test_results:
           path: codemods/reports/
 
-  test-frontends-bas:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir frontends/bas build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir frontends/bas lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir frontends/bas test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: frontends/bas/reports/
-
   test-apps-vx-mark-backend:
     executor: nodejs
     resource_class: xlarge
@@ -937,7 +915,6 @@ workflows:
       - test-apps-vx-mark-frontend
       - test-apps-vx-scan-backend
       - test-apps-vx-scan-frontend
-      - test-frontends-bas
       - test-frontends-bsd
       - test-frontends-election-manager
       - test-integration-testing-vx-mark

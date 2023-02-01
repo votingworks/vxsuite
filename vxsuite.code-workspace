@@ -17,10 +17,6 @@
       "path": "apps/vx-mark/backend"
     },
     {
-      "name": "frontends/bas",
-      "path": "frontends/bas"
-    },
-    {
       "name": "frontends/bmd",
       "path": "frontends/bmd"
     },
