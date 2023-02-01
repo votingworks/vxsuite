@@ -155,12 +155,10 @@
       "districtId": "district-2",
       "type": "yesno",
       "title": "Prop R: City Recycling Program",
-      "shortTitle": "Prop R",
       "description": "Shall the city start a recycling program?",
       "_lang": {
         "es-US": {
           "title": "Prop R: Programa de reciclaje de la ciudad",
-          "shortTitle": "Prop R",
           "description": "¿Deberá la ciudad comenzar un programa de reciclaje?"
         }
       }
