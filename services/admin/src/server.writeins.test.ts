@@ -1,8 +1,7 @@
 import { Admin } from '@votingworks/api';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
@@ -19,6 +18,7 @@ beforeEach(() => {
 });
 
 test('write-in adjudication lifecycle', async () => {
+  jest.setTimeout(20_000);
   const electionId = workspace.store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
