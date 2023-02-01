@@ -225,7 +225,6 @@ exports[`prints correct ballot with votes 1`] = `
               class="sc-bdvvaa kdHchw"
             >
               No
-               
             </p>
           </div>
         </div>
@@ -242,7 +241,6 @@ exports[`prints correct ballot with votes 1`] = `
               class="sc-bdvvaa kdHchw"
             >
               Yes
-               
             </p>
           </div>
         </div>
