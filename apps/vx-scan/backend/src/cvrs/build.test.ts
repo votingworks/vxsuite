@@ -6,7 +6,6 @@ import {
   CandidateContest,
   getBallotStyle,
   getContests,
-  MsEitherNeitherContest,
   unsafeParse,
   vote,
   YesNoContest,
@@ -24,10 +23,6 @@ const candidateContest = electionWithMsEitherNeither.contests.find(
 )!;
 const yesnoContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is YesNoContest => contest.type === 'yesno'
-)!;
-const msEitherNeitherContest = electionWithMsEitherNeither.contests.find(
-  (contest): contest is MsEitherNeitherContest =>
-    contest.type === 'ms-either-neither'
 )!;
 
 test('getCvrBallotType', () => {
@@ -59,9 +54,6 @@ test('getWriteInOptionIdsForContestVote', () => {
     )
   ).toEqual(['write-in-0']);
   expect(getWriteInOptionIdsForContestVote(yesnoContest, {})).toEqual([]);
-  expect(getWriteInOptionIdsForContestVote(msEitherNeitherContest, {})).toEqual(
-    []
-  );
   expect(() =>
     getWriteInOptionIdsForContestVote(
       {
@@ -91,21 +83,6 @@ test('getOptionIdsForContestVote', () => {
       })
     )
   ).toEqual([[yesnoContest.id, 'yes']]);
-  expect(
-    getOptionIdsForContestVote(
-      msEitherNeitherContest,
-      vote(electionWithMsEitherNeither.contests, {
-        [msEitherNeitherContest.eitherNeitherContestId]: [
-          msEitherNeitherContest.eitherOption.id,
-        ],
-      })
-    )
-  ).toEqual([
-    [
-      msEitherNeitherContest.eitherNeitherContestId,
-      msEitherNeitherContest.eitherOption.id,
-    ],
-  ]);
   expect(() =>
     getOptionIdsForContestVote(
       {

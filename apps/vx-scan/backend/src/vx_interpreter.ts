@@ -410,7 +410,6 @@ export class Interpreter {
         {
           optionMarkStatus: (option) =>
             optionMarkStatus({
-              contests: this.electionDefinition.election.contests,
               markThresholds: this.markThresholds,
               marks,
               contestId: option.contestId,
