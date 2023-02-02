@@ -7,7 +7,6 @@ import { DateTime } from 'luxon';
 import {
   BallotId,
   BallotLayout,
-  BallotLocale,
   BallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -401,23 +400,6 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
 }
 
 /**
- * Builds a ballot locale for an election.
- */
-export function arbitraryBallotLocale(): fc.Arbitrary<BallotLocale> {
-  return fc
-    .record({
-      primary: fc.constantFrom('en-US', 'es-US', 'fr-US'),
-    })
-    .chain(({ primary }) => {
-      const secondary = primary === 'en-US' ? 'es-US' : 'en-US';
-      return fc.record({
-        primary: fc.constant(primary),
-        secondary: arbitraryOptional(fc.constant(secondary)),
-      });
-    });
-}
-
-/**
  * Build an entire valid election definition.
  *
  * @example
@@ -475,7 +457,6 @@ export function arbitraryCastVoteRecord({
       _pageNumbers: fc
         .integer({ min: 0, max: 3 })
         .map((index) => [index * 2 + 1, index * 2 + 2]),
-      _locales: arbitraryBallotLocale(),
     })
   );
 }
