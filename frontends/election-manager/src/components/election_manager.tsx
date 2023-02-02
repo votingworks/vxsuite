@@ -37,13 +37,13 @@ import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
-import { useApiClient } from '../api';
+import { checkPin } from '../api';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
     useContext(AppContext);
   const election = electionDefinition?.election;
-  const apiClient = useApiClient();
+  const checkPinMutation = checkPin.useMutation();
 
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
@@ -53,7 +53,7 @@ export function ElectionManager(): JSX.Element {
     return (
       <UnlockMachineScreen
         auth={auth}
-        checkPin={(pin) => apiClient.checkPin({ pin })}
+        checkPin={(pin) => checkPinMutation.mutate({ pin })}
       />
     );
   }

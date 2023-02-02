@@ -49,7 +49,7 @@ type CheckingPassCodeAuth =
 interface Props {
   auth: CheckingPassCodeAuth;
   grayBackground?: boolean;
-  checkPin?: (pin: string) => Promise<void>;
+  checkPin?: (pin: string) => void;
 }
 
 export function UnlockMachineScreen({
@@ -62,7 +62,7 @@ export function UnlockMachineScreen({
   const [currentPasscode, setCurrentPasscode] = useState('');
 
   const handleNumberEntry = useCallback(
-    async (digit: number) => {
+    (digit: number) => {
       const passcode = `${currentPasscode}${digit}`.slice(
         0,
         SECURITY_PIN_LENGTH
@@ -73,7 +73,7 @@ export function UnlockMachineScreen({
           auth.checkPasscode(passcode);
         } else {
           assert(checkPinFromProps !== undefined);
-          await checkPinFromProps(passcode);
+          checkPinFromProps(passcode);
         }
         setCurrentPasscode('');
       }
@@ -90,16 +90,16 @@ export function UnlockMachineScreen({
   }, []);
 
   useEffect(() => {
-    async function bypassPinEntry() {
+    function bypassPinEntry() {
       if ('checkPasscode' in auth) {
         auth.checkPasscode(auth.user.passcode);
       } else {
         assert(checkPinFromProps !== undefined);
-        await checkPinFromProps(auth.user.passcode);
+        checkPinFromProps(auth.user.passcode);
       }
     }
     if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
-      void bypassPinEntry();
+      bypassPinEntry();
     }
     // Run this hook once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

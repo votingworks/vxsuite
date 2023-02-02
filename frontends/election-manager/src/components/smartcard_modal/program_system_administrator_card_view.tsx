@@ -7,7 +7,7 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
-import { useApiClient } from '../../api';
+import { programCard } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -22,22 +22,26 @@ export function ProgramSystemAdministratorCardView({
   actionStatus,
   setActionStatus,
 }: Props): JSX.Element {
-  const apiClient = useApiClient();
+  const programCardMutation = programCard.useMutation();
 
-  async function programSystemAdministratorCard() {
+  function programSystemAdministratorCard() {
     setActionStatus({
       action: 'Program',
       role: 'system_administrator',
       status: 'InProgress',
     });
-    const result = await apiClient.programCard({
-      userRole: 'system_administrator',
-    });
-    setActionStatus({
-      action: 'Program',
-      role: 'system_administrator',
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    programCardMutation.mutate(
+      { userRole: 'system_administrator' },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'Program',
+            role: 'system_administrator',
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
+      }
+    );
   }
 
   return (

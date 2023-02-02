@@ -10,7 +10,7 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
-import { useApiClient } from '../../api';
+import { programCard } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -26,9 +26,9 @@ export function ProgramElectionCardView({
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
-  const apiClient = useApiClient();
+  const programCardMutation = programCard.useMutation();
 
-  async function programAdminCard() {
+  function programElectionManagerCard() {
     assert(electionDefinition);
 
     setActionStatus({
@@ -36,17 +36,21 @@ export function ProgramElectionCardView({
       role: 'election_manager',
       status: 'InProgress',
     });
-    const result = await apiClient.programCard({
-      userRole: 'election_manager',
-    });
-    setActionStatus({
-      action: 'Program',
-      role: 'election_manager',
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    programCardMutation.mutate(
+      { userRole: 'election_manager' },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'Program',
+            role: 'election_manager',
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
+      }
+    );
   }
 
-  async function programPollWorkerCard() {
+  function programPollWorkerCard() {
     assert(electionDefinition);
 
     setActionStatus({
@@ -54,14 +58,18 @@ export function ProgramElectionCardView({
       role: 'poll_worker',
       status: 'InProgress',
     });
-    const result = await apiClient.programCard({
-      userRole: 'poll_worker',
-    });
-    setActionStatus({
-      action: 'Program',
-      role: 'poll_worker',
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    programCardMutation.mutate(
+      { userRole: 'poll_worker' },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'Program',
+            role: 'poll_worker',
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
+      }
+    );
   }
 
   return (
@@ -82,7 +90,10 @@ export function ProgramElectionCardView({
 
             <HorizontalRule />
             <p>
-              <Button disabled={!electionDefinition} onPress={programAdminCard}>
+              <Button
+                disabled={!electionDefinition}
+                onPress={programElectionManagerCard}
+              >
                 Election Manager Card
               </Button>{' '}
               or{' '}

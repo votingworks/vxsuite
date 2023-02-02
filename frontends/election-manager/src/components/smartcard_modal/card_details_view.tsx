@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   Button,
   fontSizeTheme,
@@ -12,12 +12,12 @@ import { ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
+import { programCard, unprogramCard as unprogramCardBase } from '../../api';
 import {
   SmartcardAction,
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
-import { useApiClient } from '../../api';
 import { userRoleToReadableString } from './user_roles';
 
 const StatusMessageContainer = styled.div`
@@ -46,7 +46,8 @@ export function CardDetailsView({
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
-  const apiClient = useApiClient();
+  const programCardMutation = programCard.useMutation();
+  const unprogramCardMutation = unprogramCardBase.useMutation();
 
   const { role } = programmedUser;
   const doesCardElectionHashMatchMachineElectionHash =
@@ -56,7 +57,7 @@ export function CardDetailsView({
       electionDefinition
     );
 
-  async function resetCardPin() {
+  function resetCardPin() {
     assert(role === 'system_administrator' || role === 'election_manager');
 
     setActionStatus({
@@ -64,44 +65,34 @@ export function CardDetailsView({
       role,
       status: 'InProgress',
     });
-    let result;
-    switch (role) {
-      case 'system_administrator': {
-        result = await apiClient.programCard({
-          userRole: 'system_administrator',
-        });
-        break;
+    programCardMutation.mutate(
+      { userRole: role },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'PinReset',
+            role,
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
       }
-      case 'election_manager': {
-        assert(electionDefinition);
-        result = await apiClient.programCard({
-          userRole: 'election_manager',
-        });
-        break;
-      }
-      /* istanbul ignore next: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(role);
-      }
-    }
-    setActionStatus({
-      action: 'PinReset',
-      role,
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    );
   }
 
-  async function unprogramCard() {
+  function unprogramCard() {
     setActionStatus({
       action: 'Unprogram',
       role,
       status: 'InProgress',
     });
-    const result = await apiClient.unprogramCard();
-    setActionStatus({
-      action: 'Unprogram',
-      role,
-      status: result.isOk() ? 'Success' : 'Error',
+    unprogramCardMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        setActionStatus({
+          action: 'Unprogram',
+          role,
+          status: result.isOk() ? 'Success' : 'Error',
+        });
+      },
     });
   }
 

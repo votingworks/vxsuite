@@ -17,7 +17,7 @@ import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
-import { useApiClient } from '../api';
+import { logOut } from '../api';
 
 interface NavItem {
   label: string;
@@ -51,7 +51,7 @@ export function NavigationScreen({
   const { electionDefinition, usbDrive, machineConfig, auth } =
     useContext(AppContext);
   const election = electionDefinition?.election;
-  const apiClient = useApiClient();
+  const logOutMutation = logOut.useMutation();
 
   let primaryNavItems: NavItem[] = [];
   if (isSystemAdministratorAuth(auth)) {
@@ -113,7 +113,7 @@ export function NavigationScreen({
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
-                <Button onPress={() => apiClient.logOut()} small>
+                <Button onPress={() => logOutMutation.mutate()} small>
                   Lock Machine
                 </Button>
                 <UsbControllerButton
