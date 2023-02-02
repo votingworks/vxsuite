@@ -31,5 +31,4 @@ export interface CastVoteRecord
   readonly _pageNumber?: number;
   readonly _pageNumbers?: SheetOf<number>;
   readonly _layouts?: SheetOf<BallotPageLayout>;
-  readonly _locales?: BallotLocale;
 }

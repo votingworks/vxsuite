@@ -171,9 +171,6 @@ test('generates a CVR from a completed BMD ballot', () => {
             "_ballotType": "standard",
             "_batchId": "1234",
             "_batchLabel": "Batch 1",
-            "_locales": Object {
-              "primary": "en-US",
-            },
             "_precinctId": "6522",
             "_scannerId": "000",
             "_testBallot": false,
@@ -246,9 +243,6 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             "_ballotType": "standard",
             "_batchId": "1234",
             "_batchLabel": "Batch 1",
-            "_locales": Object {
-              "primary": "en-US",
-            },
             "_precinctId": "6522",
             "_scannerId": "000",
             "_testBallot": false,
@@ -341,9 +335,6 @@ test('generates a CVR from a completed HMPB page', () => {
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
       "_layouts": undefined,
-      "_locales": Object {
-        "primary": "en-US",
-      },
       "_pageNumbers": Array [
         1,
         2,
@@ -440,9 +431,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
       "_layouts": undefined,
-      "_locales": Object {
-        "primary": "en-US",
-      },
       "_pageNumbers": Array [
         1,
         2,
@@ -538,9 +526,6 @@ test('generates a CVR from a completed absentee HMPB page', () => {
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
       "_layouts": undefined,
-      "_locales": Object {
-        "primary": "en-US",
-      },
       "_pageNumbers": Array [
         1,
         2,

@@ -257,7 +257,7 @@ test('has cvrs.jsonl', async () => {
 
   const cvrsEntry = entries.find(({ name }) => name === 'cvrs.jsonl')!;
   expect(await readTextEntry(cvrsEntry)).toEqual(
-    `{"1":[],"2":[],"3":[],"4":[],"_ballotId":"abc","_ballotStyleId":"1","_ballotType":"standard","_batchId":"${batchId}","_batchLabel":"Batch 1","_precinctId":"6522","_scannerId":"000","_testBallot":false,"_locales":{"primary":"en-US"},"initiative-65":[],"initiative-65-a":[],"flag-question":["yes"],"runoffs-question":[]}\n`
+    `{"1":[],"2":[],"3":[],"4":[],"_ballotId":"abc","_ballotStyleId":"1","_ballotType":"standard","_batchId":"${batchId}","_batchLabel":"Batch 1","_precinctId":"6522","_scannerId":"000","_testBallot":false,"initiative-65":[],"initiative-65-a":[],"flag-question":["yes"],"runoffs-question":[]}\n`
   );
 });
 

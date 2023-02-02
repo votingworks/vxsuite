@@ -64,7 +64,6 @@ export function buildCastVoteRecordMetadataEntries(
     _precinctId: metadata.precinctId,
     _scannerId: VX_MACHINE_ID,
     _testBallot: metadata.isTestMode,
-    _locales: metadata.locales,
   };
 }
 

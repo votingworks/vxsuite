@@ -358,7 +358,6 @@ test('parsing CVRs flags when a ballot style ID in a CVR is not present in the e
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _scannerId: 'scanner-1',
     _testBallot: false,
-    _locales: { primary: 'en-US', secondary: 'es-US' },
     _batchId: '1',
     _batchLabel: 'Batch 1',
   };

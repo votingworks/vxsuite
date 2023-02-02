@@ -138,7 +138,6 @@ test('buildVoteFromCvr', () => {
     _testBallot: false,
     _scannerId: 'scanner-6',
     _pageNumber: 1,
-    _locales: { primary: 'en-US' },
   };
   expect(
     buildVoteFromCvr({
@@ -221,7 +220,6 @@ test('buildVoteFromCvr', () => {
     _testBallot: false,
     _scannerId: 'scanner-6',
     _pageNumber: 1,
-    _locales: { primary: 'en-US' },
   };
   const votes = buildVoteFromCvr({
     election: electionWithMsEitherNeither,

@@ -208,10 +208,6 @@ test('going through the whole process works', async () => {
     ).toMatchObject({
       _ballotStyleId: '12',
       _ballotType: 'standard',
-      _locales: {
-        primary: 'en-US',
-        secondary: 'es-US',
-      },
       _pageNumbers: [1, 2],
       _precinctId: '23',
       _scannerId: '000',
@@ -357,9 +353,6 @@ test('ms-either-neither end-to-end', async () => {
       _ballotType: 'standard',
       _batchId: expect.any(String),
       _batchLabel: 'Batch 1',
-      _locales: {
-        primary: 'en-US',
-      },
       _pageNumbers: [1, 2],
       _precinctId: '6538',
       _scannerId: '000',

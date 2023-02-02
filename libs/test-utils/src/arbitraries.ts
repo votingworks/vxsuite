@@ -475,7 +475,6 @@ export function arbitraryCastVoteRecord({
       _pageNumbers: fc
         .integer({ min: 0, max: 3 })
         .map((index) => [index * 2 + 1, index * 2 + 2]),
-      _locales: arbitraryBallotLocale(),
     })
   );
 }
