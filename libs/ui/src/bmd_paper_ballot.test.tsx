@@ -9,6 +9,7 @@ import {
   vote,
 } from '@votingworks/types';
 import {
+  electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
   electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
@@ -110,6 +111,25 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 
   // Use a snapshot to avoid unintentional regressions to general layout
   expect(container).toMatchSnapshot();
+});
+
+test('BmdPaperBallot uses yes/no option labels if present', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    votes: {
+      'new-zoo-either': ['yes'],
+      'new-zoo-pick': ['no'],
+    },
+  });
+
+  within(screen.getAllByText('Ballot Measure 1')[0].parentElement!).getByText(
+    'FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A'
+  );
+  within(screen.getAllByText('Ballot Measure 1')[1].parentElement!).getByText(
+    'FOR Alternative Measure No. 12 A'
+  );
 });
 
 test('BmdPaperBallot renders when no votes', () => {

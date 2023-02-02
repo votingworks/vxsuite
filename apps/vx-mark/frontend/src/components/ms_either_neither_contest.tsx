@@ -8,12 +8,7 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 
-import {
-  YesNoVote,
-  MsEitherNeitherContest as MsEitherNeitherContestInterface,
-  OptionalYesNoVote,
-  getContestDistrictName,
-} from '@votingworks/types';
+import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
 
 import {
@@ -21,9 +16,11 @@ import {
   ScrollDirections,
   UpdateVoteFunction,
 } from '../config/types';
-
+import {
+  getContestDistrictName,
+  MsEitherNeitherContest as MsEitherNeitherContestInterface,
+} from '../utils/ms_either_neither_contests';
 import { FONT_SIZES } from '../config/globals';
-
 import { ChoiceButton } from './choice_button';
 import {
   ContentHeader,

@@ -3,10 +3,8 @@ import {
   CandidateContest,
   CandidateVote,
   ContestId,
-  Contests,
   Election,
   ElectionDefinition,
-  MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
   PrecinctId,
@@ -14,6 +12,10 @@ import {
 } from '@votingworks/types';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/vx-mark-backend';
+import {
+  ContestsWithMsEitherNeither,
+  MsEitherNeitherContest,
+} from '../utils/ms_either_neither_contests';
 
 export type PostVotingInstructions = 'card' | 'cardless';
 
@@ -35,7 +37,7 @@ export type MarkVoterCardFunction = () => Promise<boolean>;
 export interface BallotContextInterface {
   machineConfig: MachineConfig;
   ballotStyleId?: BallotStyleId;
-  contests: Contests;
+  contests: ContestsWithMsEitherNeither;
   readonly electionDefinition?: ElectionDefinition;
   isCardlessVoter: boolean;
   isLiveMode: boolean;

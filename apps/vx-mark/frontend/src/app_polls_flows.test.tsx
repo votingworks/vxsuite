@@ -36,7 +36,6 @@ import {
   ContestId,
   Dictionary,
   MarkAndPrint,
-  MsEitherNeitherContestCompressedTally,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -675,11 +674,14 @@ const primaryElectionOverallTally: CompressedTally = [
     1 /* for 'triggerfish' */, 0 /* writeIns */,
   ]),
   // new zoo either neither
-  typedAs<MsEitherNeitherContestCompressedTally>([
-    2 /* eitherOption */, 0 /* neitherOption */,
-    0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-    0 /* firstOption */, 1 /* secondOption */, 1 /* pickOneUndervotes */,
-    0 /* pickOneOvervotes */, 2 /* ballotsCast */,
+  typedAs<YesNoContestCompressedTally>([
+    0 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+    2 /* for 'yes' */, 0 /* for 'no' */,
+  ]),
+  // new zoo pick one
+  typedAs<YesNoContestCompressedTally>([
+    1 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+    0 /* for 'yes' */, 1 /* for 'no' */,
   ]),
   // fishing ban yes no
   typedAs<YesNoContestCompressedTally>([
@@ -893,11 +895,14 @@ test('tally report: as expected with all precinct specific data for primary elec
         0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
-      typedAs<MsEitherNeitherContestCompressedTally>([
-        1 /* eitherOption */, 0 /* neitherOption */,
-        0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // new zoo pick one
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([
@@ -929,11 +934,14 @@ test('tally report: as expected with all precinct specific data for primary elec
         0 /* for 'rockfish' */, 1 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
-      typedAs<MsEitherNeitherContestCompressedTally>([
-        1 /* eitherOption */, 0 /* neitherOption */,
-        0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */, 1 /* secondOption */, 0 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // new zoo pick one
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 1 /* for 'no' */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([
@@ -1199,11 +1207,14 @@ test('tally report: as expected with primary election with nonpartisan contests'
       0 /* for 'triggerfish' */, 0 /* writeIns */,
     ]),
     // new zoo either neither
-    typedAs<MsEitherNeitherContestCompressedTally>([
-      0 /* eitherOption */, 0 /* neitherOption */,
-      2 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-      0 /* firstOption */, 0 /* secondOption */, 2 /* pickOneUndervotes */,
-      0 /* pickOneOvervotes */, 2 /* ballotsCast */,
+    typedAs<YesNoContestCompressedTally>([
+      2 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'yes' */, 0 /* for 'no' */,
+    ]),
+    // new zoo pick one
+    typedAs<YesNoContestCompressedTally>([
+      2 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'yes' */, 0 /* for 'no' */,
     ]),
     // fishing ban yes no
     typedAs<YesNoContestCompressedTally>([
@@ -1243,11 +1254,14 @@ test('tally report: as expected with primary election with nonpartisan contests'
         0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
-      typedAs<MsEitherNeitherContestCompressedTally>([
-        0 /* eitherOption */, 0 /* neitherOption */,
-        1 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // new zoo pick one
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([
@@ -1285,11 +1299,14 @@ test('tally report: as expected with primary election with nonpartisan contests'
         0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
-      typedAs<MsEitherNeitherContestCompressedTally>([
-        0 /* eitherOption */, 0 /* neitherOption */,
-        1 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
+      ]),
+      // new zoo pick one
+      typedAs<YesNoContestCompressedTally>([
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([

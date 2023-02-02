@@ -79,6 +79,7 @@ import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
+import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
 
 interface UserState {
   userSettings: UserSettings;
@@ -363,10 +364,12 @@ export function AppRoot({
       : undefined;
   const contests =
     optionalElectionDefinition?.election && ballotStyle
-      ? getContests({
-          election: optionalElectionDefinition.election,
-          ballotStyle,
-        })
+      ? mergeMsEitherNeitherContests(
+          getContests({
+            election: optionalElectionDefinition.election,
+            ballotStyle,
+          })
+        )
       : [];
 
   // Handle Storing Election Locally
