@@ -5,17 +5,12 @@
   "ReportingDevice": [
     {
       "@type": "CVR.ReportingDevice",
+      "@id": "scanner-1",
       "SerialNumber": "scanner-1"
     }
   ],
   "ReportGeneratingDeviceIds": ["scanner-1"],
   "Party": [
-    {
-      "@type": "CVR.Party",
-      "@id": "0",
-      "Name": "Mammal Party",
-      "Abbreviation": "Ma"
-    },
     {
       "@type": "CVR.Party",
       "@id": "1",
@@ -75,10 +70,12 @@
           "ContestSelection": [
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "seahorse",
               "CandidateIds": ["seahorse"]
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "salmon",
               "CandidateIds": ["salmon"]
             }
           ],
@@ -93,26 +90,32 @@
           "ContestSelection": [
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "manta-ray",
               "CandidateIds": ["manta-ray"]
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "pufferfish",
               "CandidateIds": ["pufferfish"]
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "rockfish",
               "CandidateIds": ["rockfish"]
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "triggerfish",
               "CandidateIds": ["triggerfish"]
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "write-in-0",
               "isWriteIn": true
             },
             {
               "@type": "CVR.CandidateSelection",
+              "@id": "write-in-1",
               "isWriteIn": true
             }
           ],
@@ -171,7 +174,6 @@
           "@id": "id-168-original",
           "@type": "CVR.CVRSnapshot",
           "Type": "original",
-          "Status": [],
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",
@@ -222,7 +224,6 @@
           "@id": "id-169-original",
           "@type": "CVR.CVRSnapshot",
           "Type": "original",
-          "Status": [],
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",
@@ -295,31 +296,20 @@
       "PartyIds": ["1"],
       "CreatingDeviceId": "scanner-1",
       "ElectionId": "some-id",
-      "UniqueId": "id-170",
+      "UniqueId": "id-172",
       "vxBallotType": "absentee",
       "vxTestBallot": true,
-      "CurrentSnapshotId": "id-170-original",
+      "CurrentSnapshotId": "id-172-original",
       "CVRSnapshot": [
         {
-          "@id": "id-170-original",
+          "@id": "id-172-original",
           "@type": "CVR.CVRSnapshot",
           "Type": "original",
-          "Status": [],
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",
               "ContestId": "best-animal-fish",
               "CVRContestSelection": [
-                {
-                  "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "seahorse",
-                  "SelectionPosition": [
-                    {
-                      "HasIndication": "yes",
-                      "NumberVotes": 1
-                    }
-                  ]
-                },
                 {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "salmon",
@@ -330,8 +320,7 @@
                     }
                   ]
                 }
-              ],
-              "Overvotes": 1
+              ]
             },
             {
               "@type": "CVR.CVRContest",
@@ -346,25 +335,27 @@
                       "NumberVotes": 1
                     }
                   ]
-                }
-              ],
-              "Undervotes": 1
-            },
-            {
-              "@type": "CVR.CVRContest",
-              "ContestId": "fishing",
-              "CVRContestSelection": [
+                },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "write-in-0",
                   "SelectionPosition": [
                     {
                       "HasIndication": "yes",
-                      "NumberVotes": 1
+                      "NumberVotes": 1,
+                      "CVRWriteIn": {
+                        "@type": "CVR.CVRWriteIn",
+                        "WriteInImage": {}
+                      }
                     }
                   ]
                 }
               ]
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "fishing",
+              "Undervotes": 1
             }
           ]
         }
