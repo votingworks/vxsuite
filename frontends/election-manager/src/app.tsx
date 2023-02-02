@@ -10,16 +10,14 @@ import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { machineConfigProvider as defaultMachineConfigProvider } from './utils/machine_config';
-import { ApiClient, ApiClientContext, createApiClient } from './api';
 
-export type Props = Partial<AppRootProps & { apiClient?: ApiClient }>;
+export type Props = Partial<AppRootProps>;
 
 export function App({
   hardware = getHardware(),
   printer = getPrinter(),
   machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
-  apiClient = createApiClient(),
 }: Props): JSX.Element {
   // Copied from old App.css
   const baseFontSizePx = 20;
@@ -35,14 +33,12 @@ export function App({
         legacyBaseFontSizePx={baseFontSizePx}
         legacyPrintFontSizePx={printFontSizePx}
       >
-        <ApiClientContext.Provider value={apiClient}>
-          <AppRoot
-            printer={printer}
-            hardware={hardware}
-            machineConfigProvider={machineConfigProvider}
-            converter={converter}
-          />
-        </ApiClientContext.Provider>
+        <AppRoot
+          printer={printer}
+          hardware={hardware}
+          machineConfigProvider={machineConfigProvider}
+          converter={converter}
+        />
       </AppBase>
     </BrowserRouter>
   );

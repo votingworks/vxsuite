@@ -25,7 +25,8 @@ export function buildApp(electionDefinition: ElectionDefinition): {
   const logger = fakeLogger();
   const printer = fakePrinter();
   function renderApp() {
-    return renderRootElement(App({ apiClient, hardware, printer }), {
+    return renderRootElement(App({ hardware, printer }), {
+      apiClient,
       backend,
       logger,
     });
