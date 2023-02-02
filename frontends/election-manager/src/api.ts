@@ -26,6 +26,8 @@ export function useApiClient(): ApiClient {
   return apiClient;
 }
 
+const AUTH_STATUS_POLLING_INTERVAL_MS = 100;
+
 export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
@@ -33,7 +35,7 @@ export const getAuthStatus = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: 100,
+      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;
