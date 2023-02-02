@@ -7,10 +7,15 @@ import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, Text } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+  Text,
+} from '@votingworks/ui';
 import { ColorMode } from '@votingworks/types';
 import { AppRoot, Props as AppRootProps } from './app_root';
-import { ApiClientContext, queryClientDefaultOptions } from './api';
+import { ApiClientContext } from './api';
 import { TimesCircle } from './components/graphics';
 import { CenteredLargeProse } from './components/layout';
 
@@ -27,7 +32,9 @@ export function App({
   card = new WebServiceCard(),
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = grout.createClient<Api>({ baseUrl: '/api' }),
-  queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
+  queryClient = new QueryClient({
+    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
+  }),
 }: AppProps): JSX.Element {
   // Copied from old App.css
   const baseFontSizePx = 28;

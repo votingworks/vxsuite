@@ -13,7 +13,13 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, Prose, Text, ErrorBoundary } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  Prose,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+  Text,
+} from '@votingworks/ui';
 import { ColorMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
@@ -26,7 +32,7 @@ import { getUsEnglishVoice } from './utils/voices';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
-import { ApiClientContext, queryClientDefaultOptions } from './api';
+import { ApiClientContext } from './api';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -58,7 +64,9 @@ export function App({
   /* istanbul ignore next */ apiClient = grout.createClient<Api>({
     baseUrl: '/api',
   }),
-  queryClient = new QueryClient({ defaultOptions: queryClientDefaultOptions }),
+  queryClient = new QueryClient({
+    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
+  }),
 }: Props): JSX.Element {
   screenReader.mute();
   /* istanbul ignore next - need to figure out how to test this */

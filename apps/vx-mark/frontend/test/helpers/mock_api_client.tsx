@@ -4,7 +4,8 @@ import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api, MachineConfig } from '@votingworks/vx-mark-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiClientContext, queryClientDefaultOptions } from '../../src/api';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
+import { ApiClientContext } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
 /**
@@ -36,7 +37,9 @@ export function provideApi(
   return (
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+        client={
+          new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS })
+        }
       >
         {children}
       </QueryClientProvider>
