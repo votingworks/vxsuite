@@ -3390,7 +3390,6 @@ importers:
       '@votingworks/fixtures': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/logging': workspace:*
-      '@votingworks/plustek-scanner': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
@@ -3448,7 +3447,6 @@ importers:
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/image-utils': link:../../libs/image-utils
       '@votingworks/logging': link:../../libs/logging
-      '@votingworks/plustek-scanner': link:../../libs/plustek-scanner
       '@votingworks/test-utils': link:../../libs/test-utils
       '@votingworks/types': link:../../libs/types
       '@votingworks/utils': link:../../libs/utils
