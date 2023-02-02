@@ -46,7 +46,8 @@ export const checkPin = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
       async onSuccess() {
-        // Not strictly needed right now
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
@@ -59,6 +60,8 @@ export const logOut = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.logOut, {
       async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
@@ -71,6 +74,8 @@ export const programCard = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.programCard, {
       async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
@@ -83,6 +88,8 @@ export const unprogramCard = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.unprogramCard, {
       async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
