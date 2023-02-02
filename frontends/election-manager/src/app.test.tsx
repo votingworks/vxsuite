@@ -148,8 +148,8 @@ test('create election works', async () => {
   const backend = new ElectionManagerStoreMemoryBackend();
   const logger = fakeLogger();
   const { getByText, queryAllByText, getByTestId } = renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} />,
-    { backend, logger }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend, logger }
   );
   await authenticateAsSystemAdministrator(mockApiClient);
   await screen.findByText('Load Demo Election Definition');
@@ -215,7 +215,8 @@ test('authentication works', async () => {
   });
   const logger = fakeLogger();
 
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
     logger,
   });
@@ -326,13 +327,11 @@ test('L&A (logic and accuracy) flow', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
   const logger = fakeLogger();
-  renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} printer={printer} />,
-    {
-      backend,
-      logger,
-    }
-  );
+  renderRootElement(<App hardware={hardware} printer={printer} />, {
+    apiClient: mockApiClient,
+    backend,
+    logger,
+  });
   await authenticateAsElectionManager(
     mockApiClient,
     eitherNeitherElectionDefinition
@@ -437,7 +436,8 @@ test('L&A features are available after test results are loaded', async () => {
       eitherNeitherElectionDefinition.election
     ),
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
@@ -468,8 +468,8 @@ test('printing ballots and printed ballots report', async () => {
   hardware.setPrinterConnected(false);
   const logger = fakeLogger();
   const { getByText, getAllByText } = renderRootElement(
-    <App apiClient={mockApiClient} printer={printer} hardware={hardware} />,
-    { backend, logger }
+    <App printer={printer} hardware={hardware} />,
+    { apiClient: mockApiClient, backend, logger }
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateAsElectionManager(
@@ -571,13 +571,8 @@ test('tabulating CVRs', async () => {
   const logger = fakeLogger();
   const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
-      <App
-        apiClient={mockApiClient}
-        hardware={hardware}
-        printer={printer}
-        converter="ms-sems"
-      />,
-      { backend, logger }
+      <App hardware={hardware} printer={printer} converter="ms-sems" />,
+      { apiClient: mockApiClient, backend, logger }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateAsElectionManager(
@@ -775,8 +770,8 @@ test('tabulating CVRs with SEMS file', async () => {
 
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, getAllByText } = renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} converter="ms-sems" />,
-    { backend }
+    <App hardware={hardware} converter="ms-sems" />,
+    { apiClient: mockApiClient, backend }
   );
   jest.advanceTimersByTime(2000);
   await authenticateAsElectionManager(
@@ -896,7 +891,8 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId, getAllByText, queryAllByText } =
-    renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+    renderRootElement(<App hardware={hardware} />, {
+      apiClient: mockApiClient,
       backend,
     });
   await authenticateAsElectionManager(
@@ -1090,8 +1086,8 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId } = renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} />,
-    { backend }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend }
   );
 
   await authenticateAsElectionManager(
@@ -1172,8 +1168,8 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, queryByText } = renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} converter="ms-sems" />,
-    { backend }
+    <App hardware={hardware} converter="ms-sems" />,
+    { apiClient: mockApiClient, backend }
   );
   await authenticateAsElectionManager(
     mockApiClient,
@@ -1251,8 +1247,8 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
 
   const hardware = MemoryHardware.buildStandard();
   const { getByText, queryByText } = renderRootElement(
-    <App apiClient={mockApiClient} hardware={hardware} />,
-    { backend }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend }
   );
 
   await authenticateAsSystemAdministrator(mockApiClient);
@@ -1276,7 +1272,8 @@ test('election manager UI has expected nav', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
   await authenticateAsElectionManager(
@@ -1310,7 +1307,8 @@ test('system administrator UI has expected nav', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
@@ -1331,7 +1329,8 @@ test('system administrator UI has expected nav', async () => {
 test('system administrator UI has expected nav when no election', async () => {
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
@@ -1381,7 +1380,8 @@ test('system administrator Smartcards screen navigation', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
@@ -1399,7 +1399,8 @@ test('system administrator Smartcards screen navigation', async () => {
 test('election manager cannot auth onto unconfigured machine', async () => {
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
@@ -1422,7 +1423,8 @@ test('election manager cannot auth onto machine with different election hash', a
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
@@ -1447,7 +1449,8 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
@@ -1610,7 +1613,8 @@ test('usb formatting flows', async () => {
     connectCardReader: true,
   });
   const logger = fakeLogger();
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     logger,
   });
 

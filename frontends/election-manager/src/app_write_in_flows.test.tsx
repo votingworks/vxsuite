@@ -63,7 +63,8 @@ test('manual write-in data end-to-end test', async () => {
     )
   );
   const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
@@ -290,7 +291,8 @@ test('availability of write-in tally report', async () => {
   await backend.transcribeWriteIn(writeIn2.id, 'Loch Ness');
 
   const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
   });
 
