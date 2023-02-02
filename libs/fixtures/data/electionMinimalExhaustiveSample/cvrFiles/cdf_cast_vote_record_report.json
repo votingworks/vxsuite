@@ -157,6 +157,13 @@
       "Type": "precinct"
     }
   ],
+  "Batch": [
+    {
+      "@type": "VX.Batch",
+      "@id": "batch-2",
+      "BatchLabel": "Batch 2"
+    }
+  ],
   "CVR": [
     {
       "@type": "CVR.CVR",
@@ -164,6 +171,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "scanner-1",
+      "BatchId": "batch-2",
       "ElectionId": "some-id",
       "UniqueId": "id-168",
       "vxBallotType": "absentee",
@@ -215,6 +223,7 @@
       "PartyIds": ["1"],
       "CreatingDeviceId": "scanner-1",
       "ElectionId": "some-id",
+      "BatchId": "batch-2",
       "UniqueId": "id-169",
       "vxBallotType": "absentee",
       "vxTestBallot": true,
@@ -296,6 +305,7 @@
       "PartyIds": ["1"],
       "CreatingDeviceId": "scanner-1",
       "ElectionId": "some-id",
+      "BatchId": "batch-2",
       "UniqueId": "id-172",
       "vxBallotType": "absentee",
       "vxTestBallot": true,
