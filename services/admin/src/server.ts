@@ -62,6 +62,10 @@ export function buildApp({
 }): Application {
   const { store } = workspace;
 
+  // TODO: Once we actually support multiple elections, configure the auth instance with the
+  // currently selected election rather than the first. In fact, do so as soon as the currently
+  // selected election is persisted on the backend instead of the frontend since, even today, in
+  // dev, we can end up with multiple election definitions under the hood via incognito windows
   const elections = store.getElections();
   if (elections[0]?.electionDefinition) {
     auth.setElectionDefinition(elections[0].electionDefinition);
