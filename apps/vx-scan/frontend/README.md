@@ -23,9 +23,6 @@ the folder `ballot-packages`. There can only be one election ballot package in
 that folder. You'll need to run the application inside
 [`kiosk-browser`](https://github.com/votingworks/kiosk-browser).
 
-To use a mock scanner, follow the directions from in
-[`vx-scan/backend`](../backend/#Mock-Scanning).
-
 ## Testing
 
 ```sh
