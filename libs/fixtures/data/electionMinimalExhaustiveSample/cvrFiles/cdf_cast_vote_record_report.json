@@ -309,6 +309,15 @@
       "UniqueId": "id-172",
       "vxBallotType": "absentee",
       "vxTestBallot": true,
+      "BallotImage": [
+        {
+          "@type": "CVR.ImageData"
+        },
+        {
+          "@type": "CVR.ImageData",
+          "Location": "./ballot-12312321312-back.jpeg"
+        }
+      ],
       "CurrentSnapshotId": "id-172-original",
       "CVRSnapshot": [
         {
@@ -355,7 +364,21 @@
                       "NumberVotes": 1,
                       "CVRWriteIn": {
                         "@type": "CVR.CVRWriteIn",
-                        "WriteInImage": {}
+                        "vxPositionInBallotImage": {
+                          "Side": "back",
+                          "ContestRect": {
+                            "x": 0,
+                            "y": 0,
+                            "width": 800,
+                            "height": 200
+                          },
+                          "WriteInRect": {
+                            "x": 0,
+                            "y": 0,
+                            "width": 800,
+                            "height": 100
+                          }
+                        }
                       }
                     }
                   ]
