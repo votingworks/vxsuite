@@ -210,7 +210,6 @@ test('export the CVRs to USB', async () => {
     ...expectedCvr,
     _ballotId: expect.any(String),
     _batchId: expect.any(String),
-    _locales: { primary: 'en-US' },
   });
 
   expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
