@@ -34,6 +34,9 @@ const queryClient = new QueryClient({
 
 ReactDom.render(
   <React.StrictMode>
+    {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
+      and 2) be more consistent with other Vx apps. This will require updating test utils to not
+      render their own providers when rendering <App> */}
     <ErrorBoundary
       errorMessage={
         <Prose textCenter>
