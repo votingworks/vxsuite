@@ -122,7 +122,6 @@ export = {
           '_scannerId',
           '_pageNumber',
           '_pageNumbers',
-          '_locales',
           '_ballotImages',
           '_layouts',
         ],
