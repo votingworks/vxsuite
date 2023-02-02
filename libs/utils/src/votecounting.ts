@@ -68,7 +68,6 @@ export function* parseCvrs(
         _precinctId,
         _testBallot,
         _scannerId,
-        _locales,
         _pageNumber,
         _pageNumbers,
         ...votes
@@ -190,21 +189,6 @@ export function* parseCvrs(
       ) {
         errors.push(
           `Batch label in CVR must be a string, got '${_batchLabel}' (${typeof _batchLabel}, not string)`
-        );
-      }
-
-      if (
-        typeof _locales !== 'undefined' &&
-        (typeof _locales !== 'object' ||
-          !_locales ||
-          typeof _locales.primary !== 'string' ||
-          (typeof _locales.secondary !== 'undefined' &&
-            typeof _locales.primary !== 'string'))
-      ) {
-        errors.push(
-          `Locale in CVR must be a locale object with primary and optional secondary locales, got '${JSON.stringify(
-            _locales
-          )}'`
         );
       }
 
@@ -352,7 +336,6 @@ function processCastVoteRecord({
     _scannerId: castVoteRecord._scannerId,
     _pageNumber: castVoteRecord._pageNumber,
     _pageNumbers: castVoteRecord._pageNumbers,
-    _locales: castVoteRecord._locales,
   };
   for (const key of contestIds) {
     if (castVoteRecord[key]) newCvr[key] = castVoteRecord[key];
