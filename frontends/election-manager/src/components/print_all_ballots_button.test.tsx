@@ -22,6 +22,7 @@ import {
 import {
   authenticateAsElectionManager,
   authenticateAsSystemAdministrator,
+  logOut,
 } from '../../test/util/authenticate';
 import { App } from '../app';
 import {
@@ -265,11 +266,10 @@ test('modal is different for system administrators', async () => {
     hasTextAcrossElements('Print 4 Official Absentee Ballots')
   );
   userEvent.click(within(modal).getByText('Cancel'));
-  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
-  userEvent.click(screen.getByText('Lock Machine'));
 
   const electionManagerOptions = ['Official', 'Test', 'Sample'];
 
+  await logOut(mockApiClient);
   await authenticateAsSystemAdministrator(mockApiClient);
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
@@ -282,9 +282,8 @@ test('modal is different for system administrators', async () => {
     ).not.toBeInTheDocument();
   }
   userEvent.click(within(modal).getByText('Cancel'));
-  mockApiClient.logOut.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Lock Machine'));
 
+  await logOut(mockApiClient);
   await authenticateAsElectionManager(
     mockApiClient,
     electionMinimalExhaustiveSampleDefinition

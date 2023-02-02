@@ -48,6 +48,7 @@ import { VxFiles } from './lib/converters';
 import {
   authenticateAsElectionManager,
   authenticateAsSystemAdministrator,
+  logOut,
 } from '../test/util/authenticate';
 import { ElectionManagerStoreMemoryBackend } from './lib/backends';
 import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
@@ -1104,8 +1105,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
 
-  mockApiClient.logOut.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Lock Machine'));
+  await logOut(mockApiClient);
   await authenticateAsSystemAdministrator(mockApiClient);
 
   fireEvent.click(getByText('Definition'));
@@ -1120,8 +1120,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
 
-  mockApiClient.logOut.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Lock Machine'));
+  await logOut(mockApiClient);
   await authenticateAsElectionManager(
     mockApiClient,
     electionFamousNames2021Fixtures.electionDefinition
@@ -1257,9 +1256,8 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
     'VxAdmin does not produce ballots for this election.'
   );
   expect(queryByText('Save Ballot Package')).toBeNull();
-  mockApiClient.logOut.expectCallWith().resolves();
-  fireEvent.click(getByText('Lock Machine'));
 
+  await logOut(mockApiClient);
   await authenticateAsElectionManager(mockApiClient, electionDefinition);
   await screen.findByText(
     'VxAdmin does not produce ballots for this election.'
@@ -1508,8 +1506,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByRole('button', { name: 'Save Ballot as PDF' });
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
-  mockApiClient.logOut.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Lock Machine'));
+  await logOut(mockApiClient);
   await authenticateAsElectionManager(
     mockApiClient,
     eitherNeitherElectionDefinition

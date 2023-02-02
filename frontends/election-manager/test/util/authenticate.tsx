@@ -7,13 +7,18 @@ import { screen } from '@testing-library/react';
 
 import { MockApiClient, setAuthStatus } from '../helpers/api';
 
-export async function authenticateAsSystemAdministrator(
-  mockApiClient: MockApiClient
-): Promise<void> {
+export async function logOut(mockApiClient: MockApiClient): Promise<void> {
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  await screen.findByText('VxAdmin is Locked');
+}
+
+export async function authenticateAsSystemAdministrator(
+  mockApiClient: MockApiClient
+): Promise<void> {
+  // First verify that we're logged out
   await screen.findByText('VxAdmin is Locked');
 
   setAuthStatus(mockApiClient, {
@@ -28,10 +33,7 @@ export async function authenticateAsElectionManager(
   mockApiClient: MockApiClient,
   electionDefinition: ElectionDefinition
 ): Promise<void> {
-  setAuthStatus(mockApiClient, {
-    status: 'logged_out',
-    reason: 'machine_locked',
-  });
+  // First verify that we're logged out
   await screen.findByText('VxAdmin is Locked');
 
   setAuthStatus(mockApiClient, {
