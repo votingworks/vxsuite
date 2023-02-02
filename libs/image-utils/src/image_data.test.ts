@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
@@ -97,26 +98,49 @@ test('loadImageData with invalid PGM format', async () => {
 
 test('loadImage/loadImageData with PGM format', async () => {
   await fc.assert(
-    fc.asyncProperty(arbitraryImageData(), async (imageData) => {
+    fc.asyncProperty(arbitraryImageData({ channels: 1 }), async (imageData) => {
       const filePath = fileSync({
         template: `tmp-XXXXXX.pgm`,
       }).name;
-      await writeFile(
-        filePath,
-        `P5\n${imageData.width} ${imageData.height}\n255\n${imageData.data}`
-      );
-      const loadedImage = await loadImage(filePath);
-      const loadedImageData = await loadImageData(filePath);
+      const pgmData = Buffer.concat([
+        Buffer.from('P5\n'),
+        Buffer.from(`${imageData.width} ${imageData.height}\n`),
+        Buffer.from('255\n'),
+        Buffer.from(imageData.data),
+      ]);
+
+      await writeFile(filePath, pgmData);
+
+      const loadedImageFromFile = await loadImage(filePath);
+      const loadedImageDataFromFile = await loadImageData(filePath);
       expect({
-        width: loadedImageData.width,
-        height: loadedImageData.height,
+        width: loadedImageDataFromFile.width,
+        height: loadedImageDataFromFile.height,
       }).toEqual({
         width: imageData.width,
         height: imageData.height,
       });
       expect({
-        width: loadedImage.width,
-        height: loadedImage.height,
+        width: loadedImageFromFile.width,
+        height: loadedImageFromFile.height,
+      }).toEqual({
+        width: imageData.width,
+        height: imageData.height,
+      });
+
+      const pgmDataUrl = toDataUrl(imageData, 'image/x-portable-graymap');
+      const loadedImageFromDataUrl = await loadImage(pgmDataUrl);
+      const loadedImageDataFromDataUrl = await loadImageData(pgmDataUrl);
+      expect({
+        width: loadedImageDataFromDataUrl.width,
+        height: loadedImageDataFromDataUrl.height,
+      }).toEqual({
+        width: imageData.width,
+        height: imageData.height,
+      });
+      expect({
+        width: loadedImageFromDataUrl.width,
+        height: loadedImageFromDataUrl.height,
       }).toEqual({
         width: imageData.width,
         height: imageData.height,
@@ -231,5 +255,32 @@ test('toDataUrl image/jpeg', async () => {
         });
       }
     )
+  );
+});
+
+test('toDataUrl image/x-portable-graymap', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData({ width: 5, height: 5, channels: 1 }),
+      async (imageData) => {
+        const dataUrl = toDataUrl(imageData, 'image/x-portable-graymap');
+        expect(dataUrl).toMatch(/^data:image\/x-portable-graymap;base64,/);
+        const { width: decodedWidth, height: decodedHeight } = toImageData(
+          await loadImage(dataUrl)
+        );
+        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
+          width: imageData.width,
+          height: imageData.height,
+        });
+      }
+    )
+  );
+});
+
+test('toDataUrl image/x-portable-graymap with more than one channel', () => {
+  const imageData = createImageData(5, 5);
+  expect(getImageChannelCount(imageData)).toEqual(4);
+  expect(() => toDataUrl(imageData, 'image/x-portable-graymap')).toThrow(
+    'image/x-portable-graymap only supports one channel'
   );
 });
