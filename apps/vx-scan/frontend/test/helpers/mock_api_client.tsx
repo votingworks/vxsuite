@@ -17,7 +17,8 @@ import type {
 } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
-import { ApiClientContext, queryClientDefaultOptions } from '../../src/api';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
+import { ApiClientContext } from '../../src/api';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -109,7 +110,9 @@ export function provideApi(
   return (
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider
-        client={new QueryClient({ defaultOptions: queryClientDefaultOptions })}
+        client={
+          new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS })
+        }
       >
         {children}
       </QueryClientProvider>

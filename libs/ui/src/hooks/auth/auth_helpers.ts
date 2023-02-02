@@ -12,6 +12,7 @@ import {
   safeParseJson,
   SystemAdministratorCardData,
   User,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import { err, ok, throwIllegalValue, wrapException } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -289,7 +290,16 @@ export function isSystemAdministratorAuth(
   auth: DippedSmartcardAuth.Auth
 ): auth is DippedSmartcardAuth.SystemAdministratorLoggedIn;
 export function isSystemAdministratorAuth(
-  auth: InsertedSmartcardAuth.Auth | DippedSmartcardAuth.Auth
+  auth: DippedSmartCardAuth.AuthStatus
+): auth is DippedSmartCardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
+  auth: DippedSmartcardAuth.Auth | DippedSmartCardAuth.AuthStatus
+): auth is DippedSmartCardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
+  auth:
+    | InsertedSmartcardAuth.Auth
+    | DippedSmartcardAuth.Auth
+    | DippedSmartCardAuth.AuthStatus
 ): boolean {
   return (
     auth.status === 'logged_in' && auth.user.role === 'system_administrator'
@@ -303,7 +313,16 @@ export function isElectionManagerAuth(
   auth: DippedSmartcardAuth.Auth
 ): auth is DippedSmartcardAuth.ElectionManagerLoggedIn;
 export function isElectionManagerAuth(
-  auth: InsertedSmartcardAuth.Auth | DippedSmartcardAuth.Auth
+  auth: DippedSmartCardAuth.AuthStatus
+): auth is DippedSmartCardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
+  auth: DippedSmartcardAuth.Auth | DippedSmartCardAuth.AuthStatus
+): auth is DippedSmartCardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
+  auth:
+    | InsertedSmartcardAuth.Auth
+    | DippedSmartcardAuth.Auth
+    | DippedSmartCardAuth.AuthStatus
 ): boolean {
   return auth.status === 'logged_in' && auth.user.role === 'election_manager';
 }

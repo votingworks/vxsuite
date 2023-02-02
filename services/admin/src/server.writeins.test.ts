@@ -1,20 +1,24 @@
 import { Admin } from '@votingworks/api';
-import { assert, typedAs } from '@votingworks/basics';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
+import { assert, typedAs } from '@votingworks/basics';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildApp } from './server';
+import { buildTestAuth } from '../test/utils';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
+let auth: DippedSmartCardAuthApi;
 let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  ({ auth } = buildTestAuth());
   workspace = createWorkspace(dirSync().name);
-  app = buildApp({ workspace });
+  app = buildApp({ auth, workspace });
 });
 
 test('write-in adjudication lifecycle', async () => {

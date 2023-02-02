@@ -1,12 +1,17 @@
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   enterPin,
+  logOut,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
   mockSystemAdministratorCardInsertion,
 } from '../support/auth';
 
 describe('Election Manager can create SEMS tallies', () => {
+  beforeEach(() => {
+    logOut();
+  });
+
   it('Election Manager can tally results properly', () => {
     const { electionDefinition } = electionMultiPartyPrimaryFixtures;
     cy.visit('/');

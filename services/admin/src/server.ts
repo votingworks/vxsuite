@@ -18,6 +18,13 @@ import express, { Application } from 'express';
 import compression from 'compression';
 import * as fs from 'fs/promises';
 import multer from 'multer';
+import {
+  DippedSmartCardAuthApi,
+  DippedSmartCardAuthWithMemoryCard,
+} from '@votingworks/auth';
+import { Server } from 'http';
+import { WebServiceCard } from '@votingworks/utils';
+import * as grout from '@votingworks/grout';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
@@ -26,12 +33,49 @@ type NoParams = never;
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
 
+function buildApi(auth: DippedSmartCardAuthApi) {
+  return grout.createApi({
+    getAuthStatus: () => auth.getAuthStatus(),
+    checkPin: (input: { pin: string }) => auth.checkPin(input),
+    logOut: () => auth.logOut(),
+    programCard: (input: {
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
+    }) => auth.programCard(input),
+    unprogramCard: () => auth.unprogramCard(),
+  });
+}
+
+/**
+ * A type to be used by the frontend to create a Grout API client
+ */
+export type Api = ReturnType<typeof buildApi>;
+
 /**
  * Builds an express application.
  */
-export function buildApp({ workspace }: { workspace: Workspace }): Application {
+export function buildApp({
+  auth,
+  workspace,
+}: {
+  auth: DippedSmartCardAuthApi;
+  workspace: Workspace;
+}): Application {
   const { store } = workspace;
+
+  // TODO: Once we actually support multiple elections, configure the auth instance with the
+  // currently selected election rather than the first. In fact, do so as soon as the currently
+  // selected election is persisted on the backend instead of the frontend since, even today, in
+  // dev, we can end up with multiple election definitions under the hood via incognito windows
+  const elections = store.getElections();
+  if (elections[0]?.electionDefinition) {
+    auth.setElectionDefinition(elections[0].electionDefinition);
+  }
+
   const app: Application = express();
+
+  const api = buildApi(auth);
+  app.use('/api', grout.buildRouter(api, express));
+
   const upload = multer({
     storage: multer.diskStorage({
       destination: workspace.uploadsPath,
@@ -39,86 +83,96 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     limits: { fileSize: MAX_UPLOAD_FILE_SIZE },
   });
 
-  app.use(express.raw());
-  app.use(express.json({ limit: '50mb', type: 'application/json' }));
-  app.use(express.urlencoded({ extended: false }));
-  app.use(compression());
+  const deprecatedApiRouter = express.Router();
+  deprecatedApiRouter.use(express.raw());
+  deprecatedApiRouter.use(
+    express.json({ limit: '50mb', type: 'application/json' })
+  );
+  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
+  deprecatedApiRouter.use(compression());
 
-  app.get<NoParams>('/admin/elections', (_request, response) => {
-    response.json(store.getElections());
+  deprecatedApiRouter.get<NoParams>(
+    '/admin/elections',
+    (_request, response) => {
+      response.json(store.getElections());
+    }
+  );
+
+  deprecatedApiRouter.post<
+    NoParams,
+    Admin.PostElectionResponse,
+    Admin.PostElectionRequest
+  >('/admin/elections', (request, response) => {
+    const parseResult = safeParse(
+      Admin.PostElectionRequestSchema,
+      request.body
+    );
+
+    if (parseResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          { type: 'ValidationError', message: parseResult.err().message },
+        ],
+      });
+      return;
+    }
+
+    const electionDefinition = parseResult.ok();
+    const electionId = store.addElection(electionDefinition.electionData);
+    auth.setElectionDefinition(electionDefinition);
+    response.json({ status: 'ok', id: electionId });
   });
 
-  app.post<NoParams, Admin.PostElectionResponse, Admin.PostElectionRequest>(
-    '/admin/elections',
-    (request, response) => {
-      const parseResult = safeParse(
-        Admin.PostElectionRequestSchema,
-        request.body
-      );
+  deprecatedApiRouter.patch<
+    NoParams,
+    Admin.PatchElectionResponse,
+    Admin.PatchElectionRequest
+  >('/admin/elections/:electionId', (request, response) => {
+    const parseResult = safeParse(
+      Admin.PatchElectionRequestSchema,
+      request.body
+    );
 
-      if (parseResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            { type: 'ValidationError', message: parseResult.err().message },
-          ],
-        });
-        return;
-      }
-
-      const electionDefinition = parseResult.ok();
-      const electionId = store.addElection(electionDefinition.electionData);
-      response.json({ status: 'ok', id: electionId });
+    if (parseResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          { type: 'ValidationError', message: parseResult.err().message },
+        ],
+      });
+      return;
     }
-  );
 
-  app.patch<NoParams, Admin.PatchElectionResponse, Admin.PatchElectionRequest>(
-    '/admin/elections/:electionId',
-    (request, response) => {
-      const parseResult = safeParse(
-        Admin.PatchElectionRequestSchema,
-        request.body
-      );
+    const { electionId } = request.params;
+    const { isOfficialResults } = parseResult.ok();
 
-      if (parseResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            { type: 'ValidationError', message: parseResult.err().message },
-          ],
-        });
-        return;
-      }
-
-      const { electionId } = request.params;
-      const { isOfficialResults } = parseResult.ok();
-
-      const election = store.getElection(electionId);
-      if (!election) {
-        response.status(404).json({
-          status: 'error',
-          errors: [{ type: 'NotFound', message: 'Election not found' }],
-        });
-        return;
-      }
-
-      if (typeof isOfficialResults === 'boolean') {
-        store.setElectionResultsOfficial(electionId, isOfficialResults);
-      }
-
-      response.json({ status: 'ok' });
+    const election = store.getElection(electionId);
+    if (!election) {
+      response.status(404).json({
+        status: 'error',
+        errors: [{ type: 'NotFound', message: 'Election not found' }],
+      });
+      return;
     }
-  );
 
-  app.delete<{ electionId: Id }>(
+    if (typeof isOfficialResults === 'boolean') {
+      store.setElectionResultsOfficial(electionId, isOfficialResults);
+    }
+
+    response.json({ status: 'ok' });
+  });
+
+  deprecatedApiRouter.delete<{ electionId: Id }>(
     '/admin/elections/:electionId',
     (request, response) => {
       store.deleteElection(request.params.electionId);
+      auth.clearElectionDefinition();
       response.json({ status: 'ok' });
     }
   );
 
-  app.get<{ electionId: Id }, Admin.GetCvrFilesResponse>(
+  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrFilesResponse>(
     '/admin/elections/:electionId/cvr-files',
     (request, response) => {
       response.json(store.getCvrFiles(request.params.electionId));
@@ -129,7 +183,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
   // can be removed once we've moved tally computation to the server - it's
   // currently only used as a stopgap while we migrate all app state to the
   // server.
-  app.get<{ electionId: Id }, Admin.GetCvrsResponse>(
+  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrsResponse>(
     '/admin/elections/:electionId/cvrs',
     (request, response) => {
       response.json(
@@ -149,7 +203,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.post<
+  deprecatedApiRouter.post<
     { electionId: Id },
     Admin.PostCvrFileResponse,
     Admin.PostCvrFileRequest
@@ -251,7 +305,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.delete<
+  deprecatedApiRouter.delete<
     { electionId: Id },
     Admin.DeleteCvrFileResponse,
     Admin.DeleteCvrFileRequest
@@ -262,7 +316,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     response.json({ status: 'ok' });
   });
 
-  app.get<
+  deprecatedApiRouter.get<
     { electionId: Id },
     Admin.GetCvrFileModeResponse,
     Admin.GetCvrFileModeRequest
@@ -276,7 +330,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     });
   });
 
-  app.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
+  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
     '/admin/elections/:electionId/write-ins',
     (request, response) => {
       const parseQueryResult = safeParse(
@@ -310,7 +364,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.put<
+  deprecatedApiRouter.put<
     { writeInId: Id },
     Admin.PutWriteInTranscriptionResponse,
     Admin.PutWriteInTranscriptionRequest
@@ -338,7 +392,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     response.json({ status: 'ok' });
   });
 
-  app.get<
+  deprecatedApiRouter.get<
     { electionId: Id },
     Admin.GetWriteInAdjudicationsResponse,
     Admin.GetWriteInAdjudicationsRequest,
@@ -376,7 +430,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.post<
+  deprecatedApiRouter.post<
     { electionId: Id },
     Admin.PostWriteInAdjudicationResponse,
     Admin.PostWriteInAdjudicationRequest
@@ -421,7 +475,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.put<
+  deprecatedApiRouter.put<
     { writeInAdjudicationId: Id },
     Admin.PutWriteInAdjudicationResponse,
     Admin.PutWriteInAdjudicationRequest
@@ -452,7 +506,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.delete<
+  deprecatedApiRouter.delete<
     { writeInAdjudicationId: Id },
     Admin.DeleteWriteInAdjudicationResponse,
     Admin.DeleteWriteInAdjudicationRequest
@@ -465,7 +519,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   );
 
-  app.get<
+  deprecatedApiRouter.get<
     { electionId: Id },
     Admin.GetWriteInSummaryResponse,
     Admin.GetWriteInSummaryRequest,
@@ -500,7 +554,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     );
   });
 
-  app.get<
+  deprecatedApiRouter.get<
     Admin.GetWriteInAdjudicationTableUrlParams,
     Admin.GetWriteInAdjudicationTableResponse,
     Admin.GetWriteInAdjudicationTableRequest
@@ -543,7 +597,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
   );
 
   /* istanbul ignore next */
-  app.get<
+  deprecatedApiRouter.get<
     { writeInId: Id },
     Admin.GetWriteInImageResponse,
     Admin.GetWriteInImageRequest
@@ -674,7 +728,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     }
   });
 
-  app.post<
+  deprecatedApiRouter.post<
     { electionId: Id },
     Admin.PostPrintedBallotResponse,
     Admin.PostPrintedBallotRequest
@@ -716,7 +770,7 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     response.json({ status: 'ok', id });
   });
 
-  app.get<
+  deprecatedApiRouter.get<
     { electionId: Id },
     Admin.GetPrintedBallotsResponse,
     Admin.GetPrintedBallotsRequest
@@ -761,6 +815,8 @@ export function buildApp({ workspace }: { workspace: Workspace }): Application {
     response.json({ status: 'ok', printedBallots });
   });
 
+  app.use(deprecatedApiRouter);
+
   return app;
 }
 
@@ -782,7 +838,14 @@ export async function start({
   logger = new Logger(LogSource.VxAdminService),
   port = PORT,
   workspace,
-}: Partial<StartOptions>): Promise<void> {
+}: Partial<StartOptions>): Promise<Server> {
+  const auth = new DippedSmartCardAuthWithMemoryCard({
+    card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: false,
+    },
+  });
+
   let resolvedWorkspace = workspace;
 
   if (workspace) {
@@ -807,12 +870,13 @@ export async function start({
   resolvedWorkspace.clearUploads();
 
   /* istanbul ignore next */
-  const resolvedApp = app ?? buildApp({ workspace: resolvedWorkspace });
+  const resolvedApp = app ?? buildApp({ auth, workspace: resolvedWorkspace });
 
-  resolvedApp.listen(port, async () => {
+  const server = resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Admin Service running at http://localhost:${port}/`,
       disposition: 'success',
     });
   });
+  return server;
 }

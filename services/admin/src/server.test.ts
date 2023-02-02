@@ -1,28 +1,38 @@
 import { Admin } from '@votingworks/api';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { BallotId, CastVoteRecord, Id, unsafeParse } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import { promises as fs } from 'fs';
 import { Server } from 'http';
 import request from 'supertest';
 import { dirSync, fileSync } from 'tmp';
-import { buildApp, start } from './server';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import * as grout from '@votingworks/grout';
+import { Api, buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { buildTestAuth } from '../test/utils';
+import { PORT } from './globals';
 
 let app: Application;
+let auth: DippedSmartCardAuthApi;
+let server: Server;
 let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  ({ auth } = buildTestAuth());
   workspace = createWorkspace(dirSync().name);
-  app = buildApp({ workspace });
+  app = buildApp({ auth, workspace });
+});
+
+afterEach(() => {
+  server?.close();
 });
 
 test('starts with default logger and port', async () => {
@@ -101,6 +111,8 @@ test('GET /admin/elections', async () => {
 });
 
 test('POST /admin/elections', async () => {
+  jest.spyOn(auth, 'setElectionDefinition');
+
   const response = await request(app)
     .post('/admin/elections')
     .set('Content-Type', 'application/json')
@@ -110,6 +122,11 @@ test('POST /admin/elections', async () => {
     status: 'ok',
     id: expect.any(String),
   });
+  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
 
   const getResponse = await request(app).get('/admin/elections').expect(200);
   expect(getResponse.body).toEqual([
@@ -138,11 +155,15 @@ test('POST /admin/elections', async () => {
 });
 
 test('DELETE /admin/elections/:electionId', async () => {
+  jest.spyOn(auth, 'clearElectionDefinition');
+
   const electionId = workspace.store.addElection(
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
 
   await request(app).delete(`/admin/elections/${electionId}`).expect(200);
+  expect(auth.clearElectionDefinition).toHaveBeenCalledTimes(1);
+
   await request(app).get('/admin/elections').expect(200, []);
 });
 
@@ -971,4 +992,48 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
     .patch(`/admin/elections/unknown-election-id`)
     .send({})
     .expect(404);
+});
+
+test('Auth', async () => {
+  const logger = fakeLogger();
+  server = await start({ app, workspace, logger });
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${PORT}/api`,
+  });
+
+  jest.spyOn(auth, 'getAuthStatus').mockImplementation();
+  jest.spyOn(auth, 'checkPin').mockImplementation();
+  jest.spyOn(auth, 'logOut').mockImplementation();
+  jest.spyOn(auth, 'programCard').mockImplementation();
+  jest.spyOn(auth, 'unprogramCard').mockImplementation();
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+  await apiClient.logOut();
+  void (await apiClient.programCard({ userRole: 'system_administrator' }));
+  void (await apiClient.unprogramCard());
+
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.programCard).toHaveBeenCalledTimes(1);
+  expect(auth.programCard).toHaveBeenNthCalledWith(1, {
+    userRole: 'system_administrator',
+  });
+  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
+});
+
+test('Auth initial election definition configuration', () => {
+  workspace.store.addElection(
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+  jest.spyOn(auth, 'setElectionDefinition');
+  buildApp({ auth, workspace });
+
+  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
 });

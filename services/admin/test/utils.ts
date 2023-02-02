@@ -1,5 +1,10 @@
 import { Admin } from '@votingworks/api';
 import { CandidateContest } from '@votingworks/types';
+import {
+  DippedSmartCardAuthApi,
+  DippedSmartCardAuthWithMemoryCard,
+} from '@votingworks/auth';
+import { MemoryCard as MockCard } from '@votingworks/utils';
 
 /**
  * Builds the group of options for adjudicating write-ins to official candidates
@@ -18,4 +23,21 @@ export function buildOfficialCandidatesWriteInAdjudicationOptionGroup(
       }))
       .sort((a, b) => a.adjudicatedValue.localeCompare(b.adjudicatedValue)),
   };
+}
+
+/**
+ * Builds an auth instance for tests
+ */
+export function buildTestAuth(): {
+  auth: DippedSmartCardAuthApi;
+  card: MockCard;
+} {
+  const card = new MockCard();
+  const auth = new DippedSmartCardAuthWithMemoryCard({
+    card,
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: false,
+    },
+  });
+  return { auth, card };
 }

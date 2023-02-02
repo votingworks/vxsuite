@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import {
-  Card,
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
@@ -20,11 +19,7 @@ import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
 } from '@votingworks/utils';
-import {
-  useUsbDrive,
-  useDevices,
-  useDippedSmartcardAuth,
-} from '@votingworks/ui';
+import { useUsbDrive, useDevices } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
@@ -42,22 +37,21 @@ import { ServicesContext } from './contexts/services_context';
 import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
 import { useCurrentElectionMetadata } from './hooks/use_current_election_metadata';
 import { useCvrsQuery } from './hooks/use_cvrs_query';
+import { getAuthStatus } from './api';
 
 export interface Props {
   printer: Printer;
   hardware: Hardware;
-  card: Card;
   machineConfigProvider: Provider<MachineConfig>;
   converter?: ConverterClientType;
 }
 
 export function AppRoot({
   printer,
-  card,
   hardware,
   machineConfigProvider,
   converter,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const { logger } = useContext(ServicesContext);
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
@@ -71,19 +65,17 @@ export function AppRoot({
     codeVersion: '',
   });
 
+  const authStatus = getAuthStatus.useQuery();
+  const currentUserRole =
+    authStatus.data?.status === 'logged_in'
+      ? authStatus.data.user.role
+      : 'unknown';
+
   const store = useElectionManagerStore();
   const currentElection = useCurrentElectionMetadata();
   const cvrs = useCvrsQuery().data;
 
   const electionDefinition = currentElection.data?.electionDefinition;
-
-  const auth = useDippedSmartcardAuth({
-    cardApi: card,
-    logger,
-    scope: { electionDefinition },
-  });
-  const currentUserRole =
-    auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
   store.setCurrentUserRole(currentUserRole);
 
@@ -218,6 +210,10 @@ export function AppRoot({
     [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
   );
 
+  if (!authStatus.isSuccess || !currentElection.isSuccess) {
+    return null;
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -238,7 +234,7 @@ export function AppRoot({
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
-        auth,
+        auth: authStatus.data,
         machineConfig,
         hasCardReaderAttached: !!cardReader,
         hasPrinterAttached: !!printerInfo,

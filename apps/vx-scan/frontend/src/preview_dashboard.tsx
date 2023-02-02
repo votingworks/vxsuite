@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { Prose, Select } from '@votingworks/ui';
+import { Prose, QUERY_CLIENT_DEFAULT_OPTIONS, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
@@ -13,7 +13,7 @@ import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/vx-scan-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiClientContext, queryClientDefaultOptions } from './api';
+import { ApiClientContext } from './api';
 
 interface PreviewContextValues {
   electionDefinition: ElectionDefinition;
@@ -167,7 +167,7 @@ export function PreviewDashboard({
       >
         <QueryClientProvider
           client={
-            new QueryClient({ defaultOptions: queryClientDefaultOptions })
+            new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS })
           }
         >
           <BrowserRouter>

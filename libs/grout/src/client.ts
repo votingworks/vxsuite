@@ -31,7 +31,10 @@ export interface ClientOptions {
   baseUrl: string;
 }
 
-function methodUrl(methodName: string, baseUrl: string) {
+/**
+ * Constructs the HTTP URL for a Grout method
+ */
+export function methodUrl(methodName: string, baseUrl: string): string {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   return `${base}${methodName}`;
 }

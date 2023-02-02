@@ -18,7 +18,6 @@ import {
   assert,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
@@ -67,7 +66,7 @@ type SmartcardAuthAction =
 function validateCardUser(
   user: Optional<User>,
   scope: DippedSmartcardAuthScope
-): Result<void, LoggedOut['reason']> {
+): Result<void, DippedSmartcardAuth.LoggedOut['reason']> {
   if (!user) {
     return err('invalid_user_on_card');
   }

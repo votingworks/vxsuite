@@ -223,3 +223,24 @@ it('gets undefined when reading binary value if long value is not set', async ()
 
   expect(await new WebServiceCard().readLongUint8Array()).toBeUndefined();
 });
+
+it('uses the specified base URL if provided', async () => {
+  fetchMock.get(
+    'http://localhost:1234/card/read',
+    typedAs<CardSummaryReady>({
+      status: 'ready',
+      shortValue: 'abc',
+      longValueExists: true,
+    })
+  );
+
+  expect(
+    await new WebServiceCard({ baseUrl: 'http://localhost:1234' }).readSummary()
+  ).toEqual(
+    typedAs<CardSummaryReady>({
+      status: 'ready',
+      shortValue: 'abc',
+      longValueExists: true,
+    })
+  );
+});

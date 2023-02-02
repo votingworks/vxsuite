@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { generatePin } from '@votingworks/utils';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
-import { CardProgramming } from '@votingworks/types';
-
 import { assert } from '@votingworks/basics';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {
@@ -12,6 +10,7 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
+import { programCard } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -19,18 +18,17 @@ const StatusMessageContainer = styled.div`
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
-  card: CardProgramming;
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramElectionCardView({
   actionStatus,
-  card,
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
+  const programCardMutation = programCard.useMutation();
 
-  async function programAdminCard() {
+  function programElectionManagerCard() {
     assert(electionDefinition);
 
     setActionStatus({
@@ -38,20 +36,21 @@ export function ProgramElectionCardView({
       role: 'election_manager',
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'election_manager',
-      electionData: electionDefinition.electionData,
-      electionHash: electionDefinition.electionHash,
-      passcode: generatePin(),
-    });
-    setActionStatus({
-      action: 'Program',
-      role: 'election_manager',
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    programCardMutation.mutate(
+      { userRole: 'election_manager' },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'Program',
+            role: 'election_manager',
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
+      }
+    );
   }
 
-  async function programPollWorkerCard() {
+  function programPollWorkerCard() {
     assert(electionDefinition);
 
     setActionStatus({
@@ -59,15 +58,18 @@ export function ProgramElectionCardView({
       role: 'poll_worker',
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'poll_worker',
-      electionHash: electionDefinition.electionHash,
-    });
-    setActionStatus({
-      action: 'Program',
-      role: 'poll_worker',
-      status: result.isOk() ? 'Success' : 'Error',
-    });
+    programCardMutation.mutate(
+      { userRole: 'poll_worker' },
+      {
+        onSuccess: (result) => {
+          setActionStatus({
+            action: 'Program',
+            role: 'poll_worker',
+            status: result.isOk() ? 'Success' : 'Error',
+          });
+        },
+      }
+    );
   }
 
   return (
@@ -88,7 +90,10 @@ export function ProgramElectionCardView({
 
             <HorizontalRule />
             <p>
-              <Button disabled={!electionDefinition} onPress={programAdminCard}>
+              <Button
+                disabled={!electionDefinition}
+                onPress={programElectionManagerCard}
+              >
                 Election Manager Card
               </Button>{' '}
               or{' '}

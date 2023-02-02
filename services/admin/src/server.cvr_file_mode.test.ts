@@ -1,23 +1,28 @@
 import { Admin } from '@votingworks/api';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildApp } from './server';
+import { buildTestAuth } from '../test/utils';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
+let auth: DippedSmartCardAuthApi;
 let workspace: Workspace;
 let electionId: string;
 
 beforeEach(() => {
   jest.restoreAllMocks();
 
+  ({ auth } = buildTestAuth());
+
   workspace = createWorkspace(dirSync().name);
   workspace.store.getCurrentCvrFileModeForElection = jest.fn();
 
-  app = buildApp({ workspace });
+  app = buildApp({ auth, workspace });
 
   electionId = workspace.store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData

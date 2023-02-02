@@ -1,8 +1,7 @@
+import { methodUrl } from '@votingworks/grout';
+
 const PIN = '000000';
 
-/**
- * Mocks insertion of a system administrator card
- */
 export function mockSystemAdministratorCardInsertion(): void {
   cy.request('PUT', 'http://localhost:3001/mock', {
     enabled: true,
@@ -13,9 +12,6 @@ export function mockSystemAdministratorCardInsertion(): void {
   });
 }
 
-/**
- * Mocks insertion of an election manager card
- */
 export function mockElectionManagerCardInsertion({
   electionData,
   electionHash,
@@ -34,9 +30,6 @@ export function mockElectionManagerCardInsertion({
   });
 }
 
-/**
- * Enters a card PIN
- */
 export function enterPin(): void {
   cy.contains('Enter the card security code to unlock.');
   for (const digit of PIN) {
@@ -44,12 +37,13 @@ export function enterPin(): void {
   }
 }
 
-/**
- * Mocks removal of a card
- */
 export function mockCardRemoval(): void {
   cy.request('PUT', 'http://localhost:3001/mock', {
     enabled: true,
     hasCard: false,
   });
+}
+
+export function logOut(): void {
+  cy.request('POST', methodUrl('logOut', 'http://localhost:3000/api'), {});
 }

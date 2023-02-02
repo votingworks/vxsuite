@@ -3,7 +3,6 @@ import { AppBase } from '@votingworks/ui';
 import {
   getHardware,
   getPrinter,
-  WebServiceCard,
   getConverterClientType,
 } from '@votingworks/utils';
 import React from 'react';
@@ -16,7 +15,6 @@ export type Props = Partial<AppRootProps>;
 
 export function App({
   hardware = getHardware(),
-  card = new WebServiceCard(),
   printer = getPrinter(),
   machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
@@ -38,7 +36,6 @@ export function App({
         <AppRoot
           printer={printer}
           hardware={hardware}
-          card={card}
           machineConfigProvider={machineConfigProvider}
           converter={converter}
         />

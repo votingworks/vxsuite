@@ -1,10 +1,10 @@
 import { createContext } from 'react';
 import {
   ConverterClientType,
+  DippedSmartCardAuth,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  DippedSmartcardAuth,
   FullElectionExternalTallies,
   Printer,
   VotingMethod,
@@ -42,7 +42,7 @@ export interface AppContextInterface {
   setManualTallyVotingMethod: (votingMethod: VotingMethod) => void;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   generateExportableTallies: () => ExportableTallies;
-  auth: DippedSmartcardAuth.Auth;
+  auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
   hasPrinterAttached: boolean;
@@ -71,10 +71,7 @@ const appContext: AppContextInterface = {
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
-  auth: {
-    status: 'logged_out',
-    reason: 'machine_locked',
-  },
+  auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: '0000',
     codeVersion: '',

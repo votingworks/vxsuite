@@ -10,12 +10,17 @@ import {
 } from '../support/assertions';
 import {
   enterPin,
+  logOut,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
   mockSystemAdministratorCardInsertion,
 } from '../support/auth';
 
 describe('Election Manager can create SEMS tallies', () => {
+  beforeEach(() => {
+    logOut();
+  });
+
   it('Tallies for yes no and either neither contests compute end to end as expected', () => {
     const electionWithMsEitherNeither =
       electionWithMsEitherNeitherDefinition.election;

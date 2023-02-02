@@ -5,7 +5,7 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,
@@ -14,17 +14,20 @@ import {
 } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
 import { renderRootElement } from '../test/render_in_app_context';
-import { authenticateWithElectionManagerCard } from '../test/util/authenticate';
+import { authenticateAsElectionManager } from '../test/util/authenticate';
 import { App } from './app';
 import { ElectionManagerStoreMemoryBackend } from './lib/backends';
 import { VxFiles } from './lib/converters';
 import { MachineConfig } from './config/types';
+import { createMockApiClient, MockApiClient } from '../test/helpers/api';
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
+let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+  mockApiClient = createMockApiClient();
   fetchMock.reset();
   fetchMock.get(
     '/convert/tallies/files',
@@ -46,6 +49,7 @@ beforeEach(() => {
 
 afterEach(() => {
   delete window.kiosk;
+  mockApiClient.assertComplete();
 });
 
 test('manual write-in data end-to-end test', async () => {
@@ -58,13 +62,15 @@ test('manual write-in data end-to-end test', async () => {
       'partial1.jsonl'
     )
   );
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
   // Navigate to manual data entry
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(screen.getByText('Tally'));
@@ -284,13 +290,15 @@ test('availability of write-in tally report', async () => {
   )[0];
   await backend.transcribeWriteIn(writeIn2.id, 'Loch Ness');
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
   // Before any adjudication, report should be empty
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionMinimalExhaustiveSampleDefinition
   );
   userEvent.click(screen.getByText('Reports'));

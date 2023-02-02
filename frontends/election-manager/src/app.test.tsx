@@ -15,31 +15,25 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import {
   electionWithMsEitherNeitherFixtures,
-  electionSampleDefinition,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionPrimaryNonpartisanContestsFixtures,
 } from '@votingworks/fixtures';
-import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,
   expectPrint,
   expectPrintToMatchSnapshot,
+  fakeElectionManagerUser,
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
   fakeUsbDrive,
   hasTextAcrossElements,
-  makeElectionManagerCard,
   ReactTestingLibraryQueryable,
 } from '@votingworks/test-utils';
-import {
-  ElectionManagerCardData,
-  ExternalTallySourceType,
-  PollWorkerCardData,
-  VotingMethod,
-} from '@votingworks/types';
+import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 
 import { App } from './app';
@@ -52,12 +46,18 @@ import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_ta
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import {
-  authenticateWithElectionManagerCard,
-  authenticateWithSystemAdministratorCard,
+  authenticateAsElectionManager,
+  authenticateAsSystemAdministrator,
+  logOut,
 } from '../test/util/authenticate';
 import { ElectionManagerStoreMemoryBackend } from './lib/backends';
 import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
 import { buildApp } from '../test/helpers/build_app';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+} from '../test/helpers/api';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
@@ -92,6 +92,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
+let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -101,12 +102,16 @@ beforeEach(() => {
     value: { assign: jest.fn() },
   });
   window.location.href = '/';
+
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getPrinterInfo.mockResolvedValue([
     fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+
+  mockApiClient = createMockApiClient();
+
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
   fetchMock.get(
@@ -136,18 +141,18 @@ beforeEach(() => {
 afterEach(() => {
   delete window.kiosk;
   MockDate.reset();
+  mockApiClient.assertComplete();
 });
 
 test('create election works', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
   const logger = fakeLogger();
   const { getByText, queryAllByText, getByTestId } = renderRootElement(
-    <App card={card} hardware={hardware} />,
-    { backend, logger }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend, logger }
   );
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator(mockApiClient);
   await screen.findByText('Load Demo Election Definition');
   fireEvent.click(getByText('Load Demo Election Definition'));
 
@@ -205,28 +210,19 @@ test('create election works', async () => {
 });
 
 test('authentication works', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
   const logger = fakeLogger();
 
-  renderRootElement(<App card={card} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     backend,
     logger,
   });
 
   await screen.findByText('VxAdmin is Locked');
-  const electionManagerCard: ElectionManagerCardData = {
-    t: 'election_manager',
-    h: eitherNeitherElectionDefinition.electionHash,
-    p: '123456',
-  };
-  const pollWorkerCard: PollWorkerCardData = {
-    t: 'poll_worker',
-    h: eitherNeitherElectionDefinition.electionHash,
-  };
 
   // Disconnect card reader
   act(() => hardware.setCardReaderConnected(false));
@@ -237,8 +233,13 @@ test('authentication works', async () => {
   await screen.findByText('VxAdmin is Locked');
 
   // Insert an election manager card and enter the wrong code.
-  card.insertCard(electionManagerCard);
-  await advanceTimersAndPromises(1);
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser({
+      electionHash: eitherNeitherElectionDefinition.electionHash,
+    }),
+  });
+  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -246,28 +247,43 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser({
+      electionHash: eitherNeitherElectionDefinition.electionHash,
+    }),
+    wrongPasscodeEnteredAt: new Date(),
+  });
   await screen.findByText('Invalid code. Please try again.');
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.AuthPasscodeEntry,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-    })
-  );
 
-  // Remove card and insert a pollworker card.
-  card.removeCard();
+  // Remove card and insert an invalid card, e.g. a pollworker card.
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   await advanceTimersAndPromises(1);
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard(pollWorkerCard);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'invalid_user_on_card',
+  });
   await advanceTimersAndPromises(1);
   await screen.findByText('Invalid Card');
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   await advanceTimersAndPromises(1);
 
   // Insert election manager card and enter correct code.
-  card.insertCard(electionManagerCard);
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser({
+      electionHash: eitherNeitherElectionDefinition.electionHash,
+    }),
+  });
   await advanceTimersAndPromises(1);
+  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -277,68 +293,48 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
+  setAuthStatus(mockApiClient, {
+    status: 'remove_card',
+    user: fakeElectionManagerUser({
+      electionHash: eitherNeitherElectionDefinition.electionHash,
+    }),
+  });
   await screen.findByText('Remove card to continue.');
-  card.removeCard();
-  await screen.findByText('Lock Machine');
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthPasscodeEntry,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthLogin,
-    'election_manager',
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
 
   // Machine is unlocked when card removed
-  card.removeCard();
-  await advanceTimersAndPromises(1);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: eitherNeitherElectionDefinition.electionHash,
+    }),
+  });
+  await screen.findByText('Lock Machine');
   await screen.findByText('Ballots');
-
-  // The card and other cards can be inserted with no impact.
-  card.insertCard(electionManagerCard);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballots');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballots');
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballots');
-  card.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Lock the machine
+  mockApiClient.logOut.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Lock Machine'));
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   await screen.findByText('VxAdmin is Locked');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthLogout,
-    expect.any(String),
-    expect.anything()
-  );
 });
 
 test('L&A (logic and accuracy) flow', async () => {
-  // TODO: Move common setup logic to a beforeEach block
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
   const logger = fakeLogger();
-  renderRootElement(<App card={card} hardware={hardware} printer={printer} />, {
+  renderRootElement(<App hardware={hardware} printer={printer} />, {
+    apiClient: mockApiClient,
     backend,
     logger,
   });
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -433,7 +429,6 @@ test('L&A (logic and accuracy) flow', async () => {
 });
 
 test('L&A features are available after test results are loaded', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
@@ -442,10 +437,13 @@ test('L&A features are available after test results are loaded', async () => {
       eitherNeitherElectionDefinition.election
     ),
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -466,17 +464,17 @@ test('printing ballots and printed ballots report', async () => {
   });
 
   const printer = fakePrinter();
-  const card = new MemoryCard();
+
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrinterConnected(false);
   const logger = fakeLogger();
   const { getByText, getAllByText } = renderRootElement(
-    <App printer={printer} card={card} hardware={hardware} />,
-    { backend, logger }
+    <App printer={printer} hardware={hardware} />,
+    { apiClient: mockApiClient, backend, logger }
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -569,23 +567,17 @@ test('tabulating CVRs', async () => {
     ),
   });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const logger = fakeLogger();
   const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
-      <App
-        card={card}
-        hardware={hardware}
-        printer={printer}
-        converter="ms-sems"
-      />,
-      { backend, logger }
+      <App hardware={hardware} printer={printer} converter="ms-sems" />,
+      { apiClient: mockApiClient, backend, logger }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -777,15 +769,14 @@ test('tabulating CVRs with SEMS file', async () => {
     semsFileTally
   );
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, getAllByText } = renderRootElement(
-    <App card={card} hardware={hardware} converter="ms-sems" />,
-    { backend }
+    <App hardware={hardware} converter="ms-sems" />,
+    { apiClient: mockApiClient, backend }
   );
   jest.advanceTimersByTime(2000);
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -898,13 +889,15 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     semsFileTally
   );
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId, getAllByText, queryAllByText } =
-    renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithElectionManagerCard(
-    card,
+    renderRootElement(<App hardware={hardware} />, {
+      apiClient: mockApiClient,
+      backend,
+    });
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -1091,16 +1084,15 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     manualTally
   );
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId } = renderRootElement(
-    <App card={card} hardware={hardware} />,
-    { backend }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend }
   );
 
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -1113,23 +1105,24 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
 
-  userEvent.click(screen.getByText('Lock Machine'));
-  await authenticateWithSystemAdministratorCard(card);
+  await logOut(mockApiClient);
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
-  await waitFor(() => {
-    fireEvent.click(getByText('Load Demo Election Definition'));
-  });
+  const loadDemoElectionButton = await screen.findByText(
+    'Load Demo Election Definition'
+  );
+  userEvent.click(loadDemoElectionButton);
 
   await backend.configure(
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
 
-  userEvent.click(screen.getByText('Lock Machine'));
-  await authenticateWithElectionManagerCard(
-    card,
+  await logOut(mockApiClient);
+  await authenticateAsElectionManager(
+    mockApiClient,
     electionFamousNames2021Fixtures.electionDefinition
   );
 
@@ -1172,14 +1165,13 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     manualTally
   );
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, queryByText } = renderRootElement(
-    <App card={card} hardware={hardware} converter="ms-sems" />,
-    { backend }
+    <App hardware={hardware} converter="ms-sems" />,
+    { apiClient: mockApiClient, backend }
   );
-  await authenticateWithElectionManagerCard(
-    card,
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -1252,22 +1244,21 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
     electionDefinition,
   });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, queryByText } = renderRootElement(
-    <App card={card} hardware={hardware} />,
-    { backend }
+    <App hardware={hardware} />,
+    { apiClient: mockApiClient, backend }
   );
 
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator(mockApiClient);
   fireEvent.click(getByText('Ballots'));
   await screen.findByText(
     'VxAdmin does not produce ballots for this election.'
   );
   expect(queryByText('Save Ballot Package')).toBeNull();
-  fireEvent.click(getByText('Lock Machine'));
 
-  await authenticateWithElectionManagerCard(card, electionDefinition);
+  await logOut(mockApiClient);
+  await authenticateAsElectionManager(mockApiClient, electionDefinition);
   await screen.findByText(
     'VxAdmin does not produce ballots for this election.'
   );
@@ -1275,14 +1266,16 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
 });
 
 test('election manager UI has expected nav', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithElectionManagerCard(
-    card,
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -1308,13 +1301,15 @@ test('election manager UI has expected nav', async () => {
 });
 
 test('system administrator UI has expected nav', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
@@ -1330,11 +1325,13 @@ test('system administrator UI has expected nav', async () => {
 });
 
 test('system administrator UI has expected nav when no election', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -1377,13 +1374,15 @@ test('system administrator UI has expected nav when no election', async () => {
 });
 
 test('system administrator Smartcards screen navigation', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
-  await authenticateWithSystemAdministratorCard(card);
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
@@ -1396,16 +1395,20 @@ test('system administrator Smartcards screen navigation', async () => {
 });
 
 test('election manager cannot auth onto unconfigured machine', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
   await screen.findByText('VxAdmin is Locked');
   screen.getByText('Insert System Administrator card to unlock.');
-  card.insertCard(
-    makeElectionManagerCard(eitherNeitherElectionDefinition.electionHash)
-  );
+
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_not_configured',
+  });
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'This machine is unconfigured and cannot be unlocked with this card. ' +
@@ -1414,20 +1417,23 @@ test('election manager cannot auth onto unconfigured machine', async () => {
 });
 
 test('election manager cannot auth onto machine with different election hash', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
   await screen.findByText('VxAdmin is Locked');
   await screen.findByText(
     'Insert System Administrator or Election Manager card to unlock.'
   );
-  card.insertCard(
-    makeElectionManagerCard(electionSampleDefinition.electionHash)
-  );
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'election_manager_wrong_election',
+  });
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election ' +
@@ -1437,14 +1443,16 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderRootElement(<App card={card} hardware={hardware} />, { backend });
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
+    backend,
+  });
 
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   const numPrecinctBallots = 13;
 
@@ -1498,9 +1506,9 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByRole('button', { name: 'Save Ballot as PDF' });
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
-  userEvent.click(screen.getByText('Lock Machine'));
-  await authenticateWithElectionManagerCard(
-    card,
+  await logOut(mockApiClient);
+  await authenticateAsElectionManager(
+    mockApiClient,
     eitherNeitherElectionDefinition
   );
 
@@ -1528,10 +1536,11 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
 test('primary election with nonpartisan contests', async () => {
   const { electionDefinition, cvrData } =
     electionPrimaryNonpartisanContestsFixtures;
-  const { renderApp, card, backend } = buildApp(electionDefinition);
+  const { renderApp, backend, apiClient } = buildApp(electionDefinition);
+  mockApiClient = apiClient;
   await backend.addCastVoteRecordFile(new File([cvrData], 'cvrs.txt'));
   renderApp();
-  await authenticateWithElectionManagerCard(card, electionDefinition);
+  await authenticateAsElectionManager(mockApiClient, electionDefinition);
 
   // Check "Ballots" page has correct contests count.
   // TODO: Confirm ballot contents. Not possible currently because we don't
@@ -1596,16 +1605,17 @@ test('usb formatting flows', async () => {
   mockKiosk.formatUsbDrive.mockImplementation(async () => {
     await advanceTimersAndPromises(1);
   });
-  const card = new MemoryCard();
+
   const hardware = MemoryHardware.build({
     connectCardReader: true,
   });
   const logger = fakeLogger();
-  renderRootElement(<App card={card} hardware={hardware} />, {
+  renderRootElement(<App hardware={hardware} />, {
+    apiClient: mockApiClient,
     logger,
   });
 
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator(mockApiClient);
 
   // navigate to modal
   userEvent.click(screen.getByText('Settings'));
