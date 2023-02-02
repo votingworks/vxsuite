@@ -110,7 +110,6 @@ beforeEach(() => {
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   mockApiClient = createMockApiClient();
-  mockApiClient.logOut.expectCallWith().resolves();
 
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
@@ -311,12 +310,12 @@ test('authentication works', async () => {
   await screen.findByText('Ballots');
 
   // Lock the machine
+  mockApiClient.logOut.expectCallWith().resolves();
+  fireEvent.click(screen.getByText('Lock Machine'));
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  mockApiClient.logOut.expectCallWith().resolves();
-  fireEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxAdmin is Locked');
 });
 

@@ -28,7 +28,6 @@ beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockApiClient = createMockApiClient();
-  mockApiClient.logOut.expectCallWith().resolves();
   fetchMock.reset();
   fetchMock.get(
     '/convert/tallies/files',

@@ -1,10 +1,15 @@
 import {
   enterPin,
+  logOut,
   mockCardRemoval,
   mockSystemAdministratorCardInsertion,
 } from '../support/auth';
 
 describe('Election Manager and Module Converter MS SEMS configuration', () => {
+  beforeEach(() => {
+    logOut();
+  });
+
   it('Election Manager can be configured with MS SEMS files', () => {
     cy.visit('/');
     mockSystemAdministratorCardInsertion();

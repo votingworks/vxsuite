@@ -49,7 +49,6 @@ let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
-  mockApiClient.logOut.expectCallWith().resolves();
 
   fetchMock.reset();
   fetchMock.get(

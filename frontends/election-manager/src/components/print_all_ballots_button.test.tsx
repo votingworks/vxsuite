@@ -176,7 +176,6 @@ test('initial modal state toggles based on printer state', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
   renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
     backend,
   });
@@ -208,7 +207,6 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
   const logger = fakeLogger();
-  mockApiClient.logOut.expectCallWith().returns(Promise.resolve());
   renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
     backend,
     logger,
@@ -250,7 +248,6 @@ test('modal is different for system administrators', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  mockApiClient.logOut.expectCallWith().resolves();
   renderRootElement(<App apiClient={mockApiClient} hardware={hardware} />, {
     backend,
   });

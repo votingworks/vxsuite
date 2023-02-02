@@ -17,7 +17,6 @@ export function buildApp(electionDefinition: ElectionDefinition): {
   renderApp: () => RenderResult;
 } {
   const apiClient = createMockApiClient();
-  apiClient.logOut.expectCallWith().resolves();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
   const hardware = MemoryHardware.build({
     connectCardReader: true,
