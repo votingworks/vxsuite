@@ -16,9 +16,8 @@ import {
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
   fakeVoterUser,
-  mockOf,
 } from '@votingworks/test-utils';
-import { generatePin, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '@testing-library/react';
 
@@ -34,21 +33,18 @@ import { MachineConfig } from '../../config/types';
 import { renderRootElement } from '../../../test/render_in_app_context';
 import { VxFiles } from '../../lib/converters';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    generatePin: jest.fn(),
-  };
-});
-
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 
 let mockApiClient: MockApiClient;
+let mockBackend: ElectionManagerStoreMemoryBackend;
+let mockHardware: MemoryHardware;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
+  mockBackend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
+  mockHardware = MemoryHardware.buildStandard();
 
   fetchMock.reset();
   fetchMock.get(
@@ -59,8 +55,6 @@ beforeEach(() => {
     '/machine-config',
     typedAs<MachineConfig>({ codeVersion: '', machineId: '' })
   );
-
-  mockOf(generatePin).mockImplementation(() => '123456');
 });
 
 afterEach(() => {
@@ -68,11 +62,9 @@ afterEach(() => {
 });
 
 test('Smartcard modal displays card details', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -189,11 +181,10 @@ test('Smartcard modal displays card details', async () => {
 });
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={hardware} />, {
+  mockBackend = new ElectionManagerStoreMemoryBackend();
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -298,11 +289,9 @@ test('Smartcard modal displays card details when no election definition on machi
 });
 
 test('Programming election manager and poll worker smartcards', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -399,11 +388,9 @@ test('Programming election manager and poll worker smartcards', async () => {
 });
 
 test('Programming system administrator smartcards', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -464,11 +451,10 @@ test('Programming system administrator smartcards', async () => {
 });
 
 test('Programming smartcards when no election definition on machine', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={hardware} />, {
+  mockBackend = new ElectionManagerStoreMemoryBackend();
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -505,11 +491,9 @@ test('Programming smartcards when no election definition on machine', async () =
 });
 
 test('Resetting smartcard PINs', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -567,11 +551,10 @@ test('Resetting smartcard PINs', async () => {
 });
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={hardware} />, {
+  mockBackend = new ElectionManagerStoreMemoryBackend();
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -613,11 +596,9 @@ test('Resetting system administrator smartcard PINs when no election definition 
 });
 
 test('Unprogramming smartcards', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -688,11 +669,9 @@ test('Unprogramming smartcards', async () => {
 });
 
 test('Error handling', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
@@ -809,11 +788,9 @@ test('Error handling', async () => {
 });
 
 test('Card inserted backwards is handled with message', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderRootElement(<App hardware={hardware} />, {
+  renderRootElement(<App hardware={mockHardware} />, {
     apiClient: mockApiClient,
-    backend,
+    backend: mockBackend,
   });
   await authenticateAsSystemAdministrator(mockApiClient);
 
