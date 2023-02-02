@@ -36,7 +36,6 @@ import { buildCentralScannerApp } from './central_scanner_app';
 import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
 
 jest.mock('./importer');
-jest.mock('@votingworks/plustek-scanner');
 
 const mockGetUsbDrives = jest.fn();
 const exporter = new Exporter({
