@@ -1,0 +1,375 @@
+{
+  "@type": "CVR.CastVoteRecordReport",
+  "Version": "1.0.0",
+  "ReportType": "originating-device-export",
+  "ReportingDevice": [
+    {
+      "@type": "CVR.ReportingDevice",
+      "SerialNumber": "scanner-1"
+    }
+  ],
+  "ReportGeneratingDeviceIds": ["scanner-1"],
+  "Party": [
+    {
+      "@type": "CVR.Party",
+      "@id": "0",
+      "Name": "Mammal Party",
+      "Abbreviation": "Ma"
+    },
+    {
+      "@type": "CVR.Party",
+      "@id": "1",
+      "Name": "Fish Party",
+      "Abbreviation": "F"
+    }
+  ],
+  "Election": [
+    {
+      "@type": "CVR.Election",
+      "@id": "some-id",
+      "Candidate": [
+        {
+          "@type": "CVR.Candidate",
+          "@id": "seahorse",
+          "Name": "Seahorse",
+          "PartyId": "1"
+        },
+        {
+          "@type": "CVR.Candidate",
+          "@id": "salmon",
+          "Name": "Salmon",
+          "PartyId": "1"
+        },
+        {
+          "@type": "CVR.Candidate",
+          "@id": "manta-ray",
+          "Name": "Manta Ray",
+          "PartyId": "1"
+        },
+        {
+          "@type": "CVR.Candidate",
+          "@id": "pufferfish",
+          "Name": "Pufferfish",
+          "PartyId": "1"
+        },
+        {
+          "@type": "CVR.Candidate",
+          "@id": "rockfish",
+          "Name": "Rockfish",
+          "PartyId": "1"
+        },
+        {
+          "@type": "CVR.Candidate",
+          "@id": "triggerfish",
+          "Name": "Triggerfish",
+          "PartyId": "1"
+        }
+      ],
+      "Contest": [
+        {
+          "@type": "CVR.CandidateContest",
+          "@id": "best-animal-fish",
+          "Name": "Best Animal",
+          "NumberElected": 1,
+          "VotesAllowed": 1,
+          "ContestSelection": [
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["seahorse"]
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["salmon"]
+            }
+          ],
+          "PrimaryPartyId": "1"
+        },
+        {
+          "@type": "CVR.CandidateContest",
+          "@id": "aquarium-council-fish",
+          "Name": "Zoo Council",
+          "NumberElected": 2,
+          "VotesAllowed": 2,
+          "ContestSelection": [
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["manta-ray"]
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["pufferfish"]
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["rockfish"]
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "CandidateIds": ["triggerfish"]
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "isWriteIn": true
+            },
+            {
+              "@type": "CVR.CandidateSelection",
+              "isWriteIn": true
+            }
+          ],
+          "PrimaryPartyId": "1"
+        },
+        {
+          "@type": "CVR.BallotMeasureContest",
+          "@id": "fishing",
+          "Name": "Ballot Measure 3",
+          "ContestSelection": [
+            {
+              "@type": "CVR.BallotMeasureSelection",
+              "@id": "yes",
+              "Selection": "yes"
+            },
+            {
+              "@type": "CVR.BallotMeasureSelection",
+              "@id": "no",
+              "Selection": "no"
+            }
+          ],
+          "PrimaryPartyId": "1"
+        }
+      ],
+      "ElectionScopeId": ["sample-county"]
+    }
+  ],
+  "GpUnit": [
+    {
+      "@type": "CVR.GpUnit",
+      "@id": "sample-county",
+      "Name": "Sample County",
+      "Type": "other"
+    },
+    {
+      "@type": "CVR.GpUnit",
+      "@id": "precinct-1",
+      "Name": "Precinct 1",
+      "Type": "precinct"
+    }
+  ],
+  "CVR": [
+    {
+      "@type": "CVR.CVR",
+      "BallotStyleId": "2F",
+      "BallotStyleUnitId": "precinct-1",
+      "PartyIds": ["1"],
+      "CreatingDeviceId": "scanner-1",
+      "ElectionId": "some-id",
+      "UniqueId": "id-168",
+      "vxBallotType": "absentee",
+      "vxTestBallot": true,
+      "CurrentSnapshotId": "id-168-original",
+      "CVRSnapshot": [
+        {
+          "@id": "id-168-original",
+          "@type": "CVR.CVRSnapshot",
+          "Type": "original",
+          "Status": [],
+          "CVRContest": [
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "best-animal-fish",
+              "CVRContestSelection": [],
+              "Undervotes": 1
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "aquarium-council-fish",
+              "CVRContestSelection": [],
+              "Undervotes": 2
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "fishing",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "yes",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "IsAllocable": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "CVR.CVR",
+      "BallotStyleId": "2F",
+      "BallotStyleUnitId": "precinct-1",
+      "PartyIds": ["1"],
+      "CreatingDeviceId": "scanner-1",
+      "ElectionId": "some-id",
+      "UniqueId": "id-169",
+      "vxBallotType": "absentee",
+      "vxTestBallot": true,
+      "CurrentSnapshotId": "id-169-original",
+      "CVRSnapshot": [
+        {
+          "@id": "id-169-original",
+          "@type": "CVR.CVRSnapshot",
+          "Type": "original",
+          "Status": [],
+          "CVRContest": [
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "best-animal-fish",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "seahorse",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                },
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "salmon",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ],
+              "Overvotes": 1
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "aquarium-council-fish",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "manta-ray",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ],
+              "Undervotes": 1
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "fishing",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "no",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "CVR.CVR",
+      "BallotStyleId": "2F",
+      "BallotStyleUnitId": "precinct-1",
+      "PartyIds": ["1"],
+      "CreatingDeviceId": "scanner-1",
+      "ElectionId": "some-id",
+      "UniqueId": "id-170",
+      "vxBallotType": "absentee",
+      "vxTestBallot": true,
+      "CurrentSnapshotId": "id-170-original",
+      "CVRSnapshot": [
+        {
+          "@id": "id-170-original",
+          "@type": "CVR.CVRSnapshot",
+          "Type": "original",
+          "Status": [],
+          "CVRContest": [
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "best-animal-fish",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "seahorse",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                },
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "salmon",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ],
+              "Overvotes": 1
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "aquarium-council-fish",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "manta-ray",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ],
+              "Undervotes": 1
+            },
+            {
+              "@type": "CVR.CVRContest",
+              "ContestId": "fishing",
+              "CVRContestSelection": [
+                {
+                  "@type": "CVR.CVRContestSelection",
+                  "ContestSelectionId": "no",
+                  "SelectionPosition": [
+                    {
+                      "HasIndication": "yes",
+                      "NumberVotes": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "GeneratedDate": "..."
+}
