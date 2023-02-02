@@ -1,3 +1,5 @@
+import { methodUrl } from '@votingworks/grout';
+
 const PIN = '000000';
 
 export function mockSystemAdministratorCardInsertion(): void {
@@ -43,5 +45,5 @@ export function mockCardRemoval(): void {
 }
 
 export function logOut(): void {
-  cy.request('POST', 'http://localhost:3000/api/logOut', {});
+  cy.request('POST', methodUrl('logOut', 'http://localhost:3000/api'), {});
 }

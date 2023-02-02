@@ -1387,6 +1387,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/fixtures': workspace:*
+      '@votingworks/grout': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       cypress: ^10.3.1
@@ -1410,6 +1411,7 @@ importers:
     dependencies:
       '@testing-library/cypress': 8.0.3_cypress@10.3.1
       '@votingworks/fixtures': link:../../libs/fixtures
+      '@votingworks/grout': link:../../libs/grout
       '@votingworks/test-utils': link:../../libs/test-utils
       '@votingworks/types': link:../../libs/types
       cypress: 10.3.1

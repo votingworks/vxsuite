@@ -40,6 +40,7 @@
   "dependencies": {
     "@testing-library/cypress": "^8.0.3",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "cypress": "^10.3.1",
