@@ -29,10 +29,11 @@ export interface Precinct {
 
 export interface Party {
   name(): string;
+  ballotLabel(): string;
   abbreviation(): string;
 }
 
-type ContestType = 'candidate' | 'ballot-measure' | 'ms-either-neither';
+type ContestType = 'candidate' | 'ballot-measure';
 
 interface BaseContest {
   readonly type: ContestType;
@@ -118,7 +119,8 @@ export interface Election {
 export function buildElectionFromVxf(electionData: VxElectionData): Election {
   function buildParty(partyData: VxPartyData) {
     return {
-      name: () => partyData.name,
+      name: () => partyData.fullName,
+      ballotLabel: () => partyData.name,
       abbreviation: () => partyData.abbrev,
     };
   }
@@ -160,9 +162,6 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
             ];
           },
         };
-      }
-      case 'ms-either-neither': {
-        throw new Error('not implemented');
       }
       default:
         return throwIllegalValue(contestData);
