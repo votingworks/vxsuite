@@ -34,6 +34,8 @@ jest.mock('./util/download');
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
+  jest.restoreAllMocks();
+
   window.kiosk = undefined;
 
   mockApiClient = createMockApiClient();
@@ -584,4 +586,34 @@ test('election manager cannot auth onto machine with different election hash', a
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.'
   );
+});
+
+test('error boundary', async () => {
+  // Avoid cluttering the test output
+  jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
+    electionSampleDefinition;
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  };
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+    { status: 'ok' };
+
+  fetchMock
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    });
+
+  const hardware = MemoryHardware.buildStandard();
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
+
+  await authenticateAsElectionManager(electionSampleDefinition);
+
+  mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
+  userEvent.click(screen.getByText('Lock Machine'));
+  await screen.findByText('Something went wrong');
 });
