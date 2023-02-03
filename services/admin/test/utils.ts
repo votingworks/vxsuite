@@ -1,10 +1,6 @@
 import { Admin } from '@votingworks/api';
 import { CandidateContest } from '@votingworks/types';
-import {
-  DippedSmartCardAuthApi,
-  DippedSmartCardAuthWithMemoryCard,
-} from '@votingworks/auth';
-import { MemoryCard as MockCard } from '@votingworks/utils';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 
 /**
  * Builds the group of options for adjudicating write-ins to official candidates
@@ -26,18 +22,16 @@ export function buildOfficialCandidatesWriteInAdjudicationOptionGroup(
 }
 
 /**
- * Builds an auth instance for tests
+ * Builds a mock auth instance
  */
-export function buildTestAuth(): {
-  auth: DippedSmartCardAuthApi;
-  card: MockCard;
-} {
-  const card = new MockCard();
-  const auth = new DippedSmartCardAuthWithMemoryCard({
-    card,
-    config: {
-      allowElectionManagersToAccessUnconfiguredMachines: false,
-    },
-  });
-  return { auth, card };
+export function buildMockAuth(): DippedSmartCardAuthApi {
+  return {
+    getAuthStatus: jest.fn(),
+    checkPin: jest.fn(),
+    logOut: jest.fn(),
+    programCard: jest.fn(),
+    unprogramCard: jest.fn(),
+    setElectionDefinition: jest.fn(),
+    clearElectionDefinition: jest.fn(),
+  };
 }

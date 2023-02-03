@@ -7,7 +7,7 @@ import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildApp } from './server';
-import { buildTestAuth } from '../test/utils';
+import { buildMockAuth } from '../test/utils';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
@@ -16,7 +16,7 @@ let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  ({ auth } = buildTestAuth());
+  auth = buildMockAuth();
   workspace = createWorkspace(dirSync().name);
   app = buildApp({ auth, workspace });
 });

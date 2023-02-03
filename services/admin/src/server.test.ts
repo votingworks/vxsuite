@@ -16,7 +16,7 @@ import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Api, buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildTestAuth } from '../test/utils';
+import { buildMockAuth } from '../test/utils';
 import { PORT } from './globals';
 
 let app: Application;
@@ -26,7 +26,7 @@ let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  ({ auth } = buildTestAuth());
+  auth = buildMockAuth();
   workspace = createWorkspace(dirSync().name);
   app = buildApp({ auth, workspace });
 });
@@ -111,8 +111,6 @@ test('GET /admin/elections', async () => {
 });
 
 test('POST /admin/elections', async () => {
-  jest.spyOn(auth, 'setElectionDefinition');
-
   const response = await request(app)
     .post('/admin/elections')
     .set('Content-Type', 'application/json')
@@ -155,8 +153,6 @@ test('POST /admin/elections', async () => {
 });
 
 test('DELETE /admin/elections/:electionId', async () => {
-  jest.spyOn(auth, 'clearElectionDefinition');
-
   const electionId = workspace.store.addElection(
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
@@ -996,16 +992,10 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
 
 test('Auth', async () => {
   const logger = fakeLogger();
-  server = await start({ app, workspace, logger });
+  server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
     baseUrl: `http://localhost:${PORT}/api`,
   });
-
-  jest.spyOn(auth, 'getAuthStatus').mockImplementation();
-  jest.spyOn(auth, 'checkPin').mockImplementation();
-  jest.spyOn(auth, 'logOut').mockImplementation();
-  jest.spyOn(auth, 'programCard').mockImplementation();
-  jest.spyOn(auth, 'unprogramCard').mockImplementation();
 
   await apiClient.getAuthStatus();
   await apiClient.checkPin({ pin: '123456' });
@@ -1028,7 +1018,6 @@ test('Auth initial election definition configuration', () => {
   workspace.store.addElection(
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
-  jest.spyOn(auth, 'setElectionDefinition');
   buildApp({ auth, workspace });
 
   expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
