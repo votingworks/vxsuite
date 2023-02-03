@@ -22,9 +22,9 @@ import { MainNav } from './main_nav';
 import { Loading } from './loading';
 import { FileInputButton } from './file_input_button';
 import { AppContext } from '../contexts/app_context';
-
 import { Button } from './button';
 import { Table, TD } from './table';
+import { logOut } from '../api';
 
 const Image = styled.img`
   float: right;
@@ -61,6 +61,7 @@ export function ElectionConfiguration({
     useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
+  const logOutMutation = logOut.useMutation();
 
   async function acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
@@ -142,7 +143,7 @@ export function ElectionConfiguration({
 
   const mainNav = (
     <MainNav isTestMode={false}>
-      <Button small onPress={() => auth.logOut()}>
+      <Button small onPress={() => logOutMutation.mutate()}>
         Lock Machine
       </Button>
       <UsbControllerButton
