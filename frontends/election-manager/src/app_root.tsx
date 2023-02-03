@@ -65,10 +65,10 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const authStatus = getAuthStatus.useQuery();
+  const authStatusQuery = getAuthStatus.useQuery();
   const currentUserRole =
-    authStatus.data?.status === 'logged_in'
-      ? authStatus.data.user.role
+    authStatusQuery.data?.status === 'logged_in'
+      ? authStatusQuery.data.user.role
       : 'unknown';
 
   const store = useElectionManagerStore();
@@ -210,7 +210,7 @@ export function AppRoot({
     [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
   );
 
-  if (!authStatus.isSuccess || !currentElection.isSuccess) {
+  if (!authStatusQuery.isSuccess || !currentElection.isSuccess) {
     return null;
   }
 
@@ -234,7 +234,7 @@ export function AppRoot({
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
-        auth: authStatus.data,
+        auth: authStatusQuery.data,
         machineConfig,
         hasCardReaderAttached: !!cardReader,
         hasPrinterAttached: !!printerInfo,
