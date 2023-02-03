@@ -4,5 +4,7 @@ FORCE:
 build: FORCE
 	pnpm install && pnpm build
 
+bootstrap: build
+
 run:
 	pnpm start
