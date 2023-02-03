@@ -6,5 +6,7 @@ build: FORCE
 
 bootstrap: build
 
+install: build
+
 run:
 	pnpm start
