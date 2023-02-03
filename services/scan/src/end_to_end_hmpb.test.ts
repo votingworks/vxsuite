@@ -15,9 +15,14 @@ import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { Scan } from '@votingworks/api';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-general-election-2020';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
-import { makeMockScanner, MockScanner } from '../test/util/mocks';
+import {
+  buildMockAuth,
+  makeMockScanner,
+  MockScanner,
+} from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
@@ -55,16 +60,18 @@ const exporter = new Exporter({
   getUsbDrives: mockGetUsbDrives,
 });
 
+let auth: DippedSmartCardAuthApi;
 let workspace: Workspace;
 let scanner: MockScanner;
 let importer: Importer;
 let app: Application;
 
 beforeEach(async () => {
+  auth = buildMockAuth();
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  app = await buildCentralScannerApp({ exporter, importer, workspace });
+  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
 });
 
 afterEach(async () => {
