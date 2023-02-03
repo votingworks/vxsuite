@@ -1,4 +1,5 @@
 import { Scan } from '@votingworks/api';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { assert } from '@votingworks/basics';
 import { Exporter } from '@votingworks/data';
 import {
@@ -21,6 +22,7 @@ import multer from 'multer';
 import path from 'path';
 import { PassThrough } from 'stream';
 import { z } from 'zod';
+import * as grout from '@votingworks/grout';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
@@ -30,33 +32,61 @@ const debug = makeDebug('scan:central-scanner');
 type NoParams = never;
 
 export interface AppOptions {
+  auth: DippedSmartCardAuthApi;
   exporter: Exporter;
   importer: Importer;
   workspace: Workspace;
 }
+
+function buildApi(auth: DippedSmartCardAuthApi) {
+  return grout.createApi({
+    getAuthStatus: () => auth.getAuthStatus(),
+    checkPin: (input: { pin: string }) => auth.checkPin(input),
+    logOut: () => auth.logOut(),
+  });
+}
+
+/**
+ * A type to be used by the frontend to create a Grout API client
+ */
+export type Api = ReturnType<typeof buildApi>;
 
 /**
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
  */
 export async function buildCentralScannerApp({
+  auth,
   exporter,
   importer,
   workspace,
 }: AppOptions): Promise<Application> {
   const { store } = workspace;
+
+  const initialElectionDefinition = store.getElectionDefinition();
+  if (initialElectionDefinition) {
+    auth.setElectionDefinition(initialElectionDefinition);
+  }
+
   const app: Application = express();
+
+  const api = buildApi(auth);
+  app.use('/api', grout.buildRouter(api, express));
+
   const upload = multer({
     storage: multer.diskStorage({
       destination: workspace.uploadsPath,
     }),
   });
 
-  app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
-  app.use(express.urlencoded({ extended: false }));
+  const deprecatedApiRouter = express.Router();
+  deprecatedApiRouter.use(express.raw());
+  deprecatedApiRouter.use(
+    express.json({ limit: '5mb', type: 'application/json' })
+  );
+  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams, Scan.GetElectionConfigResponse>(
+  deprecatedApiRouter.get<NoParams, Scan.GetElectionConfigResponse>(
     '/central-scanner/config/election',
     (request, response) => {
       const electionDefinition = store.getElectionDefinition();
@@ -75,7 +105,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
@@ -115,11 +145,13 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    importer.configure(bodyParseResult.ok());
+    const electionDefinition = bodyParseResult.ok();
+    importer.configure(electionDefinition);
+    auth.setElectionDefinition(electionDefinition);
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
+  deprecatedApiRouter.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/central-scanner/config/election',
     (request, response) => {
       if (
@@ -140,11 +172,12 @@ export async function buildCentralScannerApp({
       }
 
       importer.unconfigure();
+      auth.clearElectionDefinition();
       response.json({ status: 'ok' });
     }
   );
 
-  app.put<
+  deprecatedApiRouter.put<
     '/central-scanner/config/package',
     NoParams,
     Scan.PutConfigPackageResponse,
@@ -189,7 +222,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get<NoParams, Scan.GetTestModeConfigResponse>(
+  deprecatedApiRouter.get<NoParams, Scan.GetTestModeConfigResponse>(
     '/central-scanner/config/testMode',
     (_request, response) => {
       const testMode = store.getTestMode();
@@ -197,7 +230,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
@@ -220,15 +253,18 @@ export async function buildCentralScannerApp({
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
-    '/central-scanner/config/markThresholdOverrides',
-    (_request, response) => {
-      const markThresholdOverrides = store.getMarkThresholdOverrides();
-      response.json({ status: 'ok', markThresholdOverrides });
-    }
-  );
+  deprecatedApiRouter.get<
+    NoParams,
+    Scan.GetMarkThresholdOverridesConfigResponse
+  >('/central-scanner/config/markThresholdOverrides', (_request, response) => {
+    const markThresholdOverrides = store.getMarkThresholdOverrides();
+    response.json({ status: 'ok', markThresholdOverrides });
+  });
 
-  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
+  deprecatedApiRouter.delete<
+    NoParams,
+    Scan.DeleteMarkThresholdOverridesConfigResponse
+  >(
     '/central-scanner/config/markThresholdOverrides',
     async (_request, response) => {
       await importer.setMarkThresholdOverrides(undefined);
@@ -236,7 +272,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
@@ -264,7 +300,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.patch<
+  deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchSkipElectionHashCheckConfigResponse,
     Scan.PatchSkipElectionHashCheckConfigRequest
@@ -289,59 +325,65 @@ export async function buildCentralScannerApp({
     response.json({ status: 'ok' });
   });
 
-  app.post<NoParams, Scan.ScanBatchResponse, Scan.ScanBatchRequest>(
-    '/central-scanner/scan/scanBatch',
-    async (_request, response) => {
-      try {
-        const batchId = await importer.startImport();
-        response.json({ status: 'ok', batchId });
-      } catch (err) {
-        assert(err instanceof Error);
-        response.json({
-          status: 'error',
-          errors: [{ type: 'scan-error', message: err.message }],
-        });
-      }
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.ScanBatchResponse,
+    Scan.ScanBatchRequest
+  >('/central-scanner/scan/scanBatch', async (_request, response) => {
+    try {
+      const batchId = await importer.startImport();
+      response.json({ status: 'ok', batchId });
+    } catch (err) {
+      assert(err instanceof Error);
+      response.json({
+        status: 'error',
+        errors: [{ type: 'scan-error', message: err.message }],
+      });
     }
-  );
+  });
 
-  app.post<NoParams, Scan.ScanContinueResponse, Scan.ScanContinueRequest>(
-    '/central-scanner/scan/scanContinue',
-    async (request, response) => {
-      const bodyParseResult = safeParse(
-        Scan.ScanContinueRequestSchema,
-        request.body
-      );
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.ScanContinueResponse,
+    Scan.ScanContinueRequest
+  >('/central-scanner/scan/scanContinue', async (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.ScanContinueRequestSchema,
+      request.body
+    );
 
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        });
-        return;
-      }
-
-      try {
-        const continueImportOptions = bodyParseResult.ok();
-        // NOTE: This is a little silly and TS should be able to reason this out, but no.
-        if (continueImportOptions.forceAccept) {
-          await importer.continueImport(continueImportOptions);
-        } else {
-          await importer.continueImport(continueImportOptions);
-        }
-        response.json({ status: 'ok' });
-      } catch (error) {
-        assert(error instanceof Error);
-        response.json({
-          status: 'error',
-          errors: [{ type: 'scan-error', message: error.message }],
-        });
-      }
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
     }
-  );
 
-  app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
+    try {
+      const continueImportOptions = bodyParseResult.ok();
+      // NOTE: This is a little silly and TS should be able to reason this out, but no.
+      if (continueImportOptions.forceAccept) {
+        await importer.continueImport(continueImportOptions);
+      } else {
+        await importer.continueImport(continueImportOptions);
+      }
+      response.json({ status: 'ok' });
+    } catch (error) {
+      assert(error instanceof Error);
+      response.json({
+        status: 'error',
+        errors: [{ type: 'scan-error', message: error.message }],
+      });
+    }
+  });
+
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.AddTemplatesResponse,
+    Scan.AddTemplatesRequest
+  >(
     '/central-scanner/scan/hmpb/addTemplates',
     upload.fields([
       { name: 'ballots' },
@@ -458,7 +500,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post(
+  deprecatedApiRouter.post(
     '/central-scanner/scan/hmpb/doneTemplates',
     async (_request, response) => {
       await importer.doneHmpbTemplates();
@@ -466,7 +508,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post<
+  deprecatedApiRouter.post<
     NoParams,
     Scan.ExportToUsbDriveResponse,
     Scan.ExportToUsbDriveRequest
@@ -540,7 +582,7 @@ export async function buildCentralScannerApp({
     response.sendStatus(200);
   });
 
-  app.get<NoParams>(
+  deprecatedApiRouter.get<NoParams>(
     '/central-scanner/scan/export',
     async (request, response) => {
       if (!store.hasElection()) {
@@ -567,7 +609,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get<NoParams, Scan.GetScanStatusResponse>(
+  deprecatedApiRouter.get<NoParams, Scan.GetScanStatusResponse>(
     '/central-scanner/scan/status',
     (_request, response) => {
       const status = importer.getStatus();
@@ -575,7 +617,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get(
+  deprecatedApiRouter.get(
     '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image',
     (request, response) => {
       const { sheetId, side } = request.params;
@@ -595,7 +637,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get(
+  deprecatedApiRouter.get(
     '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image/:version',
     (request, response) => {
       const { sheetId, side, version } = request.params;
@@ -618,15 +660,18 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.delete('/central-scanner/scan/batch/:batchId', (request, response) => {
-    if (store.deleteBatch(request.params.batchId)) {
-      response.json({ status: 'ok' });
-    } else {
-      response.status(404).end();
+  deprecatedApiRouter.delete(
+    '/central-scanner/scan/batch/:batchId',
+    (request, response) => {
+      if (store.deleteBatch(request.params.batchId)) {
+        response.json({ status: 'ok' });
+      } else {
+        response.status(404).end();
+      }
     }
-  });
+  );
 
-  app.get<NoParams, Scan.GetNextReviewSheetResponse>(
+  deprecatedApiRouter.get<NoParams, Scan.GetNextReviewSheetResponse>(
     '/central-scanner/scan/hmpb/review/next-sheet',
     (_request, response) => {
       const sheet = store.getNextAdjudicationSheet();
@@ -678,7 +723,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
+  deprecatedApiRouter.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
     '/central-scanner/scan/zero',
     (_request, response) => {
       if (!store.getCanUnconfigure()) {
@@ -700,22 +745,25 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post<NoParams, Scan.BackupToUsbResponse, Scan.BackupToUsbRequest>(
-    '/central-scanner/scan/backup-to-usb-drive',
-    async (_request, response) => {
-      const result = await backupToUsbDrive(exporter, store);
+  deprecatedApiRouter.post<
+    NoParams,
+    Scan.BackupToUsbResponse,
+    Scan.BackupToUsbRequest
+  >('/central-scanner/scan/backup-to-usb-drive', async (_request, response) => {
+    const result = await backupToUsbDrive(exporter, store);
 
-      if (result.isErr()) {
-        response.status(500).json({
-          status: 'error',
-          errors: [result.err()],
-        });
-        return;
-      }
-
-      response.json({ status: 'ok', paths: result.ok() });
+    if (result.isErr()) {
+      response.status(500).json({
+        status: 'error',
+        errors: [result.err()],
+      });
+      return;
     }
-  );
+
+    response.json({ status: 'ok', paths: result.ok() });
+  });
+
+  app.use(deprecatedApiRouter);
 
   // NOTE: this appears to cause web requests to block until restoreConfig is done.
   // if restoreConfig ends up on a background thread, we'll want to explicitly

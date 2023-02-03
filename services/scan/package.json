@@ -2,6 +2,8 @@
   "name": "@votingworks/scan",
   "version": "0.1.0",
   "private": true,
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build",
     "bin",
@@ -36,6 +38,7 @@
   },
   "dependencies": {
     "@votingworks/api": "workspace:*",
+    "@votingworks/auth": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
@@ -43,6 +46,7 @@
     "@votingworks/data": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
@@ -75,7 +79,7 @@
     "@types/better-sqlite3": "^7.4.3",
     "@types/debug": "^4.1.7",
     "@types/deep-eql": "workspace:*",
-    "@types/express": "^4.17.13",
+    "@types/express": "^4.17.14",
     "@types/fs-extra": "^9.0.6",
     "@types/jest": "^26.0.6",
     "@types/luxon": "^1.26.5",
