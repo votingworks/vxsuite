@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './app_base';
+export * from './auth';
 export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';

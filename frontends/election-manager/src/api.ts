@@ -1,6 +1,11 @@
 import React from 'react';
 import type { Api } from '@votingworks/admin'; // eslint-disable-line vx/gts-no-import-export-type
 import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+} from '@votingworks/ui';
+import {
+  QueryClient,
   QueryKey,
   useMutation,
   useQuery,
@@ -26,7 +31,9 @@ export function useApiClient(): ApiClient {
   return apiClient;
 }
 
-const AUTH_STATUS_POLLING_INTERVAL_MS = 100;
+export function createQueryClient(): QueryClient {
+  return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
+}
 
 export const getAuthStatus = {
   queryKey(): QueryKey {

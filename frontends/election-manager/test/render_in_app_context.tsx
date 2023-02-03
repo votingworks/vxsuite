@@ -71,8 +71,8 @@ interface RenderInAppContextParams {
   hasPrinterAttached?: boolean;
   logger?: Logger;
   backend?: ElectionManagerStoreBackend;
-  queryClient?: QueryClient;
   apiClient?: ApiClient;
+  queryClient?: QueryClient;
 }
 
 export function renderRootElement(
@@ -81,14 +81,16 @@ export function renderRootElement(
     backend = new ElectionManagerStoreMemoryBackend(),
     logger = fakeLogger(),
     storage = new MemoryStorage(),
-    queryClient = new QueryClient(),
     apiClient = createMockApiClient(),
+    // TODO: Determine why tests fail when using createQueryClient and, by extension,
+    // QUERY_CLIENT_DEFAULT_OPTIONS
+    queryClient = new QueryClient(),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;
     storage?: Storage;
-    queryClient?: QueryClient;
     apiClient?: ApiClient;
+    queryClient?: QueryClient;
   } = {}
 ): RenderResult {
   return testRender(
@@ -132,8 +134,8 @@ export function renderInAppContext(
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
     backend,
-    queryClient,
     apiClient,
+    queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return renderRootElement(
