@@ -1,8 +1,4 @@
-import {
-  election as electionSample,
-  electionData,
-  electionWithMsEitherNeither,
-} from '../test/election';
+import { election as electionSample, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
@@ -98,131 +94,6 @@ test('parsing gives specific errors for nested objects', () => {
               }
             ],
             "name": "ZodError"
-          },
-          {
-            "issues": [
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "number",
-                "path": [
-                  "contests",
-                  1,
-                  "title"
-                ],
-                "message": "Expected string, received number"
-              },
-              {
-                "code": "invalid_literal",
-                "expected": "ms-either-neither",
-                "path": [
-                  "contests",
-                  1,
-                  "type"
-                ],
-                "message": "Invalid literal value, expected \\"ms-either-neither\\""
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "eitherNeitherContestId"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "pickOneContestId"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "description"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "eitherNeitherLabel"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "pickOneLabel"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "eitherOption"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "neitherOption"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "firstOption"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "secondOption"
-                ],
-                "message": "Required"
-              }
-            ],
-            "name": "ZodError"
           }
         ],
         "path": [
@@ -264,18 +135,6 @@ test('parsing a valid election object succeeds', () => {
 
   // Check the whole thing
   expect(parsed).toEqual(electionSample);
-});
-
-test('parsing a valid election with ms-either-neither succeeds', () => {
-  const parsed = t
-    .safeParseElection(electionWithMsEitherNeither as unknown)
-    .unsafeUnwrap();
-
-  // This check is here to prove TS inferred that `parsed` is an `Election`.
-  expect(parsed.title).toEqual(electionWithMsEitherNeither.title);
-
-  // Check the whole thing
-  expect(parsed).toEqual(electionWithMsEitherNeither);
 });
 
 test('parsing a valid election', () => {

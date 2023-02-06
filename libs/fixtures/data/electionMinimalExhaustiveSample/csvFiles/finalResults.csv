@@ -45,22 +45,22 @@ Contest, Contest ID, Selection, Selection ID, Precinct, Precinct ID, Voting Meth
 "Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 1",precinct-1,Precinct,54
 "Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 1",precinct-1,Absentee,35
 "Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 1",precinct-1,Precinct,37
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Absentee,32
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Precinct,17
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Absentee,10
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Precinct,6
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Absentee,32
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Precinct,17
-"Ballot Measure 1 – Pick One",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Absentee,10
-"Ballot Measure 1 – Pick One",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Precinct,6
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Absentee,32
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Precinct,17
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Absentee,10
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Precinct,6
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Absentee,32
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Precinct,17
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Absentee,10
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Precinct,6
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
 "Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 1",precinct-1,Absentee,13
 "Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 1",precinct-1,Precinct,9
 "Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 1",precinct-1,Absentee,9
@@ -115,22 +115,22 @@ Contest, Contest ID, Selection, Selection ID, Precinct, Precinct ID, Voting Meth
 "Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 2",precinct-2,Precinct,40
 "Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 2",precinct-2,Absentee,68
 "Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 2",precinct-2,Precinct,31
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Absentee,11
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Precinct,16
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Absentee,9
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Precinct,28
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
-"Ballot Measure 1 – Either/Neither",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Absentee,11
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Precinct,16
-"Ballot Measure 1 – Pick One",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Absentee,9
-"Ballot Measure 1 – Pick One",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Precinct,28
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
-"Ballot Measure 1 – Pick One",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Absentee,11
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Precinct,16
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Absentee,9
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Precinct,28
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Absentee,11
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Precinct,16
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Absentee,9
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Precinct,28
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
 "Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 2",precinct-2,Absentee,23
 "Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 2",precinct-2,Precinct,11
 "Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 2",precinct-2,Absentee,22

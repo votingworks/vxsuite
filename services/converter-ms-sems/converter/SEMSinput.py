@@ -172,10 +172,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
     sql = "select district_id, label from districts"
     districts = [{"id": r['district_id'], "name": r['label']} for r in c.execute(sql).fetchall()]
 
-    # look for either-neither contests, which have the same label and description
-    sql = "select label, contest_text from contests where type = '1' group by label, contest_text having count(*) = 2"
-    either_neither_labels = [r['label'] for r in c.execute(sql).fetchall()]
-    
     # contests
     sql = "select contest_id, contests.label as contest_label, type, contests.district_id as district_id, num_vote_for, num_write_ins, contest_text, party_id, districts.label as district_label from contests, districts where contests.district_id = districts.district_id order by cast(_sort_index as integer)"
     contests = [{
@@ -192,37 +188,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "type": "yesno",
         "title": cleanup_text(r['contest_text']).split("\n")[0] + ": " + r[1],
         "description": "\n".join(cleanup_text(r['contest_text']).split("\n")[1:])
-    } if r['contest_label'] not in either_neither_labels else {
-        "id": r['contest_id'],  ### placeholder, left here for the right order
-        "type": "placeholder",
-        "label": r['contest_label']
     } for r in c.execute(sql).fetchall()]
-
-    # either-neither contests
-    either_neither_contest_ids = []
-    for label in either_neither_labels:
-        sql = "select contest_id, contests.district_id as district_id, contest_text, districts.label as district_label, contests.label as contest_label from contests, districts where contests.district_id = districts.district_id and contests.label = ? order by contest_id"
-        either_neither_contest, pick_one_contest = c.execute(sql, [label]).fetchall()
-        text = cleanup_text(either_neither_contest['contest_text']).split("\n")
-        either_neither_contest_ids.append(either_neither_contest['contest_id'])
-        either_neither_contest_ids.append(pick_one_contest['contest_id'])
-        new_contest = {
-            "id": f"{either_neither_contest['contest_id']}-{pick_one_contest['contest_id']}-either-neither",
-            "districtId": either_neither_contest['district_id'],
-            "type": "ms-either-neither",
-            "title": text[0],
-            "eitherNeitherContestId": either_neither_contest['contest_id'],
-            "pickOneContestId": pick_one_contest['contest_id'],
-            "description": f"<b>{either_neither_contest['contest_label']}</b>\n\n" + "\n".join(text[1:])
-        }
-
-        # find where to place this contest
-        # assumes the two placeholders are sequential
-        location = [i for (i,c) in enumerate(contests) if c['type'] == 'placeholder' and c['label'] == label][0]
-        contests.pop(location)
-        contests.pop(location)
-        contests.insert(location, new_contest)
-            
 
     # remove null partyIds
     for contest in contests:
@@ -261,7 +227,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
             # but they carry the right SEMS ID in the main file, no need for the mapping.
             sql = """
             select
-            candidate_id, label, label_on_ballot
+            candidate_id, label_on_ballot
             from candidates
             where
             contest_id = ? 
@@ -269,47 +235,12 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
 
             options = [{
                 "id": o['candidate_id'],
-                "label": cleanup_text(o['label'])
+                "label": cleanup_text(o['label_on_ballot']).split("\n")[1],
             } for o in c.execute(sql, [contest['id']]).fetchall()]
 
             contest['yesOption'] = options[0]
             contest['noOption'] = options[1]
 
-        if contest['type'] == 'ms-either-neither':
-            # in either or, we have two contests and each has a yes and a no, in that option order
-            sql = """
-            select
-            candidate_id, label, label_on_ballot
-            from candidates
-            where
-            contest_id = ? 
-            order by cast(sort_seq as integer)"""
-
-            either_option, neither_option = c.execute(sql, [contest['eitherNeitherContestId']]).fetchall()
-            first_option, second_option = c.execute(sql, [contest['pickOneContestId']]).fetchall()
-
-            contest["eitherNeitherLabel"] = cleanup_text(either_option['label_on_ballot']).split("\n")[0]
-            contest["pickOneLabel"] = cleanup_text(first_option['label_on_ballot']).split("\n")[0]
-            
-            contest["eitherOption"] = {
-                "id": either_option['candidate_id'],
-                "label": cleanup_text(either_option['label_on_ballot']).split("\n")[1]
-            }
-            contest["neitherOption"] = {
-                "id": neither_option['candidate_id'],
-                "label": cleanup_text(neither_option['label_on_ballot']).split("\n")[1]
-            }
-
-            contest["firstOption"] = {
-                "id": first_option['candidate_id'],
-                "label": cleanup_text(first_option['label_on_ballot']).split("\n")[1]
-            }
-            contest["secondOption"] = {
-                "id": second_option['candidate_id'],
-                "label": cleanup_text(second_option['label_on_ballot']).split("\n")[1]
-            }
-            
-        
     sql = "select precinct_id, precinct_label from splits group by precinct_id, precinct_label"
     precincts = [{"id": r['precinct_id'], "name": r['precinct_label']} for r in c.execute(sql)]
         

@@ -24,7 +24,6 @@ import {
   Election,
   ElectionDefinition,
   Id,
-  MsEitherNeitherContest,
   Party,
   PartyId,
   Precinct,
@@ -255,28 +254,6 @@ export function arbitraryCandidateContest({
   });
 }
 
-export function arbitraryMsEitherNeitherContest({
-  districtId = arbitraryDistrictId(),
-}: {
-  districtId?: fc.Arbitrary<District['id']>;
-} = {}): fc.Arbitrary<MsEitherNeitherContest> {
-  return fc.record({
-    type: fc.constant('ms-either-neither'),
-    id: arbitraryContestId(),
-    title: fc.string({ minLength: 1 }),
-    description: fc.string({ minLength: 1 }),
-    districtId,
-    eitherNeitherContestId: arbitraryContestId(),
-    eitherNeitherLabel: fc.string({ minLength: 1 }),
-    eitherOption: arbitraryYesNoOption(),
-    neitherOption: arbitraryYesNoOption(),
-    pickOneContestId: arbitraryContestId(),
-    firstOption: arbitraryYesNoOption(),
-    secondOption: arbitraryYesNoOption(),
-    pickOneLabel: fc.string({ minLength: 1 }),
-  });
-}
-
 export function arbitraryContests({
   partyIds,
 }: {
@@ -285,9 +262,7 @@ export function arbitraryContests({
   return fc
     .tuple(
       fc.array(arbitraryCandidateContest({ partyIds })),
-      fc.array(
-        fc.oneof(arbitraryYesNoContest(), arbitraryMsEitherNeitherContest())
-      )
+      fc.array(arbitraryYesNoContest())
     )
     .map(([candidateContests, otherContests]) => [
       ...candidateContests,

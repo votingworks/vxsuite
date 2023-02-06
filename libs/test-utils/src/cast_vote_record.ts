@@ -4,7 +4,6 @@ import {
   CastVoteRecord,
   Dictionary,
   Election,
-  expandEitherNeitherContests,
   getBallotStyle,
   getContests,
   PrecinctId,
@@ -47,9 +46,7 @@ export function generateCvr(
       election,
     }) ?? election.ballotStyles[0];
   assert(ballotStyle);
-  const contestsInBallot = expandEitherNeitherContests(
-    getContests({ ballotStyle, election })
-  );
+  const contestsInBallot = getContests({ ballotStyle, election });
   const allVotes: Dictionary<string[]> = {};
   for (const contest of contestsInBallot) {
     allVotes[contest.id] = contest.id in votes ? votes[contest.id] : [];

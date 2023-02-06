@@ -2,7 +2,6 @@ import {
   Dictionary,
   Election,
   getContests,
-  expandEitherNeitherContests,
   ContestTally,
   ExternalTally,
   FullElectionTally,
@@ -76,7 +75,7 @@ export function getExportableTallies(
     );
     const ballotStyleContests = new Set(
       ballotStylesForPrecinct.flatMap((bs) =>
-        expandEitherNeitherContests(getContests({ ballotStyle: bs, election }))
+        getContests({ ballotStyle: bs, election })
       )
     );
     const tallyForPrecinct = talliesByPrecinct[precinct.id];

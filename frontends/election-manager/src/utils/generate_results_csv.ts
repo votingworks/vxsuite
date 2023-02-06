@@ -1,7 +1,6 @@
 import { ALL_PARTY_FILTER, filterTalliesByParams } from '@votingworks/utils';
 import {
   Election,
-  expandEitherNeitherContests,
   writeInCandidate,
   FullElectionTally,
   VotingMethod,
@@ -52,7 +51,7 @@ export function* generateRows(
       },
       { contestPartyFilter: ALL_PARTY_FILTER }
     );
-    for (const contest of expandEitherNeitherContests(election.contests)) {
+    for (const contest of election.contests) {
       const contestTallyAbsentee = absenteeTally.contestTallies[contest.id];
       const contestTallyPrecinct = precinctTally.contestTallies[contest.id];
 

@@ -231,7 +231,8 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     [0, 0, 0, 0, 0, 0], // best animal fish
     [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
     [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
-    [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+    [0, 0, 0, 0, 0], // new zoo either neither
+    [0, 0, 0, 0, 0], // new zoo pick one
     [0, 0, 0, 0, 0], // fishing ban yes no
   ];
   const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
@@ -240,7 +241,8 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       [0, 0, 0, 0, 0, 0], // best animal fish
       [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
       [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
-      [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // new zoo pick one
       [0, 0, 0, 0, 0], // fishing ban yes no
     ],
     'precinct-2': [
@@ -248,7 +250,8 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       [0, 0, 0, 0, 0, 0], // best animal fish
       [0, 0, 0, 0, 0, 0, 0, 0], // zoo council
       [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
-      [0, 0, 0, 0, 0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // new zoo either neither
+      [0, 0, 0, 0, 0], // new zoo pick one
       [0, 0, 0, 0, 0], // fishing ban yes no
     ],
   };
@@ -562,7 +565,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     [0, 0, 1, 1, 0, 0], // best animal fish
     [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
     [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
+    [0, 0, 2, 2, 0], // new zoo either neither
+    [1, 0, 2, 0, 1], // new zoo pick one
     [0, 0, 1, 0, 1], // fishing ban yes no
   ];
   const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
@@ -571,7 +575,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       [0, 0, 0, 0, 0, 0], // best animal fish
       [1, 0, 1, 1, 0, 0, 0, 1], // zoo council
       [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
-      [1, 0, 0, 0, 0, 0, 1, 0, 1], // new zoo either neither
+      [0, 0, 1, 1, 0], // new zoo either neither
+      [1, 0, 1, 0, 0], // new zoo pick one
       [0, 0, 0, 0, 0], // fishing ban yes no
     ],
     'precinct-2': [
@@ -579,7 +584,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       [0, 0, 1, 1, 0, 0], // best animal fish
       [2, 0, 1, 0, 0, 0, 1, 0], // zoo council
       [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-      [1, 0, 0, 0, 0, 1, 0, 0, 1], // new zoo either neither
+      [0, 0, 1, 1, 0], // new zoo either neither
+      [0, 0, 1, 0, 1], // new zoo pick one
       [0, 0, 1, 0, 1], // fishing ban yes no
     ],
   };
@@ -814,7 +820,8 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     [0, 0, 1, 1, 0, 0], // best animal fish
     [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
     [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
+    [0, 0, 2, 2, 0], // new zoo either neither
+    [1, 0, 2, 0, 1], // new zoo pick one
     [0, 0, 1, 0, 1], // fishing ban yes no
   ];
   const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
@@ -1321,6 +1328,7 @@ test('saving to card: polls closed, general election with non-partisan contests,
     expect.anything(),
     expect.anything(),
     expect.anything(),
+    expect.anything(),
     [0, 0, 4, 2, 2], // kingdom preference
   ];
 
@@ -1332,11 +1340,13 @@ test('saving to card: polls closed, general election with non-partisan contests,
       expect.anything(),
       expect.anything(),
       expect.anything(),
+      expect.anything(),
       [0, 0, 2, 1, 1], // kingdom preference
     ],
     'precinct-2': [
       [0, 0, 1, 1, 0, 0, 0], // best animal mammal
       [0, 0, 1, 1, 0, 0], // best animal fish
+      expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.anything(),

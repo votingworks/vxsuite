@@ -78,7 +78,6 @@ export function* ballotAdjudicationReasons(
             break;
 
           case 'yesno': // yes or no
-          case 'ms-either-neither': // either or neither, first or second
             expectedSelectionCount = 1;
             break;
 

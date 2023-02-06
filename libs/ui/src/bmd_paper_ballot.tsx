@@ -16,10 +16,10 @@ import {
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
-  MsEitherNeitherContest,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
+  YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
 import {
@@ -174,59 +174,21 @@ function CandidateContestResult({
 }
 
 interface YesNoContestResultProps {
+  contest: YesNoContest;
   vote: OptionalYesNoVote;
 }
 
-function YesNoContestResult({ vote }: YesNoContestResultProps): JSX.Element {
-  const yesNo = getSingleYesNoVote(vote);
-  return yesNo ? (
-    <Text bold wordBreak>
-      {DisplayTextForYesOrNo[yesNo]}
-    </Text>
-  ) : (
-    <NoSelection />
-  );
-}
-
-interface MsEitherNeitherContestResultProps {
-  contest: MsEitherNeitherContest;
-  eitherNeitherContestVote: OptionalYesNoVote;
-  pickOneContestVote: OptionalYesNoVote;
-}
-
-function MsEitherNeitherContestResult({
+function YesNoContestResult({
   contest,
-  eitherNeitherContestVote,
-  pickOneContestVote,
-}: MsEitherNeitherContestResultProps): JSX.Element {
-  const eitherNeitherVote = eitherNeitherContestVote?.[0];
-  const pickOneVote = pickOneContestVote?.[0];
-
-  return eitherNeitherVote || pickOneVote ? (
-    <React.Fragment>
-      {eitherNeitherVote ? (
-        <Text bold wordBreak>
-          •{' '}
-          {eitherNeitherVote === 'yes'
-            ? contest.eitherOption.label
-            : contest.neitherOption.label}
-        </Text>
-      ) : (
-        <NoSelection prefix="• " />
-      )}
-      {pickOneVote ? (
-        <Text bold wordBreak>
-          •{' '}
-          {pickOneVote === 'yes'
-            ? contest.firstOption.label
-            : contest.secondOption.label}
-        </Text>
-      ) : (
-        <NoSelection prefix="• " />
-      )}
-    </React.Fragment>
-  ) : (
-    <NoSelection />
+  vote,
+}: YesNoContestResultProps): JSX.Element {
+  const yesNo = getSingleYesNoVote(vote);
+  if (!yesNo) return <NoSelection />;
+  const option = yesNo === 'yes' ? contest.yesOption : contest.noOption;
+  return (
+    <Text bold wordBreak>
+      {option?.label ?? DisplayTextForYesOrNo[yesNo]}
+    </Text>
   );
 }
 
@@ -351,17 +313,9 @@ export function BmdPaperBallot({
                   />
                 )}
                 {contest.type === 'yesno' && (
-                  <YesNoContestResult vote={votes[contest.id] as YesNoVote} />
-                )}
-                {contest.type === 'ms-either-neither' && (
-                  <MsEitherNeitherContestResult
+                  <YesNoContestResult
                     contest={contest}
-                    eitherNeitherContestVote={
-                      votes[contest.eitherNeitherContestId] as YesNoVote
-                    }
-                    pickOneContestVote={
-                      votes[contest.pickOneContestId] as YesNoVote
-                    }
+                    vote={votes[contest.id] as YesNoVote}
                   />
                 )}
               </ContestProse>

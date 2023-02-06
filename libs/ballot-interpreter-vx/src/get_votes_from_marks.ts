@@ -75,20 +75,6 @@ export function getVotesFromMarks(
         }
         break;
 
-      case 'ms-either-neither':
-        if (mark.score >= markScoreVoteThreshold) {
-          debug(
-            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
-            mark.type,
-            mark.contestId,
-            mark.score,
-            mark.optionId,
-            markScoreVoteThreshold
-          );
-          addVote(election, votes, mark.contestId, mark.optionId);
-        }
-        break;
-
       default:
         throwIllegalValue(mark, 'type');
     }

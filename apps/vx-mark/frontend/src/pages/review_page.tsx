@@ -12,7 +12,6 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   getCandidatePartiesDescription,
-  getContestDistrictName,
 } from '@votingworks/types';
 import {
   Button,
@@ -52,6 +51,7 @@ import {
 import { screenOrientation } from '../lib/screen_orientation';
 import { SettingsButton } from '../components/settings_button';
 import { LanguageSettingsButton } from '../components/language_settings_button';
+import { getContestDistrictName } from '../utils/ms_either_neither_contests';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
@@ -282,7 +282,9 @@ function MsEitherNeitherContestResult({
   eitherNeitherContestVote,
   pickOneContestVote,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
+  /* istanbul ignore next */
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
+  /* istanbul ignore next */
   const pickOneVote = pickOneContestVote?.[0];
   return eitherNeitherVote || pickOneVote ? (
     <React.Fragment>

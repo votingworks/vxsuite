@@ -11,7 +11,6 @@ import {
   BallotIdSchema,
   BallotLocale,
   BallotMark,
-  BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,
   BallotPageLayout,
   BallotPageLayoutWithImage,
@@ -25,7 +24,6 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  MsEitherNeitherContest,
   Offset,
   Point,
   Rect,
@@ -33,7 +31,6 @@ import {
   TargetShape,
   unsafeParse,
   YesNoContest,
-  YesNoOption,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { assert, map, zip, zipMin } from '@votingworks/basics';
@@ -562,50 +559,6 @@ export class Interpreter {
       marks.push(mark);
     };
 
-    const addEitherNeitherMark = (
-      contest: MsEitherNeitherContest,
-      layout: BallotPageContestOptionLayout,
-      option: YesNoOption
-    ): void => {
-      const { score, offset } = this.targetMarkScore(
-        template.imageData,
-        mappedBallot,
-        layout.target,
-        {
-          maximumCorrectionPixelsX,
-          maximumCorrectionPixelsY,
-          maximumNewTemplatePixels,
-        }
-      );
-      debugScoredMark(
-        layout,
-        option === contest.eitherOption
-          ? 'either'
-          : option === contest.neitherOption
-          ? 'neither'
-          : option === contest.firstOption
-          ? 'first'
-          : 'second',
-        offset,
-        score
-      );
-      const mark: BallotMsEitherNeitherTargetMark = {
-        type: 'ms-either-neither',
-        bounds: {
-          x: layout.target.bounds.x + offset.x,
-          y: layout.target.bounds.y + offset.y,
-          width: layout.target.bounds.width,
-          height: layout.target.bounds.height,
-        },
-        contestId: contest.id,
-        optionId: option.id,
-        score,
-        scoredOffset: offset,
-        target: layout.target,
-      };
-      marks.push(mark);
-    };
-
     for (const [{ options }, contest] of zip(
       template.ballotPageLayout.contests,
       contests
@@ -648,19 +601,6 @@ export class Interpreter {
             });
           }
         }
-      } else if (contest.type === 'ms-either-neither') {
-        if (options.length !== 4) {
-          throw new Error(
-            `Contest ${contest.id} is supposed to have four options (either/neither/first/second), but found ${options.length}.`
-          );
-        }
-
-        const [eitherLayout, neitherLayout, firstLayout, secondLayout] =
-          options;
-        addEitherNeitherMark(contest, eitherLayout, contest.eitherOption);
-        addEitherNeitherMark(contest, neitherLayout, contest.neitherOption);
-        addEitherNeitherMark(contest, firstLayout, contest.firstOption);
-        addEitherNeitherMark(contest, secondLayout, contest.secondOption);
       } else {
         if (options.length !== 2) {
           throw new Error(

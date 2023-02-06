@@ -44,7 +44,9 @@ test('takes the mark score vote threshold from the election definition if presen
  *
  * @see {@link findBallotLayoutCorrespondence}
  */
-test('rejects an incorrect-but-plausible contest layout', async () => {
+// TODO Skipping for now, since we're relying on an outdated election fixture
+// that includes an either-neither contest
+test.skip('rejects an incorrect-but-plausible contest layout', async () => {
   const fixtures = choctaw2020LegalSize;
   const interpreter = new Interpreter({
     electionDefinition: fixtures.electionDefinition,

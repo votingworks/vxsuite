@@ -6,7 +6,6 @@ import {
   Dictionary,
   Election,
   YesNoContest,
-  expandEitherNeitherContests,
   ContestOptionTally,
   ContestTally,
   ExternalTally,
@@ -217,9 +216,7 @@ export function parseSemsFileAndValidateForElection(
       );
     }
 
-    const contest = expandEitherNeitherContests(election.contests).find(
-      (c) => c.id === row.contestId
-    );
+    const contest = election.contests.find((c) => c.id === row.contestId);
     if (contest === undefined) {
       errors.push(
         `Contest ID ${row.contestId} is not found in the election definition.`
@@ -296,7 +293,7 @@ export function convertSemsFileToExternalTally(
   const parsedRows = parseFileContentRows(fileContent);
 
   const contestsById: Dictionary<Contest> = {};
-  for (const contest of expandEitherNeitherContests(election.contests)) {
+  for (const contest of election.contests) {
     contestsById[contest.id] = contest;
   }
 

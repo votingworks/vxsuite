@@ -8,9 +8,6 @@ import {
   ContestTally,
   Dictionary,
   Election,
-  expandEitherNeitherContests,
-  MsEitherNeitherContestCompressedTally,
-  MsEitherNeitherContestCompressedTallySchema,
   PartyId,
   PrecinctId,
   Tally,
@@ -50,24 +47,6 @@ export function compressTally(
           contestTally?.metadata.ballots ?? 0, // ballots cast
           contestTally?.tallies['yes']?.tally ?? 0, // yes
           contestTally?.tallies['no']?.tally ?? 0, // no
-        ]);
-      }
-
-      case 'ms-either-neither': {
-        const eitherNeitherContestTally =
-          tally.contestTallies[contest.eitherNeitherContestId];
-        const pickOneContestTally =
-          tally.contestTallies[contest.pickOneContestId];
-        return typedAs<MsEitherNeitherContestCompressedTally>([
-          eitherNeitherContestTally?.tallies['yes']?.tally ?? 0, // eitherOption
-          eitherNeitherContestTally?.tallies['no']?.tally ?? 0, // neitherOption
-          eitherNeitherContestTally?.metadata.undervotes ?? 0, // eitherNeitherUndervotes
-          eitherNeitherContestTally?.metadata.overvotes ?? 0, // eitherNeitherOvervotes
-          pickOneContestTally?.tallies['yes']?.tally ?? 0, // firstOption
-          pickOneContestTally?.tallies['no']?.tally ?? 0, // secondOption
-          pickOneContestTally?.metadata.undervotes ?? 0, // pickOneUndervotes
-          pickOneContestTally?.metadata.overvotes ?? 0, // pickOneOvervotes
-          pickOneContestTally?.metadata.ballots ?? 0, // ballotsCast
         ]);
       }
 
@@ -157,63 +136,6 @@ function getContestTalliesForCompressedContest(
           },
         },
       ];
-    }
-    case 'ms-either-neither': {
-      const [
-        eitherOption,
-        neitherOption,
-        eitherNeitherUndervotes,
-        eitherNeitherOvervotes,
-        firstOption,
-        secondOption,
-        pickOneUndervotes,
-        pickOneOvervotes,
-        ballots,
-      ] = unsafeParse(
-        MsEitherNeitherContestCompressedTallySchema,
-        compressedContest
-      );
-      const newYesNoContests = expandEitherNeitherContests([contest]);
-      return newYesNoContests.map((yesno) => {
-        assert(yesno.type === 'yesno');
-        return yesno.id === contest.eitherNeitherContestId
-          ? {
-              contest: yesno,
-              tallies: {
-                yes: {
-                  option: ['yes'],
-                  tally: eitherOption,
-                },
-                no: {
-                  option: ['no'],
-                  tally: neitherOption,
-                },
-              },
-              metadata: {
-                undervotes: eitherNeitherUndervotes,
-                overvotes: eitherNeitherOvervotes,
-                ballots,
-              },
-            }
-          : {
-              contest: yesno,
-              tallies: {
-                yes: {
-                  option: ['yes'],
-                  tally: firstOption,
-                },
-                no: {
-                  option: ['no'],
-                  tally: secondOption,
-                },
-              },
-              metadata: {
-                undervotes: pickOneUndervotes,
-                overvotes: pickOneOvervotes,
-                ballots,
-              },
-            };
-      });
     }
     /* istanbul ignore next - compile time check for completeness */
     default:

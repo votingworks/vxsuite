@@ -61,35 +61,6 @@ export function* allContestOptions(
       name: 'No',
       optionIndex: 1,
     };
-  } else if (contest.type === 'ms-either-neither') {
-    yield {
-      type: 'ms-either-neither',
-      id: 'yes',
-      name: contest.eitherOption.label,
-      contestId: contest.eitherNeitherContestId,
-      optionIndex: 0,
-    };
-    yield {
-      type: 'ms-either-neither',
-      id: 'no',
-      name: contest.neitherOption.label,
-      contestId: contest.eitherNeitherContestId,
-      optionIndex: 1,
-    };
-    yield {
-      type: 'ms-either-neither',
-      id: 'yes',
-      name: contest.firstOption.label,
-      contestId: contest.pickOneContestId,
-      optionIndex: 2,
-    };
-    yield {
-      type: 'ms-either-neither',
-      id: 'no',
-      name: contest.secondOption.label,
-      contestId: contest.pickOneContestId,
-      optionIndex: 3,
-    };
   } else {
     throwIllegalValue(contest, 'type');
   }

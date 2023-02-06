@@ -1,7 +1,6 @@
 import { Result, ok, err, groupBy, find } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import {
-  expandEitherNeitherContests,
   MarkThresholds,
   safeParseElectionDefinition,
   safeParseInt,
@@ -306,7 +305,7 @@ export async function main(
 
     for (const [contestId, marks] of marksByContest) {
       const contest = find(
-        expandEitherNeitherContests(electionDefinition.election.contests),
+        electionDefinition.election.contests,
         (c) => c.id === contestId
       );
       io.stdout.write(`${chalk.italic(contest.title)}\n`);

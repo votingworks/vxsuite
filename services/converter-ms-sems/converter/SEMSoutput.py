@@ -64,25 +64,8 @@ CONTEST_PRECINCTS_FIELDS = ["contest_id", "precinct_id"]
 
 def find_contest(contests, contest_id):
     for c in contests:
-        if c['type'] != 'ms-either-neither' and c['id'] == contest_id:
+        if c['id'] == contest_id:
             return c
-        if c['type'] == 'ms-either-neither' and c['eitherNeitherContestId'] == contest_id:
-            return {"id": c['eitherNeitherContestId'],
-                    "title": c['title'],
-                    "type": "yesno",
-                    "yesOption": c['eitherOption'],
-                    "noOption": c['neitherOption'],
-                    "districtId": c['districtId'],
-                    "options": c['eitherNeitherOptions'] if 'eitherNeitherOptions' in c else None}
-        if c['type'] == 'ms-either-neither' and c['pickOneContestId'] == contest_id:
-            return {"id": c['pickOneContestId'],
-                    "title": c["title"],
-                    "type": "yesno",
-                    "yesOption": c['firstOption'],
-                    "noOption": c['secondOption'],
-                    "districtId": c['districtId'],
-                    "options": c['pickOneOptions'] if 'pickOneOptions' in c else None}
-    
 
 def process_tallies_file(election_file_path, vx_results_file_path):
     election = json.loads(open(election_file_path, "r").read())
@@ -101,11 +84,7 @@ def process_tallies_file(election_file_path, vx_results_file_path):
         contest_precincts = set()
         [contest_precincts.update(bs["precincts"]) for bs in contest_ballot_styles]
         for precinct in contest_precincts:
-            if contest["type"] == "ms-either-neither":
-                contests_by_precinct[precinct].append(contest["eitherNeitherContestId"])
-                contests_by_precinct[precinct].append(contest["pickOneContestId"])
-            else:
-                contests_by_precinct[precinct].append(contest["id"])
+            contests_by_precinct[precinct].append(contest["id"])
 
     rows_to_write = []
     for precinct in sorted(precincts, key=lambda precinct: precinct["id"]):

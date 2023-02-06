@@ -340,20 +340,20 @@ Object {
     "6526": Object {
       "750000015": Object {
         "metadata": Object {
-          "ballots": 7,
+          "ballots": 8,
           "overvotes": 0,
           "undervotes": 0,
         },
         "tallies": Object {
-          "no": 5,
+          "no": 6,
           "yes": 2,
         },
       },
       "750000016": Object {
         "metadata": Object {
-          "ballots": 7,
+          "ballots": 8,
           "overvotes": 0,
-          "undervotes": 0,
+          "undervotes": 1,
         },
         "tallies": Object {
           "no": 4,
@@ -554,9 +554,9 @@ Object {
     "6528": Object {
       "750000015": Object {
         "metadata": Object {
-          "ballots": 6,
+          "ballots": 7,
           "overvotes": 0,
-          "undervotes": 0,
+          "undervotes": 1,
         },
         "tallies": Object {
           "no": 5,
@@ -565,12 +565,12 @@ Object {
       },
       "750000016": Object {
         "metadata": Object {
-          "ballots": 6,
+          "ballots": 7,
           "overvotes": 1,
           "undervotes": 0,
         },
         "tallies": Object {
-          "no": 1,
+          "no": 2,
           "yes": 4,
         },
       },

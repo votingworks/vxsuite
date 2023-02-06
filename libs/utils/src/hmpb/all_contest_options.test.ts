@@ -1,13 +1,11 @@
 import {
   arbitraryCandidateContest,
   arbitraryCandidateId,
-  arbitraryMsEitherNeitherContest,
   arbitraryYesNoContest,
 } from '@votingworks/test-utils';
 import { ContestOption } from '@votingworks/types';
 import fc from 'fast-check';
-import { assert } from '@votingworks/basics';
-import { typedAs } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
@@ -114,45 +112,6 @@ test('yesno contest', () => {
             contestId: contest.id,
             name: 'No',
             optionIndex: 1,
-          },
-        ])
-      );
-    })
-  );
-});
-
-test('ms-either-neither contest', () => {
-  fc.assert(
-    fc.property(arbitraryMsEitherNeitherContest(), (contest) => {
-      expect(Array.from(allContestOptions(contest))).toEqual(
-        typedAs<ContestOption[]>([
-          {
-            type: 'ms-either-neither',
-            id: expect.any(String),
-            contestId: contest.eitherNeitherContestId,
-            name: expect.any(String),
-            optionIndex: 0,
-          },
-          {
-            type: 'ms-either-neither',
-            id: expect.any(String),
-            contestId: contest.eitherNeitherContestId,
-            name: expect.any(String),
-            optionIndex: 1,
-          },
-          {
-            type: 'ms-either-neither',
-            id: expect.any(String),
-            contestId: contest.pickOneContestId,
-            name: expect.any(String),
-            optionIndex: 2,
-          },
-          {
-            type: 'ms-either-neither',
-            id: expect.any(String),
-            contestId: contest.pickOneContestId,
-            name: expect.any(String),
-            optionIndex: 3,
           },
         ])
       );

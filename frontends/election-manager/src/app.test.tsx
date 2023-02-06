@@ -1462,7 +1462,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   // View super ballot
   userEvent.click(viewBallotButtons[0]);
   await screen.findByRole('heading', {
-    name: 'Ballot Style All has 13 contests',
+    name: 'Ballot Style All has 14 contests',
   });
   screen.getByRole('button', { name: 'Absentee' });
   screen.getByRole('button', { name: 'Precinct' });
@@ -1483,7 +1483,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   viewBallotButtons = await screen.findAllByText('View Ballot');
   userEvent.click(viewBallotButtons[1]);
   await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 8 contests',
+    name: 'Ballot Style 4 for Bywy has 9 contests',
   });
   screen.getByRole('button', { name: 'Absentee' });
   screen.getByRole('button', { name: 'Precinct' });
@@ -1515,7 +1515,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
 
   userEvent.click(viewBallotButtons[0]);
   await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 8 contests',
+    name: 'Ballot Style 4 for Bywy has 9 contests',
   });
   screen.getByRole('button', { name: 'Absentee' });
   screen.getByRole('button', { name: 'Precinct' });
@@ -1542,7 +1542,7 @@ test('primary election with nonpartisan contests', async () => {
   userEvent.click(screen.getByText('Ballots'));
   userEvent.click(screen.getAllByText('View Ballot')[0]);
   screen.getByText(
-    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 4 contests')
+    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
   );
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests

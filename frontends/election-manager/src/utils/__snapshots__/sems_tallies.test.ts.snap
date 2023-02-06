@@ -21,7 +21,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -29,16 +29,16 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 98,
+      "ballots": 100,
       "overvotes": 3,
-      "undervotes": 3,
+      "undervotes": 4,
     },
     "tallies": Object {
       "no": Object {
         "option": Array [
           "no",
         ],
-        "tally": 53,
+        "tally": 54,
       },
       "yes": Object {
         "option": Array [
@@ -67,7 +67,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -75,16 +75,16 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 98,
+      "ballots": 100,
       "overvotes": 4,
-      "undervotes": 5,
+      "undervotes": 6,
     },
     "tallies": Object {
       "no": Object {
         "option": Array [
           "no",
         ],
-        "tally": 49,
+        "tally": 50,
       },
       "yes": Object {
         "option": Array [
@@ -737,7 +737,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -783,7 +783,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -1279,7 +1279,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -1325,7 +1325,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -1766,7 +1766,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -1812,7 +1812,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -2264,7 +2264,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -2272,7 +2272,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 7,
+      "ballots": 8,
       "overvotes": 0,
       "undervotes": 0,
     },
@@ -2281,7 +2281,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "option": Array [
           "no",
         ],
-        "tally": 5,
+        "tally": 6,
       },
       "yes": Object {
         "option": Array [
@@ -2310,7 +2310,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -2318,9 +2318,9 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 7,
+      "ballots": 8,
       "overvotes": 0,
-      "undervotes": 0,
+      "undervotes": 1,
     },
     "tallies": Object {
       "no": Object {
@@ -2751,7 +2751,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -2797,7 +2797,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -3238,7 +3238,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -3246,9 +3246,9 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 6,
+      "ballots": 7,
       "overvotes": 0,
-      "undervotes": 0,
+      "undervotes": 1,
     },
     "tallies": Object {
       "no": Object {
@@ -3284,7 +3284,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -3292,7 +3292,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
       },
     },
     "metadata": Object {
-      "ballots": 6,
+      "ballots": 7,
       "overvotes": 1,
       "undervotes": 0,
     },
@@ -3301,7 +3301,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "option": Array [
           "no",
         ],
-        "tally": 1,
+        "tally": 2,
       },
       "yes": Object {
         "option": Array [
@@ -3736,7 +3736,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -3782,7 +3782,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -4223,7 +4223,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -4269,7 +4269,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -4721,7 +4721,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -4767,7 +4767,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -5219,7 +5219,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -5265,7 +5265,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -5717,7 +5717,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -5763,7 +5763,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -6215,7 +6215,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -6261,7 +6261,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",
@@ -6702,7 +6702,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000089",
         "label": "AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A",
       },
-      "title": "Ballot Measure 1 – Either/Neither",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000088",
@@ -6748,7 +6748,7 @@ Legislative Budget Office Fiscal Analysis: There is no determinable cost or reve
         "id": "750000091",
         "label": "FOR Alternative Measure 65 A",
       },
-      "title": "Ballot Measure 1 – Pick One",
+      "title": "Ballot Measure 1",
       "type": "yesno",
       "yesOption": Object {
         "id": "750000090",

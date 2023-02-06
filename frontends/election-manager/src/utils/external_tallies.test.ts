@@ -8,7 +8,6 @@ import {
   CandidateContest,
   Dictionary,
   YesNoContest,
-  expandEitherNeitherContests,
   ContestTally,
   ExternalTally,
   ExternalTallySourceType,
@@ -210,9 +209,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
       const precinctResults = results[precinct.id];
       expect(precinctResults).toBeDefined();
       expect(precinctResults!.numberOfBallotsCounted).toEqual(0);
-      for (const contest of expandEitherNeitherContests(
-        multiPartyPrimaryElection.contests
-      )) {
+      for (const contest of multiPartyPrimaryElection.contests) {
         const contestTally = precinctResults!.contestTallies[contest.id];
         expect(contestTally).toBeDefined();
         expect(contestTally!.metadata).toStrictEqual({
@@ -235,9 +232,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
       const precinctResults = results[precinct.id];
       expect(precinctResults).toBeDefined();
       expect(precinctResults!.numberOfBallotsCounted).toEqual(0);
-      for (const contest of expandEitherNeitherContests(
-        electionWithMsEitherNeither.contests
-      )) {
+      for (const contest of electionWithMsEitherNeither.contests) {
         const contestTally = precinctResults!.contestTallies[contest.id];
         expect(contestTally).toBeDefined();
         expect(contestTally!.metadata).toStrictEqual({

@@ -87,9 +87,6 @@ export function getWriteInOptionIdsForContestVote(
   if (contest.type === 'yesno') {
     return [];
   }
-  if (contest.type === 'ms-either-neither') {
-    return [];
-  }
   throwIllegalValue(contest, 'type');
 }
 
@@ -109,16 +106,6 @@ export function getOptionIdsForContestVote(
       ? (vote as readonly string[]).map((id) => [contest.id, id])
       : [];
   }
-  if (contest.type === 'ms-either-neither') {
-    return [
-      ...(
-        (votes[contest.eitherNeitherContestId] ?? []) as readonly string[]
-      ).map<[string, string]>((id) => [contest.eitherNeitherContestId, id]),
-      ...((votes[contest.pickOneContestId] ?? []) as readonly string[]).map<
-        [string, string]
-      >((id) => [contest.pickOneContestId, id]),
-    ];
-  }
   throwIllegalValue(contest, 'type');
 }
 
@@ -133,8 +120,6 @@ export function buildCastVoteRecordVotesEntries(
     const interpretedOptionIds = getOptionIdsForContestVote(contest, votes);
     const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes);
 
-    // HINT: Do not use `contest.id` in this loop, use `option.contestId`.
-    // `contest.id !== option.contestId` for `ms-either-neither` contests.
     for (const option of allContestOptions(contest, writeInOptions)) {
       const interpretedContestOptionPair = interpretedOptionIds.find(
         ([contestId, optionId]) =>

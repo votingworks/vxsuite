@@ -160,11 +160,10 @@ export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
   CandidateSchema.optional();
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-neither';
+export type ContestTypes = 'candidate' | 'yesno';
 export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('candidate'),
   z.literal('yesno'),
-  z.literal('ms-either-neither'),
 ]);
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
@@ -266,42 +265,10 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
     })
   );
 
-export interface MsEitherNeitherContest extends Contest {
-  readonly type: 'ms-either-neither';
-  readonly eitherNeitherContestId: ContestId;
-  readonly pickOneContestId: ContestId;
-  readonly description: string;
-  readonly eitherNeitherLabel: string;
-  readonly pickOneLabel: string;
-  readonly eitherOption: YesNoOption;
-  readonly neitherOption: YesNoOption;
-  readonly firstOption: YesNoOption;
-  readonly secondOption: YesNoOption;
-}
-export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> =
-  ContestInternalSchema.merge(
-    z.object({
-      type: z.literal('ms-either-neither'),
-      eitherNeitherContestId: ContestIdSchema,
-      pickOneContestId: ContestIdSchema,
-      description: z.string().nonempty(),
-      eitherNeitherLabel: z.string().nonempty(),
-      pickOneLabel: z.string().nonempty(),
-      eitherOption: YesNoOptionSchema,
-      neitherOption: YesNoOptionSchema,
-      firstOption: YesNoOptionSchema,
-      secondOption: YesNoOptionSchema,
-    })
-  );
-
-export type AnyContest =
-  | CandidateContest
-  | YesNoContest
-  | MsEitherNeitherContest;
+export type AnyContest = CandidateContest | YesNoContest;
 export const AnyContestSchema: z.ZodSchema<AnyContest> = z.union([
   CandidateContestSchema,
   YesNoContestSchema,
-  MsEitherNeitherContestSchema,
 ]);
 
 export type Contests = readonly AnyContest[];
@@ -761,40 +728,10 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
     optionIndex: z.number().nonnegative(),
   });
 
-export type MsEitherNeitherContestOptionId =
-  | MsEitherNeitherContest['eitherOption']['id']
-  | MsEitherNeitherContest['neitherOption']['id']
-  | MsEitherNeitherContest['firstOption']['id']
-  | MsEitherNeitherContest['secondOption']['id'];
-export const MsEitherNeitherContestOptionIdSchema: z.ZodSchema<MsEitherNeitherContestOptionId> =
-  YesNoOptionIdSchema;
-
-export interface MsEitherNeitherContestOption {
-  type: MsEitherNeitherContest['type'];
-  id: MsEitherNeitherContestOptionId;
-  contestId:
-    | MsEitherNeitherContest['eitherNeitherContestId']
-    | MsEitherNeitherContest['pickOneContestId'];
-  name: string;
-  optionIndex: number;
-}
-export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherContestOption> =
-  z.object({
-    type: z.literal('ms-either-neither'),
-    id: MsEitherNeitherContestOptionIdSchema,
-    contestId: ContestIdSchema,
-    name: z.string(),
-    optionIndex: z.number().nonnegative(),
-  });
-
-export type ContestOption =
-  | CandidateContestOption
-  | YesNoContestOption
-  | MsEitherNeitherContestOption;
+export type ContestOption = CandidateContestOption | YesNoContestOption;
 export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
   YesNoContestOptionSchema,
-  MsEitherNeitherContestOptionSchema,
 ]);
 
 export type ContestOptionId = ContestOption['id'];
@@ -985,39 +922,12 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
     scoredOffset: OffsetSchema,
   });
 
-export interface BallotMsEitherNeitherTargetMark {
-  type: MsEitherNeitherContest['type'];
-  /** The area of the detected bubble. */
-  bounds: Rect;
-  contestId: ContestId;
-  target: TargetShape;
-  optionId: YesNoOptionId;
-  score: number;
-  /**
-   * How far away `bounds` was from where it was expected. Thus, the expected
-   * bounds is `bounds - scoredOffset`.
-   */
-  scoredOffset: Offset;
-}
-export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNeitherTargetMark> =
-  z.object({
-    type: z.literal('ms-either-neither'),
-    bounds: RectSchema,
-    contestId: ContestIdSchema,
-    target: TargetShapeSchema,
-    optionId: YesNoOptionIdSchema,
-    score: z.number(),
-    scoredOffset: OffsetSchema,
-  });
-
 export type BallotTargetMark =
   | BallotCandidateTargetMark
-  | BallotYesNoTargetMark
-  | BallotMsEitherNeitherTargetMark;
+  | BallotYesNoTargetMark;
 export const BallotTargetMarkSchema: z.ZodSchema<BallotTargetMark> = z.union([
   BallotCandidateTargetMarkSchema,
   BallotYesNoTargetMarkSchema,
-  BallotMsEitherNeitherTargetMarkSchema,
 ]);
 
 export type BallotMark = BallotTargetMark;
@@ -1114,48 +1024,6 @@ export function getContests({
 }
 
 /**
- * Get all MS either-neither contests.
- */
-export function getEitherNeitherContests(
-  contests: Contests
-): MsEitherNeitherContest[] {
-  return contests.filter(
-    (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
-  );
-}
-
-export function expandEitherNeitherContests(
-  contests: Contests
-): Array<Exclude<AnyContest, MsEitherNeitherContest>> {
-  return contests.flatMap((contest) =>
-    contest.type !== 'ms-either-neither'
-      ? [contest]
-      : [
-          {
-            type: 'yesno',
-            id: contest.eitherNeitherContestId,
-            title: `${contest.title} – Either/Neither`,
-            districtId: contest.districtId,
-            description: contest.description,
-            yesOption: contest.eitherOption,
-            noOption: contest.neitherOption,
-            ...(contest.partyId ? { partyId: contest.partyId } : {}),
-          },
-          {
-            type: 'yesno',
-            id: contest.pickOneContestId,
-            title: `${contest.title} – Pick One`,
-            districtId: contest.districtId,
-            description: contest.description,
-            yesOption: contest.firstOption,
-            noOption: contest.secondOption,
-            ...(contest.partyId ? { partyId: contest.partyId } : {}),
-          },
-        ]
-  );
-}
-
-/**
  * Retrieves a precinct by id.
  */
 export function getPrecinctById({
@@ -1196,7 +1064,6 @@ export function getBallotStyle({
 
 /**
  * Retrieve a contest from a set of contests based on ID
- * special-cases Ms Either Neither contests
  */
 export function findContest({
   contests,
@@ -1205,17 +1072,11 @@ export function findContest({
   contests: Contests;
   contestId: ContestId;
 }): AnyContest | undefined {
-  return contests.find((c) =>
-    c.type === 'ms-either-neither'
-      ? c.eitherNeitherContestId === contestId ||
-        c.pickOneContestId === contestId
-      : c.id === contestId
-  );
+  return contests.find((c) => c.id === contestId);
 }
 
 /**
- * Gets all contests whose IDs are in the given array. Does not special-case Ms
- * Either/Neither contests.
+ * Gets all contests whose IDs are in the given array.
  */
 export function getContestsFromIds(
   election: Election,

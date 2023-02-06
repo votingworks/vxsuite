@@ -12,7 +12,6 @@ import {
   election,
   electionMinimalExhaustive,
   electionPrimaryNonpartisanContests,
-  electionWithMsEitherNeither,
   primaryElection,
 } from '../test/election';
 import {
@@ -21,14 +20,12 @@ import {
   ElectionDefinitionSchema,
   electionHasPrimaryBallotStyle,
   electionHasPrimaryContest,
-  expandEitherNeitherContests,
   getBallotStyle,
   getCandidateParties,
   getCandidatePartiesDescription,
   getContests,
   getContestDistrictName,
   getContestsFromIds,
-  getEitherNeitherContests,
   getElectionLocales,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
@@ -79,18 +76,6 @@ test('can build votes from yesno values', () => {
   });
 });
 
-test('can build votes from ms-either-neither yesno values', () => {
-  expect(
-    vote(electionWithMsEitherNeither.contests, {
-      MSEN: 'yes',
-      MSPO: 'no',
-    })
-  ).toEqual({
-    MSEN: 'yes',
-    MSPO: 'no',
-  });
-});
-
 test('can build votes from a candidate object', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
   const contest = contests[0] as CandidateContest;
@@ -99,52 +84,6 @@ test('can build votes from a candidate object', () => {
   expect(vote(contests, { CC: candidate })).toEqual({
     CC: [candidate],
   });
-});
-
-test('can get ms-either-neither contests from a list', () => {
-  expect(
-    getEitherNeitherContests(electionWithMsEitherNeither.contests)
-  ).toHaveLength(1);
-});
-
-test('can expand ms-either-neither contests into yes no contests', () => {
-  const expandedContests = expandEitherNeitherContests(
-    electionWithMsEitherNeither.contests
-  );
-  // There is 1 contest that should have expanded into two.
-  expect(expandedContests).toHaveLength(
-    1 + electionWithMsEitherNeither.contests.length
-  );
-  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
-    const originalContest = electionWithMsEitherNeither.contests[i];
-    if (originalContest.type !== 'ms-either-neither') {
-      expect(originalContest).toEqual(expandedContests[i]);
-    } else {
-      expect(expandedContests[i].type).toEqual('yesno');
-      expect(expandedContests[i + 1].type).toEqual('yesno');
-    }
-  }
-});
-
-test('can expand ms-either-neither contests into yes no contests in a primary', () => {
-  const expandedContests = expandEitherNeitherContests(
-    electionMinimalExhaustive.contests
-  );
-  // There is 1 contest that should have expanded into two.
-  expect(expandedContests).toHaveLength(
-    1 + electionMinimalExhaustive.contests.length
-  );
-  for (let i = 0; i < electionWithMsEitherNeither.contests.length; i += 1) {
-    const originalContest = electionMinimalExhaustive.contests[i];
-    if (originalContest.type !== 'ms-either-neither') {
-      expect(originalContest).toEqual(expandedContests[i]);
-    } else {
-      expect(expandedContests[i].type).toEqual('yesno');
-      expect(expandedContests[i + 1].type).toEqual('yesno');
-      expect(expandedContests[i].partyId).toEqual(originalContest.partyId);
-      expect(expandedContests[i + 1].partyId).toEqual(originalContest.partyId);
-    }
-  }
 });
 
 test('can build votes from a candidates array', () => {
@@ -289,11 +228,7 @@ test('getContests', () => {
       })!,
       election: electionMinimalExhaustive,
     }).map((c) => c.id)
-  ).toMatchObject([
-    'best-animal-mammal',
-    'zoo-council-mammal',
-    'new-zoo-either-neither',
-  ]);
+  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal']);
 
   expect(
     getContests({
@@ -314,12 +249,7 @@ test('getContests', () => {
       })!,
       election: electionPrimaryNonpartisanContests,
     }).map((c) => c.id)
-  ).toMatchObject([
-    'best-animal-mammal',
-    'zoo-council-mammal',
-    'new-zoo-either-neither',
-    'kingdom',
-  ]);
+  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal', 'kingdom']);
 
   expect(
     getContests({
@@ -518,14 +448,6 @@ test('passes undefined values through', () => {
 test('uses the defaults for anything without a translation', () => {
   expect(withLocale(election, 'en-US').title).toEqual(election.title);
   expect(withLocale(election, 'fr-FR').title).toEqual(election.title);
-});
-
-test('trying to vote in the top-level ms-either-neither contest fails', () => {
-  expect(() => {
-    vote(electionWithMsEitherNeither.contests, {
-      '750000015-either-neither': ['yes'],
-    });
-  }).toThrowError();
 });
 
 test('candidate schema', () => {

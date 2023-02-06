@@ -3,12 +3,10 @@ import {
   AdjudicationReasonInfo,
   CandidateContest,
   MarkStatus,
-  MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
-import { typedAs } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   ballotAdjudicationReasons,
   adjudicationReasonDescription,
@@ -41,10 +39,6 @@ const ballotMeasure3 =
   electionMinimalExhaustiveSampleDefinition.election.contests.find(
     ({ id }) => id === 'fishing'
   ) as YesNoContest;
-const eitherNeitherQuestion =
-  electionMinimalExhaustiveSampleDefinition.election.contests.find(
-    ({ id }) => id === 'new-zoo-either-neither'
-  ) as MsEitherNeitherContest;
 
 test('an uninterpretable ballot', () => {
   expect([
@@ -309,76 +303,4 @@ test('a ballot with just a write-in', () => {
       },
     ]
   `);
-});
-
-test('a ballot with an ms-either-neither happy path', () => {
-  const reasons = [
-    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (option) => {
-        // either
-        if (
-          option.contestId === eitherNeitherQuestion.eitherNeitherContestId &&
-          option.id === 'yes'
-        ) {
-          return MarkStatus.Marked;
-        }
-
-        // second
-        if (
-          option.contestId === eitherNeitherQuestion.pickOneContestId &&
-          option.id === 'no'
-        ) {
-          return MarkStatus.Marked;
-        }
-
-        return MarkStatus.Unmarked;
-      },
-    }),
-  ];
-
-  expect(reasons).toEqual([]);
-});
-
-test('a ballot with an ms-either-neither either-neither overvote', () => {
-  const reasons = [
-    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (option) =>
-        // neither & either
-        option.contestId === eitherNeitherQuestion.eitherNeitherContestId
-          ? MarkStatus.Marked
-          : MarkStatus.Unmarked,
-    }),
-  ];
-
-  expect(reasons).toContainEqual(
-    typedAs<AdjudicationReasonInfo>({
-      type: AdjudicationReason.Overvote,
-      contestId: eitherNeitherQuestion.eitherNeitherContestId,
-      optionIds: ['yes', 'no'],
-      optionIndexes: [0, 1],
-      expected: 1,
-    })
-  );
-});
-
-test('a ballot with an ms-either-neither pick-one overvote', () => {
-  const reasons = [
-    ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (option) =>
-        // first & second
-        option.contestId === eitherNeitherQuestion.pickOneContestId
-          ? MarkStatus.Marked
-          : MarkStatus.Unmarked,
-    }),
-  ];
-
-  expect(reasons).toContainEqual(
-    typedAs<AdjudicationReasonInfo>({
-      type: AdjudicationReason.Overvote,
-      contestId: eitherNeitherQuestion.pickOneContestId,
-      optionIds: ['yes', 'no'],
-      optionIndexes: [2, 3],
-      expected: 1,
-    })
-  );
 });

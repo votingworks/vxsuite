@@ -1285,14 +1285,14 @@ snapshots['test_general_results_from_tallies 1'] = '''"10","6522","575020970","C
 "10","6539","575021535","Supervisor 03","0","NP","575032593","Chris McIntire","3","R","0",\r
 '''
 
-snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","8",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","10",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","1",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","9",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
+snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","8",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","10",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","1",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","9",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","11",\r
@@ -1332,14 +1332,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6522","775020904","School Board 05","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6522","775020904","School Board 05","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6522","775020904","School Board 05","0","NP","775032023","Michael D Thomas","0","NP","18",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","7",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","6",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","7",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","6",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","3",\r
@@ -1374,14 +1374,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6524","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6524","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6524","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","9",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","6",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","1",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","6",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","6",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","1",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","6",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -1417,14 +1417,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6525","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6525","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","1",\r
 "10","6525","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","6",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","5",\r
@@ -1459,14 +1459,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6526","775020901","Election Commissioner 03","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6526","775020901","Election Commissioner 03","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6526","775020901","Election Commissioner 03","0","NP","775032018","Dorothy Anderson","0","NP","6",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","10",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","10",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","3",\r
@@ -1501,14 +1501,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6527","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6527","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6527","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","12",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -1544,14 +1544,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6528","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6528","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","4",\r
 "10","6528","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","0",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","6",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","6",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","6",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","6",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","4",\r
@@ -1586,14 +1586,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6529","775020901","Election Commissioner 03","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6529","775020901","Election Commissioner 03","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6529","775020901","Election Commissioner 03","0","NP","775032018","Dorothy Anderson","0","NP","8",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","3",\r
@@ -1629,14 +1629,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6532","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6532","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","3",\r
 "10","6532","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","2",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","4",\r
@@ -1672,14 +1672,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6534","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6534","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","2",\r
 "10","6534","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","4",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","3",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","3",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","4",\r
@@ -1715,14 +1715,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6536","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6536","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","5",\r
 "10","6536","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","1",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","3",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","3",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","4",\r
@@ -1758,14 +1758,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6537","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6537","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","3",\r
 "10","6537","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","4",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","0",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","0",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","1",\r
@@ -1800,14 +1800,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6538","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6538","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6538","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","2",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","5",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","5",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","5",\r
@@ -1844,14 +1844,14 @@ snapshots['test_general_results_from_tallies 2'] = '''"10","6522","750000015","B
 "10","6539","775020901","Election Commissioner 03","0","NP","775032018","Dorothy Anderson","0","NP","10",\r
 '''
 
-snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","7",\r
-"10","6522","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","11",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","11",\r
-"10","6522","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
+snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","7",\r
+"10","6522","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","11",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","11",\r
+"10","6522","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","7",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","2",\r
 "10","6522","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","10",\r
@@ -1891,14 +1891,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6522","775020904","School Board 05","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6522","775020904","School Board 05","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6522","775020904","School Board 05","0","NP","775032023","Michael D Thomas","0","NP","19",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
-"10","6524","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
-"10","6524","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
+"10","6524","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
+"10","6524","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6524","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -1933,14 +1933,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6524","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6524","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6524","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","6",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","6",\r
-"10","6525","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
-"10","6525","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","6",\r
+"10","6525","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
+"10","6525","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6525","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","5",\r
@@ -1976,14 +1976,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6525","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6525","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","5",\r
 "10","6525","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","6",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6526","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
-"10","6526","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6526","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
+"10","6526","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6526","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -2018,14 +2018,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6526","775020901","Election Commissioner 03","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6526","775020901","Election Commissioner 03","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6526","775020901","Election Commissioner 03","0","NP","775032018","Dorothy Anderson","0","NP","8",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","1",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
-"10","6527","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","1",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","0",\r
-"10","6527","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","1",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
+"10","6527","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","1",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","0",\r
+"10","6527","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6527","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -2060,14 +2060,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6527","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6527","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6527","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","5",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6528","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","1",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","4",\r
-"10","6528","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6528","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","1",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","4",\r
+"10","6528","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","1",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6528","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","3",\r
@@ -2103,14 +2103,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6528","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6528","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","3",\r
 "10","6528","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","4",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","2",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","5",\r
-"10","6529","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","2",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","1",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","4",\r
-"10","6529","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","2",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","5",\r
+"10","6529","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","2",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","1",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","4",\r
+"10","6529","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","1",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6529","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","4",\r
@@ -2145,14 +2145,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6529","775020901","Election Commissioner 03","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6529","775020901","Election Commissioner 03","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6529","775020901","Election Commissioner 03","0","NP","775032018","Dorothy Anderson","0","NP","11",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","4",\r
-"10","6532","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
-"10","6532","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","4",\r
+"10","6532","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","5",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","5",\r
+"10","6532","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6532","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","5",\r
@@ -2188,14 +2188,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6532","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6532","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","3",\r
 "10","6532","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","5",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6534","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
-"10","6534","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6534","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","3",\r
+"10","6534","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","2",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6534","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","1",\r
@@ -2231,14 +2231,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6534","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6534","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","1",\r
 "10","6534","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","4",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6536","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","0",\r
-"10","6536","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","3",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6536","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","0",\r
+"10","6536","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","3",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6536","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","0",\r
@@ -2274,14 +2274,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6536","775020900","Election Commissioner 02","0","NP","2","Times Under Voted","0","NP","1",\r
 "10","6536","775020900","Election Commissioner 02","0","NP","775032016","Charles Beck","0","NP","1",\r
 "10","6536","775020900","Election Commissioner 02","0","NP","775032017","Sharon Brooks","0","NP","1",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
-"10","6537","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
-"10","6537","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","3",\r
+"10","6537","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
+"10","6537","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","4",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6537","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","3",\r
@@ -2317,14 +2317,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6537","775020902","Election Commissioner 04","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6537","775020902","Election Commissioner 04","0","NP","775032019","Willie Mae Guillory","0","NP","2",\r
 "10","6537","775020902","Election Commissioner 04","0","NP","775032020","Lewis Wright","0","NP","3",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
-"10","6538","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
-"10","6538","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","2",\r
+"10","6538","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","4",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","1",\r
+"10","6538","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","5",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6538","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","2",\r
@@ -2359,14 +2359,14 @@ snapshots['test_general_results_from_tallies 3'] = '''"10","6522","750000015","B
 "10","6538","775020899","Election Commissioner  01","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6538","775020899","Election Commissioner  01","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6538","775020899","Election Commissioner  01","0","NP","775032015","Glynda Chaney Fulce","0","NP","6",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
-"10","6539","750000015","Ballot Measure 1","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","1","Times Over Voted","0","NP","0",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","2","Times Under Voted","0","NP","0",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
-"10","6539","750000016","Ballot Measure 1","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000088","FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A","0","NP","1",\r
+"10","6539","750000015","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000089","AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A","0","NP","2",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","1","Times Over Voted","0","NP","0",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","2","Times Under Voted","0","NP","0",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000090","FOR Initiative Measure No. 65","0","NP","2",\r
+"10","6539","750000016","Ballot Measure 1: Initiated by Petition and Alternative by Legislature","0","NP","750000091","FOR Alternative Measure 65 A","0","NP","1",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","1","Times Over Voted","0","NP","0",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","2","Times Under Voted","0","NP","0",\r
 "10","6539","750000017","Ballot Measure 2: House Concurrent Resolution No. 47","0","NP","750000094","YES","0","NP","1",\r

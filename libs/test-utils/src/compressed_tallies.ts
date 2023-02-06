@@ -11,9 +11,6 @@ export function getZeroCompressedTally(election: Election): CompressedTally {
     if (contest.type === 'yesno') {
       return [0, 0, 0, 0, 0];
     }
-    if (contest.type === 'ms-either-neither') {
-      return [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    }
     if (contest.type === 'candidate') {
       if (contest.allowWriteIns) {
         return [0, 0, 0, 0, ...contest.candidates.map(() => 0)];

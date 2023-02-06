@@ -12,10 +12,8 @@ import {
   ContestTallyMeta,
   Dictionary,
   Election,
-  expandEitherNeitherContests,
   FullElectionTally,
   getBallotStyle,
-  getEitherNeitherContests,
   Optional,
   PartyId,
   PrecinctId,
@@ -58,19 +56,7 @@ export function buildVoteFromCvr({
   const vote: VotesDict = {};
   const mutableCvr: CastVoteRecord = { ...cvr };
 
-  // If the CVR is malformed for this question -- only one of the pair'ed contest IDs
-  // is there -- we don't want to count this as a ballot in this contest.
-  for (const c of getEitherNeitherContests(election.contests)) {
-    const hasEitherNeither = mutableCvr[c.eitherNeitherContestId] !== undefined;
-    const hasPickOne = mutableCvr[c.pickOneContestId] !== undefined;
-
-    if (!(hasEitherNeither && hasPickOne)) {
-      mutableCvr[c.eitherNeitherContestId] = undefined;
-      mutableCvr[c.pickOneContestId] = undefined;
-    }
-  }
-
-  for (const contest of expandEitherNeitherContests(election.contests)) {
+  for (const contest of election.contests) {
     if (!mutableCvr[contest.id]) {
       continue;
     }
@@ -139,7 +125,7 @@ export function tallyVotesByContest({
 }: TallyParams): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {};
 
-  for (const contest of expandEitherNeitherContests(election.contests)) {
+  for (const contest of election.contests) {
     const tallies: Dictionary<ContestOptionTally> = {};
     if (contest.type === 'yesno') {
       tallies['yes'] = { option: ['yes'], tally: 0 };
@@ -420,13 +406,13 @@ function filterContestTalliesByParty(
 ): Dictionary<ContestTally> {
   if (partyFilter === ALL_PARTY_FILTER) return contestTallies;
 
-  const contestIds = expandEitherNeitherContests(
-    election.contests.filter(
+  const contestIds = election.contests
+    .filter(
       (contest) =>
         contest.partyId ===
         (partyFilter === NONPARTISAN_FILTER ? undefined : partyFilter)
     )
-  ).map((contest) => contest.id);
+    .map((contest) => contest.id);
 
   const filteredContestTallies: Dictionary<ContestTally> = {};
   for (const contestId of Object.keys(contestTallies)) {
