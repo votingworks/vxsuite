@@ -6,13 +6,11 @@ import {
   BallotIdSchema,
   BallotType,
   BallotTypeMaximumValue,
-  Candidate,
   CompletedBallot,
   getContests,
   HmpbBallotPageMetadata,
   isVotePresent,
   unsafeParse,
-  Vote,
   vote,
   VotesDict,
 } from '@votingworks/types';
@@ -407,100 +405,6 @@ it('encodes & decodes yesno votes correctly', () => {
   expect(encodeBallot(election, decodeBallot(election, encodedBallot))).toEqual(
     encodedBallot
   );
-});
-
-it('encodes & decodes ms-either-neither votes correctly', () => {
-  const { election, electionHash } = electionWithMsEitherNeitherDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts.find(
-    (p) => p.id === ballotStyle.precincts[0]!
-  )!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
-  const contests = getContests({ ballotStyle, election });
-  const votePermutations: Array<{
-    [key: string]: Vote | string | string[] | Candidate;
-  }> = [
-    { '750000015': ['yes'], '750000016': ['no'] },
-    { '750000015': ['yes'], '750000016': ['yes'] },
-    { '750000015': ['no'], '750000016': ['no'] },
-    { '750000015': ['no'], '750000016': ['yes'] },
-    { '750000016': ['yes'] },
-    { '750000015': ['no'] },
-    {},
-  ];
-
-  for (const rawVote of votePermutations) {
-    const votes = vote(contests, rawVote);
-    const ballot: CompletedBallot = {
-      electionHash,
-      ballotId,
-      ballotStyleId,
-      precinctId,
-      votes,
-      isTestMode: false,
-      ballotType: BallotType.Standard,
-    };
-    const encodedBallot = new BitWriter()
-      // prelude + version number
-      .writeString('VX', { includeLength: false, length: 2 })
-      .writeUint8(2)
-      // election hash
-      .writeString(electionHash.slice(0, ELECTION_HASH_LENGTH), {
-        encoding: HexEncoding,
-        includeLength: false,
-        length: ELECTION_HASH_LENGTH,
-      })
-      // check data
-      .writeUint8(
-        toUint8(election.precincts.length),
-        toUint8(election.ballotStyles.length),
-        toUint8(election.contests.length)
-      )
-      // precinct index
-      .writeUint(election.precincts.indexOf(precinct), {
-        max: election.precincts.length - 1,
-      })
-      // ballot style index
-      .writeUint(election.ballotStyles.indexOf(ballotStyle), {
-        max: election.ballotStyles.length - 1,
-      })
-      // test ballot?
-      .writeBoolean(false)
-      // ballot type
-      .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
-      // ballot id?
-      .writeBoolean(true)
-      // ballot id
-      .writeString('abcde')
-      // vote roll call
-      .with((bits) => {
-        for (const contest of contests) {
-          if (contest.id === '750000015-either-neither') {
-            bits.writeBoolean('750000015' in rawVote);
-            bits.writeBoolean('750000016' in rawVote);
-          } else {
-            bits.writeBoolean(isVotePresent(votes[contest.id]));
-          }
-        }
-      })
-      // vote data
-      .with((bits) => {
-        if (Array.isArray(rawVote['750000015'])) {
-          bits.writeBoolean(rawVote['750000015'][0] === 'yes');
-        }
-        if (Array.isArray(rawVote['750000016'])) {
-          bits.writeBoolean(rawVote['750000016'][0] === 'yes');
-        }
-      })
-      .toUint8Array();
-
-    expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-    expect(
-      encodeBallot(election, decodeBallot(election, encodedBallot))
-    ).toEqual(encodedBallot);
-  }
 });
 
 it('throws on trying to encode a bad yes/no vote', () => {

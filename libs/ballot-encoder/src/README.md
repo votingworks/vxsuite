@@ -105,9 +105,7 @@ encoded as follows:
 - **Roll Call**: Encodes which contests have votes using one bit per contest,
   where a bit at offset `i` from the start of this section is set if and only if
   there is a vote record for `ED.election.contests[i]`, i.e.
-  `B.votes[E.contests[i].id]` has a value. In the case of `ms-either-neither`
-  contests, two bits are used, one for each of the two subcontests
-  (`eitherNeitherContestId` and `pickOneContestId`).
+  `B.votes[E.contests[i].id]` has a value.
   - Size: `count(ED.election.contests)` bits.
 - **Vote Data**: Encodes `B.votes[k]` for all keys `k` in `B.votes` ordered by
   `ED.election.contests` they appear in `ED.election.contests`, encoding data
@@ -116,9 +114,6 @@ encoded as follows:
   - **`yesno` contests**: Uses a single bit to represent `"yes"` (bit set) or
     `"no"` (bit unset).
     - Size: 1 bit.
-  - **`ms-either-neither` contests**: Use two bits, one to represent
-    `"yes"`/`"either"` and `"no"`/`"neither"`, and a second one to represent
-    `"yes"`/`"in favor of first"` and `"no"`/`"in favor of second"`.
   - **`candidate` contests**: Encodes candidate selection followed by write-ins,
     if applicable:
     - **Selections:** Uses one bit per candidate to indicate whether each
