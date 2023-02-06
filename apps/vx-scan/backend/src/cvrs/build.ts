@@ -120,8 +120,6 @@ export function buildCastVoteRecordVotesEntries(
     const interpretedOptionIds = getOptionIdsForContestVote(contest, votes);
     const writeInOptions = getWriteInOptionIdsForContestVote(contest, votes);
 
-    // HINT: Do not use `contest.id` in this loop, use `option.contestId`.
-    // `contest.id !== option.contestId` for `ms-either-neither` contests.
     for (const option of allContestOptions(contest, writeInOptions)) {
       const interpretedContestOptionPair = interpretedOptionIds.find(
         ([contestId, optionId]) =>
