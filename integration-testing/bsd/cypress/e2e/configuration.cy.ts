@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { methodUrl } from '@votingworks/grout';
 import { sha256 } from 'js-sha256';
 
 const PIN = '000000';
@@ -33,8 +34,13 @@ function removeCard() {
   });
 }
 
+function logOut() {
+  cy.request('POST', methodUrl('logOut', 'http://localhost:3000/api'), {});
+}
+
 describe('BSD and services/Scan', () => {
   beforeEach(() => {
+    logOut();
     // Unconfigure services/scan
     cy.request('DELETE', '/central-scanner/config/election');
     mockElectionManagerCard();

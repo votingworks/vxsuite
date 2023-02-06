@@ -7,6 +7,8 @@ import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 
+export type { Api } from './central_scanner_app';
+
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvPath = '.env';
 const dotenvFiles: string[] = [

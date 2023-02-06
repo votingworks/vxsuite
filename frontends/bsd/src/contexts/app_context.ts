@@ -1,5 +1,5 @@
 import { LoggingUserRole, LogSource, Logger } from '@votingworks/logging';
-import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
+import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createContext } from 'react';
@@ -12,7 +12,7 @@ export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
   electionHash?: string;
   storage: Storage;
-  auth: DippedSmartcardAuth.Auth;
+  auth: DippedSmartCardAuth.AuthStatus;
   logger: Logger;
 }
 

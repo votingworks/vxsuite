@@ -2,7 +2,7 @@ import './polyfills';
 import React from 'react';
 import ReactDom from 'react-dom';
 import './i18n';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
   BooleanEnvironmentVariableName,
@@ -11,16 +11,11 @@ import {
   LocalStorage,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import {
-  ErrorBoundary,
-  Prose,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
-  Text,
-} from '@votingworks/ui';
+import { ErrorBoundary, Prose, Text } from '@votingworks/ui';
 import { App } from './app';
 import { ElectionManagerStoreAdminBackend } from './lib/backends';
 import { ServicesContext } from './contexts/services_context';
-import { ApiClientContext, createApiClient } from './api';
+import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
 const storage = window.kiosk
   ? new KioskStorage(window.kiosk)
@@ -28,9 +23,7 @@ const storage = window.kiosk
 const logger = new Logger(LogSource.VxAdminFrontend, window.kiosk);
 const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 const apiClient = createApiClient();
-const queryClient = new QueryClient({
-  defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
-});
+const queryClient = createQueryClient();
 
 ReactDom.render(
   <React.StrictMode>

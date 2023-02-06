@@ -226,10 +226,8 @@ test('authentication works', async () => {
 
   // Disconnect card reader
   act(() => hardware.setCardReaderConnected(false));
-  await advanceTimersAndPromises(1);
   await screen.findByText('Card Reader Not Detected');
   act(() => hardware.setCardReaderConnected(true));
-  await advanceTimersAndPromises(1);
   await screen.findByText('VxAdmin is Locked');
 
   // Insert an election manager card and enter the wrong code.
@@ -261,19 +259,16 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await advanceTimersAndPromises(1);
   await screen.findByText('VxAdmin is Locked');
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
-    reason: 'invalid_user_on_card',
+    reason: 'user_role_not_allowed',
   });
-  await advanceTimersAndPromises(1);
   await screen.findByText('Invalid Card');
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await advanceTimersAndPromises(1);
 
   // Insert election manager card and enter correct code.
   setAuthStatus(mockApiClient, {
@@ -282,7 +277,6 @@ test('authentication works', async () => {
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
-  await advanceTimersAndPromises(1);
   mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));

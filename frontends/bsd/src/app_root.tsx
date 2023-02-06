@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
-  Card,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -25,7 +24,6 @@ import {
   Text,
   UsbControllerButton,
   useDevices,
-  useDippedSmartcardAuth,
   useUsbDrive,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -49,6 +47,7 @@ import { MainNav } from './components/main_nav';
 import { ExportResultsModal } from './components/export_results_modal';
 import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
+import { checkPin, getAuthStatus, logOut } from './api';
 
 const Buttons = styled.div`
   padding: 10px 0;
@@ -58,12 +57,14 @@ const Buttons = styled.div`
 `;
 
 export interface AppRootProps {
-  card: Card;
   hardware: Hardware;
   logger: Logger;
 }
 
-export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
+export function AppRoot({
+  hardware,
+  logger,
+}: AppRootProps): JSX.Element | null {
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [electionDefinition, setElectionDefinition] =
@@ -92,16 +93,14 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     hardware,
     logger,
   });
-  const auth = useDippedSmartcardAuth({
-    cardApi: card,
-    logger,
-    scope: {
-      // By default with dipped smartcard auth, only system administrators have this ability
-      allowElectionManagersToAccessUnconfiguredMachines: true,
-      electionDefinition,
-    },
-  });
-  const userRole = auth.status === 'logged_in' ? auth.user.role : 'unknown';
+
+  const authStatusQuery = getAuthStatus.useQuery();
+  const userRole =
+    authStatusQuery.data?.status === 'logged_in'
+      ? authStatusQuery.data.user.role
+      : 'unknown';
+  const checkPinMutation = checkPin.useMutation();
+  const logOutMutation = logOut.useMutation();
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
@@ -496,6 +495,11 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     ? new KioskStorage(window.kiosk)
     : new LocalStorage();
 
+  if (!authStatusQuery.isSuccess) {
+    return null;
+  }
+  const authStatus = authStatusQuery.data;
+
   if (!cardReader) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
@@ -506,37 +510,42 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     machineConfig,
     storage,
     logger,
-    auth,
+    auth: authStatus,
   };
 
-  if (auth.status === 'logged_out') {
-    if (auth.reason === 'machine_locked') {
+  if (authStatus.status === 'logged_out') {
+    if (authStatus.reason === 'machine_locked') {
       return (
         <AppContext.Provider value={currentContext}>
           <MachineLockedScreen />
         </AppContext.Provider>
       );
     }
-    if (auth.reason === 'machine_not_configured') {
+    if (authStatus.reason === 'machine_not_configured') {
       return (
         <InvalidCardScreen
-          reason={auth.reason}
+          reason={authStatus.reason}
           recommendedAction="Please insert an Election Manager card."
         />
       );
     }
-    return <InvalidCardScreen reason={auth.reason} />;
+    return <InvalidCardScreen reason={authStatus.reason} />;
   }
 
-  if (auth.status === 'checking_passcode') {
-    return <UnlockMachineScreen auth={auth} />;
+  if (authStatus.status === 'checking_passcode') {
+    return (
+      <UnlockMachineScreen
+        auth={authStatus}
+        checkPin={(pin) => checkPinMutation.mutate({ pin })}
+      />
+    );
   }
 
-  if (auth.status === 'remove_card') {
+  if (authStatus.status === 'remove_card') {
     return <RemoveCardScreen productName="VxCentralScan" />;
   }
 
-  if (isSystemAdministratorAuth(auth)) {
+  if (isSystemAdministratorAuth(authStatus)) {
     return (
       <AppContext.Provider value={currentContext}>
         <Screen>
@@ -563,7 +572,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
             />
           )}
           <MainNav>
-            <Button small onPress={() => auth.logOut()}>
+            <Button small onPress={() => logOutMutation.mutate()}>
               Lock Machine
             </Button>
           </MainNav>
@@ -597,7 +606,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
               </div>
             </Main>
             <MainNav isTestMode={false}>
-              <Button small onPress={() => auth.logOut()}>
+              <Button small onPress={() => logOutMutation.mutate()}>
                 Lock Machine
               </Button>
             </MainNav>
@@ -657,7 +666,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                   usbDriveStatus={usbDrive.status}
                   usbDriveEject={() => usbDrive.eject(userRole)}
                 />
-                <Button small onPress={() => auth.logOut()}>
+                <Button small onPress={() => logOutMutation.mutate()}>
                   Lock Machine
                 </Button>
                 <LinkButton small to="/admin">

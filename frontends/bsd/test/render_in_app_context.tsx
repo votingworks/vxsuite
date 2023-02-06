@@ -1,14 +1,17 @@
-import { render as testRender, RenderResult } from '@testing-library/react';
+import { render, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
 import { Dipped } from '@votingworks/test-utils';
-import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
+import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
+import { createMockApiClient } from './api';
 
 interface RenderInAppContextParams {
   route?: string;
@@ -18,8 +21,10 @@ interface RenderInAppContextParams {
   usbDriveStatus?: UsbDriveStatus;
   usbDriveEject?: () => void;
   storage?: Storage;
-  auth?: DippedSmartcardAuth.Auth;
+  auth?: DippedSmartCardAuth.AuthStatus;
   logger?: Logger;
+  apiClient?: ApiClient;
+  queryClient?: QueryClient;
 }
 
 export function makeAppContext({
@@ -45,7 +50,7 @@ export function makeAppContext({
   };
 }
 
-export function renderInAppContext(
+export function wrapInAppContext(
   component: React.ReactNode,
   {
     route = '/',
@@ -57,21 +62,34 @@ export function renderInAppContext(
     storage,
     auth,
     logger,
+    apiClient = createMockApiClient(),
+    queryClient = createQueryClient(),
   }: RenderInAppContextParams = {}
-): RenderResult {
-  return testRender(
-    <AppContext.Provider
-      value={makeAppContext({
-        electionDefinition,
-        machineConfig: { machineId, codeVersion: 'TEST' },
-        usbDriveStatus,
-        usbDriveEject,
-        storage,
-        auth,
-        logger,
-      })}
-    >
-      <Router history={history}>{component}</Router>
-    </AppContext.Provider>
+): React.ReactElement {
+  return (
+    <ApiClientContext.Provider value={apiClient}>
+      <QueryClientProvider client={queryClient}>
+        <AppContext.Provider
+          value={makeAppContext({
+            electionDefinition,
+            machineConfig: { machineId, codeVersion: 'TEST' },
+            usbDriveStatus,
+            usbDriveEject,
+            storage,
+            auth,
+            logger,
+          })}
+        >
+          <Router history={history}>{component}</Router>
+        </AppContext.Provider>
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
   );
+}
+
+export function renderInAppContext(
+  component: React.ReactNode,
+  params: RenderInAppContextParams = {}
+): RenderResult {
+  return render(wrapInAppContext(component, params));
 }

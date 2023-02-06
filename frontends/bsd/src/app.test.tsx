@@ -11,31 +11,35 @@ import { act } from 'react-dom/test-utils';
 import {
   electionSample,
   electionSampleDefinition,
-  electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
+  fakeElectionManagerUser,
   fakeKiosk,
+  fakeSystemAdministratorUser,
   hasTextAcrossElements,
-  makeElectionManagerCard,
-  makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { typedAs, sleep } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
-import {
-  ElectionManagerCardData,
-  PollWorkerCardData,
-} from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { fakeLogger } from '@votingworks/logging';
 import { download } from './util/download';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
+import { createMockApiClient, MockApiClient, setAuthStatus } from '../test/api';
 
 jest.mock('./util/download');
 
+let mockApiClient: MockApiClient;
+
 beforeEach(() => {
+  jest.restoreAllMocks();
+
   window.kiosk = undefined;
+
+  mockApiClient = createMockApiClient();
+
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
     '/central-scanner/scan/status',
@@ -64,53 +68,38 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  mockApiClient.assertComplete();
   expect(fetchMock.done()).toEqual(true);
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
-async function authenticateWithSystemAdministratorCard(card: MemoryCard) {
-  await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(makeSystemAdministratorCard());
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
+export async function authenticateAsSystemAdministrator(
+  lockScreenText = 'VxCentralScan is Locked'
+): Promise<void> {
+  // First verify that we're logged out
+  await screen.findByText(lockScreenText);
+
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  });
   await screen.findByText('Lock Machine');
 }
 
-async function authenticateWithElectionManagerCard(
-  card: MemoryCard,
-  options: { isMachineConfigured?: boolean } = {}
-) {
-  const isMachineConfigured = options.isMachineConfigured ?? true;
+export async function authenticateAsElectionManager(
+  electionDefinition: ElectionDefinition,
+  lockScreenText = 'VxCentralScan is Locked'
+): Promise<void> {
+  // First verify that we're logged out
+  await screen.findByText(lockScreenText);
 
-  await screen.findByText(
-    isMachineConfigured
-      ? 'VxCentralScan is Locked'
-      : 'VxCentralScan is Not Configured'
-  );
-  await screen.findByText(
-    isMachineConfigured
-      ? 'Insert Election Manager card to unlock.'
-      : 'Insert Election Manager card to configure.'
-  );
-  card.insertCard(
-    makeElectionManagerCard(electionSampleDefinition.electionHash)
-  );
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionDefinition.electionHash,
+    }),
+  });
   await screen.findByText('Lock Machine');
 }
 
@@ -136,9 +125,8 @@ test('renders without crashing', async () => {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
   await waitFor(() => fetchMock.called());
 });
 
@@ -160,10 +148,9 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const result = render(<App card={card} hardware={hardware} />);
-  await authenticateWithElectionManagerCard(card);
+  const result = render(<App apiClient={mockApiClient} hardware={hardware} />);
+  await authenticateAsElectionManager(electionSampleDefinition);
 
   fireEvent.click(result.getByText('Admin'));
 
@@ -188,24 +175,17 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const logger = fakeLogger();
 
   const result = render(
-    <App card={card} hardware={hardware} logger={logger} />
+    <App apiClient={mockApiClient} hardware={hardware} logger={logger} />
   );
-  await authenticateWithElectionManagerCard(card);
+  await authenticateAsElectionManager(electionSampleDefinition);
 
   fireEvent.click(result.getByText('Admin'));
 
   result.getByText('Toggle to Live Mode');
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthLogin,
-    'election_manager',
-    expect.objectContaining({ disposition: 'success' })
-  );
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
@@ -235,12 +215,13 @@ test('clicking Scan Batch will scan a batch', async () => {
 
   const mockAlert = jest.fn();
   window.alert = mockAlert;
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
   await act(async () => {
-    const { getByText } = render(<App card={card} hardware={hardware} />);
-    await authenticateWithElectionManagerCard(card);
+    const { getByText } = render(
+      <App apiClient={mockApiClient} hardware={hardware} />
+    );
+    await authenticateAsElectionManager(electionSampleDefinition);
     fireEvent.click(getByText('Scan New Batch'));
   });
 
@@ -291,13 +272,12 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
       { overwriteRoutes: true }
     );
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, queryByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
+    <App apiClient={mockApiClient} hardware={hardware} />
   );
-  await authenticateWithElectionManagerCard(card);
+  await authenticateAsElectionManager(electionSampleDefinition);
   const exportingModalText = 'No USB Drive Detected';
 
   await act(async () => {
@@ -346,14 +326,14 @@ test('configuring election from usb ballot package works end to end', async () =
       status: 200,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
+    <App apiClient={mockApiClient} hardware={hardware} />
   );
-  await authenticateWithElectionManagerCard(card, {
-    isMachineConfigured: false,
-  });
+  await authenticateAsElectionManager(
+    electionSampleDefinition,
+    'VxCentralScan is Not Configured'
+  );
 
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
@@ -417,7 +397,6 @@ test('configuring election from usb ballot package works end to end', async () =
 });
 
 test('authentication works', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setBatchScannerConnected(false);
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
@@ -438,18 +417,9 @@ test('authentication works', async () => {
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  render(<App card={card} hardware={hardware} />);
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
-  const electionManagerCard: ElectionManagerCardData = {
-    t: 'election_manager',
-    h: electionSampleDefinition.electionHash,
-    p: '123456',
-  };
-  const pollWorkerCard: PollWorkerCardData = {
-    t: 'poll_worker',
-    h: electionSampleDefinition.electionHash,
-  };
 
   // Disconnect card reader
   act(() => {
@@ -462,10 +432,11 @@ test('authentication works', async () => {
   await screen.findByText('VxCentralScan is Locked');
 
   // Insert an election manager card and enter the wrong code.
-  card.insertCard(electionManagerCard);
-  await act(async () => {
-    await sleep(100);
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser(electionSampleDefinition),
   });
+  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -473,29 +444,35 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser(electionSampleDefinition),
+    wrongPasscodeEnteredAt: new Date(),
+  });
   await screen.findByText('Invalid code. Please try again.');
 
-  // Remove card and insert a pollworker card.
-  card.removeCard();
-  await act(async () => {
-    await sleep(100);
+  // Remove card and insert an invalid card, e.g. a pollworker card.
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
   });
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(pollWorkerCard);
-  await act(async () => {
-    await sleep(100);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'user_role_not_allowed',
   });
   await screen.findByText('Invalid Card');
-  card.removeCard();
-  await act(async () => {
-    await sleep(100);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
   });
 
   // Insert election manager card and enter correct code.
-  card.insertCard(electionManagerCard);
-  await act(async () => {
-    await sleep(100);
+  setAuthStatus(mockApiClient, {
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser(electionSampleDefinition),
   });
+  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -505,39 +482,27 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
+  setAuthStatus(mockApiClient, {
+    status: 'remove_card',
+    user: fakeElectionManagerUser(electionSampleDefinition),
+  });
   await screen.findByText('Remove card to continue.');
   screen.getByText('VxCentralScan Unlocked');
 
   // Machine is unlocked when card removed
-  card.removeCard();
-  await act(async () => {
-    await sleep(100);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser(electionSampleDefinition),
   });
   await screen.findByText('No Scanner');
-
-  // The card and other cards can be inserted with no impact.
-  card.insertCard(electionManagerCard);
-  await act(async () => {
-    await sleep(100);
-  });
-  await screen.findByText('No Scanner');
-  card.removeCard();
-  await act(async () => {
-    await sleep(100);
-  });
-  await screen.findByText('No Scanner');
-  card.insertCard(pollWorkerCard);
-  await act(async () => {
-    await sleep(100);
-  });
-  await screen.findByText('No Scanner');
-  card.removeCard();
-  await act(async () => {
-    await sleep(100);
-  });
 
   // Lock the machine
+  mockApiClient.logOut.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Lock Machine'));
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   await screen.findByText('VxCentralScan is Locked');
 });
 
@@ -566,11 +531,10 @@ test('system administrator can log in and unconfigure machine', async () => {
       body: deleteElectionConfigResponseBody,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
 
-  await authenticateWithSystemAdministratorCard(card);
+  await authenticateAsSystemAdministrator();
 
   screen.getByRole('button', { name: 'Reboot from USB' });
   screen.getByRole('button', { name: 'Reboot to BIOS' });
@@ -585,10 +549,12 @@ test('system administrator can log in and unconfigure machine', async () => {
       name: 'Yes, Delete Election Data',
     })
   );
+  fetchMock.get(
+    '/central-scanner/config/election',
+    { body: 'null' },
+    { overwriteRoutes: false }
+  );
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
-
-  userEvent.click(screen.getByText('Lock Machine'));
-  await screen.findByText('VxCentralScan is Locked');
 });
 
 test('election manager cannot auth onto machine with different election hash', async () => {
@@ -608,16 +574,46 @@ test('election manager cannot auth onto machine with different election hash', a
       body: getMarkThresholdOverridesResponseBody,
     });
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(
-    makeElectionManagerCard(electionSample2Definition.electionHash)
-  );
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'election_manager_wrong_election',
+  });
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.'
   );
+});
+
+test('error boundary', async () => {
+  // Avoid cluttering the test output
+  jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
+    electionSampleDefinition;
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  };
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+    { status: 'ok' };
+
+  fetchMock
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    });
+
+  const hardware = MemoryHardware.buildStandard();
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
+
+  await authenticateAsElectionManager(electionSampleDefinition);
+
+  mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
+  userEvent.click(screen.getByText('Lock Machine'));
+  await screen.findByText('Something went wrong');
 });

@@ -28,12 +28,19 @@ import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { typedAs } from '@votingworks/basics';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { Server } from 'http';
+import * as grout from '@votingworks/grout';
+import { fakeLogger } from '@votingworks/logging';
+import { mockOf } from '@votingworks/test-utils';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
-import { makeMock } from '../test/util/mocks';
+import { buildMockAuth, makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './central_scanner_app';
 import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
+import { start } from './server';
+import { PORT } from './globals';
 
 jest.mock('./importer');
 
@@ -44,11 +51,14 @@ const exporter = new Exporter({
 });
 
 let app: Application;
-let workspace: Workspace;
+let auth: DippedSmartCardAuthApi;
 let importer: jest.Mocked<Importer>;
+let server: Server;
+let workspace: Workspace;
 
 beforeEach(async () => {
   mockGetUsbDrives.mockReset();
+  auth = buildMockAuth();
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
@@ -66,7 +76,7 @@ beforeEach(async () => {
     ballotMetadata,
     getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
-  app = await buildCentralScannerApp({ exporter, importer, workspace });
+  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
 });
 
 afterEach(async () => {
@@ -74,6 +84,7 @@ afterEach(async () => {
     force: true,
     recursive: true,
   });
+  server?.close();
 });
 
 const frontOriginal = stateOfHamilton.filledInPage1Flipped;
@@ -219,6 +230,8 @@ test('GET /config/markThresholdOverrides', async () => {
 });
 
 test('PATCH /config/election', async () => {
+  mockOf(auth.setElectionDefinition).mockClear();
+
   await request(app)
     .patch('/central-scanner/config/election')
     .send(testElectionDefinition.electionData)
@@ -231,6 +244,11 @@ test('PATCH /config/election', async () => {
         title: testElectionDefinition.election.title,
       }),
     })
+  );
+  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    testElectionDefinition
   );
 
   // bad content type
@@ -299,6 +317,7 @@ test('DELETE /config/election', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
+  expect(auth.clearElectionDefinition).toHaveBeenCalledTimes(1);
 });
 
 test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequirement=true is specified', async () => {
@@ -794,4 +813,36 @@ test('get next sheet layouts', async () => {
         },
       })
     );
+});
+
+test('Auth', async () => {
+  const logger = fakeLogger();
+  server = await start({ app, logger, workspace });
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${PORT}/api`,
+  });
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+  await apiClient.logOut();
+
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+});
+
+test('Auth initial election definition configuration', async () => {
+  mockOf(auth.setElectionDefinition).mockClear();
+
+  workspace.store.setElection(
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+  await buildCentralScannerApp({ auth, exporter, importer, workspace });
+
+  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
 });

@@ -6,16 +6,16 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
-import { Dipped, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { MemoryStorage } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { safeParseJson } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { AppContext } from '../contexts/app_context';
+import {
+  renderInAppContext,
+  wrapInAppContext,
+} from '../../test/render_in_app_context';
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
@@ -152,29 +152,18 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
-    <AppContext.Provider
-      value={{
-        electionDefinition,
-        machineConfig: {
-          machineId: '0001',
-          codeVersion: 'TEST',
-        },
+    wrapInAppContext(
+      <ExportResultsModal
+        onClose={closeFn}
+        electionDefinition={electionDefinition}
+        numberOfBallots={5}
+        isTestMode
+      />,
+      {
+        history,
         usbDriveStatus: 'ejected',
-        usbDriveEject: jest.fn(),
-        storage: new MemoryStorage(),
-        auth: Dipped.fakeElectionManagerAuth(),
-        logger: new Logger(LogSource.VxCentralScanFrontend),
-      }}
-    >
-      <Router history={history}>
-        <ExportResultsModal
-          onClose={closeFn}
-          electionDefinition={electionDefinition}
-          numberOfBallots={5}
-          isTestMode
-        />
-      </Router>
-    </AppContext.Provider>
+      }
+    )
   );
   getByText(
     'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'

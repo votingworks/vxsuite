@@ -839,13 +839,6 @@ export async function start({
   port = PORT,
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
-  const auth = new DippedSmartCardAuthWithMemoryCard({
-    card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
-    config: {
-      allowElectionManagersToAccessUnconfiguredMachines: false,
-    },
-  });
-
   let resolvedWorkspace = workspace;
 
   if (workspace) {
@@ -870,7 +863,17 @@ export async function start({
   resolvedWorkspace.clearUploads();
 
   /* istanbul ignore next */
-  const resolvedApp = app ?? buildApp({ auth, workspace: resolvedWorkspace });
+  const resolvedApp =
+    app ??
+    buildApp({
+      auth: new DippedSmartCardAuthWithMemoryCard({
+        card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+        config: {
+          allowElectionManagersToAccessUnconfiguredMachines: false,
+        },
+      }),
+      workspace: resolvedWorkspace,
+    });
 
   const server = resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {

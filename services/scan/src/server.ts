@@ -1,6 +1,9 @@
 import { Exporter, getUsbDrives } from '@votingworks/data';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
+import { DippedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
+import { WebServiceCard } from '@votingworks/utils';
+import { Server } from 'http';
 import { PORT, SCAN_ALLOWED_EXPORT_PATTERNS, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -30,7 +33,7 @@ export async function start({
   app,
   logger = new Logger(LogSource.VxScanService),
   workspace,
-}: Partial<StartOptions> = {}): Promise<void> {
+}: Partial<StartOptions> = {}): Promise<Server> {
   let resolvedWorkspace: Workspace;
 
   if (workspace) {
@@ -81,6 +84,12 @@ export async function start({
   const resolvedApp =
     app ??
     (await buildCentralScannerApp({
+      auth: new DippedSmartCardAuthWithMemoryCard({
+        card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+        config: {
+          allowElectionManagersToAccessUnconfiguredMachines: true,
+        },
+      }),
       exporter: resolvedExporter,
       importer: resolvedImporter,
       workspace: resolvedWorkspace,
@@ -89,7 +98,7 @@ export async function start({
   // cleanup incomplete batches from before
   resolvedWorkspace.store.cleanupIncompleteBatches();
 
-  resolvedApp.listen(port, async () => {
+  return resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Scan Service running at http://localhost:${port}/`,
       disposition: 'success',
