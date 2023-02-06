@@ -108,7 +108,10 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
           electionPath = arg;
         } else if (
           (!frontBallotPath || !backBallotPath) &&
-          (arg?.endsWith('.jpeg') || arg?.endsWith('.jpg'))
+          (arg?.endsWith('.jpeg') ||
+            arg?.endsWith('.jpg') ||
+            arg?.endsWith('.png') ||
+            arg?.endsWith('.pgm'))
         ) {
           if (frontBallotPath) {
             backBallotPath = arg;
