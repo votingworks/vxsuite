@@ -11,6 +11,7 @@ export * from './has_text_across_elements';
 export * from './mock_function';
 export * from './mock_of';
 export * from './observable';
+export * from './react';
 export * from './smartcards';
 export * from './smartcard_auth';
 export * from './strip_election_hash';
