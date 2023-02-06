@@ -14,7 +14,7 @@ type ColorModeToolBarItem = ToolbarItem<ColorMode>;
 
 type SizeModeToolBarItem = ToolbarItem<SizeMode>;
 
-const DEFAULT_SIZE_MODE: SizeMode = "l";
+const DEFAULT_SIZE_MODE: SizeMode = "m";
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
   s: { title: 'Size Theme - S', value: 's'},
   m: { title: 'Size Theme - M', value: 'm'},
@@ -89,6 +89,7 @@ export const decorators: DecoratorFunction[] = [
     return (
       <AppBase
         colorMode={context.globals.colorMode}
+        enableScroll
         sizeMode={context.globals.sizeMode}
       >
         <Story />

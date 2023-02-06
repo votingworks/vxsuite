@@ -13,8 +13,8 @@ export enum Color {
   BLACK = '#000000',
   WHITE = '#ffffff',
 
-  LEGACY_ACCENT_DANGER = 'ff0000',
-  LEGACY_ACCENT_WARNING = 'ff8c00',
+  LEGACY_ACCENT_DANGER = '#ff0000',
+  LEGACY_ACCENT_WARNING = '#ff8c00',
   LEGACY_BACKGROUND = '#edeff0',
   LEGACY_FOREGROUND = '#263238',
   LEGACY_FOREGROUND_DISABLED = '#999999',
@@ -27,6 +27,7 @@ export interface ColorTheme {
   readonly accentDanger: Color;
   readonly accentPrimary: Color;
   readonly accentSecondary: Color;
+  readonly accentSuccess: Color;
   readonly accentWarning: Color;
   readonly background: Color;
   readonly foreground: Color;
@@ -36,6 +37,21 @@ export interface ColorTheme {
 /** Pixel size values for various UI element types. */
 export interface SizeTheme {
   readonly fontDefault: number;
+  readonly fontWeight: {
+    readonly bold: number;
+    readonly light: number;
+    readonly regular: number;
+  };
+  readonly headingsRem: {
+    readonly h1: number;
+    readonly h2: number;
+    readonly h3: number;
+    readonly h4: number;
+    readonly h5: number;
+    readonly h6: number;
+  };
+  readonly letterSpacingEm: number;
+  readonly lineHeight: number;
   // TODO: Flesh out
 }
 
