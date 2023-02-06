@@ -1,12 +1,9 @@
-import { MockScannerClient, ScannerClient } from '@votingworks/plustek-scanner';
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
-import { ok, Result } from '@votingworks/basics';
-import fs from 'fs';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
-import { MOCK_SCANNER_HTTP, MOCK_SCANNER_PORT, NODE_ENV } from './globals';
+import fs from 'fs';
+import { NODE_ENV } from './globals';
 import * as server from './server';
-import { plustekMockServer } from './plustek_mock_server';
 
 export type { Api } from './app';
 export * from './types';
@@ -38,30 +35,8 @@ for (const dotenvFile of dotenvFiles) {
 
 const logger = new Logger(LogSource.VxScanBackend);
 
-async function createMockPlustekClient(): Promise<
-  Result<ScannerClient, Error>
-> {
-  const client = new MockScannerClient();
-  await client.connect();
-  const port = MOCK_SCANNER_PORT;
-  process.stdout.write(
-    `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
-  );
-  process.stdout.write(
-    `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
-  );
-  process.stdout.write(
-    `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
-  );
-  plustekMockServer(client).listen(port);
-  return ok(client);
-}
-const createPlustekClient = MOCK_SCANNER_HTTP
-  ? createMockPlustekClient
-  : undefined;
-
 async function main(): Promise<number> {
-  await server.start({ createPlustekClient });
+  await server.start();
   return 0;
 }
 

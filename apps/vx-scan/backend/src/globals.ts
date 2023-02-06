@@ -9,16 +9,6 @@ const NodeEnvSchema = z.union([
 ]);
 
 /**
- * Use a mock scanner exposed over HTTP?
- */
-export const MOCK_SCANNER_HTTP = process.env.MOCK_SCANNER_HTTP === '1';
-
-/**
- * Default port for the API to control the mock scanner.
- */
-export const MOCK_SCANNER_PORT = 9999;
-
-/**
  * Default port for the scan API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
