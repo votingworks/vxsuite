@@ -6,7 +6,8 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true
+    "declaration": true,
+    "declarationMap": true
   },
   "references": [
     { "path": "../../libs/api/tsconfig.build.json" },
