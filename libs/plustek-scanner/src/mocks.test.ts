@@ -1,5 +1,5 @@
 import { SheetOf } from '@votingworks/types';
-import { sleep } from '@votingworks/basics';
+import { err, ok, sleep } from '@votingworks/basics';
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
 import { PaperStatus } from './paper_status';
@@ -259,19 +259,25 @@ test('calibrate', async () => {
     toggleHoldDuration: 0,
     passthroughDuration: 0,
   });
-  expect((await mock.calibrate()).err()).toEqual(ScannerError.NoDevices);
+  expect(await mock.calibrate()).toEqual(err(ScannerError.NoDevices));
   await mock.connect();
 
-  expect((await mock.calibrate()).err()).toEqual(
-    ScannerError.VtmPsDevReadyNoPaper
+  expect(await mock.calibrate()).toEqual(
+    err(ScannerError.VtmPsDevReadyNoPaper)
   );
-  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
   await mock.scan();
-  expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusNoDocs);
+  expect(await mock.calibrate()).toEqual(err(ScannerError.SaneStatusNoDocs));
   await mock.reject({ hold: true });
   await sleep(1);
-  (await mock.calibrate()).unsafeUnwrap();
+  expect(await mock.calibrate()).toEqual(ok());
   expectNoPaper((await mock.getPaperStatus()).ok());
+
+  mock.simulateCalibrateNotSupported();
+  expect(await mock.calibrate()).toEqual(err(new Error('Calibration failed')));
+
+  mock.simulateCalibrateSupported();
+  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
 });
 
 test('paper held at both sides', async () => {

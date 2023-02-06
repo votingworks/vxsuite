@@ -152,6 +152,7 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('election manager must set precinct', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
@@ -188,6 +189,7 @@ test('election manager must set precinct', async () => {
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper, 2);
   const { card, logger } = renderApp();
@@ -390,6 +392,7 @@ async function scanBallot() {
 }
 
 test('voter can cast a ballot that scans successfully ', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });

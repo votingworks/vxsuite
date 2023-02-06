@@ -79,7 +79,7 @@ export type AcceptResult = Result<void, ScannerError | Error>;
 export type RejectResult = Result<void, ScannerError | Error>;
 
 /**
- * The return type of {@link ScannerClient.calibrate}.
+ * The return type of {@link ScannerClient['calibrate']}.
  */
 export type CalibrateResult = Result<void, ScannerError | Error>;
 

@@ -96,6 +96,7 @@ export type PrecinctScannerErrorType =
   | 'paper_in_back_after_reconnect'
   | 'unexpected_paper_status'
   | 'unexpected_event'
+  | 'calibration_failed'
   | 'plustek_error';
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;

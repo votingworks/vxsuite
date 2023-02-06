@@ -227,6 +227,15 @@ async function calibrate({ client }: Context) {
   assert(client);
   debug('Calibrating');
   const calibrateResult = await client.calibrate();
+  if (
+    calibrateResult.isErr() &&
+    calibrateResult.err().toString().includes('Calibration failed')
+  ) {
+    throw new PrecinctScannerError(
+      'calibration_failed',
+      calibrateResult.err().toString()
+    );
+  }
   debug('Calibrate result: %o', calibrateResult);
   return calibrateResult.unsafeUnwrap();
 }
@@ -788,10 +797,19 @@ function buildMachine({
               invoke: {
                 src: calibrate,
                 onDone: 'checking_completed',
-                onError: {
-                  target: 'checking_completed',
-                  actions: assign({ error: (_context, event) => event.data }),
-                },
+                onError: [
+                  {
+                    cond: (_, event) =>
+                      event.data instanceof PrecinctScannerError &&
+                      event.data.type === 'calibration_failed',
+                    target: '#error',
+                    actions: assign({ error: (_context, event) => event.data }),
+                  },
+                  {
+                    target: 'checking_completed',
+                    actions: assign({ error: (_context, event) => event.data }),
+                  },
+                ],
               },
             },
             checking_completed: {
@@ -986,7 +1004,7 @@ export interface PrecinctScannerStateMachine {
   return: () => void;
   // Calibrate is the exception, which blocks until calibration is finished and
   // returns a result.
-  calibrate: () => Promise<Result<void, string>>;
+  calibrate?: () => Promise<Result<void, string>>;
 }
 
 /**

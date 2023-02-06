@@ -40,6 +40,7 @@ afterEach(() => {
 });
 
 test('shows instructions', () => {
+  apiMock.expectCheckCalibrationSupported(true);
   renderModal();
 
   screen.getByRole('heading', { name: 'Calibrate Scanner' });
@@ -48,6 +49,7 @@ test('shows instructions', () => {
 
 test('waiting for paper', async () => {
   const onCancel = jest.fn();
+  apiMock.expectCheckCalibrationSupported(true);
   renderModal({ onCancel });
 
   expect(
@@ -60,6 +62,7 @@ test('waiting for paper', async () => {
 
 test('scanner not available', async () => {
   const onCancel = jest.fn();
+  apiMock.expectCheckCalibrationSupported(true);
   renderModal({
     scannerStatus: { ...fakeScannerStatus, state: 'jammed' },
     onCancel,
@@ -75,6 +78,7 @@ test('scanner not available', async () => {
 
 test('calibrate success', async () => {
   const { promise, resolve } = deferred<boolean>();
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
   renderModal({
     // Note that in reality, scanner status would update as the scanner
@@ -92,8 +96,19 @@ test('calibrate success', async () => {
   await screen.findByText('Calibration succeeded!');
 });
 
+test('calibrate unsupported', async () => {
+  apiMock.expectCheckCalibrationSupported(false);
+  renderModal({
+    scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },
+  });
+
+  await screen.findByText('Calibration not supported');
+  userEvent.click(await screen.findByText('Cancel'));
+});
+
 test('calibrate error and cancel', async () => {
   const { promise, resolve } = deferred<boolean>();
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
   const onCancel = jest.fn();
   renderModal({
@@ -118,6 +133,7 @@ test('calibrate error and cancel', async () => {
 
 test('calibrate error and try again', async () => {
   const { promise, resolve } = deferred<boolean>();
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
   renderModal({
     // Note that in reality, scanner status would update as the scanner
@@ -142,6 +158,7 @@ test('calibrate error and try again', async () => {
 // "An update to CalibrateScannerModal inside a test was not wrapped in act(...)."
 test('unmount during calibration (e.g. if election manager card removed)', async () => {
   const { promise, resolve } = deferred<boolean>();
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
   const { unmount } = renderModal({
     scannerStatus: { ...fakeScannerStatus, state: 'ready_to_scan' },

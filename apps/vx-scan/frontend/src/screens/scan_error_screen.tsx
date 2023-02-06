@@ -38,6 +38,8 @@ export function ScanErrorScreen({
         return 'The ballot does not match the election this scanner is configured for.';
       case 'invalid_precinct':
         return 'The ballot does not match the precinct this scanner is configured for.';
+      case 'calibration_failed':
+        return 'Calibration failed.';
       case 'unreadable':
       case 'unknown':
         return 'There was a problem scanning your ballot. Please scan it again.';
