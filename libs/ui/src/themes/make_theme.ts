@@ -98,7 +98,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
       regular: 300,
     },
     headingsRem: {
-      h1: 2.5,
+      h1: 2.25,
       h2: 1.75,
       h3: 1.5,
       h4: 1.25,
@@ -116,7 +116,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
       regular: 300,
     },
     headingsRem: {
-      h1: 2.25,
+      h1: 2.125,
       h2: 1.75,
       h3: 1.5,
       h4: 1.25,
@@ -134,8 +134,8 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
       regular: 300,
     },
     headingsRem: {
-      h1: 2.25,
-      h2: 1.6,
+      h1: 2,
+      h2: 1.5,
       h3: 1.4,
       h4: 1.2,
       h5: 1.1,
@@ -152,8 +152,8 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
       regular: 300,
     },
     headingsRem: {
-      h1: 2.25,
-      h2: 1.6,
+      h1: 2,
+      h2: 1.5,
       h3: 1.4,
       h4: 1.2,
       h5: 1.1,
