@@ -1,27 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`overvote report 1`] = `
-Object {
-  "Chief-Justice-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+{
+  "Chief-Justice-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -32,20 +32,20 @@ Object {
       "title": "Chief Justice, 1st Court of Appeals",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "charles-darwin",
             "name": "Charles Darwin",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "stephen-hawking",
             "name": "Stephen Hawking",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -54,33 +54,33 @@ Object {
       },
     ],
   },
-  "District-judge-11": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-11": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, Distrito Judicial 11",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
@@ -91,58 +91,58 @@ Object {
       "title": "District Judge, 11th Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "bill-gates",
             "name": "Bill Gates",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "pablo-picasso",
             "name": "Pablo Picasso",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 11,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "bill-gates",
             "name": "Bill Gates",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "wolfgang-amadeus-mozart",
             "name": "Wolfgang Amadeus Mozart",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
         },
         "tally": 11,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "pablo-picasso",
             "name": "Pablo Picasso",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "wolfgang-amadeus-mozart",
             "name": "Wolfgang Amadeus Mozart",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
@@ -151,26 +151,26 @@ Object {
       },
     ],
   },
-  "District-judge-125": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-125": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 125º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -181,20 +181,20 @@ Object {
       "title": "District Judge, 125th Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "jane-austen",
             "name": "Jane Austen",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "carrie-fisher",
             "name": "Carrie Fisher",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -203,26 +203,26 @@ Object {
       },
     ],
   },
-  "District-judge-127": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-127": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 127º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -233,20 +233,20 @@ Object {
       "title": "District Judge, 127th Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "bob-barker",
             "name": "Bob Barker",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "angelina-jolie",
             "name": "Angelina Jolie",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -255,26 +255,26 @@ Object {
       },
     ],
   },
-  "District-judge-129": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-129": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 129° Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -285,20 +285,20 @@ Object {
       "title": "District Judge, 129th Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "salvador-dali",
             "name": "Salvador Dali",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "anne-hathaway",
             "name": "Anne Hathaway",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -307,26 +307,26 @@ Object {
       },
     ],
   },
-  "District-judge-61": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-61": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 61° Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "george-washington",
           "name": "George Washington",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -337,20 +337,20 @@ Object {
       "title": "District Judge, 61st Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "george-washington",
             "name": "George Washington",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "steven-spielberg",
             "name": "Steven Spielberg",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -359,26 +359,26 @@ Object {
       },
     ],
   },
-  "District-judge-80": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-80": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 80º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -389,20 +389,20 @@ Object {
       "title": "District Judge, 80th Judicial District",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "johan-sebastian-bach",
             "name": "Johann Sebastian Bach",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "alexander-graham-bell",
             "name": "Alexander Graham Bell",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -411,26 +411,26 @@ Object {
       },
     ],
   },
-  "Justice-1-4": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-1-4": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -441,20 +441,20 @@ Object {
       "title": "Justice, 1st Court of Appeals, Place 4",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "mark-antony",
             "name": "Mark Antony",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "harriet-tubman",
             "name": "Harriet Tubman",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -463,26 +463,26 @@ Object {
       },
     ],
   },
-  "Justice-14-2": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-14-2": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -493,20 +493,20 @@ Object {
       "title": "Justice, 14th Court of Appeals, Place 2",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "martin-luther-king",
             "name": "Dr. Martin Luther King Jr.",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "marilyn-monroe",
             "name": "Marilyn Monroe",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -515,26 +515,26 @@ Object {
       },
     ],
   },
-  "Justice-14-9": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-14-9": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -545,20 +545,20 @@ Object {
       "title": "Justice, 14th Court of Appeals, Place 9",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "nikola-tesla",
             "name": "Nikola Tesla",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "vincent-van-gogh",
             "name": "Vincent Van Gogh",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -567,26 +567,26 @@ Object {
       },
     ],
   },
-  "Justice-peace-1-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-peace-1-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Paz, Precinto 1, Lugar 1",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -597,20 +597,20 @@ Object {
       "title": "Justice of the Peace, Precinct 1, Place 1",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "julia-child",
             "name": "Julia Child",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "paul-mccartney",
             "name": "Paul McCartney",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -619,26 +619,26 @@ Object {
       },
     ],
   },
-  "comm-ag": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "comm-ag": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Comisionado de Agricultura",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -649,20 +649,20 @@ Object {
       "title": "Commissioner of Agriculture",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "helen-keller",
             "name": "Helen Keller",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "steve-jobs",
             "name": "Steve Jobs",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -671,40 +671,40 @@ Object {
       },
     ],
   },
-  "comptroller": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "comptroller": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Contralor Estatal",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -715,115 +715,115 @@ Object {
       "title": "State Comptroller",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 5,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 8,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 4,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 5,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 4,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -832,26 +832,26 @@ Object {
       },
     ],
   },
-  "constable-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "constable-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Alguacil, distrito 1",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -862,20 +862,20 @@ Object {
       "title": "Constable, Precinct 1",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "beethoven",
             "name": "Ludwig Van Beethoven",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "walt-disney",
             "name": "Walt Disney",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -884,26 +884,26 @@ Object {
       },
     ],
   },
-  "county-attorney": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "county-attorney": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Abogado del Condado",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -914,20 +914,20 @@ Object {
       "title": "County Attorney",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "isaac-newton",
             "name": "Isaac Newton",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "harry-potter",
             "name": "Harry Potter",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -936,26 +936,26 @@ Object {
       },
     ],
   },
-  "county-tax-assessor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "county-tax-assessor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Asesor-Recaudador de Impuestos del País",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -966,20 +966,20 @@ Object {
       "title": "Country Tax Assessor-Collector",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "bruce-lee",
             "name": "Bruce Lee",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "christopher-columbus",
             "name": "Christopher Columbus",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -988,26 +988,26 @@ Object {
       },
     ],
   },
-  "district-attorney": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "district-attorney": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Fiscal de Distrito",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -1018,20 +1018,20 @@ Object {
       "title": "District Attorney",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "theodore-roosevelt",
             "name": "Theodore Roosevelt",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "edgar-allan-poe",
             "name": "Edgar Allan Poe",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -1040,26 +1040,26 @@ Object {
       },
     ],
   },
-  "governor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "governor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Gobernador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -1070,20 +1070,20 @@ Object {
       "title": "Governor",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "sherlock-holmes",
             "name": "Sherlock Holmes",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "thomas-edison",
             "name": "Thomas Edison",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
@@ -1092,33 +1092,33 @@ Object {
       },
     ],
   },
-  "lieutenant-governor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "lieutenant-governor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Vicegobernador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1129,58 +1129,58 @@ Object {
       "title": "Lieutenant Governor",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "oprah-winfrey",
             "name": "Oprah Winfrey",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "louis-armstrong",
             "name": "Louis Armstrong",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 15,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "winston-churchill",
             "name": "Winston Churchill",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "oprah-winfrey",
             "name": "Oprah Winfrey",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 15,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "winston-churchill",
             "name": "Winston Churchill",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "louis-armstrong",
             "name": "Louis Armstrong",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1189,47 +1189,47 @@ Object {
       },
     ],
   },
-  "president": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "president": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Presidente",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
@@ -1240,191 +1240,191 @@ Object {
       "title": "President",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 6,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 5,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
         },
         "tally": 6,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 4,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
         },
         "tally": 5,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyIds": Array [
+            "partyIds": [
               "2",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1433,33 +1433,33 @@ Object {
       },
     ],
   },
-  "representative-district-18": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "representative-district-18": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Representante, Distrito 18",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1470,58 +1470,58 @@ Object {
       "title": "Representative, District 18",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "michael-jordan",
             "name": "Michael Jordan",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "neil-armstrong",
             "name": "Neil Armstrong",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 6,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "michael-jordan",
             "name": "Michael Jordan",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "albert-einstein",
             "name": "Albert Einstein",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 8,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "albert-einstein",
             "name": "Albert Einstein",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "neil-armstrong",
             "name": "Neil Armstrong",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1530,33 +1530,33 @@ Object {
       },
     ],
   },
-  "senator": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "senator": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Senador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "bond",
           "name": "James Bond",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1567,58 +1567,58 @@ Object {
       "title": "Senator",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "earhart",
             "name": "Amelia Earhart",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "antoinette",
             "name": "Marie Antoinette",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 4,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "earhart",
             "name": "Amelia Earhart",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "bond",
             "name": "James Bond",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 1,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "bond",
             "name": "James Bond",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "antoinette",
             "name": "Marie Antoinette",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1627,33 +1627,33 @@ Object {
       },
     ],
   },
-  "sheriff": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "sheriff": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Alguacil",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1664,58 +1664,58 @@ Object {
       "title": "Sheriff",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "robin-williams",
             "name": "Robin Williams",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "brad-pitt",
             "name": "Brad Pitt",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "robin-williams",
             "name": "Robin Williams",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "william-shakespeare",
             "name": "William Shakespeare",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
         },
         "tally": 3,
       },
-      Object {
-        "candidates": Object {
-          "first": Object {
+      {
+        "candidates": {
+          "first": {
             "id": "brad-pitt",
             "name": "Brad Pitt",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "william-shakespeare",
             "name": "William Shakespeare",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1724,26 +1724,26 @@ Object {
       },
     ],
   },
-  "ss-justic-3": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "ss-justic-3": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, Corte Suprema, Lugar 3",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "john-snow",
           "name": "John Snow",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1754,20 +1754,20 @@ Object {
       "title": "Justice, Supreme Court, Place 3",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "john-snow",
             "name": "John Snow",
-            "partyIds": Array [
+            "partyIds": [
               "1",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "mark-twain",
             "name": "Mark Twain",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1776,33 +1776,33 @@ Object {
       },
     ],
   },
-  "ss-justic-5": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "ss-justic-5": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, Corte Suprema, Lugar 5",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -1813,20 +1813,20 @@ Object {
       "title": "Justice, Supreme Court, Place 5",
       "type": "candidate",
     },
-    "tallies": Array [
-      Object {
-        "candidates": Object {
-          "first": Object {
+    "tallies": [
+      {
+        "candidates": {
+          "first": {
             "id": "benjamin-franklin",
             "name": "Benjamin Franklin",
-            "partyIds": Array [
+            "partyIds": [
               "0",
             ],
           },
-          "second": Object {
+          "second": {
             "id": "bill-nye",
             "name": "Bill Nye",
-            "partyIds": Array [
+            "partyIds": [
               "3",
             ],
           },
@@ -1839,27 +1839,27 @@ Object {
 `;
 
 exports[`tabulating a set of CVRs gives expected output 1`] = `
-Object {
-  "Chief-Justice-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+{
+  "Chief-Justice-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -1870,34 +1870,34 @@ Object {
       "title": "Chief Justice, 1st Court of Appeals",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 10,
       "undervotes": 327,
     },
-    "tallies": Object {
-      "charles-darwin": Object {
-        "option": Object {
+    "tallies": {
+      "charles-darwin": {
+        "option": {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3342,
       },
-      "stephen-hawking": Object {
-        "option": Object {
+      "stephen-hawking": {
+        "option": {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3339,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -1906,33 +1906,33 @@ Object {
       },
     },
   },
-  "District-judge-11": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-11": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, Distrito Judicial 11",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
@@ -1943,44 +1943,44 @@ Object {
       "title": "District Judge, 11th Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7017,
       "overvotes": 16,
       "undervotes": 303,
     },
-    "tallies": Object {
-      "bill-gates": Object {
-        "option": Object {
+    "tallies": {
+      "bill-gates": {
+        "option": {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 2210,
       },
-      "pablo-picasso": Object {
-        "option": Object {
+      "pablo-picasso": {
+        "option": {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 2229,
       },
-      "wolfgang-amadeus-mozart": Object {
-        "option": Object {
+      "wolfgang-amadeus-mozart": {
+        "option": {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
         "tally": 2244,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -1989,26 +1989,26 @@ Object {
       },
     },
   },
-  "District-judge-125": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-125": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 125º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2019,34 +2019,34 @@ Object {
       "title": "District Judge, 125th Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7019,
       "overvotes": 9,
       "undervotes": 299,
     },
-    "tallies": Object {
-      "carrie-fisher": Object {
-        "option": Object {
+    "tallies": {
+      "carrie-fisher": {
+        "option": {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3360,
       },
-      "jane-austen": Object {
-        "option": Object {
+      "jane-austen": {
+        "option": {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3336,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2055,26 +2055,26 @@ Object {
       },
     },
   },
-  "District-judge-127": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-127": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 127º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -2085,34 +2085,34 @@ Object {
       "title": "District Judge, 127th Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7019,
       "overvotes": 11,
       "undervotes": 313,
     },
-    "tallies": Object {
-      "angelina-jolie": Object {
-        "option": Object {
+    "tallies": {
+      "angelina-jolie": {
+        "option": {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 3362,
       },
-      "bob-barker": Object {
-        "option": Object {
+      "bob-barker": {
+        "option": {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3321,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2121,26 +2121,26 @@ Object {
       },
     },
   },
-  "District-judge-129": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-129": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 129° Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -2151,34 +2151,34 @@ Object {
       "title": "District Judge, 129th Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7019,
       "overvotes": 10,
       "undervotes": 300,
     },
-    "tallies": Object {
-      "anne-hathaway": Object {
-        "option": Object {
+    "tallies": {
+      "anne-hathaway": {
+        "option": {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 3340,
       },
-      "salvador-dali": Object {
-        "option": Object {
+      "salvador-dali": {
+        "option": {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3352,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2187,26 +2187,26 @@ Object {
       },
     },
   },
-  "District-judge-61": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-61": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 61° Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "george-washington",
           "name": "George Washington",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2217,34 +2217,34 @@ Object {
       "title": "District Judge, 61st Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7019,
       "overvotes": 8,
       "undervotes": 316,
     },
-    "tallies": Object {
-      "george-washington": Object {
-        "option": Object {
+    "tallies": {
+      "george-washington": {
+        "option": {
           "id": "george-washington",
           "name": "George Washington",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3289,
       },
-      "steven-spielberg": Object {
-        "option": Object {
+      "steven-spielberg": {
+        "option": {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3387,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2253,26 +2253,26 @@ Object {
       },
     },
   },
-  "District-judge-80": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "District-judge-80": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Distrito, 80º Distrito Judicial",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2283,34 +2283,34 @@ Object {
       "title": "District Judge, 80th Judicial District",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7019,
       "overvotes": 16,
       "undervotes": 321,
     },
-    "tallies": Object {
-      "alexander-graham-bell": Object {
-        "option": Object {
+    "tallies": {
+      "alexander-graham-bell": {
+        "option": {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3349,
       },
-      "johan-sebastian-bach": Object {
-        "option": Object {
+      "johan-sebastian-bach": {
+        "option": {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3319,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2319,26 +2319,26 @@ Object {
       },
     },
   },
-  "Justice-1-4": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-1-4": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2349,34 +2349,34 @@ Object {
       "title": "Justice, 1st Court of Appeals, Place 4",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7017,
       "overvotes": 11,
       "undervotes": 316,
     },
-    "tallies": Object {
-      "harriet-tubman": Object {
-        "option": Object {
+    "tallies": {
+      "harriet-tubman": {
+        "option": {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3352,
       },
-      "mark-antony": Object {
-        "option": Object {
+      "mark-antony": {
+        "option": {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3328,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2385,26 +2385,26 @@ Object {
       },
     },
   },
-  "Justice-14-2": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-14-2": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2415,34 +2415,34 @@ Object {
       "title": "Justice, 14th Court of Appeals, Place 2",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7017,
       "overvotes": 12,
       "undervotes": 312,
     },
-    "tallies": Object {
-      "marilyn-monroe": Object {
-        "option": Object {
+    "tallies": {
+      "marilyn-monroe": {
+        "option": {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3355,
       },
-      "martin-luther-king": Object {
-        "option": Object {
+      "martin-luther-king": {
+        "option": {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3325,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2451,26 +2451,26 @@ Object {
       },
     },
   },
-  "Justice-14-9": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-14-9": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2481,34 +2481,34 @@ Object {
       "title": "Justice, 14th Court of Appeals, Place 9",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7017,
       "overvotes": 17,
       "undervotes": 292,
     },
-    "tallies": Object {
-      "nikola-tesla": Object {
-        "option": Object {
+    "tallies": {
+      "nikola-tesla": {
+        "option": {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3306,
       },
-      "vincent-van-gogh": Object {
-        "option": Object {
+      "vincent-van-gogh": {
+        "option": {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3382,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2517,26 +2517,26 @@ Object {
       },
     },
   },
-  "Justice-peace-1-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "Justice-peace-1-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Juez de Paz, Precinto 1, Lugar 1",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2547,34 +2547,34 @@ Object {
       "title": "Justice of the Peace, Precinct 1, Place 1",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 9,
       "undervotes": 140,
     },
-    "tallies": Object {
-      "julia-child": Object {
-        "option": Object {
+    "tallies": {
+      "julia-child": {
+        "option": {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1540,
       },
-      "paul-mccartney": Object {
-        "option": Object {
+      "paul-mccartney": {
+        "option": {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1544,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2583,26 +2583,26 @@ Object {
       },
     },
   },
-  "comm-ag": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "comm-ag": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Comisionado de Agricultura",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2613,34 +2613,34 @@ Object {
       "title": "Commissioner of Agriculture",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 17,
       "undervotes": 292,
     },
-    "tallies": Object {
-      "helen-keller": Object {
-        "option": Object {
+    "tallies": {
+      "helen-keller": {
+        "option": {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 3251,
       },
-      "steve-jobs": Object {
-        "option": Object {
+      "steve-jobs": {
+        "option": {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 3464,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2649,40 +2649,40 @@ Object {
       },
     },
   },
-  "comptroller": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "comptroller": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Contralor Estatal",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -2693,54 +2693,54 @@ Object {
       "title": "State Comptroller",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 16,
       "undervotes": 309,
     },
-    "tallies": Object {
-      "alfred-hitchcock": Object {
-        "option": Object {
+    "tallies": {
+      "alfred-hitchcock": {
+        "option": {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1636,
       },
-      "andy-warhol": Object {
-        "option": Object {
+      "andy-warhol": {
+        "option": {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1646,
       },
-      "frank-sinatra": Object {
-        "option": Object {
+      "frank-sinatra": {
+        "option": {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1749,
       },
-      "natalie-portman": Object {
-        "option": Object {
+      "natalie-portman": {
+        "option": {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1667,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2749,26 +2749,26 @@ Object {
       },
     },
   },
-  "constable-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "constable-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Alguacil, distrito 1",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2779,34 +2779,34 @@ Object {
       "title": "Constable, Precinct 1",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 4,
       "undervotes": 152,
     },
-    "tallies": Object {
-      "beethoven": Object {
-        "option": Object {
+    "tallies": {
+      "beethoven": {
+        "option": {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1516,
       },
-      "walt-disney": Object {
-        "option": Object {
+      "walt-disney": {
+        "option": {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1566,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2815,26 +2815,26 @@ Object {
       },
     },
   },
-  "county-attorney": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "county-attorney": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Abogado del Condado",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2845,34 +2845,34 @@ Object {
       "title": "County Attorney",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 5,
       "undervotes": 160,
     },
-    "tallies": Object {
-      "harry-potter": Object {
-        "option": Object {
+    "tallies": {
+      "harry-potter": {
+        "option": {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1527,
       },
-      "isaac-newton": Object {
-        "option": Object {
+      "isaac-newton": {
+        "option": {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1547,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2881,26 +2881,26 @@ Object {
       },
     },
   },
-  "county-tax-assessor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "county-tax-assessor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Asesor-Recaudador de Impuestos del País",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2911,34 +2911,34 @@ Object {
       "title": "Country Tax Assessor-Collector",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 5,
       "undervotes": 136,
     },
-    "tallies": Object {
-      "bruce-lee": Object {
-        "option": Object {
+    "tallies": {
+      "bruce-lee": {
+        "option": {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1570,
       },
-      "christopher-columbus": Object {
-        "option": Object {
+      "christopher-columbus": {
+        "option": {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1528,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -2947,26 +2947,26 @@ Object {
       },
     },
   },
-  "district-attorney": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "district-attorney": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Fiscal de Distrito",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -2977,34 +2977,34 @@ Object {
       "title": "District Attorney",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3185,
       "overvotes": 2,
       "undervotes": 122,
     },
-    "tallies": Object {
-      "edgar-allan-poe": Object {
-        "option": Object {
+    "tallies": {
+      "edgar-allan-poe": {
+        "option": {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1519,
       },
-      "theodore-roosevelt": Object {
-        "option": Object {
+      "theodore-roosevelt": {
+        "option": {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1540,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3013,26 +3013,26 @@ Object {
       },
     },
   },
-  "governor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "governor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Gobernador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
@@ -3043,34 +3043,34 @@ Object {
       "title": "Governor",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3201,
       "overvotes": 5,
       "undervotes": 148,
     },
-    "tallies": Object {
-      "sherlock-holmes": Object {
-        "option": Object {
+    "tallies": {
+      "sherlock-holmes": {
+        "option": {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1477,
       },
-      "thomas-edison": Object {
-        "option": Object {
+      "thomas-edison": {
+        "option": {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1565,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3079,33 +3079,33 @@ Object {
       },
     },
   },
-  "lieutenant-governor": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "lieutenant-governor": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Vicegobernador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3116,44 +3116,44 @@ Object {
       "title": "Lieutenant Governor",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 19,
       "undervotes": 296,
     },
-    "tallies": Object {
-      "louis-armstrong": Object {
-        "option": Object {
+    "tallies": {
+      "louis-armstrong": {
+        "option": {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 2232,
       },
-      "oprah-winfrey": Object {
-        "option": Object {
+      "oprah-winfrey": {
+        "option": {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 2237,
       },
-      "winston-churchill": Object {
-        "option": Object {
+      "winston-churchill": {
+        "option": {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 2237,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3162,47 +3162,47 @@ Object {
       },
     },
   },
-  "president": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "president": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Presidente",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
-        Object {
+        {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
@@ -3213,64 +3213,64 @@ Object {
       "title": "President",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 18,
       "undervotes": 293,
     },
-    "tallies": Object {
-      "indiana-jones": Object {
-        "option": Object {
+    "tallies": {
+      "indiana-jones": {
+        "option": {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1314,
       },
-      "jackie-chan": Object {
-        "option": Object {
+      "jackie-chan": {
+        "option": {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1372,
       },
-      "marie-curie": Object {
-        "option": Object {
+      "marie-curie": {
+        "option": {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1351,
       },
-      "mona-lisa": Object {
-        "option": Object {
+      "mona-lisa": {
+        "option": {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1367,
       },
-      "tim-allen": Object {
-        "option": Object {
+      "tim-allen": {
+        "option": {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
         "tally": 1311,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3279,10 +3279,10 @@ Object {
       },
     },
   },
-  "prop-1": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "prop-1": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
           "title": "Proposición 1",
         },
@@ -3293,30 +3293,30 @@ Object {
       "title": "Proposition 1",
       "type": "yesno",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 3,
       "undervotes": 153,
     },
-    "tallies": Object {
-      "no": Object {
-        "option": Array [
+    "tallies": {
+      "no": {
+        "option": [
           "no",
         ],
         "tally": 1546,
       },
-      "yes": Object {
-        "option": Array [
+      "yes": {
+        "option": [
           "yes",
         ],
         "tally": 1541,
       },
     },
   },
-  "prop-2": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "prop-2": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
           "title": "Proposición 2",
         },
@@ -3327,53 +3327,53 @@ Object {
       "title": "Proposition 2",
       "type": "yesno",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7077,
       "overvotes": 11,
       "undervotes": 323,
     },
-    "tallies": Object {
-      "no": Object {
-        "option": Array [
+    "tallies": {
+      "no": {
+        "option": [
           "no",
         ],
         "tally": 3365,
       },
-      "yes": Object {
-        "option": Array [
+      "yes": {
+        "option": [
           "yes",
         ],
         "tally": 3378,
       },
     },
   },
-  "representative-district-18": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "representative-district-18": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Representante, Distrito 18",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3384,44 +3384,44 @@ Object {
       "title": "Representative, District 18",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 7033,
       "overvotes": 14,
       "undervotes": 317,
     },
-    "tallies": Object {
-      "albert-einstein": Object {
-        "option": Object {
+    "tallies": {
+      "albert-einstein": {
+        "option": {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 2253,
       },
-      "michael-jordan": Object {
-        "option": Object {
+      "michael-jordan": {
+        "option": {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 2237,
       },
-      "neil-armstrong": Object {
-        "option": Object {
+      "neil-armstrong": {
+        "option": {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 2197,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3430,33 +3430,33 @@ Object {
       },
     },
   },
-  "senator": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "senator": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Senador",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "bond",
           "name": "James Bond",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3467,44 +3467,44 @@ Object {
       "title": "Senator",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3201,
       "overvotes": 4,
       "undervotes": 134,
     },
-    "tallies": Object {
-      "antoinette": Object {
-        "option": Object {
+    "tallies": {
+      "antoinette": {
+        "option": {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1003,
       },
-      "bond": Object {
-        "option": Object {
+      "bond": {
+        "option": {
           "id": "bond",
           "name": "James Bond",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 992,
       },
-      "earhart": Object {
-        "option": Object {
+      "earhart": {
+        "option": {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1063,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3513,33 +3513,33 @@ Object {
       },
     },
   },
-  "sheriff": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "sheriff": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Alguacil",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3550,44 +3550,44 @@ Object {
       "title": "Sheriff",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3243,
       "overvotes": 5,
       "undervotes": 146,
     },
-    "tallies": Object {
-      "brad-pitt": Object {
-        "option": Object {
+    "tallies": {
+      "brad-pitt": {
+        "option": {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1012,
       },
-      "robin-williams": Object {
-        "option": Object {
+      "robin-williams": {
+        "option": {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1015,
       },
-      "william-shakespeare": Object {
-        "option": Object {
+      "william-shakespeare": {
+        "option": {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1058,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3596,26 +3596,26 @@ Object {
       },
     },
   },
-  "ss-justic-3": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "ss-justic-3": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, Corte Suprema, Lugar 3",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "john-snow",
           "name": "John Snow",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3626,34 +3626,34 @@ Object {
       "title": "Justice, Supreme Court, Place 3",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3201,
       "overvotes": 3,
       "undervotes": 133,
     },
-    "tallies": Object {
-      "john-snow": Object {
-        "option": Object {
+    "tallies": {
+      "john-snow": {
+        "option": {
           "id": "john-snow",
           "name": "John Snow",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1551,
       },
-      "mark-twain": Object {
-        "option": Object {
+      "mark-twain": {
+        "option": {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1507,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
@@ -3662,33 +3662,33 @@ Object {
       },
     },
   },
-  "ss-justic-5": Object {
-    "contest": Object {
-      "_lang": Object {
-        "es-US": Object {
+  "ss-justic-5": {
+    "contest": {
+      "_lang": {
+        "es-US": {
           "title": "Justicia, Corte Suprema, Lugar 5",
         },
       },
       "allowWriteIns": true,
-      "candidates": Array [
-        Object {
+      "candidates": [
+        {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
-        Object {
+        {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
-        Object {
+        {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
@@ -3699,44 +3699,44 @@ Object {
       "title": "Justice, Supreme Court, Place 5",
       "type": "candidate",
     },
-    "metadata": Object {
+    "metadata": {
       "ballots": 3201,
       "overvotes": 1,
       "undervotes": 107,
     },
-    "tallies": Object {
-      "benjamin-franklin": Object {
-        "option": Object {
+    "tallies": {
+      "benjamin-franklin": {
+        "option": {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyIds": Array [
+          "partyIds": [
             "0",
           ],
         },
         "tally": 1056,
       },
-      "bill-nye": Object {
-        "option": Object {
+      "bill-nye": {
+        "option": {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
         "tally": 1003,
       },
-      "robert-downey-jr": Object {
-        "option": Object {
+      "robert-downey-jr": {
+        "option": {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyIds": Array [
+          "partyIds": [
             "1",
           ],
         },
         "tally": 1027,
       },
-      "write-in": Object {
-        "option": Object {
+      "write-in": {
+        "option": {
           "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
