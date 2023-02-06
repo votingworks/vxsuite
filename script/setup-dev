@@ -22,6 +22,7 @@ NODE_VERSION=$(cat "${DIR}/../.node-version")
 
 if command node -v 2>/dev/null | grep -q "${NODE_VERSION}"; then
   echo "Node version ${NODE_VERSION} already installed"
+  sudo corepack enable
   exit
 fi
 
