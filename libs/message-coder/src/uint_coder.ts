@@ -39,6 +39,8 @@ export abstract class UintCoder extends BaseCoder<number> {
   }
 
   abstract bitLength(): BitLength;
+  protected abstract readonly minValue: number;
+  protected abstract readonly maxValue: number;
 
   protected getByteOffset(
     buffer: Buffer,
@@ -56,10 +58,13 @@ export abstract class UintCoder extends BaseCoder<number> {
     bitOffset: BitOffset,
     fn: (byteOffset: ByteOffset) => void
   ): EncodeResult {
-    return mapResult(this.getByteOffset(buffer, bitOffset), (byteOffset) => {
-      fn(byteOffset);
-      return bitOffset + this.bitLength();
-    });
+    return mapResult(
+      this.getByteOffset(buffer, bitOffset),
+      (byteOffset): Result<BitOffset, CoderError> => {
+        fn(byteOffset);
+        return ok(bitOffset + this.bitLength());
+      }
+    );
   }
 
   protected decodeUsing(
@@ -76,7 +81,17 @@ export abstract class UintCoder extends BaseCoder<number> {
   }
 
   protected validateValue(value: number): Result<number, CoderError> {
-    return validateEnumValue(this.enumeration, value);
+    const enumValidationResult = validateEnumValue(this.enumeration, value);
+
+    if (enumValidationResult.isErr()) {
+      return enumValidationResult;
+    }
+
+    if (value < this.minValue || value > this.maxValue) {
+      return err('InvalidValue');
+    }
+
+    return ok(value);
   }
 
   abstract encodeInto(

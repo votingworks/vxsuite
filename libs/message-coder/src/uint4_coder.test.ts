@@ -1,6 +1,7 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
+import { MAX_UINT4 } from './constants';
 import { CoderType } from './message_coder';
 import { DecodeResult } from './types';
 import { uint4 } from './uint4_coder';
@@ -41,6 +42,37 @@ test('uint4', () => {
   );
 });
 
+test('uint4 with enumeration', () => {
+  enum Speed {
+    Slow = 0,
+    Medium = 1,
+    Fast = 2,
+  }
+
+  const coder = uint4<Speed>(Speed);
+
+  // encode/decode
+  expect(coder.encode(Speed.Fast)).toEqual(ok(Buffer.from([0b00100000])));
+  expect(coder.decode(Buffer.from([0b00100000]))).toEqual(ok(Speed.Fast));
+
+  // invalid value
+  expect(coder.encode(3)).toEqual(err('InvalidValue'));
+  expect(coder.decode(Buffer.from([0b00110000]))).toEqual(err('InvalidValue'));
+
+  // encodeInto/decodeFrom
+  const buffer = Buffer.alloc(1);
+  expect(coder.encodeInto(Speed.Fast, buffer, 0)).toEqual(ok(4));
+  expect(buffer.readUInt8(0)).toEqual(0b00100000);
+  expect(coder.decodeFrom(buffer, 0)).toEqual(
+    ok({ value: Speed.Fast, bitOffset: 4 })
+  );
+
+  // invalid value
+  expect(coder.encodeInto(3, buffer, 0)).toEqual(err('InvalidValue'));
+  buffer.writeUInt8(0b00110000, 0);
+  expect(coder.decodeFrom(buffer, 0)).toEqual(err('InvalidValue'));
+});
+
 test('uint4 with invalid offset', () => {
   const coder = uint4();
   expect(coder.encodeInto(1, Buffer.alloc(1), 2)).toEqual(
@@ -49,4 +81,10 @@ test('uint4 with invalid offset', () => {
   expect(coder.decodeFrom(Buffer.alloc(1), 2)).toEqual(
     err('UnsupportedOffset')
   );
+});
+
+test('uint4 with invalid value', () => {
+  const coder = uint4();
+  expect(coder.encode(-1)).toEqual(err('InvalidValue'));
+  expect(coder.encode(MAX_UINT4 + 1)).toEqual(err('InvalidValue'));
 });
