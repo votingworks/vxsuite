@@ -3,12 +3,13 @@ import {
   BallotType,
   DistrictIdSchema,
   Election,
+  ElectionADT,
   unsafeParse,
 } from '@votingworks/types';
 import { encodeBallot, encodeHmpbBallotPageMetadata } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
-const election: Election = {
+const vxfElection: Election = {
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
@@ -29,14 +30,15 @@ const election: Election = {
     },
   ],
 };
-const { electionHash } = asElectionDefinition(election);
+const { electionHash } = asElectionDefinition(vxfElection);
+const election = ElectionADT.buildElectionFromVxf(vxfElection);
 
 test('BMD: smallest possible encoded ballot', () => {
   expect(
     encodeBallot(election, {
       electionHash,
-      ballotStyleId: election.ballotStyles[0]!.id,
-      precinctId: election.precincts[0]!.id,
+      ballotStyleId: election.ballotStyles()[0]!.id,
+      precinctId: election.precincts()[0]!.id,
       ballotType: BallotType.Standard,
       isTestMode: true,
       votes: {},

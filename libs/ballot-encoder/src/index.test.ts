@@ -360,13 +360,13 @@ it('encodes & decodes ballot measure votes correctly', () => {
   const contests = ballotStyle.contests();
   const votes = buildVotes(contests, {
     'judicial-robert-demergue': ['yes'],
+    'judicial-elmer-hull': ['yes'],
     'question-a': ['yes'],
     'question-b': ['no'],
-    'proposition-1': [],
-    '102': ['yes'],
-    'judicial-elmer-hull': ['yes'],
     'question-c': ['yes'],
+    'proposition-1': [],
     'measure-101': ['no'],
+    '102': ['yes'],
   });
   const ballot: CompletedBallot = {
     electionHash,
@@ -412,11 +412,11 @@ it('encodes & decodes ballot measure votes correctly', () => {
     // vote data
     .writeBoolean(true)
     .writeBoolean(true)
-    .writeBoolean(false)
-    .writeBoolean(true)
-    .writeBoolean(true)
     .writeBoolean(true)
     .writeBoolean(false)
+    .writeBoolean(true)
+    .writeBoolean(false)
+    .writeBoolean(true)
     .toUint8Array();
 
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
@@ -425,7 +425,7 @@ it('encodes & decodes ballot measure votes correctly', () => {
   );
 });
 
-it('throws on trying to encode a bad yes/no vote', () => {
+it('throws on trying to encode a ballot measure overvote', () => {
   const { electionHash } = electionDefinition;
   const election = ElectionADT.buildElectionFromVxf(
     electionDefinition.election
@@ -435,10 +435,9 @@ it('throws on trying to encode a bad yes/no vote', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
-  const contests = ballotStyle.contests();
-  const votes = buildVotes(contests, {
-    'judicial-robert-demergue': 'yes',
-  });
+  const votes: ContestVotes = {
+    'judicial-robert-demergue': [{ optionId: 'yes' }, { optionId: 'no' }],
+  };
   const ballot: CompletedBallot = {
     electionHash,
     ballotId,
@@ -448,22 +447,12 @@ it('throws on trying to encode a bad yes/no vote', () => {
     isTestMode: false,
     ballotType: BallotType.Standard,
   };
-
-  expect(() => encodeBallot(election, ballot)).toThrowError(
-    'cannot encode a non-array ballot measure vote: "yes"'
-  );
-
-  // overvotes fail too.
-  ballot.votes['judicial-robert-demergue'] = [
-    { optionId: 'yes' },
-    { optionId: 'no' },
-  ];
   expect(() => encodeBallot(election, ballot)).toThrowError(
     'cannot encode a ballot measure overvote: [{"optionId":"yes"},{"optionId":"no"}]'
   );
 });
 
-it('throws on trying to encode a ballot style', () => {
+it('throws on trying to encode an unknown ballot style', () => {
   const { electionHash } = electionDefinition;
   const election = ElectionADT.buildElectionFromVxf(
     electionDefinition.election
@@ -485,7 +474,7 @@ it('throws on trying to encode a ballot style', () => {
   };
 
   expect(() => encodeBallot(election, ballot)).toThrowError(
-    `unknown ballot style id: ${ballotStyleId}`
+    'unable to find an element matching a predicate'
   );
 });
 
@@ -806,58 +795,6 @@ test('cannot decode a ballot without the prelude', () => {
 
   expect(() => decodeBallot(election, encodedBallot)).toThrowError(
     "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-  );
-});
-
-test.skip('cannot decode a ballot with a ballot style ID not in the election', () => {
-  const election = ElectionADT.buildElectionFromVxf(
-    electionDefinition.election
-  );
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot style id
-    .writeString('ZZZ')
-    // precinct id
-    .writeString('23')
-    // ballot Id
-    .writeString('abcde')
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'ballot style with id "ZZZ" could not be found, expected one of: 12, 5, 7C'
-  );
-});
-
-test.skip('cannot decode a ballot with a precinct ID not in the election', () => {
-  const election = ElectionADT.buildElectionFromVxf(
-    electionDefinition.election
-  );
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // check data
-    .writeUint8(
-      toUint8(election.precincts().length),
-      toUint8(election.ballotStyles().length),
-      toUint8(election.contests().length)
-    )
-    // ballot style index
-    .writeUint(0, { max: election.ballotStyles().length - 1 })
-    // precinct index (out of bounds)
-    .writeUint(election.precincts().length, {
-      max: election.precincts().length - 1,
-    })
-    // test mode
-    .writeBoolean(true)
-    // ballot Id
-    .writeBoolean(false)
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'precinct with id "ZZZ" could not be found, expected one of: 23, 21, 20'
   );
 });
 
@@ -1182,6 +1119,7 @@ test('validates votes by checking that contests are present in a given ballot st
   const ballotMeasureContest = election
     .contests()
     .find((c) => c.type === 'ballot-measure') as BallotMeasureContest;
+
   expect(() =>
     validateVotes({
       votes: {
@@ -1190,16 +1128,13 @@ test('validates votes by checking that contests are present in a given ballot st
         ],
       },
       ballotStyle,
-      election,
     })
   ).not.toThrowError();
+
   expect(() =>
     validateVotes({
       votes: { nope: [{ optionId: ballotMeasureContest.yesOption().id }] },
       ballotStyle,
-      election,
     })
-  ).toThrowError(
-    'found a vote with contest id "nope", but no such contest exists in ballot style 1'
-  );
+  ).toThrowError('unable to find an element matching a predicate');
 });

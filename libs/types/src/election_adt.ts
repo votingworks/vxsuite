@@ -243,11 +243,13 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
             };
           }),
         contests: () =>
-          ballotStyle.districts.flatMap((districtId) =>
-            electionData.contests
-              .filter((contest) => contest.districtId === districtId)
-              .map(buildContest)
-          ),
+          electionData.contests
+            .filter(
+              (contest) =>
+                ballotStyle.districts.includes(contest.districtId) &&
+                (ballotStyle.partyId === contest.partyId || !contest.partyId)
+            )
+            .map(buildContest),
         party: () => findAndBuildParty(ballotStyle.partyId),
       }));
     },

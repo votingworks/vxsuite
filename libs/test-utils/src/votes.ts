@@ -64,7 +64,7 @@ export function buildVotes(
           if (typeof choice[0] === 'object') {
             return {
               ...result,
-              [contestId]: choice as ContestVote,
+              [contestId]: choice,
             };
           }
         }

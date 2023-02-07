@@ -16,7 +16,7 @@ import {
   PrecinctId,
   unsafeParse,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   BitReader,
   BitWriter,
@@ -393,9 +393,8 @@ function encodeBallotVotesInto(
         }
 
         // ballot measure votes get a single bit
-        bits.writeBoolean(
-          ballotMeasureVote[0]?.optionId === contest.yesOption().id
-        );
+        const { optionId } = assertDefined(ballotMeasureVote[0]);
+        bits.writeBoolean(optionId === contest.yesOption().id);
       } else {
         const choices = contestVote as CandidateContestVote;
 
@@ -449,26 +448,13 @@ function encodeBallotVotesInto(
 export function validateVotes({
   votes,
   ballotStyle,
-  election,
 }: {
   votes: ContestVotes;
   ballotStyle: ElectionADT.BallotStyle;
-  election: ElectionADT.Election;
 }): void {
-  const contests = election.contests();
-
+  const contests = ballotStyle.contests();
   for (const contestId of Object.getOwnPropertyNames(votes)) {
-    const contest = ElectionADT.findById(contests, contestId);
-
-    if (!contest) {
-      throw new Error(
-        `found a vote with contest id ${JSON.stringify(
-          contestId
-        )}, but no such contest exists in ballot style ${
-          ballotStyle.id
-        } (expected one of ${contests.map((c) => c.id).join(', ')})`
-      );
-    }
+    ElectionADT.findById(contests, contestId); // Throws if not found.
   }
 }
 
@@ -493,7 +479,7 @@ export function encodeBallotInto(
     ballotStyleId
   );
 
-  validateVotes({ election, ballotStyle, votes });
+  validateVotes({ ballotStyle, votes });
 
   return bits
     .writeUint8(...Prelude)
