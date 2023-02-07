@@ -1,6 +1,5 @@
 import { Admin } from '@votingworks/api';
 import { CandidateContest } from '@votingworks/types';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
 
 /**
  * Builds the group of options for adjudicating write-ins to official candidates
@@ -18,20 +17,5 @@ export function buildOfficialCandidatesWriteInAdjudicationOptionGroup(
         enabled: true,
       }))
       .sort((a, b) => a.adjudicatedValue.localeCompare(b.adjudicatedValue)),
-  };
-}
-
-/**
- * Builds a mock auth instance
- */
-export function buildMockAuth(): DippedSmartCardAuthApi {
-  return {
-    getAuthStatus: jest.fn(),
-    checkPin: jest.fn(),
-    logOut: jest.fn(),
-    programCard: jest.fn(),
-    unprogramCard: jest.fn(),
-    setElectionDefinition: jest.fn(),
-    clearElectionDefinition: jest.fn(),
   };
 }

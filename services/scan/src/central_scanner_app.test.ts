@@ -28,13 +28,16 @@ import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { typedAs } from '@votingworks/basics';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
-import { buildMockAuth, makeMock } from '../test/util/mocks';
+import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildCentralScannerApp } from './central_scanner_app';
@@ -58,7 +61,7 @@ let workspace: Workspace;
 
 beforeEach(async () => {
   mockGetUsbDrives.mockReset();
-  auth = buildMockAuth();
+  auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
