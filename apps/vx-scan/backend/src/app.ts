@@ -5,10 +5,12 @@ import {
   MarkThresholds,
   PollsState,
   PrecinctSelection,
+  SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
   BALLOT_PACKAGE_FOLDER,
   readBallotPackageFromBuffer,
+  ScannerReportDataSchema,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -17,6 +19,8 @@ import { ExportDataError } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { z } from 'zod';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,
@@ -33,7 +37,14 @@ import {
 } from './types';
 import { getMachineConfig } from './machine_config';
 
+export type CardDataSchemaName = 'ScannerReportDataSchema';
+
+const CARD_DATA_SCHEMA_MAPPING: Record<CardDataSchemaName, z.ZodSchema> = {
+  ScannerReportDataSchema,
+};
+
 function buildApi(
+  auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
@@ -44,6 +55,19 @@ function buildApi(
 
   return grout.createApi({
     getMachineConfig,
+
+    getAuthStatus: () => auth.getAuthStatus(),
+    checkPin: (input: { pin: string }) => auth.checkPin(input),
+    readCardData: <T>({ schema }: { schema: CardDataSchemaName }) =>
+      auth.readCardData<T>({ schema: CARD_DATA_SCHEMA_MAPPING[schema] }),
+    writeCardData: <T>({
+      data,
+      schema,
+    }: {
+      data: T;
+      schema: CardDataSchemaName;
+    }) =>
+      auth.writeCardData<T>({ data, schema: CARD_DATA_SCHEMA_MAPPING[schema] }),
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
@@ -88,21 +112,28 @@ function buildApi(
         await fs.readFile(mostRecentBallotPackageFile.filePath)
       );
 
+      const { electionDefinition, ballots } = ballotPackage;
+
+      // If the election has only one precinct, set it automatically
+      let precinctSelection: SinglePrecinctSelection | undefined;
+      if (electionDefinition.election.precincts.length === 1) {
+        precinctSelection = singlePrecinctSelectionFor(
+          electionDefinition.election.precincts[0].id
+        );
+      }
+
       await store.withTransaction(async () => {
-        const { electionDefinition, ballots } = ballotPackage;
         store.setElection(electionDefinition.electionData);
-
-        // If the election has only one precinct, set it automatically
-        if (electionDefinition.election.precincts.length === 1) {
-          store.setPrecinctSelection(
-            singlePrecinctSelectionFor(
-              electionDefinition.election.precincts[0].id
-            )
-          );
+        if (precinctSelection) {
+          store.setPrecinctSelection(precinctSelection);
         }
-
         await store.setHmpbTemplates(ballots);
       });
+
+      auth.setElectionDefinition(electionDefinition);
+      if (precinctSelection) {
+        auth.setPrecinctSelection(precinctSelection);
+      }
 
       return ok();
     },
@@ -127,6 +158,8 @@ function buildApi(
       );
       interpreter.unconfigure();
       workspace.reset();
+      auth.clearElectionDefinition();
+      auth.clearPrecinctSelection();
     },
 
     setPrecinctSelection(input: {
@@ -138,6 +171,7 @@ function buildApi(
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
+      auth.setPrecinctSelection(input.precinctSelection);
     },
 
     setMarkThresholdOverrides(input: {
@@ -290,6 +324,7 @@ function buildApi(
 export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
+  auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
@@ -297,7 +332,7 @@ export function buildApp(
   logger: Logger
 ): Application {
   const app: Application = express();
-  const api = buildApi(machine, interpreter, workspace, usb, logger);
+  const api = buildApi(auth, machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

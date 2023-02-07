@@ -5,7 +5,7 @@ import fs from 'fs';
 import { NODE_ENV } from './globals';
 import * as server from './server';
 
-export type { Api } from './app';
+export type { Api, CardDataSchemaName } from './app';
 export * from './types';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
