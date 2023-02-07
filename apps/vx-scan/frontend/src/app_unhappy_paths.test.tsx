@@ -80,6 +80,7 @@ test('backend fails to unconfigure', async () => {
   const originalConsoleError = console.error;
   console.error = jest.fn();
 
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
   apiMock.mockApiClient.unconfigureElection
@@ -259,6 +260,7 @@ test('removing card during calibration', async () => {
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
   apiMock.expectGetCastVoteRecordsForTally([]);
   const { card } = renderApp();

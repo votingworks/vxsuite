@@ -61,6 +61,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -95,6 +96,7 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   const precinct = electionSampleDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
@@ -108,6 +110,7 @@ test('option to set precinct if more than one', async () => {
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   const electionDefinition =
     electionMinimalExhaustiveSampleSinglePrecinctDefinition;
   apiMock.expectGetConfig({
@@ -121,6 +124,7 @@ test('no option to change precinct if there is only one precinct', async () => {
 });
 
 test('export from admin screen', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
 
@@ -130,6 +134,7 @@ test('export from admin screen', async () => {
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('absent');
   renderScreen({
@@ -146,6 +151,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('mounted');
   renderScreen({
@@ -164,6 +170,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
 });
 
 test('unconfigure button is disabled when the machine cannot be unconfigured', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -173,6 +180,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', a
 });
 
 test('cannot toggle to testing mode when the machine cannot be unconfigured', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({ isTestMode: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -183,6 +191,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', as
 });
 
 test('allows overriding mark thresholds', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -206,6 +215,7 @@ test('allows overriding mark thresholds', async () => {
 });
 
 test('when sounds are not muted, shows a button to mute sounds', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({ isSoundMuted: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -219,6 +229,7 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
 });
 
 test('when sounds are muted, shows a button to unmute sounds', async () => {
+  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({ isSoundMuted: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });

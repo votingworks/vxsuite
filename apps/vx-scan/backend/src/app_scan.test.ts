@@ -983,8 +983,20 @@ test('calibrate', async () => {
 
   const calibratePromise = apiClient.calibrate();
   await waitForStatus(apiClient, { state: 'calibrating' });
-  await calibratePromise;
+  expect(await calibratePromise).toEqual(true);
   await expectStatus(apiClient, { state: 'no_paper' });
+});
+
+test('calibrate not supported', async () => {
+  const { apiClient, mockPlustek, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
+
+  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
+  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+
+  mockPlustek.simulateCalibrateNotSupported();
+  const calibrateResult = await apiClient.calibrate();
+  expect(calibrateResult).toEqual(false);
 });
 
 test('jam on calibrate', async () => {

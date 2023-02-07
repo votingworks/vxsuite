@@ -3,7 +3,7 @@ import { Button, Modal, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
-import { calibrate } from '../api';
+import { calibrate, supportsCalibration } from '../api';
 
 export interface CalibrateScannerModalProps {
   scannerStatus: PrecinctScannerStatus;
@@ -20,6 +20,7 @@ export function CalibrateScannerModal({
   scannerStatus,
   onCancel,
 }: CalibrateScannerModalProps): JSX.Element {
+  const supportsCalibrationQuery = supportsCalibration.useQuery();
   const calibrateMutation = calibrate.useMutation();
   const [calibrationState, setCalibrationState] =
     useState<CalibrationState>('ready');
@@ -30,6 +31,21 @@ export function CalibrateScannerModal({
       onSuccess: (calibrationResult: boolean) =>
         setCalibrationState(calibrationResult ? 'calibrated' : 'failed'),
     });
+  }
+
+  if (supportsCalibrationQuery.data === false) {
+    return (
+      <Modal
+        centerContent
+        content={
+          <Prose textCenter>
+            <h1>Calibration not supported</h1>
+            <p>This scanner does not support calibration.</p>
+          </Prose>
+        }
+        actions={<Button onPress={onCancel}>Cancel</Button>}
+      />
+    );
   }
 
   if (calibrationState === 'ready') {

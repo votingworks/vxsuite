@@ -41,6 +41,7 @@ interface Context {
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
   scanError?: 'error_feeding' | 'only_one_file_returned';
+  calibrationDisabled?: boolean;
 }
 
 type Event =
@@ -58,6 +59,8 @@ type Event =
   | { type: 'ACCEPT' }
   | { type: 'REJECT'; hold: boolean }
   | { type: 'CALIBRATE' }
+  | { type: 'DISABLE_CALIBRATION' }
+  | { type: 'ENABLE_CALIBRATION' }
   | {
       type: 'SCAN_ERROR';
       error: 'error_feeding' | 'only_one_file_returned';
@@ -90,6 +93,12 @@ const mockPlustekMachine = createMachine<Context, Event>({
     CHECK_JAM_FLAG: {
       target: 'jam',
       cond: (context) => context.jamOnNextOperation,
+    },
+    DISABLE_CALIBRATION: {
+      actions: assign({ calibrationDisabled: true }),
+    },
+    ENABLE_CALIBRATION: {
+      actions: assign({ calibrationDisabled: false }),
     },
   },
   states: {
@@ -434,6 +443,20 @@ export class MockScannerClient implements ScannerClient {
   }
 
   /**
+   * Simulates the `calibrate` operation not being available.
+   */
+  simulateCalibrateNotSupported(): void {
+    this.machine.send({ type: 'DISABLE_CALIBRATION' });
+  }
+
+  /**
+   * Simulates the `calibrate` operation being available.
+   */
+  simulateCalibrateSupported(): void {
+    this.machine.send({ type: 'ENABLE_CALIBRATION' });
+  }
+
+  /**
    * Determines whether the client is connected.
    */
   isConnected(): boolean {
@@ -721,6 +744,11 @@ export class MockScannerClient implements ScannerClient {
    */
   async calibrate(): Promise<CalibrateResult> {
     debug('calibrate');
+    if (this.machine.state.context.calibrationDisabled) {
+      debug('cannot calibrate, calibration disabled');
+      return err(new Error('Calibration failed'));
+    }
+
     switch (this.machine.state.value) {
       case 'powered_off': {
         debug('cannot calibrate, scanner unresponsive');

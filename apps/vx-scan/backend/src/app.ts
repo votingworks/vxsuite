@@ -280,9 +280,13 @@ function buildApi(
       machine.return();
     },
 
+    supportsCalibration(): boolean {
+      return true;
+    },
+
     async calibrate(): Promise<boolean> {
-      const result = await machine.calibrate();
-      return result.isOk();
+      const result = await machine.calibrate?.();
+      return result?.isOk() ?? false;
     },
   });
 }

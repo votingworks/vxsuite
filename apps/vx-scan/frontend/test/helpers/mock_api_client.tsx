@@ -100,6 +100,12 @@ export function createApiMock() {
         .expectCallWith()
         .resolves(ok());
     },
+
+    expectCheckCalibrationSupported(supportsCalibration: boolean): void {
+      mockApiClient.supportsCalibration
+        .expectCallWith()
+        .resolves(supportsCalibration);
+    },
   };
 }
 

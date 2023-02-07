@@ -25,6 +25,7 @@ import {
   setIsSoundMuted,
   setPrecinctSelection,
   setTestMode,
+  supportsCalibration,
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
@@ -46,6 +47,7 @@ export function ElectionManagerScreen({
   usbDrive,
   logger,
 }: ElectionManagerScreenProps): JSX.Element | null {
+  const supportsCalibrationQuery = supportsCalibration.useQuery();
   const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
@@ -162,7 +164,15 @@ export function ElectionManagerScreen({
           </Button>
         </p>
         <p>
-          <Button onPress={() => setIsCalibratingScanner(true)}>
+          <Button
+            disabled={supportsCalibrationQuery.data === false}
+            onPress={() => setIsCalibratingScanner(true)}
+            title={
+              !supportsCalibrationQuery.data
+                ? 'This scanner does not support calibration.'
+                : undefined
+            }
+          >
             Calibrate Scanner
           </Button>
         </p>
