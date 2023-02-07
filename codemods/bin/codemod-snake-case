@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+TARGET="$PWD"
+
+cd "${DIR}/.."
+exec node --no-warnings --experimental-loader=esbuild-esm-loader "${DIR}/../src/codemod-snake-case/main.ts" --dir "${TARGET}"
