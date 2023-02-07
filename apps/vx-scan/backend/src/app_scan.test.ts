@@ -628,10 +628,10 @@ test('scanner powered off after returning', async () => {
 });
 
 test('insert second ballot while first ballot is scanning', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createApp(
-    {},
-    { passthroughDuration: 500 }
-  );
+  const { apiClient, mockPlustek, mockUsb } = await createApp({
+    delays: {},
+    mockPlustekOptions: { passthroughDuration: 500 },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -701,8 +701,10 @@ test('insert second ballot before first ballot accept', async () => {
 
 test('insert second ballot while first ballot is accepting', async () => {
   const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp({
-    DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
-    DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
+    delays: {
+      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
+    },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -771,10 +773,10 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp(
-    {},
-    { passthroughDuration: 500 }
-  );
+  const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp({
+    delays: {},
+    mockPlustekOptions: { passthroughDuration: 500 },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -818,10 +820,10 @@ test('insert second ballot while first ballot is rejecting', async () => {
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp(
-    {},
-    { passthroughDuration: 500 }
-  );
+  const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp({
+    delays: {},
+    mockPlustekOptions: { passthroughDuration: 500 },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -862,7 +864,9 @@ test('insert second ballot while first ballot is returning', async () => {
 
 test('jam on scan', async () => {
   const { apiClient, mockPlustek, mockUsb } = await createApp({
-    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    delays: {
+      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -882,7 +886,9 @@ test('jam on scan', async () => {
 
 test('jam on accept', async () => {
   const { apiClient, mockPlustek, interpreter, mockUsb } = await createApp({
-    DELAY_ACCEPTING_TIMEOUT: 500,
+    delays: {
+      DELAY_ACCEPTING_TIMEOUT: 500,
+    },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -1091,8 +1097,10 @@ test('scan fails due to plustek returning only one file instead of two', async (
 
 test('scanning time out', async () => {
   const { apiClient, mockPlustek, logger, mockUsb } = await createApp({
-    DELAY_SCANNING_TIMEOUT: 50,
-    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    delays: {
+      DELAY_SCANNING_TIMEOUT: 50,
+      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -1125,10 +1133,12 @@ test('scanning time out', async () => {
 
 test('kills plustekctl if it freezes', async () => {
   const { apiClient, mockPlustek, mockUsb } = await createApp({
-    DELAY_SCANNING_TIMEOUT: 50,
-    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
-    DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+    delays: {
+      DELAY_SCANNING_TIMEOUT: 50,
+      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+      DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
+      DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+    },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -1150,10 +1160,12 @@ test('kills plustekctl if it freezes', async () => {
 
 test('stops completely if plustekctl freezes and cant be killed', async () => {
   const { apiClient, mockPlustek, mockUsb } = await createApp({
-    DELAY_SCANNING_TIMEOUT: 50,
-    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
-    DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+    delays: {
+      DELAY_SCANNING_TIMEOUT: 50,
+      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+      DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
+      DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+    },
   });
   await configureApp(apiClient, mockUsb);
 

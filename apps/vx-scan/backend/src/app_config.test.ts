@@ -377,6 +377,27 @@ test('auth', async () => {
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
 });
 
+test('auth initial election definition and precinct selection configuration', async () => {
+  const createAppResult = await createApp();
+  await configureApp(createAppResult.apiClient, createAppResult.mockUsb);
+  const preconfiguredWorkspace = createAppResult.workspace;
+
+  const { mockAuth } = await createApp({
+    preconfiguredWorkspace,
+  });
+
+  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(
+    1,
+    ALL_PRECINCTS_SELECTION
+  );
+});
+
 test('write scanner report data to card', async () => {
   const { apiClient, mockAuth, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);

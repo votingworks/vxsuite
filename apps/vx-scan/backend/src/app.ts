@@ -338,6 +338,15 @@ export function buildApp(
   usb: Usb,
   logger: Logger
 ): Application {
+  const electionDefinition = workspace.store.getElectionDefinition();
+  if (electionDefinition) {
+    auth.setElectionDefinition(electionDefinition);
+  }
+  const precinctSelection = workspace.store.getPrecinctSelection();
+  if (precinctSelection) {
+    auth.setPrecinctSelection(precinctSelection);
+  }
+
   const app: Application = express();
   const api = buildApi(auth, machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));

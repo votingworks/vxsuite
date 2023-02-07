@@ -130,10 +130,15 @@ export async function waitForStatus(
   }, 1_000);
 }
 
-export async function createApp(
-  delays: Partial<Delays> = {},
-  mockPlustekOptions: Partial<MockScannerClientOptions> = {}
-): Promise<{
+export async function createApp({
+  delays = {},
+  mockPlustekOptions = {},
+  preconfiguredWorkspace,
+}: {
+  delays?: Partial<Delays>;
+  mockPlustekOptions?: Partial<MockScannerClientOptions>;
+  preconfiguredWorkspace?: Workspace;
+} = {}): Promise<{
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
@@ -145,7 +150,8 @@ export async function createApp(
 }> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
-  const workspace = await createWorkspace(tmp.dirSync().name);
+  const workspace =
+    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
