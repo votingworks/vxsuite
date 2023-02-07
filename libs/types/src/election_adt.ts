@@ -11,6 +11,13 @@ import {
   AnyContest as VxContestData,
 } from './election';
 
+export function findById<T extends { id: string }>(
+  array: readonly T[],
+  id: string
+): T {
+  return find(array, (element) => element.id === id);
+}
+
 export interface State {
   name(): string;
 }
@@ -24,6 +31,7 @@ export interface District {
 }
 
 export interface Precinct {
+  readonly id: string;
   name(): string;
 }
 
@@ -37,6 +45,7 @@ type ContestType = 'candidate' | 'ballot-measure';
 
 interface BaseContest {
   readonly type: ContestType;
+  readonly id: string;
   title(): string;
   party(): Party | undefined;
 }
@@ -49,6 +58,7 @@ export interface CandidateContest extends BaseContest {
 }
 
 export interface Candidate {
+  readonly id: string;
   name(): string;
   party(): Party | undefined;
 }
@@ -56,16 +66,19 @@ export interface Candidate {
 export interface BallotMeasureContest extends BaseContest {
   readonly type: 'ballot-measure';
   description(): string;
-  options(): readonly BallotMeasureOption[]; // Replaces yesOption/noOption
+  yesOption(): BallotMeasureOption;
+  noOption(): BallotMeasureOption;
 }
 
 export interface BallotMeasureOption {
+  readonly id: string;
   label(): string;
 }
 
 export type Contest = CandidateContest | BallotMeasureContest;
 
 export interface BallotStyle {
+  readonly id: string;
   precincts(): readonly Precinct[];
   contests(): readonly Contest[];
   party(): Party | undefined;
@@ -137,11 +150,13 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
       case 'candidate': {
         return {
           type: 'candidate',
+          id: contestData.id,
           title: () => contestData.title,
           party: () => findAndBuildParty(contestData.partyId),
           votesAllowed: () => contestData.seats,
           candidates: () => {
             return contestData.candidates.map((candidateData) => ({
+              id: candidateData.id,
               name: () => candidateData.name,
               party: () => findAndBuildParty(candidateData.partyIds?.[0]),
             }));
@@ -152,15 +167,18 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
       case 'yesno': {
         return {
           type: 'ballot-measure',
+          id: contestData.id,
           title: () => contestData.title,
           party: () => findAndBuildParty(contestData.partyId),
           description: () => contestData.description,
-          options: () => {
-            return [
-              { label: () => contestData.yesOption?.label ?? 'Yes' },
-              { label: () => contestData.noOption?.label ?? 'No' },
-            ];
-          },
+          yesOption: () => ({
+            id: contestData.yesOption?.id ?? 'yes',
+            label: () => contestData.yesOption?.label ?? 'Yes',
+          }),
+          noOption: () => ({
+            id: contestData.noOption?.id ?? 'no',
+            label: () => contestData.noOption?.label ?? 'No',
+          }),
         };
       }
       default:
@@ -197,6 +215,7 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
 
     precincts(): readonly Precinct[] {
       return electionData.precincts.map((precinct) => ({
+        id: precinct.id,
         name: () => precinct.name,
       }));
     },
@@ -211,6 +230,7 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
 
     ballotStyles(): readonly BallotStyle[] {
       return electionData.ballotStyles.map((ballotStyle) => ({
+        id: ballotStyle.id,
         precincts: () =>
           ballotStyle.precincts.map((precinctId) => {
             const precinctData = find(
@@ -218,6 +238,7 @@ export function buildElectionFromVxf(electionData: VxElectionData): Election {
               (precinct) => precinct.id === precinctId
             );
             return {
+              id: precinctId,
               name: () => precinctData.name,
             };
           }),

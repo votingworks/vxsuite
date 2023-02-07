@@ -996,16 +996,6 @@ export const InlineBallotImageSchema: z.ZodSchema<InlineBallotImage> = z.object(
   }
 );
 
-export interface CompletedBallot {
-  readonly electionHash: string;
-  readonly ballotStyleId: BallotStyleId;
-  readonly precinctId: PrecinctId;
-  readonly ballotId?: BallotId;
-  readonly votes: VotesDict;
-  readonly isTestMode: boolean;
-  readonly ballotType: BallotType;
-}
-
 /**
  * Gets contests which belong to a ballot style in an election.
  */
@@ -1122,37 +1112,6 @@ export function getCandidatePartiesDescription(
 ): string {
   const parties = getCandidateParties(election.parties, candidate);
   return parties.map((p) => p.name).join(', ');
-}
-
-/**
- * Validates the votes for a given ballot style in a given election.
- *
- * @throws When an inconsistency is found.
- */
-export function validateVotes({
-  votes,
-  ballotStyle,
-  election,
-}: {
-  votes: VotesDict;
-  ballotStyle: BallotStyle;
-  election: Election;
-}): void {
-  const contests = getContests({ election, ballotStyle });
-
-  for (const contestId of Object.getOwnPropertyNames(votes)) {
-    const contest = findContest({ contests, contestId });
-
-    if (!contest) {
-      throw new Error(
-        `found a vote with contest id ${JSON.stringify(
-          contestId
-        )}, but no such contest exists in ballot style ${
-          ballotStyle.id
-        } (expected one of ${contests.map((c) => c.id).join(', ')})`
-      );
-    }
-  }
 }
 
 /**

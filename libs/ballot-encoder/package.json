@@ -45,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.4",

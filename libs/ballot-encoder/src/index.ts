@@ -2,24 +2,19 @@ import {
   BallotId,
   BallotIdSchema,
   BallotLocale,
+  BallotMeasureContestVote,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
-  Candidate,
-  CandidateVote,
+  CandidateContestVote,
   CompletedBallot,
-  Contests,
+  ContestVote,
+  ContestVotes,
   Election,
-  getBallotStyle,
-  getContests,
-  getPrecinctById,
+  ElectionADT,
   HmpbBallotPageMetadata,
-  isVotePresent,
   PrecinctId,
   unsafeParse,
-  validateVotes,
-  VotesDict,
-  YesNoVote,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
@@ -159,7 +154,7 @@ export interface BallotConfig {
  * Encodes a {@link BallotConfig} into the given bit writer.
  */
 export function encodeBallotConfigInto(
-  election: Election,
+  election: ElectionADT.Election,
   {
     ballotId,
     ballotStyleId,
@@ -171,7 +166,9 @@ export function encodeBallotConfigInto(
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles, contests } = election;
+  const precincts = election.precincts();
+  const ballotStyles = election.ballotStyles();
+  const contests = election.contests();
   const precinctCount = toUint8(precincts.length);
   const ballotStyleCount = toUint8(ballotStyles.length);
   const contestCount = toUint8(contests.length);
@@ -240,7 +237,7 @@ export function encodeBallotConfigInto(
  * number.
  */
 export function decodeBallotConfigFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   {
     readLocales,
     readPageNumber,
@@ -251,7 +248,7 @@ export function decodeBallotConfigFromReader(
  * Decodes a {@link BallotConfig} from a bit reader, skipping locales.
  */
 export function decodeBallotConfigFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   { readLocales, readPageNumber }: { readLocales: false; readPageNumber: true },
   bits: BitReader
 ): BallotConfig & { locales: undefined; pageNumber: number };
@@ -259,7 +256,7 @@ export function decodeBallotConfigFromReader(
  * Decodes a {@link BallotConfig} from a bit reader, skipping page number.
  */
 export function decodeBallotConfigFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: false },
   bits: BitReader
 ): BallotConfig & { locales: BallotLocale; pageNumber: undefined };
@@ -267,7 +264,7 @@ export function decodeBallotConfigFromReader(
  * Decodes a {@link BallotConfig} from a bit reader.
  */
 export function decodeBallotConfigFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   { readLocales, readPageNumber }: { readLocales: true; readPageNumber: true },
   bits: BitReader
 ): BallotConfig & { locales: BallotLocale; pageNumber: number };
@@ -276,14 +273,16 @@ export function decodeBallotConfigFromReader(
  * and page number.
  */
 export function decodeBallotConfigFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   {
     readLocales,
     readPageNumber,
   }: { readLocales: boolean; readPageNumber: boolean },
   bits: BitReader
 ): BallotConfig {
-  const { precincts, ballotStyles, contests } = election;
+  const precincts = election.precincts();
+  const ballotStyles = election.ballotStyles();
+  const contests = election.contests();
   const precinctCount = bits.readUint8();
   const ballotStyleCount = bits.readUint8();
   const contestCount = bits.readUint8();
@@ -360,26 +359,16 @@ export function decodeBallotConfigFromReader(
   };
 }
 
-function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
-  if (!Array.isArray(ynVote)) {
-    throw new Error(
-      `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
-    );
-  }
-
-  if (ynVote.length > 1) {
-    throw new Error(
-      `cannot encode a yes/no overvote: ${JSON.stringify(ynVote)}`
-    );
-  }
-
-  // yesno votes get a single bit
-  bits.writeBoolean(ynVote[0] === 'yes');
+/**
+ * Returns true for a vote with at least one selection.
+ */
+export function isVotePresent(vote?: ContestVote): boolean {
+  return vote !== undefined && vote.length > 0;
 }
 
 function encodeBallotVotesInto(
-  contests: Contests,
-  votes: VotesDict,
+  contests: readonly ElectionADT.Contest[],
+  votes: ContestVotes,
   bits: BitWriter
 ): BitWriter {
   // write roll call
@@ -392,28 +381,45 @@ function encodeBallotVotesInto(
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
-      if (contest.type === 'yesno') {
-        const ynVote = contestVote as YesNoVote;
+      if (contest.type === 'ballot-measure') {
+        const ballotMeasureVote = contestVote as BallotMeasureContestVote;
 
-        writeYesNoVote(bits, ynVote);
-      } else {
-        const choices = contestVote as CandidateVote;
-
-        // candidate choices get one bit per candidate
-        for (const candidate of contest.candidates) {
-          bits.writeBoolean(
-            choices.some((choice) => choice.id === candidate.id)
+        if (ballotMeasureVote.length > 1) {
+          throw new Error(
+            `cannot encode a ballot measure overvote: ${JSON.stringify(
+              ballotMeasureVote
+            )}`
           );
         }
 
-        if (contest.allowWriteIns) {
+        // ballot measure votes get a single bit
+        bits.writeBoolean(
+          ballotMeasureVote[0]?.optionId === contest.yesOption().id
+        );
+      } else {
+        const choices = contestVote as CandidateContestVote;
+
+        // candidate choices get one bit per candidate
+        for (const candidate of contest.candidates()) {
+          bits.writeBoolean(
+            choices.some(
+              (choice) =>
+                !choice.isWriteIn && choice.candidateId === candidate.id
+            )
+          );
+        }
+
+        if (contest.allowWriteIns()) {
           // write write-in data
           const writeInCount = choices.reduce(
             (count, choice) => count + (choice.isWriteIn ? 1 : 0),
             0
           );
           const nonWriteInCount = choices.length - writeInCount;
-          const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount);
+          const maximumWriteIns = Math.max(
+            0,
+            contest.votesAllowed() - nonWriteInCount
+          );
 
           if (maximumWriteIns > 0) {
             bits.writeUint(writeInCount, { max: maximumWriteIns });
@@ -436,10 +442,41 @@ function encodeBallotVotesInto(
 }
 
 /**
+ * Validates the votes for a given ballot style in a given election.
+ *
+ * @throws When an inconsistency is found.
+ */
+export function validateVotes({
+  votes,
+  ballotStyle,
+  election,
+}: {
+  votes: ContestVotes;
+  ballotStyle: ElectionADT.BallotStyle;
+  election: ElectionADT.Election;
+}): void {
+  const contests = election.contests();
+
+  for (const contestId of Object.getOwnPropertyNames(votes)) {
+    const contest = ElectionADT.findById(contests, contestId);
+
+    if (!contest) {
+      throw new Error(
+        `found a vote with contest id ${JSON.stringify(
+          contestId
+        )}, but no such contest exists in ballot style ${
+          ballotStyle.id
+        } (expected one of ${contests.map((c) => c.id).join(', ')})`
+      );
+    }
+  }
+}
+
+/**
  * Encodes a completed ballot, including metadata and votes, into a bit writer.
  */
 export function encodeBallotInto(
-  election: Election,
+  election: ElectionADT.Election,
   {
     electionHash,
     ballotStyleId,
@@ -451,15 +488,12 @@ export function encodeBallotInto(
   }: CompletedBallot,
   bits: BitWriter
 ): BitWriter {
-  const ballotStyle = getBallotStyle({ election, ballotStyleId });
-
-  if (!ballotStyle) {
-    throw new Error(`unknown ballot style id: ${ballotStyleId}`);
-  }
+  const ballotStyle = ElectionADT.findById(
+    election.ballotStyles(),
+    ballotStyleId
+  );
 
   validateVotes({ election, ballotStyle, votes });
-
-  const contests = getContests({ ballotStyle, election });
 
   return bits
     .writeUint8(...Prelude)
@@ -481,14 +515,14 @@ export function encodeBallotInto(
         bits
       )
     )
-    .with(() => encodeBallotVotesInto(contests, votes, bits));
+    .with(() => encodeBallotVotesInto(ballotStyle.contests(), votes, bits));
 }
 
 /**
  * Encodes a completed ballot, including metadata and votes, as a byte array.
  */
 export function encodeBallot(
-  election: Election,
+  election: ElectionADT.Election,
   ballot: CompletedBallot
 ): Uint8Array {
   const bits = new BitWriter();
@@ -516,8 +550,11 @@ function readPaddingToEnd(bits: BitReader): void {
   }
 }
 
-function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
-  const votes: VotesDict = {};
+function decodeBallotVotes(
+  contests: readonly ElectionADT.Contest[],
+  bits: BitReader
+): ContestVotes {
+  const votes: ContestVotes = {};
 
   // read roll call
   const contestsWithAnswers = contests.flatMap((contest) => {
@@ -530,22 +567,28 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
 
   // read vote data
   for (const contest of contestsWithAnswers) {
-    if (contest.type === 'yesno') {
-      // yesno votes get a single bit
-      votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no'];
+    if (contest.type === 'ballot-measure') {
+      // ballot measure votes get a single bit
+      const { id } = bits.readBoolean()
+        ? contest.yesOption()
+        : contest.noOption();
+      votes[contest.id] = [{ optionId: id }];
     } else {
-      const contestVote: Candidate[] = [];
+      const contestVote: CandidateContestVote = [];
 
       // candidate choices get one bit per candidate
-      for (const candidate of contest.candidates) {
+      for (const candidate of contest.candidates()) {
         if (bits.readBoolean()) {
-          contestVote.push(candidate);
+          contestVote.push({ isWriteIn: false, candidateId: candidate.id });
         }
       }
 
-      if (contest.allowWriteIns) {
+      if (contest.allowWriteIns()) {
         // read write-in data
-        const maximumWriteIns = Math.max(0, contest.seats - contestVote.length);
+        const maximumWriteIns = Math.max(
+          0,
+          contest.votesAllowed() - contestVote.length
+        );
 
         if (maximumWriteIns > 0) {
           const writeInCount = bits.readUint({ max: maximumWriteIns });
@@ -557,9 +600,8 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
             });
 
             contestVote.push({
-              id: `write-in-${name}`,
-              name,
               isWriteIn: true,
+              name,
             });
           }
         }
@@ -576,7 +618,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
  * Decodes a completed ballot, including metadata and votes, from a bit reader.
  */
 export function decodeBallotFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   bits: BitReader
 ): CompletedBallot {
   if (!bits.skipUint8(...Prelude)) {
@@ -596,14 +638,16 @@ export function decodeBallotFromReader(
       { readLocales: false, readPageNumber: false },
       bits
     );
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  const precinct = getPrecinctById({ precinctId, election });
+  const ballotStyle = ElectionADT.findById(
+    election.ballotStyles(),
+    ballotStyleId
+  );
+  const precinct = ElectionADT.findById(election.precincts(), precinctId);
 
   assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`);
   assert(precinct, `invalid precinct id: ${precinctId}`);
 
-  const contests = getContests({ ballotStyle, election });
-  const votes = decodeBallotVotes(contests, bits);
+  const votes = decodeBallotVotes(ballotStyle.contests(), bits);
 
   readPaddingToEnd(bits);
 
@@ -622,7 +666,7 @@ export function decodeBallotFromReader(
  * Decodes a completed ballot, including metadata and votes, from a byte array.
  */
 export function decodeBallot(
-  election: Election,
+  election: ElectionADT.Election,
   data: Uint8Array
 ): CompletedBallot {
   return decodeBallotFromReader(election, new BitReader(data));
@@ -632,7 +676,7 @@ export function decodeBallot(
  * Encodes a hand-marked paper ballot's metadata into a bit writer.
  */
 export function encodeHmpbBallotPageMetadataInto(
-  election: Election,
+  election: ElectionADT.Election,
   {
     ballotId,
     ballotStyleId,
@@ -673,7 +717,7 @@ export function encodeHmpbBallotPageMetadataInto(
  * Encodes hand-marked paper ballot page metadata as a byte array.
  */
 export function encodeHmpbBallotPageMetadata(
-  election: Election,
+  election: ElectionADT.Election,
   metadata: HmpbBallotPageMetadata
 ): Uint8Array {
   return encodeHmpbBallotPageMetadataInto(
@@ -729,7 +773,7 @@ export function decodeElectionHash(data: Uint8Array): string | undefined {
  * Decodes a hand-marked paper ballot page's metadata from a bit reader.
  */
 export function decodeHmpbBallotPageMetadataFromReader(
-  election: Election,
+  election: ElectionADT.Election,
   bits: BitReader
 ): HmpbBallotPageMetadata {
   if (!detectHmpbBallotPageMetadataFromReader(bits)) {
@@ -769,7 +813,7 @@ export function decodeHmpbBallotPageMetadataFromReader(
  * Decodes a hand-marked paper ballot page's metadata from a byte array.
  */
 export function decodeHmpbBallotPageMetadata(
-  election: Election,
+  election: ElectionADT.Election,
   data: Uint8Array
 ): HmpbBallotPageMetadata {
   return decodeHmpbBallotPageMetadataFromReader(election, new BitReader(data));

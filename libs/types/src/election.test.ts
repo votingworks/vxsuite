@@ -38,7 +38,6 @@ import {
   PartyId,
   PartyIdSchema,
   PartySchema,
-  validateVotes,
   vote,
   withLocale,
   YesNoContest,
@@ -341,28 +340,6 @@ test('isVotePresent', () => {
       )!.candidates[0],
     ])
   ).toEqual(true);
-});
-
-test('validates votes by checking that contests are present in a given ballot style', () => {
-  const ballotStyle = election.ballotStyles[0];
-
-  const yesno = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
-  ) as YesNoContest;
-  expect(() =>
-    validateVotes({
-      votes: {
-        [yesno.id]: ['yes'],
-      },
-      ballotStyle,
-      election,
-    })
-  ).not.toThrowError();
-  expect(() =>
-    validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
-  ).toThrowError(
-    'found a vote with contest id "nope", but no such contest exists in ballot style 1'
-  );
 });
 
 test('list locales in election definition', () => {

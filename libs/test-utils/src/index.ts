@@ -16,4 +16,5 @@ export * from './smartcards';
 export * from './smartcard_auth';
 export * from './strip_election_hash';
 export * from './types';
+export * from './votes';
 export * from './zip';

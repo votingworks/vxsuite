@@ -6,6 +6,8 @@ export * from './cast_vote_record';
 export * from './converter_client';
 export * from './dom';
 export * from './election';
+export * as ElectionADT from './election_adt';
+export * from './votes';
 export * from './generic';
 export * from './geometry';
 export * from './image';
