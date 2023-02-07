@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
   ElectionDefinition,
@@ -5,11 +6,10 @@ import {
   PollWorkerUser,
   SystemAdministratorUser,
 } from '@votingworks/types';
-import { Result } from '@votingworks/basics';
 
 /**
  * The API for a dipped smart card auth instance, "dipped" meaning that the card needs to be
- * inserted and removed from the card reader to complete authentication
+ * inserted and removed from the card reader for the user to be authenticated
  */
 export interface DippedSmartCardAuthApi {
   getAuthStatus: () => DippedSmartCardAuth.AuthStatus;
