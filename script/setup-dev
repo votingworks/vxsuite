@@ -22,37 +22,36 @@ NODE_VERSION=$(cat "${DIR}/../.node-version")
 
 if command node -v 2>/dev/null | grep -q "${NODE_VERSION}"; then
   echo "Node version ${NODE_VERSION} already installed"
-  sudo corepack enable
-  exit
+else 
+
+  echo "Installing Node version ${NODE_VERSION}"
+
+  case "$(arch)" in
+    aarch64)
+      ARCH=arm64
+      ;;
+
+    x86_64)
+      ARCH=x64
+      ;;
+
+    *)
+      echo "Unsupported architecture: $(arch)"
+      exit 1
+      ;;
+  esac
+
+  DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz"
+
+  TMPDIR=$(mktemp -d -t node-tmp-XXXXXX)
+  TMPFILE="${TMPDIR}/$(basename "${DOWNLOAD_URL}")"
+
+  (
+    cd "${TMPDIR}"
+    curl -sSLO ${DOWNLOAD_URL}
+    sha256sum --check "${DIR}/hashes/$(basename "${DOWNLOAD_URL}").sha256"
+    cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
+  )
 fi
-
-echo "Installing Node version ${NODE_VERSION}"
-
-case "$(arch)" in
-  aarch64)
-    ARCH=arm64
-    ;;
-
-  x86_64)
-    ARCH=x64
-    ;;
-
-  *)
-    echo "Unsupported architecture: $(arch)"
-    exit 1
-    ;;
-esac
-
-DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz"
-
-TMPDIR=$(mktemp -d -t node-tmp-XXXXXX)
-TMPFILE="${TMPDIR}/$(basename "${DOWNLOAD_URL}")"
-
-(
-  cd "${TMPDIR}"
-  curl -sSLO ${DOWNLOAD_URL}
-  sha256sum --check "${DIR}/hashes/$(basename "${DOWNLOAD_URL}").sha256"
-  cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
-)
 
 sudo corepack enable
