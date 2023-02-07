@@ -409,9 +409,13 @@ test('voter can cast a ballot that scans successfully ', async () => {
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenNthCalledWith(1, {
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(1, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
@@ -426,7 +430,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
         [0, 0, 1, 1, 0], // Judicial Robert Demergue expected tally
       ]),
     }),
-    schema: 'ScannerReportDataSchema',
   });
 
   // Simulate unmounted usb drive
@@ -599,7 +602,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 5);
+  apiMock.expectGetScannerStatus(statusNoPaper, 4);
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -700,7 +703,9 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
   apiMock.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
@@ -735,9 +740,13 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(2);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenNthCalledWith(2, {
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(2);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(2, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 1,
@@ -752,7 +761,6 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
         [0, 0, 1, 1, 0], // Judicial Robert Demergue expected tally
       ]),
     }),
-    schema: 'ScannerReportDataSchema',
   });
 
   apiMock.expectGetScannerStatus(statusNoPaper);

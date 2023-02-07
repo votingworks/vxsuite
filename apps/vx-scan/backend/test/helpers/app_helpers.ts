@@ -271,7 +271,10 @@ export async function configureApp(
   {
     addTemplates = false,
     precinctId,
-  }: { addTemplates?: boolean; precinctId?: PrecinctId } = {
+  }: {
+    addTemplates?: boolean;
+    precinctId?: PrecinctId;
+  } = {
     addTemplates: false,
   }
 ): Promise<void> {

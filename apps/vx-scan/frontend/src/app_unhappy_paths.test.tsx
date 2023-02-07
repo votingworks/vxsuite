@@ -228,10 +228,13 @@ test('App shows warning message to connect to power when disconnected', async ()
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenNthCalledWith(1, {
-    data: expect.anything(),
-    schema: 'ScannerReportDataSchema',
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(1, {
+    scannerReportData: expect.anything(),
   });
 
   // Remove pollworker card

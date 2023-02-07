@@ -10,6 +10,7 @@ import {
 import {
   BALLOT_PACKAGE_FOLDER,
   readBallotPackageFromBuffer,
+  ScannerReportData,
   ScannerReportDataSchema,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -20,7 +21,6 @@ import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { z } from 'zod';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,
@@ -37,12 +37,6 @@ import {
 } from './types';
 import { getMachineConfig } from './machine_config';
 
-export type CardDataSchemaName = 'ScannerReportDataSchema';
-
-const CARD_DATA_SCHEMA_MAPPING: Record<CardDataSchemaName, z.ZodSchema> = {
-  ScannerReportDataSchema,
-};
-
 function buildApi(
   auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
@@ -58,16 +52,6 @@ function buildApi(
 
     getAuthStatus: () => auth.getAuthStatus(),
     checkPin: (input: { pin: string }) => auth.checkPin(input),
-    readCardData: <T>({ schema }: { schema: CardDataSchemaName }) =>
-      auth.readCardData<T>({ schema: CARD_DATA_SCHEMA_MAPPING[schema] }),
-    writeCardData: <T>({
-      data,
-      schema,
-    }: {
-      data: T;
-      schema: CardDataSchemaName;
-    }) =>
-      auth.writeCardData<T>({ data, schema: CARD_DATA_SCHEMA_MAPPING[schema] }),
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
@@ -317,6 +301,26 @@ function buildApi(
     async calibrate(): Promise<boolean> {
       const result = await machine.calibrate();
       return result.isOk();
+    },
+
+    async saveScannerReportDataToCard({
+      scannerReportData,
+    }: {
+      scannerReportData: ScannerReportData;
+    }): Promise<Result<void, Error>> {
+      const authStatus = auth.getAuthStatus();
+
+      if (authStatus.status !== 'logged_in') {
+        return err(new Error('User is not logged in'));
+      }
+      if (authStatus.user.role !== 'poll_worker') {
+        return err(new Error('User is not a poll worker'));
+      }
+
+      return await auth.writeCardData({
+        data: scannerReportData,
+        schema: ScannerReportDataSchema,
+      });
     },
   });
 }

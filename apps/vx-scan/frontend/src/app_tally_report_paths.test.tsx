@@ -200,7 +200,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
 test('saving to card: polls open, All Precincts, primary election + test failed card write', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   apiMock.expectGetConfig({ electionDefinition });
-  apiMock.expectGetScannerStatus(statusNoPaper, 5);
+  apiMock.expectGetScannerStatus(statusNoPaper, 4);
   renderApp({ connectPrinter: false });
   await screen.findByText('Polls Closed');
 
@@ -209,7 +209,7 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does
-  apiMock.mockApiClient.writeCardData.mockImplementationOnce(() =>
+  apiMock.mockApiClient.saveScannerReportDataToCard.mockImplementationOnce(() =>
     err(new Error('Whoa!'))
   );
   apiMock.expectSetPollsState('polls_open');
@@ -256,9 +256,13 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     '1,precinct-1': [0, 0],
     '1,precinct-2': [0, 0],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(2);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenNthCalledWith(1, {
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(2);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(1, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
@@ -271,11 +275,12 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'open_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
   // Expect the final call to have an empty tallies by precinct dictionary
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenNthCalledWith(2, {
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(2, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
@@ -288,7 +293,6 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'open_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -587,9 +591,13 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     '1,precinct-1': [0, 0],
     '1,precinct-2': [1, 0],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
@@ -602,7 +610,6 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -821,9 +828,13 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     '1,__ALL_PRECINCTS': [1, 0],
     '1,precinct-1': [1, 0],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
@@ -836,7 +847,6 @@ test('saving to card: polls closed, primary election, single precinct', async ()
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -990,9 +1000,13 @@ test('saving to card: polls closed, general election, all precincts', async () =
     'undefined,21': [0, 1],
     'undefined,20': [0, 0],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1005,7 +1019,6 @@ test('saving to card: polls closed, general election, all precincts', async () =
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -1131,9 +1144,13 @@ test('saving to card: polls closed, general election, single precinct', async ()
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 1],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1146,7 +1163,6 @@ test('saving to card: polls closed, general election, single precinct', async ()
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -1346,9 +1362,13 @@ test('saving to card: polls closed, general election with non-partisan contests,
     '0,__ALL_PRECINCTS': [2, 0],
     '1,__ALL_PRECINCTS': [2, 0],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 4,
@@ -1361,7 +1381,6 @@ test('saving to card: polls closed, general election with non-partisan contests,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -1433,9 +1452,13 @@ test('saving to card: polls paused', async () => {
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1445,7 +1468,6 @@ test('saving to card: polls paused', async () => {
       precinctSelection: singlePrecinctSelectionFor('23'),
       pollsTransition: 'pause_voting',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -1514,9 +1536,13 @@ test('saving to card: polls unpaused', async () => {
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1526,7 +1552,6 @@ test('saving to card: polls unpaused', async () => {
       precinctSelection: singlePrecinctSelectionFor('23'),
       pollsTransition: 'resume_voting',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });
 
@@ -1609,7 +1634,7 @@ test('saving to card: polls closed from paused, general election, single precinc
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 5);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
   renderApp({ connectPrinter: false });
   await screen.findByText('Polls Paused');
 
@@ -1641,9 +1666,13 @@ test('saving to card: polls closed from paused, general election, single precinc
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 1],
   };
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledTimes(1);
-  expect(apiMock.mockApiClient.writeCardData).toHaveBeenCalledWith({
-    data: expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1656,6 +1685,5 @@ test('saving to card: polls closed from paused, general election, single precinc
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
     }),
-    schema: 'ScannerReportDataSchema',
   });
 });

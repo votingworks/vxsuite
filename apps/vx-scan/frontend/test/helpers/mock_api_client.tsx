@@ -56,7 +56,7 @@ type MockApiClient = Omit<
   // Because the values passed to this are so complex, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires exact input matching and doesn't support
   // matchers like expect.objectContaining
-  writeCardData: jest.Mock;
+  saveScannerReportDataToCard: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -66,8 +66,8 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  (mockApiClient.writeCardData as unknown as jest.Mock) = jest.fn(() =>
-    Promise.resolve(ok())
+  (mockApiClient.saveScannerReportDataToCard as unknown as jest.Mock) = jest.fn(
+    () => Promise.resolve(ok())
   );
   return mockApiClient as unknown as MockApiClient;
 }

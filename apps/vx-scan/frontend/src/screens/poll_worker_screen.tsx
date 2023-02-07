@@ -62,7 +62,7 @@ import {
   exportCastVoteRecordsToUsbDrive,
   getCastVoteRecordsForTally,
   setPollsState,
-  writeCardData,
+  saveScannerReportDataToCard as saveScannerReportDataToCardBase,
 } from '../api';
 import { MachineConfig } from '../config/types';
 
@@ -133,16 +133,16 @@ export function PollWorkerScreen({
   ] = useState(false);
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
-  const writeCardDataMutation = writeCardData.useMutation();
+  const saveScannerReportDataToCardMutation =
+    saveScannerReportDataToCardBase.useMutation();
 
-  async function saveReportDataToCard(
-    reportData: ScannerReportData
+  async function saveScannerReportDataToCard(
+    scannerReportData: ScannerReportData
   ): Promise<boolean> {
     let result: Result<void, Error>;
     try {
-      result = await writeCardDataMutation.mutateAsync({
-        data: reportData,
-        schema: 'ScannerReportDataSchema',
+      result = await saveScannerReportDataToCardMutation.mutateAsync({
+        scannerReportData,
       });
     } catch {
       // Handled by query client's default error handling
@@ -231,7 +231,7 @@ export function PollWorkerScreen({
         ...reportBasicData,
         pollsTransition,
       };
-      await saveReportDataToCard(ballotCountReportData);
+      await saveScannerReportDataToCard(ballotCountReportData);
       return;
     }
 
@@ -298,13 +298,13 @@ export function PollWorkerScreen({
       ballotCounts: ballotCountBreakdowns,
     };
 
-    const success = await saveReportDataToCard(tallyReportData);
+    const success = await saveScannerReportDataToCard(tallyReportData);
     if (!success) {
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
       // TODO show an error message if this attempt also fails.
-      await saveReportDataToCard({
+      await saveScannerReportDataToCard({
         ...tallyReportData,
         talliesByPrecinct: undefined,
         timeSaved: Date.now(),

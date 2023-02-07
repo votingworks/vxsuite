@@ -1,9 +1,5 @@
 /* eslint-disable-next-line vx/gts-no-import-export-type */
-import type {
-  Api,
-  CardDataSchemaName,
-  PrecinctScannerStatus,
-} from '@votingworks/vx-scan-backend';
+import type { Api, PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
@@ -73,41 +69,6 @@ export const checkPin = {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const readCardData = {
-  queryKey(): QueryKey {
-    return ['readCardData'];
-  },
-  useQuery<T>(schema: CardDataSchemaName) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () =>
-        // In the conversion from the Api type to the ApiClient type, generics are lost, so we cast
-        // back to the original type here
-        (apiClient.readCardData as Api['readCardData'])<T>({ schema }),
-      {
-        // Don't cache this data because so many actions can invalidate it, e.g. not just writing
-        // card data but also card removal
-        staleTime: 0,
-      }
-    );
-  },
-} as const;
-
-export const writeCardData = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.writeCardData, {
-      async onSuccess() {
-        // Because we immediately consider retrieved card data stale, this invalidation isn't
-        // strictly necessary
-        await queryClient.invalidateQueries(readCardData.queryKey());
       },
     });
   },
@@ -288,5 +249,12 @@ export const calibrate = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.calibrate);
+  },
+} as const;
+
+export const saveScannerReportDataToCard = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveScannerReportDataToCard);
   },
 } as const;
