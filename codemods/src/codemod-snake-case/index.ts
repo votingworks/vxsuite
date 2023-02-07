@@ -13,7 +13,7 @@
  *
  * Run it like this in a TypeScript project:
  *
- *   pnpx ts-node -T path/to/snake_case.ts
+ *   ./path/to/bin/codemod-snake-case
  */
 
 import { basename, dirname, join, relative } from 'path';
@@ -79,8 +79,23 @@ function printRename(root: string, from: string, toFileName: string): void {
   process.stdout.write(`${fromRelative} → ${toRelative}\n`);
 }
 
-async function main(): Promise<number> {
-  const root = process.cwd();
+export async function main(args: readonly string[]): Promise<number> {
+  let root = process.cwd();
+
+  for (let i = 0; i < args.length; i += 1) {
+    const arg = args[i];
+    if (arg === '--dir') {
+      const value = args[i + 1];
+      i += 1;
+      if (value && !value.startsWith('-')) {
+        root = value;
+      } else {
+        process.stderr.write(`error: missing value for --dir\n`);
+        return 1;
+      }
+    }
+  }
+
   const tsConfigFilePath = await getTsConfigFilePath(root);
 
   if (!tsConfigFilePath) {
@@ -131,17 +146,17 @@ async function main(): Promise<number> {
           continue;
         }
 
-        const args = callExpression.getArguments();
-        if (args.length !== 1) {
+        const callArgs = callExpression.getArguments();
+        if (callArgs.length !== 1) {
           continue;
         }
 
-        const arg = args[0]?.asKind(ts.SyntaxKind.StringLiteral);
-        if (!arg) {
+        const callArg = callArgs[0]?.asKind(ts.SyntaxKind.StringLiteral);
+        if (!callArg) {
           continue;
         }
 
-        const mockedPath = arg.getLiteralValue();
+        const mockedPath = callArg.getLiteralValue();
         if (!mockedPath.startsWith('./') && !mockedPath.startsWith('../')) {
           continue;
         }
@@ -151,7 +166,7 @@ async function main(): Promise<number> {
         const snakeCaseMockedPathBasename =
           convertFilenameToSnakeCase(mockedPathBasename);
         // NOTE: don't use `join` because it normalizes the path, removing the leading `./`
-        arg.setLiteralValue(
+        callArg.setLiteralValue(
           `${mockedPathDirname}/${snakeCaseMockedPathBasename}`
         );
       }
@@ -171,8 +186,3 @@ async function main(): Promise<number> {
 
   return 0;
 }
-
-main().catch((error) => {
-  process.stderr.write(`[CRASH] ${error}\n`);
-  return 1;
-});
