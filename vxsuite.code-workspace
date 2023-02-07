@@ -17,10 +17,6 @@
       "path": "apps/vx-scan/frontend"
     },
     {
-      "name": "frontends/bmd",
-      "path": "frontends/bmd"
-    },
-    {
       "name": "frontends/bsd",
       "path": "frontends/bsd"
     },

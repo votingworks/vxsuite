@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {
   DippedSmartCardAuth,
   DippedSmartcardAuth,
+  InsertedSmartCardAuth,
   InsertedSmartcardAuth,
 } from '@votingworks/types';
 import {
@@ -44,7 +45,8 @@ const EnteredCode = styled.div`
 type CheckingPassCodeAuth =
   | DippedSmartcardAuth.CheckingPasscode
   | DippedSmartCardAuth.CheckingPin
-  | InsertedSmartcardAuth.CheckingPasscode;
+  | InsertedSmartcardAuth.CheckingPasscode
+  | InsertedSmartCardAuth.CheckingPin;
 
 interface Props {
   auth: CheckingPassCodeAuth;

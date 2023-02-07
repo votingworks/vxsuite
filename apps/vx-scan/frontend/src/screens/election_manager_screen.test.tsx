@@ -17,6 +17,7 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import {
+  ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
@@ -27,14 +28,14 @@ import {
   ElectionManagerScreenProps,
 } from './election_manager_screen';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   MockDate.set('2020-10-31T00:00:00.000Z');
   jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
 });
 

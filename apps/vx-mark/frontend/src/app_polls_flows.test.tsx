@@ -46,9 +46,9 @@ import {
 import { buildApp } from '../test/helpers/build_app';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { enterPin } from '../test/test_utils';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 function expectBallotCountsInReport(
   container: HTMLElement,
@@ -118,7 +118,7 @@ async function printPollsClosedReport() {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
 });
 
@@ -1476,9 +1476,9 @@ test('tally report: will print but not update polls state appropriate', async ()
 });
 
 test('full polls flow without tally reports', async () => {
-  const { renderApp, card, storage, logger } = buildApp(apiMock);
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  const { renderApp, card, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();

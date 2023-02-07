@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { Card } from '@votingworks/types';
 import {
   useUsbDrive,
   SetupCardReaderPage,
   useDevices,
   UnlockMachineScreen,
-  useInsertedSmartcardAuth,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
@@ -33,6 +31,8 @@ import {
 } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import {
+  checkPin,
+  getAuthStatus,
   getConfig,
   getMachineConfig,
   getScannerStatus,
@@ -43,13 +43,14 @@ import { VoterScreen } from './screens/voter_screen';
 
 export interface Props {
   hardware: Hardware;
-  card: Card;
   logger: Logger;
 }
 
-export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
+export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
+  const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
+  const checkPinMutation = checkPin.useMutation();
   const setPollsStateMutation = setPollsState.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
 
@@ -63,16 +64,6 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     hardware,
     logger,
   });
-  const auth = useInsertedSmartcardAuth({
-    allowedUserRoles: [
-      'system_administrator',
-      'election_manager',
-      'poll_worker',
-    ],
-    cardApi: card,
-    scope: { electionDefinition: configQuery.data?.electionDefinition },
-    logger,
-  });
 
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -81,6 +72,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
   if (
     !(
       machineConfigQuery.isSuccess &&
+      authStatusQuery.isSuccess &&
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess
     )
@@ -89,6 +81,7 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
   }
 
   const machineConfig = machineConfigQuery.data;
+  const authStatus = authStatusQuery.data;
   const {
     electionDefinition,
     isTestMode,
@@ -103,18 +96,26 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return <SetupCardReaderPage />;
   }
 
-  if (auth.status === 'logged_out' && auth.reason === 'card_error') {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'card_error'
+  ) {
     return <CardErrorScreen />;
   }
 
   if (
-    auth.status === 'checking_passcode' &&
-    auth.user.role === 'system_administrator'
+    authStatus.status === 'checking_passcode' &&
+    authStatus.user.role === 'system_administrator'
   ) {
-    return <UnlockMachineScreen auth={auth} />;
+    return (
+      <UnlockMachineScreen
+        auth={authStatus}
+        checkPin={(pin: string) => checkPinMutation.mutate({ pin })}
+      />
+    );
   }
 
-  if (isSystemAdministratorAuth(auth)) {
+  if (isSystemAdministratorAuth(authStatus)) {
     return (
       <ScreenMainCenterChild infoBar>
         <SystemAdministratorScreenContents
@@ -159,11 +160,16 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return <UnconfiguredElectionScreen usbDriveStatus={usbDrive.status} />;
   }
 
-  if (auth.status === 'checking_passcode') {
-    return <UnlockMachineScreen auth={auth} />;
+  if (authStatus.status === 'checking_passcode') {
+    return (
+      <UnlockMachineScreen
+        auth={authStatus}
+        checkPin={(pin: string) => checkPinMutation.mutate({ pin })}
+      />
+    );
   }
 
-  if (isElectionManagerAuth(auth)) {
+  if (isElectionManagerAuth(authStatus)) {
     return (
       <ElectionManagerScreen
         electionDefinition={electionDefinition}
@@ -187,13 +193,13 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
     return (
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
-        pollWorkerAuthenticated={isPollWorkerAuth(auth)}
+        pollWorkerAuthenticated={isPollWorkerAuth(authStatus)}
         logger={logger}
       />
     );
   }
 
-  if (isPollWorkerAuth(auth)) {
+  if (isPollWorkerAuth(authStatus)) {
     return (
       <PollWorkerScreen
         machineConfig={machineConfig}
@@ -203,18 +209,17 @@ export function AppRoot({ hardware, card, logger }: Props): JSX.Element | null {
         pollsState={pollsState}
         hasPrinterAttached={!!printerInfo}
         isLiveMode={!isTestMode}
-        auth={auth}
         logger={logger}
       />
     );
   }
 
-  if (auth.status === 'logged_out' && auth.reason !== 'no_card') {
+  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
     return <InvalidCardScreen />;
   }
 
   // When no card is inserted, we're in "voter" mode
-  assert(auth.status === 'logged_out' && auth.reason === 'no_card');
+  assert(authStatus.status === 'logged_out' && authStatus.reason === 'no_card');
 
   if (pollsState !== 'polls_open') {
     return (

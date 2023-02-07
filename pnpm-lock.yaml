@@ -421,6 +421,7 @@ importers:
       '@types/zip-stream': workspace:*
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/auth': workspace:*
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
@@ -477,6 +478,7 @@ importers:
       zip-stream: ^4.1.0
       zod: 3.14.4
     dependencies:
+      '@votingworks/auth': link:../../../libs/auth
       '@votingworks/ballot-encoder': link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter-nh': link:../../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../../libs/ballot-interpreter-vx

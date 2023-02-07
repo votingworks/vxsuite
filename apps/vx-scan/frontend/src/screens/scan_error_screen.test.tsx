@@ -1,12 +1,16 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ScanErrorScreen } from './scan_error_screen';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
 });

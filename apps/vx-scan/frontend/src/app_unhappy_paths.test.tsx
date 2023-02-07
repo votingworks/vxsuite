@@ -1,36 +1,30 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import {
-  electionSampleDefinition,
-  electionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
-  makeElectionManagerCard,
-  makePollWorkerCard,
-  makeVoterCard,
 } from '@votingworks/test-utils';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { deferred } from '@votingworks/basics';
+import { scannerStatus } from '../test/helpers/helpers';
 import {
-  authenticateElectionManagerCard,
-  scannerStatus,
-} from '../test/helpers/helpers';
-import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
+  ApiMock,
+  createApiMock,
+  statusNoPaper,
+} from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectPrinter: false,
     connectCardReader: true,
@@ -40,19 +34,18 @@ function renderApp(props: Partial<AppProps> = {}) {
   const storage = new MemoryStorage();
   render(
     <App
-      card={card}
       hardware={hardware}
       logger={logger}
       apiClient={apiMock.mockApiClient}
       {...props}
     />
   );
-  return { card, hardware, logger, storage };
+  return { hardware, logger, storage };
 }
 
 beforeEach(() => {
   jest.useFakeTimers();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
 });
 
@@ -87,13 +80,8 @@ test('backend fails to unconfigure', async () => {
     .expectCallWith({})
     .throws(new ServerError('failed'));
 
-  const { card } = renderApp();
-  const electionManagerCard = makeElectionManagerCard(
-    electionSampleDefinition.electionHash,
-    '123456'
-  );
-  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateElectionManagerCard();
+  renderApp();
+  apiMock.authenticateAsElectionManager(electionSampleDefinition);
 
   userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
@@ -108,57 +96,59 @@ test('backend fails to unconfigure', async () => {
 
 test('Show invalid card screen when unsupported cards are given', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper, 3);
 
-  const { card } = renderApp();
-  await screen.findByText('Polls Closed');
-  const voterCard = makeVoterCard(electionSampleDefinition.election);
-  card.insertCard(voterCard);
-  await screen.findByText('Invalid Card');
-
-  // Remove card
-  card.removeCard();
+  renderApp();
   await screen.findByText('Polls Closed');
 
   // Insert an invalid card
-  card.insertCard(JSON.stringify({ t: 'something' }));
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'invalid_user_on_card',
+  });
   await screen.findByText('Invalid Card');
 
   // Remove card
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Polls Closed');
 
   // Insert a voter card which is invalid
-  card.insertCard(JSON.stringify({ t: 'voter' }));
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'voter_wrong_election',
+  });
   await screen.findByText('Invalid Card');
 
   // Remove card
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Polls Closed');
 
   // Insert a poll worker card which is invalid
-  const pollWorkerCardWrongElection = makePollWorkerCard(
-    electionWithMsEitherNeitherDefinition.electionHash
-  );
-  card.insertCard(pollWorkerCardWrongElection);
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'poll_worker_wrong_election',
+  });
   await screen.findByText('Invalid Card');
 
   // Remove card
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Polls Closed');
 });
 
 test('show card backwards screen when card connection error occurs', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  const { card } = renderApp();
+  renderApp();
 
   await screen.findByText('Polls Closed');
-  card.insertCard(undefined, undefined, 'error');
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'card_error',
+  });
   await screen.findByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Polls Closed');
 });
 
@@ -217,7 +207,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper, 7);
-  const { card } = renderApp({ hardware });
+  renderApp({ hardware });
   apiMock.expectGetCastVoteRecordsForTally([]);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
@@ -234,17 +224,22 @@ test('App shows warning message to connect to power when disconnected', async ()
   expect(screen.queryByText('No Power Detected.')).toBeNull();
 
   // Open Polls
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionSampleDefinition);
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(1, {
+    scannerReportData: expect.anything(),
+  });
 
   // Remove pollworker card
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Insert Your Ballot Below');
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
@@ -263,28 +258,21 @@ test('removing card during calibration', async () => {
   apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
   apiMock.expectGetCastVoteRecordsForTally([]);
-  const { card } = renderApp();
+  renderApp();
 
   // Open Polls
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionSampleDefinition);
   userEvent.click(
     await screen.findByRole('button', { name: 'Yes, Open the Polls' })
   );
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   await screen.findByText('Polls are open.');
-  card.removeCard();
+  apiMock.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
   // Start calibrating
-  const electionManagerCard = makeElectionManagerCard(
-    electionSampleDefinition.electionHash
-  );
-  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateElectionManagerCard();
+  apiMock.authenticateAsElectionManager(electionSampleDefinition);
 
   const { promise, resolve } = deferred<boolean>();
   apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
@@ -305,7 +293,7 @@ test('removing card during calibration', async () => {
   );
 
   // Removing card shouldn't crash the app - for now we just show a blank screen
-  card.removeCard();
+  apiMock.removeCard();
   await waitFor(() => {
     expect(screen.queryByText(/Calibrating/)).not.toBeInTheDocument();
   });

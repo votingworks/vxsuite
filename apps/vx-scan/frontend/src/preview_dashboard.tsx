@@ -4,16 +4,13 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { Prose, QUERY_CLIENT_DEFAULT_OPTIONS, Select } from '@votingworks/ui';
+import { Prose, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import * as grout from '@votingworks/grout';
-// eslint-disable-next-line vx/gts-no-import-export-type
-import type { Api } from '@votingworks/vx-scan-backend';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiClientContext } from './api';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
 interface PreviewContextValues {
   electionDefinition: ElectionDefinition;
@@ -162,14 +159,8 @@ export function PreviewDashboard({
 
   return (
     <PreviewContext.Provider value={{ electionDefinition }}>
-      <ApiClientContext.Provider
-        value={grout.createClient<Api>({ baseUrl: '/api' })}
-      >
-        <QueryClientProvider
-          client={
-            new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS })
-          }
-        >
+      <ApiClientContext.Provider value={createApiClient()}>
+        <QueryClientProvider client={createQueryClient()}>
           <BrowserRouter>
             <Route path="/preview" exact>
               <h1>Previews</h1>

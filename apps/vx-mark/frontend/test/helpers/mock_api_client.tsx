@@ -30,6 +30,8 @@ export function createApiMock() {
   };
 }
 
+export type ApiMock = ReturnType<typeof createApiMock>;
+
 export function provideApi(
   apiMock: ReturnType<typeof createApiMock>,
   children: React.ReactNode

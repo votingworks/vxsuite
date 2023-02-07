@@ -9,14 +9,14 @@ import {
 } from '../test/helpers/election';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { buildApp } from '../test/helpers/build_app';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
 });
 

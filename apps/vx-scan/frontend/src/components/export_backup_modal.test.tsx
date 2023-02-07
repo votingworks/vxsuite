@@ -4,17 +4,21 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
   ExportBackupModal,
   ExportBackupModalProps,
 } from './export_backup_modal';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

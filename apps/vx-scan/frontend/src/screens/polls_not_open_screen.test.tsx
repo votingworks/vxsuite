@@ -6,6 +6,7 @@ import {
   PollsNotOpenScreenProps,
 } from './polls_not_open_screen';
 import {
+  ApiMock,
   createApiMock,
   machineConfig,
   provideApi,
@@ -13,10 +14,10 @@ import {
 
 const TEST_BALLOT_COUNT = 50;
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig({
     precinctSelection: singlePrecinctSelectionFor('23'),

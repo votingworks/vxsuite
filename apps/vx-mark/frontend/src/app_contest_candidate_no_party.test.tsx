@@ -14,9 +14,9 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { setStateInStorage } from '../test/helpers/election';
 import { electionStorageKey } from './app_root';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 const { election } = electionSampleDefinition;
 const electionWithNoPartyCandidateContests: Election = {
@@ -40,7 +40,7 @@ const electionWithNoPartyCandidateContests: Election = {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

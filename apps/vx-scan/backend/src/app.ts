@@ -5,10 +5,13 @@ import {
   MarkThresholds,
   PollsState,
   PrecinctSelection,
+  SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
   BALLOT_PACKAGE_FOLDER,
   readBallotPackageFromBuffer,
+  ScannerReportData,
+  ScannerReportDataSchema,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -17,6 +20,7 @@ import { ExportDataError } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,
@@ -34,6 +38,7 @@ import {
 import { getMachineConfig } from './machine_config';
 
 function buildApi(
+  auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
@@ -44,6 +49,9 @@ function buildApi(
 
   return grout.createApi({
     getMachineConfig,
+
+    getAuthStatus: () => auth.getAuthStatus(),
+    checkPin: (input: { pin: string }) => auth.checkPin(input),
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
@@ -88,21 +96,28 @@ function buildApi(
         await fs.readFile(mostRecentBallotPackageFile.filePath)
       );
 
+      const { electionDefinition, ballots } = ballotPackage;
+
+      // If the election has only one precinct, set it automatically
+      let precinctSelection: SinglePrecinctSelection | undefined;
+      if (electionDefinition.election.precincts.length === 1) {
+        precinctSelection = singlePrecinctSelectionFor(
+          electionDefinition.election.precincts[0].id
+        );
+      }
+
       await store.withTransaction(async () => {
-        const { electionDefinition, ballots } = ballotPackage;
         store.setElection(electionDefinition.electionData);
-
-        // If the election has only one precinct, set it automatically
-        if (electionDefinition.election.precincts.length === 1) {
-          store.setPrecinctSelection(
-            singlePrecinctSelectionFor(
-              electionDefinition.election.precincts[0].id
-            )
-          );
+        if (precinctSelection) {
+          store.setPrecinctSelection(precinctSelection);
         }
-
         await store.setHmpbTemplates(ballots);
       });
+
+      auth.setElectionDefinition(electionDefinition);
+      if (precinctSelection) {
+        auth.setPrecinctSelection(precinctSelection);
+      }
 
       return ok();
     },
@@ -127,6 +142,8 @@ function buildApi(
       );
       interpreter.unconfigure();
       workspace.reset();
+      auth.clearElectionDefinition();
+      auth.clearPrecinctSelection();
     },
 
     setPrecinctSelection(input: {
@@ -138,6 +155,7 @@ function buildApi(
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
+      auth.setPrecinctSelection(input.precinctSelection);
     },
 
     setMarkThresholdOverrides(input: {
@@ -288,20 +306,53 @@ function buildApi(
       const result = await machine.calibrate?.();
       return result?.isOk() ?? false;
     },
+
+    async saveScannerReportDataToCard({
+      scannerReportData,
+    }: {
+      scannerReportData: ScannerReportData;
+    }): Promise<Result<void, Error>> {
+      const authStatus = auth.getAuthStatus();
+
+      // Though we only initiate this action when a poll worker is logged in, a poll worker could
+      // remove their card right after, so we treat these as user errors rather than unexpected
+      // errors
+      if (authStatus.status !== 'logged_in') {
+        return err(new Error('User is not logged in'));
+      }
+      if (authStatus.user.role !== 'poll_worker') {
+        return err(new Error('User is not a poll worker'));
+      }
+
+      return await auth.writeCardData({
+        data: scannerReportData,
+        schema: ScannerReportDataSchema,
+      });
+    },
   });
 }
 
 export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
+  auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   usb: Usb,
   logger: Logger
 ): Application {
+  const electionDefinition = workspace.store.getElectionDefinition();
+  if (electionDefinition) {
+    auth.setElectionDefinition(electionDefinition);
+  }
+  const precinctSelection = workspace.store.getPrecinctSelection();
+  if (precinctSelection) {
+    auth.setPrecinctSelection(precinctSelection);
+  }
+
   const app: Application = express();
-  const api = buildApi(machine, interpreter, workspace, usb, logger);
+  const api = buildApi(auth, machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

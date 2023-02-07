@@ -10,7 +10,11 @@ import {
 import { mockOf } from '@votingworks/test-utils';
 import { integers, take } from '@votingworks/basics';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -19,10 +23,10 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
 });

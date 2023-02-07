@@ -12,7 +12,6 @@ import {
 import {
   fakeKiosk,
   advanceTimersAndPromises,
-  makePollWorkerCard,
   generateCvr,
   getZeroCompressedTally,
   fakeUsbDrive,
@@ -24,7 +23,6 @@ import {
   BallotCountDetails,
   singlePrecinctSelectionFor,
   ReportSourceMachineType,
-  MemoryCard,
   MemoryHardware,
   MemoryStorage,
 } from '@votingworks/utils';
@@ -44,9 +42,13 @@ import { fakeLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { App } from './app';
-import { createApiMock, statusNoPaper } from '../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  statusNoPaper,
+} from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 function expectBallotCountsInReport(
   container: HTMLElement,
@@ -84,7 +86,6 @@ function expectContestResultsInReport(
 }
 
 function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectPrinter,
     connectCardReader: true,
@@ -94,18 +95,17 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
   const storage = new MemoryStorage();
   render(
     <App
-      card={card}
       hardware={hardware}
       logger={logger}
       apiClient={apiMock.mockApiClient}
     />
   );
-  return { card, hardware, logger, storage };
+  return { hardware, logger, storage };
 }
 
 beforeEach(() => {
   jest.useFakeTimers();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
 
   const kiosk = fakeKiosk();
@@ -124,19 +124,16 @@ async function closePolls({
   electionDefinition,
   castVoteRecords,
   precinctSelection,
-  card,
   removeCardAfter = true,
 }: {
   electionDefinition: ElectionDefinition;
   castVoteRecords: CastVoteRecord[];
   precinctSelection: PrecinctSelection;
-  card: MemoryCard;
   removeCardAfter?: boolean;
 }): Promise<void> {
   apiMock.expectGetCastVoteRecordsForTally(castVoteRecords);
   apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetConfig({
@@ -147,7 +144,7 @@ async function closePolls({
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   if (removeCardAfter) {
-    card.removeCard();
+    apiMock.removeCard();
     await screen.findByText('Voting is complete.');
   }
 }
@@ -157,13 +154,12 @@ test('printing: polls open, All Precincts, primary election + check additional r
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
-  const { card } = renderApp({ connectPrinter: true });
+  renderApp({ connectPrinter: true });
   await screen.findByText('Polls Closed');
 
   // Open the polls
   apiMock.expectGetCastVoteRecordsForTally([]);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
@@ -205,25 +201,22 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   apiMock.expectGetConfig({ electionDefinition });
   apiMock.expectGetScannerStatus(statusNoPaper, 4);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  renderApp({ connectPrinter: false });
   await screen.findByText('Polls Closed');
 
   // Open the polls
   apiMock.expectGetCastVoteRecordsForTally([]);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
-  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does.
-  // Mock the card reader not to return back whatever we save
-  jest
-    .spyOn(card, 'readLongObject')
-    .mockResolvedValue(err(new Error('bad read')));
+  // Mimic what would happen if the tallies by precinct didn't fit on the card but the overall tally does
+  apiMock.mockApiClient.saveScannerReportDataToCard.mockImplementationOnce(() =>
+    err(new Error('Whoa!'))
+  );
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
-  card.removeCard();
+  apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
   const expectedCombinedTally: CompressedTally = [
@@ -263,10 +256,13 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     '1,precinct-1': [0, 0],
     '1,precinct-2': [0, 0],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(2);
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    1,
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(2);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(1, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
@@ -278,12 +274,13 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'open_polls',
-    })
-  );
+    }),
+  });
   // Expect the final call to have an empty tallies by precinct dictionary
-  expect(writeLongObjectMock).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenNthCalledWith(2, {
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 0,
@@ -295,8 +292,8 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'open_polls',
-    })
-  );
+    }),
+  });
 });
 
 const PRIMARY_ALL_PRECINCTS_CVRS = [
@@ -348,8 +345,8 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -357,7 +354,6 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
     electionDefinition,
     castVoteRecords: PRIMARY_ALL_PRECINCTS_CVRS,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    card,
   });
 
   await expectPrint((printedElement) => {
@@ -547,9 +543,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   const electionDefinition =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -557,7 +552,6 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     electionDefinition,
     castVoteRecords: PRIMARY_ALL_PRECINCTS_CVRS,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    card,
   });
 
   const expectedCombinedTally: CompressedTally = [
@@ -597,9 +591,13 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     '1,precinct-1': [0, 0],
     '1,precinct-2': [1, 0],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
@@ -611,8 +609,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });
 
 const PRIMARY_SINGLE_PRECINCT_CVRS = [
@@ -669,7 +667,7 @@ test('printing: polls closed, primary election, single precinct + check addition
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -677,7 +675,6 @@ test('printing: polls closed, primary election, single precinct + check addition
     electionDefinition,
     castVoteRecords: PRIMARY_SINGLE_PRECINCT_CVRS,
     precinctSelection,
-    card,
     removeCardAfter: false,
   });
 
@@ -802,9 +799,8 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -812,7 +808,6 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     electionDefinition,
     castVoteRecords: PRIMARY_SINGLE_PRECINCT_CVRS,
     precinctSelection,
-    card,
   });
 
   const expectedCombinedTally: CompressedTally = [
@@ -833,9 +828,13 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     '1,__ALL_PRECINCTS': [1, 0],
     '1,precinct-1': [1, 0],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 3,
@@ -847,8 +846,8 @@ test('saving to card: polls closed, primary election, single precinct', async ()
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });
 
 const GENERAL_ALL_PRECINCTS_CVRS = [
@@ -881,8 +880,8 @@ const GENERAL_ALL_PRECINCTS_CVRS = [
 test('printing: polls closed, general election, all precincts', async () => {
   const electionDefinition = electionSample2Definition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -890,7 +889,6 @@ test('printing: polls closed, general election, all precincts', async () => {
     electionDefinition,
     castVoteRecords: GENERAL_ALL_PRECINCTS_CVRS,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    card,
   });
 
   await expectPrint((printedElement) => {
@@ -970,9 +968,8 @@ test('saving to card: polls closed, general election, all precincts', async () =
   const electionDefinition = electionSample2Definition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -980,7 +977,6 @@ test('saving to card: polls closed, general election, all precincts', async () =
     electionDefinition,
     castVoteRecords: GENERAL_ALL_PRECINCTS_CVRS,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    card,
   });
 
   const expectedCombinedTally = election.contests.map(() => expect.anything());
@@ -1004,9 +1000,13 @@ test('saving to card: polls closed, general election, all precincts', async () =
     'undefined,21': [0, 1],
     'undefined,20': [0, 0],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1018,8 +1018,8 @@ test('saving to card: polls closed, general election, all precincts', async () =
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });
 
 const GENERAL_SINGLE_PRECINCT_CVRS = [
@@ -1057,8 +1057,8 @@ test('printing: polls closed, general election, single precinct', async () => {
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -1066,7 +1066,6 @@ test('printing: polls closed, general election, single precinct', async () => {
     electionDefinition,
     castVoteRecords: GENERAL_SINGLE_PRECINCT_CVRS,
     precinctSelection,
-    card,
   });
 
   await expectPrint((printedElement) => {
@@ -1123,9 +1122,8 @@ test('saving to card: polls closed, general election, single precinct', async ()
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -1133,7 +1131,6 @@ test('saving to card: polls closed, general election, single precinct', async ()
     electionDefinition,
     castVoteRecords: GENERAL_SINGLE_PRECINCT_CVRS,
     precinctSelection,
-    card,
   });
 
   const expectedCombinedTally = election.contests.map(() => expect.anything());
@@ -1147,9 +1144,13 @@ test('saving to card: polls closed, general election, single precinct', async ()
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 1],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1161,8 +1162,8 @@ test('saving to card: polls closed, general election, single precinct', async ()
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });
 
 const PRIMARY_NONPARTISAN_CONTESTS_CVR = [
@@ -1225,15 +1226,14 @@ test('printing: polls closed, general election with non-partisan contests, all p
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 4);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   await closePolls({
     electionDefinition,
     castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
     precinctSelection,
-    card,
   });
 
   await expectPrint((printedElement) => {
@@ -1308,9 +1308,8 @@ test('saving to card: polls closed, general election with non-partisan contests,
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 4);
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Close the polls
@@ -1318,7 +1317,6 @@ test('saving to card: polls closed, general election with non-partisan contests,
     electionDefinition,
     castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
     precinctSelection,
-    card,
   });
 
   const expectedCombinedTally = [
@@ -1364,9 +1362,13 @@ test('saving to card: polls closed, general election with non-partisan contests,
     '0,__ALL_PRECINCTS': [2, 0],
     '1,__ALL_PRECINCTS': [2, 0],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 4,
@@ -1378,8 +1380,8 @@ test('saving to card: polls closed, general election with non-partisan contests,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });
 
 test('printing: polls paused', async () => {
@@ -1390,14 +1392,13 @@ test('printing: polls paused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   apiMock.expectSetPollsState('polls_paused');
@@ -1432,14 +1433,12 @@ test('saving to card: polls paused', async () => {
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(screen.getByText('No'));
   apiMock.expectSetPollsState('polls_paused');
@@ -1450,12 +1449,16 @@ test('saving to card: polls paused', async () => {
   });
   userEvent.click(await screen.findByText('Pause Voting'));
   await screen.findByText('Voting paused.');
-  card.removeCard();
+  apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1464,8 +1467,8 @@ test('saving to card: polls paused', async () => {
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       pollsTransition: 'pause_voting',
-    })
-  );
+    }),
+  });
 });
 
 test('printing: polls unpaused', async () => {
@@ -1476,14 +1479,13 @@ test('printing: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 2);
-  const { card } = renderApp({ connectPrinter: true });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
   // Unpause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(await screen.findByText('Yes, Resume Voting'));
   apiMock.expectSetPollsState('polls_open');
@@ -1516,14 +1518,12 @@ test('saving to card: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  renderApp({ connectPrinter: false });
 
   // Unpause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(screen.getByText('Yes, Resume Voting'));
   apiMock.expectSetPollsState('polls_open');
@@ -1533,12 +1533,16 @@ test('saving to card: polls unpaused', async () => {
     pollsState: 'polls_open',
   });
   await screen.findByText('Voting resumed.');
-  card.removeCard();
+  apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1547,8 +1551,8 @@ test('saving to card: polls unpaused', async () => {
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
       pollsTransition: 'resume_voting',
-    })
-  );
+    }),
+  });
 });
 
 test('printing: polls closed from paused, general election, single precinct', async () => {
@@ -1559,14 +1563,13 @@ test('printing: polls closed from paused, general election, single precinct', as
     pollsState: 'polls_paused',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
-  const { card } = renderApp({ connectPrinter: true });
+  renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(screen.getByText('No'));
   apiMock.expectSetPollsState('polls_closed_final');
@@ -1632,15 +1635,13 @@ test('saving to card: polls closed from paused, general election, single precinc
     pollsState: 'polls_paused',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
-  const { card } = renderApp({ connectPrinter: false });
-  const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
+  renderApp({ connectPrinter: false });
   await screen.findByText('Polls Paused');
 
   // Close the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
   apiMock.expectExportCastVoteRecordsToUsbDrive();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  card.insertCard(pollWorkerCard);
+  apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(screen.getByText('No'));
   apiMock.expectSetPollsState('polls_closed_final');
@@ -1651,7 +1652,7 @@ test('saving to card: polls closed from paused, general election, single precinc
   });
   userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
-  card.removeCard();
+  apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
   const expectedCombinedTally = election.contests.map(() => expect.anything());
@@ -1665,9 +1666,13 @@ test('saving to card: polls closed from paused, general election, single precinc
     'undefined,__ALL_PRECINCTS': [1, 1],
     'undefined,23': [1, 1],
   };
-  expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
-  expect(writeLongObjectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledTimes(1);
+  expect(
+    apiMock.mockApiClient.saveScannerReportDataToCard
+  ).toHaveBeenCalledWith({
+    scannerReportData: expect.objectContaining({
       isLiveMode: false,
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       totalBallotsScanned: 2,
@@ -1679,6 +1684,6 @@ test('saving to card: polls closed from paused, general election, single precinc
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
       pollsTransition: 'close_polls',
-    })
-  );
+    }),
+  });
 });

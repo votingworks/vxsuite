@@ -12,11 +12,13 @@ import { promises as fs } from 'fs';
 import { Server } from 'http';
 import request from 'supertest';
 import { dirSync, fileSync } from 'tmp';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Api, buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildMockAuth } from '../test/utils';
 import { PORT } from './globals';
 
 let app: Application;
@@ -26,7 +28,7 @@ let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  auth = buildMockAuth();
+  auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
   app = buildApp({ auth, workspace });
 });

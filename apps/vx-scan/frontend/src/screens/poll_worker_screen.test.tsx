@@ -1,24 +1,24 @@
 import { screen, RenderResult, render } from '@testing-library/react';
-import { fakeKiosk, Inserted, mockOf } from '@votingworks/test-utils';
+import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
+  ApiMock,
   createApiMock,
   machineConfig,
   provideApi,
 } from '../../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -33,7 +33,7 @@ beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
   window.location.href = '/';
   window.kiosk = fakeKiosk();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
 });
@@ -58,25 +58,11 @@ function renderScreen(
         pollsState="polls_closed_initial"
         isLiveMode
         hasPrinterAttached={false}
-        auth={Inserted.fakePollWorkerAuth()}
         logger={fakeLogger()}
         {...props}
       />
     )
   );
-}
-
-function readableFakePollWorkerAuth(): InsertedSmartcardAuth.PollWorkerLoggedIn {
-  const auth = Inserted.fakePollWorkerAuth();
-  return {
-    ...auth,
-    card: {
-      ...auth.card,
-      readStoredObject: jest.fn().mockResolvedValue({
-        ok: () => '',
-      }),
-    },
-  };
 }
 
 describe('shows Livecheck button only when enabled', () => {
@@ -115,7 +101,6 @@ describe('transitions from polls closed', () => {
     renderScreen({
       scannedBallotCount: 0,
       pollsState: 'polls_closed_initial',
-      auth: readableFakePollWorkerAuth(),
       logger,
     });
     await screen.findByText('Do you want to open the polls?');
@@ -162,7 +147,6 @@ describe('transitions from polls open', () => {
     renderScreen({
       scannedBallotCount: 7,
       pollsState: 'polls_open',
-      auth: readableFakePollWorkerAuth(),
       logger,
     });
     await screen.findByText('Do you want to close the polls?');
@@ -228,7 +212,6 @@ describe('transitions from polls paused', () => {
     renderScreen({
       scannedBallotCount: 7,
       pollsState: 'polls_paused',
-      auth: readableFakePollWorkerAuth(),
       logger,
     });
     await screen.findByText('Do you want to resume voting?');

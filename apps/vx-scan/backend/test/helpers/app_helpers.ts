@@ -20,6 +20,10 @@ import { AddressInfo } from 'net';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { assert, deferred, ok, Result } from '@votingworks/basics';
+import {
+  buildMockInsertedSmartCardAuth,
+  InsertedSmartCardAuthApi,
+} from '@votingworks/auth';
 import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -126,20 +130,28 @@ export async function waitForStatus(
   }, 1_000);
 }
 
-export async function createApp(
-  delays: Partial<Delays> = {},
-  mockPlustekOptions: Partial<MockScannerClientOptions> = {}
-): Promise<{
+export async function createApp({
+  delays = {},
+  mockPlustekOptions = {},
+  preconfiguredWorkspace,
+}: {
+  delays?: Partial<Delays>;
+  mockPlustekOptions?: Partial<MockScannerClientOptions>;
+  preconfiguredWorkspace?: Workspace;
+} = {}): Promise<{
   apiClient: grout.Client<Api>;
   app: Application;
+  mockAuth: InsertedSmartCardAuthApi;
   mockPlustek: MockScannerClient;
   workspace: Workspace;
   mockUsb: MockUsb;
   logger: Logger;
   interpreter: PrecinctScannerInterpreter;
 }> {
+  const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
-  const workspace = await createWorkspace(tmp.dirSync().name);
+  const workspace =
+    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
@@ -167,6 +179,7 @@ export async function createApp(
   });
   const mockUsb = createMockUsb();
   const app = buildApp(
+    mockAuth,
     precinctScannerMachine,
     interpreter,
     workspace,
@@ -186,6 +199,7 @@ export async function createApp(
   return {
     apiClient,
     app,
+    mockAuth,
     mockPlustek,
     workspace,
     mockUsb,
@@ -252,7 +266,10 @@ export async function configureApp(
   {
     addTemplates = false,
     precinctId,
-  }: { addTemplates?: boolean; precinctId?: PrecinctId } = {
+  }: {
+    addTemplates?: boolean;
+    precinctId?: PrecinctId;
+  } = {
     addTemplates: false,
   }
 ): Promise<void> {

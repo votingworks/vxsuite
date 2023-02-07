@@ -20,7 +20,6 @@ import {
   getTallyIdentifier,
   isFeatureFlagEnabled,
   ScannerReportData,
-  ScannerReportDataSchema,
   ReportSourceMachineType,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
@@ -37,7 +36,6 @@ import {
   Dictionary,
   CompressedTally,
   getPartyIdsInBallotStyles,
-  InsertedSmartcardAuth,
   PollsState,
   PollsTransition,
   Optional,
@@ -49,7 +47,7 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
+import { assert, Result, sleep, throwIllegalValue } from '@votingworks/basics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -64,6 +62,7 @@ import {
   exportCastVoteRecordsToUsbDrive,
   getCastVoteRecordsForTally,
   setPollsState,
+  saveScannerReportDataToCard as saveScannerReportDataToCardBase,
 } from '../api';
 import { MachineConfig } from '../config/types';
 
@@ -75,19 +74,6 @@ type PollWorkerFlowState =
   | 'polls_transition_processing'
   | 'polls_transition_complete'
   | 'reprinting_report';
-
-async function saveReportDataToCard(
-  auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
-  reportData: ScannerReportData
-): Promise<boolean> {
-  if ((await auth.card.writeStoredData(reportData)).isErr()) {
-    return false;
-  }
-  const possibleTally = await auth.card.readStoredObject(
-    ScannerReportDataSchema
-  );
-  return possibleTally.ok()?.timeSaved === reportData.timeSaved;
-}
 
 const debug = rootDebug.extend('pollworker-screen');
 
@@ -114,7 +100,6 @@ export interface PollWorkerScreenProps {
   pollsState: PollsState;
   isLiveMode: boolean;
   hasPrinterAttached: boolean;
-  auth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   logger: Logger;
 }
 
@@ -126,7 +111,6 @@ export function PollWorkerScreen({
   pollsState,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
-  auth,
   logger,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
@@ -149,6 +133,23 @@ export function PollWorkerScreen({
   ] = useState(false);
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
+  const saveScannerReportDataToCardMutation =
+    saveScannerReportDataToCardBase.useMutation();
+
+  async function saveScannerReportDataToCard(
+    scannerReportData: ScannerReportData
+  ): Promise<boolean> {
+    let result: Result<void, Error>;
+    try {
+      result = await saveScannerReportDataToCardMutation.mutateAsync({
+        scannerReportData,
+      });
+    } catch {
+      // Handled by query client's default error handling
+      return false;
+    }
+    return result.isOk();
+  }
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
     switch (pollsState) {
@@ -230,7 +231,8 @@ export function PollWorkerScreen({
         ...reportBasicData,
         pollsTransition,
       };
-      await saveReportDataToCard(auth, ballotCountReportData);
+      // TODO: Handle when this returns false
+      await saveScannerReportDataToCard(ballotCountReportData);
       return;
     }
 
@@ -297,13 +299,13 @@ export function PollWorkerScreen({
       ballotCounts: ballotCountBreakdowns,
     };
 
-    const success = await saveReportDataToCard(auth, tallyReportData);
+    const success = await saveScannerReportDataToCard(tallyReportData);
     if (!success) {
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
-      // TODO show an error message if this attempt also fails.
-      await saveReportDataToCard(auth, {
+      // TODO: Handle when this second attempt returns false
+      await saveScannerReportDataToCard({
         ...tallyReportData,
         talliesByPrecinct: undefined,
         timeSaved: Date.now(),

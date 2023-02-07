@@ -7,19 +7,19 @@ import {
   makePollWorkerCard,
 } from '@votingworks/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { App } from './app';
 import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

@@ -11,7 +11,6 @@ import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
 
@@ -192,16 +191,4 @@ export async function makeImageFile(): Promise<string> {
     height: 1,
   });
   return imageFile.name;
-}
-
-export function buildMockAuth(): DippedSmartCardAuthApi {
-  return {
-    getAuthStatus: jest.fn(),
-    checkPin: jest.fn(),
-    logOut: jest.fn(),
-    programCard: jest.fn(),
-    unprogramCard: jest.fn(),
-    setElectionDefinition: jest.fn(),
-    clearElectionDefinition: jest.fn(),
-  };
 }

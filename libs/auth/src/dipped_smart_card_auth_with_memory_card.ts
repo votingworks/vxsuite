@@ -1,19 +1,5 @@
 import fetch from 'node-fetch';
 import {
-  AnyCardDataSchema,
-  Card,
-  CardSummary,
-  CardSummaryReady,
-  DippedSmartCardAuth,
-  ElectionDefinition,
-  ElectionManagerCardData,
-  Optional,
-  PollWorkerCardData,
-  safeParseJson,
-  SystemAdministratorCardData,
-  User,
-} from '@votingworks/types';
-import {
   assert,
   err,
   ok,
@@ -21,72 +7,35 @@ import {
   throwIllegalValue,
   wrapException,
 } from '@votingworks/basics';
+import {
+  Card,
+  CardSummary,
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  ElectionManagerCardData,
+  PollWorkerCardData,
+  SystemAdministratorCardData,
+  User,
+} from '@votingworks/types';
 import { generatePin } from '@votingworks/utils';
 
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
 } from './dipped_smart_card_auth';
+import {
+  CARD_POLLING_INTERVAL_MS,
+  parseUserFromCardSummary,
+} from './memory_card';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.fetch = fetch;
 
-const CARD_POLLING_INTERVAL_MS = 100;
-
 type AuthAction =
   | { type: 'read_card'; cardSummary: CardSummary }
   | { type: 'check_pin'; pin: string }
   | { type: 'log_out' };
-
-function parseUserFromCardSummary(
-  cardSummary: CardSummaryReady
-): Optional<User> {
-  if (!cardSummary.shortValue) {
-    return undefined;
-  }
-
-  const cardData = safeParseJson(
-    cardSummary.shortValue,
-    AnyCardDataSchema
-  ).ok();
-  if (!cardData) {
-    return undefined;
-  }
-
-  switch (cardData.t) {
-    case 'system_administrator':
-      return {
-        role: 'system_administrator',
-        passcode: cardData.p,
-      };
-    case 'election_manager':
-      return {
-        role: 'election_manager',
-        electionHash: cardData.h,
-        passcode: cardData.p,
-      };
-    case 'poll_worker':
-      return {
-        role: 'poll_worker',
-        electionHash: cardData.h,
-      };
-    case 'voter':
-      return {
-        role: 'voter',
-        ballotPrintedAt: cardData.bp,
-        ballotStyleId: cardData.bs,
-        createdAt: cardData.c,
-        markMachineId: cardData.m,
-        precinctId: cardData.pr,
-        updatedAt: cardData.u,
-        voidedAt: cardData.uz,
-      };
-    /* istanbul ignore next: Compile-time check for completeness */
-    default:
-      throwIllegalValue(cardData, 't');
-  }
-}
 
 /**
  * An implementation of the dipped smart card auth API, backed by a memory card
@@ -193,10 +142,10 @@ export class DippedSmartCardAuthWithMemoryCard
         default:
           throwIllegalValue(userRole);
       }
-      return ok({ pin });
     } catch (error) {
       return wrapException(error);
     }
+    return ok({ pin });
   }
 
   async unprogramCard(): Promise<Result<void, Error>> {
@@ -206,10 +155,10 @@ export class DippedSmartCardAuthWithMemoryCard
         shortValue: '',
         longValue: '',
       });
-      return ok();
     } catch (error) {
       return wrapException(error);
     }
+    return ok();
   }
 
   setElectionDefinition(electionDefinition: ElectionDefinition): void {
