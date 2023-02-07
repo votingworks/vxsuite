@@ -7,7 +7,7 @@ import { PdfPage, pdfToImages, setPdfRenderWorkerSrc } from './pdf_to_images';
 
 const ballotNotRequiringPdfjsIntermediateCanvasPath = join(
   __dirname,
-  '../../../services/scan/test/fixtures/state-of-hamilton/ballot.pdf'
+  '../../../apps/vx-central-scan/backend/test/fixtures/state-of-hamilton/ballot.pdf'
 );
 const ballotRequiringPdfjsIntermediateCanvasPath = join(
   __dirname,
