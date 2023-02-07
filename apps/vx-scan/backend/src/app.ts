@@ -311,7 +311,7 @@ function buildApi(
       const authStatus = auth.getAuthStatus();
 
       // Though we only initiate this action when a poll worker is logged in, a poll worker could
-      // remove their card right after, so we treat these as handled errors rather than unexpected
+      // remove their card right after, so we treat these as user errors rather than unexpected
       // errors
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));

@@ -231,6 +231,7 @@ export function PollWorkerScreen({
         ...reportBasicData,
         pollsTransition,
       };
+      // TODO: Handle when this returns false
       await saveScannerReportDataToCard(ballotCountReportData);
       return;
     }
@@ -303,7 +304,7 @@ export function PollWorkerScreen({
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
-      // TODO show an error message if this attempt also fails.
+      // TODO: Handle when this second attempt returns false
       await saveScannerReportDataToCard({
         ...tallyReportData,
         talliesByPrecinct: undefined,
