@@ -82,7 +82,7 @@ jobs:
       - store_artifacts:
           path: apps/vx-mark/frontend/cypress/videos
 
-  test-frontends-bsd:
+  test-apps-vx-central-scan-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -90,25 +90,47 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir frontends/bsd build
+            pnpm --dir apps/vx-central-scan/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir frontends/bsd lint
+            pnpm --dir apps/vx-central-scan/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir frontends/bsd test
+            pnpm --dir apps/vx-central-scan/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: frontends/bsd/reports/
+          path: apps/vx-central-scan/frontend/reports/
       - store_artifacts:
-          path: frontends/bsd/cypress/screenshots
+          path: apps/vx-central-scan/frontend/cypress/screenshots
       - store_artifacts:
-          path: frontends/bsd/cypress/videos
+          path: apps/vx-central-scan/frontend/cypress/videos
 
-  test-frontends-election-manager:
+  test-apps-vx-central-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/vx-central-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/vx-central-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/vx-central-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/vx-central-scan/backend/reports/
+
+  test-apps-vx-admin-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -116,23 +138,45 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir frontends/election-manager build
+            pnpm --dir apps/vx-admin/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir frontends/election-manager lint
+            pnpm --dir apps/vx-admin/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir frontends/election-manager test
+            pnpm --dir apps/vx-admin/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: frontends/election-manager/reports/
+          path: apps/vx-admin/frontend/reports/
       - store_artifacts:
-          path: frontends/election-manager/cypress/screenshots
+          path: apps/vx-admin/frontend/cypress/screenshots
       - store_artifacts:
-          path: frontends/election-manager/cypress/videos
+          path: apps/vx-admin/frontend/cypress/videos
+
+  test-apps-vx-admin-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/vx-admin/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/vx-admin/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/vx-admin/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/vx-admin/backend/reports/
 
   test-apps-vx-scan-backend:
     executor: nodejs
@@ -809,28 +853,6 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
-  test-services-admin:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir services/admin build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir services/admin lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir services/admin test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: services/admin/reports/
-
   test-services-converter-ms-sems:
     docker:
       - image: circleci/python:3.9.2
@@ -850,28 +872,6 @@ jobs:
       #     name: Typecheck
       #     command: |
       #       make -C services/converter-ms-sems typecheck
-
-  test-services-scan:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir services/scan build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir services/scan lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir services/scan test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: services/scan/reports/
 
   test-services-smartcards:
     docker:
@@ -911,12 +911,14 @@ workflows:
   test:
     jobs:
       - test-codemods
+      - test-apps-vx-admin-frontend
+      - test-apps-vx-admin-backend
+      - test-apps-vx-central-scan-frontend
+      - test-apps-vx-central-scan-backend
       - test-apps-vx-mark-backend
       - test-apps-vx-mark-frontend
       - test-apps-vx-scan-backend
       - test-apps-vx-scan-frontend
-      - test-frontends-bsd
-      - test-frontends-election-manager
       - test-integration-testing-vx-mark
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
@@ -945,9 +947,7 @@ workflows:
       - test-libs-types
       - test-libs-ui
       - test-libs-utils
-      - test-services-admin
       - test-services-converter-ms-sems
-      - test-services-scan
       - test-services-smartcards
       - validate-monorepo
 
