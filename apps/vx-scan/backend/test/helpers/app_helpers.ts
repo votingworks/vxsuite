@@ -20,6 +20,7 @@ import { AddressInfo } from 'net';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { assert, deferred, ok, Result } from '@votingworks/basics';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -97,6 +98,20 @@ export function createMockUsb(): MockUsb {
   };
 }
 
+export function buildMockAuth(): InsertedSmartCardAuthApi {
+  return {
+    getAuthStatus: jest.fn(),
+    checkPin: jest.fn(),
+    readCardData: jest.fn(),
+    writeCardData: jest.fn(),
+    clearCardData: jest.fn(),
+    setElectionDefinition: jest.fn(),
+    clearElectionDefinition: jest.fn(),
+    setPrecinctSelection: jest.fn(),
+    clearPrecinctSelection: jest.fn(),
+  };
+}
+
 export async function expectStatus(
   apiClient: grout.Client<Api>,
   expectedStatus: {
@@ -132,12 +147,14 @@ export async function createApp(
 ): Promise<{
   apiClient: grout.Client<Api>;
   app: Application;
+  mockAuth: InsertedSmartCardAuthApi;
   mockPlustek: MockScannerClient;
   workspace: Workspace;
   mockUsb: MockUsb;
   logger: Logger;
   interpreter: PrecinctScannerInterpreter;
 }> {
+  const mockAuth = buildMockAuth();
   const logger = fakeLogger();
   const workspace = await createWorkspace(tmp.dirSync().name);
   const mockPlustek = new MockScannerClient({
@@ -167,6 +184,7 @@ export async function createApp(
   });
   const mockUsb = createMockUsb();
   const app = buildApp(
+    mockAuth,
     precinctScannerMachine,
     interpreter,
     workspace,
@@ -186,6 +204,7 @@ export async function createApp(
   return {
     apiClient,
     app,
+    mockAuth,
     mockPlustek,
     workspace,
     mockUsb,

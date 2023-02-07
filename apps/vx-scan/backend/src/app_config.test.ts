@@ -8,13 +8,14 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
+  ScannerReportDataSchema,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assert, err, ok } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
-import { generateCvr } from '@votingworks/test-utils';
+import { generateCvr, mockOf } from '@votingworks/test-utils';
 import {
   ballotImages,
   configureApp,
@@ -111,7 +112,7 @@ test("fails to configure if there's no ballot package on the usb drive", async (
 });
 
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  const { apiClient, mockUsb } = await createApp();
+  const { apiClient, mockAuth, mockUsb } = await createApp();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': createBallotPackageWithoutTemplates(
@@ -125,10 +126,21 @@ test("if there's only one precinct in the election, it's selected automatically 
     kind: 'SinglePrecinct',
     precinctId: 'precinct-1',
   });
+
+  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition
+  );
+  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(1, {
+    kind: 'SinglePrecinct',
+    precinctId: 'precinct-1',
+  });
 });
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
-  const { apiClient, mockUsb } = await createApp();
+  const { apiClient, mockAuth, mockUsb } = await createApp();
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -160,6 +172,13 @@ test('configures using the most recently created ballot package on the usb drive
   expect(config.electionDefinition?.election.title).toEqual(
     electionSampleDefinition.election.title
   );
+
+  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
+    1,
+    electionSampleDefinition
+  );
+  expect(mockAuth.setPrecinctSelection).not.toHaveBeenCalled();
 });
 
 test('export the CVRs to USB', async () => {
@@ -215,15 +234,23 @@ test('export the CVRs to USB', async () => {
   expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
 });
 
-test('setPrecinctSelection will reset polls to closed', async () => {
-  const { apiClient, workspace, mockUsb } = await createApp();
+test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
+  const { apiClient, mockAuth, mockUsb, workspace } = await createApp();
   await configureApp(apiClient, mockUsb);
+
+  mockOf(mockAuth.setPrecinctSelection).mockClear();
 
   workspace.store.setPollsState('polls_open');
   await apiClient.setPrecinctSelection({
     precinctSelection: singlePrecinctSelectionFor('21'),
   });
   expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
+
+  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
+  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(
+    1,
+    singlePrecinctSelectionFor('21')
+  );
 });
 
 test('ballot batching', async () => {
@@ -312,4 +339,47 @@ test('ballot batching', async () => {
   const batch3Id = cvrs[4]._batchId;
   expect(cvrs[3]._batchId).not.toEqual(batch3Id);
   expect(cvrs[5]._batchId).toEqual(batch3Id);
+});
+
+test('unconfiguring machine', async () => {
+  const { apiClient, mockAuth, mockUsb, interpreter, workspace } =
+    await createApp();
+  await configureApp(apiClient, mockUsb);
+
+  jest.spyOn(interpreter, 'unconfigure');
+  jest.spyOn(workspace, 'reset');
+
+  await apiClient.unconfigureElection({});
+
+  expect(interpreter.unconfigure).toHaveBeenCalledTimes(1);
+  expect(workspace.reset).toHaveBeenCalledTimes(1);
+  expect(mockAuth.clearElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(mockAuth.clearPrecinctSelection).toHaveBeenCalledTimes(1);
+});
+
+test('auth', async () => {
+  const { apiClient, mockAuth, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+
+  void (await apiClient.readCardData({ schema: 'ScannerReportDataSchema' }));
+  void (await apiClient.writeCardData({
+    data: {},
+    schema: 'ScannerReportDataSchema',
+  }));
+
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
+  expect(mockAuth.readCardData).toHaveBeenCalledTimes(1);
+  expect(mockAuth.readCardData).toHaveBeenNthCalledWith(1, {
+    schema: ScannerReportDataSchema,
+  });
+  expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
+  expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(1, {
+    data: {},
+    schema: ScannerReportDataSchema,
+  });
 });
