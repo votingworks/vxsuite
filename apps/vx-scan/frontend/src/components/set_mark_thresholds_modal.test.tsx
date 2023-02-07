@@ -6,12 +6,16 @@ import {
   SetMarkThresholdsModal,
   SetMarkThresholdsModalProps,
 } from './set_mark_thresholds_modal';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

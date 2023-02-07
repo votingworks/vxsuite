@@ -36,14 +36,14 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import * as GLOBALS from './config/globals';
 import { enterPin } from '../test/test_utils';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   window.location.href = '/';
   jest.useFakeTimers();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

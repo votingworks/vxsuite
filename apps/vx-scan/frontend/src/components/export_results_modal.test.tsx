@@ -10,10 +10,14 @@ import {
   ExportResultsModalProps,
 } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 function renderModal(props: Partial<ExportResultsModalProps> = {}) {
   return render(
@@ -29,7 +33,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
 }
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

@@ -13,15 +13,15 @@ import {
 } from '../test/helpers/election';
 
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

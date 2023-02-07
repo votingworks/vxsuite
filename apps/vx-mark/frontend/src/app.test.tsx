@@ -20,13 +20,13 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { AriaScreenReader } from './utils/ScreenReader';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

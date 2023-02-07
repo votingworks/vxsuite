@@ -23,14 +23,14 @@ import {
   IDLE_TIMEOUT_SECONDS,
   IDLE_RESET_TIMEOUT_SECONDS,
 } from './config/globals';
-import { createApiMock } from '../test/helpers/mock_api_client';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

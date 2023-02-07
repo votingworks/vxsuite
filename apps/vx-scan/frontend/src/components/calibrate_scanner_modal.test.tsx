@@ -8,7 +8,11 @@ import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,
 } from './calibrate_scanner_modal';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
 const fakeScannerStatus: PrecinctScannerStatus = {
   state: 'no_paper',
@@ -16,7 +20,7 @@ const fakeScannerStatus: PrecinctScannerStatus = {
   canUnconfigure: true,
 };
 
-const apiMock = createApiMock();
+let apiMock: ApiMock;
 
 function renderModal(props: Partial<CalibrateScannerModalProps> = {}) {
   return render(
@@ -32,7 +36,7 @@ function renderModal(props: Partial<CalibrateScannerModalProps> = {}) {
 }
 
 beforeEach(() => {
-  apiMock.mockApiClient.reset();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {

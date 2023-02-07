@@ -16,7 +16,6 @@ type MockMethods<Methods extends AnyMethods> = {
 
 interface MockHelpers {
   assertComplete(): void;
-  reset(): void;
 }
 
 /**
@@ -71,12 +70,6 @@ export function createMockClient<Api extends AnyApi>(options?: {
     assertComplete(): void {
       for (const mockMethod of Object.values(mockMethods)) {
         mockMethod.assertComplete();
-      }
-    },
-
-    reset(): void {
-      for (const mockMethod of Object.values(mockMethods)) {
-        mockMethod.reset();
       }
     },
   };
