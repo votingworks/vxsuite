@@ -144,55 +144,55 @@ test('buildVoteFromCvr', () => {
       cvr: castVoteRecord,
     })
   ).toMatchInlineSnapshot(`
-    Object {
-      "750000015": Array [
+    {
+      "750000015": [
         "yes",
       ],
-      "750000016": Array [],
-      "750000017": Array [
+      "750000016": [],
+      "750000017": [
         "no",
       ],
-      "750000018": Array [
+      "750000018": [
         "yes",
       ],
-      "775020870": Array [
-        Object {
+      "775020870": [
+        {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyIds": Array [
+          "partyIds": [
             "12",
           ],
         },
       ],
-      "775020872": Array [
-        Object {
+      "775020872": [
+        {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyIds": Array [
+          "partyIds": [
             "3",
           ],
         },
       ],
-      "775020876": Array [
-        Object {
+      "775020876": [
+        {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyIds": Array [
+          "partyIds": [
             "11",
           ],
         },
       ],
-      "775020877": Array [
-        Object {
+      "775020877": [
+        {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyIds": Array [
+          "partyIds": [
             "2",
           ],
         },
       ],
-      "775020902": Array [
-        Object {
+      "775020902": [
+        {
           "id": "775032019",
           "name": "Willie Mae Guillory",
         },

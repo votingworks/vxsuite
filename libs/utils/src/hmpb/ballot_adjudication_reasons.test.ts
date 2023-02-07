@@ -105,7 +105,7 @@ test('a ballot with marginal marks', () => {
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
-    Array [
+    [
       "Contest 'best-animal-mammal' has a marginal mark for option 'otter'.",
     ]
   `);
@@ -134,7 +134,7 @@ test('a ballot with no marks', () => {
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
-    Array [
+    [
       "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
       "Ballot has no votes.",
     ]
@@ -187,7 +187,7 @@ test('a ballot with too many marks', () => {
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
-    Array [
+    [
       "Contest 'best-animal-mammal' is overvoted, expected 1 but got 2: 'horse', 'otter'.",
     ]
   `);
@@ -243,7 +243,7 @@ test('multiple contests with issues', () => {
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
-    Array [
+    [
       "Contest 'best-animal-mammal' has a marginal mark for option 'horse'.",
       "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
       "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 7: 'zebra', 'lion', 'kangaroo', 'elephant', 'write-in-0', 'write-in-1', 'write-in-2'.",
@@ -271,7 +271,7 @@ test('yesno contest overvotes', () => {
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
-    Array [
+    [
       "Contest 'fishing' is overvoted, expected 1 but got 2: 'yes', 'no'.",
     ]
   `);
@@ -289,14 +289,14 @@ test('a ballot with just a write-in', () => {
 
   // in particular, no write-in adjudication reason anymore.
   expect(reasons).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "contestId": "zoo-council-mammal",
         "expected": 3,
-        "optionIds": Array [
+        "optionIds": [
           "write-in-0",
         ],
-        "optionIndexes": Array [
+        "optionIndexes": [
           4,
         ],
         "type": "Undervote",
