@@ -34,6 +34,48 @@ import {
 import { sha256 } from 'js-sha256';
 
 /**
+ * Builds arbitrary uint2 values.
+ */
+export function arbitraryUint2(): fc.Arbitrary<number> {
+  return fc.integer(0, 0b11);
+}
+
+/**
+ * Builds arbitrary uint4 values.
+ */
+export function arbitraryUint4(): fc.Arbitrary<number> {
+  return fc.integer(0, 0b1111);
+}
+
+/**
+ * Builds arbitrary uint8 values.
+ */
+export function arbitraryUint8(): fc.Arbitrary<number> {
+  return fc.integer(0, 0xff);
+}
+
+/**
+ * Builds arbitrary uint16 values.
+ */
+export function arbitraryUint16(): fc.Arbitrary<number> {
+  return fc.integer(0, 0xffff);
+}
+
+/**
+ * Builds arbitrary uint24 values.
+ */
+export function arbitraryUint24(): fc.Arbitrary<number> {
+  return fc.integer(0, 0xffffff);
+}
+
+/**
+ * Builds arbitrary uint32 values.
+ */
+export function arbitraryUint32(): fc.Arbitrary<number> {
+  return fc.integer(0, 0xffffffff);
+}
+
+/**
  * Wraps another arbitrary, making the value possibly missing.
  */
 export function arbitraryOptional<T>(

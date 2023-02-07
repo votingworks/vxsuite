@@ -16,7 +16,61 @@ import {
   arbitraryElectionDefinition,
   arbitraryId,
   arbitraryYesNoOption,
+  arbitraryUint2,
+  arbitraryUint4,
+  arbitraryUint8,
+  arbitraryUint16,
+  arbitraryUint24,
+  arbitraryUint32,
 } from './arbitraries';
+
+test('arbitraryUint2', () => {
+  fc.assert(
+    fc.property(arbitraryUint2(), (value) => {
+      assert(value >= 0 && value <= 0b11);
+    })
+  );
+});
+
+test('arbitraryUint4', () => {
+  fc.assert(
+    fc.property(arbitraryUint4(), (value) => {
+      assert(value >= 0 && value <= 0b1111);
+    })
+  );
+});
+
+test('arbitraryUint8', () => {
+  fc.assert(
+    fc.property(arbitraryUint8(), (value) => {
+      assert(value >= 0 && value <= 0b11111111);
+    })
+  );
+});
+
+test('arbitraryUint16', () => {
+  fc.assert(
+    fc.property(arbitraryUint16(), (value) => {
+      assert(value >= 0 && value <= 0xffff);
+    })
+  );
+});
+
+test('arbitraryUint24', () => {
+  fc.assert(
+    fc.property(arbitraryUint24(), (value) => {
+      assert(value >= 0 && value <= 0xffffff);
+    })
+  );
+});
+
+test('arbitraryUint32', () => {
+  fc.assert(
+    fc.property(arbitraryUint32(), (value) => {
+      assert(value >= 0 && value <= 0xffffffff);
+    })
+  );
+});
 
 test('arbitraryId', () => {
   fc.assert(
