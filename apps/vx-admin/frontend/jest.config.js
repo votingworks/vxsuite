@@ -1,4 +1,4 @@
-const shared = require('../../jest.config.shared');
+const shared = require('../../../jest.config.shared');
 
 const nodeModulesNeedingTransform = [
   // `@zip.js/zip.js` uses ES modules and `import.meta.url`, but Babel does not

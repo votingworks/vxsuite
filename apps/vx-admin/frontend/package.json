@@ -228,9 +228,9 @@
   "vx": {
     "isBundled": true,
     "services": [
-      "../../services/converter-ms-sems",
-      "../../services/smartcards",
-      "../../services/admin"
+      "../../../services/converter-ms-sems",
+      "../../../services/smartcards",
+      "../backend"
     ]
   }
 }

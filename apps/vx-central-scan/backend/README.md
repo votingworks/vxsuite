@@ -5,9 +5,9 @@ This web server component provides a web interface to the for use by the VxSuite
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then start up the VxCentralScan (`frontends/bsd`) frontend. You generally should
-not need to run this service directly. Instead, run like so:
+Follow the instructions in the [VxSuite README](../../../README.md) to get set
+up, then start up the VxCentralScan (`frontends/bsd`) frontend. You generally
+should not need to run this service directly. Instead, run like so:
 
 ```sh
 cd frontends/bsd
@@ -42,7 +42,7 @@ EOS
 MOCK_SCANNER_FILES=@manifest pnpm start
 
 # scanning from an election backup file
-../../services/scan/bin/extract-backup /path/to/election-backup.zip
+../../../services/scan/bin/extract-backup /path/to/election-backup.zip
 MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
 ```
 
@@ -77,13 +77,13 @@ MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test
 First init `services/smartcards` with:
 
 ```
-./mockCardReader.py enable --admin ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
+./mockCardReader.py enable --admin ../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
 ```
 
 Init `services/scan` with:
 
 ```
-MOCK_SCANNER_FILES=../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm start
+MOCK_SCANNER_FILES=../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm start
 ```
 
 ## Switching Workspaces

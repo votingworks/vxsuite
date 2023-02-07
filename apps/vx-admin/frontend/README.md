@@ -8,8 +8,8 @@ context.
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then run the app like so:
+Follow the instructions in the [VxSuite README](../../../README.md) to get set
+up, then run the app like so:
 
 ```sh
 # in frontends/election-manager
@@ -36,9 +36,9 @@ machine.
 ### Optional prerequisites
 
 - If you want to program smartcards, start
-  [`services/smartcards`](../../services/smartcards)
+  [`services/smartcards`](../../../services/smartcards)
 - If you will need to convert SEMS files, start
-  [`services/converter-ms-sems`](../../services/converter-ms-sems)
+  [`services/converter-ms-sems`](../../../services/converter-ms-sems)
 
 ## Testing
 

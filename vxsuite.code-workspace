@@ -17,16 +17,20 @@
       "path": "apps/vx-scan/frontend"
     },
     {
-      "name": "frontends/bmd",
-      "path": "frontends/bmd"
+      "name": "apps/vx-admin/backend",
+      "path": "apps/vx-admin/backend"
     },
     {
-      "name": "frontends/bsd",
-      "path": "frontends/bsd"
+      "name": "apps/vx-admin/frontend",
+      "path": "apps/vx-admin/frontend"
     },
     {
-      "name": "frontends/election-manager",
-      "path": "frontends/election-manager"
+      "name": "apps/vx-central-scan/backend",
+      "path": "apps/vx-central-scan/backend"
+    },
+    {
+      "name": "apps/vx-central-scan/frontend",
+      "path": "apps/vx-central-scan/frontend"
     },
     {
       "name": "integration-testing/bsd",
@@ -141,16 +145,8 @@
       "path": "libs/utils"
     },
     {
-      "name": "services/admin",
-      "path": "services/admin"
-    },
-    {
       "name": "services/converter-ms-sems",
       "path": "services/converter-ms-sems"
-    },
-    {
-      "name": "services/scan",
-      "path": "services/scan"
     },
     {
       "name": "services/smartcards",

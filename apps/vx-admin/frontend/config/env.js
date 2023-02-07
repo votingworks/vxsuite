@@ -23,8 +23,8 @@ const dotenvFiles = [
   NODE_ENV !== 'test' && `${paths.dotenv}.local`,
   `${paths.dotenv}.${NODE_ENV}`,
   paths.dotenv,
-  NODE_ENV !== 'test' && `../../${paths.dotenv}.local`,
-  `../../${paths.dotenv}`,
+  NODE_ENV !== 'test' && `../../../${paths.dotenv}.local`,
+  `../../../${paths.dotenv}`,
 ].filter(Boolean);
 
 // Load environment variables from .env* files. Suppress warnings using silent

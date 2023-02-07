@@ -30,7 +30,7 @@ module.exports = function (app) {
   });
 
   const pdfjsDistBuildPath = dirname(
-    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '../../../libs/image-utils') })
+    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '../../../../libs/image-utils') })
   );
   app.use('/pdfjs-dist', express.static(pdfjsDistBuildPath));
 };
