@@ -4,7 +4,6 @@ import {
   PollWorkerUser,
   SystemAdministratorUser,
   UserRole,
-  VoterUser,
 } from './auth';
 
 export interface LoggedOut {
@@ -16,12 +15,7 @@ export interface LoggedOut {
     | 'machine_not_configured'
     | 'no_card'
     | 'poll_worker_wrong_election'
-    | 'user_role_not_allowed'
-    | 'voter_card_expired'
-    | 'voter_card_printed'
-    | 'voter_card_voided'
-    | 'voter_wrong_election'
-    | 'voter_wrong_precinct';
+    | 'user_role_not_allowed';
   readonly cardUserRole?: UserRole;
 }
 
@@ -46,11 +40,6 @@ export interface PollWorkerLoggedIn {
   readonly user: PollWorkerUser;
 }
 
-export interface VoterLoggedIn {
-  readonly status: 'logged_in';
-  readonly user: VoterUser;
-}
-
 export interface CardlessVoterLoggedIn {
   readonly status: 'logged_in';
   readonly user: CardlessVoterUser;
@@ -60,7 +49,6 @@ export type LoggedIn =
   | SystemAdministratorLoggedIn
   | ElectionManagerLoggedIn
   | PollWorkerLoggedIn
-  | VoterLoggedIn
   | CardlessVoterLoggedIn;
 
 export type AuthStatus = LoggedOut | CheckingPin | LoggedIn;
