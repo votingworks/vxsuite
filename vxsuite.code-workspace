@@ -65,10 +65,6 @@
       "path": "libs/cdf-schema-builder"
     },
     {
-      "name": "libs/cdf-types-election-event-logging",
-      "path": "libs/cdf-types-election-event-logging"
-    },
-    {
       "name": "libs/cvr-fixture-generator",
       "path": "libs/cvr-fixture-generator"
     },

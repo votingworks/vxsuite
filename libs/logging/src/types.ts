@@ -1,6 +1,10 @@
-import { UserRole, UserRoleSchema, Dictionary } from '@votingworks/types';
+import {
+  UserRole,
+  UserRoleSchema,
+  Dictionary,
+  EventLogging,
+} from '@votingworks/types';
 import { z } from 'zod';
-import { DeviceType } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { LogSource } from './log_source';
 import { LogEventType } from './log_event_types';
@@ -48,10 +52,11 @@ export const LogLineSchema: z.ZodSchema<LogLine> = z.object({
   timeLogWritten: z.string(),
 });
 
-export const DEVICE_TYPES_FOR_APP: Dictionary<DeviceType> = {
-  [LogSource.VxAdminFrontend]: DeviceType.Ems,
-  [LogSource.VxCentralScanFrontend]: DeviceType.ScanBatch,
-  [LogSource.VxScanFrontend]: DeviceType.ScanSingle,
-  [LogSource.VxMarkFrontend]: DeviceType.Bmd,
-  [LogSource.VxBallotActivationFrontend]: DeviceType.BallotActivation,
+export const DEVICE_TYPES_FOR_APP: Dictionary<EventLogging.DeviceType> = {
+  [LogSource.VxAdminFrontend]: EventLogging.DeviceType.Ems,
+  [LogSource.VxCentralScanFrontend]: EventLogging.DeviceType.ScanBatch,
+  [LogSource.VxScanFrontend]: EventLogging.DeviceType.ScanSingle,
+  [LogSource.VxMarkFrontend]: EventLogging.DeviceType.Bmd,
+  [LogSource.VxBallotActivationFrontend]:
+    EventLogging.DeviceType.BallotActivation,
 };

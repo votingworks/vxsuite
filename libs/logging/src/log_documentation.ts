@@ -1,8 +1,4 @@
-import {
-  ElectionEventLogDocumentation,
-  EventIdDescription,
-  EventTypeDescription,
-} from '@votingworks/cdf-types-election-event-logging';
+import { EventLogging } from '@votingworks/types';
 import { getDetailsForEventId, LogDetails, LogEventId } from './log_event_ids';
 import {
   getDocumentationForEventType,
@@ -50,17 +46,19 @@ export function generateCdfLogDocumentationFileContent(
   machineModel: string,
   machineManufacturer: string
 ): string {
-  const allEventTypes: EventTypeDescription[] = Object.values(LogEventType).map(
-    (eventType) => {
-      const eventTypeInformation = getDocumentationForEventType(eventType);
-      return {
-        '@type': 'EventLogging.EventTypeDescription',
-        Description: eventTypeInformation.documentationMessage,
-        Type: eventType,
-      };
-    }
-  );
-  const allEventIdsForDevice: EventIdDescription[] = Object.values(LogEventId)
+  const allEventTypes: EventLogging.EventTypeDescription[] = Object.values(
+    LogEventType
+  ).map((eventType) => {
+    const eventTypeInformation = getDocumentationForEventType(eventType);
+    return {
+      '@type': 'EventLogging.EventTypeDescription',
+      Description: eventTypeInformation.documentationMessage,
+      Type: eventType,
+    };
+  });
+  const allEventIdsForDevice: EventLogging.EventIdDescription[] = Object.values(
+    LogEventId
+  )
     .map((eventId) => getDetailsForEventId(eventId))
     .filter(
       (eventIdDetails) =>
@@ -74,7 +72,7 @@ export function generateCdfLogDocumentationFileContent(
         Description: eventIdDetails.documentationMessage,
       };
     });
-  const documentationLog: ElectionEventLogDocumentation = {
+  const documentationLog: EventLogging.ElectionEventLogDocumentation = {
     '@type': 'EventLogging.ElectionEventLogDocumentation',
     DeviceManufacturer: machineManufacturer,
     DeviceModel: machineModel,

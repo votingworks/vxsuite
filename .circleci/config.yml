@@ -413,28 +413,6 @@ jobs:
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
 
-  test-libs-cdf-types-election-event-logging:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cdf-types-election-event-logging/reports/
-
   test-libs-cvr-fixture-generator:
     executor: nodejs
     resource_class: xlarge

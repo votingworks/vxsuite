@@ -2,17 +2,12 @@ import makeDebug from 'debug';
 import {
   Dictionary,
   ElectionDefinition,
+  EventLogging,
   safeParse,
   safeParseJson,
 } from '@votingworks/types';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';
-import {
-  Device,
-  ElectionEventLog,
-  Event,
-  EventDispositionType,
-} from '@votingworks/cdf-types-election-event-logging';
 import {
   LogLine,
   LogDisposition,
@@ -115,7 +110,7 @@ export class Logger {
       throw new Error('Can only export CDF logs from a frontend app.');
     }
 
-    const allEvents: Event[] = [];
+    const allEvents: EventLogging.Event[] = [];
     const logs = rawLogFileContents.split('\n').filter((l) => l !== '');
     for (const [idx, log] of logs.entries()) {
       const decodedLogResult = safeParseJson(log, LogLineSchema);
@@ -137,15 +132,15 @@ export class Logger {
       );
 
       const standardDispositionResult = safeParse(
-        z.nativeEnum(EventDispositionType),
+        z.nativeEnum(EventLogging.EventDispositionType),
         decodedLog.disposition
       );
       const disposition = standardDispositionResult.isOk()
         ? standardDispositionResult.ok()
         : decodedLog.disposition === ''
-        ? EventDispositionType.Na
-        : EventDispositionType.Other;
-      const cdfEvent: Event = {
+        ? EventLogging.EventDispositionType.Na
+        : EventLogging.EventDispositionType.Other;
+      const cdfEvent: EventLogging.Event = {
         '@type': 'EventLogging.Event',
         Id: decodedLog.eventId,
         Disposition: disposition,
@@ -164,14 +159,14 @@ export class Logger {
       allEvents.push(cdfEvent);
     }
 
-    const currentDevice: Device = {
+    const currentDevice: EventLogging.Device = {
       '@type': 'EventLogging.Device',
       Type: DEVICE_TYPES_FOR_APP[this.source],
       Id: machineId,
       Version: codeVersion,
       Event: allEvents,
     };
-    const eventElectionLog: ElectionEventLog = {
+    const eventElectionLog: EventLogging.ElectionEventLog = {
       '@type': 'EventLogging.ElectionEventLog',
       Device: [currentDevice],
       ElectionId: electionDefinition.electionHash,

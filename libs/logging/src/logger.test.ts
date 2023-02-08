@@ -4,9 +4,8 @@ import { readFileSync } from 'fs-extra';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import MockDate from 'mockdate';
 import { join } from 'path';
-import { safeParseJson } from '@votingworks/types';
+import { safeParseJson, EventLogging } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { ElectionEventLogSchema } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
 import { Logger } from './logger';
 import { LogEventType } from './log_event_types';
@@ -133,7 +132,10 @@ describe('test cdf conversion', () => {
       'thisisacodeversion',
       'election_manager'
     );
-    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      cdfLogContent,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
@@ -162,7 +164,10 @@ describe('test cdf conversion', () => {
       'thisisacodeversion',
       'election_manager'
     );
-    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      cdfLogContent,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
@@ -201,7 +206,10 @@ describe('test cdf conversion', () => {
       'thisisacodeversion',
       'election_manager'
     );
-    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      cdfLogContent,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
@@ -223,7 +231,10 @@ describe('test cdf conversion', () => {
       'thisisacodeversion',
       'election_manager'
     );
-    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      cdfLogContent,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
@@ -299,7 +310,10 @@ describe('test cdf conversion', () => {
         disposition: 'failure',
       })
     );
-    const cdfLogResult = safeParseJson(output, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      output,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
@@ -320,7 +334,10 @@ describe('test cdf conversion', () => {
         disposition: 'failure',
       })
     );
-    const cdfLogResult2 = safeParseJson(output2, ElectionEventLogSchema);
+    const cdfLogResult2 = safeParseJson(
+      output2,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult2.isOk()).toBeTruthy();
     const cdfLog2 = cdfLogResult2.ok();
     assert(cdfLog2);
@@ -337,7 +354,10 @@ describe('test cdf conversion', () => {
       'codeversion',
       'vx-staff'
     );
-    const cdfLogResult = safeParseJson(cdfLogContent, ElectionEventLogSchema);
+    const cdfLogResult = safeParseJson(
+      cdfLogContent,
+      EventLogging.ElectionEventLogSchema
+    );
     expect(cdfLogResult.isOk()).toBeTruthy();
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
