@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text } from '@votingworks/ui';
+import { Button, Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import { TimesCircle } from '../components/graphics';
@@ -60,6 +60,11 @@ export function ScanErrorScreen({
         throwIllegalValue(error);
     }
   })();
+
+  function retry() {
+    void fetch('/scanner/retry', { method: 'POST' });
+  }
+
   return (
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
@@ -67,7 +72,10 @@ export function ScanErrorScreen({
         <h1>Ballot Not Counted</h1>
         <p>{errorMessage}</p>
         {restartRequired ? (
-          <Text>Ask a poll worker to restart the scanner.</Text>
+          <React.Fragment>
+            <Text>Ask a poll worker to restart the scanner.</Text>
+            <Button onPress={retry}>Retry</Button>
+          </React.Fragment>
         ) : (
           <Text small italic>
             Ask a poll worker if you need help.

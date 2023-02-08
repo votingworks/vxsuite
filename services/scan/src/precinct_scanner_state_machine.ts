@@ -92,6 +92,7 @@ type CommandEvent =
   | { type: 'SCAN' }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
+  | { type: 'RETRY' }
   | { type: 'CALIBRATE' };
 
 export type Event =
@@ -437,6 +438,7 @@ function buildMachine(
         SCAN: {},
         ACCEPT: {},
         RETURN: {},
+        RETRY: {},
         CALIBRATE: {},
         SET_INTERPRETATION_MODE: {
           actions: assign({ interpretationMode: (_, event) => event.mode }),
@@ -898,7 +900,12 @@ function buildMachine(
             },
           },
         },
-        unrecoverable_error: { id: 'unrecoverable_error' },
+        unrecoverable_error: {
+          id: 'unrecoverable_error',
+          on: {
+            RETRY: 'error',
+          },
+        },
       },
     },
     { delays: { ...delays } }
@@ -989,6 +996,7 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
+  retry: () => void;
   // Calibrate is the exception, which blocks until calibration is finished and
   // returns a result.
   calibrate: () => Promise<Result<void, string>>;
@@ -1118,6 +1126,10 @@ export function createPrecinctScannerStateMachine(
 
     return: () => {
       machineService.send('RETURN');
+    },
+
+    retry: () => {
+      machineService.send('RETRY');
     },
 
     calibrate: async () => {

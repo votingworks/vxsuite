@@ -495,6 +495,11 @@ export function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
+  app.post<NoParams, OkResponse>('/scanner/retry', (_request, response) => {
+    machine.retry();
+    response.json({ status: 'ok' });
+  });
+
   app.post<NoParams, Scan.CalibrateResponse>(
     '/scanner/calibrate',
     async (_request, response) => {
