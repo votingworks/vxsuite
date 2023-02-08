@@ -1,7 +1,7 @@
 import { buildSchema } from '@votingworks/cdf-schema-builder';
-import { fakeWritable } from '@votingworks/test-utils';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { mockWritable } from '../../../test/helpers/mock_writable';
 import {
   Device,
   DeviceSchema,
@@ -79,10 +79,16 @@ test('ElectionEventLogDocumentation', () => {
 });
 
 test('schema in sync', () => {
-  const xsd = readFileSync(join(__dirname, '../data/schema.xml'), 'utf-8');
-  const json = readFileSync(join(__dirname, '../data/schema.json'), 'utf-8');
+  const xsd = readFileSync(
+    join(__dirname, '../../../data/cdf/election-event-logging/schema.xml'),
+    'utf-8'
+  );
+  const json = readFileSync(
+    join(__dirname, '../../../data/cdf/election-event-logging/schema.json'),
+    'utf-8'
+  );
   const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
-  const out = fakeWritable();
+  const out = mockWritable();
   buildSchema(xsd, json, out).unsafeUnwrap();
   const expectedOutput = out.toString();
   expect(currentOutput).toEqual(expectedOutput);

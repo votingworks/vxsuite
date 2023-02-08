@@ -1907,9 +1907,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
-      '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.4
@@ -1929,12 +1926,12 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
+      zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
-      '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       jsdom: 19.0.0
       json-schema: 0.4.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/jsdom': 16.2.13
@@ -1942,7 +1939,6 @@ importers:
       '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
-      '@votingworks/test-utils': link:../test-utils
       eslint: 8.23.1
       eslint-config-prettier: 8.5.0_eslint@8.23.1
       eslint-import-resolver-node: 0.3.6
@@ -1951,124 +1947,6 @@ importers:
       eslint-plugin-no-null: 1.0.2_eslint@8.23.1
       eslint-plugin-prettier: 4.2.1_rr6pn6u7nfvlhvhwmji2vb2hl4
       eslint-plugin-vx: link:../eslint-plugin-vx
-      is-ci-cli: 2.2.0
-      jest: 27.4.5
-      jest-junit: 14.0.1
-      jest-watch-typeahead: 0.6.5_jest@27.4.5
-      lint-staged: 10.5.4
-      prettier: 2.6.2
-      sort-package-json: 1.53.1
-      ts-jest: 27.1.1_zjy5f3hevqv3y5dddnwvy46ndu
-      typescript: 4.6.3
-
-  libs/cdf-types-cast-vote-records:
-    specifiers:
-      '@types/jest': ^27.0.3
-      '@types/node': 16.11.29
-      '@types/text-encoding': ^0.0.35
-      '@typescript-eslint/eslint-plugin': ^5.37.0
-      '@typescript-eslint/parser': ^5.37.0
-      '@votingworks/cdf-schema-builder': workspace:*
-      '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      eslint: ^8.23.1
-      eslint-config-prettier: ^8.5.0
-      eslint-import-resolver-node: ^0.3.4
-      eslint-plugin-import: ^2.26.0
-      eslint-plugin-jest: ^26.1.5
-      eslint-plugin-no-null: ^1.0.2
-      eslint-plugin-prettier: ^4.2.1
-      eslint-plugin-vx: workspace:*
-      fast-check: ^2.18.0
-      is-ci-cli: ^2.2.0
-      jest: ^27.3.1
-      jest-junit: ^14.0.1
-      jest-watch-typeahead: ^0.6.1
-      lint-staged: ^10.5.1
-      prettier: ^2.6.2
-      sort-package-json: ^1.50.0
-      ts-jest: ^27.0.7
-      typescript: 4.6.3
-      zod: 3.14.4
-    dependencies:
-      '@votingworks/types': link:../types
-      zod: 3.14.4
-    devDependencies:
-      '@types/jest': 27.0.3
-      '@types/node': 16.11.29
-      '@types/text-encoding': 0.0.35
-      '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
-      '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
-      '@votingworks/cdf-schema-builder': link:../cdf-schema-builder
-      '@votingworks/test-utils': link:../test-utils
-      eslint: 8.23.1
-      eslint-config-prettier: 8.5.0_eslint@8.23.1
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.26.0_uzffwd2kxyy6gwinwkcp25zmz4
-      eslint-plugin-jest: 26.1.5_rrbd3dqp2d2pnkbnfr5hvie7zq
-      eslint-plugin-no-null: 1.0.2_eslint@8.23.1
-      eslint-plugin-prettier: 4.2.1_rr6pn6u7nfvlhvhwmji2vb2hl4
-      eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.20.0
-      is-ci-cli: 2.2.0
-      jest: 27.4.5
-      jest-junit: 14.0.1
-      jest-watch-typeahead: 0.6.5_jest@27.4.5
-      lint-staged: 10.5.4
-      prettier: 2.6.2
-      sort-package-json: 1.53.1
-      ts-jest: 27.1.1_zjy5f3hevqv3y5dddnwvy46ndu
-      typescript: 4.6.3
-
-  libs/cdf-types-election-event-logging:
-    specifiers:
-      '@types/jest': ^27.0.3
-      '@types/node': 16.11.29
-      '@types/text-encoding': ^0.0.35
-      '@typescript-eslint/eslint-plugin': ^5.37.0
-      '@typescript-eslint/parser': ^5.37.0
-      '@votingworks/cdf-schema-builder': workspace:*
-      '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      eslint: ^8.23.1
-      eslint-config-prettier: ^8.5.0
-      eslint-import-resolver-node: ^0.3.4
-      eslint-plugin-import: ^2.26.0
-      eslint-plugin-jest: ^26.1.5
-      eslint-plugin-no-null: ^1.0.2
-      eslint-plugin-prettier: ^4.2.1
-      eslint-plugin-vx: workspace:*
-      fast-check: ^2.18.0
-      is-ci-cli: ^2.2.0
-      jest: ^27.3.1
-      jest-junit: ^14.0.1
-      jest-watch-typeahead: ^0.6.1
-      lint-staged: ^10.5.1
-      prettier: ^2.6.2
-      sort-package-json: ^1.50.0
-      ts-jest: ^27.0.7
-      typescript: 4.6.3
-      zod: 3.14.4
-    dependencies:
-      '@votingworks/types': link:../types
-      zod: 3.14.4
-    devDependencies:
-      '@types/jest': 27.0.3
-      '@types/node': 16.11.29
-      '@types/text-encoding': 0.0.35
-      '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
-      '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
-      '@votingworks/cdf-schema-builder': link:../cdf-schema-builder
-      '@votingworks/test-utils': link:../test-utils
-      eslint: 8.23.1
-      eslint-config-prettier: 8.5.0_eslint@8.23.1
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.26.0_uzffwd2kxyy6gwinwkcp25zmz4
-      eslint-plugin-jest: 26.1.5_rrbd3dqp2d2pnkbnfr5hvie7zq
-      eslint-plugin-no-null: 1.0.2_eslint@8.23.1
-      eslint-plugin-prettier: 4.2.1_rr6pn6u7nfvlhvhwmji2vb2hl4
-      eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.20.0
       is-ci-cli: 2.2.0
       jest: 27.4.5
       jest-junit: 14.0.1
@@ -2580,7 +2458,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
-      '@votingworks/cdf-types-election-event-logging': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -2614,7 +2491,6 @@ importers:
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/node': 16.11.29
       '@votingworks/basics': link:../basics
-      '@votingworks/cdf-types-election-event-logging': link:../cdf-types-election-event-logging
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       debug: 4.3.2
@@ -2915,6 +2791,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
+      '@votingworks/cdf-schema-builder': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -2952,6 +2829,7 @@ importers:
       '@types/react': 17.0.39
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
+      '@votingworks/cdf-schema-builder': link:../cdf-schema-builder
       eslint: 8.23.1
       eslint-config-prettier: 8.5.0_eslint@8.23.1
       eslint-import-resolver-node: 0.3.6
@@ -20898,13 +20776,6 @@ packages:
 
   /fast-check/2.19.0:
     resolution: {integrity: sha512-qY4Rc0Nljl2aJx2qgbK3o6wPBjL9QvhKdD/VqJgaKd5ewn8l4ViqgDpUHJq/JkHTBnFKomYYvkFkOYGDVTT8bw==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      pure-rand: 5.0.0
-    dev: true
-
-  /fast-check/2.20.0:
-    resolution: {integrity: sha512-tFNjLyPnOUg6iimVxOtoWMJOIyybCo7B8gUGm1yv43jDCQ0hlPUn0fmna/XO/n1yPxn/dxQw3+IygPSbMDiiog==}
     engines: {node: '>=8.0.0'}
     dependencies:
       pure-rand: 5.0.0

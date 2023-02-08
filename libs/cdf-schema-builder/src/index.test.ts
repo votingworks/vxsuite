@@ -1,10 +1,10 @@
-import { fakeWritable } from '@votingworks/test-utils';
 import { typedAs } from '@votingworks/basics';
 import { JSONSchema4 } from 'json-schema';
+import { mockWritable } from '../test/mock_writable';
 import { buildSchema } from '.';
 
 test('empty', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -29,7 +29,11 @@ test('empty', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -92,7 +96,7 @@ test('invalid JSON schema', () => {
      <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
      </xsd:schema>`,
       `{}`,
-      fakeWritable()
+      mockWritable()
     ).unsafeUnwrapErr()
   ).toEqual(new Error('JSON schema is missing definitions'));
 
@@ -102,13 +106,13 @@ test('invalid JSON schema', () => {
      <xsd:schema elementFormDefault="qualified" targetNamespace="http://itl.nist.gov/ns/voting/1500-101/v1" version="1.0.2" xmlns="http://itl.nist.gov/ns/voting/1500-101/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
      </xsd:schema>`,
       `{`,
-      fakeWritable()
+      mockWritable()
     ).unsafeUnwrapErr()
   ).toBeInstanceOf(SyntaxError);
 });
 
 test('enum type', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -154,7 +158,11 @@ test('enum type', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -231,7 +239,7 @@ test('enum type', () => {
 });
 
 test('object type', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -299,7 +307,11 @@ test('object type', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -388,7 +400,7 @@ test('object type', () => {
 });
 
 test('object type property types', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -466,7 +478,11 @@ test('object type property types', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -555,7 +571,7 @@ test('object type property types', () => {
 });
 
 test('object type references', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -610,7 +626,11 @@ test('object type references', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -689,7 +709,7 @@ test('object type references', () => {
 });
 
 test('string aliases', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -730,7 +750,11 @@ test('string aliases', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -797,7 +821,7 @@ test('string aliases', () => {
 });
 
 test('documentation from JSON schema', () => {
-  const out = fakeWritable();
+  const out = mockWritable();
 
   buildSchema(
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -890,7 +914,11 @@ test('documentation from JSON schema', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.

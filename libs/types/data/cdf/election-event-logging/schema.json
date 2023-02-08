@@ -2,16 +2,11 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {
     "EventLogging.Device": {
-      "required": [
-        "@type",
-        "Id"
-      ],
+      "required": ["@type", "Id"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.Device"
-          ],
+          "enum": ["EventLogging.Device"],
           "type": "string"
         },
         "Details": {
@@ -73,16 +68,11 @@
       "type": "string"
     },
     "EventLogging.ElectionEventLog": {
-      "required": [
-        "@type",
-        "GeneratedTime"
-      ],
+      "required": ["@type", "GeneratedTime"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.ElectionEventLog"
-          ],
+          "enum": ["EventLogging.ElectionEventLog"],
           "type": "string"
         },
         "Details": {
@@ -117,9 +107,7 @@
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.ElectionEventLogDocumentation"
-          ],
+          "enum": ["EventLogging.ElectionEventLogDocumentation"],
           "type": "string"
         },
         "DeviceId": {
@@ -167,9 +155,7 @@
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.Event"
-          ],
+          "enum": ["EventLogging.Event"],
           "type": "string"
         },
         "Description": {
@@ -210,26 +196,15 @@
       "type": "object"
     },
     "EventLogging.EventDispositionType": {
-      "enum": [
-        "failure",
-        "na",
-        "other",
-        "success"
-      ],
+      "enum": ["failure", "na", "other", "success"],
       "type": "string"
     },
     "EventLogging.EventIdDescription": {
-      "required": [
-        "@type",
-        "Description",
-        "Id"
-      ],
+      "required": ["@type", "Description", "Id"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.EventIdDescription"
-          ],
+          "enum": ["EventLogging.EventIdDescription"],
           "type": "string"
         },
         "Description": {
@@ -242,17 +217,11 @@
       "type": "object"
     },
     "EventLogging.EventTypeDescription": {
-      "required": [
-        "@type",
-        "Description",
-        "Type"
-      ],
+      "required": ["@type", "Description", "Type"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "EventLogging.EventTypeDescription"
-          ],
+          "enum": ["EventLogging.EventTypeDescription"],
           "type": "string"
         },
         "Description": {
@@ -265,12 +234,7 @@
       "type": "object"
     },
     "EventLogging.HashType": {
-      "enum": [
-        "md6",
-        "other",
-        "sha-256",
-        "sha-512"
-      ],
+      "enum": ["md6", "other", "sha-256", "sha-512"],
       "type": "string"
     }
   },

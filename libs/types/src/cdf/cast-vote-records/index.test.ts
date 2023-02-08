@@ -1,7 +1,7 @@
 import { buildSchema } from '@votingworks/cdf-schema-builder';
-import { fakeWritable } from '@votingworks/test-utils';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { mockWritable } from '../../../test/helpers/mock_writable';
 import {
   AllocationStatus,
   CastVoteRecordReport,
@@ -114,10 +114,16 @@ test('CastVoteRecordReport', () => {
 });
 
 test('schema in sync', () => {
-  const xsd = readFileSync(join(__dirname, '../data/schema.xml'), 'utf-8');
-  const json = readFileSync(join(__dirname, '../data/schema.json'), 'utf-8');
+  const xsd = readFileSync(
+    join(__dirname, '../../../data/cdf/cast-vote-records/schema.xml'),
+    'utf-8'
+  );
+  const json = readFileSync(
+    join(__dirname, '../../../data/cdf/cast-vote-records/schema.json'),
+    'utf-8'
+  );
   const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
-  const out = fakeWritable();
+  const out = mockWritable();
   buildSchema(xsd, json, out).unsafeUnwrap();
   const expectedOutput = out.toString();
   expect(currentOutput).toEqual(expectedOutput);

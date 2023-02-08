@@ -2,5 +2,13 @@
   "extends": ["plugin:vx/recommended"],
   "rules": {
     "vx/gts-jsdoc": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/cdf/cast-vote-records/*.ts"],
+      "rules": {
+        "vx/gts-identifiers": ["error", { "allowedNames": ["/CVR.*/"] }]
+      }
+    }
+  ]
 }
