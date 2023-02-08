@@ -122,11 +122,12 @@ from `@votingworks/grout-test-utils`:
 
 ```ts
 import { createMockClient } from '@votingworks/grout-test-utils';
-const mockApiClient = createMockClient<MyApi>();
 
-// Ensure the mock is in a clean state before each test
+let mockApiClient: MockClient<Api>;
+
+// Ensure the mock is in a clean state before each test by creating a new one
 beforeEach(() => {
-  mockApiClient.reset();
+  mockApiClient = createMockClient<MyApi>();
 });
 
 // Ensure all expected calls were made after each test

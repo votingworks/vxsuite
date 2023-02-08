@@ -34,7 +34,7 @@ jobs:
       - store_test_results:
           path: codemods/reports/
 
-  test-apps-vx-mark-backend:
+  test-apps-mark-backend:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -42,21 +42,21 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-mark/backend build
+            pnpm --dir apps/mark/backend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-mark/backend lint
+            pnpm --dir apps/mark/backend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-mark/backend test
+            pnpm --dir apps/mark/backend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: frontends/bmd/reports/
 
-  test-apps-vx-mark-frontend:
+  test-apps-mark-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -64,23 +64,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-mark/frontend build
+            pnpm --dir apps/mark/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-mark/frontend lint
+            pnpm --dir apps/mark/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-mark/frontend test
+            pnpm --dir apps/mark/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-mark/frontend/reports/
+          path: apps/mark/frontend/reports/
       - store_artifacts:
-          path: apps/vx-mark/frontend/cypress/screenshots
+          path: apps/mark/frontend/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-mark/frontend/cypress/videos
+          path: apps/mark/frontend/cypress/videos
 
   test-apps-vx-central-scan-frontend:
     executor: nodejs-browsers
@@ -178,7 +178,7 @@ jobs:
       - store_test_results:
           path: apps/vx-admin/backend/reports/
 
-  test-apps-vx-scan-backend:
+  test-apps-scan-backend:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -186,21 +186,21 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-scan/backend build
+            pnpm --dir apps/scan/backend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-scan/backend lint
+            pnpm --dir apps/scan/backend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-scan/backend test
+            pnpm --dir apps/scan/backend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-scan/backend/reports/
+          path: apps/scan/backend/reports/
 
-  test-apps-vx-scan-frontend:
+  test-apps-scan-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -208,19 +208,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-scan/frontend build
+            pnpm --dir apps/scan/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-scan/frontend lint
+            pnpm --dir apps/scan/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-scan/frontend test
+            pnpm --dir apps/scan/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-scan/frontend/reports/
+          path: apps/scan/frontend/reports/
 
   test-integration-testing-vx-mark:
     executor: nodejs-browsers
@@ -231,23 +231,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-mark/frontend build
+            pnpm --dir apps/mark/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-mark/frontend lint
+            pnpm --dir apps/mark/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-mark/frontend test:e2e
+            pnpm --dir apps/mark/frontend test:e2e
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: apps/vx-mark/frontend/reports/
+          path: apps/mark/frontend/reports/
       - store_artifacts:
-          path: apps/vx-mark/frontend/cypress/screenshots
+          path: apps/mark/frontend/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-mark/frontend/cypress/videos
+          path: apps/mark/frontend/cypress/videos
 
   test-apps-vx-central-scan-integration-testing:
     executor: nodejs-browsers
@@ -456,50 +456,6 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
-
-  test-libs-cdf-types-cast-vote-records:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cdf-types-cast-vote-records/reports/
-
-  test-libs-cdf-types-election-event-logging:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cdf-types-election-event-logging test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cdf-types-election-event-logging/reports/
 
   test-libs-cvr-fixture-generator:
     executor: nodejs
@@ -911,14 +867,14 @@ workflows:
   test:
     jobs:
       - test-codemods
+      - test-apps-mark-backend
+      - test-apps-mark-frontend
+      - test-apps-scan-backend
+      - test-apps-scan-frontend
       - test-apps-vx-admin-frontend
       - test-apps-vx-admin-backend
       - test-apps-vx-central-scan-frontend
       - test-apps-vx-central-scan-backend
-      - test-apps-vx-mark-backend
-      - test-apps-vx-mark-frontend
-      - test-apps-vx-scan-backend
-      - test-apps-vx-scan-frontend
       - test-integration-testing-vx-mark
       - test-apps-vx-central-scan-integration-testing
       - test-apps-vx-admin-integration-testing
@@ -929,8 +885,6 @@ workflows:
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
-      - test-libs-cdf-types-cast-vote-records
-      - test-libs-cdf-types-election-event-logging
       - test-libs-cvr-fixture-generator
       - test-libs-data
       - test-libs-db

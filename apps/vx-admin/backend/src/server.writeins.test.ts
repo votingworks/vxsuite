@@ -1,5 +1,8 @@
 import { Admin } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/basics';
@@ -7,7 +10,6 @@ import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildApp } from './server';
-import { buildMockAuth } from '../test/utils';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
@@ -16,7 +18,7 @@ let workspace: Workspace;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  auth = buildMockAuth();
+  auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
   app = buildApp({ auth, workspace });
 });

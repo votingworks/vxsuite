@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { MAX_UINT8, MIN_UINT8 } from './constants';
 import {
   BitLength,
   BitOffset,
@@ -17,6 +18,9 @@ export class Uint8Coder extends UintCoder {
   bitLength(): BitLength {
     return 8;
   }
+
+  protected minValue = MIN_UINT8;
+  protected maxValue = MAX_UINT8;
 
   encodeInto(value: Uint8, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     return mapResult(this.validateValue(value), () =>

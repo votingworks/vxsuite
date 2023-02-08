@@ -1,5 +1,8 @@
 import { Scan } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
 import { Exporter } from '@votingworks/data';
 import {
   asElectionDefinition,
@@ -15,11 +18,7 @@ import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  buildMockAuth,
-  makeMockScanner,
-  MockScanner,
-} from '../test/util/mocks';
+import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -46,7 +45,7 @@ let workspace: Workspace;
 let scanner: MockScanner;
 
 beforeEach(async () => {
-  auth = buildMockAuth();
+  auth = buildMockDippedSmartCardAuth();
   scanner = makeMockScanner();
   workspace = await createWorkspace(dirSync().name);
   importer = new Importer({

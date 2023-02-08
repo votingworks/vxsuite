@@ -1,20 +1,20 @@
 {
   "folders": [
     {
-      "name": "apps/vx-mark/backend",
-      "path": "apps/vx-mark/backend"
+      "name": "apps/mark/backend",
+      "path": "apps/mark/backend"
     },
     {
-      "name": "apps/vx-mark/frontend",
-      "path": "apps/vx-mark/frontend"
+      "name": "apps/mark/frontend",
+      "path": "apps/mark/frontend"
     },
     {
-      "name": "apps/vx-scan/backend",
-      "path": "apps/vx-scan/backend"
+      "name": "apps/scan/backend",
+      "path": "apps/scan/backend"
     },
     {
-      "name": "apps/vx-scan/frontend",
-      "path": "apps/vx-scan/frontend"
+      "name": "apps/scan/frontend",
+      "path": "apps/scan/frontend"
     },
     {
       "name": "apps/vx-admin/backend",
@@ -67,14 +67,6 @@
     {
       "name": "libs/cdf-schema-builder",
       "path": "libs/cdf-schema-builder"
-    },
-    {
-      "name": "libs/cdf-types-cast-vote-records",
-      "path": "libs/cdf-types-cast-vote-records"
-    },
-    {
-      "name": "libs/cdf-types-election-event-logging",
-      "path": "libs/cdf-types-election-event-logging"
     },
     {
       "name": "libs/cvr-fixture-generator",

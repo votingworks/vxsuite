@@ -13,6 +13,7 @@ import {
   SystemAdministratorCardData,
   User,
   DippedSmartCardAuth,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { err, ok, throwIllegalValue, wrapException } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -287,6 +288,12 @@ export function isSystemAdministratorAuth(
   auth: InsertedSmartcardAuth.Auth
 ): auth is InsertedSmartcardAuth.SystemAdministratorLoggedIn;
 export function isSystemAdministratorAuth(
+  auth: InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
   auth: DippedSmartcardAuth.Auth
 ): auth is DippedSmartcardAuth.SystemAdministratorLoggedIn;
 export function isSystemAdministratorAuth(
@@ -298,6 +305,7 @@ export function isSystemAdministratorAuth(
 export function isSystemAdministratorAuth(
   auth:
     | InsertedSmartcardAuth.Auth
+    | InsertedSmartCardAuth.AuthStatus
     | DippedSmartcardAuth.Auth
     | DippedSmartCardAuth.AuthStatus
 ): boolean {
@@ -310,6 +318,12 @@ export function isElectionManagerAuth(
   auth: InsertedSmartcardAuth.Auth
 ): auth is InsertedSmartcardAuth.ElectionManagerLoggedIn;
 export function isElectionManagerAuth(
+  auth: InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
   auth: DippedSmartcardAuth.Auth
 ): auth is DippedSmartcardAuth.ElectionManagerLoggedIn;
 export function isElectionManagerAuth(
@@ -321,6 +335,7 @@ export function isElectionManagerAuth(
 export function isElectionManagerAuth(
   auth:
     | InsertedSmartcardAuth.Auth
+    | InsertedSmartCardAuth.AuthStatus
     | DippedSmartcardAuth.Auth
     | DippedSmartCardAuth.AuthStatus
 ): boolean {
@@ -329,7 +344,16 @@ export function isElectionManagerAuth(
 
 export function isPollWorkerAuth(
   auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.PollWorkerLoggedIn {
+): auth is InsertedSmartcardAuth.PollWorkerLoggedIn;
+export function isPollWorkerAuth(
+  auth: InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.PollWorkerLoggedIn;
+export function isPollWorkerAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.PollWorkerLoggedIn;
+export function isPollWorkerAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): boolean {
   return auth.status === 'logged_in' && auth.user.role === 'poll_worker';
 }
 

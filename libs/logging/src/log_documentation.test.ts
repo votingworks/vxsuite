@@ -1,5 +1,4 @@
-import { ElectionEventLogDocumentationSchema } from '@votingworks/cdf-types-election-event-logging';
-import { safeParseJson } from '@votingworks/types';
+import { EventLogging, safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import MockDate from 'mockdate';
 import * as fs from 'fs';
@@ -21,7 +20,7 @@ describe('test cdf documentation generation', () => {
     );
     const structuredDataResult = safeParseJson(
       cdfDocumentationContent,
-      ElectionEventLogDocumentationSchema
+      EventLogging.ElectionEventLogDocumentationSchema
     );
     const structuredData = structuredDataResult.unsafeUnwrap();
     expect(structuredData.DeviceManufacturer).toEqual('VotingWorks');
@@ -57,7 +56,7 @@ describe('test cdf documentation generation', () => {
     );
     const structuredDataResult = safeParseJson(
       cdfDocumentationContent,
-      ElectionEventLogDocumentationSchema
+      EventLogging.ElectionEventLogDocumentationSchema
     );
     expect(structuredDataResult.isOk()).toBeTruthy();
     const structuredData = structuredDataResult.ok();

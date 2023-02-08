@@ -73,5 +73,9 @@ ruleTester.run('gts-identifiers', rule, {
       code: `interface A { imageURL: string }`,
       errors: [{ messageId: 'noAbbreviations', line: 1 }],
     },
+    {
+      code: `export * as ElectionADT from './election_adt'`,
+      errors: [{ messageId: 'noAbbreviations', line: 1 }],
+    },
   ],
 });

@@ -15,13 +15,12 @@ import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { Scan } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import {
-  buildMockAuth,
-  makeMockScanner,
-  MockScanner,
-} from '../test/util/mocks';
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
+import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
@@ -66,7 +65,7 @@ let importer: Importer;
 let app: Application;
 
 beforeEach(async () => {
-  auth = buildMockAuth();
+  auth = buildMockDippedSmartCardAuth();
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });

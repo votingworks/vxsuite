@@ -73,12 +73,3 @@ test('asserts complete for all methods', async () => {
     Actual: <none>"
   `);
 });
-
-test('resets all methods', () => {
-  const mockClient = createMockClient<typeof api>();
-  mockClient.add.expectCallWith({ num1: 1, num2: 2 }).resolves(42);
-  mockClient.sqrt.expectCallWith({ num: 4 }).resolves(100);
-
-  mockClient.reset();
-  mockClient.assertComplete();
-});
