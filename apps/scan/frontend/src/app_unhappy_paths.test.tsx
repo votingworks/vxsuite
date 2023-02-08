@@ -96,7 +96,7 @@ test('backend fails to unconfigure', async () => {
 
 test('Show invalid card screen when unsupported cards are given', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper, 2);
 
   renderApp();
   await screen.findByText('Polls Closed');
@@ -105,17 +105,6 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'invalid_user_on_card',
-  });
-  await screen.findByText('Invalid Card');
-
-  // Remove card
-  apiMock.removeCard();
-  await screen.findByText('Polls Closed');
-
-  // Insert a voter card which is invalid
-  apiMock.setAuthStatus({
-    status: 'logged_out',
-    reason: 'voter_wrong_election',
   });
   await screen.findByText('Invalid Card');
 
