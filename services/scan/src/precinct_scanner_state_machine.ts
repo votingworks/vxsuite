@@ -694,7 +694,33 @@ function buildMachine(
         },
         ready_to_accept: {
           id: 'ready_to_accept',
-          on: { ACCEPT: 'accepting' },
+          // on: { ACCEPT: 'accepting' },
+          on: { ACCEPT: 'infinite_scanner_reject_after_accept' },
+        },
+        infinite_scanner_reject_after_accept: {
+          id: 'infinite_scanner_reject_after_accept',
+          entry: recordAcceptedSheet,
+          invoke: {
+            src: reject,
+            onDone: 'infinite_scanner_checking_returning_completed',
+            onError: 'error_jammed',
+          },
+        },
+        infinite_scanner_checking_returning_completed: {
+          id: 'infinite_scanner_checking_returning_completed',
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: {
+              target: 'infinite_scanner_checking_returning_completed',
+              internal: true,
+            },
+            SCANNER_READY_TO_SCAN: 'scanning',
+            SCANNER_READY_TO_EJECT: 'error_jammed',
+          },
+          // But, if you pull the paper out right after rejecting, we go straight to
+          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
+          // timeout waiting for READY_TO_SCAN.
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 'no_paper' },
         },
         accepting: acceptingState,
         accepted: {
@@ -1075,6 +1101,10 @@ export function createPrecinctScannerStateMachine(
             return 'recovering_from_error';
           case state.matches('unrecoverable_error'):
             return 'unrecoverable_error';
+          case state.matches('infinite_scanner_reject_after_accept'):
+            return 'accepting';
+          case state.matches('infinite_scanner_checking_returning_completed'):
+            return 'ready_to_scan';
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }
