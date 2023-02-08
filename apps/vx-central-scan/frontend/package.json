@@ -8,20 +8,20 @@
     "prodserver"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "pnpm type-check && vite build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
+    "pre-commit": "lint-staged",
     "start": "pnpm -w run-dev vx-central-scan",
     "start:core": "pnpm -w run-dev vx-central-scan --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
     "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=7",
-    "pre-commit": "lint-staged"
+    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
+    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
@@ -78,8 +78,8 @@
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
     "pluralize": "^7.0.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
     "react-dropzone": "^11.2.1",
     "react-router-dom": "^5.2.0",
     "setimmediate": "^1.0.5",
@@ -109,8 +109,8 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
-    "@votingworks/scan": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "@votingworks/vx-central-scan-backend": "workspace:*",
     "esbuild": "^0.15.10",
     "esbuild-runner": "^2.2.1",
     "eslint": "^8.23.1",

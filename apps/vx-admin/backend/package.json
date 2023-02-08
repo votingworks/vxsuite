@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/admin",
+  "name": "@votingworks/vx-admin-backend",
   "version": "0.1.0",
   "private": true,
   "main": "build/index.js",
