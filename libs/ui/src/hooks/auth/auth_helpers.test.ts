@@ -21,7 +21,6 @@ import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
-  isVoterAuth,
 } from './auth_helpers';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 import { useInsertedSmartcardAuth } from './use_inserted_smartcard_auth';
@@ -33,7 +32,6 @@ const allowedUserRoles: UserRole[] = [
   'system_administrator',
   'election_manager',
   'poll_worker',
-  'voter',
   'cardless_voter',
 ];
 
@@ -764,7 +762,9 @@ describe('Type guards', () => {
     expect(
       isSystemAdministratorAuth(Inserted.fakeSystemAdministratorAuth())
     ).toEqual(true);
-    expect(isSystemAdministratorAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(
+      isSystemAdministratorAuth(Inserted.fakeElectionManagerAuth())
+    ).toEqual(false);
     expect(isSystemAdministratorAuth(Inserted.fakeLoggedOutAuth())).toEqual(
       false
     );
@@ -783,7 +783,7 @@ describe('Type guards', () => {
     expect(isElectionManagerAuth(Inserted.fakeElectionManagerAuth())).toEqual(
       true
     );
-    expect(isElectionManagerAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(isElectionManagerAuth(Inserted.fakePollWorkerAuth())).toEqual(false);
     expect(isElectionManagerAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
     expect(isElectionManagerAuth(Dipped.fakeElectionManagerAuth())).toEqual(
       true
@@ -796,13 +796,7 @@ describe('Type guards', () => {
 
   test('isPollWorkerAuth', () => {
     expect(isPollWorkerAuth(Inserted.fakePollWorkerAuth())).toEqual(true);
-    expect(isPollWorkerAuth(Inserted.fakeVoterAuth())).toEqual(false);
+    expect(isPollWorkerAuth(Inserted.fakeCardlessVoterAuth())).toEqual(false);
     expect(isPollWorkerAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
-  });
-
-  test('isVoterAuth', () => {
-    expect(isVoterAuth(Inserted.fakeVoterAuth())).toEqual(true);
-    expect(isVoterAuth(Inserted.fakePollWorkerAuth())).toEqual(false);
-    expect(isVoterAuth(Inserted.fakeLoggedOutAuth())).toEqual(false);
   });
 });
