@@ -11,7 +11,7 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   unsafeParse,
-  vote,
+  buildVotes,
   VotesDict,
 } from '@votingworks/types';
 import '../test/expect';
@@ -90,7 +90,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -115,7 +115,7 @@ it('encodes & decodes empty votes correctly', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -172,7 +172,7 @@ it('encodes & decodes without a ballot id', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballot: CompletedBallot = {
     electionHash,
     ballotStyleId,
@@ -225,7 +225,7 @@ it('encodes & decodes whether it is a test ballot', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -282,7 +282,7 @@ it('encodes & decodes the ballot type', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -340,7 +340,7 @@ it('encodes & decodes yesno votes correctly', () => {
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
+  const votes = buildVotes(contests, {
     'judicial-robert-demergue': ['yes'],
     'judicial-elmer-hull': ['yes'],
     'question-a': ['yes'],
@@ -415,7 +415,7 @@ it('throws on trying to encode a bad yes/no vote', () => {
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
+  const votes = buildVotes(contests, {
     'judicial-robert-demergue': 'yes',
   });
   const ballot: CompletedBallot = {
@@ -593,7 +593,7 @@ it('encodes & decodes candidate choice votes correctly', () => {
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
+  const votes = buildVotes(contests, {
     president: 'barchi-hallaren',
     senator: 'weiford',
     'representative-district-6': 'plunkard',
@@ -691,7 +691,7 @@ it('encodes & decodes write-in votes correctly', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
+  const votes = buildVotes(contests, {
     'county-registrar-of-wills': [
       { id: 'write-in-MICKEY MOUSE', name: 'MICKEY MOUSE', isWriteIn: true },
     ],
@@ -822,7 +822,7 @@ test('cannot decode a ballot that includes extra data at the end', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -852,7 +852,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,
@@ -1065,7 +1065,7 @@ test('decode election hash from BMD metadata', () => {
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
+  const votes = buildVotes(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     electionHash,

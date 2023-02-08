@@ -39,7 +39,7 @@ import {
   PartyIdSchema,
   PartySchema,
   validateVotes,
-  vote,
+  buildVotes,
   withLocale,
   YesNoContest,
   getDisplayElectionHash,
@@ -51,7 +51,7 @@ test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
   const contest = contests[0] as CandidateContest;
 
-  expect(vote(contests, { CC: 'C' })).toEqual({
+  expect(buildVotes(contests, { CC: 'C' })).toEqual({
     CC: [contest.candidates[0]],
   });
 });
@@ -61,17 +61,17 @@ test('can build votes from an array of candidate IDs', () => {
   const contest = contests[0] as CandidateContest;
 
   expect(
-    vote(contests, { [contest.id]: contest.candidates.map((c) => c.id) })
+    buildVotes(contests, { [contest.id]: contest.candidates.map((c) => c.id) })
   ).toEqual({
     [contest.id]: contest.candidates,
   });
 });
 
 test('can build votes from yesno values', () => {
-  expect(vote(election.contests, { YNC: 'yes' })).toEqual({
+  expect(buildVotes(election.contests, { YNC: 'yes' })).toEqual({
     YNC: 'yes',
   });
-  expect(vote(election.contests, { YNC: 'no' })).toEqual({
+  expect(buildVotes(election.contests, { YNC: 'no' })).toEqual({
     YNC: 'no',
   });
 });
@@ -81,7 +81,7 @@ test('can build votes from a candidate object', () => {
   const contest = contests[0] as CandidateContest;
   const candidate = contest.candidates[0];
 
-  expect(vote(contests, { CC: candidate })).toEqual({
+  expect(buildVotes(contests, { CC: candidate })).toEqual({
     CC: [candidate],
   });
 });
@@ -91,13 +91,15 @@ test('can build votes from a candidates array', () => {
   const contest = contests[0] as CandidateContest;
   const { candidates } = contest;
 
-  expect(vote(contests, { CC: candidates })).toEqual({
+  expect(buildVotes(contests, { CC: candidates })).toEqual({
     CC: candidates,
   });
 });
 
 test('vote throws when given a contest id that does not match a contest', () => {
-  expect(() => vote([], { nope: 'yes' })).toThrowError('unknown contest nope');
+  expect(() => buildVotes([], { nope: 'yes' })).toThrowError(
+    'unknown contest nope'
+  );
 });
 
 test('can get a party primary adjective from ballot style', () => {
@@ -336,9 +338,11 @@ test('isVotePresent', () => {
   expect(isVotePresent(['yes'])).toEqual(true);
   expect(
     isVotePresent([
-      election.contests.find(
-        (c): c is CandidateContest => c.type === 'candidate'
-      )!.candidates[0],
+      {
+        candidateId: election.contests.find(
+          (c): c is CandidateContest => c.type === 'candidate'
+        )!.candidates[0].id,
+      },
     ])
   ).toEqual(true);
 });

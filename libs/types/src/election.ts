@@ -2,7 +2,7 @@
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import * as z from 'zod';
-import { ok, Result } from '@votingworks/basics';
+import { ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   Dictionary,
   ElectionHash,
@@ -1305,6 +1305,13 @@ export function getContestDistrictName(
   return district.name;
 }
 
+type SelectionShorthand =
+  | CandidateContestSelection
+  | YesNoSelection
+  | CandidateId
+  | Candidate;
+type VoteShorthand = SelectionShorthand | SelectionShorthand[];
+
 /**
  * Helper function to build a `VotesDict` more easily, primarily for testing.
  *
@@ -1332,45 +1339,60 @@ export function getContestDistrictName(
  *   'city-council': ['rupp', 'davis']
  * })
  */
-export function vote(
+export function buildVotes(
   contests: Contests,
   shorthand: {
-    [key: string]: Vote | string | readonly string[] | Candidate;
+    [key: string]: Readonly<VoteShorthand>;
   }
 ): VotesDict {
-  return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
-    const contest = findContest({ contests, contestId });
+  return Object.getOwnPropertyNames(shorthand).reduce<VotesDict>(
+    // eslint-disable-next-line array-callback-return
+    (result, contestId): VotesDict => {
+      const contest = findContest({ contests, contestId });
 
-    if (!contest) {
-      throw new Error(`unknown contest ${contestId}`);
-    }
+      if (!contest) {
+        throw new Error(`unknown contest ${contestId}`);
+      }
 
-    const choice = shorthand[contestId];
+      const selectionOrSelections = shorthand[contestId];
+      const selections: SelectionShorthand[] = Array.isArray(
+        selectionOrSelections
+      )
+        ? selectionOrSelections
+        : [selectionOrSelections];
 
-    if (contest.type !== 'candidate') {
-      return { ...result, [contestId]: choice };
-    }
-    if (Array.isArray(choice) && typeof choice[0] === 'string') {
-      return {
-        ...result,
-        [contestId]: contest.candidates.filter((c) =>
-          (choice as readonly string[]).includes(c.id)
-        ),
-      };
-    }
+      if (contest.type === 'yesno') {
+        const vote = safeParse(YesNoVoteSchema, selections).unsafeUnwrap();
+        return { ...result, [contestId]: vote };
+      }
 
-    if (typeof choice === 'string') {
-      return {
-        ...result,
-        [contestId]: [contest.candidates.find((c) => c.id === choice)],
-      };
-    }
+      if (contest.type === 'candidate') {
+        const unvalidatedVote = selections.map((selection) => {
+          if (typeof selection === 'string') {
+            const candidateId = contest.candidates.find(
+              (candidate) => candidate.id === selection
+            );
+            return { candidateId };
+          }
+          if ('id' in selection) {
+            return { candidateId: selection.id };
+          }
+          return selection;
+        });
+        const vote = safeParse(
+          CandidateVoteSchema,
+          unvalidatedVote
+        ).unsafeUnwrap();
+        return {
+          ...result,
+          [contestId]: vote,
+        };
+      }
 
-    return {
-      ...result,
-      [contestId]: Array.isArray(choice) ? choice : [choice],
-    };
-  }, {});
+      throwIllegalValue(contest);
+    },
+    {}
+  );
 }
 
 export function isVotePresent(v?: Vote): boolean {
