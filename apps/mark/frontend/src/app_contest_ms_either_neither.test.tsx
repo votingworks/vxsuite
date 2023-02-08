@@ -18,10 +18,11 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
-import { expectPrint, makeVoterCard } from '@votingworks/test-utils';
+import { expectPrint, makePollWorkerCard } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
 
@@ -229,13 +230,11 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   );
   await advanceTimersAndPromises();
 
-  // Insert Voter Card
-  card.insertCard(
-    makeVoterCard(election, {
-      bs: ballotStyleId,
-      pr: precinctId,
-    })
-  );
+  // Start voter session
+  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
+  await advanceTimersAndPromises();
+  userEvent.click(screen.getByText('2'));
+  card.removeCard();
   await advanceTimersAndPromises();
 
   // Go to First Contest

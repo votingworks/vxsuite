@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   makeElectionManagerCard,
-  makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
@@ -101,9 +100,13 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
 
   // Complete Voter Happy Path
 
-  // Insert Voter card
-  card.insertCard(makeVoterCard(electionDefinition.election));
+  // Start voter session
+  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
   await advanceTimersAndPromises();
+  userEvent.click(screen.getByText('12'));
+  card.removeCard();
+  await advanceTimersAndPromises();
+
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 20 contests.');

@@ -1,9 +1,9 @@
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
-import { MarkOnly } from '@votingworks/types';
+import { MarkAndPrint } from '@votingworks/types';
 
 export function fakeMachineConfig({
-  appMode = MarkOnly,
+  appMode = MarkAndPrint,
   machineId = '000',
   codeVersion = 'test',
   screenOrientation = 'portrait',

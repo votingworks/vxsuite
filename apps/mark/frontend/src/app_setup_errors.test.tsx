@@ -7,7 +7,6 @@ import {
   BATTERY_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
-import { PrintOnly } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';
@@ -126,48 +125,8 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText(insertCardScreenText);
   });
 
-  it('Displays error screen if Printer connection is lost', async () => {
-    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
-    const card = new MemoryCard();
-    const storage = new MemoryStorage();
-    const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
-    await setStateInStorage(storage);
-    render(
-      <App
-        card={card}
-        hardware={hardware}
-        storage={storage}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
-
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-
-    // Start on PrintOnly Insert Card screen
-    const printOnlyInsertCardScreenText =
-      'Insert Card to print your official ballot.';
-    screen.getByText(printOnlyInsertCardScreenText);
-
-    // Disconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(false);
-    });
-    await advanceTimersAndPromises();
-    screen.getByText('No Printer Detected');
-
-    // Reconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(true);
-    });
-    await advanceTimersAndPromises();
-    screen.getByText(printOnlyInsertCardScreenText);
-  });
-
   it('Displays error screen if Power connection is lost', async () => {
-    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
+    apiMock.expectGetMachineConfig();
     const card = new MemoryCard();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
@@ -185,11 +144,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
-
-    // Start on PrintOnly Insert Card screen
-    const printOnlyInsertCardScreenText =
-      'Insert Card to print your official ballot.';
-    screen.getByText(printOnlyInsertCardScreenText);
+    screen.getByText('Insert Card');
 
     // Disconnect Power
     act(() => {
@@ -204,11 +159,10 @@ describe('Displays setup warning messages and errors screens', () => {
     });
     await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
-    screen.getByText(printOnlyInsertCardScreenText);
   });
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
-    apiMock.expectGetMachineConfig({ appMode: PrintOnly });
+    apiMock.expectGetMachineConfig();
     const card = new MemoryCard();
     const electionManagerCard = makeElectionManagerCard(
       electionDefinition.electionHash
@@ -228,12 +182,7 @@ describe('Displays setup warning messages and errors screens', () => {
     );
 
     await advanceTimersAndPromises();
-
-    // no printer
-    // Start on PrintOnly Insert Card screen
-    const printOnlyInsertCardScreenText =
-      'Insert Card to print your official ballot.';
-    screen.getByText(printOnlyInsertCardScreenText);
+    screen.getByText('Insert Card');
 
     // Disconnect Printer
     act(() => {

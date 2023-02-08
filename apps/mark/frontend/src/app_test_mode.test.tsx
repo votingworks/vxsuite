@@ -1,15 +1,19 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-
-import { App } from './app';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {
+  asElectionDefinition,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
+import { makePollWorkerCard } from '@votingworks/test-utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 
 import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { App } from './app';
 
 let apiMock: ApiMock;
 
@@ -23,27 +27,37 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Displays testing message if not live mode', async () => {
+it('Prompts to change from test mode to live mode on election day', async () => {
+  const electionDefinition = asElectionDefinition({
+    ...electionSampleDefinition.election,
+    date: new Date().toISOString(),
+  });
   const card = new MemoryCard();
-  const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  await setElectionInStorage(storage);
+  await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     isLiveMode: false,
   });
   render(
     <App
-      card={card}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
+      card={card}
       hardware={hardware}
-      reload={jest.fn()}
+      storage={storage}
     />
   );
 
-  // Let the initial hardware detection run.
-  await advanceTimersAndPromises();
-
-  screen.getByText('Machine is in Testing Mode');
+  await screen.findByText('Machine is in Testing Mode');
+  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
+  await screen.findByText(
+    'Switch to Live Election Mode and reset the Ballots Printed count?'
+  );
+  userEvent.click(
+    screen.getByRole('button', { name: 'Switch to Live Election Mode' })
+  );
+  await waitFor(() =>
+    expect(screen.queryByText('Machine is in Testing Mode')).toBeNull()
+  );
 });

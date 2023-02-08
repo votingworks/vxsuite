@@ -1,11 +1,9 @@
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { advanceBy } from 'jest-date-mock';
 import {
   makeElectionManagerCard,
   makeInvalidPollWorkerCard,
-  makeVoterCard,
   makePollWorkerCard,
   getZeroCompressedTally,
   makeSystemAdministratorCard,
@@ -26,11 +24,7 @@ import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
 
-import {
-  advanceTimersAndPromises,
-  makeAlternateNewVoterCard,
-  makeUsedVoterCard,
-} from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import {
   presidentContest,
@@ -176,39 +170,15 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Voter partially votes, remove card, and is on insert card screen.
-  card.insertCard(makeVoterCard(electionDefinition.election));
-  await advanceTimersAndPromises();
-  screen.getByText(/Center Springfield/);
-  expect(screen.queryByText(expectedElectionHash)).toBeNull();
-  screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
-
-  // Remove card
-  card.removeCard();
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
-
-  // ---------------
-
-  // Alternate Precinct
-  card.insertCard(makeAlternateNewVoterCard());
-  await advanceTimersAndPromises();
-  screen.getByText('Invalid Card Data');
-  screen.getByText('Card is not configured for this precinct.');
-
-  // Remove card
-  card.removeCard();
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
-
-  // ---------------
-
   // Complete Voter Happy Path
 
-  // Insert Voter card
-  card.insertCard(makeVoterCard(electionDefinition.election));
+  // Start voter session
+  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
   await advanceTimersAndPromises();
+  userEvent.click(screen.getByText('12'));
+  card.removeCard();
+  await advanceTimersAndPromises();
+
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
   getByTextWithMarkup('Your ballot has 20 contests.');
@@ -228,10 +198,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
-
-  // Initial empty votes written to the card after tapping "Start Voting".
-  await advanceTimersAndPromises();
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1);
 
   // Adjust Text Size in Settings Modal
   userEvent.click(screen.getByText('Settings'));
@@ -274,21 +240,6 @@ test('MarkAndPrint end-to-end flow', async () => {
     // Vote for candidate contest
     if (title === presidentContest.title) {
       userEvent.click(screen.getByText(presidentContest.candidates[0].name));
-      await advanceTimersAndPromises(); // Update the vote being saved internally
-
-      // We write to the card when no changes to the ballot state have happened for a second.
-      // To test that this is happening, we advance time by a bit more than a second
-      // We also need to advance timers so the interval will run, see that time has passed,
-      // and finally write to the card.
-      advanceBy(1100);
-      await advanceTimersAndPromises();
-      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(2);
-
-      // If we wait another second and advance timers, without any change made to the card,
-      // we should not see another call to save the card data
-      advanceBy(1100);
-      await advanceTimersAndPromises();
-      expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(2);
     }
 
     // Vote for yesno contest
@@ -349,37 +300,17 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
-  // Mark card used and then read card again
-  await advanceTimersAndPromises();
-
   // Font Size is still custom user setting
   expect(window.document.documentElement.style.fontSize).toEqual('36px');
 
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
-  // Reset Ballot is called with instructions type "card"
-  // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
-  screen.getByText('3. Return the card.');
-
-  // Remove card
-  card.removeCard();
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  userEvent.click(screen.getByText('Done'));
 
   // Font size has been reset to default on Insert Card screen
   expect(window.document.documentElement.style.fontSize).toEqual('28px');
-
-  // Insert Voter card which has just printed, it should say "used card"
-  card.insertCard(makeUsedVoterCard());
-  await advanceTimersAndPromises();
-  screen.getByText('Used Card');
-
-  // Remove card
-  card.removeCard();
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -417,7 +348,6 @@ test('MarkAndPrint end-to-end flow', async () => {
       },
     })
   );
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
   userEvent.click(screen.getByText('Print Report'));
@@ -427,8 +357,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   await expectPrint();
   userEvent.click(await screen.findByText('Continue'));
 
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);
-  expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(4, new Uint8Array());
+  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1);
+  expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(1, new Uint8Array());
   card.removeCard();
   await advanceTimersAndPromises();
 
