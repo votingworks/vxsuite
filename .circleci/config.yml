@@ -883,8 +883,6 @@ workflows:
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
-      - test-libs-cdf-types-cast-vote-records
-      - test-libs-cdf-types-election-event-logging
       - test-libs-cvr-fixture-generator
       - test-libs-data
       - test-libs-db
