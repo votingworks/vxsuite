@@ -249,7 +249,7 @@ jobs:
       - store_artifacts:
           path: apps/vx-mark/frontend/cypress/videos
 
-  test-integration-testing-vx-central-scan:
+  test-apps-vx-central-scan-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -276,7 +276,7 @@ jobs:
       - store_artifacts:
           path: apps/vx-central-scan/integration-testing/cypress/videos
 
-  test-integration-testing-vx-admin:
+  test-apps-vx-admin-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -920,8 +920,8 @@ workflows:
       - test-apps-vx-scan-backend
       - test-apps-vx-scan-frontend
       - test-integration-testing-vx-mark
-      - test-integration-testing-vx-central-scan
-      - test-integration-testing-vx-admin
+      - test-apps-vx-central-scan-integration-testing
+      - test-apps-vx-admin-integration-testing
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder
