@@ -9,11 +9,9 @@ import {
   expectTestToEndWithAllPrintsAsserted,
   fakePrintElement,
   fakePrintElementWhenReady,
-  suppressReact17UnmountedWarning,
 } from '@votingworks/test-utils';
 
 configure({ asyncUtilTimeout: 5_000 });
-suppressReact17UnmountedWarning();
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   const original = jest.requireActual('@votingworks/ui');
