@@ -50,7 +50,6 @@ import {
   MarkVoterCardFunction,
   PartialUserSettings,
   UserSettings,
-  PostVotingInstructions,
 } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
@@ -74,7 +73,7 @@ import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests
 interface UserState {
   userSettings: UserSettings;
   votes?: VotesDict;
-  showPostVotingInstructions?: PostVotingInstructions;
+  showPostVotingInstructions?: boolean;
 }
 
 interface SharedState {
@@ -152,7 +151,7 @@ type AppAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
-  | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
+  | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
   | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
@@ -357,7 +356,7 @@ export function AppRoot({
   }, [votes]);
 
   const resetBallot = useCallback(
-    (newShowPostVotingInstructions?: PostVotingInstructions) => {
+    (newShowPostVotingInstructions?: boolean) => {
       dispatchAppState({
         type: 'resetBallot',
         showPostVotingInstructions: newShowPostVotingInstructions,

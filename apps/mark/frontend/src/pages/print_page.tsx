@@ -66,7 +66,7 @@ export function PrintPage(): JSX.Element {
       );
       updateTally();
       printerTimer.current = window.setTimeout(() => {
-        resetBallot('cardless');
+        resetBallot(true);
       }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
     }
   }, [
