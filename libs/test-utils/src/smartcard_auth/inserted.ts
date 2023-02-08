@@ -4,7 +4,6 @@ import {
   SystemAdministratorUser,
   ElectionManagerUser,
   PollWorkerUser,
-  VoterUser,
   CardlessVoterUser,
 } from '@votingworks/types';
 import {
@@ -12,7 +11,6 @@ import {
   fakeCardStorage,
   fakeElectionManagerUser,
   fakePollWorkerUser,
-  fakeVoterUser,
   fakeCardlessVoterUser,
 } from './auth';
 
@@ -59,19 +57,6 @@ export function fakePollWorkerAuth(
     card: fakeCardStorage(card),
     activateCardlessVoter: jest.fn(),
     deactivateCardlessVoter: jest.fn(),
-  };
-}
-
-export function fakeVoterAuth(
-  user: Partial<VoterUser> = {},
-  card: Partial<CardStorage> = {}
-): InsertedSmartcardAuth.VoterLoggedIn {
-  return {
-    status: 'logged_in',
-    user: fakeVoterUser(user),
-    card: fakeCardStorage(card),
-    markCardVoided: jest.fn(),
-    markCardPrinted: jest.fn(),
   };
 }
 

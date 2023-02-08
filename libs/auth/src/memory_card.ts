@@ -47,17 +47,6 @@ export function parseUserFromCardSummary(
         role: 'poll_worker',
         electionHash: cardData.h,
       };
-    case 'voter':
-      return {
-        role: 'voter',
-        ballotPrintedAt: cardData.bp,
-        ballotStyleId: cardData.bs,
-        createdAt: cardData.c,
-        markMachineId: cardData.m,
-        precinctId: cardData.pr,
-        updatedAt: cardData.u,
-        voidedAt: cardData.uz,
-      };
     /* istanbul ignore next: Compile-time check for completeness */
     default:
       throwIllegalValue(cardData, 't');

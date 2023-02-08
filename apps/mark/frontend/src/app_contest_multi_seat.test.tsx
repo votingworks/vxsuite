@@ -1,9 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { electionSample } from '@votingworks/fixtures';
-import { makeVoterCard } from '@votingworks/test-utils';
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import { makePollWorkerCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
@@ -49,8 +50,11 @@ it('Single Seat Contest', async () => {
   );
   await advanceTimersAndPromises();
 
-  // Insert Voter Card
-  card.insertCard(makeVoterCard(electionSample));
+  // Start voter session
+  card.insertCard(makePollWorkerCard(electionSampleDefinition.electionHash));
+  await advanceTimersAndPromises();
+  userEvent.click(screen.getByText('12'));
+  card.removeCard();
   await advanceTimersAndPromises();
 
   // Go to First Contest

@@ -469,7 +469,6 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
-  const canPrintBallots = machineConfig.appMode.isPrint;
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -520,12 +519,7 @@ export function PollWorkerScreen({
     }
   }, [isConfirmingEnableLiveMode, scannerReportData]);
 
-  const isPrintMode = machineConfig.appMode.isPrint;
-  const isMarkAndPrintMode =
-    machineConfig.appMode.isPrint && machineConfig.appMode.isMark;
-
-  const canSelectBallotStyle =
-    isMarkAndPrintMode && pollsState === 'polls_open';
+  const canSelectBallotStyle = pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
     useState(false);
 
@@ -616,17 +610,14 @@ export function PollWorkerScreen({
               </Text>
             </h1>
             <h2>
-              {canPrintBallots && (
-                <React.Fragment>
-                  <NoWrap>
-                    <Text light as="span">
-                      Ballots Printed:
-                    </Text>{' '}
-                    <strong>{ballotsPrintedCount}</strong>
-                  </NoWrap>
-                  <br />
-                </React.Fragment>
-              )}
+              <NoWrap>
+                <Text light as="span">
+                  Ballots Printed:
+                </Text>{' '}
+                <strong>{ballotsPrintedCount}</strong>
+              </NoWrap>
+              <br />
+
               <NoWrap>
                 <Text light as="span">
                   Polls:
@@ -743,14 +734,10 @@ export function PollWorkerScreen({
             centerContent
             content={
               <Prose textCenter id="modalaudiofocus">
-                {isPrintMode ? (
-                  <h1>
-                    Switch to Live Election Mode and reset the Ballots Printed
-                    count?
-                  </h1>
-                ) : (
-                  <h1>Switch to Live Election Mode?</h1>
-                )}
+                <h1>
+                  Switch to Live Election Mode and reset the Ballots Printed
+                  count?
+                </h1>
                 <p>
                   Today is election day and this machine is in{' '}
                   <strong>
@@ -765,11 +752,7 @@ export function PollWorkerScreen({
             }
             actions={
               <React.Fragment>
-                <Button
-                  primary
-                  danger={isPrintMode}
-                  onPress={confirmEnableLiveMode}
-                >
+                <Button primary danger onPress={confirmEnableLiveMode}>
                   Switch to Live Election Mode
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>

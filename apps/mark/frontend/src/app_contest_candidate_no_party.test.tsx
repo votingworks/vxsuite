@@ -7,7 +7,8 @@ import {
   asElectionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { makeVoterCard } from '@votingworks/test-utils';
+import { makePollWorkerCard } from '@votingworks/test-utils';
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
@@ -72,8 +73,15 @@ it('Single Seat Contest', async () => {
   );
   await advanceTimersAndPromises();
 
-  // Insert Voter Card
-  card.insertCard(makeVoterCard(election));
+  // Start voter session
+  card.insertCard(
+    makePollWorkerCard(
+      asElectionDefinition(electionWithNoPartyCandidateContests).electionHash
+    )
+  );
+  await advanceTimersAndPromises();
+  userEvent.click(screen.getByText('12'));
+  card.removeCard();
   await advanceTimersAndPromises();
 
   // Go to First Contest

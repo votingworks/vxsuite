@@ -67,7 +67,7 @@ exports[`renders CastBallotPage 1`] = `
             style="left: -0.75em;"
           />
           <p
-            class="sc-bdvvaa bPbebj"
+            class="sc-bdvvaa NLRzK"
           >
             1. Verify your official ballot.
           </p>
@@ -80,7 +80,7 @@ exports[`renders CastBallotPage 1`] = `
             src="/images/instructions-2-scan.svg"
           />
           <p
-            class="sc-bdvvaa bPbebj"
+            class="sc-bdvvaa NLRzK"
           >
             2. Scan your official ballot.
           </p>

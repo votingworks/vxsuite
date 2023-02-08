@@ -26,9 +26,7 @@ export function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
     electionDefinition,
-    isCardlessVoter,
     isLiveMode,
-    markVoterCardPrinted,
     precinctId,
     resetBallot,
     updateTally,
@@ -52,27 +50,22 @@ export function PrintPage(): JSX.Element {
   const printBallot = useCallback(async () => {
     /* istanbul ignore if */
     if (!printLock.lock()) return;
-    const isUsed = await markVoterCardPrinted();
-    /* istanbul ignore else */
-    if (isUsed) {
-      await printElement(
-        <BmdPaperBallot
-          ballotStyleId={ballotStyleId}
-          electionDefinition={electionDefinition}
-          isLiveMode={isLiveMode}
-          precinctId={precinctId}
-          votes={votes}
-        />,
-        { sides: 'one-sided' }
-      );
-      updateTally();
-      printerTimer.current = window.setTimeout(() => {
-        resetBallot(isCardlessVoter ? 'cardless' : 'card');
-      }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
-    }
+    await printElement(
+      <BmdPaperBallot
+        ballotStyleId={ballotStyleId}
+        electionDefinition={electionDefinition}
+        isLiveMode={isLiveMode}
+        precinctId={precinctId}
+        votes={votes}
+      />,
+      { sides: 'one-sided' }
+    );
+    updateTally();
+    printerTimer.current = window.setTimeout(() => {
+      resetBallot(true);
+    }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
   }, [
     printLock,
-    markVoterCardPrinted,
     ballotStyleId,
     electionDefinition,
     isLiveMode,
@@ -80,7 +73,6 @@ export function PrintPage(): JSX.Element {
     votes,
     updateTally,
     resetBallot,
-    isCardlessVoter,
   ]);
 
   useEffect(() => {

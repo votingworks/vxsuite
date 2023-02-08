@@ -1,32 +1,18 @@
 import { waitFor } from '@testing-library/react';
-import {
-  electionSample as election,
-  electionWithMsEitherNeither,
-} from '@votingworks/fixtures';
+import { electionSample as election } from '@votingworks/fixtures';
 import * as testUtils from '@votingworks/test-utils';
-import {
-  makeUsedVoterCard as makeUsedVoterCardForElection,
-  makeVoterCard,
-} from '@votingworks/test-utils';
 import {
   CandidateContest,
   vote,
   getContests,
   VotesDict,
-  VoterCardData,
 } from '@votingworks/types';
-import {
-  CARD_POLLING_INTERVAL,
-  VOTER_CARD_EXPIRATION_SECONDS,
-} from '@votingworks/ui';
-import { utcTimestamp } from '@votingworks/utils';
+import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 
 const contest0 = election.contests[0] as CandidateContest;
 const contest1 = election.contests[1] as CandidateContest;
 const contest0candidate0 = contest0.candidates[0];
 const contest1candidate0 = contest1.candidates[0];
-const altBallotStyleId = election.ballotStyles[1].id;
-const altPrecinctId = election.precincts[1].id;
 
 export const sampleVotes0: Readonly<VotesDict> = vote(
   getContests({
@@ -131,29 +117,6 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     'measure-101': ['yes'],
   }
 );
-
-export function makeAlternateNewVoterCard(): VoterCardData {
-  return makeVoterCard(election, {
-    pr: altPrecinctId,
-    bs: altBallotStyleId,
-  });
-}
-
-export function makeOtherElectionVoterCard(
-  e = electionWithMsEitherNeither
-): VoterCardData {
-  return makeVoterCard(e);
-}
-
-export function makeExpiredVoterCard(e = election): VoterCardData {
-  return makeVoterCard(e, {
-    c: utcTimestamp() - VOTER_CARD_EXPIRATION_SECONDS,
-  });
-}
-
-export function makeUsedVoterCard(e = election): VoterCardData {
-  return makeUsedVoterCardForElection(e);
-}
 
 export function advanceTimers(seconds = 0): void {
   testUtils.advanceTimers(seconds || CARD_POLLING_INTERVAL / 1000);

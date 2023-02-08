@@ -12,14 +12,11 @@ import {
   Card,
   CardSummary,
   ElectionDefinition,
-  getBallotStyle,
-  getPrecinctById,
   InsertedSmartCardAuth,
   Optional,
   PrecinctSelection,
   User,
 } from '@votingworks/types';
-import { utcTimestamp } from '@votingworks/utils';
 
 import {
   InsertedSmartCardAuthApi,
@@ -33,8 +30,6 @@ import {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.fetch = fetch;
-
-const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
 type AuthAction =
   | { type: 'read_card'; cardSummary: CardSummary }
@@ -184,9 +179,6 @@ export class InsertedSmartCardAuthWithMemoryCard
                   if (user.role === 'poll_worker') {
                     return { status: 'logged_in', user };
                   }
-                  if (user.role === 'voter') {
-                    return { status: 'logged_in', user };
-                  }
                   return { status: 'logged_in', user };
                 }
                 return currentAuthStatus;
@@ -254,38 +246,6 @@ export class InsertedSmartCardAuthWithMemoryCard
       }
       if (user.electionHash !== this.config.electionDefinition.electionHash) {
         return err('poll_worker_wrong_election');
-      }
-    }
-
-    if (user.role === 'voter') {
-      if (!this.config.electionDefinition || !this.config.precinctSelection) {
-        return err('machine_not_configured');
-      }
-      if (utcTimestamp() >= user.createdAt + VOTER_CARD_EXPIRATION_SECONDS) {
-        return err('voter_card_expired');
-      }
-      if (user.voidedAt) {
-        return err('voter_card_voided');
-      }
-      if (user.ballotPrintedAt && this.authStatus.status !== 'logged_in') {
-        return err('voter_card_printed');
-      }
-      const ballotStyle = getBallotStyle({
-        election: this.config.electionDefinition.election,
-        ballotStyleId: user.ballotStyleId,
-      });
-      const precinct = getPrecinctById({
-        election: this.config.electionDefinition.election,
-        precinctId: user.precinctId,
-      });
-      if (!ballotStyle || !precinct) {
-        return err('voter_wrong_election');
-      }
-      if (
-        this.config.precinctSelection.kind === 'SinglePrecinct' &&
-        precinct.id !== this.config.precinctSelection.precinctId
-      ) {
-        return err('voter_wrong_precinct');
       }
     }
 
