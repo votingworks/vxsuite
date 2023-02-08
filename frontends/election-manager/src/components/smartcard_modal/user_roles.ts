@@ -9,8 +9,6 @@ export function userRoleToReadableString(userRole: UserRole): string {
       return 'Election Manager';
     case 'poll_worker':
       return 'Poll Worker';
-    case 'voter':
-      return 'Voter';
     case 'cardless_voter':
       return 'Cardless Voter';
     /* istanbul ignore next: Compile-time check for completeness */
