@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.shared.json",
+  "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
     "types": ["cypress"],
     "isolatedModules": false,
@@ -18,8 +18,8 @@
   "include": ["**/*.ts"],
   "exclude": [],
   "references": [
-    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/grout/tsconfig.build.json" }
+    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/grout/tsconfig.build.json" }
   ]
 }

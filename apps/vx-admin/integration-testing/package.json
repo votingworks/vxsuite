@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm install && make build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "(cd ../../frontends/election-manager && tsc --build) && eslint .",
+    "lint": "(cd ../frontend && tsc --build) && eslint .",
     "lint:fix": "pnpm lint --fix",
     "start": "make run",
     "test": "is-ci test:ci test:watch",
