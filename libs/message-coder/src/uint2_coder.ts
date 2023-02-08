@@ -25,6 +25,9 @@ class Uint2Coder extends BaseCoder<Uint2> {
     return 2;
   }
 
+  protected minValue = 0b00;
+  protected maxValue = 0b11;
+
   encodeInto(value: Uint2, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     const validationResult = validateEnumValue(this.enumeration, value);
 
@@ -33,6 +36,11 @@ class Uint2Coder extends BaseCoder<Uint2> {
     }
 
     const validatedValue = validationResult.ok();
+
+    if (validatedValue < this.minValue || validatedValue > this.maxValue) {
+      return err('InvalidValue');
+    }
+
     const remainder = bitOffset % BITS_PER_BYTE;
 
     if (remainder + 1 >= BITS_PER_BYTE) {

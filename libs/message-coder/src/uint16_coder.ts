@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { MAX_UINT16, MIN_UINT16 } from './constants';
 import {
   BitLength,
   BitOffset,
@@ -18,6 +19,9 @@ export class Uint16Coder extends UintCoder {
   bitLength(): BitLength {
     return 16;
   }
+
+  protected minValue = MIN_UINT16;
+  protected maxValue = MAX_UINT16;
 
   encodeInto(
     value: Uint16,

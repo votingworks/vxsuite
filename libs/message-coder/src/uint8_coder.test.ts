@@ -1,6 +1,7 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
+import { MAX_UINT8 } from './constants';
 import { CoderType } from './message_coder';
 import { DecodeResult } from './types';
 import { uint8 } from './uint8_coder';
@@ -67,4 +68,10 @@ test('uint8 with enumeration', () => {
   expect(field.decode(Buffer.from([1]))).toEqual(ok(Enum.A));
   expect(field.encode(99)).toEqual(err('InvalidValue'));
   expect(field.decode(Buffer.from([99]))).toEqual(err('InvalidValue'));
+});
+
+test('uint8 with invalid value', () => {
+  const coder = uint8();
+  expect(coder.encode(-1)).toEqual(err('InvalidValue'));
+  expect(coder.encode(MAX_UINT8 + 1)).toEqual(err('InvalidValue'));
 });

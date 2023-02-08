@@ -2,6 +2,7 @@ import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import fc from 'fast-check';
 import { toBitOffset } from './bits';
+import { MAX_UINT2 } from './constants';
 import { uint2 } from './uint2_coder';
 
 test('uint2 simple', () => {
@@ -79,4 +80,10 @@ test('uint2 with unsupported offset', () => {
   expect(coder.decodeFrom(Buffer.alloc(1), 7)).toEqual(
     err('UnsupportedOffset')
   );
+});
+
+test('uint2 with invalid values', () => {
+  const coder = uint2();
+  expect(coder.encode(-1)).toEqual(err('InvalidValue'));
+  expect(coder.encode(MAX_UINT2 + 1)).toEqual(err('InvalidValue'));
 });

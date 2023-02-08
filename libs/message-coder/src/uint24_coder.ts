@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { MAX_UINT24, MIN_UINT24 } from './constants';
 import {
   BitOffset,
   Coder,
@@ -17,6 +18,9 @@ export class Uint24Coder extends UintCoder {
   bitLength(): Uint24 {
     return 24;
   }
+
+  protected minValue = MIN_UINT24;
+  protected maxValue = MAX_UINT24;
 
   encodeInto(
     value: Uint24,
