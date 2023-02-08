@@ -470,6 +470,20 @@ export function AppRoot({
   }
 
   if (scannerStatus?.state === 'disconnected') {
+    if (computer.batteryIsCharging) {
+      // this means either a serious internal connection problem (USB cable not connected)
+      // or more likely the plustek crashed before scanning, and so now it thinks there's
+      // no plustek connected. Let's instead guide the poll worker to do the right thing.
+      return (
+        <ScanErrorScreen
+          error={scannerStatus.error}
+          isTestMode={isTestMode}
+          scannedBallotCount={scannerStatus.ballotsCounted}
+          restartRequired
+          powerConnected={computer.batteryIsCharging}
+        />
+      );
+    }
     return (
       <SetupScannerScreen
         batteryIsCharging={computer.batteryIsCharging}
@@ -660,6 +674,7 @@ export function AppRoot({
             isTestMode={isTestMode}
             scannedBallotCount={scannerStatus.ballotsCounted}
             restartRequired
+            powerConnected={computer.batteryIsCharging}
           />
         );
       // If an election manager removes their card during calibration, we'll

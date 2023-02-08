@@ -1291,7 +1291,7 @@ test('scan fails due to plustek returning only one file instead of two', async (
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulateScanError('only_one_file_returned');
   await waitForStatus(app, {
-    state: 'unrecoverable_error',
+    state: 'recovering_from_error',
     error: 'plustek_error',
   });
 

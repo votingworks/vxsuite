@@ -244,8 +244,8 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
       state: 'disconnected',
     });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
-  screen.getByText('Please ask a poll worker for help.');
+  await screen.findByRole('heading', { name: 'Scanner Error' });
+  screen.getByText('Ask a poll worker to unplug the power cord.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
@@ -316,8 +316,8 @@ test('shows instructions to restart when the plustek crashed', async () => {
     });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
-  await screen.findByRole('heading', { name: 'Ballot Not Counted' });
-  screen.getByText('Ask a poll worker to restart the scanner.');
+  await screen.findByRole('heading', { name: 'Scanner Error' });
+  screen.getByText('Ask a poll worker to unplug the power cord.');
   expect(fetchMock.done()).toBe(true);
 });
 
