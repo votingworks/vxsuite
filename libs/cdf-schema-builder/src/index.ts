@@ -128,7 +128,7 @@ export function buildSchema(
   out.write(`/* eslint-disable */\n\n`);
   out.write(`import { z } from 'zod';\n\n`);
   out.write(`import check8601 from '@antongolub/iso8601';\n\n`);
-  out.write(`export const Iso8601Date = z
+  out.write(`const Iso8601Date = z
   .string()
   .refine(check8601, 'dates must be in ISO8601 format');\n\n`);
 

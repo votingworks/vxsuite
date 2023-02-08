@@ -31,7 +31,7 @@ test('empty', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -160,7 +160,7 @@ test('enum type', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -309,7 +309,7 @@ test('object type', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -480,7 +480,7 @@ test('object type property types', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -628,7 +628,7 @@ test('object type references', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -752,7 +752,7 @@ test('string aliases', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 
@@ -916,7 +916,7 @@ test('documentation from JSON schema', () => {
 
     import check8601 from '@antongolub/iso8601';
 
-    export const Iso8601Date = z
+    const Iso8601Date = z
       .string()
       .refine(check8601, 'dates must be in ISO8601 format');
 

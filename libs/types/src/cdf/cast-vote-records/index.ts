@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import check8601 from '@antongolub/iso8601';
 
-export const Iso8601Date = z
+const Iso8601Date = z
   .string()
   .refine(check8601, 'dates must be in ISO8601 format');
 
