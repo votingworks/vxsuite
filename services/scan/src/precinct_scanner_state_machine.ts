@@ -81,6 +81,7 @@ type CommandEvent =
   | { type: 'SCAN' }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
+  | { type: 'RETRY' }
   | { type: 'CALIBRATE' };
 
 export type Event = ScannerStatusEvent | CommandEvent;
@@ -464,6 +465,7 @@ function buildMachine({
         ACCEPT: doNothing,
         RETURN: doNothing,
         CALIBRATE: doNothing,
+        RETRY: doNothing,
         // On events that are not handled by a specified transition (e.g. unhandled
         // paper status), return an error so we can figure out what happened
         '*': {
@@ -588,13 +590,17 @@ function buildMachine({
                     })),
                   },
                   // Special case: sometimes Plustek only returns one image file
-                  // instead of two. It seems to not be able to recover even if
-                  // we disconnect/reconnect.
+                  // instead of two. We thought it wouldn't recover from this,
+                  // but in fact it can, what was happening before is that /tmp was
+                  // filling up, causing this error and also being unrecoverable
+                  // until a reboot that cleared /tmp. We've fixed that no, but this
+                  // error still happens rarely as a race condition, and that is
+                  // recoverable on next scan.
                   {
                     cond: (_context, event) =>
                       event.data instanceof InvalidClientResponseError &&
                       event.data.message.startsWith('expected two files'),
-                    target: '#unrecoverable_error',
+                    target: '#error',
                     actions: assign((_context, event) => ({
                       error: event.data,
                     })),
@@ -876,7 +882,12 @@ function buildMachine({
             },
           },
         },
-        unrecoverable_error: { id: 'unrecoverable_error' },
+        unrecoverable_error: {
+          id: 'unrecoverable_error',
+          on: {
+            RETRY: 'error',
+          },
+        },
       },
     },
     { delays: { ...delays } }
@@ -971,6 +982,7 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
+  retry: () => void;
   // Calibrate is the exception, which blocks until calibration is finished and
   // returns a result.
   calibrate: () => Promise<Result<void, string>>;
@@ -1114,6 +1126,10 @@ export function createPrecinctScannerStateMachine({
 
     return: () => {
       machineService.send('RETURN');
+    },
+
+    retry: () => {
+      machineService.send('RETRY');
     },
 
     calibrate: async () => {

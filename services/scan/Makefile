@@ -7,6 +7,7 @@ FORCE:
 
 install:
 	sudo apt-get -y update
+	sudo apt-get install -y uhubctl
 ifeq ($(OS),bionic)
 	sudo apt-get install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev
 endif

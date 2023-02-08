@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
@@ -15,6 +15,7 @@ interface Props {
   isTestMode: boolean;
   scannedBallotCount: number;
   restartRequired?: boolean;
+  powerConnected?: boolean;
 }
 
 export function ScanErrorScreen({
@@ -22,9 +23,12 @@ export function ScanErrorScreen({
   isTestMode,
   scannedBallotCount,
   restartRequired = false,
+  powerConnected = true,
 }: Props): JSX.Element {
   const playError = useSound('error');
   useEffect(playError, [playError]);
+
+  const [hasUnplugged, setHasUnplugged] = useState(false);
 
   const errorMessage = (() => {
     if (!error) return undefined;
@@ -60,18 +64,51 @@ export function ScanErrorScreen({
         throwIllegalValue(error);
     }
   })();
+
+  function retry() {
+    void fetch('/precinct-scanner/scanner/retry', { method: 'POST' });
+  }
+
+  useEffect(() => {
+    if (!restartRequired) {
+      return;
+    }
+
+    if (hasUnplugged && powerConnected) {
+      setHasUnplugged(false);
+      retry();
+      return;
+    }
+
+    if (!powerConnected) {
+      setHasUnplugged(true);
+    }
+  }, [hasUnplugged, powerConnected, setHasUnplugged, restartRequired]);
+
   return (
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Ballot Not Counted</h1>
-        <p>{errorMessage}</p>
         {restartRequired ? (
-          <Text>Ask a poll worker to restart the scanner.</Text>
+          <React.Fragment>
+            <h1>Scanner Error</h1>
+            {powerConnected && !hasUnplugged && (
+              <Text italic>Ask a poll worker to unplug the power cord.</Text>
+            )}
+            {!powerConnected && hasUnplugged && (
+              <Text italic>
+                Plug the power cord back in to restart the scanner.
+              </Text>
+            )}
+          </React.Fragment>
         ) : (
-          <Text small italic>
-            Ask a poll worker if you need help.
-          </Text>
+          <React.Fragment>
+            <h1>Ballot Not Counted</h1>
+            <p>{errorMessage}</p>
+            <Text small italic>
+              Ask a poll worker if you need help.
+            </Text>
+          </React.Fragment>
         )}
       </CenteredLargeProse>
       <ScannedBallotCount count={scannedBallotCount} />
