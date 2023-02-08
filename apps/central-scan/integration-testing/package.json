@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm install && make build",
-    "cypress:run": "cypress run --browser chrome --reporter junit",
+    "cypress:run": "cypress run --browser chromium --reporter junit",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
