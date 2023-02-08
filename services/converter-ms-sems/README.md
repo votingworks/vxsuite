@@ -15,7 +15,7 @@ VxAdmin, first build this service and then run the `election-manager` frontend:
 make install-dev-dependencies
 make build
 
-# in frontends/election-manager
+# in apps/admin/frontend
 pnpm start
 ```
 

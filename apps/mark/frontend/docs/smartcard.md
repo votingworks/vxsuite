@@ -52,4 +52,4 @@ fields in the short value.
 The election manager card also includes the serialized `election.json` in the
 long value of the card. This is the value which, when hashed with SHA256, should
 match `h` in both the election manager and poll worker cards. This election
-definition data is used to configure the BMD, BAS, and BSD.
+definition data is used to configure VxMark and VxScan.

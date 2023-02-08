@@ -8,7 +8,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run BMD like so:
 
 ```sh
-# In frontends/bmd
+# In apps/mark/frontend
 # To run in mark-only mode (when there's a separate standalone printer)
 VX_APP_MODE=MarkOnly pnpm start
 

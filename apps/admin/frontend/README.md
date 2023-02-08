@@ -12,7 +12,7 @@ Follow the instructions in the [VxSuite README](../../../README.md) to get set
 up, then run the app like so:
 
 ```sh
-# in frontends/election-manager
+# in apps/admin/frontend
 pnpm start
 ```
 

@@ -6,11 +6,11 @@ This web server component provides a web interface to the for use by the VxSuite
 ## Setup
 
 Follow the instructions in the [VxSuite README](../../../README.md) to get set
-up, then start up the VxCentralScan (`frontends/bsd`) frontend. You generally
-should not need to run this service directly. Instead, run like so:
+up, then start up the VxCentralScan (`apps/central-scan`) frontend. You
+generally should not need to run this service directly. Instead, run like so:
 
 ```sh
-cd frontends/bsd
+cd apps/central-scan/frontend
 pnpm start
 ```
 

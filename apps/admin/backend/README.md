@@ -8,7 +8,7 @@ by the `election-manager` frontend, not run on its own. To run it as part of
 VxAdmin, run this:
 
 ```sh
-# in frontends/election-manager
+# in apps/admin/frontend
 pnpm start
 ```
 
