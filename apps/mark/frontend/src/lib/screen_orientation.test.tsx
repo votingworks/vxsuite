@@ -1,11 +1,9 @@
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
-import { MarkOnly } from '@votingworks/types';
 import { screenOrientation } from './screen_orientation';
 
 test('Portrait orientation booleans', () => {
   const machineConfig: MachineConfig = {
-    appMode: MarkOnly,
     machineId: '1',
     codeVersion: 'test',
     screenOrientation: 'portrait',
@@ -17,7 +15,6 @@ test('Portrait orientation booleans', () => {
 
 test('Landscape orientation booleans', () => {
   const machineConfig: MachineConfig = {
-    appMode: MarkOnly,
     machineId: '1',
     codeVersion: 'test',
     screenOrientation: 'landscape',

@@ -15,7 +15,6 @@ import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
-  fakeVoterUser,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
@@ -99,14 +98,6 @@ test('Smartcard modal displays card details', async () => {
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: true,
       expectedFooter: 'Remove card to cancel.',
-    },
-    {
-      programmedUser: fakeVoterUser(),
-      expectedHeading: 'Voter Card',
-      expectedElectionString: 'Unknown Election',
-      shouldResetCardPinButtonBeDisplayed: false,
-      shouldUnprogramCardButtonBeDisplayed: false,
-      expectedFooter: 'Remove card to leave this screen.',
     },
     {
       programmedUser: fakeElectionManagerUser({
@@ -215,14 +206,6 @@ test('Smartcard modal displays card details when no election definition on machi
     {
       programmedUser: fakePollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
-      expectedElectionString: 'Unknown Election',
-      shouldResetCardPinButtonBeDisplayed: false,
-      shouldElectionDefinitionPromptBeDisplayed: true,
-      expectedFooter: 'Remove card to leave this screen.',
-    },
-    {
-      programmedUser: fakeVoterUser(),
-      expectedHeading: 'Voter Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldElectionDefinitionPromptBeDisplayed: true,

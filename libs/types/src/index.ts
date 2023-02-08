@@ -18,4 +18,3 @@ export * from './printing';
 export * from './tallies';
 export * from './ui_theme';
 export * from './voting_method';
-export * from './mark_app_mode';

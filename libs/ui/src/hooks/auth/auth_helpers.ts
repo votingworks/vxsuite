@@ -42,17 +42,6 @@ export function parseUserFromCardSummary(
       };
     case 'poll_worker':
       return { role: 'poll_worker', electionHash: cardData.h };
-    case 'voter':
-      return {
-        role: 'voter',
-        createdAt: cardData.c,
-        ballotStyleId: cardData.bs,
-        precinctId: cardData.pr,
-        voidedAt: cardData.uz,
-        ballotPrintedAt: cardData.bp,
-        updatedAt: cardData.u,
-        markMachineId: cardData.m,
-      };
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(cardData, 't');
@@ -355,12 +344,6 @@ export function isPollWorkerAuth(
   auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
 ): boolean {
   return auth.status === 'logged_in' && auth.user.role === 'poll_worker';
-}
-
-export function isVoterAuth(
-  auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.VoterLoggedIn {
-  return auth.status === 'logged_in' && auth.user.role === 'voter';
 }
 
 export function isCardlessVoterAuth(

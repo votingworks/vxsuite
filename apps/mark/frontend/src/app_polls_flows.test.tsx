@@ -35,7 +35,6 @@ import {
   CompressedTally,
   ContestId,
   Dictionary,
-  MarkAndPrint,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -1477,7 +1476,7 @@ test('tally report: will print but not update polls state appropriate', async ()
 
 test('full polls flow without tally reports', async () => {
   apiMock = createApiMock();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
   const { renderApp, card, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });

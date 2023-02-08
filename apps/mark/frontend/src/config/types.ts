@@ -17,8 +17,6 @@ import {
   MsEitherNeitherContest,
 } from '../utils/ms_either_neither_contests';
 
-export type PostVotingInstructions = 'card' | 'cardless';
-
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
 export type InputChangeEventFunction =
@@ -33,7 +31,6 @@ export type UpdateVoteFunction = (
   contestId: ContestId,
   vote: OptionalVote
 ) => void;
-export type MarkVoterCardFunction = () => Promise<boolean>;
 export interface BallotContextInterface {
   machineConfig: MachineConfig;
   ballotStyleId?: BallotStyleId;
@@ -41,10 +38,9 @@ export interface BallotContextInterface {
   readonly electionDefinition?: ElectionDefinition;
   isCardlessVoter: boolean;
   isLiveMode: boolean;
-  markVoterCardPrinted: MarkVoterCardFunction;
-  markVoterCardVoided: MarkVoterCardFunction;
+  endVoterSession: () => Promise<void>;
   precinctId?: PrecinctId;
-  resetBallot: (instructions?: PostVotingInstructions) => void;
+  resetBallot: (showPostVotingInstructions?: boolean) => void;
   setUserSettings: SetUserSettings;
   updateTally: () => void;
   updateVote: UpdateVoteFunction;

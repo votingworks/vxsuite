@@ -39,7 +39,6 @@ it('prints correct ballot without votes', async () => {
     ballotStyleId: '5',
     precinctId: '21',
     route: '/print',
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrintToMatchSnapshot();
 });
@@ -64,7 +63,6 @@ it('prints correct ballot with votes', async () => {
         'lieutenant-governor': 'norberg',
       }
     ),
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrintToMatchSnapshot();
 });
@@ -76,7 +74,6 @@ it('prints correct ballot without votes and inline seal', async () => {
     electionDefinition,
     precinctId: '21',
     route: '/print',
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrintToMatchSnapshot();
 });
@@ -88,7 +85,6 @@ it('prints correct ballot without votes and no seal', async () => {
     electionDefinition,
     precinctId: '21',
     route: '/print',
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrintToMatchSnapshot();
 });

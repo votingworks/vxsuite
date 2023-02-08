@@ -6,7 +6,6 @@ import {
   makePollWorkerCard,
   expectPrint,
 } from '@votingworks/test-utils';
-import { MarkAndPrint } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from './config/globals';
 
@@ -48,7 +47,7 @@ test('Cardless Voting Flow', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
   render(
     <App
       card={card}
@@ -191,7 +190,7 @@ test('Cardless Voting Flow', async () => {
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
-  // Reset Ballot is called with instructions type "cardless"
+  // Reset Ballot is called
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(
@@ -211,7 +210,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
 
   card.removeCard();
 
@@ -269,7 +268,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
-  // Reset Ballot is called with instructions type "cardless"
+  // Reset Ballot is called
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(screen.queryByText('3. Return the card.')).toBeFalsy();
@@ -288,7 +287,7 @@ test('poll worker must select a precinct first', async () => {
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
   render(
     <App
       card={card}
@@ -441,7 +440,7 @@ test('poll worker must select a precinct first', async () => {
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
-  // Reset Ballot is called with instructions type "cardless"
+  // Reset Ballot is called
   // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(

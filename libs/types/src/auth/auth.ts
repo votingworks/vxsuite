@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { Result } from '@votingworks/basics';
 import { BallotStyleId, PrecinctId } from '../election';
-import { ElectionHash, IdSchema, Optional } from '../generic';
+import { ElectionHash, Optional } from '../generic';
 
 // User data types
 export interface SystemAdministratorUser {
@@ -17,16 +17,6 @@ export interface PollWorkerUser {
   readonly role: 'poll_worker';
   readonly electionHash: string;
 }
-export interface VoterUser {
-  readonly role: 'voter';
-  readonly createdAt: number;
-  readonly ballotStyleId: BallotStyleId;
-  readonly precinctId: PrecinctId;
-  readonly voidedAt?: number;
-  readonly ballotPrintedAt?: number;
-  readonly updatedAt?: number;
-  readonly markMachineId?: string;
-}
 export interface CardlessVoterUser {
   readonly role: 'cardless_voter';
   readonly ballotStyleId: BallotStyleId;
@@ -36,12 +26,10 @@ export type User =
   | SystemAdministratorUser
   | ElectionManagerUser
   | PollWorkerUser
-  | VoterUser
   | CardlessVoterUser;
 
 export type UserRole = User['role'];
 export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
-  z.literal('voter'),
   z.literal('poll_worker'),
   z.literal('election_manager'),
   z.literal('system_administrator'),
@@ -56,35 +44,6 @@ const CardDataInternalSchema = z.object({
   t: UserRoleSchema,
 });
 export const CardDataSchema: z.ZodSchema<CardData> = CardDataInternalSchema;
-
-export interface VoterCardData extends CardData {
-  readonly t: 'voter';
-  /** Created date */
-  readonly c: number;
-  /** Ballot style ID */
-  readonly bs: string;
-  /** Precinct ID */
-  readonly pr: string;
-  /** Used (voided) */
-  readonly uz?: number;
-  /** Ballot printed date */
-  readonly bp?: number;
-  /** Updated date */
-  readonly u?: number;
-  /** Mark machine ID */
-  readonly m?: string;
-}
-export const VoterCardDataSchema: z.ZodSchema<VoterCardData> =
-  CardDataInternalSchema.extend({
-    t: z.literal('voter'),
-    c: z.number(),
-    bs: IdSchema,
-    pr: IdSchema,
-    uz: z.number().optional(),
-    bp: z.number().optional(),
-    u: z.number().optional(),
-    m: IdSchema.optional(),
-  });
 
 export interface PollWorkerCardData extends CardData {
   readonly t: 'poll_worker';
@@ -123,12 +82,10 @@ export const SystemAdministratorCardDataSchema: z.ZodSchema<SystemAdministratorC
   });
 
 export type AnyCardData =
-  | VoterCardData
   | PollWorkerCardData
   | ElectionManagerCardData
   | SystemAdministratorCardData;
 export const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
-  VoterCardDataSchema,
   PollWorkerCardDataSchema,
   ElectionManagerCardDataSchema,
   SystemAdministratorCardDataSchema,

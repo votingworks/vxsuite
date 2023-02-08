@@ -1,16 +1,10 @@
 import {
   UserRole,
   User,
-  safeParseJson,
   Card,
   CardSummary,
-  CardSummaryReady,
   ElectionDefinition,
-  getBallotStyle,
-  getPrecinctById,
   PrecinctSelection,
-  VoterCardData,
-  VoterCardDataSchema,
   PrecinctId,
   BallotStyleId,
   CardlessVoterUser,
@@ -21,11 +15,9 @@ import {
   ok,
   err,
   Result,
-  wrapException,
   assert,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { utcTimestamp } from '@votingworks/utils';
 import { useEffect, useReducer, useState } from 'react';
 import useInterval from 'use-interval';
 import deepEqual from 'deep-eql';
@@ -34,7 +26,7 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import { Lock, useLock } from '../use_lock';
+import { useLock } from '../use_lock';
 import {
   buildCardStorage,
   CARD_POLLING_INTERVAL,
@@ -112,40 +104,6 @@ function validateCardUser(
     }
     if (user.electionHash !== scope.electionDefinition.electionHash) {
       return err('poll_worker_wrong_election');
-    }
-  }
-
-  if (user.role === 'voter') {
-    if (!scope.electionDefinition || !scope.precinct) {
-      return err('machine_not_configured');
-    }
-    if (utcTimestamp() >= user.createdAt + VOTER_CARD_EXPIRATION_SECONDS) {
-      return err('voter_card_expired');
-    }
-    if (user.voidedAt) {
-      return err('voter_card_voided');
-    }
-    // After a voter's ballot is printed, we don't want to log them out until
-    // they remove their card
-    if (user.ballotPrintedAt && previousAuth.status !== 'logged_in') {
-      return err('voter_card_printed');
-    }
-    const ballotStyle = getBallotStyle({
-      election: scope.electionDefinition.election,
-      ballotStyleId: user.ballotStyleId,
-    });
-    const precinct = getPrecinctById({
-      election: scope.electionDefinition.election,
-      precinctId: user.precinctId,
-    });
-    if (!ballotStyle || !precinct) {
-      return err('voter_wrong_election');
-    }
-    if (
-      scope.precinct.kind === 'SinglePrecinct' &&
-      precinct.id !== scope.precinct.precinctId
-    ) {
-      return err('voter_wrong_precinct');
     }
   }
 
@@ -257,59 +215,6 @@ function buildPollWorkerCardlessVoterProps(
   };
 }
 
-function buildVoterCardMethods(
-  cardSummary: CardSummaryReady,
-  cardApi: Card,
-  cardWriteLock: Lock
-): Pick<
-  InsertedSmartcardAuth.VoterLoggedIn,
-  'markCardVoided' | 'markCardPrinted'
-> {
-  async function writeVoterCardData(
-    cardData: VoterCardData
-  ): Promise<Result<void, Error>> {
-    if (!cardWriteLock.lock()) {
-      return err(new Error('Card write in progress'));
-    }
-    try {
-      await cardApi.writeShortValue(JSON.stringify(cardData));
-      return ok();
-    } catch (error) {
-      return wrapException(error);
-    } finally {
-      cardWriteLock.unlock();
-    }
-  }
-
-  return {
-    markCardVoided: () => {
-      assert(cardSummary.shortValue !== undefined);
-      const cardData = safeParseJson(
-        cardSummary.shortValue,
-        VoterCardDataSchema
-      ).ok();
-      assert(cardData);
-      return writeVoterCardData({
-        ...cardData,
-        uz: utcTimestamp(),
-      });
-    },
-
-    markCardPrinted: () => {
-      assert(cardSummary.shortValue !== undefined);
-      const cardData = safeParseJson(
-        cardSummary.shortValue,
-        VoterCardDataSchema
-      ).ok();
-      assert(cardData);
-      return writeVoterCardData({
-        ...cardData,
-        bp: utcTimestamp(),
-      });
-    },
-  };
-}
-
 function useInsertedSmartcardAuthBase({
   cardApi,
   allowedUserRoles,
@@ -384,15 +289,6 @@ function useInsertedSmartcardAuthBase({
               activatedCardlessVoter,
               setActivatedCardlessVoter
             ),
-          };
-        }
-
-        case 'voter': {
-          return {
-            status,
-            user,
-            card: cardStorage,
-            ...buildVoterCardMethods(cardSummary, cardApi, cardWriteLock),
           };
         }
 

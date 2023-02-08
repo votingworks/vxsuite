@@ -9,7 +9,6 @@ import {
 
 import fetchMock from 'fetch-mock';
 import * as React from 'react';
-import { MarkAndPrint } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   setElectionInStorage,
@@ -162,7 +161,7 @@ it('uses window.location.reload by default', async () => {
   // Stub location in a way that's good enough for this test, but not good
   // enough for general `window.location` use.
   const reload = jest.fn();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
   jest.spyOn(window, 'location', 'get').mockReturnValue({
     ...window.location,
     reload,

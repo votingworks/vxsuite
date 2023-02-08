@@ -61,9 +61,6 @@ of the existing [`fixtures/`](./fixtures).
 
 # Open polls with poll worker card
 ./mockCardReader.py enable --poll-worker /path/to/election.json
-
-# Vote with voter card
-./mockCardReader.py enable --voter /path/to/election.json --precinct 123 --ballot-style 1R
 ```
 
 ### Using fixtures
@@ -76,9 +73,6 @@ Use any fixture paths you like. This shows using the default fixtures:
 
 # Open polls with poll worker card
 ./mockCardReader.py enable --fixture fixtures/poll_worker
-
-# Vote with voter card
-./mockCardReader.py enable --fixture fixtures/voter
 ```
 
 ### Blank Card

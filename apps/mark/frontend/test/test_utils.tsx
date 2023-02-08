@@ -8,7 +8,6 @@ import {
   ElectionDefinition,
   PrecinctId,
   VotesDict,
-  MarkOnly,
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-backend';
 
@@ -17,7 +16,7 @@ import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from '../src/config/globals';
 
-import { MarkVoterCardFunction, UserSettings } from '../src/config/types';
+import { UserSettings } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
@@ -29,12 +28,11 @@ export function render(
     ballotStyleId,
     electionDefinition = electionSampleNoSealDefinition,
     contests = electionDefinition.election.contests,
-    markVoterCardVoided = jest.fn(),
-    markVoterCardPrinted = jest.fn(),
+    endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
     isCardlessVoter = false,
     isLiveMode = false,
-    machineConfig = fakeMachineConfig({ appMode: MarkOnly }),
+    machineConfig = fakeMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
     setUserSettings = jest.fn(),
@@ -48,8 +46,7 @@ export function render(
     ballotStyleId?: BallotStyleId;
     electionDefinition?: ElectionDefinition;
     contests?: Contests;
-    markVoterCardVoided?: MarkVoterCardFunction;
-    markVoterCardPrinted?: MarkVoterCardFunction;
+    endVoterSession?: () => Promise<void>;
     history?: History;
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
@@ -74,8 +71,7 @@ export function render(
           isCardlessVoter,
           isLiveMode,
           machineConfig,
-          markVoterCardVoided,
-          markVoterCardPrinted,
+          endVoterSession,
           precinctId,
           resetBallot,
           setUserSettings,

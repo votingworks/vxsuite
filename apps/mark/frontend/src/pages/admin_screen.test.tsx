@@ -12,7 +12,6 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
-import { PrintOnly, MarkAndPrint } from '@votingworks/types';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -49,7 +48,6 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig({
-        appMode: MarkAndPrint,
         codeVersion: 'test', // Override default
       })}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
@@ -59,27 +57,6 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
     />
   );
 }
-
-test('renders AdminScreen for PrintOnly', () => {
-  renderScreen({
-    machineConfig: fakeMachineConfig({
-      appMode: PrintOnly,
-      codeVersion: '', // Override default
-    }),
-  });
-
-  // Configure with Election Manager Card
-  advanceTimers();
-
-  // test mode
-  screen.getAllByText('Testing Mode');
-
-  fireEvent.click(screen.getByRole('button', { name: 'Live Election Mode' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Testing Mode' }));
-
-  // view stats
-  screen.getByText('Stats');
-});
 
 test('renders date and time settings modal', async () => {
   renderScreen();
