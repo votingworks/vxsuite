@@ -54,7 +54,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: frontends/bmd/reports/
+          path: apps/mark/backend/reports/
 
   test-apps-mark-frontend:
     executor: nodejs-browsers
