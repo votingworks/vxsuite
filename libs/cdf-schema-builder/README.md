@@ -23,10 +23,10 @@ With the CLI:
 
 ```sh
 # in a package.json script:
-cdf-schema-builder schema.xml > src/schema.ts
+cdf-schema-builder schema.xsd schema.json > schema.ts
 
 # in your terminal:
-pnpx cdf-schema-builder schema.xml > src/schema.ts
+pnpx cdf-schema-builder schema.xsd schema.json > schema.ts
 ```
 
 With the API:
@@ -36,7 +36,8 @@ import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync, createWriteStream } from 'fs';
 
 buildSchema(
-  readFileSync('schema.xml', 'utf-8'),
-  createWriteStream('src/schema.ts')
+  readFileSync('schema.xsd', 'utf-8'),
+  readFileSync('schema.json', 'utf-8'),
+  createWriteStream('schema.ts')
 );
 ```
