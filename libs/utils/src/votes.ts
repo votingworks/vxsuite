@@ -25,13 +25,15 @@ import {
   YesNoContest,
   YesNoVote,
   YesNoVoteId,
-  YesOrNo,
+  YesNoSelection,
 } from '@votingworks/types';
 import { assert, throwIllegalValue, find, typedAs } from '@votingworks/basics';
 
 const MISSING_BATCH_ID = 'missing-batch-id';
 
-export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
+export function getSingleYesNoVote(
+  vote?: YesNoVote
+): YesNoSelection | undefined {
   if (vote?.length === 1) {
     return vote[0];
   }

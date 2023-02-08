@@ -646,16 +646,37 @@ export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefin
   ElectionDefinitionSchema.optional();
 
 // Votes
-export type CandidateVote = readonly Candidate[];
-export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
-  z.array(CandidateSchema);
+export interface CandidateSelection {
+  candidateId: string;
+}
+export const CandidateSelectionSchema: z.ZodSchema<CandidateSelection> =
+  z.object({
+    candidateId: IdSchema,
+  });
+
+export interface WriteInSelection {
+  writeInIndex: number;
+  writeInText?: string;
+}
+export const WriteInSelectionSchema: z.ZodSchema<WriteInSelection> = z.object({
+  writeInIndex: z.number().int().nonnegative(),
+  writeInText: z.string().nonempty().optional(),
+});
+
+export type CandidateContestSelection = CandidateSelection | WriteInSelection;
+export const CandidateContestSelectionSchema: z.ZodSchema<CandidateContestSelection> =
+  z.union([CandidateSelectionSchema, WriteInSelectionSchema]);
+
+export type CandidateVote = readonly CandidateContestSelection[];
+export const CandidateVoteSchema: z.ZodSchema<CandidateVote> = z.array(
+  CandidateContestSelectionSchema
+);
+
+export type YesNoSelection = 'yes' | 'no';
 export type YesNoVote =
-  | readonly ['yes']
-  | readonly ['no']
-  | readonly ['yes', 'no']
-  | readonly ['no', 'yes']
-  | readonly [];
-export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>;
+  | readonly []
+  | readonly [YesNoSelection]
+  | readonly [YesNoSelection, YesNoSelection];
 export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
   z.tuple([z.literal('yes')]),
   z.tuple([z.literal('no')]),
