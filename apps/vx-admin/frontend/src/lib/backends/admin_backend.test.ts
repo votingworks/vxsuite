@@ -1,5 +1,5 @@
 import { Admin } from '@votingworks/api';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
@@ -8,7 +8,6 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import { BallotId, CastVoteRecord } from '@votingworks/types';
 import { MemoryStorage } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import moment from 'moment';
 import {

@@ -35,7 +35,7 @@ export const PrintableBallotType = {
   Precinct: 'standard',
 } as const;
 export type PrintableBallotType =
-  typeof PrintableBallotType[keyof typeof PrintableBallotType];
+  (typeof PrintableBallotType)[keyof typeof PrintableBallotType];
 
 export const PrintableBallotTypeSchema = z.union([
   z.literal('absentee'),
