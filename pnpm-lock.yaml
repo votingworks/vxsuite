@@ -1921,7 +1921,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
-      '@votingworks/types': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.4
@@ -1941,11 +1940,12 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
+      zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
-      '@votingworks/types': link:../types
       jsdom: 19.0.0
       json-schema: 0.4.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/jsdom': 16.2.13

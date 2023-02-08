@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "@votingworks/types": "workspace:*",
     "jsdom": "^19.0.0",
-    "json-schema": "^0.4.0"
+    "json-schema": "^0.4.0",
+    "zod": "3.14.4"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
