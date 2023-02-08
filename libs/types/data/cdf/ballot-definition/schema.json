@@ -1,0 +1,2492 @@
+{
+  "$ref": "#/definitions/BallotDefinition.BallotDefinition",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BallotDefinition.ActivationContest": {
+      "required": [
+        "@id",
+        "@type",
+        "ControlledContestIds",
+        "ElectionDistrictId",
+        "Name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.ActivationContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "CandidateId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Candidate"]
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ControlledContestIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.PartyContest",
+              "BallotDefinition.BallotMeasureContest",
+              "BallotDefinition.CandidateContest",
+              "BallotDefinition.PartyPreferenceContest",
+              "BallotDefinition.StraightPartyContest",
+              "BallotDefinition.ActivationContest",
+              "BallotDefinition.RetentionContest"
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "SummaryText": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ActivationOption": {
+      "required": ["@id", "@type", "CausesActivation", "Selection"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.ActivationOption"],
+          "type": "string"
+        },
+        "CausesActivation": {
+          "type": "boolean"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Selection": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.AnnotatedString": {
+      "required": ["@type", "Content"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.AnnotatedString"],
+          "type": "string"
+        },
+        "Annotation": {
+          "$ref": "#/definitions/BallotDefinition.ShortString"
+        },
+        "Content": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.AnnotatedUri": {
+      "required": ["@type", "Content"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.AnnotatedUri"],
+          "type": "string"
+        },
+        "Annotation": {
+          "$ref": "#/definitions/BallotDefinition.ShortString"
+        },
+        "Content": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BallotDefinition": {
+      "required": [
+        "@type",
+        "GeneratedDate",
+        "Issuer",
+        "IssuerAbbreviation",
+        "SequenceEnd",
+        "SequenceStart",
+        "VendorApplicationId",
+        "Version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.BallotDefinition"],
+          "type": "string"
+        },
+        "BallotFormat": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.BallotFormat"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Election": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Election"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "GeneratedDate": {
+          "$ref": "#/definitions/BallotDefinition.DateTimeWithZone"
+        },
+        "GpUnit": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ReportingUnit"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Header": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Header"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsTest": {
+          "type": "boolean"
+        },
+        "Issuer": {
+          "type": "string"
+        },
+        "IssuerAbbreviation": {
+          "type": "string"
+        },
+        "Notes": {
+          "type": "string"
+        },
+        "Office": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Office"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "OfficeGroup": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.OfficeGroup"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Party": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.Party"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.Coalition"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Person": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Person"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "SequenceEnd": {
+          "type": "integer"
+        },
+        "SequenceStart": {
+          "type": "integer"
+        },
+        "Shape": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Shape"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "TestType": {
+          "type": "string"
+        },
+        "VendorApplicationId": {
+          "type": "string"
+        },
+        "Version": {
+          "$ref": "#/definitions/BallotDefinition.BallotDefinitionVersion"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BallotDefinitionVersion": {
+      "enum": ["1.0.0"],
+      "type": "string"
+    },
+    "BallotDefinition.BallotFormat": {
+      "required": [
+        "@id",
+        "@type",
+        "ExternalIdentifier",
+        "LongEdge",
+        "MeasurementUnit",
+        "Orientation",
+        "SelectionCaptureMethod",
+        "ShortEdge"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.BallotFormat"],
+          "type": "string"
+        },
+        "Application": {
+          "type": "string"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "FiducialMark": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.FiducialMark"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "LongEdge": {
+          "type": "number"
+        },
+        "Manufacturer": {
+          "type": "string"
+        },
+        "MeasurementUnit": {
+          "$ref": "#/definitions/BallotDefinition.MeasurementUnitType"
+        },
+        "Orientation": {
+          "$ref": "#/definitions/BallotDefinition.OrientationType"
+        },
+        "SelectionCaptureMethod": {
+          "$ref": "#/definitions/BallotDefinition.SelectionCaptureMethod"
+        },
+        "ShortEdge": {
+          "type": "number"
+        },
+        "mCDFArea": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.mCDFArea"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BallotMeasureContest": {
+      "required": ["@id", "@type", "ElectionDistrictId", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.BallotMeasureContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ConStatement": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "EffectOfAbstain": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FullText": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "InfoUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "PassageThreshold": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ProStatement": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "SummaryText": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.BallotMeasureType"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BallotMeasureOption": {
+      "required": ["@id", "@type", "Selection"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.BallotMeasureOption"],
+          "type": "string"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Selection": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BallotMeasureType": {
+      "enum": ["ballot-measure", "initiative", "other", "recall", "referendum"],
+      "type": "string"
+    },
+    "BallotDefinition.BallotSideType": {
+      "enum": ["back", "front"],
+      "type": "string"
+    },
+    "BallotDefinition.BallotStyle": {
+      "required": ["@type", "GpUnitIds"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.BallotStyle"],
+          "type": "string"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "GpUnitIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.ReportingUnit"]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ImageUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Language": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "OrderedContent": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.OrderedContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.OrderedHeader"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "PartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Purpose": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.BoundedObject": {
+      "required": ["@type", "H", "Side", "W", "X", "Y"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.BoundedObject"],
+          "type": "string"
+        },
+        "H": {
+          "type": "number"
+        },
+        "Sheet": {
+          "type": "integer"
+        },
+        "Side": {
+          "$ref": "#/definitions/BallotDefinition.BallotSideType"
+        },
+        "W": {
+          "type": "number"
+        },
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.Candidate": {
+      "required": ["@id", "@type", "BallotName"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Candidate"],
+          "type": "string"
+        },
+        "BallotName": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "CampaignSlogan": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FileDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "IsIncumbent": {
+          "type": "boolean"
+        },
+        "IsTopTicket": {
+          "type": "boolean"
+        },
+        "PartyId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+        },
+        "PersonId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Person"]
+        },
+        "PreElectionStatus": {
+          "$ref": "#/definitions/BallotDefinition.CandidatePreElectionStatus"
+        },
+        "ReadName": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.CandidateContest": {
+      "required": [
+        "@id",
+        "@type",
+        "ElectionDistrictId",
+        "Name",
+        "VotesAllowed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.CandidateContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "NumberElected": {
+          "type": "integer"
+        },
+        "NumberRunoff": {
+          "type": "integer"
+        },
+        "OfficeIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Office"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "PrimaryPartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "RanksAllowed": {
+          "type": "integer"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        },
+        "VotesAllowed": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.CandidateOption": {
+      "required": ["@id", "@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.CandidateOption"],
+          "type": "string"
+        },
+        "CandidateIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Candidate"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "EndorsementPartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsWriteIn": {
+          "type": "boolean"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.CandidatePreElectionStatus": {
+      "enum": ["filed", "qualified", "withdrawn"],
+      "type": "string"
+    },
+    "BallotDefinition.Coalition": {
+      "required": ["@id", "@type", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Coalition"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Color": {
+          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "ContestIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.PartyContest",
+              "BallotDefinition.BallotMeasureContest",
+              "BallotDefinition.CandidateContest",
+              "BallotDefinition.PartyPreferenceContest",
+              "BallotDefinition.StraightPartyContest",
+              "BallotDefinition.ActivationContest",
+              "BallotDefinition.RetentionContest"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsRecognizedParty": {
+          "type": "boolean"
+        },
+        "LeaderPersonIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Person"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "LogoUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "PartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "PartyScopeGpUnitIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.ReportingUnit"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Slogan": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ContactInformation": {
+      "required": ["@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.ContactInformation"],
+          "type": "string"
+        },
+        "AddressLine": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Directions": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Email": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Fax": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "LatLng": {
+          "$ref": "#/definitions/BallotDefinition.LatLng"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Phone": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Schedule": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Schedule"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Uri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.DateTimeWithZone": {
+      "pattern": "[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+      "type": "string",
+      "format": "date-time"
+    },
+    "BallotDefinition.DayType": {
+      "enum": [
+        "all",
+        "friday",
+        "monday",
+        "saturday",
+        "sunday",
+        "thursday",
+        "tuesday",
+        "wednesday",
+        "weekday",
+        "weekend"
+      ],
+      "type": "string"
+    },
+    "BallotDefinition.Election": {
+      "required": [
+        "@type",
+        "ElectionScopeId",
+        "EndDate",
+        "Name",
+        "StartDate",
+        "Type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.Election"],
+          "type": "string"
+        },
+        "BallotStyle": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.BallotStyle"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Candidate": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Candidate"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "Contest": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyPreferenceContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.StraightPartyContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.RetentionContest"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ElectionScopeId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "EndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "StartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.ElectionType"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ElectionAdministration": {
+      "required": ["@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.ElectionAdministration"],
+          "type": "string"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "ElectionOfficialPersonIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Person"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ElectionType": {
+      "enum": [
+        "general",
+        "other",
+        "partisan-primary-closed",
+        "partisan-primary-open",
+        "primary",
+        "runoff",
+        "special"
+      ],
+      "type": "string"
+    },
+    "BallotDefinition.ExternalIdentifier": {
+      "required": ["@type", "Type", "Value"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.ExternalIdentifier"],
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.IdentifierType"
+        },
+        "Value": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.FiducialMark": {
+      "required": ["@type", "H", "ShapeId", "Side", "W", "X", "Y"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.FiducialMark"],
+          "type": "string"
+        },
+        "H": {
+          "type": "number"
+        },
+        "ShapeId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Shape"]
+        },
+        "Sheet": {
+          "type": "integer"
+        },
+        "Side": {
+          "$ref": "#/definitions/BallotDefinition.BallotSideType"
+        },
+        "W": {
+          "type": "number"
+        },
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.FractionalNumber": {
+      "pattern": "([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)",
+      "type": "string"
+    },
+    "BallotDefinition.GeoSpatialFormat": {
+      "enum": ["geo-json", "gml", "kml", "shp", "wkt"],
+      "type": "string"
+    },
+    "BallotDefinition.Header": {
+      "required": ["@id", "@type", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Header"],
+          "type": "string"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HeaderedContent": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.Hours": {
+      "required": ["@type", "EndTime", "StartTime"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.Hours"],
+          "type": "string"
+        },
+        "Day": {
+          "$ref": "#/definitions/BallotDefinition.DayType"
+        },
+        "EndTime": {
+          "$ref": "#/definitions/BallotDefinition.TimeWithZone"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "StartTime": {
+          "$ref": "#/definitions/BallotDefinition.TimeWithZone"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.HtmlColorString": {
+      "pattern": "[0-9a-f]{6}",
+      "type": "string"
+    },
+    "BallotDefinition.IdentifierType": {
+      "enum": [
+        "fips",
+        "local-level",
+        "national-level",
+        "ocd-id",
+        "other",
+        "state-level"
+      ],
+      "type": "string"
+    },
+    "BallotDefinition.InternationalizedText": {
+      "required": ["@type", "Text"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.InternationalizedText"],
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "Text": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.LanguageString"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.LanguageString": {
+      "required": ["@type", "Content", "Language"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.LanguageString"],
+          "type": "string"
+        },
+        "Content": {
+          "type": "string"
+        },
+        "Language": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.LatLng": {
+      "required": ["@type", "Latitude", "Longitude"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.LatLng"],
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "Latitude": {
+          "type": "number"
+        },
+        "Longitude": {
+          "type": "number"
+        },
+        "Source": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.MeasurementUnitType": {
+      "enum": ["in", "mm", "pc", "pt"],
+      "type": "string"
+    },
+    "BallotDefinition.Office": {
+      "required": ["@id", "@type", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Office"],
+          "type": "string"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "Description": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FilingDeadline": {
+          "type": "string",
+          "format": "date"
+        },
+        "IsPartisan": {
+          "type": "boolean"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "OfficeHolderPersonIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Person"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Term": {
+          "$ref": "#/definitions/BallotDefinition.Term"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.OfficeGroup": {
+      "required": ["@type", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.OfficeGroup"],
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OfficeIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Office"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "SubOfficeGroup": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.OfficeGroup"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.OfficeTermType": {
+      "enum": ["full-term", "unexpired-term"],
+      "type": "string"
+    },
+    "BallotDefinition.OptionPosition": {
+      "required": ["@type", "H", "NumberVotes", "Side", "W", "X", "Y"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.OptionPosition"],
+          "type": "string"
+        },
+        "FractionalVotes": {
+          "$ref": "#/definitions/BallotDefinition.FractionalNumber"
+        },
+        "H": {
+          "type": "number"
+        },
+        "IndicatorId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Shape"]
+        },
+        "NumberVotes": {
+          "type": "integer"
+        },
+        "Rank": {
+          "type": "integer"
+        },
+        "Sheet": {
+          "type": "integer"
+        },
+        "Side": {
+          "$ref": "#/definitions/BallotDefinition.BallotSideType"
+        },
+        "W": {
+          "type": "number"
+        },
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.OrderedContest": {
+      "required": ["@type", "ContestId"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.OrderedContest"],
+          "type": "string"
+        },
+        "ContestId": {
+          "type": "string",
+          "refTypes": [
+            "BallotDefinition.PartyContest",
+            "BallotDefinition.BallotMeasureContest",
+            "BallotDefinition.CandidateContest",
+            "BallotDefinition.PartyPreferenceContest",
+            "BallotDefinition.StraightPartyContest",
+            "BallotDefinition.ActivationContest",
+            "BallotDefinition.RetentionContest"
+          ]
+        },
+        "OrderedContestOptionIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.PartyOption",
+              "BallotDefinition.ActivationOption",
+              "BallotDefinition.BallotMeasureOption",
+              "BallotDefinition.CandidateOption"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Physical": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.PhysicalContest"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.OrderedHeader": {
+      "required": ["@type", "HeaderId"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.OrderedHeader"],
+          "type": "string"
+        },
+        "HeaderId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Header"]
+        },
+        "OrderedContent": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.OrderedContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.OrderedHeader"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.OrientationType": {
+      "enum": ["landscape", "portrait"],
+      "type": "string"
+    },
+    "BallotDefinition.Party": {
+      "required": ["@id", "@type", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Party"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Color": {
+          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsRecognizedParty": {
+          "type": "boolean"
+        },
+        "LeaderPersonIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Person"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "LogoUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "PartyScopeGpUnitIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.ReportingUnit"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Slogan": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PartyContest": {
+      "required": ["@id", "@type", "ElectionDistrictId", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.PartyContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PartyOption": {
+      "required": ["@id", "@type", "PartyIds"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.PartyOption"],
+          "type": "string"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "PartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PartyPreferenceContest": {
+      "required": [
+        "@id",
+        "@type",
+        "ControlledContestIds",
+        "ElectionDistrictId",
+        "Name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.PartyPreferenceContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ControlledContestIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.PartyContest",
+              "BallotDefinition.BallotMeasureContest",
+              "BallotDefinition.CandidateContest",
+              "BallotDefinition.PartyPreferenceContest",
+              "BallotDefinition.StraightPartyContest",
+              "BallotDefinition.ActivationContest",
+              "BallotDefinition.RetentionContest"
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PartyRegistration": {
+      "required": ["@type", "Count", "PartyId"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.PartyRegistration"],
+          "type": "string"
+        },
+        "Count": {
+          "type": "integer"
+        },
+        "PartyId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.Person": {
+      "required": ["@id", "@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Person"],
+          "type": "string"
+        },
+        "ContactInformation": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ContactInformation"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "DateOfBirth": {
+          "type": "string",
+          "format": "date"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FirstName": {
+          "type": "string"
+        },
+        "FullName": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Gender": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "MiddleName": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Nickname": {
+          "type": "string"
+        },
+        "PartyId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+        },
+        "Prefix": {
+          "type": "string"
+        },
+        "Profession": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Suffix": {
+          "type": "string"
+        },
+        "Title": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PhysicalContest": {
+      "required": ["@type", "BallotFormatId"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.PhysicalContest"],
+          "type": "string"
+        },
+        "BallotFormatId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.BallotFormat"]
+        },
+        "Extent": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.BoundedObject"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.FiducialMark"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.OptionPosition"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.WriteInPosition"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.mCDFArea"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FiducialMark": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.FiducialMark"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "PhysicalContestOption": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.PhysicalContestOption"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PhysicalContestOption": {
+      "required": ["@type", "OptionPosition"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.PhysicalContestOption"],
+          "type": "string"
+        },
+        "ContestOptionId": {
+          "type": "string",
+          "refTypes": [
+            "BallotDefinition.PartyOption",
+            "BallotDefinition.ActivationOption",
+            "BallotDefinition.BallotMeasureOption",
+            "BallotDefinition.CandidateOption"
+          ]
+        },
+        "OptionPosition": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.OptionPosition"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "WriteInPosition": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.WriteInPosition"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ReportingUnit": {
+      "required": ["@id", "@type", "Type"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.ReportingUnit"],
+          "type": "string"
+        },
+        "AuthorityIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Person"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ComposingGpUnitIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.ReportingUnit"]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ContactInformation": {
+          "$ref": "#/definitions/BallotDefinition.ContactInformation"
+        },
+        "ElectionAdministration": {
+          "$ref": "#/definitions/BallotDefinition.ElectionAdministration"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsDistricted": {
+          "type": "boolean"
+        },
+        "IsMailOnly": {
+          "type": "boolean"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Number": {
+          "type": "string"
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "PartyRegistration": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.PartyRegistration"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "SpatialDimension": {
+          "$ref": "#/definitions/BallotDefinition.SpatialDimension"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.ReportingUnitType"
+        },
+        "VotersRegistered": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ReportingUnitType": {
+      "enum": [
+        "ballot-batch",
+        "ballot-style-area",
+        "borough",
+        "city",
+        "city-council",
+        "combined-precinct",
+        "congressional",
+        "country",
+        "county",
+        "county-council",
+        "drop-box",
+        "judicial",
+        "municipality",
+        "other",
+        "polling-place",
+        "precinct",
+        "school",
+        "special",
+        "split-precinct",
+        "state",
+        "state-house",
+        "state-senate",
+        "town",
+        "township",
+        "utility",
+        "village",
+        "vote-center",
+        "ward",
+        "water"
+      ],
+      "type": "string"
+    },
+    "BallotDefinition.RetentionContest": {
+      "required": ["@id", "@type", "CandidateId", "ElectionDistrictId", "Name"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.RetentionContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "CandidateId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Candidate"]
+        },
+        "ConStatement": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "EffectOfAbstain": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "FullText": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "InfoUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OfficeId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.Office"]
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "PassageThreshold": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ProStatement": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "SummaryText": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.BallotMeasureType"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.Schedule": {
+      "required": ["@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.Schedule"],
+          "type": "string"
+        },
+        "EndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "Hours": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Hours"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "IsOnlyByAppointment": {
+          "type": "boolean"
+        },
+        "IsOrByAppointment": {
+          "type": "boolean"
+        },
+        "IsSubjectToChange": {
+          "type": "boolean"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "StartDate": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.SelectionCaptureMethod": {
+      "enum": ["mcdf", "omr"],
+      "type": "string"
+    },
+    "BallotDefinition.Shape": {
+      "required": ["@id", "@type", "ShapeType"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Shape"],
+          "type": "string"
+        },
+        "FillColor": {
+          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
+        },
+        "ShapeType": {
+          "$ref": "#/definitions/BallotDefinition.ShapeType"
+        },
+        "StrokeColor": {
+          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
+        },
+        "StrokeWidth": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.ShapeType": {
+      "enum": ["ellipse", "rectangle"],
+      "type": "string"
+    },
+    "BallotDefinition.ShortString": {
+      "maxLength": 32,
+      "type": "string"
+    },
+    "BallotDefinition.SpatialDimension": {
+      "required": ["@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.SpatialDimension"],
+          "type": "string"
+        },
+        "MapUri": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "SpatialExtent": {
+          "$ref": "#/definitions/BallotDefinition.SpatialExtent"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.SpatialExtent": {
+      "required": ["@type", "Coordinates", "Format"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.SpatialExtent"],
+          "type": "string"
+        },
+        "Coordinates": {
+          "type": "string"
+        },
+        "Format": {
+          "$ref": "#/definitions/BallotDefinition.GeoSpatialFormat"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.StraightPartyContest": {
+      "required": [
+        "@id",
+        "@type",
+        "ControlledContestIds",
+        "ElectionDistrictId",
+        "Name",
+        "StraightPartyRuleset"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.StraightPartyContest"],
+          "type": "string"
+        },
+        "Abbreviation": {
+          "type": "string"
+        },
+        "BallotSubTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/BallotDefinition.PartyOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.ActivationOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.CandidateOption"
+              }
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ControlledContestIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.PartyContest",
+              "BallotDefinition.BallotMeasureContest",
+              "BallotDefinition.CandidateContest",
+              "BallotDefinition.PartyPreferenceContest",
+              "BallotDefinition.StraightPartyContest",
+              "BallotDefinition.ActivationContest",
+              "BallotDefinition.RetentionContest"
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HasRotation": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "OtherStraightPartyRuleset": {
+          "type": "string"
+        },
+        "OtherVoteVariation": {
+          "type": "string"
+        },
+        "SequenceOrder": {
+          "type": "integer"
+        },
+        "StraightPartyRuleset": {
+          "$ref": "#/definitions/BallotDefinition.StraightPartyRuleset"
+        },
+        "TotalSubUnits": {
+          "type": "integer"
+        },
+        "VoteVariation": {
+          "$ref": "#/definitions/BallotDefinition.VoteVariation"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.StraightPartyRuleset": {
+      "enum": ["exclusive", "inclusive", "other"],
+      "type": "string"
+    },
+    "BallotDefinition.Term": {
+      "required": ["@type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.Term"],
+          "type": "string"
+        },
+        "EndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "Label": {
+          "type": "string"
+        },
+        "StartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "Type": {
+          "$ref": "#/definitions/BallotDefinition.OfficeTermType"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.TimeWithZone": {
+      "pattern": "(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+      "type": "string",
+      "format": "time"
+    },
+    "BallotDefinition.VoteVariation": {
+      "enum": [
+        "approval",
+        "borda",
+        "cumulative",
+        "majority",
+        "n-of-m",
+        "other",
+        "plurality",
+        "proportional",
+        "range",
+        "rcv",
+        "super-majority"
+      ],
+      "type": "string"
+    },
+    "BallotDefinition.WriteInPosition": {
+      "required": ["@type", "H", "Side", "W", "X", "Y"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.WriteInPosition"],
+          "type": "string"
+        },
+        "H": {
+          "type": "number"
+        },
+        "SelectionRequired": {
+          "type": "boolean"
+        },
+        "Sheet": {
+          "type": "integer"
+        },
+        "Side": {
+          "$ref": "#/definitions/BallotDefinition.BallotSideType"
+        },
+        "W": {
+          "type": "number"
+        },
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.mCDFArea": {
+      "required": ["@type", "H", "Side", "Symbology", "W", "X", "Y"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.mCDFArea"],
+          "type": "string"
+        },
+        "H": {
+          "type": "number"
+        },
+        "Sheet": {
+          "type": "integer"
+        },
+        "Side": {
+          "$ref": "#/definitions/BallotDefinition.BallotSideType"
+        },
+        "Symbology": {
+          "type": "string"
+        },
+        "W": {
+          "type": "number"
+        },
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
