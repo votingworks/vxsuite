@@ -25,6 +25,10 @@
       "path": "apps/admin/frontend"
     },
     {
+      "name": "apps/admin/integration-testing",
+      "path": "apps/admin/integration-testing"
+    },
+    {
       "name": "apps/central-scan/backend",
       "path": "apps/central-scan/backend"
     },
@@ -35,10 +39,6 @@
     {
       "name": "apps/central-scan/integration-testing",
       "path": "apps/central-scan/integration-testing"
-    },
-    {
-      "name": "apps/admin/integration-testing",
-      "path": "apps/admin/integration-testing"
     },
     {
       "name": "libs/api",
