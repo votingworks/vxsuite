@@ -29,7 +29,11 @@ test('empty', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -154,7 +158,11 @@ test('enum type', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -299,7 +307,11 @@ test('object type', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -466,7 +478,11 @@ test('object type property types', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -610,7 +626,11 @@ test('object type references', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -730,7 +750,11 @@ test('string aliases', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
@@ -890,7 +914,11 @@ test('documentation from JSON schema', () => {
 
     import { z } from 'zod';
 
-    import { Iso8601Date } from '@votingworks/types';
+    import check8601 from '@antongolub/iso8601';
+
+    export const Iso8601Date = z
+      .string()
+      .refine(check8601, 'dates must be in ISO8601 format');
 
     /**
      * Type for xsd:datetime values.
