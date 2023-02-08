@@ -21,7 +21,7 @@ import {
 } from '@votingworks/ui';
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { MachineConfig } from '@votingworks/vx-mark-backend';
+import type { MachineConfig } from '@votingworks/mark-backend';
 import { ScreenReader } from '../config/types';
 
 export interface AdminScreenProps {

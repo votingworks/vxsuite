@@ -28,7 +28,7 @@ import { err, ok } from '@votingworks/basics';
 import type {
   PrecinctScannerConfig,
   SheetInterpretation,
-} from '@votingworks/vx-scan-backend';
+} from '@votingworks/scan-backend';
 import {
   BALLOT_BAG_CAPACITY,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as grout from '@votingworks/grout';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { Api } from '@votingworks/vx-mark-backend';
+import type { Api } from '@votingworks/mark-backend';
 
 import {
   WebServiceCard,

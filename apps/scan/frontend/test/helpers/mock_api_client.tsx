@@ -16,7 +16,7 @@ import type {
   MachineConfig,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
-} from '@votingworks/vx-scan-backend';
+} from '@votingworks/scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import {

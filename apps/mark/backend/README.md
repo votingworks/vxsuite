@@ -10,7 +10,7 @@ You generally should not need to run the backend directly. Instead, run the
 frontend, which will automatically run the backend.
 
 ```sh
-cd apps/vx-mark/frontend
+cd apps/mark/frontend
 pnpm start
 ```
 

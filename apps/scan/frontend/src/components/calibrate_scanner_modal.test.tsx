@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { deferred } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
+import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,

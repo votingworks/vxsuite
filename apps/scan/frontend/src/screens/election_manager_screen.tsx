@@ -12,7 +12,7 @@ import {
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
+import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';

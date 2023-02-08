@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/vx-mark-backend",
+  "name": "@votingworks/mark-backend",
   "version": "0.1.0",
   "private": true,
   "main": "build/index.js",

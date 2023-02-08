@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Modal, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { PrecinctScannerStatus } from '@votingworks/vx-scan-backend';
+import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { calibrate, supportsCalibration } from '../api';
 
 export interface CalibrateScannerModalProps {

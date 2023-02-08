@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-no-import-export-type */
-import type { Api } from '@votingworks/vx-mark-backend';
+import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import { QueryKey, useQuery } from '@tanstack/react-query';

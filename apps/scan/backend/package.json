@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/vx-scan-backend",
+  "name": "@votingworks/scan-backend",
   "version": "0.1.0",
   "private": true,
   "main": "build/index.js",

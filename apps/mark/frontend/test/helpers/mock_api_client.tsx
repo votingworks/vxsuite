@@ -2,7 +2,7 @@ import React from 'react';
 
 import { createMockClient } from '@votingworks/grout-test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
-import type { Api, MachineConfig } from '@votingworks/vx-mark-backend';
+import type { Api, MachineConfig } from '@votingworks/mark-backend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 import { ApiClientContext } from '../../src/api';

@@ -10,7 +10,7 @@ import {
   VotesDict,
   MarkOnly,
 } from '@votingworks/types';
-import { MachineConfig } from '@votingworks/vx-mark-backend';
+import { MachineConfig } from '@votingworks/mark-backend';
 
 import userEvent from '@testing-library/user-event';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';

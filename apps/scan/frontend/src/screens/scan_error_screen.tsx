@@ -5,7 +5,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import type {
   InvalidInterpretationReason,
   PrecinctScannerErrorType,
-} from '@votingworks/vx-scan-backend';
+} from '@votingworks/scan-backend';
 import { TimesCircle } from '../components/graphics';
 import {
   CenteredLargeProse,
