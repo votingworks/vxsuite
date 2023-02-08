@@ -1921,7 +1921,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
-      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
@@ -1954,7 +1953,6 @@ importers:
       '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
-      '@votingworks/test-utils': link:../test-utils
       eslint: 8.23.1
       eslint-config-prettier: 8.5.0_eslint@8.23.1
       eslint-import-resolver-node: 0.3.6
