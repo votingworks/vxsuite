@@ -17,28 +17,28 @@
       "path": "apps/scan/frontend"
     },
     {
-      "name": "apps/vx-admin/backend",
-      "path": "apps/vx-admin/backend"
+      "name": "apps/admin/backend",
+      "path": "apps/admin/backend"
     },
     {
-      "name": "apps/vx-admin/frontend",
-      "path": "apps/vx-admin/frontend"
+      "name": "apps/admin/frontend",
+      "path": "apps/admin/frontend"
     },
     {
-      "name": "apps/vx-central-scan/backend",
-      "path": "apps/vx-central-scan/backend"
+      "name": "apps/central-scan/backend",
+      "path": "apps/central-scan/backend"
     },
     {
-      "name": "apps/vx-central-scan/frontend",
-      "path": "apps/vx-central-scan/frontend"
+      "name": "apps/central-scan/frontend",
+      "path": "apps/central-scan/frontend"
     },
     {
-      "name": "apps/vx-central-scan/integration-testing",
-      "path": "apps/vx-central-scan/integration-testing"
+      "name": "apps/central-scan/integration-testing",
+      "path": "apps/central-scan/integration-testing"
     },
     {
-      "name": "apps/vx-admin/integration-testing",
-      "path": "apps/vx-admin/integration-testing"
+      "name": "apps/admin/integration-testing",
+      "path": "apps/admin/integration-testing"
     },
     {
       "name": "libs/api",
