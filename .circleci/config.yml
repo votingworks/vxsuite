@@ -82,7 +82,7 @@ jobs:
       - store_artifacts:
           path: apps/mark/frontend/cypress/videos
 
-  test-apps-vx-central-scan-frontend:
+  test-apps-central-scan-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -90,25 +90,25 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-central-scan/frontend build
+            pnpm --dir apps/central-scan/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-central-scan/frontend lint
+            pnpm --dir apps/central-scan/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-central-scan/frontend test
+            pnpm --dir apps/central-scan/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-central-scan/frontend/reports/
+          path: apps/central-scan/frontend/reports/
       - store_artifacts:
-          path: apps/vx-central-scan/frontend/cypress/screenshots
+          path: apps/central-scan/frontend/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-central-scan/frontend/cypress/videos
+          path: apps/central-scan/frontend/cypress/videos
 
-  test-apps-vx-central-scan-backend:
+  test-apps-central-scan-backend:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -116,21 +116,21 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-central-scan/backend build
+            pnpm --dir apps/central-scan/backend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-central-scan/backend lint
+            pnpm --dir apps/central-scan/backend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-central-scan/backend test
+            pnpm --dir apps/central-scan/backend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-central-scan/backend/reports/
+          path: apps/central-scan/backend/reports/
 
-  test-apps-vx-admin-frontend:
+  test-apps-admin-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -138,25 +138,25 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-admin/frontend build
+            pnpm --dir apps/admin/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-admin/frontend lint
+            pnpm --dir apps/admin/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-admin/frontend test
+            pnpm --dir apps/admin/frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-admin/frontend/reports/
+          path: apps/admin/frontend/reports/
       - store_artifacts:
-          path: apps/vx-admin/frontend/cypress/screenshots
+          path: apps/admin/frontend/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-admin/frontend/cypress/videos
+          path: apps/admin/frontend/cypress/videos
 
-  test-apps-vx-admin-backend:
+  test-apps-admin-backend:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -164,19 +164,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-admin/backend build
+            pnpm --dir apps/admin/backend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-admin/backend lint
+            pnpm --dir apps/admin/backend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-admin/backend test
+            pnpm --dir apps/admin/backend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/vx-admin/backend/reports/
+          path: apps/admin/backend/reports/
 
   test-apps-scan-backend:
     executor: nodejs
@@ -249,7 +249,7 @@ jobs:
       - store_artifacts:
           path: apps/mark/frontend/cypress/videos
 
-  test-apps-vx-central-scan-integration-testing:
+  test-apps-central-scan-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -258,25 +258,25 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-central-scan/integration-testing build
+            pnpm --dir apps/central-scan/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-central-scan/integration-testing lint
+            pnpm --dir apps/central-scan/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-central-scan/integration-testing test
+            pnpm --dir apps/central-scan/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: apps/vx-central-scan/integration-testing/reports/
+          path: apps/central-scan/integration-testing/reports/
       - store_artifacts:
-          path: apps/vx-central-scan/integration-testing/cypress/screenshots
+          path: apps/central-scan/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-central-scan/integration-testing/cypress/videos
+          path: apps/central-scan/integration-testing/cypress/videos
 
-  test-apps-vx-admin-integration-testing:
+  test-apps-admin-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -285,23 +285,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/vx-admin/integration-testing build
+            pnpm --dir apps/admin/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/vx-admin/integration-testing lint
+            pnpm --dir apps/admin/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/vx-admin/integration-testing test
+            pnpm --dir apps/admin/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: apps/vx-admin/integration-testing/reports/
+          path: apps/admin/integration-testing/reports/
       - store_artifacts:
-          path: apps/vx-admin/integration-testing/cypress/screenshots
+          path: apps/admin/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: apps/vx-admin/integration-testing/cypress/videos
+          path: apps/admin/integration-testing/cypress/videos
 
   test-libs-api:
     executor: nodejs
@@ -871,13 +871,13 @@ workflows:
       - test-apps-mark-frontend
       - test-apps-scan-backend
       - test-apps-scan-frontend
-      - test-apps-vx-admin-frontend
-      - test-apps-vx-admin-backend
-      - test-apps-vx-central-scan-frontend
-      - test-apps-vx-central-scan-backend
+      - test-apps-admin-frontend
+      - test-apps-admin-backend
+      - test-apps-central-scan-frontend
+      - test-apps-central-scan-backend
       - test-integration-testing-vx-mark
-      - test-apps-vx-central-scan-integration-testing
-      - test-apps-vx-admin-integration-testing
+      - test-apps-central-scan-integration-testing
+      - test-apps-admin-integration-testing
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder
