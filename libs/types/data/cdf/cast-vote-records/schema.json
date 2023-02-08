@@ -3,23 +3,15 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {
     "CVR.AllocationStatus": {
-      "enum": [
-        "no",
-        "unknown",
-        "yes"
-      ],
+      "enum": ["no", "unknown", "yes"],
       "type": "string"
     },
     "CVR.Annotation": {
-      "required": [
-        "@type"
-      ],
+      "required": ["@type"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.Annotation"
-          ],
+          "enum": ["CVR.Annotation"],
           "type": "string"
         },
         "AdjudicatorName": {
@@ -44,20 +36,14 @@
       "type": "object"
     },
     "CVR.BallotMeasureContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ContestSelection"
-      ],
+      "required": ["@id", "@type", "ContestSelection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.BallotMeasureContest"
-          ],
+          "enum": ["CVR.BallotMeasureContest"],
           "type": "string"
         },
         "Abbreviation": {
@@ -103,20 +89,14 @@
       "type": "object"
     },
     "CVR.BallotMeasureSelection": {
-      "required": [
-        "@id",
-        "@type",
-        "Selection"
-      ],
+      "required": ["@id", "@type", "Selection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.BallotMeasureSelection"
-          ],
+          "enum": ["CVR.BallotMeasureSelection"],
           "type": "string"
         },
         "Code": {
@@ -133,18 +113,11 @@
       "type": "object"
     },
     "CVR.CVR": {
-      "required": [
-        "@type",
-        "CVRSnapshot",
-        "CurrentSnapshotId",
-        "ElectionId"
-      ],
+      "required": ["@type", "CVRSnapshot", "CurrentSnapshotId", "ElectionId"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.CVR"
-          ],
+          "enum": ["CVR.CVR"],
           "type": "string"
         },
         "BallotAuditId": {
@@ -168,9 +141,7 @@
         },
         "BallotStyleUnitId": {
           "type": "string",
-          "refTypes": [
-            "CVR.GpUnit"
-          ]
+          "refTypes": ["CVR.GpUnit"]
         },
         "BatchId": {
           "type": "string"
@@ -187,28 +158,20 @@
         },
         "CreatingDeviceId": {
           "type": "string",
-          "refTypes": [
-            "CVR.ReportingDevice"
-          ]
+          "refTypes": ["CVR.ReportingDevice"]
         },
         "CurrentSnapshotId": {
           "type": "string",
-          "refTypes": [
-            "CVR.CVRSnapshot"
-          ]
+          "refTypes": ["CVR.CVRSnapshot"]
         },
         "ElectionId": {
           "type": "string",
-          "refTypes": [
-            "CVR.Election"
-          ]
+          "refTypes": ["CVR.Election"]
         },
         "PartyIds": {
           "items": {
             "type": "string",
-            "refTypes": [
-              "CVR.Party"
-            ]
+            "refTypes": ["CVR.Party"]
           },
           "minItems": 0,
           "type": "array"
@@ -220,16 +183,11 @@
       "type": "object"
     },
     "CVR.CVRContest": {
-      "required": [
-        "@type",
-        "ContestId"
-      ],
+      "required": ["@type", "ContestId"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.CVRContest"
-          ],
+          "enum": ["CVR.CVRContest"],
           "type": "string"
         },
         "CVRContestSelection": {
@@ -275,16 +233,11 @@
       "type": "object"
     },
     "CVR.CVRContestSelection": {
-      "required": [
-        "@type",
-        "SelectionPosition"
-      ],
+      "required": ["@type", "SelectionPosition"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.CVRContestSelection"
-          ],
+          "enum": ["CVR.CVRContestSelection"],
           "type": "string"
         },
         "ContestSelectionId": {
@@ -329,20 +282,14 @@
       "type": "object"
     },
     "CVR.CVRSnapshot": {
-      "required": [
-        "@id",
-        "@type",
-        "Type"
-      ],
+      "required": ["@id", "@type", "Type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.CVRSnapshot"
-          ],
+          "enum": ["CVR.CVRSnapshot"],
           "type": "string"
         },
         "Annotation": {
@@ -376,30 +323,19 @@
       "type": "object"
     },
     "CVR.CVRStatus": {
-      "enum": [
-        "needs-adjudication",
-        "other"
-      ],
+      "enum": ["needs-adjudication", "other"],
       "type": "string"
     },
     "CVR.CVRType": {
-      "enum": [
-        "interpreted",
-        "modified",
-        "original"
-      ],
+      "enum": ["interpreted", "modified", "original"],
       "type": "string"
     },
     "CVR.CVRWriteIn": {
-      "required": [
-        "@type"
-      ],
+      "required": ["@type"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.CVRWriteIn"
-          ],
+          "enum": ["CVR.CVRWriteIn"],
           "type": "string"
         },
         "Text": {
@@ -412,19 +348,14 @@
       "type": "object"
     },
     "CVR.Candidate": {
-      "required": [
-        "@id",
-        "@type"
-      ],
+      "required": ["@id", "@type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.Candidate"
-          ],
+          "enum": ["CVR.Candidate"],
           "type": "string"
         },
         "Code": {
@@ -439,28 +370,20 @@
         },
         "PartyId": {
           "type": "string",
-          "refTypes": [
-            "CVR.Party"
-          ]
+          "refTypes": ["CVR.Party"]
         }
       },
       "type": "object"
     },
     "CVR.CandidateContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ContestSelection"
-      ],
+      "required": ["@id", "@type", "ContestSelection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.CandidateContest"
-          ],
+          "enum": ["CVR.CandidateContest"],
           "type": "string"
         },
         "Abbreviation": {
@@ -504,9 +427,7 @@
         },
         "PrimaryPartyId": {
           "type": "string",
-          "refTypes": [
-            "CVR.Party"
-          ]
+          "refTypes": ["CVR.Party"]
         },
         "VoteVariation": {
           "$ref": "#/definitions/CVR.VoteVariation"
@@ -518,27 +439,20 @@
       "type": "object"
     },
     "CVR.CandidateSelection": {
-      "required": [
-        "@id",
-        "@type"
-      ],
+      "required": ["@id", "@type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.CandidateSelection"
-          ],
+          "enum": ["CVR.CandidateSelection"],
           "type": "string"
         },
         "CandidateIds": {
           "items": {
             "type": "string",
-            "refTypes": [
-              "CVR.Candidate"
-            ]
+            "refTypes": ["CVR.Candidate"]
           },
           "minItems": 0,
           "type": "array"
@@ -569,9 +483,7 @@
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.CastVoteRecordReport"
-          ],
+          "enum": ["CVR.CastVoteRecordReport"],
           "type": "string"
         },
         "CVR": {
@@ -615,9 +527,7 @@
         "ReportGeneratingDeviceIds": {
           "items": {
             "type": "string",
-            "refTypes": [
-              "CVR.ReportingDevice"
-            ]
+            "refTypes": ["CVR.ReportingDevice"]
           },
           "minItems": 1,
           "type": "array"
@@ -643,23 +553,15 @@
       "type": "object"
     },
     "CVR.CastVoteRecordVersion": {
-      "enum": [
-        "1.0.0"
-      ],
+      "enum": ["1.0.0"],
       "type": "string"
     },
     "CVR.Code": {
-      "required": [
-        "@type",
-        "Type",
-        "Value"
-      ],
+      "required": ["@type", "Type", "Value"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.Code"
-          ],
+          "enum": ["CVR.Code"],
           "type": "string"
         },
         "Label": {
@@ -678,20 +580,14 @@
       "type": "object"
     },
     "CVR.Contest": {
-      "required": [
-        "@id",
-        "@type",
-        "ContestSelection"
-      ],
+      "required": ["@id", "@type", "ContestSelection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.Contest"
-          ],
+          "enum": ["CVR.Contest"],
           "type": "string"
         },
         "Abbreviation": {
@@ -737,19 +633,14 @@
       "type": "object"
     },
     "CVR.ContestSelection": {
-      "required": [
-        "@id",
-        "@type"
-      ],
+      "required": ["@id", "@type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.ContestSelection"
-          ],
+          "enum": ["CVR.ContestSelection"],
           "type": "string"
         },
         "Code": {
@@ -782,21 +673,14 @@
       "type": "string"
     },
     "CVR.Election": {
-      "required": [
-        "@id",
-        "@type",
-        "Contest",
-        "ElectionScopeId"
-      ],
+      "required": ["@id", "@type", "Contest", "ElectionScopeId"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.Election"
-          ],
+          "enum": ["CVR.Election"],
           "type": "string"
         },
         "Candidate": {
@@ -838,9 +722,7 @@
         },
         "ElectionScopeId": {
           "type": "string",
-          "refTypes": [
-            "CVR.GpUnit"
-          ]
+          "refTypes": ["CVR.GpUnit"]
         },
         "Name": {
           "type": "string"
@@ -849,16 +731,11 @@
       "type": "object"
     },
     "CVR.File": {
-      "required": [
-        "@type",
-        "Data"
-      ],
+      "required": ["@type", "Data"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.File"
-          ],
+          "enum": ["CVR.File"],
           "type": "string"
         },
         "Data": {
@@ -879,20 +756,14 @@
       "type": "string"
     },
     "CVR.GpUnit": {
-      "required": [
-        "@id",
-        "@type",
-        "Type"
-      ],
+      "required": ["@id", "@type", "Type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.GpUnit"
-          ],
+          "enum": ["CVR.GpUnit"],
           "type": "string"
         },
         "Code": {
@@ -911,9 +782,7 @@
         "ReportingDeviceIds": {
           "items": {
             "type": "string",
-            "refTypes": [
-              "CVR.ReportingDevice"
-            ]
+            "refTypes": ["CVR.ReportingDevice"]
           },
           "minItems": 0,
           "type": "array"
@@ -925,17 +794,11 @@
       "type": "object"
     },
     "CVR.Hash": {
-      "required": [
-        "@type",
-        "Type",
-        "Value"
-      ],
+      "required": ["@type", "Type", "Value"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.Hash"
-          ],
+          "enum": ["CVR.Hash"],
           "type": "string"
         },
         "OtherType": {
@@ -951,12 +814,7 @@
       "type": "object"
     },
     "CVR.HashType": {
-      "enum": [
-        "md6",
-        "other",
-        "sha-256",
-        "sha-512"
-      ],
+      "enum": ["md6", "other", "sha-256", "sha-512"],
       "type": "string"
     },
     "CVR.IdentifierType": {
@@ -971,16 +829,11 @@
       "type": "string"
     },
     "CVR.Image": {
-      "required": [
-        "@type",
-        "Data"
-      ],
+      "required": ["@type", "Data"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.Image"
-          ],
+          "enum": ["CVR.Image"],
           "type": "string"
         },
         "Data": {
@@ -997,15 +850,11 @@
       "type": "object"
     },
     "CVR.ImageData": {
-      "required": [
-        "@type"
-      ],
+      "required": ["@type"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.ImageData"
-          ],
+          "enum": ["CVR.ImageData"],
           "type": "string"
         },
         "Hash": {
@@ -1022,27 +871,18 @@
       "type": "object"
     },
     "CVR.IndicationStatus": {
-      "enum": [
-        "no",
-        "unknown",
-        "yes"
-      ],
+      "enum": ["no", "unknown", "yes"],
       "type": "string"
     },
     "CVR.Party": {
-      "required": [
-        "@id",
-        "@type"
-      ],
+      "required": ["@id", "@type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.Party"
-          ],
+          "enum": ["CVR.Party"],
           "type": "string"
         },
         "Abbreviation": {
@@ -1062,20 +902,14 @@
       "type": "object"
     },
     "CVR.PartyContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ContestSelection"
-      ],
+      "required": ["@id", "@type", "ContestSelection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.PartyContest"
-          ],
+          "enum": ["CVR.PartyContest"],
           "type": "string"
         },
         "Abbreviation": {
@@ -1121,20 +955,14 @@
       "type": "object"
     },
     "CVR.PartySelection": {
-      "required": [
-        "@id",
-        "@type",
-        "PartyIds"
-      ],
+      "required": ["@id", "@type", "PartyIds"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.PartySelection"
-          ],
+          "enum": ["CVR.PartySelection"],
           "type": "string"
         },
         "Code": {
@@ -1147,9 +975,7 @@
         "PartyIds": {
           "items": {
             "type": "string",
-            "refTypes": [
-              "CVR.Party"
-            ]
+            "refTypes": ["CVR.Party"]
           },
           "minItems": 1,
           "type": "array"
@@ -1158,12 +984,7 @@
       "type": "object"
     },
     "CVR.PositionStatus": {
-      "enum": [
-        "adjudicated",
-        "generated-rules",
-        "invalidated-rules",
-        "other"
-      ],
+      "enum": ["adjudicated", "generated-rules", "invalidated-rules", "other"],
       "type": "string"
     },
     "CVR.ReportType": {
@@ -1177,19 +998,14 @@
       "type": "string"
     },
     "CVR.ReportingDevice": {
-      "required": [
-        "@id",
-        "@type"
-      ],
+      "required": ["@id", "@type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.ReportingDevice"
-          ],
+          "enum": ["CVR.ReportingDevice"],
           "type": "string"
         },
         "Application": {
@@ -1236,20 +1052,14 @@
       "type": "string"
     },
     "CVR.RetentionContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ContestSelection"
-      ],
+      "required": ["@id", "@type", "ContestSelection"],
       "additionalProperties": false,
       "properties": {
         "@id": {
           "type": "string"
         },
         "@type": {
-          "enum": [
-            "CVR.RetentionContest"
-          ],
+          "enum": ["CVR.RetentionContest"],
           "type": "string"
         },
         "Abbreviation": {
@@ -1257,9 +1067,7 @@
         },
         "CandidateId": {
           "type": "string",
-          "refTypes": [
-            "CVR.Candidate"
-          ]
+          "refTypes": ["CVR.Candidate"]
         },
         "Code": {
           "items": {
@@ -1301,17 +1109,11 @@
       "type": "object"
     },
     "CVR.SelectionPosition": {
-      "required": [
-        "@type",
-        "HasIndication",
-        "NumberVotes"
-      ],
+      "required": ["@type", "HasIndication", "NumberVotes"],
       "additionalProperties": false,
       "properties": {
         "@type": {
-          "enum": [
-            "CVR.SelectionPosition"
-          ],
+          "enum": ["CVR.SelectionPosition"],
           "type": "string"
         },
         "CVRWriteIn": {

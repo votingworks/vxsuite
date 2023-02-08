@@ -2925,6 +2925,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
+      '@votingworks/cdf-schema-builder': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -2962,6 +2963,7 @@ importers:
       '@types/react': 17.0.39
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
+      '@votingworks/cdf-schema-builder': link:../cdf-schema-builder
       eslint: 8.23.1
       eslint-config-prettier: 8.5.0_eslint@8.23.1
       eslint-import-resolver-node: 0.3.6

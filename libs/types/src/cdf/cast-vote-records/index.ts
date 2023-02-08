@@ -4,7 +4,11 @@
 
 import { z } from 'zod';
 
-import { Iso8601Date } from '@votingworks/types';
+import check8601 from '@antongolub/iso8601';
+
+export const Iso8601Date = z
+  .string()
+  .refine(check8601, 'dates must be in ISO8601 format');
 
 /**
  * Type for xsd:datetime values.

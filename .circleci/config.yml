@@ -413,28 +413,6 @@ jobs:
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
 
-  test-libs-cdf-types-cast-vote-records:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cdf-types-cast-vote-records test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cdf-types-cast-vote-records/reports/
-
   test-libs-cdf-types-election-event-logging:
     executor: nodejs
     resource_class: xlarge

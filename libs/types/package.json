@@ -20,7 +20,8 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:watch": "jest --watch",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/schema.xml data/cdf/cast-vote-records/schema.json > src/cdf/cast-vote-records/index.ts"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -49,6 +50,7 @@
     "@types/react": "17.0.39",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
+    "@votingworks/cdf-schema-builder": "workspace:*",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.6",

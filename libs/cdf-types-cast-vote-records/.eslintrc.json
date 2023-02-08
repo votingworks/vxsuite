@@ -1,6 +1,0 @@
-{
-  "extends": ["plugin:vx/recommended"],
-  "rules": {
-    "vx/gts-identifiers": ["error", { "allowedNames": ["/CVR.*/"] }]
-  }
-}
