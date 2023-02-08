@@ -33,12 +33,12 @@
       "path": "apps/vx-central-scan/frontend"
     },
     {
-      "name": "integration-testing/bsd",
-      "path": "integration-testing/bsd"
+      "name": "apps/vx-central-scan/integration-testing",
+      "path": "apps/vx-central-scan/integration-testing"
     },
     {
-      "name": "integration-testing/election-manager",
-      "path": "integration-testing/election-manager"
+      "name": "apps/vx-admin/integration-testing",
+      "path": "apps/vx-admin/integration-testing"
     },
     {
       "name": "libs/api",

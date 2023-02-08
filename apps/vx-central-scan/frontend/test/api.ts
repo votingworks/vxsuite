@@ -1,4 +1,4 @@
-import type { Api } from '@votingworks/scan'; // eslint-disable-line vx/gts-no-import-export-type
+import type { Api } from '@votingworks/vx-central-scan-backend'; // eslint-disable-line vx/gts-no-import-export-type
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 

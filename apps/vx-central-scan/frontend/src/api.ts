@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Api } from '@votingworks/scan'; // eslint-disable-line vx/gts-no-import-export-type
+import type { Api } from '@votingworks/vx-central-scan-backend'; // eslint-disable-line vx/gts-no-import-export-type
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,

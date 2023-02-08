@@ -249,7 +249,7 @@ jobs:
       - store_artifacts:
           path: apps/vx-mark/frontend/cypress/videos
 
-  test-integration-testing-bsd:
+  test-integration-testing-vx-central-scan:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -258,25 +258,25 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir integration-testing/bsd build
+            pnpm --dir apps/vx-central-scan/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir integration-testing/bsd lint
+            pnpm --dir apps/vx-central-scan/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir integration-testing/bsd test
+            pnpm --dir apps/vx-central-scan/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: integration-testing/bsd/reports/
+          path: apps/vx-central-scan/integration-testing/reports/
       - store_artifacts:
-          path: integration-testing/bsd/cypress/screenshots
+          path: apps/vx-central-scan/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: integration-testing/bsd/cypress/videos
+          path: apps/vx-central-scan/integration-testing/cypress/videos
 
-  test-integration-testing-election-manager:
+  test-integration-testing-vx-admin:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -285,23 +285,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir integration-testing/election-manager build
+            pnpm --dir apps/vx-admin/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir integration-testing/election-manager lint
+            pnpm --dir apps/vx-admin/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir integration-testing/election-manager test
+            pnpm --dir apps/vx-admin/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: integration-testing/election-manager/reports/
+          path: apps/vx-admin/integration-testing/reports/
       - store_artifacts:
-          path: integration-testing/election-manager/cypress/screenshots
+          path: apps/vx-admin/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: integration-testing/election-manager/cypress/videos
+          path: apps/vx-admin/integration-testing/cypress/videos
 
   test-libs-api:
     executor: nodejs
@@ -920,8 +920,8 @@ workflows:
       - test-apps-vx-scan-backend
       - test-apps-vx-scan-frontend
       - test-integration-testing-vx-mark
-      - test-integration-testing-bsd
-      - test-integration-testing-election-manager
+      - test-integration-testing-vx-central-scan
+      - test-integration-testing-vx-admin
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder
