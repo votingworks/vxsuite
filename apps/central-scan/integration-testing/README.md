@@ -1,22 +1,12 @@
-# Integration Testing
+# VxCentralScan Integration Testing
 
-Home for integration testing a whole component by testing different packages
-together. Copy an existing subfolder if you need to set up a new bundle of
-packages to test.
-
-## App Bundles
-
-- bsd - Tests the bsd frontend with the scan service
-- election-manager - Tests the election-manager frontend with the smartcards and
-  converter-sems-ms services
+Integration tests for VxCentralScan using both the backend
+(`apps/central-scan/backend`) and frontend (`apps/central-scan/frontend`).
 
 ## Development
 
 You will need to make sure to have cypress dependencies installed see:
 https://on.cypress.io/required-dependencies.
-
-In each subfolder, install dependencies and build all packages that will be
-tested with
 
 ```
 pnpm build
@@ -40,8 +30,8 @@ Start the server and run all tests e2e with
 pnpm test:ci
 ```
 
-Note: You will need to have Google Chrome installed in order to run tests end to
-end.
+Note: You will need to have Chromium installed in order to locally run tests end
+to end.
 
 ### Notes
 
