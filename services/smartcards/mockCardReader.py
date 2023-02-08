@@ -36,11 +36,6 @@ def usage(file=sys.stdout, code=0):
     print("%s enable --election-manager DEFINITION" % argv0, file=file)
     print("%s enable --poll-worker DEFINITION OPTIONAL_LONG_VALUE" %
           argv0, file=file)
-    print(
-        "%s enable --voter DEFINITION --precinct PRECINCT_ID --ballot-style BALLOT_STYLE_ID"
-        % argv0,
-        file=file,
-    )
     print("%s enable --system-administrator" % argv0, file=file)
     print("", file=file)
     print(
@@ -172,27 +167,6 @@ def enable_system_administrator():
     )
 
 
-def enable_voter(
-    election_definition: ElectionDefinition,
-    precinct_id: str,
-    ballot_style_id: str,
-):
-    set_mock(
-        {
-            "enabled": True,
-            "shortValue": json.dumps(
-                {
-                    "t": card_type,
-                    "pr": precinct_id,
-                    "bs": ballot_style_id,
-                    "c": round(time.time()),
-                }
-            ),
-            "longValue": None,
-        }
-    )
-
-
 def disable():
     set_mock({"enabled": False})
 
@@ -208,8 +182,6 @@ if command == "enable":
     election_path: Optional[str] = None
     poll_worker_long_value_path: Optional[str] = None
     card_type: Optional[str] = None
-    precinct_id: Optional[str] = None
-    ballot_style_id: Optional[str] = None
     dip = False
 
     i = 2
@@ -235,16 +207,6 @@ if command == "enable":
                 print("found long value to write to poll worker card...")
         elif arg == "--system-administrator":
             card_type = "system_administrator"
-        elif arg == "--voter":
-            i += 1
-            election_path = sys.argv[i]
-            card_type = "voter"
-        elif arg == "--precinct":
-            i += 1
-            precinct_id = sys.argv[i]
-        elif arg == "--ballot-style":
-            i += 1
-            ballot_style_id = sys.argv[i]
         elif arg == "--dip":
             dip = True
         else:
@@ -273,13 +235,6 @@ if command == "enable":
                 with open(poll_worker_long_value_path, "r") as poll_worker_long_value_file:
                     poll_worker_long_value = poll_worker_long_value_file.read()
             enable_poll_worker(election_definition, poll_worker_long_value)
-        elif card_type == "voter":
-            if not precinct_id:
-                fatal("--voter requires --precinct")
-            if not ballot_style_id:
-                fatal("--voter requires --ballot-style")
-
-            enable_voter(election_definition, precinct_id, ballot_style_id)
     elif card_type == "system_administrator":
         enable_system_administrator()
     elif not card:
