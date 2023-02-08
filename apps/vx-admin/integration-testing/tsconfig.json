@@ -17,6 +17,7 @@
     "noUncheckedIndexedAccess": false
   },
   "include": ["**/*.ts"],
+  "exclude": [],
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
