@@ -7,9 +7,7 @@ import { IdlePage } from '../pages/idle_page';
 import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewPage } from '../pages/review_page';
-import { SaveCardScreen } from '../pages/save_card_screen';
 import { StartPage } from '../pages/start_page';
-import { RemoveCardScreen } from '../pages/remove_card_screen';
 import {
   IDLE_TIMEOUT_SECONDS,
   FONT_SIZES,
@@ -66,12 +64,6 @@ export function Ballot(): JSX.Element {
             </Route>
             <Route path="/review">
               <ReviewPage />
-            </Route>
-            <Route path="/save">
-              <SaveCardScreen />
-            </Route>
-            <Route path="/remove">
-              <RemoveCardScreen />
             </Route>
             <Route path="/print">
               <PrintPage />

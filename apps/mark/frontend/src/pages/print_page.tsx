@@ -26,7 +26,6 @@ export function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
     electionDefinition,
-    isCardlessVoter,
     isLiveMode,
     markVoterCardPrinted,
     precinctId,
@@ -67,7 +66,7 @@ export function PrintPage(): JSX.Element {
       );
       updateTally();
       printerTimer.current = window.setTimeout(() => {
-        resetBallot(isCardlessVoter ? 'cardless' : 'card');
+        resetBallot('cardless');
       }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
     }
   }, [
@@ -80,7 +79,6 @@ export function PrintPage(): JSX.Element {
     votes,
     updateTally,
     resetBallot,
-    isCardlessVoter,
   ]);
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
 import { Button, Loading, Main, Prose, Screen } from '@votingworks/ui';
+import { sleep } from '@votingworks/basics';
 
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
@@ -27,6 +28,7 @@ export function IdlePage(): JSX.Element {
   useEffect(() => {
     async function reset() {
       setIsLoading(true);
+      await sleep(1000); // Allow "Clearing ballot" text to display
       await markVoterCardVoided();
       resetBallot();
     }

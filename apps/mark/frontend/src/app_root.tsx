@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
-  BallotType,
   Card,
-  CompletedBallot,
   ElectionDefinition,
   OptionalElectionDefinition,
   OptionalVote,
@@ -17,12 +15,10 @@ import {
   PrecinctSelection,
   PollsState,
 } from '@votingworks/types';
-import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
 import IdleTimer from 'react-idle-timer';
-import useInterval from '@rooks/use-interval';
 import {
   Storage,
   Hardware,
@@ -37,13 +33,11 @@ import {
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
-  isVoterAuth,
   SetupCardReaderPage,
   useDevices,
   usePrevious,
   useInsertedSmartcardAuth,
   useUsbDrive,
-  CARD_POLLING_INTERVAL,
   UnlockMachineScreen,
 } from '@votingworks/ui';
 
@@ -65,16 +59,12 @@ import {
 } from './lib/gamepad';
 import { CastBallotPage } from './pages/cast_ballot_page';
 import { AdminScreen } from './pages/admin_screen';
-import { ExpiredCardScreen } from './pages/expired_card_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { PrintOnlyScreen } from './pages/print_only_screen';
 import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { UsedCardScreen } from './pages/used_card_screen';
 import { WrongElectionScreen } from './pages/wrong_election_screen';
-import { WrongPrecinctScreen } from './pages/wrong_precinct_screen';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
@@ -162,7 +152,6 @@ type AppAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
-  | { type: 'loadVotesFromVoterCard'; votes: VotesDict }
   | { type: 'resetBallot'; showPostVotingInstructions?: PostVotingInstructions }
   | { type: 'setUserSettings'; userSettings: PartialUserSettings }
   | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
@@ -171,8 +160,6 @@ type AppAction =
   | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'updateTally' }
   | { type: 'updateElectionDefinition'; electionDefinition: ElectionDefinition }
-  | { type: 'startWritingLongValue' }
-  | { type: 'finishWritingLongValue' }
   | { type: 'initializeAppState'; appState: Partial<State> };
 
 function appReducer(state: State, action: AppAction): State {
@@ -203,11 +190,6 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         forceSaveVoteFlag: true,
-      };
-    case 'loadVotesFromVoterCard':
-      return {
-        ...state,
-        votes: action.votes,
       };
     case 'resetBallot':
       return {
@@ -267,18 +249,6 @@ function appReducer(state: State, action: AppAction): State {
         appPrecinct: defaultPrecinct,
       };
     }
-    case 'startWritingLongValue':
-      return {
-        ...state,
-        writingVoteToCard: true,
-        forceSaveVoteFlag: false,
-        lastVoteSaveToCardAt: Date.now(),
-      };
-    case 'finishWritingLongValue':
-      return {
-        ...state,
-        writingVoteToCard: false,
-      };
     case 'initializeAppState':
       return {
         ...state,
@@ -333,7 +303,6 @@ export function AppRoot({
       'system_administrator',
       'election_manager',
       'poll_worker',
-      'voter',
       'cardless_voter',
     ],
     cardApi: card,
@@ -347,14 +316,12 @@ export function AppRoot({
     logger,
   });
 
-  const precinctId =
-    isVoterAuth(auth) || isCardlessVoterAuth(auth)
-      ? auth.user.precinctId
-      : undefined;
-  const ballotStyleId =
-    isVoterAuth(auth) || isCardlessVoterAuth(auth)
-      ? auth.user.ballotStyleId
-      : undefined;
+  const precinctId = isCardlessVoterAuth(auth)
+    ? auth.user.precinctId
+    : undefined;
+  const ballotStyleId = isCardlessVoterAuth(auth)
+    ? auth.user.ballotStyleId
+    : undefined;
   const ballotStyle =
     optionalElectionDefinition?.election && ballotStyleId
       ? getBallotStyle({
@@ -559,24 +526,6 @@ export function AppRoot({
   }, [history, auth]);
 
   useEffect(() => {
-    async function loadVotesFromVoterCard() {
-      if (isVoterAuth(auth) && auth.card.hasStoredData && !votes) {
-        const ballotData = (await auth.card.readStoredUint8Array()).ok();
-        assert(optionalElectionDefinition && ballotData);
-        const ballot = decodeBallot(
-          optionalElectionDefinition.election,
-          ballotData
-        );
-        dispatchAppState({
-          type: 'loadVotesFromVoterCard',
-          votes: ballot.votes,
-        });
-      }
-    }
-    void loadVotesFromVoterCard();
-  }, [auth, optionalElectionDefinition, votes]);
-
-  useEffect(() => {
     function resetBallotOnLogout() {
       if (!initializedFromStorage) return;
       if (auth.status === 'logged_out' && auth.reason === 'no_card') {
@@ -586,58 +535,15 @@ export function AppRoot({
     resetBallotOnLogout();
   }, [auth, resetBallot, initializedFromStorage]);
 
-  useInterval(
-    async () => {
-      if (
-        isVoterAuth(auth) &&
-        ((appState.lastVoteSaveToCardAt < appState.lastVoteUpdateAt &&
-          appState.lastVoteUpdateAt <
-            Date.now() - GLOBALS.CARD_LONG_VALUE_WRITE_DELAY) ||
-          appState.forceSaveVoteFlag) &&
-        !appState.writingVoteToCard
-      ) {
-        dispatchAppState({ type: 'startWritingLongValue' });
-        assert(appState.electionDefinition);
-        const { election, electionHash } = appState.electionDefinition;
-        const ballot: CompletedBallot = {
-          electionHash,
-          ballotStyleId: auth.user.ballotStyleId,
-          precinctId: auth.user.precinctId,
-          votes: appState.votes ?? blankBallotVotes,
-          isTestMode: !appState.isLiveMode,
-          ballotType: BallotType.Standard,
-        };
-        const longValue = encodeBallot(election, ballot);
-        // TODO: handle error
-        (await auth.card.writeStoredData(longValue)).unsafeUnwrap();
-        dispatchAppState({ type: 'finishWritingLongValue' });
-      }
-    },
-    CARD_POLLING_INTERVAL,
-    true
-  );
-
-  const markVoterCardVoided: MarkVoterCardFunction = useCallback(async () => {
-    if (isCardlessVoterAuth(auth)) {
-      auth.logOut();
-      return true;
-    }
-    assert(isVoterAuth(auth));
-    /* istanbul ignore next - this is unlikely to happen */
-    if ((await auth.card.clearStoredData()).isErr()) {
-      return false;
-    }
-    return (await auth.markCardVoided()).isOk();
+  const markVoterCardVoided: MarkVoterCardFunction = useCallback(() => {
+    assert(isCardlessVoterAuth(auth));
+    auth.logOut();
+    return Promise.resolve(true);
   }, [auth]);
 
-  const markVoterCardPrinted: MarkVoterCardFunction = useCallback(async () => {
-    if (isCardlessVoterAuth(auth)) return true;
-    assert(isVoterAuth(auth));
-    /* istanbul ignore next - this is unlikely to happen */
-    if ((await auth.card.clearStoredData()).isErr()) {
-      return false;
-    }
-    return (await auth.markCardPrinted()).isOk();
+  const markVoterCardPrinted: MarkVoterCardFunction = useCallback(() => {
+    assert(isCardlessVoterAuth(auth));
+    return Promise.resolve(true);
   }, [auth]);
 
   // Handle Hardware Observer Subscription
@@ -808,13 +714,11 @@ export function AppRoot({
     }
     if (
       auth.status === 'logged_out' &&
-      (auth.reason === 'poll_worker_wrong_election' ||
-        auth.reason === 'voter_wrong_election')
+      auth.reason === 'poll_worker_wrong_election'
     ) {
       return (
         <WrongElectionScreen
           useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-          isVoterCard={auth.reason === 'voter_wrong_election'}
         />
       );
     }
@@ -843,71 +747,18 @@ export function AppRoot({
     }
     if (
       pollsState === 'polls_open' &&
-      auth.status === 'logged_out' &&
-      (auth.reason === 'voter_card_expired' ||
-        auth.reason === 'voter_card_voided')
-    ) {
-      return (
-        <ExpiredCardScreen
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        />
-      );
-    }
-    if (
-      pollsState === 'polls_open' &&
       showPostVotingInstructions &&
       appMode.isMark &&
       appMode.isPrint
     ) {
       return (
         <CastBallotPage
-          showPostVotingInstructions={showPostVotingInstructions}
           hidePostVotingInstructions={hidePostVotingInstructions}
         />
       );
     }
-    if (
-      pollsState === 'polls_open' &&
-      auth.status === 'logged_out' &&
-      auth.reason === 'voter_card_printed'
-    ) {
-      return (
-        <UsedCardScreen
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        />
-      );
-    }
     if (pollsState === 'polls_open') {
-      if (
-        auth.status === 'logged_out' &&
-        auth.reason === 'voter_wrong_precinct'
-      ) {
-        return (
-          <WrongPrecinctScreen
-            useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-          />
-        );
-      }
-
-      if (appMode.isPrint && !appMode.isMark) {
-        return (
-          <PrintOnlyScreen
-            ballotStyleId={ballotStyleId}
-            ballotsPrintedCount={ballotsPrintedCount}
-            electionDefinition={optionalElectionDefinition}
-            isLiveMode={isLiveMode}
-            isVoterCardPresent={isVoterAuth(auth)}
-            markVoterCardPrinted={markVoterCardPrinted}
-            precinctId={precinctId}
-            useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-            showNoChargerAttachedWarning={!computer.batteryIsCharging}
-            updateTally={updateTally}
-            votes={votes}
-          />
-        );
-      }
-
-      if (isCardlessVoterAuth(auth) || isVoterAuth(auth)) {
+      if (isCardlessVoterAuth(auth)) {
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
