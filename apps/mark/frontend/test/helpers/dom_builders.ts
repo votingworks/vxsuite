@@ -6,7 +6,7 @@ export function text(data: string): Text {
 }
 
 export type CreatableElementType = Parameters<
-  typeof document['createElement']
+  (typeof document)['createElement']
 >[0];
 
 export interface Attributes {
@@ -27,7 +27,7 @@ export interface Attributes {
 function element(
   type: CreatableElementType,
   ...children: Node[]
-): ReturnType<typeof document['createElement']>;
+): ReturnType<(typeof document)['createElement']>;
 
 /**
  * Builds an element with tag name `type`, whatever attributes the element
@@ -46,7 +46,7 @@ function element(
   type: CreatableElementType,
   attributes: { [key: string]: string },
   ...children: Node[]
-): ReturnType<typeof document['createElement']>;
+): ReturnType<(typeof document)['createElement']>;
 
 /**
  * Builds an element with tag name `type`, whatever attributes the element
@@ -64,7 +64,7 @@ function element(
 function element(
   type: CreatableElementType,
   ...rest: unknown[]
-): ReturnType<typeof document['createElement']> {
+): ReturnType<(typeof document)['createElement']> {
   const result = document.createElement(type);
   let attributes: Attributes;
   let children: Node[];
