@@ -4,7 +4,6 @@ import {
   SystemAdministratorUser,
   ElectionManagerUser,
   PollWorkerUser,
-  VoterUser,
   CardlessVoterUser,
 } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
@@ -66,16 +65,6 @@ export function fakePollWorkerUser(
   return {
     role: 'poll_worker',
     electionHash: 'election-hash',
-    ...props,
-  };
-}
-
-export function fakeVoterUser(props: Partial<VoterUser> = {}): VoterUser {
-  return {
-    role: 'voter',
-    createdAt: 1,
-    ballotStyleId: 'fake-ballot-style-id',
-    precinctId: 'fake-precinct-id',
     ...props,
   };
 }
