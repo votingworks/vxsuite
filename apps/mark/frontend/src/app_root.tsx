@@ -46,11 +46,7 @@ import { getMachineConfig } from './api';
 
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
-import {
-  MarkVoterCardFunction,
-  PartialUserSettings,
-  UserSettings,
-} from './config/types';
+import { PartialUserSettings, UserSettings } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
   handleGamepadButtonDown,
@@ -534,15 +530,10 @@ export function AppRoot({
     resetBallotOnLogout();
   }, [auth, resetBallot, initializedFromStorage]);
 
-  const markVoterCardVoided: MarkVoterCardFunction = useCallback(() => {
+  const endVoterSession = useCallback(() => {
     assert(isCardlessVoterAuth(auth));
     auth.logOut();
-    return Promise.resolve(true);
-  }, [auth]);
-
-  const markVoterCardPrinted: MarkVoterCardFunction = useCallback(() => {
-    assert(isCardlessVoterAuth(auth));
-    return Promise.resolve(true);
+    return Promise.resolve();
   }, [auth]);
 
   // Handle Hardware Observer Subscription
@@ -770,8 +761,7 @@ export function AppRoot({
                 updateTally,
                 isCardlessVoter: isCardlessVoterAuth(auth),
                 isLiveMode,
-                markVoterCardPrinted,
-                markVoterCardVoided,
+                endVoterSession,
                 resetBallot,
                 setUserSettings,
                 updateVote,

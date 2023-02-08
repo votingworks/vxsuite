@@ -17,7 +17,7 @@ import { EventTargetFunction } from '../config/types';
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 
 export function IdlePage(): JSX.Element {
-  const { markVoterCardVoided, resetBallot } = useContext(BallotContext);
+  const { endVoterSession, resetBallot } = useContext(BallotContext);
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,11 +29,11 @@ export function IdlePage(): JSX.Element {
     async function reset() {
       setIsLoading(true);
       await sleep(1000); // Allow "Clearing ballot" text to display
-      await markVoterCardVoided();
+      await endVoterSession();
       resetBallot();
     }
     if (countdown === 0 && !isLoading) void reset();
-  }, [countdown, markVoterCardVoided, resetBallot, isLoading]);
+  }, [countdown, endVoterSession, resetBallot, isLoading]);
 
   useInterval(() => {
     setCountdown((previous) => previous - 1);

@@ -109,7 +109,6 @@ test('Renders Ballot with EitherNeither: blank', async () => {
         [pickOneContestId]: [],
       }
     ),
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {
@@ -138,7 +137,6 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
         [pickOneContestId]: [],
       }
     ),
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {
@@ -167,7 +165,6 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
         [pickOneContestId]: ['yes'],
       }
     ),
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {
@@ -196,7 +193,6 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
         [pickOneContestId]: ['no'],
       }
     ),
-    markVoterCardPrinted: jest.fn().mockResolvedValue(true),
   });
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {

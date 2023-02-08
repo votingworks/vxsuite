@@ -14,10 +14,7 @@ const ballot: BallotContextInterface = {
   contests: [],
   isCardlessVoter: false,
   isLiveMode: false,
-  // eslint-disable-next-line @typescript-eslint/require-await
-  markVoterCardVoided: async () => false,
-  // eslint-disable-next-line @typescript-eslint/require-await
-  markVoterCardPrinted: async () => false,
+  endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
   setUserSettings: () => undefined,
   updateTally: () => undefined,
