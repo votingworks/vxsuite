@@ -126,6 +126,12 @@ const rule: TSESLint.RuleModule<
         }
       },
 
+      ExportAllDeclaration(node: TSESTree.ExportAllDeclaration): void {
+        if (node.exported) {
+          checkIdentifier(node.exported);
+        }
+      },
+
       '*': (): void => {
         const scope = context.getScope();
         if (processedScopes.has(scope)) {
