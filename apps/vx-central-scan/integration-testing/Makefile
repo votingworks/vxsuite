@@ -2,7 +2,7 @@ APP := ../
 SMARTCARDS := ../../../services/smartcards
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp
-export MOCK_SCANNER_FILES=../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p1.jpeg,../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p2.jpeg
+export MOCK_SCANNER_FILES=../../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p1.jpeg,../../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p2.jpeg
 
 build-frontend:
 	make -C $(APP)/frontend install; \
