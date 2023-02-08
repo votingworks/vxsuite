@@ -10,7 +10,6 @@ import {
 } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { PrintOnly } from '@votingworks/types';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
@@ -39,7 +38,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  apiMock.expectGetMachineConfig({ appMode: PrintOnly });
+  apiMock.expectGetMachineConfig();
 
   card.removeCard();
 

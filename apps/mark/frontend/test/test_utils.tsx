@@ -8,7 +8,6 @@ import {
   ElectionDefinition,
   PrecinctId,
   VotesDict,
-  MarkOnly,
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-backend';
 
@@ -33,7 +32,7 @@ export function render(
     history = createMemoryHistory({ initialEntries: [route] }),
     isCardlessVoter = false,
     isLiveMode = false,
-    machineConfig = fakeMachineConfig({ appMode: MarkOnly }),
+    machineConfig = fakeMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
     setUserSettings = jest.fn(),

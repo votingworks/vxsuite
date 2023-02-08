@@ -4,13 +4,7 @@ import {
   asElectionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import {
-  ElectionDefinition,
-  InsertedSmartcardAuth,
-  AppMode,
-  MarkAndPrint,
-  MarkOnly,
-} from '@votingworks/types';
+import { ElectionDefinition, InsertedSmartcardAuth } from '@votingworks/types';
 
 import { fireEvent, screen } from '@testing-library/react';
 import {
@@ -63,8 +57,7 @@ function renderScreen(
   pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
     electionSampleDefinition
   ),
-  electionDefinition: ElectionDefinition = electionSampleDefinition,
-  appMode: AppMode = MarkOnly
+  electionDefinition: ElectionDefinition = electionSampleDefinition
 ) {
   return render(
     <PollWorkerScreen
@@ -78,7 +71,7 @@ function renderScreen(
       isLiveMode={false}
       pollsState="polls_open"
       ballotsPrintedCount={0}
-      machineConfig={fakeMachineConfig({ appMode })}
+      machineConfig={fakeMachineConfig()}
       hardware={MemoryHardware.buildStandard()}
       devices={fakeDevices()}
       screenReader={new AriaScreenReader(fakeTts())}
@@ -91,7 +84,7 @@ function renderScreen(
 }
 
 test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
-  renderScreen(undefined, undefined, undefined, MarkAndPrint);
+  renderScreen(undefined, undefined, undefined);
   screen.getByText('Poll Worker Actions');
   expect(
     screen.getByText('Ballots Printed:').parentElement!.textContent
@@ -111,7 +104,9 @@ test('switching out of test mode on election day', () => {
   const enableLiveMode = jest.fn();
   renderScreen({ electionDefinition, enableLiveMode });
 
-  screen.getByText('Switch to Live Election Mode?');
+  screen.getByText(
+    'Switch to Live Election Mode and reset the Ballots Printed count?'
+  );
   fireEvent.click(screen.getByText('Switch to Live Election Mode'));
   expect(enableLiveMode).toHaveBeenCalled();
 });
@@ -124,19 +119,26 @@ test('keeping test mode on election day', () => {
   const enableLiveMode = jest.fn();
   renderScreen({ electionDefinition, enableLiveMode });
 
-  screen.getByText('Switch to Live Election Mode?');
+  screen.getByText(
+    'Switch to Live Election Mode and reset the Ballots Printed count?'
+  );
   fireEvent.click(screen.getByText('Cancel'));
   expect(enableLiveMode).not.toHaveBeenCalled();
 });
 
 test('live mode on election day', () => {
   renderScreen({ isLiveMode: true });
-  expect(screen.queryByText('Switch to Live Election Mode?')).toBeNull();
+  expect(
+    screen.queryByText(
+      'Switch to Live Election Mode and reset the Ballots Printed count?'
+    )
+  ).toBeNull();
 });
 
 test('navigates to System Diagnostics screen', () => {
   const { unmount } = renderScreen();
 
+  userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
   userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
   screen.getByRole('heading', { name: 'System Diagnostics' });
 
@@ -176,7 +178,7 @@ test('requires confirmation to open polls if no report on card', () => {
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig({ appMode: MarkAndPrint }),
+    machineConfig: fakeMachineConfig(),
   });
 
   // confirm we start with polls open

@@ -412,12 +412,7 @@ export function ReviewPage(): JSX.Element {
   const { election } = electionDefinition;
 
   const printMyBallotButton = (
-    <LinkButton
-      large
-      primary
-      to={machineConfig.appMode.isPrint ? '/print' : '/save'}
-      id="next"
-    >
+    <LinkButton large primary to="/print" id="next">
       I’m Ready to <NoWrap>Print My Ballot</NoWrap>
     </LinkButton>
   );
@@ -452,10 +447,9 @@ export function ReviewPage(): JSX.Element {
               <span className="screen-reader-only">
                 To review your votes, advance through the ballot contests using
                 the up and down buttons. To change your vote in any contest, use
-                the select button to navigate to that contest.
-                {machineConfig.appMode.isPrint
-                  ? 'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.'
-                  : 'When you are finished making your ballot selections and ready to print your ballot, use the right button to continue.'}
+                the select button to navigate to that contest. When you are
+                finished making your ballot selections and ready to print your
+                ballot, use the right button to print your ballot.
               </span>
             </h1>
           </Prose>

@@ -16,7 +16,7 @@ import {
   ReportSourceMachineType,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { getContestDistrictName, MarkAndPrint } from '@votingworks/types';
+import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from './config/globals';
 
@@ -57,7 +57,6 @@ test('MarkAndPrint end-to-end flow', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
-    appMode: MarkAndPrint,
     screenOrientation: 'portrait',
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);

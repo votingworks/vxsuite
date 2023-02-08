@@ -8,7 +8,6 @@ import {
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
-import { MarkAndPrint } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';
@@ -42,7 +41,6 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
-    appMode: MarkAndPrint,
     screenOrientation: 'landscape',
   });
   const reload = jest.fn();

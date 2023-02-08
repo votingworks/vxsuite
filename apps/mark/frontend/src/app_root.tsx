@@ -618,7 +618,6 @@ export function AppRoot({
     return null;
   }
   const machineConfig = machineConfigQuery.data;
-  const { appMode } = machineConfig;
 
   if (!cardReader) {
     return (
@@ -695,7 +694,7 @@ export function AppRoot({
     );
   }
   if (optionalElectionDefinition && appPrecinct) {
-    if (appMode.isPrint && !hasPrinterAttached) {
+    if (!hasPrinterAttached) {
       return (
         <SetupPrinterPage
           useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -735,12 +734,7 @@ export function AppRoot({
         />
       );
     }
-    if (
-      pollsState === 'polls_open' &&
-      showPostVotingInstructions &&
-      appMode.isMark &&
-      appMode.isPrint
-    ) {
+    if (pollsState === 'polls_open' && showPostVotingInstructions) {
       return (
         <CastBallotPage
           hidePostVotingInstructions={hidePostVotingInstructions}
@@ -785,9 +779,7 @@ export function AppRoot({
         <InsertCardScreen
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
-          showNoAccessibleControllerWarning={
-            appMode.isMark && !accessibleController
-          }
+          showNoAccessibleControllerWarning={!accessibleController}
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={isLiveMode}
           pollsState={pollsState}

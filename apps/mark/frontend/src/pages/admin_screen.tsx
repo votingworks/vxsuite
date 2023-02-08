@@ -55,8 +55,6 @@ export function AdminScreen({
 }: AdminScreenProps): JSX.Element {
   const election = electionDefinition?.election;
 
-  const canPrintBallots = machineConfig.appMode.isPrint;
-
   const [isFetchingElection, setIsFetchingElection] = useState(false);
   function loadElection() {
     setIsFetchingElection(true);
@@ -84,14 +82,10 @@ export function AdminScreen({
           <Text italic>Remove card when finished.</Text>
           {election && (
             <React.Fragment>
-              {canPrintBallots && (
-                <React.Fragment>
-                  <h2>Stats</h2>
-                  <p>
-                    Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-                  </p>
-                </React.Fragment>
-              )}
+              <h2>Stats</h2>
+              <p>
+                Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+              </p>
               <h2>
                 <label htmlFor="selectPrecinct">Precinct</label>
               </h2>
@@ -108,15 +102,10 @@ export function AdminScreen({
                   }
                   logger={logger}
                 />
-                {canPrintBallots && (
-                  <React.Fragment>
-                    <br />
-                    <Text small italic as="span">
-                      Changing the precinct will reset the Ballots Printed
-                      count.
-                    </Text>
-                  </React.Fragment>
-                )}
+                <br />
+                <Text small italic as="span">
+                  Changing the precinct will reset the Ballots Printed count.
+                </Text>
                 {election.precincts.length === 1 && (
                   <React.Fragment>
                     <br />
@@ -145,14 +134,10 @@ export function AdminScreen({
                     Live Election Mode
                   </Button>
                 </SegmentedButton>
-                {canPrintBallots && (
-                  <React.Fragment>
-                    <br />
-                    <Text small italic as="span">
-                      Switching the mode will reset the Ballots Printed count.
-                    </Text>
-                  </React.Fragment>
-                )}
+                <br />
+                <Text small italic as="span">
+                  Switching the mode will reset the Ballots Printed count.
+                </Text>
               </p>
             </React.Fragment>
           )}

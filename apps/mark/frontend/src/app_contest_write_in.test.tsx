@@ -4,7 +4,6 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { expectPrint, makePollWorkerCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import { MarkAndPrint } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
@@ -40,7 +39,7 @@ it('Single Seat Contest with Write In', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
-  apiMock.expectGetMachineConfig({ appMode: MarkAndPrint });
+  apiMock.expectGetMachineConfig();
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
