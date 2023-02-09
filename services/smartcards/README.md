@@ -13,7 +13,7 @@ first build this service and then run the appropriate application:
 # in services/smartcards
 make build
 
-# in an app frontend, e.g. frontends/election-manager
+# in an app frontend, e.g. apps/admin/frontend
 pnpm start
 ```
 

@@ -3,6 +3,7 @@ packages:
   - 'apps/*/frontend'
   - 'apps/*/frontend/prodserver'
   - 'apps/*/backend'
+  - 'apps/*/integration-testing'
 
   # include all the frontends and their prodservers
   - 'frontends/*'

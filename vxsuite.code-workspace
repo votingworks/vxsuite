@@ -17,20 +17,28 @@
       "path": "apps/scan/frontend"
     },
     {
-      "name": "frontends/bsd",
-      "path": "frontends/bsd"
+      "name": "apps/admin/backend",
+      "path": "apps/admin/backend"
     },
     {
-      "name": "frontends/election-manager",
-      "path": "frontends/election-manager"
+      "name": "apps/admin/frontend",
+      "path": "apps/admin/frontend"
     },
     {
-      "name": "integration-testing/bsd",
-      "path": "integration-testing/bsd"
+      "name": "apps/admin/integration-testing",
+      "path": "apps/admin/integration-testing"
     },
     {
-      "name": "integration-testing/election-manager",
-      "path": "integration-testing/election-manager"
+      "name": "apps/central-scan/backend",
+      "path": "apps/central-scan/backend"
+    },
+    {
+      "name": "apps/central-scan/frontend",
+      "path": "apps/central-scan/frontend"
+    },
+    {
+      "name": "apps/central-scan/integration-testing",
+      "path": "apps/central-scan/integration-testing"
     },
     {
       "name": "libs/api",
@@ -129,16 +137,8 @@
       "path": "libs/utils"
     },
     {
-      "name": "services/admin",
-      "path": "services/admin"
-    },
-    {
       "name": "services/converter-ms-sems",
       "path": "services/converter-ms-sems"
-    },
-    {
-      "name": "services/scan",
-      "path": "services/scan"
     },
     {
       "name": "services/smartcards",

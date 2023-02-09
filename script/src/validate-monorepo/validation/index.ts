@@ -15,9 +15,8 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const apps = await readdir(join(root, 'apps'));
   const appPackages = (await Promise.all(apps.map(readdir))).flat();
   const services = await readdir(join(root, 'services'));
-  const frontends = await readdir(join(root, 'frontends'));
   const libs = await readdir(join(root, 'libs'));
-  const packages = [...services, ...frontends, ...libs, ...appPackages];
+  const packages = [...services, ...libs, ...appPackages];
 
   yield* pkgs.checkConfig({ packages: [root, ...packages] });
   yield* tsconfig.checkConfig({ packages });
