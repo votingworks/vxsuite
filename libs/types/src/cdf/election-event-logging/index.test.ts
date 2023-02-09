@@ -80,7 +80,7 @@ test('ElectionEventLogDocumentation', () => {
 
 test('schema in sync', () => {
   const xsd = readFileSync(
-    join(__dirname, '../../../data/cdf/election-event-logging/schema.xml'),
+    join(__dirname, '../../../data/cdf/election-event-logging/schema.xsd'),
     'utf-8'
   );
   const json = readFileSync(
