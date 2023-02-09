@@ -11,7 +11,6 @@ import {
   Card,
   CardSummary,
   DippedSmartCardAuth,
-  ElectionDefinition,
   ElectionManagerCardData,
   PollWorkerCardData,
   SystemAdministratorCardData,
@@ -22,18 +21,16 @@ import { generatePin } from '@votingworks/utils';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
+  DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth';
-import {
-  CARD_POLLING_INTERVAL_MS,
-  parseUserFromCardSummary,
-} from './memory_card';
+import { parseUserFromCardSummary } from './memory_card';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.fetch = fetch;
 
 type AuthAction =
-  | { type: 'read_card'; cardSummary: CardSummary }
+  | { type: 'check_card_reader'; cardSummary: CardSummary }
   | { type: 'check_pin'; pin: string }
   | { type: 'log_out' };
 
@@ -51,59 +48,52 @@ export class DippedSmartCardAuthWithMemoryCard
 {
   private authStatus: DippedSmartCardAuth.AuthStatus;
   private readonly card: Card;
-  private config: DippedSmartCardAuthConfig;
+  private readonly config: DippedSmartCardAuthConfig;
 
   constructor({
     card,
     config,
   }: {
     card: Card;
-    config: Omit<DippedSmartCardAuthConfig, 'electionDefinition'>;
+    config: DippedSmartCardAuthConfig;
   }) {
     this.authStatus = DippedSmartCardAuth.DEFAULT_AUTH_STATUS;
     this.card = card;
     this.config = config;
-
-    setInterval(
-      async () => {
-        try {
-          const newCardSummary = await this.card.readSummary();
-          this.updateAuthStatus({
-            type: 'read_card',
-            cardSummary: newCardSummary,
-          });
-        } catch {
-          // Swallow errors so that they don't crash the auth instance and containing backend
-        }
-      },
-      CARD_POLLING_INTERVAL_MS,
-      true
-    );
   }
 
-  getAuthStatus(): DippedSmartCardAuth.AuthStatus {
+  async getAuthStatus(
+    machineState: DippedSmartCardAuthMachineState
+  ): Promise<DippedSmartCardAuth.AuthStatus> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
     return this.authStatus;
   }
 
-  checkPin({ pin }: { pin: string }): void {
-    this.updateAuthStatus({ type: 'check_pin', pin });
+  async checkPin(
+    machineState: DippedSmartCardAuthMachineState,
+    input: { pin: string }
+  ): Promise<void> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    this.updateAuthStatus(machineState, { type: 'check_pin', pin: input.pin });
   }
 
-  logOut(): void {
-    this.updateAuthStatus({ type: 'log_out' });
+  async logOut(machineState: DippedSmartCardAuthMachineState): Promise<void> {
+    this.updateAuthStatus(machineState, { type: 'log_out' });
+    return Promise.resolve();
   }
 
-  async programCard({
-    userRole,
-  }: {
-    userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
-  }): Promise<Result<{ pin?: string }, Error>> {
-    const { electionDefinition } = this.config;
+  async programCard(
+    machineState: DippedSmartCardAuthMachineState,
+    input: {
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
+    }
+  ): Promise<Result<{ pin?: string }, Error>> {
+    const { electionDefinition } = machineState;
     const electionHash = electionDefinition?.electionHash;
     const electionData = electionDefinition?.electionData;
     const pin = generatePin();
     try {
-      switch (userRole) {
+      switch (input.userRole) {
         case 'system_administrator': {
           const cardData: SystemAdministratorCardData = {
             t: 'system_administrator',
@@ -140,7 +130,7 @@ export class DippedSmartCardAuthWithMemoryCard
         }
         /* istanbul ignore next: Compile-time check for completeness */
         default:
-          throwIllegalValue(userRole);
+          throwIllegalValue(input.userRole);
       }
     } catch (error) {
       return wrapException(error);
@@ -161,24 +151,31 @@ export class DippedSmartCardAuthWithMemoryCard
     return ok();
   }
 
-  setElectionDefinition(electionDefinition: ElectionDefinition): void {
-    this.config.electionDefinition = electionDefinition;
+  private async checkCardReaderAndUpdateAuthStatus(
+    machineState: DippedSmartCardAuthMachineState
+  ) {
+    const cardSummary = await this.card.readSummary();
+    this.updateAuthStatus(machineState, {
+      type: 'check_card_reader',
+      cardSummary,
+    });
   }
 
-  clearElectionDefinition(): void {
-    delete this.config.electionDefinition;
-  }
-
-  private updateAuthStatus(action: AuthAction): void {
-    this.authStatus = this.determineNewAuthStatus(action);
+  private updateAuthStatus(
+    machineState: DippedSmartCardAuthMachineState,
+    action: AuthAction
+  ) {
+    this.authStatus = this.determineNewAuthStatus(machineState, action);
   }
 
   private determineNewAuthStatus(
+    machineState: DippedSmartCardAuthMachineState,
     action: AuthAction
   ): DippedSmartCardAuth.AuthStatus {
     const currentAuthStatus = this.authStatus;
+
     switch (action.type) {
-      case 'read_card': {
+      case 'check_card_reader': {
         const newAuthStatus = ((): DippedSmartCardAuth.AuthStatus => {
           switch (currentAuthStatus.status) {
             case 'logged_out': {
@@ -191,7 +188,10 @@ export class DippedSmartCardAuthWithMemoryCard
 
                 case 'ready': {
                   const user = parseUserFromCardSummary(action.cardSummary);
-                  const validationResult = this.validateCardUser(user);
+                  const validationResult = this.validateCardUser(
+                    machineState,
+                    user
+                  );
                   if (validationResult.isOk()) {
                     assert(
                       user &&
@@ -280,6 +280,7 @@ export class DippedSmartCardAuthWithMemoryCard
   }
 
   private validateCardUser(
+    machineState: DippedSmartCardAuthMachineState,
     user?: User
   ): Result<void, DippedSmartCardAuth.LoggedOut['reason']> {
     if (!user) {
@@ -291,12 +292,12 @@ export class DippedSmartCardAuthWithMemoryCard
     }
 
     if (user.role === 'election_manager') {
-      if (!this.config.electionDefinition) {
+      if (!machineState.electionDefinition) {
         return this.config.allowElectionManagersToAccessUnconfiguredMachines
           ? ok()
           : err('machine_not_configured');
       }
-      if (user.electionHash !== this.config.electionDefinition.electionHash) {
+      if (user.electionHash !== machineState.electionDefinition.electionHash) {
         return err('election_manager_wrong_election');
       }
     }

@@ -6,10 +6,10 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
-test('DippedSmartCardAuthWithMemoryCard returns auth status', () => {
+test('DippedSmartCardAuthWithMemoryCard returns auth status', async () => {
   const card = new MockMemoryCard();
   const auth = new DippedSmartCardAuthWithMemoryCard({ card, config: {} });
-  expect(auth.getAuthStatus()).toEqual({
+  expect(await auth.getAuthStatus({ electionDefinition: undefined })).toEqual({
     status: 'logged_out',
     reason: 'machine_locked',
   });
