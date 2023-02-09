@@ -986,9 +986,14 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
 });
 
 test('Auth', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const logger = fakeLogger();
-  workspace.store.addElection(electionDefinition.electionData);
+  workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  workspace.store.addElection(
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+  const { electionDefinition } = electionFamousNames2021Fixtures;
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
     baseUrl: `http://localhost:${PORT}/api`,

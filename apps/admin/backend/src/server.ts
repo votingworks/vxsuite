@@ -38,11 +38,22 @@ function constructDippedSmartCardAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   // TODO: Once we actually support multiple elections, configure the auth instance with the
-  // currently selected election rather than the first. In fact, do so as soon as the currently
-  // selected election is persisted on the backend instead of the frontend since, even today, in
-  // dev, we can end up with multiple election definitions under the hood via incognito windows
+  // currently selected election rather than the most recently created. In fact, do so as soon as
+  // the currently selected election is persisted on the backend instead of the frontend since,
+  // even today, in dev, we can end up with multiple election definitions under the hood via
+  // incognito windows
   const elections = workspace.store.getElections();
-  return { electionDefinition: elections[0]?.electionDefinition };
+  const mostRecentlyCreatedElection =
+    elections.length > 0
+      ? elections.reduce((e1, e2) =>
+          new Date(e1.createdAt) > new Date(e2.createdAt)
+            ? /* istanbul ignore next */ e1
+            : e2
+        )
+      : undefined;
+  return {
+    electionDefinition: mostRecentlyCreatedElection?.electionDefinition,
+  };
 }
 
 function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
