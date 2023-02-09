@@ -27,3 +27,4 @@ yarn-error.log*
 /cypress/downloads
 /cypress/screenshots
 /cypress/examples
+test-results.xml

@@ -1,37 +1,35 @@
 # VxCentralScan Integration Testing
 
-Integration tests for VxCentralScan using both the backend
-(`apps/central-scan/backend`) and frontend (`apps/central-scan/frontend`).
+Integration tests for VxCentralScan using the backend
+(`apps/central-scan/backend`), frontend (`apps/central-scan/frontend`), and
+dependent services.
 
 ## Development
 
-You will need to make sure to have cypress dependencies installed see:
+In order to run integration tests locally on your VM, you will have to install
+Chromium with:
+
+```bash
+sudo apt install chromium
+```
+
+The tests can also be run in Chrome (and in CircleCI, they do run in Chrome) but
+currently there is not a Debian 11 ARM version of Chrome available so we use
+Chromium locally.
+
+You will also need to make sure to have cypress dependencies installed see:
 https://on.cypress.io/required-dependencies.
 
-```
+```bash
+# build the frontend, backend, and required services
 pnpm build
-```
 
-Run the server for all packages with
-
-```
-pnpm start
-```
-
-Open the cypress testing window with
-
-```
+# to run tests in headless mode
 pnpm test
-```
 
-Start the server and run all tests e2e with
-
+# to run tests via the Cypress window
+pnpm test:watch
 ```
-pnpm test:ci
-```
-
-Note: You will need to have Chromium installed in order to locally run tests end
-to end.
 
 ### Notes
 
