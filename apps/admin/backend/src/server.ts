@@ -20,6 +20,7 @@ import * as fs from 'fs/promises';
 import multer from 'multer';
 import {
   DippedSmartCardAuthApi,
+  DippedSmartCardAuthMachineState,
   DippedSmartCardAuthWithMemoryCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
@@ -33,15 +34,38 @@ type NoParams = never;
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
 
-function buildApi(auth: DippedSmartCardAuthApi) {
+function constructDippedSmartCardAuthMachineState(
+  workspace: Workspace
+): DippedSmartCardAuthMachineState {
+  // TODO: Once we actually support multiple elections, configure the auth instance with the
+  // currently selected election rather than the first. In fact, do so as soon as the currently
+  // selected election is persisted on the backend instead of the frontend since, even today, in
+  // dev, we can end up with multiple election definitions under the hood via incognito windows
+  const elections = workspace.store.getElections();
+  return { electionDefinition: elections[0]?.electionDefinition };
+}
+
+function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
   return grout.createApi({
-    getAuthStatus: () => auth.getAuthStatus(),
-    checkPin: (input: { pin: string }) => auth.checkPin(input),
-    logOut: () => auth.logOut(),
+    getAuthStatus: () =>
+      auth.getAuthStatus(constructDippedSmartCardAuthMachineState(workspace)),
+
+    checkPin: (input: { pin: string }) =>
+      auth.checkPin(constructDippedSmartCardAuthMachineState(workspace), input),
+
+    logOut: () =>
+      auth.logOut(constructDippedSmartCardAuthMachineState(workspace)),
+
     programCard: (input: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
-    }) => auth.programCard(input),
-    unprogramCard: () => auth.unprogramCard(),
+    }) =>
+      auth.programCard(
+        constructDippedSmartCardAuthMachineState(workspace),
+        input
+      ),
+
+    unprogramCard: () =>
+      auth.unprogramCard(constructDippedSmartCardAuthMachineState(workspace)),
   });
 }
 
@@ -62,18 +86,8 @@ export function buildApp({
 }): Application {
   const { store } = workspace;
 
-  // TODO: Once we actually support multiple elections, configure the auth instance with the
-  // currently selected election rather than the first. In fact, do so as soon as the currently
-  // selected election is persisted on the backend instead of the frontend since, even today, in
-  // dev, we can end up with multiple election definitions under the hood via incognito windows
-  const elections = store.getElections();
-  if (elections[0]?.electionDefinition) {
-    auth.setElectionDefinition(elections[0].electionDefinition);
-  }
-
   const app: Application = express();
-
-  const api = buildApi(auth);
+  const api = buildApi(auth, workspace);
   app.use('/api', grout.buildRouter(api, express));
 
   const upload = multer({
@@ -120,7 +134,6 @@ export function buildApp({
 
     const electionDefinition = parseResult.ok();
     const electionId = store.addElection(electionDefinition.electionData);
-    auth.setElectionDefinition(electionDefinition);
     response.json({ status: 'ok', id: electionId });
   });
 
@@ -167,7 +180,6 @@ export function buildApp({
     '/admin/elections/:electionId',
     (request, response) => {
       store.deleteElection(request.params.electionId);
-      auth.clearElectionDefinition();
       response.json({ status: 'ok' });
     }
   );

@@ -20,7 +20,10 @@ import { ExportDataError } from '@votingworks/data';
 import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  InsertedSmartCardAuthApi,
+  InsertedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { backupToUsbDrive } from './backup';
 import {
   exportCastVoteRecords,
@@ -37,6 +40,13 @@ import {
 } from './types';
 import { getMachineConfig } from './machine_config';
 
+function constructInsertedSmartCardAuthMachineState(
+  workspace: Workspace
+): InsertedSmartCardAuthMachineState {
+  const electionDefinition = workspace.store.getElectionDefinition();
+  return { electionDefinition };
+}
+
 function buildApi(
   auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
@@ -50,8 +60,14 @@ function buildApi(
   return grout.createApi({
     getMachineConfig,
 
-    getAuthStatus: () => auth.getAuthStatus(),
-    checkPin: (input: { pin: string }) => auth.checkPin(input),
+    getAuthStatus: () =>
+      auth.getAuthStatus(constructInsertedSmartCardAuthMachineState(workspace)),
+
+    checkPin: (input: { pin: string }) =>
+      auth.checkPin(
+        constructInsertedSmartCardAuthMachineState(workspace),
+        input
+      ),
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
@@ -114,11 +130,6 @@ function buildApi(
         await store.setHmpbTemplates(ballots);
       });
 
-      auth.setElectionDefinition(electionDefinition);
-      if (precinctSelection) {
-        auth.setPrecinctSelection(precinctSelection);
-      }
-
       return ok();
     },
 
@@ -142,8 +153,6 @@ function buildApi(
       );
       interpreter.unconfigure();
       workspace.reset();
-      auth.clearElectionDefinition();
-      auth.clearPrecinctSelection();
     },
 
     setPrecinctSelection(input: {
@@ -155,7 +164,6 @@ function buildApi(
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
-      auth.setPrecinctSelection(input.precinctSelection);
     },
 
     setMarkThresholdOverrides(input: {
@@ -312,7 +320,9 @@ function buildApi(
     }: {
       scannerReportData: ScannerReportData;
     }): Promise<Result<void, Error>> {
-      const authStatus = auth.getAuthStatus();
+      const machineState =
+        constructInsertedSmartCardAuthMachineState(workspace);
+      const authStatus = await auth.getAuthStatus(machineState);
 
       // Though we only initiate this action when a poll worker is logged in, a poll worker could
       // remove their card right after, so we treat these as user errors rather than unexpected
@@ -324,7 +334,7 @@ function buildApi(
         return err(new Error('User is not a poll worker'));
       }
 
-      return await auth.writeCardData({
+      return await auth.writeCardData(machineState, {
         data: scannerReportData,
         schema: ScannerReportDataSchema,
       });
@@ -342,15 +352,6 @@ export function buildApp(
   usb: Usb,
   logger: Logger
 ): Application {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  if (electionDefinition) {
-    auth.setElectionDefinition(electionDefinition);
-  }
-  const precinctSelection = workspace.store.getPrecinctSelection();
-  if (precinctSelection) {
-    auth.setPrecinctSelection(precinctSelection);
-  }
-
   const app: Application = express();
   const api = buildApi(auth, machine, interpreter, workspace, usb, logger);
   app.use('/api', grout.buildRouter(api, express));
