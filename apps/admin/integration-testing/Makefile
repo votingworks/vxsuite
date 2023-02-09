@@ -1,6 +1,7 @@
 APP := ..
 SMARTCARDS := ../../../services/smartcards
 SEMS := ../../../services/converter-ms-sems
+export ADMIN_WORKSPACE=/tmp/admin-integration-testing
 export PIPENV_VENV_IN_PROJECT=1
 
 clean-downloads:
@@ -26,6 +27,9 @@ build-smartcards:
 build: build-frontend build-backend build-converter-ms-sems build-smartcards
 
 run:
+	export NODE_ENV=production
+	rm -rf $(ADMIN_WORKSPACE)
+	mkdir $(ADMIN_WORKSPACE)
 	./node_modules/.bin/concurrently -n smartcards,sems,frontend,backend --kill-others \
 		"make -C ${SMARTCARDS} run" \
 		"make -C $(SEMS) run" \
