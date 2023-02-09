@@ -2,17 +2,5 @@
   "extends": ["plugin:vx/react"],
   "rules": {
     "vx/gts-jsdoc": "off"
-  },
-  "overrides": [
-    {
-      "files": "cypress/**/*",
-      "env": {
-        "cypress/globals": true
-      },
-      "parserOptions": {
-        "project": "./cypress/tsconfig.json"
-      },
-      "extends": ["plugin:cypress/recommended"]
-    }
-  ]
+  }
 }
