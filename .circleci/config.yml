@@ -222,8 +222,8 @@ jobs:
       - store_test_results:
           path: apps/scan/frontend/reports/
 
-  test-integration-testing-vx-mark:
-    executor: nodejs-browsers
+  test-apps-mark-integration-testing:
+  executor: nodejs-browsers
     resource_class: xlarge
     steps:
       - install-cypress-browser
@@ -231,23 +231,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/mark/frontend build
+            pnpm --dir apps/mark/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/mark/frontend lint
+            pnpm --dir apps/mark/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/frontend test:e2e
+            pnpm --dir apps/mark/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: apps/mark/frontend/reports/
+          path: apps/mark/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark/frontend/cypress/screenshots
+          path: apps/mark/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: apps/mark/frontend/cypress/videos
+          path: apps/mark/integration-testing/cypress/videos
 
   test-apps-central-scan-integration-testing:
     executor: nodejs-browsers

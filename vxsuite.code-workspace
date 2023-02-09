@@ -9,6 +9,10 @@
       "path": "apps/mark/frontend"
     },
     {
+      "name": "apps/mark/integration-testing",
+      "path": "apps/mark/integration-testing"
+    },
+    {
       "name": "apps/scan/backend",
       "path": "apps/scan/backend"
     },

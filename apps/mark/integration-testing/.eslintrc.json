@@ -1,0 +1,18 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "overrides": [
+    {
+      "files": ["cypress/**/*", "cypress.config.ts"],
+      "env": {
+        "cypress/globals": true
+      },
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      },
+      "extends": ["plugin:cypress/recommended"],
+      "rules": {
+        "vx/gts-no-default-exports": "off"
+      }
+    }
+  ]
+}
