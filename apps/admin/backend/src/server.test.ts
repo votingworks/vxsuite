@@ -122,11 +122,6 @@ test('POST /admin/elections', async () => {
     status: 'ok',
     id: expect.any(String),
   });
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
-    1,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
 
   const getResponse = await request(app).get('/admin/elections').expect(200);
   expect(getResponse.body).toEqual([
@@ -160,8 +155,6 @@ test('DELETE /admin/elections/:electionId', async () => {
   );
 
   await request(app).delete(`/admin/elections/${electionId}`).expect(200);
-  expect(auth.clearElectionDefinition).toHaveBeenCalledTimes(1);
-
   await request(app).get('/admin/elections').expect(200, []);
 });
 
@@ -993,6 +986,41 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
 });
 
 test('Auth', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const logger = fakeLogger();
+  workspace.store.addElection(electionDefinition.electionData);
+  server = await start({ app, logger, workspace });
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${PORT}/api`,
+  });
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+  await apiClient.logOut();
+  void (await apiClient.programCard({ userRole: 'system_administrator' }));
+  void (await apiClient.unprogramCard());
+
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.checkPin).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { electionDefinition },
+    { pin: '123456' }
+  );
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.programCard).toHaveBeenCalledTimes(1);
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    1,
+    { electionDefinition },
+    { userRole: 'system_administrator' }
+  );
+  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
+  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionDefinition });
+});
+
+test('Auth before election definition has been configured', async () => {
   const logger = fakeLogger();
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
@@ -1006,25 +1034,27 @@ test('Auth', async () => {
   void (await apiClient.unprogramCard());
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.programCard).toHaveBeenCalledTimes(1);
-  expect(auth.programCard).toHaveBeenNthCalledWith(1, {
-    userRole: 'system_administrator',
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionDefinition: undefined,
   });
-  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
-});
-
-test('Auth initial election definition configuration', () => {
-  workspace.store.addElection(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-  buildApp({ auth, workspace });
-
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+  expect(auth.checkPin).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    electionFamousNames2021Fixtures.electionDefinition
+    { electionDefinition: undefined },
+    { pin: '123456' }
   );
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    electionDefinition: undefined,
+  });
+  expect(auth.programCard).toHaveBeenCalledTimes(1);
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    1,
+    { electionDefinition: undefined },
+    { userRole: 'system_administrator' }
+  );
+  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
+  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, {
+    electionDefinition: undefined,
+  });
 });
