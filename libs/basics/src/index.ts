@@ -9,3 +9,4 @@ export * from './iterators';
 export * from './result';
 export * from './sleep';
 export * from './typed_as';
+export * from './unique';
