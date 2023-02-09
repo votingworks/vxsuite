@@ -222,7 +222,7 @@ jobs:
       - store_test_results:
           path: apps/scan/frontend/reports/
 
-  test-integration-testing-vx-mark:
+  test-apps-mark-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -231,23 +231,23 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/mark/frontend build
+            pnpm --dir apps/mark/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/mark/frontend lint
+            pnpm --dir apps/mark/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/frontend test:e2e
+            pnpm --dir apps/mark/integration-testing test
           environment:
             MOCHA_FILE: ./reports/junit.xml
       - store_test_results:
-          path: apps/mark/frontend/reports/
+          path: apps/mark/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark/frontend/cypress/screenshots
+          path: apps/mark/integration-testing/cypress/screenshots
       - store_artifacts:
-          path: apps/mark/frontend/cypress/videos
+          path: apps/mark/integration-testing/cypress/videos
 
   test-apps-central-scan-integration-testing:
     executor: nodejs-browsers
@@ -869,15 +869,15 @@ workflows:
       - test-codemods
       - test-apps-mark-backend
       - test-apps-mark-frontend
+      - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
       - test-apps-admin-frontend
       - test-apps-admin-backend
+      - test-apps-admin-integration-testing
       - test-apps-central-scan-frontend
       - test-apps-central-scan-backend
-      - test-integration-testing-vx-mark
       - test-apps-central-scan-integration-testing
-      - test-apps-admin-integration-testing
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder

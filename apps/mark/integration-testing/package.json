@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/integration-testing-election-manager",
+  "name": "@votingworks/mark-integration-testing",
   "version": "0.1.0",
   "private": true,
   "scripts": {

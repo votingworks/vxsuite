@@ -4,15 +4,17 @@
   "private": true,
   "scripts": {
     "build": "pnpm install && make build",
-    "cypress:run": "cypress run --browser chrome --reporter junit",
+    "cypress:open": "DISPLAY=:0 cypress open --e2e --browser chromium",
+    "cypress:run": "is-ci cypress:run:ci cypress:run:local",
+    "cypress:run:ci": "cypress run --browser chrome --reporter junit",
+    "cypress:run:local": "cypress run --browser chromium --reporter junit",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "pre-commit": "lint-staged",
     "start": "make run",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
-    "test:watch": "cypress open"
+    "test": "start-server-and-test start http://localhost:3000 cypress:run",
+    "test:watch": "start-server-and-test start http://localhost:3000 cypress:open"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -49,6 +51,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
+    "concurrently": "^7.6.0",
     "eslint": "^8.23.1",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.5.0",

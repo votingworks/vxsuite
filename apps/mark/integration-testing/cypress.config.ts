@@ -1,5 +1,8 @@
-import { defineConfig } from 'cypress'
+import { defineConfig } from 'cypress';
 
+/**
+ * Define the configuration for the Cypress tests.
+ */
 export default defineConfig({
   viewportWidth: 1080,
   viewportHeight: 1920,
@@ -8,4 +11,4 @@ export default defineConfig({
     baseUrl: 'http://localhost:3000',
     specPattern: 'cypress/tests/**/*.cy.{js,jsx,ts,tsx}',
   },
-})
+});
