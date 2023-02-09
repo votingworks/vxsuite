@@ -4,7 +4,6 @@ import {
   ElectionDefinition,
   InsertedSmartCardAuth,
   Optional,
-  PrecinctSelection,
   UserRole,
 } from '@votingworks/types';
 
@@ -13,23 +12,31 @@ import {
  * kept in the card reader for the user to remain authenticated
  */
 export interface InsertedSmartCardAuthApi {
-  getAuthStatus: () => InsertedSmartCardAuth.AuthStatus;
+  getAuthStatus: (
+    machineState: InsertedSmartCardAuthMachineState
+  ) => Promise<InsertedSmartCardAuth.AuthStatus>;
 
-  checkPin: (input: { pin: string }) => void;
+  checkPin: (
+    machineState: InsertedSmartCardAuthMachineState,
+    input: { pin: string }
+  ) => Promise<void>;
 
-  readCardData: <T>(input: {
-    schema: z.ZodSchema<T>;
-  }) => Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>>;
-  writeCardData: <T>(input: {
-    data: T;
-    schema: z.ZodSchema<T>;
-  }) => Promise<Result<void, Error>>;
-  clearCardData: () => Promise<Result<void, Error>>;
-
-  setElectionDefinition: (electionDefinition: ElectionDefinition) => void;
-  clearElectionDefinition: () => void;
-  setPrecinctSelection: (precinctSelection: PrecinctSelection) => void;
-  clearPrecinctSelection: () => void;
+  readCardData: <T>(
+    machineState: InsertedSmartCardAuthMachineState,
+    input: {
+      schema: z.ZodSchema<T>;
+    }
+  ) => Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>>;
+  writeCardData: <T>(
+    machineState: InsertedSmartCardAuthMachineState,
+    input: {
+      data: T;
+      schema: z.ZodSchema<T>;
+    }
+  ) => Promise<Result<void, Error>>;
+  clearCardData: (
+    machineState: InsertedSmartCardAuthMachineState
+  ) => Promise<Result<void, Error>>;
 }
 
 /**
@@ -38,6 +45,11 @@ export interface InsertedSmartCardAuthApi {
 export interface InsertedSmartCardAuthConfig {
   allowedUserRoles: UserRole[];
   allowElectionManagersToAccessMachinesConfiguredForOtherElections?: boolean;
+}
+
+/**
+ * Machine state that the consumer is responsible for providing
+ */
+export interface InsertedSmartCardAuthMachineState {
   electionDefinition?: ElectionDefinition;
-  precinctSelection?: PrecinctSelection;
 }
