@@ -554,6 +554,7 @@ importers:
       '@votingworks/grout': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
+      concurrently: ^7.6.0
       cypress: ^10.3.1
       eslint: ^8.23.1
       eslint-config-airbnb-base: ^14.2.1
@@ -584,6 +585,7 @@ importers:
       '@types/node': 18.11.18
       '@typescript-eslint/eslint-plugin': 5.49.0_e5nl3pgtbq7irh2db7scmsnz3q
       '@typescript-eslint/parser': 5.49.0_meject34o2v4gmz2y6b4koze4q
+      concurrently: 7.6.0
       eslint: 8.33.0
       eslint-config-airbnb-base: 14.2.1_ohdts44xlqyeyrlje4qnefqeay
       eslint-config-prettier: 8.6.0_eslint@8.33.0
@@ -965,6 +967,7 @@ importers:
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       buffer: ^6.0.3
+      concurrently: ^7.6.0
       cypress: ^10.3.1
       eslint: ^8.23.1
       eslint-config-airbnb-base: ^14.2.1
@@ -996,6 +999,7 @@ importers:
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.49.0_e5nl3pgtbq7irh2db7scmsnz3q
       '@typescript-eslint/parser': 5.49.0_meject34o2v4gmz2y6b4koze4q
+      concurrently: 7.6.0
       eslint: 8.33.0
       eslint-config-airbnb-base: 14.2.1_ohdts44xlqyeyrlje4qnefqeay
       eslint-config-prettier: 8.6.0_eslint@8.33.0
@@ -13454,6 +13458,22 @@ packages:
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 17.6.0
+
+  /concurrently/7.6.0:
+    resolution: {integrity: sha512-BKtRgvcJGeZ4XttiDiNcFiRlxoAeZOseqUvyYRUp/Vtd+9p1ULmeoSqGsDA+2ivdeDFpqrJvGvmI+StKfKl5hw==}
+    engines: {node: ^12.20.0 || ^14.13.0 || >=16.0.0}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      date-fns: 2.29.3
+      lodash: 4.17.21
+      rxjs: 7.5.7
+      shell-quote: 1.7.3
+      spawn-command: 0.0.2-1
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 17.6.0
+    dev: true
 
   /confusing-browser-globals/1.0.11:
     resolution: {integrity: sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==}

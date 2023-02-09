@@ -1,4 +1,4 @@
-APP := ../
+APP := ..
 SMARTCARDS := ../../../services/smartcards
 SEMS := ../../../services/converter-ms-sems
 export PIPENV_VENV_IN_PROJECT=1
@@ -26,5 +26,8 @@ build-smartcards:
 build: build-frontend build-backend build-converter-ms-sems build-smartcards
 
 run:
-	(trap 'kill 0' SIGINT SIGHUP; make -C $(SMARTCARDS) run & make -C $(SEMS) run & make -C $(APP)/backend run & make -C $(APP)/frontend run)
-
+	./node_modules/.bin/concurrently -n smartcards,sems,frontend,backend --kill-others \
+		"make -C ${SMARTCARDS} run" \
+		"make -C $(SEMS) run" \
+		"make -C $(APP)/frontend run" \
+		"make -C $(APP)/backend run"

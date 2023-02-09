@@ -1,4 +1,4 @@
-APP := ../
+APP := ..
 SMARTCARDS := ../../../services/smartcards
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp
@@ -20,5 +20,8 @@ build: build-frontend build-backend build-smartcards
 
 run:
 	export NODE_ENV=production
-	(trap 'kill 0' SIGINT SIGHUP; make -C $(SMARTCARDS) run & make -C $(APP)/frontend run & make -C $(APP)/backend run)
+	./node_modules/.bin/concurrently -n smartcards,frontend,backend --kill-others \
+		"make -C ${SMARTCARDS} run" \
+		"make -C $(APP)/frontend run" \
+		"make -C $(APP)/backend run"
 
