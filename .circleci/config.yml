@@ -223,7 +223,7 @@ jobs:
           path: apps/scan/frontend/reports/
 
   test-apps-mark-integration-testing:
-  executor: nodejs-browsers
+    executor: nodejs-browsers
     resource_class: xlarge
     steps:
       - install-cypress-browser
@@ -869,15 +869,15 @@ workflows:
       - test-codemods
       - test-apps-mark-backend
       - test-apps-mark-frontend
+      - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
       - test-apps-admin-frontend
       - test-apps-admin-backend
+      - test-apps-admin-integration-testing
       - test-apps-central-scan-frontend
       - test-apps-central-scan-backend
-      - test-integration-testing-vx-mark
       - test-apps-central-scan-integration-testing
-      - test-apps-admin-integration-testing
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder
