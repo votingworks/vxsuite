@@ -1,5 +1,8 @@
 import { Scan } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { assert } from '@votingworks/basics';
 import { Exporter } from '@votingworks/data';
 import {
@@ -38,11 +41,23 @@ export interface AppOptions {
   workspace: Workspace;
 }
 
-function buildApi(auth: DippedSmartCardAuthApi) {
+function constructDippedSmartCardAuthMachineState(
+  workspace: Workspace
+): DippedSmartCardAuthMachineState {
+  const electionDefinition = workspace.store.getElectionDefinition();
+  return { electionHash: electionDefinition?.electionHash };
+}
+
+function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
   return grout.createApi({
-    getAuthStatus: () => auth.getAuthStatus(),
-    checkPin: (input: { pin: string }) => auth.checkPin(input),
-    logOut: () => auth.logOut(),
+    getAuthStatus: () =>
+      auth.getAuthStatus(constructDippedSmartCardAuthMachineState(workspace)),
+
+    checkPin: (input: { pin: string }) =>
+      auth.checkPin(constructDippedSmartCardAuthMachineState(workspace), input),
+
+    logOut: () =>
+      auth.logOut(constructDippedSmartCardAuthMachineState(workspace)),
   });
 }
 
@@ -63,14 +78,8 @@ export async function buildCentralScannerApp({
 }: AppOptions): Promise<Application> {
   const { store } = workspace;
 
-  const initialElectionDefinition = store.getElectionDefinition();
-  if (initialElectionDefinition) {
-    auth.setElectionDefinition(initialElectionDefinition);
-  }
-
   const app: Application = express();
-
-  const api = buildApi(auth);
+  const api = buildApi(auth, workspace);
   app.use('/api', grout.buildRouter(api, express));
 
   const upload = multer({
@@ -147,7 +156,6 @@ export async function buildCentralScannerApp({
 
     const electionDefinition = bodyParseResult.ok();
     importer.configure(electionDefinition);
-    auth.setElectionDefinition(electionDefinition);
     response.json({ status: 'ok' });
   });
 
@@ -172,7 +180,6 @@ export async function buildCentralScannerApp({
       }
 
       importer.unconfigure();
-      auth.clearElectionDefinition();
       response.json({ status: 'ok' });
     }
   );

@@ -35,7 +35,6 @@ import {
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -233,8 +232,6 @@ test('GET /config/markThresholdOverrides', async () => {
 });
 
 test('PATCH /config/election', async () => {
-  mockOf(auth.setElectionDefinition).mockClear();
-
   await request(app)
     .patch('/central-scanner/config/election')
     .send(testElectionDefinition.electionData)
@@ -247,11 +244,6 @@ test('PATCH /config/election', async () => {
         title: testElectionDefinition.election.title,
       }),
     })
-  );
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
-    1,
-    testElectionDefinition
   );
 
   // bad content type
@@ -320,7 +312,6 @@ test('DELETE /config/election', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
-  expect(auth.clearElectionDefinition).toHaveBeenCalledTimes(1);
 });
 
 test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequirement=true is specified', async () => {
@@ -819,6 +810,7 @@ test('get next sheet layouts', async () => {
 });
 
 test('Auth', async () => {
+  const { electionHash } = stateOfHamilton.electionDefinition;
   const logger = fakeLogger();
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
@@ -830,22 +822,13 @@ test('Auth', async () => {
   await apiClient.logOut();
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-});
-
-test('Auth initial election definition configuration', async () => {
-  mockOf(auth.setElectionDefinition).mockClear();
-
-  workspace.store.setElection(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-  await buildCentralScannerApp({ auth, exporter, importer, workspace });
-
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    electionFamousNames2021Fixtures.electionDefinition
+    { electionHash },
+    { pin: '123456' }
   );
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 });

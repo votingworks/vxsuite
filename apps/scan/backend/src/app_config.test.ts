@@ -120,7 +120,7 @@ test("fails to configure if there's no ballot package on the usb drive", async (
 });
 
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  const { apiClient, mockAuth, mockUsb } = await createApp();
+  const { apiClient, mockUsb } = await createApp();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': createBallotPackageWithoutTemplates(
@@ -134,21 +134,10 @@ test("if there's only one precinct in the election, it's selected automatically 
     kind: 'SinglePrecinct',
     precinctId: 'precinct-1',
   });
-
-  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
-    1,
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition
-  );
-  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(1, {
-    kind: 'SinglePrecinct',
-    precinctId: 'precinct-1',
-  });
 });
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
-  const { apiClient, mockAuth, mockUsb } = await createApp();
+  const { apiClient, mockUsb } = await createApp();
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -180,13 +169,6 @@ test('configures using the most recently created ballot package on the usb drive
   expect(config.electionDefinition?.election.title).toEqual(
     electionSampleDefinition.election.title
   );
-
-  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
-    1,
-    electionSampleDefinition
-  );
-  expect(mockAuth.setPrecinctSelection).not.toHaveBeenCalled();
 });
 
 test('export the CVRs to USB', async () => {
@@ -243,22 +225,14 @@ test('export the CVRs to USB', async () => {
 });
 
 test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
-  const { apiClient, mockAuth, mockUsb, workspace } = await createApp();
+  const { apiClient, mockUsb, workspace } = await createApp();
   await configureApp(apiClient, mockUsb);
-
-  mockOf(mockAuth.setPrecinctSelection).mockClear();
 
   workspace.store.setPollsState('polls_open');
   await apiClient.setPrecinctSelection({
     precinctSelection: singlePrecinctSelectionFor('21'),
   });
   expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
-
-  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(
-    1,
-    singlePrecinctSelectionFor('21')
-  );
 });
 
 test('ballot batching', async () => {
@@ -350,8 +324,7 @@ test('ballot batching', async () => {
 });
 
 test('unconfiguring machine', async () => {
-  const { apiClient, mockAuth, mockUsb, interpreter, workspace } =
-    await createApp();
+  const { apiClient, mockUsb, interpreter, workspace } = await createApp();
   await configureApp(apiClient, mockUsb);
 
   jest.spyOn(interpreter, 'unconfigure');
@@ -361,11 +334,10 @@ test('unconfiguring machine', async () => {
 
   expect(interpreter.unconfigure).toHaveBeenCalledTimes(1);
   expect(workspace.reset).toHaveBeenCalledTimes(1);
-  expect(mockAuth.clearElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(mockAuth.clearPrecinctSelection).toHaveBeenCalledTimes(1);
 });
 
 test('auth', async () => {
+  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
   const { apiClient, mockAuth, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);
 
@@ -373,28 +345,14 @@ test('auth', async () => {
   await apiClient.checkPin({ pin: '123456' });
 
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
-});
-
-test('auth initial election definition and precinct selection configuration', async () => {
-  const createAppResult = await createApp();
-  await configureApp(createAppResult.apiClient, createAppResult.mockUsb);
-  const preconfiguredWorkspace = createAppResult.workspace;
-
-  const { mockAuth } = await createApp({
-    preconfiguredWorkspace,
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash,
   });
-
-  expect(mockAuth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setElectionDefinition).toHaveBeenNthCalledWith(
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
-  expect(mockAuth.setPrecinctSelection).toHaveBeenCalledTimes(1);
-  expect(mockAuth.setPrecinctSelection).toHaveBeenNthCalledWith(
-    1,
-    ALL_PRECINCTS_SELECTION
+    { electionHash },
+    { pin: '123456' }
   );
 });
 
@@ -407,6 +365,7 @@ test('write scanner report data to card', async () => {
   );
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
   const scannerReportData: ScannerReportData = {
     ballotCounts: {},
     isLiveMode: false,
@@ -421,29 +380,33 @@ test('write scanner report data to card', async () => {
   };
   let result: Result<void, Error>;
 
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() => ({
-    status: 'logged_out',
-    reason: 'no_card',
-  }));
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
   result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
   expect(result).toEqual(err(new Error('User is not logged in')));
 
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() => ({
-    status: 'logged_in',
-    user: fakeElectionManagerUser(electionDefinition),
-  }));
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+    })
+  );
   result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
   expect(result).toEqual(err(new Error('User is not a poll worker')));
 
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() => ({
-    status: 'logged_in',
-    user: fakePollWorkerUser(electionDefinition),
-  }));
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakePollWorkerUser(electionDefinition),
+    })
+  );
   result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
   expect(result).toEqual(ok());
   expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
-  expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(1, {
-    data: scannerReportData,
-    schema: ScannerReportDataSchema,
-  });
+  expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { data: scannerReportData, schema: ScannerReportDataSchema }
+  );
 });

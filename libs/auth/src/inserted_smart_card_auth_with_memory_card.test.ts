@@ -6,13 +6,13 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
-test('InsertedSmartCardAuthWithMemoryCard returns auth status', () => {
+test('InsertedSmartCardAuthWithMemoryCard returns auth status', async () => {
   const card = new MockMemoryCard();
   const auth = new InsertedSmartCardAuthWithMemoryCard({
     card,
     config: { allowedUserRoles: [] },
   });
-  expect(auth.getAuthStatus()).toEqual({
+  expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });

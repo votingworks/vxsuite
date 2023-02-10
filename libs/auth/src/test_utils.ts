@@ -11,8 +11,6 @@ export function buildMockDippedSmartCardAuth(): DippedSmartCardAuthApi {
     logOut: jest.fn(),
     programCard: jest.fn(),
     unprogramCard: jest.fn(),
-    setElectionDefinition: jest.fn(),
-    clearElectionDefinition: jest.fn(),
   };
 }
 
@@ -26,9 +24,5 @@ export function buildMockInsertedSmartCardAuth(): InsertedSmartCardAuthApi {
     readCardData: jest.fn(),
     writeCardData: jest.fn(),
     clearCardData: jest.fn(),
-    setElectionDefinition: jest.fn(),
-    clearElectionDefinition: jest.fn(),
-    setPrecinctSelection: jest.fn(),
-    clearPrecinctSelection: jest.fn(),
   };
 }

@@ -1,26 +1,6 @@
 {
   "folders": [
     {
-      "name": "apps/mark/backend",
-      "path": "apps/mark/backend"
-    },
-    {
-      "name": "apps/mark/frontend",
-      "path": "apps/mark/frontend"
-    },
-    {
-      "name": "apps/mark/integration-testing",
-      "path": "apps/mark/integration-testing"
-    },
-    {
-      "name": "apps/scan/backend",
-      "path": "apps/scan/backend"
-    },
-    {
-      "name": "apps/scan/frontend",
-      "path": "apps/scan/frontend"
-    },
-    {
       "name": "apps/admin/backend",
       "path": "apps/admin/backend"
     },
@@ -43,6 +23,26 @@
     {
       "name": "apps/central-scan/integration-testing",
       "path": "apps/central-scan/integration-testing"
+    },
+    {
+      "name": "apps/mark/backend",
+      "path": "apps/mark/backend"
+    },
+    {
+      "name": "apps/mark/frontend",
+      "path": "apps/mark/frontend"
+    },
+    {
+      "name": "apps/mark/integration-testing",
+      "path": "apps/mark/integration-testing"
+    },
+    {
+      "name": "apps/scan/backend",
+      "path": "apps/scan/backend"
+    },
+    {
+      "name": "apps/scan/frontend",
+      "path": "apps/scan/frontend"
     },
     {
       "name": "libs/api",

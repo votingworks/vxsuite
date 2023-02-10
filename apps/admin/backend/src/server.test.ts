@@ -122,11 +122,6 @@ test('POST /admin/elections', async () => {
     status: 'ok',
     id: expect.any(String),
   });
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
-    1,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
 
   const getResponse = await request(app).get('/admin/elections').expect(200);
   expect(getResponse.body).toEqual([
@@ -160,8 +155,6 @@ test('DELETE /admin/elections/:electionId', async () => {
   );
 
   await request(app).delete(`/admin/elections/${electionId}`).expect(200);
-  expect(auth.clearElectionDefinition).toHaveBeenCalledTimes(1);
-
   await request(app).get('/admin/elections').expect(200, []);
 });
 
@@ -994,6 +987,14 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
 
 test('Auth', async () => {
   const logger = fakeLogger();
+  workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  workspace.store.addElection(
+    electionFamousNames2021Fixtures.electionDefinition.electionData
+  );
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionData, electionHash } = electionDefinition;
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
     baseUrl: `http://localhost:${PORT}/api`,
@@ -1003,28 +1004,57 @@ test('Auth', async () => {
   await apiClient.checkPin({ pin: '123456' });
   await apiClient.logOut();
   void (await apiClient.programCard({ userRole: 'system_administrator' }));
+  void (await apiClient.programCard({ userRole: 'election_manager' }));
   void (await apiClient.unprogramCard());
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, { pin: '123456' });
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { pin: '123456' }
+  );
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.programCard).toHaveBeenCalledTimes(1);
-  expect(auth.programCard).toHaveBeenNthCalledWith(1, {
-    userRole: 'system_administrator',
-  });
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(auth.programCard).toHaveBeenCalledTimes(2);
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { userRole: 'system_administrator' }
+  );
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    2,
+    { electionHash },
+    { userRole: 'election_manager', electionData }
+  );
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
+  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionHash });
 });
 
-test('Auth initial election definition configuration', () => {
-  workspace.store.addElection(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-  buildApp({ auth, workspace });
+test('Auth before election definition has been configured', async () => {
+  const logger = fakeLogger();
+  server = await start({ app, logger, workspace });
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${PORT}/api`,
+  });
 
-  expect(auth.setElectionDefinition).toHaveBeenCalledTimes(1);
-  expect(auth.setElectionDefinition).toHaveBeenNthCalledWith(
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+  await apiClient.logOut();
+
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash: undefined,
+  });
+  expect(auth.checkPin).toHaveBeenCalledTimes(1);
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    electionFamousNames2021Fixtures.electionDefinition
+    { electionHash: undefined },
+    { pin: '123456' }
   );
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    electionHash: undefined,
+  });
 });

@@ -1,7 +1,6 @@
 import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
-  ElectionDefinition,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -12,21 +11,26 @@ import {
  * inserted and removed from the card reader for the user to be authenticated
  */
 export interface DippedSmartCardAuthApi {
-  getAuthStatus: () => DippedSmartCardAuth.AuthStatus;
+  getAuthStatus: (
+    machineState: DippedSmartCardAuthMachineState
+  ) => Promise<DippedSmartCardAuth.AuthStatus>;
 
-  checkPin: (input: { pin: string }) => void;
-  logOut: () => void;
+  checkPin: (
+    machineState: DippedSmartCardAuthMachineState,
+    input: { pin: string }
+  ) => Promise<void>;
+  logOut: (machineState: DippedSmartCardAuthMachineState) => Promise<void>;
 
-  programCard: (input: {
-    userRole:
-      | SystemAdministratorUser['role']
-      | ElectionManagerUser['role']
-      | PollWorkerUser['role'];
-  }) => Promise<Result<{ pin?: string }, Error>>;
-  unprogramCard: () => Promise<Result<void, Error>>;
-
-  setElectionDefinition: (electionDefinition: ElectionDefinition) => void;
-  clearElectionDefinition: () => void;
+  programCard: (
+    machineState: DippedSmartCardAuthMachineState,
+    input:
+      | { userRole: SystemAdministratorUser['role'] }
+      | { userRole: ElectionManagerUser['role']; electionData: string }
+      | { userRole: PollWorkerUser['role'] }
+  ) => Promise<Result<{ pin?: string }, Error>>;
+  unprogramCard: (
+    machineState: DippedSmartCardAuthMachineState
+  ) => Promise<Result<void, Error>>;
 }
 
 /**
@@ -34,5 +38,11 @@ export interface DippedSmartCardAuthApi {
  */
 export interface DippedSmartCardAuthConfig {
   allowElectionManagersToAccessUnconfiguredMachines?: boolean;
-  electionDefinition?: ElectionDefinition;
+}
+
+/**
+ * Machine state that the consumer is responsible for providing
+ */
+export interface DippedSmartCardAuthMachineState {
+  electionHash?: string;
 }
