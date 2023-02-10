@@ -1,7 +1,6 @@
 import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
-  ElectionDefinition,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -24,12 +23,10 @@ export interface DippedSmartCardAuthApi {
 
   programCard: (
     machineState: DippedSmartCardAuthMachineState,
-    input: {
-      userRole:
-        | SystemAdministratorUser['role']
-        | ElectionManagerUser['role']
-        | PollWorkerUser['role'];
-    }
+    input:
+      | { userRole: SystemAdministratorUser['role'] }
+      | { userRole: ElectionManagerUser['role']; electionData: string }
+      | { userRole: PollWorkerUser['role'] }
   ) => Promise<Result<{ pin?: string }, Error>>;
   unprogramCard: (
     machineState: DippedSmartCardAuthMachineState
@@ -47,5 +44,5 @@ export interface DippedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface DippedSmartCardAuthMachineState {
-  electionDefinition?: ElectionDefinition;
+  electionHash?: string;
 }

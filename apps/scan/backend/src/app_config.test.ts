@@ -337,7 +337,7 @@ test('unconfiguring machine', async () => {
 });
 
 test('auth', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
   const { apiClient, mockAuth, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);
 
@@ -346,12 +346,12 @@ test('auth', async () => {
 
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionDefinition,
+    electionHash,
   });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition },
+    { electionHash },
     { pin: '123456' }
   );
 });
@@ -365,6 +365,7 @@ test('write scanner report data to card', async () => {
   );
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
   const scannerReportData: ScannerReportData = {
     ballotCounts: {},
     isLiveMode: false,
@@ -405,7 +406,7 @@ test('write scanner report data to card', async () => {
   expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition },
+    { electionHash },
     { data: scannerReportData, schema: ScannerReportDataSchema }
   );
 });

@@ -84,13 +84,12 @@ export class DippedSmartCardAuthWithMemoryCard
 
   async programCard(
     machineState: DippedSmartCardAuthMachineState,
-    input: {
-      userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
-    }
+    input:
+      | { userRole: 'system_administrator' }
+      | { userRole: 'election_manager'; electionData: string }
+      | { userRole: 'poll_worker' }
   ): Promise<Result<{ pin?: string }, Error>> {
-    const { electionDefinition } = machineState;
-    const electionHash = electionDefinition?.electionHash;
-    const electionData = electionDefinition?.electionData;
+    const { electionHash } = machineState;
     const pin = generatePin();
     try {
       switch (input.userRole) {
@@ -105,7 +104,6 @@ export class DippedSmartCardAuthWithMemoryCard
         }
         case 'election_manager': {
           assert(electionHash !== undefined);
-          assert(electionData !== undefined);
           const cardData: ElectionManagerCardData = {
             t: 'election_manager',
             h: electionHash,
@@ -114,7 +112,7 @@ export class DippedSmartCardAuthWithMemoryCard
           await this.card.overrideWriteProtection();
           await this.card.writeShortAndLongValues({
             shortValue: JSON.stringify(cardData),
-            longValue: electionData,
+            longValue: input.electionData,
           });
           break;
         }
@@ -130,7 +128,7 @@ export class DippedSmartCardAuthWithMemoryCard
         }
         /* istanbul ignore next: Compile-time check for completeness */
         default:
-          throwIllegalValue(input.userRole);
+          throwIllegalValue(input, 'userRole');
       }
     } catch (error) {
       return wrapException(error);
@@ -292,12 +290,12 @@ export class DippedSmartCardAuthWithMemoryCard
     }
 
     if (user.role === 'election_manager') {
-      if (!machineState.electionDefinition) {
+      if (!machineState.electionHash) {
         return this.config.allowElectionManagersToAccessUnconfiguredMachines
           ? ok()
           : err('machine_not_configured');
       }
-      if (user.electionHash !== machineState.electionDefinition.electionHash) {
+      if (user.electionHash !== machineState.electionHash) {
         return err('election_manager_wrong_election');
       }
     }

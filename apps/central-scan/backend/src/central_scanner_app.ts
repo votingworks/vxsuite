@@ -45,7 +45,7 @@ function constructDippedSmartCardAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
-  return { electionDefinition };
+  return { electionHash: electionDefinition?.electionHash };
 }
 
 function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {

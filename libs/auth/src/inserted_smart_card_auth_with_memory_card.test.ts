@@ -12,7 +12,7 @@ test('InsertedSmartCardAuthWithMemoryCard returns auth status', async () => {
     card,
     config: { allowedUserRoles: [] },
   });
-  expect(await auth.getAuthStatus({ electionDefinition: undefined })).toEqual({
+  expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });

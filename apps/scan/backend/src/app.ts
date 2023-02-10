@@ -44,7 +44,7 @@ function constructInsertedSmartCardAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
-  return { electionDefinition };
+  return { electionHash: electionDefinition?.electionHash };
 }
 
 function buildApi(

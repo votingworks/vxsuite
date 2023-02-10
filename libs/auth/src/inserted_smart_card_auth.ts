@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { Result } from '@votingworks/basics';
-import {
-  ElectionDefinition,
-  InsertedSmartCardAuth,
-  Optional,
-  UserRole,
-} from '@votingworks/types';
+import { InsertedSmartCardAuth, Optional, UserRole } from '@votingworks/types';
 
 /**
  * The API for an inserted smart card auth instance, "inserted" meaning that the card needs to be
@@ -51,5 +46,5 @@ export interface InsertedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface InsertedSmartCardAuthMachineState {
-  electionDefinition?: ElectionDefinition;
+  electionHash?: string;
 }

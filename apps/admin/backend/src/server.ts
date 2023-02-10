@@ -4,16 +4,18 @@ import {
   BallotPageLayout,
   CandidateContest,
   CastVoteRecord,
+  ElectionDefinition,
   getBallotStyle,
   getContests,
   Id,
   InlineBallotImage,
+  Optional,
   Rect,
   safeParse,
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import { zip } from '@votingworks/basics';
+import { assert, zip } from '@votingworks/basics';
 import express, { Application } from 'express';
 import compression from 'compression';
 import * as fs from 'fs/promises';
@@ -34,14 +36,9 @@ type NoParams = never;
 const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
 
-function constructDippedSmartCardAuthMachineState(
+function getMostRecentlyCreateElectionDefinition(
   workspace: Workspace
-): DippedSmartCardAuthMachineState {
-  // TODO: Once we actually support multiple elections, configure the auth instance with the
-  // currently selected election rather than the most recently created. In fact, do so as soon as
-  // the currently selected election is persisted on the backend instead of the frontend since,
-  // even today, in dev, we can end up with multiple election definitions under the hood via
-  // incognito windows
+): Optional<ElectionDefinition> {
   const elections = workspace.store.getElections();
   const mostRecentlyCreatedElection =
     elections.length > 0
@@ -51,8 +48,21 @@ function constructDippedSmartCardAuthMachineState(
             : e2
         )
       : undefined;
+  return mostRecentlyCreatedElection?.electionDefinition;
+}
+
+function constructDippedSmartCardAuthMachineState(
+  workspace: Workspace
+): DippedSmartCardAuthMachineState {
+  // TODO: Once we actually support multiple elections, configure the auth instance with the
+  // currently selected election rather than the most recently created. In fact, do so as soon as
+  // the currently selected election is persisted on the backend instead of the frontend since,
+  // even today, in dev, we can end up with multiple election definitions under the hood via
+  // incognito windows
+  const mostRecentlyCreatedElectionDefinition =
+    getMostRecentlyCreateElectionDefinition(workspace);
   return {
-    electionDefinition: mostRecentlyCreatedElection?.electionDefinition,
+    electionHash: mostRecentlyCreatedElectionDefinition?.electionHash,
   };
 }
 
@@ -67,13 +77,24 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
     logOut: () =>
       auth.logOut(constructDippedSmartCardAuthMachineState(workspace)),
 
-    programCard: (input: {
+    programCard: ({
+      userRole,
+    }: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
-    }) =>
-      auth.programCard(
-        constructDippedSmartCardAuthMachineState(workspace),
-        input
-      ),
+    }) => {
+      const electionDefinition =
+        getMostRecentlyCreateElectionDefinition(workspace);
+      assert(electionDefinition !== undefined);
+      const { electionData, electionHash } = electionDefinition;
+
+      if (userRole === 'election_manager') {
+        return auth.programCard(
+          { electionHash },
+          { userRole: 'election_manager', electionData }
+        );
+      }
+      return auth.programCard({ electionHash }, { userRole });
+    },
 
     unprogramCard: () =>
       auth.unprogramCard(constructDippedSmartCardAuthMachineState(workspace)),

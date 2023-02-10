@@ -810,7 +810,7 @@ test('get next sheet layouts', async () => {
 });
 
 test('Auth', async () => {
-  const { electionDefinition } = stateOfHamilton;
+  const { electionHash } = stateOfHamilton.electionDefinition;
   const logger = fakeLogger();
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
@@ -822,13 +822,13 @@ test('Auth', async () => {
   await apiClient.logOut();
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition },
+    { electionHash },
     { pin: '123456' }
   );
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 });

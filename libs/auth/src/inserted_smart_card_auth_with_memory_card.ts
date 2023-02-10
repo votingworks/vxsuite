@@ -212,11 +212,11 @@ export class InsertedSmartCardAuthWithMemoryCard
     }
 
     if (user.role === 'election_manager') {
-      if (!machineState.electionDefinition) {
+      if (!machineState.electionHash) {
         return ok();
       }
       if (
-        user.electionHash !== machineState.electionDefinition.electionHash &&
+        user.electionHash !== machineState.electionHash &&
         !this.config
           .allowElectionManagersToAccessMachinesConfiguredForOtherElections
       ) {
@@ -225,10 +225,10 @@ export class InsertedSmartCardAuthWithMemoryCard
     }
 
     if (user.role === 'poll_worker') {
-      if (!machineState.electionDefinition) {
+      if (!machineState.electionHash) {
         return err('machine_not_configured');
       }
-      if (user.electionHash !== machineState.electionDefinition.electionHash) {
+      if (user.electionHash !== machineState.electionHash) {
         return err('poll_worker_wrong_election');
       }
     }

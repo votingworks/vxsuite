@@ -994,6 +994,7 @@ test('Auth', async () => {
     electionFamousNames2021Fixtures.electionDefinition.electionData
   );
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionData, electionHash } = electionDefinition;
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({
     baseUrl: `http://localhost:${PORT}/api`,
@@ -1003,26 +1004,32 @@ test('Auth', async () => {
   await apiClient.checkPin({ pin: '123456' });
   await apiClient.logOut();
   void (await apiClient.programCard({ userRole: 'system_administrator' }));
+  void (await apiClient.programCard({ userRole: 'election_manager' }));
   void (await apiClient.unprogramCard());
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition },
+    { electionHash },
     { pin: '123456' }
   );
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionDefinition });
-  expect(auth.programCard).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(auth.programCard).toHaveBeenCalledTimes(2);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition },
+    { electionHash },
     { userRole: 'system_administrator' }
   );
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    2,
+    { electionHash },
+    { userRole: 'election_manager', electionData }
+  );
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
-  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionDefinition });
+  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionHash });
 });
 
 test('Auth before election definition has been configured', async () => {
@@ -1035,31 +1042,19 @@ test('Auth before election definition has been configured', async () => {
   await apiClient.getAuthStatus();
   await apiClient.checkPin({ pin: '123456' });
   await apiClient.logOut();
-  void (await apiClient.programCard({ userRole: 'system_administrator' }));
-  void (await apiClient.unprogramCard());
 
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionDefinition: undefined,
+    electionHash: undefined,
   });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionDefinition: undefined },
+    { electionHash: undefined },
     { pin: '123456' }
   );
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
-    electionDefinition: undefined,
-  });
-  expect(auth.programCard).toHaveBeenCalledTimes(1);
-  expect(auth.programCard).toHaveBeenNthCalledWith(
-    1,
-    { electionDefinition: undefined },
-    { userRole: 'system_administrator' }
-  );
-  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
-  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, {
-    electionDefinition: undefined,
+    electionHash: undefined,
   });
 });
