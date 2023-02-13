@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { assert } from '@votingworks/basics';
-import { Exporter } from '@votingworks/shared-backend';
+import { Exporter } from '@votingworks/backend';
 import {
   BallotPageLayout,
   BallotPageLayoutSchema,

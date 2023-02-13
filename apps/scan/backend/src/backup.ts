@@ -1,4 +1,4 @@
-import { ExportDataError } from '@votingworks/shared-backend';
+import { ExportDataError } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';

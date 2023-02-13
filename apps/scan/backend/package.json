@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
@@ -48,7 +49,6 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/plustek-scanner": "workspace:*",
-    "@votingworks/shared-backend": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

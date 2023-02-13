@@ -1,4 +1,4 @@
-import { Exporter } from '@votingworks/shared-backend';
+import { Exporter } from '@votingworks/backend';
 import {
   electionSampleDefinition as testElectionDefinition,
   electionFamousNames2021Fixtures,

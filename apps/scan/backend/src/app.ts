@@ -16,7 +16,7 @@ import {
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
-import { ExportDataError } from '@votingworks/shared-backend';
+import { ExportDataError } from '@votingworks/backend';
 import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';

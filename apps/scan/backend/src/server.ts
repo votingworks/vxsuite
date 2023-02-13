@@ -1,6 +1,6 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { createClient } from '@votingworks/plustek-scanner';
-import { getUsbDrives } from '@votingworks/shared-backend';
+import { getUsbDrives } from '@votingworks/backend';
 import { InsertedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
 import { WebServiceCard } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE } from './globals';

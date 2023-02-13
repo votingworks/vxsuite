@@ -77,8 +77,8 @@
       "path": "libs/cvr-fixture-generator"
     },
     {
-      "name": "libs/shared-backend",
-      "path": "libs/shared-backend"
+      "name": "libs/backend",
+      "path": "libs/backend"
     },
     {
       "name": "libs/db",
