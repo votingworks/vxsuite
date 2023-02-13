@@ -27,13 +27,13 @@
         repo: deb-src https://deb.nodesource.com/node_16.x bullseye main
         update_cache: yes
 
-    - name:
+    - name: "Install Node"
       ansible.builtin.apt:
         update_cache: yes
         name: "nodejs={{ node_version }}"
         state: present
 
-    - name: Install yarn and pnpm        
+    - name: "Install base npm packages"
       community.general.npm:
         global: yes
         name: "{{ item }}"
