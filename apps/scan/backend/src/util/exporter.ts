@@ -1,4 +1,4 @@
-import { Exporter } from '@votingworks/data';
+import { Exporter } from '@votingworks/shared-backend';
 import { Usb } from './usb';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 

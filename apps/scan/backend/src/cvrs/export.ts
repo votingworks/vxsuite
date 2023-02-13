@@ -1,5 +1,5 @@
 import { assert, mapAsync, ok, Result } from '@votingworks/basics';
-import { ExportDataError } from '@votingworks/data';
+import { ExportDataError } from '@votingworks/shared-backend';
 import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   BallotIdSchema,
