@@ -17,12 +17,12 @@
         url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
         state: present
 
-    - name: "Add nodejs 16.x ppa for apt repo"
+    - name: "Add nodejs 16.x apt repo"
       ansible.builtin.apt_repository:
         repo: deb https://deb.nodesource.com/node_16.x bullseye main
         update_cache: yes
 
-    - name: "Add nodejs 16.x src ppa for apt repo"
+    - name: "Add nodejs 16.x src apt repo"
       ansible.builtin.apt_repository:
         repo: deb-src https://deb.nodesource.com/node_16.x bullseye main
         update_cache: yes
