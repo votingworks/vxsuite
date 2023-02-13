@@ -9,7 +9,7 @@
     node_repo_version: "16.x"
     npm_packages:
       - yarn
-      - pnpm@7
+      - pnpm@7.24.3
 
   tasks:
 

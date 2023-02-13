@@ -7,8 +7,13 @@
 set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "${DIR}/../ansible"
 
+# Make sure Ansible is installed
+cd "${DIR}/../script"
+sudo ./install-ansible.sh
+
+# Set up Node and dependencies
+cd "${DIR}/../ansible"
 sudo ansible-playbook playbooks/setup-node.yaml
 
 cd $DIR
