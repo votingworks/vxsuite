@@ -1,0 +1,41 @@
+---
+- name: Install Node and other dependencies
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    node_version: "16.*"
+    npm_packages:
+      - yarn
+      - pnpm@7
+
+  tasks:
+
+    - name: "Add nodejs apt key"
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+
+    - name: "Add nodejs 16.x ppa for apt repo"
+      ansible.builtin.apt_repository:
+        repo: deb https://deb.nodesource.com/node_16.x bullseye main
+        update_cache: yes
+
+    - name: "Add nodejs 16.x src ppa for apt repo"
+      ansible.builtin.apt_repository:
+        repo: deb-src https://deb.nodesource.com/node_16.x bullseye main
+        update_cache: yes
+
+    - name:
+      ansible.builtin.apt:
+        update_cache: yes
+        name: "nodejs={{ node_version }}"
+        state: present
+
+    - name: Install yarn and pnpm        
+      community.general.npm:
+        global: yes
+        name: "{{ item }}"
+      loop: "{{ npm_packages }}"
+
