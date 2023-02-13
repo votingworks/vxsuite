@@ -6,7 +6,6 @@ import {
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
@@ -129,14 +128,9 @@ export async function setMarkThresholdOverrides(
   }
 }
 
-export async function exportCastVoteRecords(
-  cvrFilename: string
-): Promise<void> {
+export async function exportCastVoteRecords(): Promise<void> {
   const response = await fetch('/central-scanner/scan/export-to-usb-drive', {
     method: 'POST',
-    body: JSON.stringify(
-      typedAs<Scan.ExportToUsbDriveRequest>({ filename: cvrFilename })
-    ),
     headers: {
       'Content-Type': 'application/json',
     },

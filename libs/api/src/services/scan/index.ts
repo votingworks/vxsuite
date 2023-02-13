@@ -527,18 +527,14 @@ export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
  * @url /scan/export-to-usb-drive
  * @method POST
  */
-export interface ExportToUsbDriveRequest {
-  filename: string;
-}
+export type ExportToUsbDriveRequest = never;
 
 /**
  * @url /scan/export-to-usb-drive
  * @method POST
  */
 export const ExportToUsbDriveRequestSchema: z.ZodSchema<ExportToUsbDriveRequest> =
-  z.object({
-    filename: z.string().min(1),
-  });
+  z.never();
 
 /**
  * @url /scan/export-to-usb-drive

@@ -6,9 +6,8 @@ import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { safeParseJson } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { assert, typedAs } from '@votingworks/basics';
+import { typedAs } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import { ExportResultsModal } from './export_results_modal';
 import {
@@ -23,7 +22,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     const closeFn = jest.fn();
     const { getByText, unmount } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal onClose={closeFn} numberOfBallots={5} isTestMode />
+        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
       </Router>,
       { usbDriveStatus: status }
     );
@@ -39,7 +38,7 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal onClose={closeFn} numberOfBallots={5} isTestMode />
+        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
       </Router>,
       { usbDriveStatus: status }
     );
@@ -68,7 +67,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   const closeFn = jest.fn();
   const history = createMemoryHistory();
   const { getByText, rerender } = renderInAppContext(
-    <ExportResultsModal onClose={closeFn} numberOfBallots={5} isTestMode />,
+    <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
     { usbDriveStatus: 'mounted', history }
   );
   getByText('Save CVRs');
@@ -79,26 +78,13 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     true
   );
 
-  const lastRequestOptions = fetchMock.lastOptions();
-  assert(lastRequestOptions);
-  assert(lastRequestOptions.body);
-
-  // fetchMock.lastOptions().body appears to be incorrectly typed and actually
-  // returns the stringified JSON request body instead of the parsed object -
-  // forcing it into a string type here.
-  const requestBody = lastRequestOptions.body.toString();
-
-  expect(safeParseJson(requestBody).unsafeUnwrap()).toEqual({
-    filename: expect.stringMatching(/^TEST__machine_0000__5_ballots__[\d-]+/),
-  });
-
   getByText('Eject USB');
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
     wrapInAppContext(
-      <ExportResultsModal onClose={closeFn} numberOfBallots={5} isTestMode />,
+      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
       {
         history,
         usbDriveStatus: 'ejected',
@@ -124,7 +110,7 @@ test('render export modal with errors when appropriate', async () => {
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
-      <ExportResultsModal onClose={closeFn} numberOfBallots={5} isTestMode />
+      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
     </Router>,
     { usbDriveStatus: 'mounted' }
   );

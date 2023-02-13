@@ -6,7 +6,6 @@ import {
   Modal,
   UsbControllerButton,
 } from '@votingworks/ui';
-import { generateFilenameForScanningResults } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
@@ -30,7 +29,6 @@ export const UsbImage = styled.img`
 export interface Props {
   onClose: () => void;
   numberOfBallots: number;
-  isTestMode: boolean;
 }
 
 enum ModalState {
@@ -43,12 +41,11 @@ enum ModalState {
 export function ExportResultsModal({
   onClose,
   numberOfBallots,
-  isTestMode,
 }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { machineConfig, usbDriveEject, usbDriveStatus, auth, logger } =
+  const { usbDriveEject, usbDriveStatus, auth, logger } =
     useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
@@ -59,14 +56,7 @@ export function ExportResultsModal({
     try {
       await logger.log(LogEventId.SaveCvrInit, userRole);
 
-      const cvrFilename = generateFilenameForScanningResults(
-        machineConfig.machineId,
-        numberOfBallots,
-        isTestMode,
-        new Date()
-      );
-
-      await exportCastVoteRecords(cvrFilename);
+      await exportCastVoteRecords();
 
       setCurrentState(ModalState.DONE);
       await logger.log(LogEventId.SaveCvrComplete, userRole, {

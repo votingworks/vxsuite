@@ -14,6 +14,7 @@ import {
 } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
+  generateFilenameForScanningResults,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -29,6 +30,7 @@ import * as grout from '@votingworks/grout';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
+import { VX_MACHINE_ID } from './globals';
 
 const debug = makeDebug('scan:central-scanner');
 
@@ -519,7 +521,7 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.ExportToUsbDriveResponse,
     Scan.ExportToUsbDriveRequest
-  >('/central-scanner/scan/export-to-usb-drive', async (request, response) => {
+  >('/central-scanner/scan/export-to-usb-drive', async (_request, response) => {
     const electionDefinition = store.getElectionDefinition();
     if (!electionDefinition) {
       response.status(400).json({
@@ -534,24 +536,12 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    const parseBodyResult = safeParse(
-      Scan.ExportToUsbDriveRequestSchema,
-      request.body
+    const filename = generateFilenameForScanningResults(
+      VX_MACHINE_ID,
+      store.getBallotsCounted(),
+      store.getTestMode(),
+      new Date()
     );
-    if (parseBodyResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-request',
-            message: parseBodyResult.err().message,
-          },
-        ],
-      });
-      return;
-    }
-
-    const { filename } = request.body;
 
     const exportStream = new PassThrough();
     const exportResultPromise = exporter.exportDataToUsbDrive(
