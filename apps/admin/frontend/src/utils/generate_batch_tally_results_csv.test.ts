@@ -8,7 +8,7 @@ import {
   generateFileContentFromCvrs,
 } from '@votingworks/test-utils';
 import { CastVoteRecord, Election } from '@votingworks/types';
-import { computeFullElectionTally, parseCvrs } from '@votingworks/utils';
+import { computeFullElectionTally, parseCvrs } from '@votingworks/shared';
 import {
   generateBatchTallyResultsCsv,
   generateHeaderRowForBatchResultsCsv,

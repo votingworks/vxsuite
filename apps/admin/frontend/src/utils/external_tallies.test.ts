@@ -17,7 +17,7 @@ import {
   unsafeParse,
   PartyIdSchema,
 } from '@votingworks/types';
-import { combineContestTallies } from '@votingworks/utils';
+import { combineContestTallies } from '@votingworks/shared';
 import { buildExternalTally } from '../../test/helpers/build_external_tally';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 

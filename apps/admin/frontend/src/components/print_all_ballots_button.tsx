@@ -5,7 +5,7 @@ import { Admin } from '@votingworks/api';
 import { LogEventId } from '@votingworks/logging';
 import { BallotLocale, getPrecinctById } from '@votingworks/types';
 import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
-import { BallotStyleData } from '@votingworks/utils';
+import { BallotStyleData } from '@votingworks/shared';
 import {
   Button,
   Modal,

@@ -6,16 +6,15 @@ import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig(async (env) => {
   const workspaceRootPath = join(__dirname, '../../..');
-  const workspacePackages = await getWorkspacePackageInfo(
-    workspaceRootPath
-  );
+  const workspacePackages = await getWorkspacePackageInfo(workspaceRootPath);
 
   const envPrefix = 'REACT_APP_';
   const rootDotenvValues = loadEnv(env.mode, workspaceRootPath, envPrefix);
-  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix)
-  const processEnvDefines = [...Object.entries(rootDotenvValues), ...Object.entries(coreDotenvValues)].reduce<
-    Record<string, string>
-  >(
+  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
+  const processEnvDefines = [
+    ...Object.entries(rootDotenvValues),
+    ...Object.entries(coreDotenvValues),
+  ].reduce<Record<string, string>>(
     (acc, [key, value]) => ({
       ...acc,
       [`process.env.${key}`]: JSON.stringify(value),
@@ -50,16 +49,16 @@ export default defineConfig(async (env) => {
         //
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
-        { find: 'buffer', replacement: require.resolve('buffer/'), },
+        { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'path', replacement: require.resolve('path/'), },
+        { find: 'path', replacement: require.resolve('path/') },
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
 
         // Create aliases for all workspace packages, i.e.
         //
         //   {
         //     '@votingworks/types': '…/libs/types/src/index.ts',
-        //     '@votingworks/utils': '…/libs/utils/src/index.ts',
+        //     '@votingworks/shared': '…/libs/shared/src/index.ts',
         //      …
         //   }
         //

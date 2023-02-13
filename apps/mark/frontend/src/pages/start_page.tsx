@@ -1,4 +1,4 @@
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/shared';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';

@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
 import { render, screen } from '@testing-library/react';
-import { isVxDev } from '@votingworks/utils';
+import { isVxDev } from '@votingworks/shared';
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isVxDev: jest.fn(),
   };
 });

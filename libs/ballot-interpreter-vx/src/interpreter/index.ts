@@ -32,7 +32,7 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert, map, zip, zipMin } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';

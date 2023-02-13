@@ -19,7 +19,7 @@ import {
   electionGridLayoutNewHampshireHudsonFixtures,
   electionPrimaryNonpartisanContestsFixtures,
 } from '@votingworks/fixtures';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,
@@ -80,9 +80,10 @@ jest.mock('@votingworks/ballot-encoder', () => {
     encodeBallot: () => new Uint8Array(),
   };
 });
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original: typeof import('@votingworks/utils') =
-    jest.requireActual('@votingworks/utils');
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
+  const original: typeof import('@votingworks/shared') = jest.requireActual(
+    '@votingworks/shared'
+  );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {

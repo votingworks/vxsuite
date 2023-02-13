@@ -1,4 +1,4 @@
-import { MemoryCard as MockMemoryCard } from '@votingworks/utils';
+import { MemoryCard as MockMemoryCard } from '@votingworks/shared';
 
 import { DippedSmartCardAuthWithMemoryCard } from './dipped_smart_card_auth_with_memory_card';
 

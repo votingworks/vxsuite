@@ -8,7 +8,7 @@ import {
   Election,
 } from '@votingworks/types';
 
-import { canDistinguishVotingMethods, format } from '@votingworks/utils';
+import { canDistinguishVotingMethods, format } from '@votingworks/shared';
 import { Table, TD } from './table';
 
 const BallotSummary = styled.div`

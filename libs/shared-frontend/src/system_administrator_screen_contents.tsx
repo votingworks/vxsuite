@@ -1,6 +1,6 @@
 import React from 'react';
 import { Logger } from '@votingworks/logging';
-import { isVxDev } from '@votingworks/utils';
+import { isVxDev } from '@votingworks/shared';
 
 import { Button } from './button';
 import { Main } from './main';

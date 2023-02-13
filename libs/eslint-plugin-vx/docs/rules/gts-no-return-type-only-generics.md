@@ -10,10 +10,10 @@ This rule is from
 ## Exceptions
 
 There may be times when it makes sense to disregard this rule. A simple example
-of this is `deferred` from `@votingworks/utils`. Here's its type signature:
+of this is `deferred` from `@votingworks/shared`. Here's its type signature:
 
 ```ts
-function deferred<T>(): Deferred<T>
+function deferred<T>(): Deferred<T>;
 ```
 
 This function violates this rule, but we consider it to be acceptable. Why? A
@@ -21,7 +21,7 @@ counterexample will help illustrate. Let's look at what this rule is trying to
 prevent by examining a thin wrapper around `fetch` called `fetchJSON`:
 
 ```ts
-async function fetchJSON<T>(url: string): Promise<T>
+async function fetchJSON<T>(url: string): Promise<T>;
 ```
 
 This function violates the rule and is **not** an example of a good exception.
@@ -30,7 +30,7 @@ type safety. For example, nothing here guarantees that `response` actually has
 the shape of `MachineConfig`:
 
 ```ts
-const response: MachineConfig = await fetchJSON('/machine-config')
+const response: MachineConfig = await fetchJSON('/machine-config');
 ```
 
 This _looks_ like something TypeScript will validate, but it simply infers
@@ -39,11 +39,11 @@ of `deferred`:
 
 ```ts
 function asyncRandomBoolean(): Promise<boolean> {
-  const { promise, resolve } = deferred<boolean>()
+  const { promise, resolve } = deferred<boolean>();
   setTimeout(() => {
-    resolve(Math.random() < 0.5)
-  }, 10)
-  return promise
+    resolve(Math.random() < 0.5);
+  }, 10);
+  return promise;
 }
 ```
 
@@ -54,11 +54,11 @@ we'd instead have to do this:
 
 ```ts
 function asyncRandomBoolean(): Promise<boolean> {
-  const { promise, resolve } = deferred()
+  const { promise, resolve } = deferred();
   setTimeout(() => {
-    resolve(Math.random() < 0.5)
-  }, 10)
-  return promise as Promise<boolean>
+    resolve(Math.random() < 0.5);
+  }, 10);
+  return promise as Promise<boolean>;
 }
 ```
 
@@ -76,7 +76,7 @@ async function fetchJSON<T>(url: string): Promise<T> {
   // …
 }
 
-const anyValue = existingFnWithReturnTypeOnlyGenerics()
+const anyValue = existingFnWithReturnTypeOnlyGenerics();
 ```
 
 Examples of **correct** code for this rule:
@@ -86,5 +86,5 @@ async function fetchJSON(url: string): unknown {
   // …
 }
 
-const anyValue = existingFnWithReturnTypeOnlyGenerics<string>()
+const anyValue = existingFnWithReturnTypeOnlyGenerics<string>();
 ```

@@ -1,5 +1,5 @@
 import { Election } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 
 export function electionToDisplayString(election: Election): string {
   const electionDateFormatted = format.localeWeekdayAndDate(

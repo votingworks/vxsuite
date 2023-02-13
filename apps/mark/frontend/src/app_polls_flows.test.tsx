@@ -20,7 +20,7 @@ import {
   ReportSourceMachineType,
   ScannerBallotCountReportData,
   ScannerTallyReportData,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleDefinition,

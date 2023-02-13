@@ -7,7 +7,7 @@ import {
   MarkStatus,
   MarkThresholds,
 } from '@votingworks/types';
-import { ballotAdjudicationReasons } from '@votingworks/utils';
+import { ballotAdjudicationReasons } from '@votingworks/shared';
 import { InterpretedOvalMark } from '../types';
 
 /**

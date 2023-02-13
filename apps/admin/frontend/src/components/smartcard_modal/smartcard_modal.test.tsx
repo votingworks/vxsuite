@@ -16,7 +16,7 @@ import {
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '@testing-library/react';
 

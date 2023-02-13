@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { render, screen } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSampleDefinition,

@@ -1,7 +1,7 @@
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { ElectionDefinition, unsafeParse } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { BallotPackage, BallotPackageEntry } from '@votingworks/utils';
+import { BallotPackage, BallotPackageEntry } from '@votingworks/shared';
 import { EventEmitter } from 'events';
 import { assert } from '@votingworks/basics';
 import { setElection } from './config';

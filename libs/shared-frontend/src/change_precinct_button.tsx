@@ -9,7 +9,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   getPrecinctSelectionName,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Select } from './select';

@@ -20,7 +20,7 @@ import {
 } from '@votingworks/types';
 
 import { assert, collections, groupBy } from '@votingworks/basics';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';

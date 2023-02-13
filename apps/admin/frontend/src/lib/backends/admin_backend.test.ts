@@ -7,7 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import { BallotId, CastVoteRecord } from '@votingworks/types';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/shared';
 import fetchMock from 'fetch-mock';
 import moment from 'moment';
 import {

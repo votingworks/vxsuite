@@ -51,7 +51,7 @@ import {
   ScannerReportDataSchema,
   isPollsSuspensionTransition,
   ScannerBallotCountReportData,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { LogEventId, Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type

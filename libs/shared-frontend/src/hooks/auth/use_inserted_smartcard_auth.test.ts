@@ -15,7 +15,7 @@ import {
   fakeCardlessVoterUser,
 } from '@votingworks/test-utils';
 import { PrecinctSelection, UserRole } from '@votingworks/types';
-import { MemoryCard, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { MemoryCard, singlePrecinctSelectionFor } from '@votingworks/shared';
 
 import { isPollWorkerAuth, isCardlessVoterAuth } from './auth_helpers';
 import { useInsertedSmartcardAuth } from './use_inserted_smartcard_auth';

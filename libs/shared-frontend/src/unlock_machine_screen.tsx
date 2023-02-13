@@ -9,7 +9,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { assert } from '@votingworks/basics';
 import { Screen } from './screen';

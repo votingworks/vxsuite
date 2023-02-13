@@ -14,7 +14,7 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';

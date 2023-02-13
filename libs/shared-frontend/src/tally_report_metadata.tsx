@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Election } from '@votingworks/types';
 
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 
 import { Text } from './text';
 

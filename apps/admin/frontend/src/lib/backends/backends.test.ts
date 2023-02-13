@@ -12,7 +12,7 @@ import {
   safeParseJson,
   VotingMethod,
 } from '@votingworks/types';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';

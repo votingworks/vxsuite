@@ -19,7 +19,7 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { time } from '@votingworks/utils';
+import { time } from '@votingworks/shared';
 import { err, ok, Result } from '@votingworks/basics';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';

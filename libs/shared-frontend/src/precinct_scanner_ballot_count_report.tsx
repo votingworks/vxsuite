@@ -8,7 +8,7 @@ import {
   getPollsStateName,
   getPollsTransitionActionPastTense,
   getPollsTransitionDestinationState,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';

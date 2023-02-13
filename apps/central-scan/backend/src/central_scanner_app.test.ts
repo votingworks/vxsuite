@@ -19,7 +19,7 @@ import {
   generateElectionBasedSubfolderName,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import * as fs from 'fs/promises';

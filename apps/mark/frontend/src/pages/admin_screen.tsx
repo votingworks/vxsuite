@@ -5,7 +5,7 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { makeAsync } from '@votingworks/utils';
+import { makeAsync } from '@votingworks/shared';
 import {
   Button,
   ChangePrecinctButton,

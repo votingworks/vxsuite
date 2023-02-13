@@ -33,8 +33,8 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/shared": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "node-fetch": "^2.6.0",
     "zod": "3.14.4"
   },

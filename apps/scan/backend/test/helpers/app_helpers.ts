@@ -1,7 +1,7 @@
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';

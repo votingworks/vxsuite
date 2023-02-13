@@ -7,7 +7,7 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   PrecinctSelection,
 } from '@votingworks/types';
-import { getPrecinctSelectionName, format } from '@votingworks/utils';
+import { getPrecinctSelectionName, format } from '@votingworks/shared';
 
 import { Prose, Text, NoWrap } from '@votingworks/shared-frontend';
 import pluralize from 'pluralize';

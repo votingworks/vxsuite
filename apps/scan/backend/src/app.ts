@@ -13,7 +13,7 @@ import {
   ScannerReportData,
   ScannerReportDataSchema,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import { ExportDataError } from '@votingworks/shared-backend';

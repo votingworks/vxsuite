@@ -4,7 +4,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { takeAsync } from '@votingworks/basics';
-import { readBallotPackageFromBuffer } from '@votingworks/utils';
+import { readBallotPackageFromBuffer } from '@votingworks/shared';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
 import { generateCvrs, IncludeBallotImagesOption } from '../../generate_cvrs';

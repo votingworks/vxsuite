@@ -16,7 +16,7 @@ import {
   ElectionDefinitionSchema,
   UserRole,
 } from '@votingworks/types';
-import { MemoryCard } from '@votingworks/utils';
+import { MemoryCard } from '@votingworks/shared';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,

@@ -4,7 +4,7 @@ import {
   getHardware,
   getPrinter,
   getConverterClientType,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';

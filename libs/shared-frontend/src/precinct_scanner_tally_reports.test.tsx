@@ -11,7 +11,7 @@ import {
   getEmptyTally,
   getSubTalliesByPartyAndPrecinct,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
 
 test('polls closed: tally reports for each party in primary, single precinct', () => {

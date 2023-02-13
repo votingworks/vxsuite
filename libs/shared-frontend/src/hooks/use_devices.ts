@@ -11,7 +11,7 @@ import {
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { useEffect, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';

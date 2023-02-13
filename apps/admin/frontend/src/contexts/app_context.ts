@@ -9,7 +9,7 @@ import {
   Printer,
   VotingMethod,
 } from '@votingworks/types';
-import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
+import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/shared';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/shared-frontend';
 import {

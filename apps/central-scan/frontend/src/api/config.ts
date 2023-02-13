@@ -5,7 +5,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
-import { fetchJson } from '@votingworks/utils';
+import { fetchJson } from '@votingworks/shared';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,

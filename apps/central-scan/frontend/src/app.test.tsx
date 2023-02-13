@@ -18,7 +18,7 @@ import {
   fakeSystemAdministratorUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { typedAs, sleep } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import { ElectionDefinition } from '@votingworks/types';

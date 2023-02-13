@@ -37,8 +37,8 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/node": "16.11.29",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/shared": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "debug": "^4.3.2",
     "yargs": "^16.2.0",
     "zod": "3.14.4"

@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/shared';
 import {
   makeElectionManagerCard,
   makePollWorkerCard,

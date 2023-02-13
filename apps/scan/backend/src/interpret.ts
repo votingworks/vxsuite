@@ -16,7 +16,7 @@ import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
-import { time } from '@votingworks/utils';
+import { time } from '@votingworks/shared';
 import { err, ok, Result } from '@votingworks/basics';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';

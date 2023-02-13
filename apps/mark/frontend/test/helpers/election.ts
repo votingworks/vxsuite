@@ -5,7 +5,7 @@ import {
   getContests,
   YesNoContest,
 } from '@votingworks/types';
-import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
+import { singlePrecinctSelectionFor, Storage } from '@votingworks/shared';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
 

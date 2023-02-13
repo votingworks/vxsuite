@@ -12,7 +12,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';

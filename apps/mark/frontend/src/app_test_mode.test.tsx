@@ -6,7 +6,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/shared';
 
 import {
   setElectionInStorage,

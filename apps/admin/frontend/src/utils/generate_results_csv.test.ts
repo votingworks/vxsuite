@@ -1,6 +1,6 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { CastVoteRecord, Election } from '@votingworks/types';
-import { computeFullElectionTally, parseCvrs } from '@votingworks/utils';
+import { computeFullElectionTally, parseCvrs } from '@votingworks/shared';
 import { generateResultsCsv } from './generate_results_csv';
 
 function parseCvrsAndAssertSuccess(

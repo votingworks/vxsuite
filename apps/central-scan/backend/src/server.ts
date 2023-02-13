@@ -2,7 +2,7 @@ import { Exporter, getUsbDrives } from '@votingworks/shared-backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
-import { WebServiceCard } from '@votingworks/utils';
+import { WebServiceCard } from '@votingworks/shared';
 import { Server } from 'http';
 import { PORT, SCAN_ALLOWED_EXPORT_PATTERNS, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';

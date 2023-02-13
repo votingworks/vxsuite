@@ -14,12 +14,12 @@ import {
   OmniKeyCardReaderVendorId,
   PlustekScannerVendorId,
   PlustekVtm300ScannerProductId,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

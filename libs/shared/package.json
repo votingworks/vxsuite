@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/utils",
+  "name": "@votingworks/shared",
   "version": "1.0.0",
   "private": true,
   "description": "Utilities for the monorepo.",
@@ -11,16 +11,16 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC jest --watch",
-    "test:coverage": "TZ=UTC jest --coverage",
     "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
-    "pre-commit": "lint-staged"
+    "test:coverage": "TZ=UTC jest --coverage",
+    "test:watch": "TZ=UTC jest --watch",
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [

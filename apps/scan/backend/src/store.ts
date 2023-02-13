@@ -39,7 +39,7 @@ import {
   SheetOf,
   Side,
 } from '@votingworks/types';
-import { BallotPackageEntry } from '@votingworks/utils';
+import { BallotPackageEntry } from '@votingworks/shared';
 import { assert, find } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';

@@ -13,7 +13,7 @@ import {
   generateFilenameForScanningResults,
   SCANNER_RESULTS_FOLDER,
   usbstick,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { LogEventId } from '@votingworks/logging';
 import { Scan } from '@votingworks/api';

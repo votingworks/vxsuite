@@ -3,7 +3,7 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import React from 'react';
 import { Admin } from '@votingworks/api';

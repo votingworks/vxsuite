@@ -5,7 +5,7 @@ import {
   singlePrecinctSelectionFor,
   MemoryHardware,
   MemoryStorage,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { waitFor, screen, within, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

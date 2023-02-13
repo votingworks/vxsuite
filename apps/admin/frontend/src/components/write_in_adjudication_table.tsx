@@ -10,7 +10,7 @@ import {
   TH,
 } from '@votingworks/shared-frontend';
 import { find } from '@votingworks/basics';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 

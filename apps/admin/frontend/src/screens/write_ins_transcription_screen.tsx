@@ -18,7 +18,7 @@ import {
   Prose,
   HorizontalRule,
 } from '@votingworks/shared-frontend';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { Navigation } from '../components/navigation';

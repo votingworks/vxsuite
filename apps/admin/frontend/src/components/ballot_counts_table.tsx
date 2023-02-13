@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Table, TD } from '@votingworks/shared-frontend';
 import {

@@ -3,7 +3,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { MemoryRouter } from 'react-router-dom';
 import {
   DiagnosticsScreen,

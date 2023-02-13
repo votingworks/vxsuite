@@ -18,7 +18,7 @@ import {
   fetchJson,
   parseCvrFileInfoFromFilename,
   Storage,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { z } from 'zod';
 import {
   convertExternalTalliesToStorageString,

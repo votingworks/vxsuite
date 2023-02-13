@@ -1,5 +1,5 @@
 import { safeParseElectionDefinition } from '@votingworks/types';
-import { BallotPackageManifest } from '@votingworks/utils';
+import { BallotPackageManifest } from '@votingworks/shared';
 import { readFileSync } from 'fs-extra';
 import { join } from 'path';
 

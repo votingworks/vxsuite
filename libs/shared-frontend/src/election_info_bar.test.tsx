@@ -7,7 +7,7 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { getDisplayElectionHash } from '@votingworks/types';
 import { ElectionInfoBar } from './election_info_bar';
 

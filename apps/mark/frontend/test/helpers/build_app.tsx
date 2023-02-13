@@ -1,6 +1,6 @@
 import { render, RenderResult } from '@testing-library/react';
 import { fakeLogger, Logger } from '@votingworks/logging';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/shared';
 import React from 'react';
 import { App } from '../../src/app';
 import { ScreenReader, TextToSpeech } from '../../src/config/types';

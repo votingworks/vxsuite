@@ -13,7 +13,7 @@ import {
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   combineContestTallies,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 
 import { Prose } from './prose';

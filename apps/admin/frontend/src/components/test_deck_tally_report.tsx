@@ -7,7 +7,7 @@ import {
   TallyCategory,
   YesNoVote,
 } from '@votingworks/types';
-import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
+import { computeTallyWithPrecomputedCategories } from '@votingworks/shared';
 import { ElectionManagerTallyReport } from './election_manager_tally_report';
 import { TestDeckBallot } from '../utils/election';
 

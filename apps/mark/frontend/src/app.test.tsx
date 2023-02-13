@@ -5,7 +5,7 @@ import {
   MemoryCard,
   MemoryHardware,
   MemoryStorage,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import fetchMock from 'fetch-mock';
 import * as React from 'react';

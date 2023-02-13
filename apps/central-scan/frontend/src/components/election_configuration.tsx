@@ -7,7 +7,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   ElectionData,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   isElectionManagerAuth,
   Main,

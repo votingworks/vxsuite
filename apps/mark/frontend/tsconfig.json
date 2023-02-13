@@ -26,6 +26,6 @@
     { "path": "../../../libs/grout/test-utils/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },
     { "path": "../../../libs/shared-frontend/tsconfig.build.json" },
-    { "path": "../../../libs/utils/tsconfig.build.json" }
+    { "path": "../../../libs/shared/tsconfig.build.json" }
   ]
 }

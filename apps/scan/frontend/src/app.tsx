@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import { getHardware } from '@votingworks/utils';
+import { getHardware } from '@votingworks/shared';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppBase, ErrorBoundary, Text } from '@votingworks/shared-frontend';

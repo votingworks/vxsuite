@@ -26,7 +26,7 @@ import {
   formatLongDate,
   getSingleYesNoVote,
   randomBallotId,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { assert } from '@votingworks/basics';
 import { DisplayTextForYesOrNo } from './globals';

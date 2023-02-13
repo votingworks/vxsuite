@@ -1,7 +1,7 @@
 import {
   ALL_PARTY_FILTER,
   filterTalliesByParamsAndBatchId,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   Election,
   writeInCandidate,

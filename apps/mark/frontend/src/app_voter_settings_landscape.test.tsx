@@ -5,7 +5,7 @@ import {
   makeElectionManagerCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/shared';
 import { fakeLogger } from '@votingworks/logging';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';

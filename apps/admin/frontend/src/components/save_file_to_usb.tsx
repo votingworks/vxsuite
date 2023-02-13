@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { join } from 'path';
 import fileDownload from 'js-file-download';
 import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
-import { usbstick } from '@votingworks/utils';
+import { usbstick } from '@votingworks/shared';
 
 import {
   Button,

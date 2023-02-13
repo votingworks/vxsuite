@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Admin } from '@votingworks/api';
 import { Dictionary } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import {
   isElectionManagerAuth,
   LogoMark,

@@ -16,7 +16,7 @@ import {
   FullElectionExternalTallies,
   ContestId,
 } from '@votingworks/types';
-import { combineContestTallies } from '@votingworks/utils';
+import { combineContestTallies } from '@votingworks/shared';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import {

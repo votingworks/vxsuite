@@ -4,7 +4,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import React from 'react';
 import { ServicesContext } from '../contexts/services_context';

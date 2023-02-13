@@ -16,7 +16,7 @@ import {
   calculateTallyForCastVoteRecords,
   filterTallyContestsByParty,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 

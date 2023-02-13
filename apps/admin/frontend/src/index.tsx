@@ -9,7 +9,7 @@ import {
   isFeatureFlagEnabled,
   KioskStorage,
   LocalStorage,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Logger, LogSource } from '@votingworks/logging';
 import { ErrorBoundary, Prose, Text } from '@votingworks/shared-frontend';
 import { App } from './app';

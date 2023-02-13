@@ -11,7 +11,7 @@
  */
 
 import { safeParseJson } from '@votingworks/types';
-import { deferred } from '@votingworks/utils';
+import { deferred } from '@votingworks/shared';
 import makeDebug from 'debug';
 import { createReadStream } from 'fs';
 import { createServer, IncomingMessage } from 'http';

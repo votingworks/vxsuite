@@ -1,5 +1,5 @@
 import React from 'react';
-import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
+import { computeTallyWithPrecomputedCategories } from '@votingworks/shared';
 import { ExternalTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {

@@ -8,7 +8,7 @@ import {
   BallotConfig,
   BallotPackageEntry,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { copyFile, writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
 import { join } from 'path';
@@ -23,9 +23,9 @@ import { exportCastVoteRecordsAsNdJson } from './export';
 
 const BlankJpegPath = join(__dirname, '../../test/blank.jpg');
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

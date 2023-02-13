@@ -19,7 +19,7 @@ import {
   getDisplayElectionHash,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
-import { BallotStyleData } from '@votingworks/utils';
+import { BallotStyleData } from '@votingworks/shared';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 

@@ -14,7 +14,7 @@ import {
   PageInterpretationWithFiles,
   SheetOf,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';

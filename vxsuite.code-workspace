@@ -77,10 +77,6 @@
       "path": "libs/cvr-fixture-generator"
     },
     {
-      "name": "libs/shared-backend",
-      "path": "libs/shared-backend"
-    },
-    {
       "name": "libs/db",
       "path": "libs/db"
     },
@@ -121,6 +117,18 @@
       "path": "libs/res-to-ts"
     },
     {
+      "name": "libs/shared",
+      "path": "libs/shared"
+    },
+    {
+      "name": "libs/shared-backend",
+      "path": "libs/shared-backend"
+    },
+    {
+      "name": "libs/shared-frontend",
+      "path": "libs/shared-frontend"
+    },
+    {
       "name": "libs/test-utils",
       "path": "libs/test-utils"
     },
@@ -129,16 +137,8 @@
       "path": "libs/types"
     },
     {
-      "name": "libs/shared-frontend",
-      "path": "libs/shared-frontend"
-    },
-    {
       "name": "libs/usb-mocking",
       "path": "libs/usb-mocking"
-    },
-    {
-      "name": "libs/utils",
-      "path": "libs/utils"
     },
     {
       "name": "services/converter-ms-sems",

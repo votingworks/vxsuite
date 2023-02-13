@@ -1,6 +1,6 @@
 import useInterval from 'use-interval';
 import { assert, sleep } from '@votingworks/basics';
-import { usbstick } from '@votingworks/utils';
+import { usbstick } from '@votingworks/shared';
 import { useCallback, useRef, useState } from 'react';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useCancelablePromise } from './use_cancelable_promise';

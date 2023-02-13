@@ -16,7 +16,7 @@ import {
   BallotConfig,
   BallotPackageEntry,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import * as fs from 'fs/promises';

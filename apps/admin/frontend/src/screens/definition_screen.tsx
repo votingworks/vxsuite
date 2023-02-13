@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Contest, getContestDistrictName } from '@votingworks/types';
 import styled from 'styled-components';
 
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert } from '@votingworks/basics';
 
 import { Prose, Text } from '@votingworks/shared-frontend';

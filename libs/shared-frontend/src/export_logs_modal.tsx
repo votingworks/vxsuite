@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { join } from 'path';
-import { usbstick, generateLogFilename, LogFileType } from '@votingworks/utils';
+import {
+  usbstick,
+  generateLogFilename,
+  LogFileType,
+} from '@votingworks/shared';
 
 import {
   LogEventId,

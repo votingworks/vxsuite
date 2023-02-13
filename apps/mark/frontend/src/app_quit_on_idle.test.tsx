@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/shared';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';

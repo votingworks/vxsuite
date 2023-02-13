@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/react';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/shared';
 import { z } from 'zod';
 import { useStoredState } from './use_stored_state';
 

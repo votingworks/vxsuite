@@ -10,7 +10,7 @@ import {
   isPollWorkerAuth,
   SystemAdministratorScreenContents,
 } from '@votingworks/shared-frontend';
-import { Hardware } from '@votingworks/utils';
+import { Hardware } from '@votingworks/shared';
 import { Logger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';

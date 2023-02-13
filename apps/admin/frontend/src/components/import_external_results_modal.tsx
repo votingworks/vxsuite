@@ -8,7 +8,7 @@ import {
   Modal,
   Prose,
 } from '@votingworks/shared-frontend';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert } from '@votingworks/basics';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';

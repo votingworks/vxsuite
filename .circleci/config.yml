@@ -787,7 +787,7 @@ jobs:
       - store_test_results:
           path: libs/shared-frontend/reports/
 
-  test-libs-utils:
+  test-libs-shared:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -795,19 +795,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir libs/utils build
+            pnpm --dir libs/shared build
       - run:
           name: Lint
           command: |
-            pnpm --dir libs/utils lint
+            pnpm --dir libs/shared lint
       - run:
           name: Test
           command: |
-            pnpm --dir libs/utils test
+            pnpm --dir libs/shared test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: libs/utils/reports/
+          path: libs/shared/reports/
 
   test-services-converter-ms-sems:
     docker:
@@ -900,7 +900,7 @@ workflows:
       - test-libs-test-utils
       - test-libs-types
       - test-libs-shared-frontend
-      - test-libs-utils
+      - test-libs-shared
       - test-services-converter-ms-sems
       - test-services-smartcards
       - validate-monorepo

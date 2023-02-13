@@ -3,7 +3,7 @@ import {
   Election,
   ElectionDefinition,
 } from '@votingworks/types';
-import { format, formatFullDateTimeZone } from '@votingworks/utils';
+import { format, formatFullDateTimeZone } from '@votingworks/shared';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';

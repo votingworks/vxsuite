@@ -24,7 +24,7 @@ import {
   Hardware,
   singlePrecinctSelectionFor,
   makeAsync,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 
 import { LogEventId, Logger } from '@votingworks/logging';
 

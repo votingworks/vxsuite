@@ -1,4 +1,4 @@
-import { BALLOT_PDFS_FOLDER } from '@votingworks/utils';
+import { BALLOT_PDFS_FOLDER } from '@votingworks/shared';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Prose } from '@votingworks/shared-frontend';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import styled from 'styled-components';
 import { Absolute } from './absolute';
 

@@ -7,7 +7,7 @@ import {
   formatTimeZoneName,
   getDaysInMonth,
   MONTHS_SHORT,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { SelectChangeEventFunction } from '@votingworks/types';
 import { integers } from '@votingworks/basics';
 import { Prose } from './prose';

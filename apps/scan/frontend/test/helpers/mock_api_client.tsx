@@ -1,6 +1,6 @@
 import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/shared';
 import {
   CastVoteRecord,
   ElectionDefinition,

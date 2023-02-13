@@ -9,7 +9,7 @@ import {
   usbstick,
   BallotStyleData,
   BALLOT_PDFS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,

@@ -34,7 +34,7 @@ import {
   adjudicationReasonDescription,
   ballotAdjudicationReasons,
   time,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';

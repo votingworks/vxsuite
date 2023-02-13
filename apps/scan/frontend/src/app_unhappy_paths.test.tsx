@@ -7,7 +7,7 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryHardware, MemoryStorage } from '@votingworks/shared';
 
 import userEvent from '@testing-library/user-event';
 

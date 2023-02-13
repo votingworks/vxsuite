@@ -3,7 +3,7 @@ import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import MockDate from 'mockdate';
 import React from 'react';
 import { mocked } from 'ts-jest/utils';
@@ -20,9 +20,9 @@ import {
 
 let apiMock: ApiMock;
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

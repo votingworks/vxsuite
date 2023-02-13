@@ -7,7 +7,7 @@ import {
   CandidateContest,
   Election,
 } from '@votingworks/types';
-import { allContestOptions } from '@votingworks/utils';
+import { allContestOptions } from '@votingworks/shared';
 import { getScannedBallotCardGeometry } from './accuvote';
 import { computeTimingMarkGrid } from './timing_marks';
 import {

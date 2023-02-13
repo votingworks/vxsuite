@@ -6,7 +6,7 @@ import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { mockOf } from '@votingworks/test-utils';
 import { integers, take } from '@votingworks/basics';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
@@ -16,9 +16,9 @@ import {
   provideApi,
 } from '../../test/helpers/mock_api_client';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

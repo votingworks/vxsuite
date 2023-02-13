@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
-import { format } from '@votingworks/utils';
+import { format } from '@votingworks/shared';
 import { assert, find } from '@votingworks/basics';
 import {
   Button,

@@ -9,13 +9,13 @@ import { DippedSmartCardAuth } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import React from 'react';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     isFeatureFlagEnabled: jest.fn(),
   };
 });

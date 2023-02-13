@@ -18,7 +18,7 @@ import {
   Hardware,
   computeFullElectionTally,
   getEmptyFullElectionTally,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { useUsbDrive, useDevices } from '@votingworks/shared-frontend';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';

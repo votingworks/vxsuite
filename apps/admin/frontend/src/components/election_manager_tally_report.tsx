@@ -29,7 +29,7 @@ import {
   filterTalliesByParams,
   modifyTallyWithWriteInInfo,
   NONPARTISAN_FILTER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import React from 'react';
 
 import { find } from '@votingworks/basics';

@@ -14,7 +14,7 @@ import {
   MemoryCard,
   MemoryHardware,
   ReportSourceMachineType,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';

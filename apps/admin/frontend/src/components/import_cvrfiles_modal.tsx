@@ -17,7 +17,7 @@ import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
   usbstick,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 

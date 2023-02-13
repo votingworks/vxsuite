@@ -4,7 +4,7 @@ import { LogSource, Logger } from '@votingworks/logging';
 import { Dipped } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/shared-frontend';
-import { MemoryStorage, Storage } from '@votingworks/utils';
+import { MemoryStorage, Storage } from '@votingworks/shared';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';

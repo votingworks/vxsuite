@@ -14,7 +14,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Readable } from 'stream';
 import { Store } from '../store';
 import {

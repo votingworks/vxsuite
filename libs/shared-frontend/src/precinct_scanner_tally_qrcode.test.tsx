@@ -12,7 +12,7 @@ import {
 import {
   calculateTallyForCastVoteRecords,
   compressTally,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 
 import {

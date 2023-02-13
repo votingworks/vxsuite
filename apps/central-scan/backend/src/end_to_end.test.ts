@@ -12,7 +12,7 @@ import { CastVoteRecord } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';

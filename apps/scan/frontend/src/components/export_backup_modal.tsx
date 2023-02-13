@@ -7,7 +7,7 @@ import {
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/shared-frontend';
-import { usbstick } from '@votingworks/utils';
+import { usbstick } from '@votingworks/shared';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { backupToUsbDrive } from '../api';

@@ -5,7 +5,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/shared';
 
 import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';

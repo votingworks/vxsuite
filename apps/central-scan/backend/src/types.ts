@@ -6,7 +6,7 @@ import {
   MarkThresholds,
   PageInterpretation,
 } from '@votingworks/types';
-import { BallotStyleData } from '@votingworks/utils';
+import { BallotStyleData } from '@votingworks/shared';
 
 export interface PageInterpretationWithAdjudication<
   T extends PageInterpretation = PageInterpretation

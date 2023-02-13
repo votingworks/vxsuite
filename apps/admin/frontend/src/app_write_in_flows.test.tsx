@@ -5,7 +5,7 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,

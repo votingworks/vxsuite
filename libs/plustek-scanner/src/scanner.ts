@@ -7,7 +7,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { safeParse, SheetOf } from '@votingworks/types';
-import { time } from '@votingworks/utils';
+import { time } from '@votingworks/shared';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
 import path from 'path';

@@ -6,7 +6,7 @@ import {
   BallotPackageManifest,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { Application } from 'express';

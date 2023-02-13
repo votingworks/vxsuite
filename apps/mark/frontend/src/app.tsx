@@ -10,7 +10,7 @@ import {
   LocalStorage,
   getHardware,
   isAccessibleController,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {

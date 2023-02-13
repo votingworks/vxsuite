@@ -36,8 +36,8 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/shared": "*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "*",
     "zod": "3.14.4"
   },
   "devDependencies": {

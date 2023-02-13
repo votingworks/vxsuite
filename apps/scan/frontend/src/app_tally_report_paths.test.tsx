@@ -25,7 +25,7 @@ import {
   ReportSourceMachineType,
   MemoryHardware,
   MemoryStorage,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   CastVoteRecord,
   CompressedTally,

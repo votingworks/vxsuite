@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { MemoryCard, MemoryStorage } from '@votingworks/utils';
+import { MemoryCard, MemoryStorage } from '@votingworks/shared';
 import {
   advanceTimersAndPromises,
   makePollWorkerCard,

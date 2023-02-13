@@ -21,11 +21,10 @@ jest.mock(
   }
 );
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original =
-    jest.requireActual<typeof import('@votingworks/utils')>(
-      '@votingworks/utils'
-    );
+jest.mock('@votingworks/shared', (): typeof import('@votingworks/shared') => {
+  const original = jest.requireActual<typeof import('@votingworks/shared')>(
+    '@votingworks/shared'
+  );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {

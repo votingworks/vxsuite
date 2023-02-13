@@ -18,7 +18,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   BallotConfig,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,

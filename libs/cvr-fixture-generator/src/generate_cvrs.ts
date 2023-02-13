@@ -16,7 +16,7 @@ import {
   BallotPackage,
   BallotPackageEntry,
   castVoteRecordHasWriteIns,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   assert,
   mapAsync,

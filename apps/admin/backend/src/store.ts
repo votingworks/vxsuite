@@ -18,7 +18,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { ParseCastVoteRecordResult, parseCvrs } from '@votingworks/utils';
+import { ParseCastVoteRecordResult, parseCvrs } from '@votingworks/shared';
 import * as fs from 'fs';
 import { join } from 'path';
 import * as readline from 'readline';

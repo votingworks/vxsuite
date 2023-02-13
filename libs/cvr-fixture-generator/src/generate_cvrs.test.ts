@@ -7,7 +7,7 @@ import { BallotType, SheetOf } from '@votingworks/types';
 import {
   castVoteRecordHasWriteIns,
   readBallotPackageFromBuffer,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { takeAsync, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 

@@ -9,7 +9,7 @@ import {
 import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
-import { KioskStorage, LocalStorage, Hardware } from '@votingworks/utils';
+import { KioskStorage, LocalStorage, Hardware } from '@votingworks/shared';
 import {
   ElectionInfoBar,
   isSystemAdministratorAuth,

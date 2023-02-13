@@ -16,7 +16,7 @@ import {
   SystemAdministratorCardData,
   User,
 } from '@votingworks/types';
-import { generatePin } from '@votingworks/utils';
+import { generatePin } from '@votingworks/shared';
 
 import {
   DippedSmartCardAuthApi,

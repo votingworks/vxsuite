@@ -1,6 +1,6 @@
 import { Admin } from '@votingworks/api';
 import { BallotLocale, ElectionDefinition } from '@votingworks/types';
-import { BallotConfig } from '@votingworks/utils';
+import { BallotConfig } from '@votingworks/shared';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 

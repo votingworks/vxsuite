@@ -16,6 +16,6 @@
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" }
+    { "path": "../shared/tsconfig.build.json" }
   ]
 }

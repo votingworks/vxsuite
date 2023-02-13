@@ -14,7 +14,7 @@ import {
   ScannerReportDataSchema,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert, err, ok, Result } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';

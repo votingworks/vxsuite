@@ -11,7 +11,7 @@ import {
   ScannerReportData,
   singlePrecinctSelectionFor,
   MemoryHardware,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   Inserted,
   fakePollWorkerUser,

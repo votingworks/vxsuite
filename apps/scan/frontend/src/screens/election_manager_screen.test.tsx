@@ -13,7 +13,7 @@ import {
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/shared';
 import MockDate from 'mockdate';
 import React from 'react';
 import {

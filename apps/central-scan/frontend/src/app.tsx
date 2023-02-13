@@ -1,5 +1,5 @@
 import React from 'react';
-import { getHardware } from '@votingworks/utils';
+import { getHardware } from '@votingworks/shared';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
 import { ColorMode } from '@votingworks/types';

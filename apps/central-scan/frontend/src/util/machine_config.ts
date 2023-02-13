@@ -1,5 +1,5 @@
 import { Provider, unsafeParse } from '@votingworks/types';
-import { fetchJson } from '@votingworks/utils';
+import { fetchJson } from '@votingworks/shared';
 import { MachineConfig, MachineConfigResponseSchema } from '../config/types';
 
 /**

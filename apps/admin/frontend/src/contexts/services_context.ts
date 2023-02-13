@@ -1,5 +1,5 @@
 import { Logger, LogSource } from '@votingworks/logging';
-import { MemoryStorage, Storage } from '@votingworks/utils';
+import { MemoryStorage, Storage } from '@votingworks/shared';
 import { createContext } from 'react';
 import {
   ElectionManagerStoreBackend,

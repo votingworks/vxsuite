@@ -7,7 +7,7 @@ import {
   BallotPackage,
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   Screen,
   Main,

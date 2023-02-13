@@ -22,8 +22,8 @@
     "@votingworks/basics": "*",
     "@votingworks/fixtures": "*",
     "@votingworks/image-utils": "*",
+    "@votingworks/shared": "*",
     "@votingworks/types": "*",
-    "@votingworks/utils": "*",
     "esbuild": "^0.15.7",
     "esbuild-runner": "^2.2.1",
     "yargs": "^17.5.1"

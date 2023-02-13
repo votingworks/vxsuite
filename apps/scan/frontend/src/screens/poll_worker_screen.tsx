@@ -27,7 +27,7 @@ import {
   isPollsSuspensionTransition,
   ScannerTallyReportData,
   ScannerReportDataBase,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   VotingMethod,
   TallyCategory,

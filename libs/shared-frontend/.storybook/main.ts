@@ -48,7 +48,7 @@ const config: StorybookConfig = {
           //
           //   {
           //     '@votingworks/types': '…/libs/types/src/index.ts',
-          //     '@votingworks/utils': '…/libs/utils/src/index.ts',
+          //     '@votingworks/shared': '…/libs/shared/src/index.ts',
           //      …
           //   }
           //

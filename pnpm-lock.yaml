@@ -95,9 +95,9 @@ importers:
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       better-sqlite3: ^7.5.3
       compression: ^1.7.4
       debug: ^4.3.4
@@ -140,8 +140,8 @@ importers:
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       better-sqlite3: 7.5.3
       compression: 1.7.4
       debug: 4.3.4
@@ -243,10 +243,10 @@ importers:
       '@votingworks/grout-test-utils': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-frontend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       '@zip.js/zip.js': ^2.4.12
       array-unique: ^0.3.2
       assert: ^2.0.0
@@ -391,9 +391,9 @@ importers:
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/image-utils': link:../../../libs/image-utils
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-frontend': link:../../../libs/shared-frontend
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       '@zip.js/zip.js': 2.4.12
       array-unique: 0.3.2
       assert: 2.0.0
@@ -632,10 +632,10 @@ importers:
       '@votingworks/grout': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-backend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       better-sqlite3: ^7.5.0
       buffer: ^6.0.3
       canvas: 2.9.1
@@ -691,10 +691,10 @@ importers:
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/image-utils': link:../../../libs/image-utils
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-backend': link:../../../libs/shared-backend
       '@votingworks/test-utils': link:../../../libs/test-utils
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       better-sqlite3: 7.5.3
       buffer: 6.0.3
       canvas: 2.9.1
@@ -790,10 +790,10 @@ importers:
       '@votingworks/grout': workspace:*
       '@votingworks/grout-test-utils': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-frontend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       buffer: ^6.0.3
       dotenv: 8.2.0
       dotenv-expand: 5.1.0
@@ -866,9 +866,9 @@ importers:
       '@votingworks/basics': link:../../../libs/basics
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-frontend': link:../../../libs/shared-frontend
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       buffer: 6.0.3
       dotenv: 8.2.0
       dotenv-expand: 5.1.0
@@ -1128,10 +1128,10 @@ importers:
       '@votingworks/grout-test-utils': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/mark-backend': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-frontend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       abortcontroller-polyfill: ^1.4.0
       babel-eslint: ^10.1.0
       babel-loader: 8.1.0
@@ -1230,9 +1230,9 @@ importers:
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-frontend': link:../../../libs/shared-frontend
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       abortcontroller-polyfill: 1.7.1
       babel-eslint: 10.1.0_eslint@8.33.0
       babel-loader: 8.1.0_ijzbfparldiylzlxam7rtsqhk4
@@ -1429,10 +1429,10 @@ importers:
       '@votingworks/image-utils': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/plustek-scanner': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-backend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       better-sqlite3: ^7.5.0
       buffer: ^6.0.3
       canvas: 2.9.1
@@ -1486,10 +1486,10 @@ importers:
       '@votingworks/image-utils': link:../../../libs/image-utils
       '@votingworks/logging': link:../../../libs/logging
       '@votingworks/plustek-scanner': link:../../../libs/plustek-scanner
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-backend': link:../../../libs/shared-backend
       '@votingworks/test-utils': link:../../../libs/test-utils
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       better-sqlite3: 7.5.3
       buffer: 6.0.3
       canvas: 2.9.1
@@ -1576,10 +1576,10 @@ importers:
       '@votingworks/grout-test-utils': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/scan-backend': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/shared-frontend': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       base64-js: ^1.3.1
       buffer: ^6.0.3
       debug: ^4.3.1
@@ -1644,9 +1644,9 @@ importers:
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
+      '@votingworks/shared': link:../../../libs/shared
       '@votingworks/shared-frontend': link:../../../libs/shared-frontend
       '@votingworks/types': link:../../../libs/types
-      '@votingworks/utils': link:../../../libs/utils
       base64-js: 1.5.1
       buffer: 6.0.3
       debug: 4.3.4
@@ -1802,8 +1802,8 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
+      '@votingworks/shared': '*'
       '@votingworks/types': workspace:*
-      '@votingworks/utils': '*'
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -1826,8 +1826,8 @@ importers:
     dependencies:
       '@votingworks/basics': link:../basics
       '@votingworks/fixtures': link:../fixtures
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       zod: 3.14.4
     devDependencies:
       '@types/jest': 27.4.1
@@ -1860,8 +1860,8 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -1883,8 +1883,8 @@ importers:
     dependencies:
       '@votingworks/basics': link:../basics
       '@votingworks/logging': link:../logging
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       node-fetch: 2.6.7
       zod: 3.14.4
     devDependencies:
@@ -1919,8 +1919,8 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.4
@@ -1944,8 +1944,8 @@ importers:
     dependencies:
       '@antongolub/iso8601': 1.2.1
       '@votingworks/basics': link:../basics
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       js-sha256: 0.9.0
       zod: 3.14.4
     devDependencies:
@@ -1989,9 +1989,9 @@ importers:
       '@votingworks/fixtures': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/res-to-ts': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       '@xmldom/xmldom': ^0.8.1
       buffer: ^6.0.3
       canvas: 2.9.1
@@ -2022,8 +2022,8 @@ importers:
     dependencies:
       '@votingworks/basics': link:../basics
       '@votingworks/image-utils': link:../image-utils
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       '@xmldom/xmldom': 0.8.1
       buffer: 6.0.3
       canvas: 2.9.1
@@ -2084,8 +2084,8 @@ importers:
       '@votingworks/fixtures': workspace:*
       '@votingworks/image-utils': workspace:*
       '@votingworks/qrdetect': ^1.0.1
+      '@votingworks/shared': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       benchmark: ^2.1.4
       buffer: ^6.0.3
       canvas: 2.9.1
@@ -2126,8 +2126,8 @@ importers:
       '@votingworks/basics': link:../basics
       '@votingworks/image-utils': link:../image-utils
       '@votingworks/qrdetect': 1.0.1
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       buffer: 6.0.3
       canvas: 2.9.1
       chalk: 4.1.0
@@ -2297,9 +2297,9 @@ importers:
       '@votingworks/basics': '*'
       '@votingworks/fixtures': '*'
       '@votingworks/image-utils': '*'
+      '@votingworks/shared': '*'
       '@votingworks/test-utils': '*'
       '@votingworks/types': '*'
-      '@votingworks/utils': '*'
       esbuild: ^0.15.7
       esbuild-runner: ^2.2.1
       eslint: ^8.23.1
@@ -2323,8 +2323,8 @@ importers:
       '@votingworks/basics': link:../basics
       '@votingworks/fixtures': link:../fixtures
       '@votingworks/image-utils': link:../image-utils
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       esbuild: 0.15.7
       esbuild-runner: 2.2.1_esbuild@0.15.7
       yargs: 17.5.1
@@ -2649,8 +2649,8 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       canvas: 2.9.1
       debug: ^4.3.4
       eslint-config-prettier: ^8.5.0
@@ -2671,8 +2671,8 @@ importers:
       typescript: 4.6.3
     dependencies:
       '@votingworks/basics': link:../basics
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       canvas: 2.9.1
       debug: 4.3.4
       pdfjs-dist: 2.3.200_webpack@4.44.2
@@ -2713,9 +2713,9 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       debug: ^4.3.2
       esbuild: ^0.14.30
       esbuild-runner: ^2.2.1
@@ -2745,8 +2745,8 @@ importers:
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/node': 16.11.29
       '@votingworks/basics': link:../basics
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       debug: 4.3.2
       yargs: 16.2.0
       zod: 3.14.4
@@ -2836,9 +2836,9 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       debug: ^4.3.2
       esbuild: ^0.14.30
       esbuild-runner: ^2.2.1
@@ -2864,8 +2864,8 @@ importers:
       zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       debug: 4.3.4
       temp: 0.9.4
       xstate: 4.32.1
@@ -2953,6 +2953,103 @@ importers:
       jest-junit: 14.0.1
       jest-watch-typeahead: 0.6.5_jest@27.5.1
       ts-jest: 27.1.3_iw4rdcrg5vuhzjbmw7zex5kcau
+      typescript: 4.6.3
+
+  libs/shared:
+    specifiers:
+      '@types/debug': ^4.1.7
+      '@types/fast-text-encoding': ^1.0.1
+      '@types/jest': ^27.0.3
+      '@types/kiosk-browser': workspace:*
+      '@types/luxon': ^1.26.5
+      '@types/node': 16.11.29
+      '@types/randombytes': ^2.0.0
+      '@types/yargs': ^17.0.12
+      '@typescript-eslint/eslint-plugin': ^5.37.0
+      '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
+      '@votingworks/fixtures': workspace:*
+      '@votingworks/test-utils': workspace:*
+      '@votingworks/types': workspace:*
+      base64-js: ^1.3.1
+      buffer: ^6.0.3
+      debug: ^4.3.2
+      eslint: ^8.23.1
+      eslint-config-prettier: ^8.5.0
+      eslint-import-resolver-node: ^0.3.6
+      eslint-plugin-import: ^2.26.0
+      eslint-plugin-jest: ^26.1.5
+      eslint-plugin-prettier: ^4.2.1
+      eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
+      fast-text-encoding: ^1.0.2
+      fetch-mock: ^9.11.0
+      is-ci-cli: ^2.2.0
+      jest: ^29.4.1
+      jest-environment-jsdom: ^29.4.1
+      jest-fetch-mock: ^3.0.3
+      jest-junit: ^15.0.0
+      jest-watch-typeahead: ^2.2.2
+      jszip: ^3.9.1
+      lint-staged: ^11.0.0
+      luxon: ^1.27.0
+      mockdate: ^3.0.5
+      moment: ^2.29.1
+      prettier: ^2.6.2
+      randombytes: ^2.1.0
+      readline: ^1.3.0
+      sort-package-json: ^1.50.0
+      ts-jest: ^29.0.5
+      typescript: 4.6.3
+      yargs: ^17.5.1
+      zod: 3.14.4
+    dependencies:
+      '@types/node': 16.11.29
+      '@votingworks/basics': link:../basics
+      '@votingworks/types': link:../types
+      base64-js: 1.5.1
+      buffer: 6.0.3
+      debug: 4.3.4
+      fast-text-encoding: 1.0.3
+      fetch-mock: 9.11.0
+      jest-fetch-mock: 3.0.3
+      jszip: 3.9.1
+      luxon: 1.27.0
+      moment: 2.29.1
+      randombytes: 2.1.0
+      readline: 1.3.0
+      yargs: 17.6.0
+      zod: 3.14.4
+    devDependencies:
+      '@types/debug': 4.1.7
+      '@types/fast-text-encoding': 1.0.1
+      '@types/jest': 27.4.1
+      '@types/kiosk-browser': link:../@types/kiosk-browser
+      '@types/luxon': 1.27.1
+      '@types/randombytes': 2.0.0
+      '@types/yargs': 17.0.12
+      '@typescript-eslint/eslint-plugin': 5.49.0_e5nl3pgtbq7irh2db7scmsnz3q
+      '@typescript-eslint/parser': 5.49.0_meject34o2v4gmz2y6b4koze4q
+      '@votingworks/fixtures': link:../fixtures
+      '@votingworks/test-utils': link:../test-utils
+      eslint: 8.33.0
+      eslint-config-prettier: 8.6.0_eslint@8.33.0
+      eslint-import-resolver-node: 0.3.7
+      eslint-plugin-import: 2.27.5_kf2q37rsxgsj6p2nz45hjttose
+      eslint-plugin-jest: 26.6.0_eyss6hqme7i4zp77wcaiosbnhe
+      eslint-plugin-prettier: 4.2.1_jqplj6qf3uqpxpu4gdyhwwasnq
+      eslint-plugin-vx: link:../eslint-plugin-vx
+      fast-check: 2.23.2
+      is-ci-cli: 2.2.0
+      jest: 29.4.2_@types+node@16.11.29
+      jest-environment-jsdom: 29.4.1
+      jest-junit: 15.0.0
+      jest-watch-typeahead: 2.2.2_jest@29.4.2
+      lint-staged: 11.0.0
+      mockdate: 3.0.5
+      prettier: 2.8.3
+      sort-package-json: 1.53.1
+      ts-jest: 29.0.5_aqec6uu4f45ja6dbfmkvwjhadu
       typescript: 4.6.3
 
   libs/shared-backend:
@@ -3063,9 +3160,9 @@ importers:
       '@votingworks/basics': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/shared': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       base64-js: ^1.5.1
       buffer: ^6.0.3
       debug: ^4.3.2
@@ -3128,8 +3225,8 @@ importers:
       '@votingworks/ballot-encoder': link:../ballot-encoder
       '@votingworks/basics': link:../basics
       '@votingworks/logging': link:../logging
+      '@votingworks/shared': link:../shared
       '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       base64-js: 1.5.1
       debug: 4.3.4
       deep-eql: 4.1.3
@@ -3357,103 +3454,6 @@ importers:
       prettier: 2.6.2
       sort-package-json: 1.50.0
       ts-jest: 29.0.5_aqec6uu4f45ja6dbfmkvwjhadu
-      typescript: 4.6.3
-
-  libs/utils:
-    specifiers:
-      '@types/debug': ^4.1.7
-      '@types/fast-text-encoding': ^1.0.1
-      '@types/jest': ^27.0.3
-      '@types/kiosk-browser': workspace:*
-      '@types/luxon': ^1.26.5
-      '@types/node': 16.11.29
-      '@types/randombytes': ^2.0.0
-      '@types/yargs': ^17.0.12
-      '@typescript-eslint/eslint-plugin': ^5.37.0
-      '@typescript-eslint/parser': ^5.37.0
-      '@votingworks/basics': workspace:*
-      '@votingworks/fixtures': workspace:*
-      '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      base64-js: ^1.3.1
-      buffer: ^6.0.3
-      debug: ^4.3.2
-      eslint: ^8.23.1
-      eslint-config-prettier: ^8.5.0
-      eslint-import-resolver-node: ^0.3.6
-      eslint-plugin-import: ^2.26.0
-      eslint-plugin-jest: ^26.1.5
-      eslint-plugin-prettier: ^4.2.1
-      eslint-plugin-vx: workspace:*
-      fast-check: ^2.18.0
-      fast-text-encoding: ^1.0.2
-      fetch-mock: ^9.11.0
-      is-ci-cli: ^2.2.0
-      jest: ^29.4.1
-      jest-environment-jsdom: ^29.4.1
-      jest-fetch-mock: ^3.0.3
-      jest-junit: ^15.0.0
-      jest-watch-typeahead: ^2.2.2
-      jszip: ^3.9.1
-      lint-staged: ^11.0.0
-      luxon: ^1.27.0
-      mockdate: ^3.0.5
-      moment: ^2.29.1
-      prettier: ^2.6.2
-      randombytes: ^2.1.0
-      readline: ^1.3.0
-      sort-package-json: ^1.50.0
-      ts-jest: ^29.0.5
-      typescript: 4.6.3
-      yargs: ^17.5.1
-      zod: 3.14.4
-    dependencies:
-      '@types/node': 16.11.29
-      '@votingworks/basics': link:../basics
-      '@votingworks/types': link:../types
-      base64-js: 1.5.1
-      buffer: 6.0.3
-      debug: 4.3.4
-      fast-text-encoding: 1.0.3
-      fetch-mock: 9.11.0
-      jest-fetch-mock: 3.0.3
-      jszip: 3.9.1
-      luxon: 1.27.0
-      moment: 2.29.1
-      randombytes: 2.1.0
-      readline: 1.3.0
-      yargs: 17.5.1
-      zod: 3.14.4
-    devDependencies:
-      '@types/debug': 4.1.7
-      '@types/fast-text-encoding': 1.0.1
-      '@types/jest': 27.0.3
-      '@types/kiosk-browser': link:../@types/kiosk-browser
-      '@types/luxon': 1.26.5
-      '@types/randombytes': 2.0.0
-      '@types/yargs': 17.0.12
-      '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
-      '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
-      '@votingworks/fixtures': link:../fixtures
-      '@votingworks/test-utils': link:../test-utils
-      eslint: 8.23.1
-      eslint-config-prettier: 8.5.0_eslint@8.23.1
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.26.0_uzffwd2kxyy6gwinwkcp25zmz4
-      eslint-plugin-jest: 26.1.5_gh2fnq3fggfsour2ifuydageyy
-      eslint-plugin-prettier: 4.2.1_rr6pn6u7nfvlhvhwmji2vb2hl4
-      eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.18.0
-      is-ci-cli: 2.2.0
-      jest: 29.4.1_@types+node@16.11.29
-      jest-environment-jsdom: 29.4.1
-      jest-junit: 15.0.0
-      jest-watch-typeahead: 2.2.2_jest@29.4.1
-      lint-staged: 11.0.0
-      mockdate: 3.0.5
-      prettier: 2.6.2
-      sort-package-json: 1.50.0
-      ts-jest: 29.0.5_p44oxehluivaqtvilhskgncfli
       typescript: 4.6.3
 
   script:
@@ -7206,16 +7206,6 @@ packages:
       jest-mock: 28.1.3
     dev: true
 
-  /@jest/environment/29.4.1:
-    resolution: {integrity: sha512-pJ14dHGSQke7Q3mkL/UZR9ZtTOxqskZaC91NzamEH4dlKRt42W+maRBXiw/LWkdJe+P0f/zDR37+SPMplMRlPg==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/fake-timers': 29.4.2
-      '@jest/types': 29.4.2
-      '@types/node': 18.11.18
-      jest-mock: 29.4.2
-    dev: true
-
   /@jest/environment/29.4.2:
     resolution: {integrity: sha512-JKs3VUtse0vQfCaFGJRX1bir9yBdtasxziSyu+pIiEllAQOe4oQhdCYIf3+Lx+nGglFktSKToBnRJfD5QKp+NQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -7322,18 +7312,6 @@ packages:
       jest-message-util: 28.1.3
       jest-mock: 28.1.3
       jest-util: 28.1.3
-    dev: true
-
-  /@jest/fake-timers/29.4.1:
-    resolution: {integrity: sha512-/1joI6rfHFmmm39JxNfmNAO3Nwm6Y0VoL5fJDy7H1AtWrD1CgRtqJbN9Ld6rhAkGO76qqp4cwhhxJ9o9kYjQMw==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/types': 29.4.2
-      '@sinonjs/fake-timers': 10.0.2
-      '@types/node': 18.11.18
-      jest-message-util: 29.4.2
-      jest-mock: 29.4.2
-      jest-util: 29.4.2
     dev: true
 
   /@jest/fake-timers/29.4.2:
@@ -9986,10 +9964,6 @@ packages:
 
   /@types/lodash/4.14.191:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
-
-  /@types/luxon/1.26.5:
-    resolution: {integrity: sha512-XeQxxRMyJi1znfzHw4CGDLyup/raj84SnjjkI2fDootZPGlB0yqtvlvEIAmzHDa5wiEI5JJevZOWxpcofsaV+A==}
-    dev: true
 
   /@types/luxon/1.27.1:
     resolution: {integrity: sha512-cPiXpOvPFDr2edMnOXlz3UBDApwUfR+cpizvxCy0n3vp9bz/qe8BWzHPIEFcy+ogUOyjKuCISgyq77ELZPmkkg==}
@@ -17253,28 +17227,6 @@ packages:
       - typescript
     dev: true
 
-  /eslint-plugin-jest/26.1.5_gh2fnq3fggfsour2ifuydageyy:
-    resolution: {integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      '@typescript-eslint/eslint-plugin': ^5.0.0
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-      jest: '*'
-    peerDependenciesMeta:
-      '@typescript-eslint/eslint-plugin':
-        optional: true
-      jest:
-        optional: true
-    dependencies:
-      '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
-      '@typescript-eslint/utils': 5.22.0_2owex2qphpdtje5ztrbqluisqa
-      eslint: 8.23.1
-      jest: 29.4.1_@types+node@16.11.29
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-    dev: true
-
   /eslint-plugin-jest/26.1.5_npvp24onkrblybrud7sjjo7lou:
     resolution: {integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -17424,6 +17376,28 @@ packages:
       '@typescript-eslint/utils': 5.49.0_meject34o2v4gmz2y6b4koze4q
       eslint: 8.33.0
       jest: 26.6.0_canvas@2.9.1
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: true
+
+  /eslint-plugin-jest/26.6.0_eyss6hqme7i4zp77wcaiosbnhe:
+    resolution: {integrity: sha512-f8n46/97ZFdU4KqeQYqO8AEVGIhHWvkpgNBWHH3jrM28/y8llnbf3IjfIKv6p2pZIMinK1PCqbbROxs9Eud02Q==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': ^5.0.0
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      jest: '*'
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+      jest:
+        optional: true
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 5.49.0_e5nl3pgtbq7irh2db7scmsnz3q
+      '@typescript-eslint/utils': 5.49.0_meject34o2v4gmz2y6b4koze4q
+      eslint: 8.33.0
+      jest: 29.4.2_@types+node@16.11.29
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -21137,34 +21111,6 @@ packages:
       - ts-node
     dev: true
 
-  /jest-cli/29.4.1_@types+node@16.11.29:
-    resolution: {integrity: sha512-jz7GDIhtxQ37M+9dlbv5K+/FVcIo1O/b1sX3cJgzlQUf/3VG25nvuWzlDC4F1FLLzUThJeWLu8I7JF9eWpuURQ==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    dependencies:
-      '@jest/core': 29.4.2
-      '@jest/test-result': 29.4.2
-      '@jest/types': 29.4.2
-      chalk: 4.1.2
-      exit: 0.1.2
-      graceful-fs: 4.2.10
-      import-local: 3.1.0
-      jest-config: 29.4.2_@types+node@16.11.29
-      jest-util: 29.4.2
-      jest-validate: 29.4.2
-      prompts: 2.4.2
-      yargs: 17.6.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - supports-color
-      - ts-node
-    dev: true
-
   /jest-cli/29.4.2_@types+node@16.11.29:
     resolution: {integrity: sha512-b+eGUtXq/K2v7SH3QcJvFvaUaCDS1/YAZBYz0m28Q/Ppyr+1qNaHmVYikOrbHVbZqYQs2IeI3p76uy6BWbXq8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -21964,13 +21910,13 @@ packages:
       canvas:
         optional: true
     dependencies:
-      '@jest/environment': 29.4.1
-      '@jest/fake-timers': 29.4.1
+      '@jest/environment': 29.4.2
+      '@jest/fake-timers': 29.4.2
       '@jest/types': 29.4.2
       '@types/jsdom': 20.0.0
       '@types/node': 18.11.18
-      jest-mock: 29.4.1
-      jest-util: 29.4.1
+      jest-mock: 29.4.2
+      jest-util: 29.4.2
       jsdom: 20.0.1
     transitivePeerDependencies:
       - bufferutil
@@ -22493,15 +22439,6 @@ packages:
       '@types/node': 18.11.18
     dev: true
 
-  /jest-mock/29.4.1:
-    resolution: {integrity: sha512-MwA4hQ7zBOcgVCVnsM8TzaFLVUD/pFWTfbkY953Y81L5ret3GFRZtmPmRFAjKQSdCKoJvvqOu6Bvfpqlwwb0dQ==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/types': 29.4.2
-      '@types/node': 18.11.18
-      jest-util: 29.4.2
-    dev: true
-
   /jest-mock/29.4.2:
     resolution: {integrity: sha512-x1FSd4Gvx2yIahdaIKoBjwji6XpboDunSJ95RpntGrYulI1ByuYQCKN/P7hvk09JB74IonU3IPLdkutEWYt++g==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -22582,11 +22519,6 @@ packages:
   /jest-regex-util/28.0.2:
     resolution: {integrity: sha512-4s0IgyNIy0y9FK+cjoVYoxamT7Zeo7MhzqRGx7YDYmaQn1wucY9rotiGkBzzcMXTtjrCAP/f7f+E0F7+fxPNdw==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
-    dev: true
-
-  /jest-regex-util/29.2.0:
-    resolution: {integrity: sha512-6yXn0kg2JXzH30cr2NlThF+70iuO/3irbaB4mh5WyqNIvLLP+B6sFdluO1/1RJmslyh/f9osnefECflHvTbwVA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dev: true
 
   /jest-regex-util/29.4.2:
@@ -23581,22 +23513,6 @@ packages:
       strip-ansi: 6.0.1
     dev: true
 
-  /jest-watch-typeahead/2.2.2_jest@29.4.1:
-    resolution: {integrity: sha512-+QgOFW4o5Xlgd6jGS5X37i08tuuXNW8X0CV9WNFi+3n8ExCIP+E1melYhvYLjv5fE6D0yyzk74vsSO8I6GqtvQ==}
-    engines: {node: ^14.17.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      jest: ^27.0.0 || ^28.0.0 || ^29.0.0
-    dependencies:
-      ansi-escapes: 6.0.0
-      chalk: 5.2.0
-      jest: 29.4.1_@types+node@16.11.29
-      jest-regex-util: 29.2.0
-      jest-watcher: 29.4.1
-      slash: 5.0.0
-      string-length: 5.0.1
-      strip-ansi: 7.0.1
-    dev: true
-
   /jest-watch-typeahead/2.2.2_jest@29.4.2:
     resolution: {integrity: sha512-+QgOFW4o5Xlgd6jGS5X37i08tuuXNW8X0CV9WNFi+3n8ExCIP+E1melYhvYLjv5fE6D0yyzk74vsSO8I6GqtvQ==}
     engines: {node: ^14.17.0 || ^16.10.0 || >=18.0.0}
@@ -23606,8 +23522,8 @@ packages:
       ansi-escapes: 6.0.0
       chalk: 5.2.0
       jest: 29.4.2_@types+node@16.11.29
-      jest-regex-util: 29.2.0
-      jest-watcher: 29.4.1
+      jest-regex-util: 29.4.2
+      jest-watcher: 29.4.2
       slash: 5.0.0
       string-length: 5.0.1
       strip-ansi: 7.0.1
@@ -23649,20 +23565,6 @@ packages:
       chalk: 4.1.2
       emittery: 0.10.2
       jest-util: 28.1.3
-      string-length: 4.0.2
-    dev: true
-
-  /jest-watcher/29.4.1:
-    resolution: {integrity: sha512-vFOzflGFs27nU6h8dpnVRER3O2rFtL+VMEwnG0H3KLHcllLsU8y9DchSh0AL/Rg5nN1/wSiQ+P4ByMGpuybaVw==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/test-result': 29.4.2
-      '@jest/types': 29.4.2
-      '@types/node': 18.11.18
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      emittery: 0.13.1
-      jest-util: 29.4.2
       string-length: 4.0.2
     dev: true
 
@@ -23966,26 +23868,6 @@ packages:
       '@jest/types': 29.4.2
       import-local: 3.1.0
       jest-cli: 29.4.1
-    transitivePeerDependencies:
-      - '@types/node'
-      - supports-color
-      - ts-node
-    dev: true
-
-  /jest/29.4.1_@types+node@16.11.29:
-    resolution: {integrity: sha512-cknimw7gAXPDOmj0QqztlxVtBVCw2lYY9CeIE5N6kD+kET1H4H79HSNISJmijb1HF+qk+G+ploJgiDi5k/fRlg==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    dependencies:
-      '@jest/core': 29.4.1
-      '@jest/types': 29.4.2
-      import-local: 3.1.0
-      jest-cli: 29.4.1_@types+node@16.11.29
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -27856,10 +27738,10 @@ packages:
       '@babel/runtime': 7.20.6
       history: 4.10.1
       loose-envify: 1.4.0
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 17.0.2
       react-router: 5.2.0_react@17.0.2
-      tiny-invariant: 1.3.1
+      tiny-invariant: 1.1.0
       tiny-warning: 1.0.3
     dev: false
 

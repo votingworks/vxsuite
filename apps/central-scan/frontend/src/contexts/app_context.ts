@@ -1,7 +1,7 @@
 import { LoggingUserRole, LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/shared-frontend';
-import { MemoryStorage, Storage } from '@votingworks/utils';
+import { MemoryStorage, Storage } from '@votingworks/shared';
 import { createContext } from 'react';
 import { MachineConfig } from '../config/types';
 

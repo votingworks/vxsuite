@@ -5,7 +5,7 @@ import { randomBallotId } from './random';
 // globalThis.crypto is not defined in JSDOM
 Object.defineProperty(globalThis, 'crypto', {
   value: {
-    getRandomValues(arr: Parameters<typeof crypto['randomFillSync']>[0]) {
+    getRandomValues(arr: Parameters<(typeof crypto)['randomFillSync']>[0]) {
       return crypto.randomFillSync(arr);
     },
   },

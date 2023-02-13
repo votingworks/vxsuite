@@ -28,7 +28,7 @@ import {
 import {
   getSingleYesNoVote,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,

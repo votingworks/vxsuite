@@ -18,7 +18,7 @@ import {
   generateFilenameForScanningResults,
   isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { join } from 'path';
 import { Readable } from 'stream';
 import { Store } from '../store';

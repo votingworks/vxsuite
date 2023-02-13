@@ -17,9 +17,9 @@ import {
 
 const printer = fakePrinter();
 
-jest.mock('@votingworks/utils', () => {
+jest.mock('@votingworks/shared', () => {
   return {
-    ...jest.requireActual('@votingworks/utils'),
+    ...jest.requireActual('@votingworks/shared'),
     getPrinter: () => printer,
   };
 });

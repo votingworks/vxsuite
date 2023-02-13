@@ -12,7 +12,7 @@ import {
   makePollWorkerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { MemoryCard } from '@votingworks/utils';
+import { MemoryCard } from '@votingworks/shared';
 
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 

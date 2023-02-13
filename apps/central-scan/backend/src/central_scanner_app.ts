@@ -16,7 +16,7 @@ import {
   generateElectionBasedSubfolderName,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';

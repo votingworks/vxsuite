@@ -23,7 +23,7 @@ import {
   TextWithLineBreaks,
 } from '@votingworks/shared-frontend';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
+import { getSingleYesNoVote } from '@votingworks/shared';
 import { assert } from '@votingworks/basics';
 import {
   EventTargetFunction,

@@ -18,7 +18,7 @@ import {
   MemoryStorage,
   Storage,
   getEmptyFullElectionTally,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';

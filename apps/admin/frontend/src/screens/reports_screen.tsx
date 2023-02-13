@@ -5,7 +5,7 @@ import {
   canDistinguishVotingMethods,
   generateSemsFinalExportDefaultFilename,
   format,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import {
   Button,
   Prose,

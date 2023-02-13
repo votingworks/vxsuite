@@ -11,7 +11,7 @@ import {
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
   getPrecinctSelectionName,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';

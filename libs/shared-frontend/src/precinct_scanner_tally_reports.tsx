@@ -9,7 +9,7 @@ import {
 import {
   getTallyIdentifier,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import React from 'react';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';

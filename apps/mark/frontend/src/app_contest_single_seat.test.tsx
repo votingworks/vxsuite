@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, act, screen } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/shared';
 
 import userEvent from '@testing-library/user-event';
 import { App } from './app';

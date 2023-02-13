@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { MemoryStorage } from '@votingworks/utils';
+import { MemoryStorage } from '@votingworks/shared';
 import { typedAs } from '@votingworks/basics';
 import { Admin } from '@votingworks/api';
 import { ServicesContext } from '../contexts/services_context';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/shared';
 import { makeElectionManagerCard } from '@votingworks/test-utils';
 import { screen } from '@testing-library/react';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';

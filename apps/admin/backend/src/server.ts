@@ -26,7 +26,7 @@ import {
   DippedSmartCardAuthWithMemoryCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import { WebServiceCard } from '@votingworks/utils';
+import { WebServiceCard } from '@votingworks/shared';
 import * as grout from '@votingworks/grout';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';

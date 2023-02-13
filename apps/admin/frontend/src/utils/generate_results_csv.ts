@@ -1,4 +1,4 @@
-import { ALL_PARTY_FILTER, filterTalliesByParams } from '@votingworks/utils';
+import { ALL_PARTY_FILTER, filterTalliesByParams } from '@votingworks/shared';
 import {
   Election,
   writeInCandidate,

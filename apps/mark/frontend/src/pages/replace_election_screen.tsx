@@ -13,7 +13,7 @@ import {
   Text,
   useCancelablePromise,
 } from '@votingworks/shared-frontend';
-import { formatLongDate } from '@votingworks/utils';
+import { formatLongDate } from '@votingworks/shared';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';

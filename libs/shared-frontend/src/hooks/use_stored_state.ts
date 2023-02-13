@@ -1,5 +1,5 @@
 import { Optional, unsafeParse } from '@votingworks/types';
-import { Storage } from '@votingworks/utils';
+import { Storage } from '@votingworks/shared';
 import {
   Dispatch,
   SetStateAction,

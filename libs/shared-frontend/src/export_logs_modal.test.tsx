@@ -7,7 +7,7 @@ import {
   Dipped,
   fakeFileWriter,
 } from '@votingworks/test-utils';
-import { LogFileType } from '@votingworks/utils';
+import { LogFileType } from '@votingworks/shared';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';

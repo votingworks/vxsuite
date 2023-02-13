@@ -19,7 +19,7 @@ import {
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { assert, find, integers, take } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import styled from 'styled-components';

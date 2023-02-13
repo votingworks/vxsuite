@@ -30,8 +30,8 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
+    "@votingworks/shared": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "debug": "^4.3.2",
     "temp": "^0.9.4",
     "xstate": "^4.32.1",

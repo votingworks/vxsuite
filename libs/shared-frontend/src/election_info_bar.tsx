@@ -5,7 +5,7 @@ import {
   getDisplayElectionHash,
   PrecinctSelection,
 } from '@votingworks/types';
-import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
+import { formatShortDate, getPrecinctSelectionName } from '@votingworks/shared';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import { Prose } from './prose';

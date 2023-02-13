@@ -10,7 +10,7 @@ import {
   MemoryCard,
   MemoryHardware,
   singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+} from '@votingworks/shared';
 import { Route } from 'react-router-dom';
 import {
   getBallotStyle,

@@ -11,7 +11,7 @@ import {
   useCancelablePromise,
 } from '@votingworks/shared-frontend';
 import { Optional } from '@votingworks/types';
-import { formatTime, Hardware } from '@votingworks/utils';
+import { formatTime, Hardware } from '@votingworks/shared';
 import { DateTime } from 'luxon';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';

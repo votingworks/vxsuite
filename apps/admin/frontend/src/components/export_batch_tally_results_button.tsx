@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/shared-frontend';
-import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
+import { generateBatchResultsDefaultFilename } from '@votingworks/shared';
 import { Admin } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
