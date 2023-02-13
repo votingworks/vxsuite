@@ -81,6 +81,7 @@ Install Node, npm, yarn, and pnpm by running the following script:
 
 ```sh
 cd vxsuite
+./script/install-ansible.sh
 ./script/setup-dev
 node -v # this should return 16.x.x
 pnpm -v # this should return 7.x.x
