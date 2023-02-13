@@ -5,7 +5,7 @@
   become: true
 
   vars:
-    node_version: "16.*"
+    node_version: "16.19.0*"
     node_repo_version: "16.x"
     npm_packages:
       - yarn
