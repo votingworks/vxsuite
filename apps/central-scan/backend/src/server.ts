@@ -1,4 +1,4 @@
-import { Exporter, getUsbDrives } from '@votingworks/data';
+import { Exporter, getUsbDrives } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuthWithMemoryCard } from '@votingworks/auth';

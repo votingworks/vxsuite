@@ -3,7 +3,7 @@ import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { Exporter } from '@votingworks/data';
+import { Exporter } from '@votingworks/backend';
 import {
   asElectionDefinition,
   electionSample as election,

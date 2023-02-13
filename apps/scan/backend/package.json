@@ -38,11 +38,11 @@
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/data": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",

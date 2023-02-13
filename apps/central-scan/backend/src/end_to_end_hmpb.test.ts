@@ -1,4 +1,4 @@
-import { Exporter } from '@votingworks/data';
+import { Exporter } from '@votingworks/backend';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';

@@ -623,11 +623,11 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/api': workspace:*
       '@votingworks/auth': workspace:*
+      '@votingworks/backend': workspace:*
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/basics': workspace:*
-      '@votingworks/data': workspace:*
       '@votingworks/db': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
@@ -682,11 +682,11 @@ importers:
     dependencies:
       '@votingworks/api': link:../../../libs/api
       '@votingworks/auth': link:../../../libs/auth
+      '@votingworks/backend': link:../../../libs/backend
       '@votingworks/ballot-encoder': link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter-nh': link:../../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics': link:../../../libs/basics
-      '@votingworks/data': link:../../../libs/data
       '@votingworks/db': link:../../../libs/db
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
@@ -1419,11 +1419,11 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/auth': workspace:*
+      '@votingworks/backend': workspace:*
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/basics': workspace:*
-      '@votingworks/data': workspace:*
       '@votingworks/db': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
@@ -1476,11 +1476,11 @@ importers:
       zod: 3.14.4
     dependencies:
       '@votingworks/auth': link:../../../libs/auth
+      '@votingworks/backend': link:../../../libs/backend
       '@votingworks/ballot-encoder': link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter-nh': link:../../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics': link:../../../libs/basics
-      '@votingworks/data': link:../../../libs/data
       '@votingworks/db': link:../../../libs/db
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
@@ -1906,6 +1906,81 @@ importers:
       lint-staged: 11.0.0
       prettier: 2.7.1
       sort-package-json: 1.53.1
+      ts-jest: 27.1.5_q34dsgxunuafv4ogv2aeh5aydy
+      typescript: 4.6.3
+
+  libs/backend:
+    specifiers:
+      '@types/debug': ^4.1.7
+      '@types/jest': ^27.0.3
+      '@types/micromatch': ^4.0.2
+      '@types/node': 16.11.29
+      '@types/stream-chopper': workspace:*
+      '@types/tmp': ^0.2.3
+      '@typescript-eslint/eslint-plugin': ^5.37.0
+      '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/basics': workspace:*
+      '@votingworks/test-utils': workspace:*
+      buffer: ^6.0.3
+      debug: ^4.3.2
+      eslint: ^8.23.1
+      eslint-config-prettier: ^8.5.0
+      eslint-import-resolver-node: ^0.3.6
+      eslint-plugin-import: ^2.26.0
+      eslint-plugin-jest: ^26.1.5
+      eslint-plugin-prettier: ^4.2.1
+      eslint-plugin-vx: workspace:*
+      fast-check: ^2.18.0
+      is-ci-cli: ^2.2.0
+      jest: ^27.3.1
+      jest-junit: ^14.0.1
+      jest-watch-typeahead: ^0.6.4
+      lint-staged: ^11.0.0
+      memory-streams: ^0.1.3
+      micromatch: ^4.0.5
+      prettier: ^2.6.2
+      readline: ^1.3.0
+      sort-package-json: ^1.50.0
+      stream-chopper: ^3.0.1
+      tmp: ^0.2.1
+      ts-jest: ^27.0.7
+      typescript: 4.6.3
+      zod: 3.14.4
+    dependencies:
+      '@votingworks/basics': link:../basics
+      buffer: 6.0.3
+      debug: 4.3.4
+      micromatch: 4.0.5
+      readline: 1.3.0
+      stream-chopper: 3.0.1
+      zod: 3.14.4
+    devDependencies:
+      '@types/debug': 4.1.7
+      '@types/jest': 27.4.1
+      '@types/micromatch': 4.0.2
+      '@types/node': 16.11.29
+      '@types/stream-chopper': link:../@types/stream-chopper
+      '@types/tmp': 0.2.3
+      '@typescript-eslint/eslint-plugin': 5.49.0_e5nl3pgtbq7irh2db7scmsnz3q
+      '@typescript-eslint/parser': 5.49.0_meject34o2v4gmz2y6b4koze4q
+      '@votingworks/test-utils': link:../test-utils
+      eslint: 8.33.0
+      eslint-config-prettier: 8.6.0_eslint@8.33.0
+      eslint-import-resolver-node: 0.3.7
+      eslint-plugin-import: 2.27.5_kf2q37rsxgsj6p2nz45hjttose
+      eslint-plugin-jest: 26.6.0_cxz2engwmihnktt6iwgkwntofu
+      eslint-plugin-prettier: 4.2.1_jqplj6qf3uqpxpu4gdyhwwasnq
+      eslint-plugin-vx: link:../eslint-plugin-vx
+      fast-check: 2.23.2
+      is-ci-cli: 2.2.0
+      jest: 27.5.1
+      jest-junit: 14.0.1
+      jest-watch-typeahead: 0.6.5_jest@27.5.1
+      lint-staged: 11.0.0
+      memory-streams: 0.1.3
+      prettier: 2.8.3
+      sort-package-json: 1.53.1
+      tmp: 0.2.1
       ts-jest: 27.1.5_q34dsgxunuafv4ogv2aeh5aydy
       typescript: 4.6.3
 
@@ -2352,81 +2427,6 @@ importers:
       ts-jest: 28.0.8_ynfm3ptluwwfu2rbyy6an6edfe
       typescript: 4.6.3
       zod: 3.14.4
-
-  libs/data:
-    specifiers:
-      '@types/debug': ^4.1.7
-      '@types/jest': ^27.0.3
-      '@types/micromatch': ^4.0.2
-      '@types/node': 16.11.29
-      '@types/stream-chopper': workspace:*
-      '@types/tmp': ^0.2.3
-      '@typescript-eslint/eslint-plugin': ^5.37.0
-      '@typescript-eslint/parser': ^5.37.0
-      '@votingworks/basics': workspace:*
-      '@votingworks/test-utils': workspace:*
-      buffer: ^6.0.3
-      debug: ^4.3.2
-      eslint: ^8.23.1
-      eslint-config-prettier: ^8.5.0
-      eslint-import-resolver-node: ^0.3.6
-      eslint-plugin-import: ^2.26.0
-      eslint-plugin-jest: ^26.1.5
-      eslint-plugin-prettier: ^4.2.1
-      eslint-plugin-vx: workspace:*
-      fast-check: ^2.18.0
-      is-ci-cli: ^2.2.0
-      jest: ^27.3.1
-      jest-junit: ^14.0.1
-      jest-watch-typeahead: ^0.6.4
-      lint-staged: ^11.0.0
-      memory-streams: ^0.1.3
-      micromatch: ^4.0.5
-      prettier: ^2.6.2
-      readline: ^1.3.0
-      sort-package-json: ^1.50.0
-      stream-chopper: ^3.0.1
-      tmp: ^0.2.1
-      ts-jest: ^27.0.7
-      typescript: 4.6.3
-      zod: 3.14.4
-    dependencies:
-      '@votingworks/basics': link:../basics
-      buffer: 6.0.3
-      debug: 4.3.4
-      micromatch: 4.0.5
-      readline: 1.3.0
-      stream-chopper: 3.0.1
-      zod: 3.14.4
-    devDependencies:
-      '@types/debug': 4.1.7
-      '@types/jest': 27.4.1
-      '@types/micromatch': 4.0.2
-      '@types/node': 16.11.29
-      '@types/stream-chopper': link:../@types/stream-chopper
-      '@types/tmp': 0.2.3
-      '@typescript-eslint/eslint-plugin': 5.37.0_srb6gpj27cpytxa4hvxonfqyzi
-      '@typescript-eslint/parser': 5.37.0_fnqnj4wr4adlkzkgntzwybsmii
-      '@votingworks/test-utils': link:../test-utils
-      eslint: 8.26.0
-      eslint-config-prettier: 8.5.0_eslint@8.26.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.26.0_f7h3xcst4xms75btu7jvjeks3e
-      eslint-plugin-jest: 26.6.0_35phkc7pfykerjsst4kd367zhm
-      eslint-plugin-prettier: 4.2.1_aniwkeyvlpmwkidetuytnokvcm
-      eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.23.2
-      is-ci-cli: 2.2.0
-      jest: 27.5.1
-      jest-junit: 14.0.1
-      jest-watch-typeahead: 0.6.5_jest@27.5.1
-      lint-staged: 11.0.0
-      memory-streams: 0.1.3
-      prettier: 2.7.1
-      sort-package-json: 1.53.1
-      tmp: 0.2.1
-      ts-jest: 27.1.5_q34dsgxunuafv4ogv2aeh5aydy
-      typescript: 4.6.3
 
   libs/db:
     specifiers:
@@ -24707,7 +24707,7 @@ packages:
       execa: 4.1.0
       listr2: 3.10.0_enquirer@2.3.6
       log-symbols: 4.0.0
-      micromatch: 4.0.4
+      micromatch: 4.0.5
       normalize-path: 3.0.0
       please-upgrade-node: 3.2.0
       string-argv: 0.3.1
@@ -30660,7 +30660,7 @@ packages:
       fast-json-stable-stringify: 2.1.0
       jest: 27.5.1
       jest-util: 27.5.1
-      json5: 2.2.1
+      json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
       semver: 7.3.7

@@ -1,5 +1,5 @@
 import { Scan } from '@votingworks/api';
-import { Exporter } from '@votingworks/data';
+import { Exporter } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';

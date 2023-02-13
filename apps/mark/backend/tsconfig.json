@@ -19,7 +19,7 @@
   "references": [
     { "path": "../../../libs/api/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
-    { "path": "../../../libs/data/tsconfig.build.json" },
+    { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
