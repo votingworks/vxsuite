@@ -2581,6 +2581,11 @@ export interface Party {
    * The slogan or motto used by a political party.
    */
   readonly Slogan?: InternationalizedText;
+
+  /**
+   * The label to describe candidates from this party on a ballot.
+   */
+  readonly vxBallotLabel: InternationalizedText;
 }
 
 /**
@@ -2599,6 +2604,7 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
   Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   PartyScopeGpUnitIds: z.optional(z.array(z.string())),
   Slogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  vxBallotLabel: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
 });
 
 /**

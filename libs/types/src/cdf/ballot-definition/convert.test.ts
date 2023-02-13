@@ -380,7 +380,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
           {
             '@type': 'BallotDefinition.LanguageString',
             Language: 'en',
-            Content: 'Democrat',
+            Content: 'Democratic Party',
           },
         ],
       },
@@ -394,6 +394,16 @@ export const testCdfBallotDefinition: BallotDefinition = {
           },
         ],
       },
+      vxBallotLabel: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'Democrat',
+          },
+        ],
+      },
     },
     {
       '@type': 'BallotDefinition.Party',
@@ -404,7 +414,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
           {
             '@type': 'BallotDefinition.LanguageString',
             Language: 'en',
-            Content: 'Republican',
+            Content: 'Republican Party',
           },
         ],
       },
@@ -415,6 +425,16 @@ export const testCdfBallotDefinition: BallotDefinition = {
             '@type': 'BallotDefinition.LanguageString',
             Language: 'en',
             Content: 'R',
+          },
+        ],
+      },
+      vxBallotLabel: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'Republican',
           },
         ],
       },

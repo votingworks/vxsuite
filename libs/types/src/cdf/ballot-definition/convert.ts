@@ -158,8 +158,9 @@ export function convertVxfElectionToCdfBallotDefinition(
     Party: vxfElection.parties.map((party) => ({
       '@type': 'BallotDefinition.Party',
       '@id': party.id,
-      Name: text(party.name),
+      Name: text(party.fullName),
       Abbreviation: text(party.abbrev),
+      vxBallotLabel: text(party.name),
     })),
 
     GpUnit: [
@@ -271,12 +272,15 @@ export function convertCdfBallotDefinitionToVxfElection(
     },
     date: `${election.StartDate}T00:00:00Z`,
 
-    parties: assertDefined(cdfBallotDefinition.Party).map((party) => ({
-      id: party['@id'] as Vxf.PartyId,
-      name: englishText(party.Name),
-      fullName: 'NOT IMPLEMENTED', // TODO implement full name
-      abbrev: englishText(assertDefined(party.Abbreviation)),
-    })),
+    parties: assertDefined(cdfBallotDefinition.Party).map((party) => {
+      assert(party['@type'] === 'BallotDefinition.Party');
+      return {
+        id: party['@id'] as Vxf.PartyId,
+        name: englishText(party.vxBallotLabel),
+        fullName: englishText(party.Name),
+        abbrev: englishText(assertDefined(party.Abbreviation)),
+      };
+    }),
 
     contests: assertDefined(election.Contest).map((contest): Vxf.AnyContest => {
       const contestBase = {

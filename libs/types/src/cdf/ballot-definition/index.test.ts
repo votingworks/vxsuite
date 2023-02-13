@@ -9,18 +9,15 @@ test('BallotDefinition', () => {
   BallotDefinitionSchema.parse(testCdfBallotDefinition);
 });
 
-test('schema in sync', () => {
-  const xsd = readFileSync(
-    join(__dirname, '../../../data/cdf/ballot-definition/schema.xsd'),
+test('generated types are in sync with schema', () => {
+  const nistXsd = readFileSync(
+    join(__dirname, '../../../data/cdf/ballot-definition/nist-schema.xsd'),
     'utf-8'
   );
-  const json = readFileSync(
-    join(__dirname, '../../../data/cdf/ballot-definition/schema.json'),
-    'utf-8'
-  );
-  const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const vxJson = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
+  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
-  buildSchema(xsd, json, out).unsafeUnwrap();
-  const expectedOutput = out.toString();
-  expect(currentOutput).toEqual(expectedOutput);
+  buildSchema(nistXsd, vxJson, out).unsafeUnwrap();
+  const expectedTypes = out.toString();
+  expect(generatedTypes).toEqual(expectedTypes);
 });
