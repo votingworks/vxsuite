@@ -100,6 +100,17 @@ const headingStyles = css<HeadingProps>`
   &:not(:first-child) {
     margin-top: 1.25em;
   }
+
+  /* Override the top-margin spacing for adjacent headings. */
+  & + h1,
+  & + h2,
+  & + h3,
+  & + h4,
+  & + h5,
+  & + h6 {
+    /* stylelint-disable-next-line declaration-no-important */
+    margin-top: 0 !important;
+  }
 `;
 
 const StyledH1 = styled.h1<HeadingProps>`
@@ -107,12 +118,6 @@ const StyledH1 = styled.h1<HeadingProps>`
 
   font-size: ${(p) => p.theme.sizes.headingsRem.h1}rem;
   font-weight: 600;
-
-  /* Override the top-margin spacing for adjacent next-level headings. */
-  & + h2 {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin-top: 0 !important;
-  }
 `;
 
 const StyledH2 = styled.h2<HeadingProps>`
@@ -120,48 +125,24 @@ const StyledH2 = styled.h2<HeadingProps>`
 
   font-size: ${(p) => p.theme.sizes.headingsRem.h2}rem;
   font-weight: 600;
-
-  /* Override the top-margin spacing for adjacent next-level headings. */
-  & + h3 {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin-top: 0 !important;
-  }
 `;
 
 const StyledH3 = styled.h3<HeadingProps>`
   ${headingStyles}
 
   font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
-
-  /* Override the top-margin spacing for adjacent next-level headings. */
-  & + h4 {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin-top: 0 !important;
-  }
 `;
 
 const StyledH4 = styled.h4<HeadingProps>`
   ${headingStyles}
 
   font-size: ${(p) => p.theme.sizes.headingsRem.h4}rem;
-
-  /* Override the top-margin spacing for adjacent next-level headings. */
-  & + h5 {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin-top: 0 !important;
-  }
 `;
 
 const StyledH5 = styled.h5<HeadingProps>`
   ${headingStyles}
 
   font-size: ${(p) => p.theme.sizes.headingsRem.h5}rem;
-
-  /* Override the top-margin spacing for adjacent next-level headings. */
-  & + h6 {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin-top: 0 !important;
-  }
 `;
 
 const StyledH6 = styled.h6<HeadingProps>`

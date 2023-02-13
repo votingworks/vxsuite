@@ -106,7 +106,12 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   :link,
   :visited {
-    color: rgb(0, 0, 238);
+    color: ${(p) =>
+      p.theme.colorMode !== 'legacy'
+        ? p.theme.colors.accentPrimary
+        : 'rgb(0, 0, 238)'};
+    font-weight: ${(p) =>
+      p.theme.sizeMode !== 'legacy' && p.theme.sizes.fontWeight.semiBold};
   }
 
   :focus {
