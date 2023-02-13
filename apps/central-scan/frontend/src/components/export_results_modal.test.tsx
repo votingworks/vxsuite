@@ -8,7 +8,7 @@ import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { safeParseJson } from '@votingworks/types';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 import { ExportResultsModal } from './export_results_modal';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';

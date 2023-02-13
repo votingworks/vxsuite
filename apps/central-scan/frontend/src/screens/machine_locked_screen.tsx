@@ -4,7 +4,7 @@ import {
   Main,
   Prose,
   Screen,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 

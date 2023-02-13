@@ -12,7 +12,7 @@ import {
   TestMode,
   Text,
   ElectionInfoBar,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';

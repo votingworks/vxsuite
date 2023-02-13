@@ -14,7 +14,7 @@ import { CastVoteRecord } from '@votingworks/types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 export type ApiClient = grout.Client<Api>;
 

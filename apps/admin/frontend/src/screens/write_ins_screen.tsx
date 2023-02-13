@@ -1,7 +1,15 @@
 import React, { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, Prose, Table, TD, Text, TH } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  Prose,
+  Table,
+  TD,
+  Text,
+  TH,
+} from '@votingworks/shared-frontend';
 import {
   CandidateContest,
   ContestId,

@@ -1,5 +1,5 @@
 import { fakeDevice, fakePrinterInfo } from '@votingworks/test-utils';
-import { Devices } from '@votingworks/ui';
+import { Devices } from '@votingworks/shared-frontend';
 
 interface PartialDevices {
   printer?: Partial<Devices['printer']>;

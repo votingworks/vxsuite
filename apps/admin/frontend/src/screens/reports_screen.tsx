@@ -11,7 +11,7 @@ import {
   Prose,
   useCancelablePromise,
   isElectionManagerAuth,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 

@@ -1,7 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  Prose,
+  Text,
+} from '@votingworks/shared-frontend';
 
 const SingleGraphic = styled.img`
   margin: 0 auto 1em;

@@ -15,7 +15,7 @@ import {
   useCancelablePromise,
   Loading,
   printElementWhenReady,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import pluralize from 'pluralize';
 import {
   getBallotStylesData,

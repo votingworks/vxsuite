@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/basics';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import {
   ApiMock,
   createApiMock,

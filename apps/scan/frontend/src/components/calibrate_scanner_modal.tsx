@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, Modal, Prose } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';

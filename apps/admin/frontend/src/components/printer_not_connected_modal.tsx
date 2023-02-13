@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, Modal, Prose } from '@votingworks/shared-frontend';
 
 interface Props {
   onClose: VoidFunction;

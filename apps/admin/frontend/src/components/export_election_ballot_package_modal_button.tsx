@@ -29,7 +29,7 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   printElementToPdfWhenReady,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getHumanBallotLanguageFormat } from '../utils/election';

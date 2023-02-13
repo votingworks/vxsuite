@@ -30,7 +30,7 @@
     { "path": "../../../libs/types/tsconfig.build.json" },
     { "path": "../../../libs/utils/tsconfig.build.json" },
     { "path": "../../../libs/logging/tsconfig.build.json" },
-    { "path": "../../../libs/ui/tsconfig.build.json" },
+    { "path": "../../../libs/shared-frontend/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" }
   ]
 }

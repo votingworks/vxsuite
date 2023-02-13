@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Modal, Prose, Button } from '@votingworks/ui';
+import { Modal, Prose, Button } from '@votingworks/shared-frontend';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';

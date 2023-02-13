@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Text, useExternalStateChangeListener } from '@votingworks/ui';
+import {
+  Button,
+  Text,
+  useExternalStateChangeListener,
+} from '@votingworks/shared-frontend';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { CenteredLargeProse, ScreenMainCenterChild } from './layout';

@@ -4,7 +4,7 @@ import {
   InvalidCardScreen,
   isSystemAdministratorAuth,
   Modal,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';

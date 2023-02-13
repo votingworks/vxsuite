@@ -1,7 +1,12 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+import {
+  Button,
+  fontSizeTheme,
+  HorizontalRule,
+  Prose,
+} from '@votingworks/shared-frontend';
 
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';

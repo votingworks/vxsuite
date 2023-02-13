@@ -21,7 +21,7 @@ import {
   HorizontalRule,
   printElement,
   printElementWhenReady,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import { AppContext } from '../contexts/app_context';
 import { ButtonList } from '../components/button_list';

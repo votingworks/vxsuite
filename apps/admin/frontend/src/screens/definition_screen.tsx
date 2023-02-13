@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { Prose, Text } from '@votingworks/ui';
+import { Prose, Text } from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';

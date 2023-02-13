@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Prose, Modal, QrCode } from '@votingworks/ui';
+import { Button, Prose, Modal, QrCode } from '@votingworks/shared-frontend';
 import styled from 'styled-components';
 import { ElectionDefinition } from '@votingworks/types';
 import { MachineConfig } from '../config/types';

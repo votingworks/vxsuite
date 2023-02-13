@@ -10,7 +10,7 @@ import {
   printElement,
   getSignedQuickResultsReportingUrl,
   PrecinctScannerBallotCountReport,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   BallotCountDetails,
   compressTally,

@@ -9,7 +9,7 @@ import {
   isSystemAdministratorAuth,
   Loading,
   UsbImage,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 
 export interface FormatUsbModalProps {

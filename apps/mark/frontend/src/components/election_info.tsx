@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { getPrecinctSelectionName, format } from '@votingworks/utils';
 
-import { Prose, Text, NoWrap } from '@votingworks/ui';
+import { Prose, Text, NoWrap } from '@votingworks/shared-frontend';
 import pluralize from 'pluralize';
 import { Seal } from './seal';
 

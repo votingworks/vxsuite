@@ -14,7 +14,7 @@ import {
   Screen,
   Text,
   UsbControllerButton,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Prose } from './prose';

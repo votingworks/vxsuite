@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/ui",
+  "name": "@votingworks/shared-frontend",
   "version": "1.0.0",
   "private": true,
   "description": "Generic UI components for VotingWorks UIs",
@@ -11,18 +11,18 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
     "start": "storybook dev -p 6060",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
-    "test:coverage": "TZ=UTC jest --coverage",
     "test:ci": "TZ=UTC jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:coverage": "TZ=UTC jest --coverage",
     "test:watch": "TZ=UTC jest --watch",
-    "pre-commit": "lint-staged"
+    "type-check": "tsc --build"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [

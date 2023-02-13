@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+import {
+  Button,
+  fontSizeTheme,
+  HorizontalRule,
+  Prose,
+} from '@votingworks/shared-frontend';
 
 import {
   isSmartcardActionComplete,

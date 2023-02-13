@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, Text } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, Text } from '@votingworks/shared-frontend';
 import { ColorMode } from '@votingworks/types';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {

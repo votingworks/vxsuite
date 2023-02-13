@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ProgressEllipsis } from '@votingworks/ui';
+import { ProgressEllipsis } from '@votingworks/shared-frontend';
 import { Prose } from './prose';
 
 const Fullscreen = styled.div`

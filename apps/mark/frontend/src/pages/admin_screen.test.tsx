@@ -64,7 +64,7 @@ test('renders date and time settings modal', async () => {
   // Configure with Election Manager Card
   advanceTimers();
 
-  // We just do a simple happy path test here, since the libs/ui/set_clock unit
+  // We just do a simple happy path test here, since the libs/shared-frontend/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
   screen.getByText(startDate);

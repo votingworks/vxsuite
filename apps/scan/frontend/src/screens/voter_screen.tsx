@@ -1,5 +1,5 @@
 import { ElectionDefinition } from '@votingworks/types';
-import { useQueryChangeListener } from '@votingworks/ui';
+import { useQueryChangeListener } from '@votingworks/shared-frontend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import { acceptBallot, getScannerStatus, scanBallot } from '../api';

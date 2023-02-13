@@ -2,7 +2,10 @@ import React, { useContext, useCallback } from 'react';
 import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
-import { isElectionManagerAuth, printElement } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  printElement,
+} from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
 import { generateTestDeckBallots } from '../utils/election';

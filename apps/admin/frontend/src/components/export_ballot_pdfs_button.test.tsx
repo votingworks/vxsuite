@@ -4,7 +4,7 @@ import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { getDisplayElectionHash } from '@votingworks/types';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 import React from 'react';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';

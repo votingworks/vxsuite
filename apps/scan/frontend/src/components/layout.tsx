@@ -7,7 +7,7 @@ import {
   ElectionInfoBar,
   InfoBarMode,
   TestMode,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { getConfig, getMachineConfig } from '../api';
 
 interface CenteredScreenProps {

@@ -6,7 +6,7 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import {
   BATTERY_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { App } from './app';

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, ButtonProps } from '@votingworks/ui';
+import { Button, ButtonProps } from '@votingworks/shared-frontend';
 
 import * as GLOBALS from '../config/globals';
 

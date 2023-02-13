@@ -253,7 +253,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   screen.getByRole('heading', { name: 'Admin Actions' });
 
-  // We just do a simple happy path test here, since the libs/ui/set_clock unit
+  // We just do a simple happy path test here, since the libs/shared-frontend/set_clock unit
   // tests cover full behavior
   userEvent.click(screen.getByRole('button', { name: 'Update Date and Time' }));
 

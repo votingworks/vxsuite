@@ -14,7 +14,7 @@ import {
   Modal,
   Screen,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Prose,
+  Screen,
+  Text,
+} from '@votingworks/shared-frontend';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';

@@ -8,7 +8,7 @@ import {
   Main,
   Screen,
   UsbControllerButton,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,

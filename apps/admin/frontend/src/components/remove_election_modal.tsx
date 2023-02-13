@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, Modal, Prose } from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 

@@ -5,7 +5,7 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { ElectionConfiguration } from './election_configuration';
 import { renderInAppContext } from '../../test/render_in_app_context';
 

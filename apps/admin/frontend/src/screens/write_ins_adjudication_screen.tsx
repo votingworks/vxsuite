@@ -4,7 +4,14 @@ import {
   getContestDistrictName,
   Id,
 } from '@votingworks/types';
-import { Button, Loading, Main, Prose, Screen, Text } from '@votingworks/ui';
+import {
+  Button,
+  Loading,
+  Main,
+  Prose,
+  Screen,
+  Text,
+} from '@votingworks/shared-frontend';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';

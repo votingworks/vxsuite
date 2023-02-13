@@ -765,7 +765,7 @@ jobs:
       - store_test_results:
           path: libs/types/reports/
 
-  test-libs-ui:
+  test-libs-shared-frontend:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -773,19 +773,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir libs/ui build
+            pnpm --dir libs/shared-frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir libs/ui lint
+            pnpm --dir libs/shared-frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir libs/ui test
+            pnpm --dir libs/shared-frontend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: libs/ui/reports/
+          path: libs/shared-frontend/reports/
 
   test-libs-utils:
     executor: nodejs-browsers
@@ -899,7 +899,7 @@ workflows:
       - test-libs-res-to-ts
       - test-libs-test-utils
       - test-libs-types
-      - test-libs-ui
+      - test-libs-shared-frontend
       - test-libs-utils
       - test-services-converter-ms-sems
       - test-services-smartcards

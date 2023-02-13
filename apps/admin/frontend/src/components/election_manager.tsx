@@ -6,7 +6,7 @@ import {
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import {
   BooleanEnvironmentVariableName,

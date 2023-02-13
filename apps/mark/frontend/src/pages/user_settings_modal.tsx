@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 
-import { Button, Prose, Modal } from '@votingworks/ui';
+import { Button, Prose, Modal } from '@votingworks/shared-frontend';
 import { BallotContext } from '../contexts/ballot_context';
 import { SettingsTextSize } from '../components/settings_text_size';
 import { handleGamepadKeyboardEvent } from '../lib/gamepad';

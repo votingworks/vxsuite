@@ -9,7 +9,13 @@ import React, {
 import styled from 'styled-components';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
-import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Prose,
+  Text,
+  TextWithLineBreaks,
+} from '@votingworks/shared-frontend';
 
 import {
   EventTargetFunction,

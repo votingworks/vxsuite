@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   UsbDriveStatus,
   useExternalStateChangeListener,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,

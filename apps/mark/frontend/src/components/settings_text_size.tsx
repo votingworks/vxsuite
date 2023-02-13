@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, SegmentedButton } from '@votingworks/ui';
+import { Button, SegmentedButton } from '@votingworks/shared-frontend';
 
 import {
   EventTargetFunction,

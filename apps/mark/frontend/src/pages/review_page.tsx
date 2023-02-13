@@ -23,7 +23,7 @@ import {
   Prose,
   Screen,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import {
   getSingleYesNoVote,

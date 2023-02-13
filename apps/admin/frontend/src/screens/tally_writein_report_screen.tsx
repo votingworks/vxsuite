@@ -18,7 +18,7 @@ import {
   Button,
   printElement,
   printElementToPdf,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {

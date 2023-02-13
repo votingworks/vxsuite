@@ -15,7 +15,7 @@ import {
   getCandidatePartiesDescription,
   getContestDistrictName,
 } from '@votingworks/types';
-import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
+import { Button, Main, Modal, Prose, Text } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 
 import { stripQuotes } from '../utils/strip_quotes';

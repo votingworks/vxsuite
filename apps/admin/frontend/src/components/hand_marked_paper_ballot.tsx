@@ -40,7 +40,11 @@ import {
   getContestDistrictName,
   District,
 } from '@votingworks/types';
-import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
+import {
+  QrCode,
+  HandMarkedPaperBallotProse,
+  Text,
+} from '@votingworks/shared-frontend';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 

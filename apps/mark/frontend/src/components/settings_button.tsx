@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, ButtonProps } from '@votingworks/ui';
+import { Button, ButtonProps } from '@votingworks/shared-frontend';
 
 export function SettingsButton({ large, onPress }: ButtonProps): JSX.Element {
   return (

@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 
 import { Scan } from '@votingworks/api';
 
-import { Modal, Text } from '@votingworks/ui';
+import { Modal, Text } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 import { BatchInfo } from '@votingworks/types';
 import { Prose } from '../components/prose';

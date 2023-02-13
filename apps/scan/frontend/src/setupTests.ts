@@ -11,14 +11,17 @@ import {
 
 configure({ asyncUtilTimeout: 5_000 });
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  const original = jest.requireActual('@votingworks/ui');
-  return {
-    ...original,
-    printElementWhenReady: fakePrintElementWhenReady,
-    printElement: fakePrintElement,
-  };
-});
+jest.mock(
+  '@votingworks/shared-frontend',
+  (): typeof import('@votingworks/shared-frontend') => {
+    const original = jest.requireActual('@votingworks/shared-frontend');
+    return {
+      ...original,
+      printElementWhenReady: fakePrintElementWhenReady,
+      printElement: fakePrintElement,
+    };
+  }
+);
 
 afterEach(() => {
   expectTestToEndWithAllPrintsAsserted();

@@ -9,7 +9,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
   SystemAdministratorScreenContents,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { Hardware } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Prose } from '@votingworks/ui';
+import { Prose } from '@votingworks/shared-frontend';
 import { format } from '@votingworks/utils';
 import styled from 'styled-components';
 import { Absolute } from './absolute';

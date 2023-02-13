@@ -9,7 +9,7 @@ import {
   Modal,
   Prose,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { setMarkThresholdOverrides } from '../api';
 

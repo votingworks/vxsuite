@@ -11,7 +11,7 @@ import {
   Table,
   TD,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 

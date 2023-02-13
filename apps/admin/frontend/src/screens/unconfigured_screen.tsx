@@ -10,7 +10,7 @@ import styled from 'styled-components';
 
 import { safeParseElection } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Button, Prose, useMountedState } from '@votingworks/ui';
+import { Button, Prose, useMountedState } from '@votingworks/shared-frontend';
 import { assert } from '@votingworks/basics';
 
 import {

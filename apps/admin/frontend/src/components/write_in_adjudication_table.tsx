@@ -8,7 +8,7 @@ import {
   TD as TableDataUI,
   Text,
   TH,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { find } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React, { useState } from 'react';

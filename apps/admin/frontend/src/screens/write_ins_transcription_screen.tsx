@@ -17,7 +17,7 @@ import {
   CroppedImage,
   Prose,
   HorizontalRule,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';

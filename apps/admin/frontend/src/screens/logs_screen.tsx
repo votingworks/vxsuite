@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ExportLogsButtonRow, Prose } from '@votingworks/ui';
+import { ExportLogsButtonRow, Prose } from '@votingworks/shared-frontend';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';

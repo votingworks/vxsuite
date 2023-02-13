@@ -25,7 +25,7 @@ import {
   UsbControllerButton,
   useDevices,
   useUsbDrive,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, Result, ok, err } from '@votingworks/basics';
 import { MachineConfig } from './config/types';

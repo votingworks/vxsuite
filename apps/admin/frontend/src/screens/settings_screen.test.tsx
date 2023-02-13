@@ -22,7 +22,7 @@ test('Setting current date and time', async () => {
   const startDateTime = 'Wed, Jun 22, 2022, 12:00 AM UTC';
   screen.getByText(startDateTime);
 
-  // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
+  // Clock setting is tested fully in libs/shared-frontend/src/set_clock.test.tsx
   userEvent.click(
     screen.getByRole('button', { name: 'Wed, Jun 22, 2022, 12:00 AM UTC' })
   );
@@ -47,7 +47,7 @@ test('Rebooting from USB', async () => {
 
   screen.getByRole('heading', { name: 'Software Update' });
 
-  // Rebooting from USB is tested fully in libs/ui/src/reboot_from_usb_button.test.tsx
+  // Rebooting from USB is tested fully in libs/shared-frontend/src/reboot_from_usb_button.test.tsx
   userEvent.click(screen.getByRole('button', { name: 'Reboot from USB' }));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'No USB Drive Detected' });
@@ -59,6 +59,6 @@ test('Rebooting to BIOS', () => {
 
   screen.getByRole('heading', { name: 'Software Update' });
 
-  // Rebooting to BIOS is tested in libs/ui/src/reboot_to_bios_button.test.tsx
+  // Rebooting to BIOS is tested in libs/shared-frontend/src/reboot_to_bios_button.test.tsx
   screen.getByText('Reboot to BIOS');
 });

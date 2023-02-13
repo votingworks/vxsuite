@@ -3,7 +3,12 @@ import { getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
 import { ColorMode } from '@votingworks/types';
-import { AppBase, ErrorBoundary, Prose, Text } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  Prose,
+  Text,
+} from '@votingworks/shared-frontend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoot, AppRootProps } from './app_root';
 import {

@@ -13,7 +13,7 @@ To run the demo server, first follow the instructions in the
 following command:
 
 ```sh
-# in libs/shared-frontend
+# in libs/ui
 pnpm start
 ```
 
@@ -30,7 +30,7 @@ To include a new component in the live demo, create a new
 `my_component.stories.tsx` file adjacent to the new component:
 
 ```
-libs/shared-frontend
+libs/ui
   > src
     > my_component.tsx
     > my_component.stories.tsx  <--

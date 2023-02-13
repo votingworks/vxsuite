@@ -14,7 +14,7 @@ import {
   Table,
   TD,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';
 import { routerPaths } from '../router_paths';

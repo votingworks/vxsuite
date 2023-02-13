@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Text } from '@votingworks/shared-frontend';
 import {
   ScreenMainCenterChild,
   CenteredLargeProse,

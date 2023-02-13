@@ -5,7 +5,7 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';

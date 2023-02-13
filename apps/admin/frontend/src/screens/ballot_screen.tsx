@@ -23,7 +23,7 @@ import {
   useStoredState,
   printElementWhenReady,
   printElementToPdfWhenReady,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';

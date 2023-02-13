@@ -11,7 +11,7 @@ import {
 } from '@votingworks/types';
 import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/ui';
+import { UsbDrive } from '@votingworks/shared-frontend';
 import {
   SaveElection,
   Iso8601Timestamp,

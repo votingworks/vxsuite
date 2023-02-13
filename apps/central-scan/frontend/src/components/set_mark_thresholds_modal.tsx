@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Modal, Text } from '@votingworks/ui';
+import { Modal, Text } from '@votingworks/shared-frontend';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';

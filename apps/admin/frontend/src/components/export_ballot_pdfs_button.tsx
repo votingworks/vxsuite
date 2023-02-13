@@ -19,7 +19,7 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   printElementToPdfWhenReady,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { LogEventId } from '@votingworks/logging';
 import {
   getBallotArchiveFilename,

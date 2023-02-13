@@ -23,7 +23,7 @@ import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UsbDrive } from '@votingworks/ui';
+import { UsbDrive } from '@votingworks/shared-frontend';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,

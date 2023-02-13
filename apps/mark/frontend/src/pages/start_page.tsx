@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
+import { LinkButton, Main, Screen, Prose } from '@votingworks/shared-frontend';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';

@@ -12,7 +12,7 @@ import {
   Prose,
   Table,
   TD,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';

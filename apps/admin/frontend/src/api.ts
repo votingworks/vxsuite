@@ -3,7 +3,7 @@ import type { Api } from '@votingworks/admin-backend'; // eslint-disable-line vx
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   QueryClient,
   QueryKey,

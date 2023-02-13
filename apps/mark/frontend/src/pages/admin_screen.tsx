@@ -18,7 +18,7 @@ import {
   SetClockButton,
   TestMode,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';

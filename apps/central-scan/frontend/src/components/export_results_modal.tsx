@@ -7,7 +7,7 @@ import {
   isElectionManagerAuth,
   Modal,
   UsbControllerButton,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,

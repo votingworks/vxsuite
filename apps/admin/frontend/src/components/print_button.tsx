@@ -6,7 +6,7 @@ import {
   Modal,
   useCancelablePromise,
   Prose,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
 import { AppContext } from '../contexts/app_context';

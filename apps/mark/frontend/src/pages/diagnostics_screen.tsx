@@ -9,7 +9,7 @@ import {
   Screen,
   Text,
   useCancelablePromise,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { Optional } from '@votingworks/types';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';

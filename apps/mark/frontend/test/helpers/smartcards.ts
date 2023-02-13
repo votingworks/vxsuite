@@ -7,7 +7,7 @@ import {
   getContests,
   VotesDict,
 } from '@votingworks/types';
-import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import { CARD_POLLING_INTERVAL } from '@votingworks/shared-frontend';
 
 const contest0 = election.contests[0] as CandidateContest;
 const contest1 = election.contests[1] as CandidateContest;

@@ -5,7 +5,7 @@ import {
   RebootFromUsbButton,
   RebootToBiosButton,
   SetClockButton,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';

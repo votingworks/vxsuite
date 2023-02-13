@@ -12,7 +12,7 @@ import {
 import { MachineConfig } from '@votingworks/mark-backend';
 
 import userEvent from '@testing-library/user-event';
-import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import { CARD_POLLING_INTERVAL } from '@votingworks/shared-frontend';
 import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import * as GLOBALS from '../src/config/globals';
 

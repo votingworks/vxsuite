@@ -7,7 +7,7 @@ import {
   isSystemAdministratorAuth,
   Modal,
   Prose,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';

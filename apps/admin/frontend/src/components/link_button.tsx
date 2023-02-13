@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { Button, ButtonInterface } from '@votingworks/ui';
+import { Button, ButtonInterface } from '@votingworks/shared-frontend';
 import { EventTargetFunction } from '../config/types';
 
 interface Props

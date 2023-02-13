@@ -32,7 +32,7 @@ import {
   ElectionInfoBar,
   TestMode,
   NoWrap,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import {
   ReportSourceMachineType,

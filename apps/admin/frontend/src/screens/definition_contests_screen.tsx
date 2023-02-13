@@ -14,7 +14,12 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButton,
+  Prose,
+  Text,
+} from '@votingworks/shared-frontend';
 import { readFileAsync } from '../lib/read_file_async';
 import {
   EventTargetFunction,

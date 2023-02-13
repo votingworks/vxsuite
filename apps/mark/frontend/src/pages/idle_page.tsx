@@ -2,7 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
-import { Button, Loading, Main, Prose, Screen } from '@votingworks/ui';
+import {
+  Button,
+  Loading,
+  Main,
+  Prose,
+  Screen,
+} from '@votingworks/shared-frontend';
 import { sleep } from '@votingworks/basics';
 
 import {

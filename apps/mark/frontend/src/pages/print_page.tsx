@@ -10,7 +10,7 @@ import {
   Prose,
   Screen,
   useLock,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';

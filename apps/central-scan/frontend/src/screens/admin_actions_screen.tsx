@@ -11,7 +11,7 @@ import {
   Screen,
   SetClockButton,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { Scan } from '@votingworks/api';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';

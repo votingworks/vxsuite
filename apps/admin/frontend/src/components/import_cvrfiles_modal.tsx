@@ -12,7 +12,7 @@ import {
   Prose,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,

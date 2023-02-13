@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Text } from '@votingworks/shared-frontend';
 import { throwIllegalValue } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {

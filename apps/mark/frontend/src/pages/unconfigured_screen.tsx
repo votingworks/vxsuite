@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Main, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/shared-frontend';
 
 interface Props {
   hasElectionDefinition: boolean;

@@ -5,7 +5,7 @@ import {
   Screen,
   SystemAdministratorScreenContents,
   UsbDriveStatus,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';

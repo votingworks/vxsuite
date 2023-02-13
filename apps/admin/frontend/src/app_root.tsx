@@ -19,7 +19,7 @@ import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
 } from '@votingworks/utils';
-import { useUsbDrive, useDevices } from '@votingworks/ui';
+import { useUsbDrive, useDevices } from '@votingworks/shared-frontend';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';

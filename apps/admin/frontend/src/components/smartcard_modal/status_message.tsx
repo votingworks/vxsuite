@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Loading, Modal, Text } from '@votingworks/ui';
+import { Loading, Modal, Text } from '@votingworks/shared-frontend';
 import { hyphenatePin } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
 import { User, UserRole } from '@votingworks/types';

@@ -17,7 +17,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
     />
   );
 
-  // These buttons are further tested in libs/ui
+  // These buttons are further tested in libs/shared-frontend
   screen.getByRole('button', { name: 'Reboot from USB' });
   screen.getByRole('button', { name: 'Reboot to BIOS' });
   screen.getByRole('button', { name: 'Unconfigure Machine' });

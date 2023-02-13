@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { LinkButton, Prose } from '@votingworks/ui';
+import { LinkButton, Prose } from '@votingworks/shared-frontend';
 import { useParams } from 'react-router-dom';
 
 import { NavigationScreen } from '../components/navigation_screen';

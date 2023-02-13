@@ -3,7 +3,7 @@ import React from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { err } from '@votingworks/basics';
 import {
   ExportResultsModal,

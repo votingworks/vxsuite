@@ -19,7 +19,7 @@ import {
   Prose,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { ColorMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {

@@ -7,7 +7,7 @@ import {
   TallyReportColumns,
   TallyReportMetadata,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   Election,
   getLabelForVotingMethod,

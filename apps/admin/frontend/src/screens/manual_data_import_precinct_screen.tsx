@@ -27,7 +27,7 @@ import {
   Table,
   TD,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';

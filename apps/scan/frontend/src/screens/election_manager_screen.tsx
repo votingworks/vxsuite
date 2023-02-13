@@ -9,7 +9,7 @@ import {
   SetClockButton,
   UsbDrive,
   ChangePrecinctButton,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';

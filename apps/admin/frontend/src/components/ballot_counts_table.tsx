@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { format } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Table, TD } from '@votingworks/ui';
+import { Table, TD } from '@votingworks/shared-frontend';
 import {
   BatchTally,
   TallyCategory,

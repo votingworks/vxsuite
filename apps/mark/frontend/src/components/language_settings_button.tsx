@@ -6,7 +6,11 @@
 
 import React from 'react';
 
-import { Button, ButtonProps, SegmentedButton } from '@votingworks/ui';
+import {
+  Button,
+  ButtonProps,
+  SegmentedButton,
+} from '@votingworks/shared-frontend';
 import { EventTargetFunction, DefinedDictionary } from '@votingworks/types';
 
 interface Props extends ButtonProps {

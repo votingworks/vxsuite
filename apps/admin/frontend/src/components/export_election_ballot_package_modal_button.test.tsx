@@ -4,7 +4,7 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
 import React from 'react';
 import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import {
   eitherNeitherElectionDefinition,

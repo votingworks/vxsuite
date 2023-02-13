@@ -1,5 +1,5 @@
 import { ColorMode } from '@votingworks/types';
-import { AppBase } from '@votingworks/ui';
+import { AppBase } from '@votingworks/shared-frontend';
 import {
   getHardware,
   getPrinter,

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Admin } from '@votingworks/api';
-import { LinkButton, Prose } from '@votingworks/ui';
+import { LinkButton, Prose } from '@votingworks/shared-frontend';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';

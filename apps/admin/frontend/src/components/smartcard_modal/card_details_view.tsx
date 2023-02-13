@@ -7,7 +7,7 @@ import {
   HorizontalRule,
   Prose,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';

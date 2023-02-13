@@ -6,7 +6,7 @@ import {
   Prose,
   UsbControllerButton,
   UsbDrive,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { usbstick } from '@votingworks/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';

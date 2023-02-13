@@ -1,4 +1,4 @@
-import { Modal } from '@votingworks/ui';
+import { Modal } from '@votingworks/shared-frontend';
 import React, { useCallback, useRef, useState } from 'react';
 import { Button } from './button';
 import { Prose } from './prose';

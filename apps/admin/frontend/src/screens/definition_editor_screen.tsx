@@ -6,7 +6,7 @@ import fileDownload from 'js-file-download';
 import dashify from 'dashify';
 
 import { safeParseElection } from '@votingworks/types';
-import { Button, Prose } from '@votingworks/ui';
+import { Button, Prose } from '@votingworks/shared-frontend';
 import { AppContext } from '../contexts/app_context';
 
 import { Textarea } from '../components/textarea';

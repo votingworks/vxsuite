@@ -8,7 +8,7 @@ import {
   Modal,
   UsbControllerButton,
   UsbDrive,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import { throwIllegalValue } from '@votingworks/basics';
 import { exportCastVoteRecordsToUsbDrive } from '../api';
 

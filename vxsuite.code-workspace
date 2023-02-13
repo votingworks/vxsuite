@@ -129,8 +129,8 @@
       "path": "libs/types"
     },
     {
-      "name": "libs/ui",
-      "path": "libs/ui"
+      "name": "libs/shared-frontend",
+      "path": "libs/shared-frontend"
     },
     {
       "name": "libs/usb-mocking",

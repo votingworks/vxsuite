@@ -3,7 +3,7 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { LogSource, Logger } from '@votingworks/logging';
 import { Dipped } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';

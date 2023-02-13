@@ -15,7 +15,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/shared-frontend';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,

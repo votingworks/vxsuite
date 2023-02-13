@@ -15,7 +15,7 @@ import {
   ModalWidth,
   Prose,
   Text,
-} from '@votingworks/ui';
+} from '@votingworks/shared-frontend';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,

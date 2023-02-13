@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Button } from '@votingworks/ui';
+import { Button } from '@votingworks/shared-frontend';
 import { generateFinalExportDefaultFilename } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { Admin } from '@votingworks/api';

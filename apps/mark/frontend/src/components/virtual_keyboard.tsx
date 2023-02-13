@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button } from '@votingworks/ui';
+import { Button } from '@votingworks/shared-frontend';
 
 import { EventTargetFunction } from '../config/types';
 
