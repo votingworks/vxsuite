@@ -481,23 +481,6 @@ test('POST /scan/export-to-usb-drive', async () => {
   ).resolves.toEqual('cvr file contents\n');
 });
 
-test('GET /scan/export', async () => {
-  importer.doExport.mockImplementation((writeStream) => {
-    writeStream.write('cvr file contents\n');
-    return Promise.resolve();
-  });
-
-  const response = await request(app)
-    .get('/central-scanner/scan/export?filename=new_cvr_export.jsonl')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  expect(response.get('Content-Disposition')).toEqual(
-    'attachment; filename="new_cvr_export.jsonl"'
-  );
-  expect(Buffer.from(response.body).toString()).toEqual('cvr file contents\n');
-});
-
 test('POST /scan/zero error', async () => {
   importer.doZero.mockReturnValue();
 

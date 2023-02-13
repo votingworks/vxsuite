@@ -544,14 +544,14 @@ export const ExportToUsbDriveRequestSchema: z.ZodSchema<ExportToUsbDriveRequest>
  * @url /scan/export-to-usb-drive
  * @method POST
  */
-export type ExportToUsbDriveResponse = string | ErrorsResponse;
+export type ExportToUsbDriveResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /scan/export-to-usb-drive
  * @method POST
  */
 export const ExportToUsbDriveResponseSchema: z.ZodSchema<ExportToUsbDriveResponse> =
-  z.union([z.string(), ErrorsResponseSchema]);
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /scan/export

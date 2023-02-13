@@ -698,7 +698,6 @@ export function AppRoot({
             {isExportingCvrs && (
               <ExportResultsModal
                 onClose={() => setIsExportingCvrs(false)}
-                electionDefinition={electionDefinition}
                 isTestMode={isTestMode}
                 numberOfBallots={currentNumberOfBallots}
               />

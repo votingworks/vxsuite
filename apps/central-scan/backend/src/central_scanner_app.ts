@@ -586,35 +586,8 @@ export async function buildCentralScannerApp({
 
     store.setCvrsBackedUp();
 
-    response.sendStatus(200);
+    response.json({ status: 'ok' });
   });
-
-  deprecatedApiRouter.get<NoParams>(
-    '/central-scanner/scan/export',
-    async (request, response) => {
-      if (!store.hasElection()) {
-        response
-          .status(400)
-          .send('cannot download cvrs if no election is configured');
-        return;
-      }
-
-      const parseQueryResult = safeParse(
-        Scan.DownloadExportQueryParamsSchema,
-        request.query
-      );
-      if (parseQueryResult.isErr()) {
-        response.status(400).send(parseQueryResult.err().message);
-        return;
-      }
-      const { filename } = parseQueryResult.ok();
-
-      response.attachment(filename);
-      await importer.doExport(response);
-      store.setCvrsBackedUp();
-      response.end();
-    }
-  );
 
   deprecatedApiRouter.get<NoParams, Scan.GetScanStatusResponse>(
     '/central-scanner/scan/status',

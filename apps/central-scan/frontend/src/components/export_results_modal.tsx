@@ -1,29 +1,21 @@
-import { ElectionDefinition } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import * as path from 'path';
 
 import {
   isElectionManagerAuth,
   Modal,
   UsbControllerButton,
 } from '@votingworks/ui';
-import {
-  generateElectionBasedSubfolderName,
-  generateFilenameForScanningResults,
-  SCANNER_RESULTS_FOLDER,
-  usbstick,
-} from '@votingworks/utils';
+import { generateFilenameForScanningResults } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
-import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
-import { download } from '../util/download';
+import { exportCastVoteRecords } from '../api/config';
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
@@ -37,7 +29,6 @@ export const UsbImage = styled.img`
 
 export interface Props {
   onClose: () => void;
-  electionDefinition: ElectionDefinition;
   numberOfBallots: number;
   isTestMode: boolean;
 }
@@ -51,7 +42,6 @@ enum ModalState {
 
 export function ExportResultsModal({
   onClose,
-  electionDefinition,
   numberOfBallots,
   isTestMode,
 }: Props): JSX.Element {
@@ -63,7 +53,7 @@ export function ExportResultsModal({
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
-  async function exportResults(openDialog: boolean) {
+  async function exportResults() {
     setCurrentState(ModalState.SAVING);
 
     try {
@@ -76,52 +66,14 @@ export function ExportResultsModal({
         new Date()
       );
 
-      if (window.kiosk) {
-        const usbPath = await usbstick.getPath();
-        if (!usbPath) {
-          throw new Error('could not save file; path to usb drive missing');
-        }
-        const electionFolderName = generateElectionBasedSubfolderName(
-          electionDefinition.election,
-          electionDefinition.electionHash
-        );
-        const pathToFolder = path.join(
-          usbPath,
-          SCANNER_RESULTS_FOLDER,
-          electionFolderName
-        );
-        if (openDialog) {
-          await download(`/central-scanner/scan/export`, {
-            defaultPath: path.join(pathToFolder, cvrFilename),
-          });
-        } else {
-          const requestBody: Scan.ExportToUsbDriveRequest = {
-            filename: cvrFilename,
-          };
-          const response = await fetch(
-            '/central-scanner/scan/export-to-usb-drive',
-            {
-              method: 'post',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(requestBody),
-            }
-          );
+      await exportCastVoteRecords(cvrFilename);
 
-          if (!response.ok) {
-            throw new Error('unable to write to USB drive');
-          }
-        }
-
-        setCurrentState(ModalState.DONE);
-        await logger.log(LogEventId.SaveCvrComplete, userRole, {
-          message: `Successfully saved CVR file with ${numberOfBallots} ballots.`,
-          disposition: 'success',
-          numberOfBallots,
-        });
-      } else {
-        await download(`/central-scanner/scan/export?filename=${cvrFilename}`);
-        setCurrentState(ModalState.DONE);
-      }
+      setCurrentState(ModalState.DONE);
+      await logger.log(LogEventId.SaveCvrComplete, userRole, {
+        message: `Successfully saved CVR file with ${numberOfBallots} ballots.`,
+        disposition: 'success',
+        numberOfBallots,
+      });
     } catch (error) {
       assert(error instanceof Error);
       setErrorMessage(`Failed to save CVRs. ${error.message}`);
@@ -215,30 +167,13 @@ export function ExportResultsModal({
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                <UsbImage
-                  src="/assets/usb-drive.svg"
-                  alt="Insert USB Image"
-                  // hidden feature to save with file dialog by double-clicking
-                  onDoubleClick={() => exportResults(true)}
-                />
+                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
                 Please insert a USB drive in order to save CVRs.
               </p>
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              {!window.kiosk && (
-                <Button
-                  data-testid="manual-export"
-                  onPress={() => exportResults(true)}
-                >
-                  Save
-                </Button>
-              )}
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
-            </React.Fragment>
-          }
+          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
     case 'ejecting':
@@ -256,26 +191,17 @@ export function ExportResultsModal({
           content={
             <Prose>
               <h1>Save CVRs</h1>
-              <UsbImage
-                src="/assets/usb-drive.svg"
-                alt="Insert USB Image"
-                onDoubleClick={() => exportResults(true)}
-              />
-              <p>
-                A CVR file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom save
-                location.
-              </p>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              <p>A CVR file will be saved to the mounted USB drive.</p>
             </Prose>
           }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportResults(false)}>
+              <Button primary onPress={() => exportResults()}>
                 Save
               </Button>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
-              <Button onPress={() => exportResults(true)}>Custom</Button>
             </React.Fragment>
           }
         />

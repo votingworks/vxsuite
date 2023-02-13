@@ -16,6 +16,7 @@ import {
   fakeElectionManagerUser,
   fakeKiosk,
   fakeSystemAdministratorUser,
+  fakeUsbDrive,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
@@ -24,12 +25,9 @@ import { Scan } from '@votingworks/api';
 import { ElectionDefinition } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger } from '@votingworks/logging';
-import { download } from './util/download';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import { createMockApiClient, MockApiClient, setAuthStatus } from '../test/api';
-
-jest.mock('./util/download');
 
 let mockApiClient: MockApiClient;
 
@@ -238,6 +236,10 @@ test('clicking Scan Batch will scan a batch', async () => {
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -270,33 +272,28 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
       '/central-scanner/scan/status',
       { body: scanStatusResponseBody },
       { overwriteRoutes: true }
-    );
+    )
+    .postOnce('/central-scanner/scan/export-to-usb-drive', {
+      body: { status: 'ok' },
+    });
 
   const hardware = MemoryHardware.buildStandard();
 
-  const { getByText, queryByText, getByTestId } = render(
-    <App apiClient={mockApiClient} hardware={hardware} />
-  );
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionSampleDefinition);
-  const exportingModalText = 'No USB Drive Detected';
 
   await act(async () => {
     // wait for the config to load
     await sleep(500);
 
-    fireEvent.click(getByText('Save CVRs'));
-    await waitFor(() => getByText(exportingModalText));
-    fireEvent.click(getByTestId('manual-export'));
-    await waitFor(() => getByText('CVRs Saved'));
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(screen.getByText('Save CVRs'));
+    const modal = await screen.findByRole('alertdialog');
+    userEvent.click(within(modal).getByText('Save'));
+    await within(modal).findByText('CVRs Saved');
+    userEvent.click(within(modal).getByText('Cancel'));
   });
 
-  expect(queryByText(exportingModalText)).toEqual(null);
-  expect(download).toHaveBeenCalledWith(
-    expect.stringContaining(
-      '/central-scanner/scan/export?filename=TEST__machine_0001__'
-    )
-  );
+  expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
 
 // bad cleanup
