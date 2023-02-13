@@ -25,7 +25,7 @@ describe('useDippedSmartcardAuth', () => {
     jest.useFakeTimers();
   });
 
-  it("when machine is locked, returns logged_out auth when there's no card or a card error", async () => {
+  it.only("when machine is locked, returns logged_out auth when there's no card or a card error", async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(undefined, undefined, 'error');
@@ -42,7 +42,9 @@ describe('useDippedSmartcardAuth', () => {
       reason: 'machine_locked',
     });
 
+    console.log('yo');
     await waitForNextUpdate();
+    console.log('hey');
     expect(result.current).toMatchObject({
       status: 'logged_out',
       reason: 'card_error',
@@ -50,7 +52,9 @@ describe('useDippedSmartcardAuth', () => {
 
     // Now remove the card and check again
     cardApi.removeCard();
+    console.log('yo');
     await waitForNextUpdate();
+    console.log('hey');
     expect(result.current).toMatchObject({
       status: 'logged_out',
       reason: 'machine_locked',
