@@ -56,9 +56,19 @@ export function Typography(props: FontProps): JSX.Element {
       </P>
       <P {...props} weight="regular">
         P. The `color` prop also allows for accent coloring for scenarios such
-        as <Font color="danger">error messaging</Font>,{' '}
-        <Font color="warning">warning text</Font>, or{' '}
-        <Font color="success">success notifications</Font>.
+        as{' '}
+        <Font color="danger" weight="semiBold">
+          error messaging
+        </Font>
+        ,{' '}
+        <Font color="warning" weight="semiBold">
+          warning text
+        </Font>
+        , or{' '}
+        <Font color="success" weight="semiBold">
+          success notifications
+        </Font>
+        .
       </P>
       <Caption {...props}>
         Caption. The Caption component may be used for smaller secondary text

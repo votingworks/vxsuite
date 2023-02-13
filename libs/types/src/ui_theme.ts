@@ -3,6 +3,7 @@ export type ColorMode =
   | 'contrastHighDark'
   | 'contrastHighLight'
   | 'contrastMedium'
+  | 'contrastLow'
   | 'legacy';
 
 /** Options for supported UI sizing themes. */
@@ -11,6 +12,19 @@ export type SizeMode = 's' | 'm' | 'l' | 'xl' | 'legacy';
 /** VX CSS color definitions. */
 export enum Color {
   BLACK = '#000000',
+  DANGER_LOW_CONTRAST = '#ff3d3d',
+  DANGER_MEDIUM_CONTRAST = '#820b0b',
+  GRAY_DARK = '#222222',
+  GRAY_LIGHT = '#757575',
+  GRAY_MEDIUM = '#5c5c5c',
+  OFF_BLACK = '#080808',
+  OFF_WHITE = '#fafafa',
+  PRIMARY_BLUE_LOW_CONTRAST = '#5b8eb5',
+  PRIMARY_BLUE_MEDIUM_CONTRAST = '#0f426a',
+  PRIMARY_GREEN_LOW_CONTRAST = '#509a52',
+  PRIMARY_GREEN_MEDIUM_CONTRAST = '#174915',
+  WARNING_LOW_CONTRAST = '#bc7c10',
+  WARNING_MEDIUM_CONTRAST = '#5c3600',
   WHITE = '#ffffff',
 
   LEGACY_ACCENT_DANGER = '#ff0000',
@@ -36,11 +50,18 @@ export interface ColorTheme {
 
 /** Pixel size values for various UI element types. */
 export interface SizeTheme {
+  readonly bordersRem: {
+    readonly hairline: number;
+    readonly medium: number;
+    readonly thick: number;
+    readonly thin: number;
+  };
   readonly fontDefault: number;
   readonly fontWeight: {
     readonly bold: number;
     readonly light: number;
     readonly regular: number;
+    readonly semiBold: number;
   };
   readonly headingsRem: {
     readonly h1: number;
@@ -52,7 +73,6 @@ export interface SizeTheme {
   };
   readonly letterSpacingEm: number;
   readonly lineHeight: number;
-  // TODO: Flesh out
 }
 
 /** UI theme configuration. */

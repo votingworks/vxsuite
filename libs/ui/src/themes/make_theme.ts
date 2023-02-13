@@ -36,32 +36,58 @@ const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
  */
 const CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO = 1 / 0.725;
 
-const COLOR_THEME_LEGACY: ColorTheme = {
-  background: Color.LEGACY_BACKGROUND,
-  foreground: Color.LEGACY_FOREGROUND,
-  foregroundDisabled: Color.LEGACY_FOREGROUND_DISABLED,
-  accentPrimary: Color.LEGACY_PRIMARY_GREEN,
-  accentSecondary: Color.LEGACY_PRIMARY_BLUE,
-  accentSuccess: Color.LEGACY_PRIMARY_GREEN,
-  accentDanger: Color.LEGACY_ACCENT_DANGER,
-  accentWarning: Color.LEGACY_ACCENT_WARNING,
-};
-
-// TODO: Actually implement these themes:
 const colorThemes: Record<ColorMode, ColorTheme> = {
   contrastHighLight: {
-    ...COLOR_THEME_LEGACY,
+    accentDanger: Color.BLACK,
+    accentPrimary: Color.BLACK,
+    accentSecondary: Color.BLACK,
+    accentSuccess: Color.BLACK,
+    accentWarning: Color.BLACK,
     background: Color.WHITE,
     foreground: Color.BLACK,
+    foregroundDisabled: Color.OFF_BLACK,
   },
   contrastHighDark: {
-    ...COLOR_THEME_LEGACY,
+    accentDanger: Color.WHITE,
+    accentPrimary: Color.WHITE,
+    accentSecondary: Color.WHITE,
+    accentSuccess: Color.WHITE,
+    accentWarning: Color.WHITE,
     background: Color.BLACK,
     foreground: Color.WHITE,
+    foregroundDisabled: Color.OFF_WHITE,
   },
-  contrastMedium: COLOR_THEME_LEGACY,
+  contrastMedium: {
+    accentDanger: Color.DANGER_MEDIUM_CONTRAST,
+    accentPrimary: Color.PRIMARY_BLUE_MEDIUM_CONTRAST,
+    accentSecondary: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
+    accentSuccess: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
+    accentWarning: Color.WARNING_MEDIUM_CONTRAST,
+    background: Color.OFF_WHITE,
+    foreground: Color.GRAY_DARK,
+    foregroundDisabled: Color.GRAY_DARK,
+  },
+  contrastLow: {
+    accentDanger: Color.DANGER_LOW_CONTRAST,
+    accentPrimary: Color.PRIMARY_BLUE_LOW_CONTRAST,
+    accentSecondary: Color.PRIMARY_GREEN_LOW_CONTRAST,
+    accentSuccess: Color.PRIMARY_GREEN_LOW_CONTRAST,
+    accentWarning: Color.WARNING_LOW_CONTRAST,
+    background: Color.GRAY_DARK,
+    foreground: Color.GRAY_LIGHT,
+    foregroundDisabled: Color.GRAY_LIGHT,
+  },
 
-  legacy: COLOR_THEME_LEGACY,
+  legacy: {
+    background: Color.LEGACY_BACKGROUND,
+    foreground: Color.LEGACY_FOREGROUND,
+    foregroundDisabled: Color.LEGACY_FOREGROUND_DISABLED,
+    accentPrimary: Color.LEGACY_PRIMARY_GREEN,
+    accentSecondary: Color.LEGACY_PRIMARY_BLUE,
+    accentSuccess: Color.LEGACY_PRIMARY_GREEN,
+    accentDanger: Color.LEGACY_ACCENT_DANGER,
+    accentWarning: Color.LEGACY_ACCENT_WARNING,
+  },
 };
 
 const INCHES_PER_MM = 1 / 25.4;
@@ -91,11 +117,18 @@ function getFontSize(mode: SizeMode): number {
 
 const sizeThemes: Record<SizeMode, SizeTheme> = {
   s: {
+    bordersRem: {
+      hairline: 0.06,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.25,
+    },
     fontDefault: getFontSize('s'),
     fontWeight: {
       bold: 600,
       light: 200,
       regular: 300,
+      semiBold: 500,
     },
     headingsRem: {
       h1: 2.25,
@@ -109,11 +142,18 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     lineHeight: 1.3,
   },
   m: {
+    bordersRem: {
+      hairline: 0.055,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.25,
+    },
     fontDefault: getFontSize('m'),
     fontWeight: {
       bold: 600,
       light: 200,
       regular: 300,
+      semiBold: 500,
     },
     headingsRem: {
       h1: 2.125,
@@ -127,11 +167,18 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     lineHeight: 1.15,
   },
   l: {
+    bordersRem: {
+      hairline: 0.05,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.2,
+    },
     fontDefault: getFontSize('l'),
     fontWeight: {
       bold: 600,
       light: 200,
       regular: 300,
+      semiBold: 400,
     },
     headingsRem: {
       h1: 2,
@@ -145,16 +192,23 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     lineHeight: 1.1,
   },
   xl: {
+    bordersRem: {
+      hairline: 0.05,
+      thin: 0.075,
+      medium: 0.125,
+      thick: 0.15,
+    },
     fontDefault: getFontSize('xl'),
     fontWeight: {
       bold: 600,
       light: 200,
       regular: 300,
+      semiBold: 400,
     },
     headingsRem: {
-      h1: 2,
+      h1: 1.75,
       h2: 1.5,
-      h3: 1.4,
+      h3: 1.3,
       h4: 1.2,
       h5: 1.1,
       h6: 1,
@@ -164,11 +218,18 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
   },
 
   legacy: {
+    bordersRem: {
+      hairline: 0.05,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.25,
+    },
     fontDefault: 16,
     fontWeight: {
       bold: 600,
       light: 300,
       regular: 400,
+      semiBold: 500,
     },
     headingsRem: {
       h1: 1.5,

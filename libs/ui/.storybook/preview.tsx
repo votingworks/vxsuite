@@ -25,10 +25,11 @@ const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
 const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
-  contrastHighLight: { title: 'Color Theme - Light', value: 'contrastHighLight'},
-  contrastHighDark: { title: 'Color Theme - Dark', value: 'contrastHighDark'},
-  contrastMedium: { title: 'Color Theme - Medium', value: 'contrastMedium'},
-  legacy: { title: 'Color Theme - Legacy', value: 'legacy'},
+  contrastHighLight: { title: 'High Contrast - Light', value: 'contrastHighLight'},
+  contrastHighDark: { title: 'High Contrast - Dark', value: 'contrastHighDark'},
+  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium'},
+  contrastLow: { title: 'Low Contrast', value: 'contrastLow'},
+  legacy: { title: 'Legacy Colors', value: 'legacy'},
 }
 
 /**
