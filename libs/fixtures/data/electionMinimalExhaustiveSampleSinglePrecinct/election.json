@@ -144,7 +144,6 @@
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 1",
-      "partyId": "0",
       "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
       "yesOption": {
         "id": "new-zoo-either-approved",
@@ -160,7 +159,6 @@
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 1",
-      "partyId": "0",
       "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
       "yesOption": {
         "id": "new-zoo-safari",
@@ -176,7 +174,6 @@
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 3",
-      "partyId": "1",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
       "yesOption": {
         "id": "ban-fishing",

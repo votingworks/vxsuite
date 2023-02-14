@@ -881,20 +881,6 @@
           "description": "Si el Programa de reducción de vehículos del condado de Franklin y las tarifas de registro de vehículos (un dólar por vehículo y dos dólares adicionales para ciertos vehículos comerciales pagaderos al registrar un vehículo) se renueven por un período de diez años a partir del 1 de julio de 2021, para la reducción y retiro de vehículos abandonados, destrozados, desmantelados o inoperantes?"
         }
       }
-    },
-    {
-      "id": "measure-666",
-      "districtId": "district-1",
-      "partyId": "2",
-      "type": "yesno",
-      "title": "Measure 666: The Question No One Gets To",
-      "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage.",
-      "_lang": {
-        "es-US": {
-          "title": "Medida 666: La pregunta a la que nadie llega",
-          "description": "Esta pregunta tiene un partyId, pero ningún estilo de boleta con los distritos correspondientes tiene ese partyId, por lo que esta pregunta nunca será seleccionada por un estilo de boleta. Esto completa la cobertura de prueba."
-        }
-      }
     }
   ],
   "precincts": [
