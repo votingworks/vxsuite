@@ -15,7 +15,7 @@ export enum Color {
   DANGER_LOW_CONTRAST = '#ff3d3d',
   DANGER_MEDIUM_CONTRAST = '#820b0b',
   GRAY_DARK = '#222222',
-  GRAY_LIGHT = '#757575',
+  GRAY_LIGHT = '#8a8a8a',
   GRAY_MEDIUM = '#5c5c5c',
   OFF_BLACK = '#080808',
   OFF_WHITE = '#fafafa',

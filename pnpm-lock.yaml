@@ -3253,6 +3253,7 @@ importers:
       parse-css-color: ^0.2.1
       path: ^0.12.7
       pluralize: ^8.0.0
+      polished: ^4.2.2
       prettier: ^2.6.2
       qrcode.react: ^3.0.1
       react: ^17.0.1
@@ -3291,6 +3292,7 @@ importers:
       luxon: 1.26.0
       normalize.css: 8.0.1
       pluralize: 8.0.0
+      polished: 4.2.2
       qrcode.react: 3.0.1_react@17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-modal: 3.14.4_w7o5yyljkiidx2s2nzb26ottzu
@@ -10695,7 +10697,6 @@ packages:
       typescript: 4.6.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@typescript-eslint/parser/5.37.0_fnqnj4wr4adlkzkgntzwybsmii:
     resolution: {integrity: sha512-01VzI/ipYKuaG5PkE5+qyJ6m02fVALmMPY3Qq5BHflDx3y4VobbLdHQkSMg9VPRS4KdNt4oYTMaomFoHonBGAw==}
@@ -16643,7 +16644,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.23.1
-      eslint-plugin-import: 2.26.0_33fl2lap2ccorkkopdtpzf52dy
+      eslint-plugin-import: 2.26.0_uzffwd2kxyy6gwinwkcp25zmz4
       object.assign: 4.1.4
       object.entries: 1.1.5
       semver: 6.3.0
@@ -16695,7 +16696,7 @@ packages:
     dependencies:
       eslint: 8.23.1
       eslint-config-airbnb-base: 15.0.0_hdzsmr7kawaomymueo2tso6fjq
-      eslint-plugin-import: 2.26.0_33fl2lap2ccorkkopdtpzf52dy
+      eslint-plugin-import: 2.26.0_uzffwd2kxyy6gwinwkcp25zmz4
       eslint-plugin-jsx-a11y: 6.6.1_eslint@8.23.1
       eslint-plugin-react: 7.31.8_eslint@8.23.1
       eslint-plugin-react-hooks: 4.6.0_eslint@8.23.1
@@ -16963,7 +16964,6 @@ packages:
       eslint-import-resolver-node: 0.3.7
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /eslint-module-utils/2.7.4_ucpqszalxlpqbtguckeorjsitu:
     resolution: {integrity: sha512-j4GT+rqzCoRKHwURX7pddtIPGySnX9Si/cgMI5ztrcqOPtk5dDEeZ34CQVPphnqkJytlc97Vuk05Um2mJ3gEQA==}
@@ -16992,6 +16992,7 @@ packages:
       eslint-import-resolver-node: 0.3.7
     transitivePeerDependencies:
       - supports-color
+    dev: false
 
   /eslint-module-utils/2.7.4_uqt7rmxkvqcqe2uunwwvqtac4a:
     resolution: {integrity: sha512-j4GT+rqzCoRKHwURX7pddtIPGySnX9Si/cgMI5ztrcqOPtk5dDEeZ34CQVPphnqkJytlc97Vuk05Um2mJ3gEQA==}
@@ -17178,6 +17179,7 @@ packages:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
+    dev: false
 
   /eslint-plugin-import/2.26.0_f7h3xcst4xms75btu7jvjeks3e:
     resolution: {integrity: sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==}
@@ -17270,7 +17272,6 @@ packages:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
-    dev: true
 
   /eslint-plugin-import/2.27.5_2udi2uo2o2xkt52mpd4frcyzwe:
     resolution: {integrity: sha512-LmEt3GVofgiGuiE+ORpnvP+kAm3h6MLZJ4Q5HCyHADofsb4VzXFsRiWj3c0OFiV+3DWFh0qg3v9gcPlfc3zRow==}
@@ -23705,7 +23706,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.3.1_canvas@2.9.1
+      jest: 27.3.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -26527,7 +26528,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       '@babel/runtime': 7.20.6
-    dev: true
 
   /portfinder/1.0.28_supports-color@6.1.0:
     resolution: {integrity: sha512-Se+2isanIcEqf2XMHjyUKskczxbPH7dQnlMjXX6+dybayyHvAf/TCgyMRlzf/B6QDhAEFOGes0pzRo3by4AbMA==}
