@@ -1,0 +1,2089 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`round trip conversion for election fixture: ELECTION 1`] = `
+{
+  "@type": "BallotDefinition.BallotDefinition",
+  "Election": [
+    {
+      "@type": "BallotDefinition.Election",
+      "BallotStyle": [
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "1",
+            },
+          ],
+          "GpUnitIds": [
+            "P",
+          ],
+          "PartyIds": undefined,
+        },
+      ],
+      "Candidate": [
+        {
+          "@id": "C",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "CANDIDATE",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+      ],
+      "Contest": [
+        {
+          "@id": "CC",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "TITLE",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-C",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "C",
+              ],
+              "EndorsementPartyIds": undefined,
+            },
+          ],
+          "ElectionDistrictId": "D",
+          "Name": "TITLE",
+          "PrimaryPartyIds": undefined,
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "YNC",
+          "@type": "BallotDefinition.BallotMeasureContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "TITLE",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-yes",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "Yes",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+            {
+              "@id": "option-no",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "No",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+          ],
+          "ElectionDistrictId": "D",
+          "FullText": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "DESCRIPTION",
+                "Language": "en",
+              },
+            ],
+          },
+          "Name": "TITLE",
+        },
+      ],
+      "ElectionScopeId": "state",
+      "EndDate": "2020-11-03",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "ELECTION",
+            "Language": "en",
+          },
+        ],
+      },
+      "StartDate": "2020-11-03",
+      "Type": "general",
+    },
+  ],
+  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GpUnit": [
+    {
+      "@id": "state",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "COUNTY",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "STATE",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "state",
+    },
+    {
+      "@id": "COUNTY",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "D",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "COUNTY",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "county",
+    },
+    {
+      "@id": "D",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "P",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "DISTRICT",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "other",
+    },
+    {
+      "@id": "P",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "PRECINCT",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+  ],
+  "Issuer": "VotingWorks",
+  "IssuerAbbreviation": "VX",
+  "Party": [
+    {
+      "@id": "PARTY",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "PTY",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "POLITICAL PARTY",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "PARTY",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+  ],
+  "SequenceEnd": 1,
+  "SequenceStart": 1,
+  "VendorApplicationId": "VxSuite",
+  "Version": "1.0.0",
+}
+`;
+
+exports[`round trip conversion for election fixture: Example Primary Election - Minimal Exhaustive 1`] = `
+{
+  "@type": "BallotDefinition.BallotDefinition",
+  "Election": [
+    {
+      "@type": "BallotDefinition.Election",
+      "BallotStyle": [
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "1M",
+            },
+          ],
+          "GpUnitIds": [
+            "precinct-1",
+            "precinct-2",
+          ],
+          "PartyIds": [
+            "0",
+          ],
+        },
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "2F",
+            },
+          ],
+          "GpUnitIds": [
+            "precinct-1",
+            "precinct-2",
+          ],
+          "PartyIds": [
+            "1",
+          ],
+        },
+      ],
+      "Candidate": [
+        {
+          "@id": "horse",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Horse",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "otter",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Otter",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "fox",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Fox",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "seahorse",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Seahorse",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "salmon",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Salmon",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "zebra",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zebra",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "lion",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Lion",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "kangaroo",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Kangaroo",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "elephant",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Elephant",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "manta-ray",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Manta Ray",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "pufferfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Pufferfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "rockfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Rockfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "triggerfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Triggerfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+      ],
+      "Contest": [
+        {
+          "@id": "best-animal-mammal",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Best Animal",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-horse",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "horse",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-otter",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "otter",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-fox",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "fox",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Best Animal",
+          "PrimaryPartyIds": [
+            "0",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "best-animal-fish",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Best Animal",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-seahorse",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "seahorse",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-salmon",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "salmon",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Best Animal",
+          "PrimaryPartyIds": [
+            "1",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "zoo-council-mammal",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zoo Council",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-zebra",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "zebra",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-lion",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "lion",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-kangaroo",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "kangaroo",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-elephant",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "elephant",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-write-in-1",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-2",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-3",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Zoo Council",
+          "PrimaryPartyIds": [
+            "0",
+          ],
+          "VotesAllowed": 3,
+        },
+        {
+          "@id": "aquarium-council-fish",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zoo Council",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-manta-ray",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "manta-ray",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-pufferfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "pufferfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-rockfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "rockfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-triggerfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "triggerfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-write-in-1",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-2",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Zoo Council",
+          "PrimaryPartyIds": [
+            "1",
+          ],
+          "VotesAllowed": 2,
+        },
+        {
+          "@id": "fishing",
+          "@type": "BallotDefinition.BallotMeasureContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Ballot Measure 3",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "ban-fishing",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "YES",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+            {
+              "@id": "allow-fishing",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "NO",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "FullText": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Should fishing be banned in all city owned lakes and rivers?",
+                "Language": "en",
+              },
+            ],
+          },
+          "Name": "Ballot Measure 3",
+        },
+      ],
+      "ElectionScopeId": "state-of-sample",
+      "EndDate": "2021-09-08",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Example Primary Election - Minimal Exhaustive",
+            "Language": "en",
+          },
+        ],
+      },
+      "StartDate": "2021-09-08",
+      "Type": "general",
+    },
+  ],
+  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GpUnit": [
+    {
+      "@id": "state-of-sample",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "sample-county",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "State of Sample",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "state",
+    },
+    {
+      "@id": "sample-county",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "district-1",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Sample County",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "county",
+    },
+    {
+      "@id": "district-1",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "precinct-1",
+        "precinct-2",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "District 1",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "other",
+    },
+    {
+      "@id": "precinct-1",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Precinct 1",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+    {
+      "@id": "precinct-2",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Precinct 2",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+  ],
+  "Issuer": "VotingWorks",
+  "IssuerAbbreviation": "VX",
+  "Party": [
+    {
+      "@id": "0",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Ma",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Mammal Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Mammal",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+    {
+      "@id": "1",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "F",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Fish Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Fish",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+  ],
+  "SequenceEnd": 1,
+  "SequenceStart": 1,
+  "VendorApplicationId": "VxSuite",
+  "Version": "1.0.0",
+}
+`;
+
+exports[`round trip conversion for election fixture: Example Primary Election 1`] = `
+{
+  "@type": "BallotDefinition.BallotDefinition",
+  "Election": [
+    {
+      "@type": "BallotDefinition.Election",
+      "BallotStyle": [
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "1M",
+            },
+          ],
+          "GpUnitIds": [
+            "precinct-1",
+            "precinct-2",
+          ],
+          "PartyIds": [
+            "0",
+          ],
+        },
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "2F",
+            },
+          ],
+          "GpUnitIds": [
+            "precinct-1",
+            "precinct-2",
+          ],
+          "PartyIds": [
+            "1",
+          ],
+        },
+      ],
+      "Candidate": [
+        {
+          "@id": "horse",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Horse",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "otter",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Otter",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "fox",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Fox",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "seahorse",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Seahorse",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "salmon",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Salmon",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "zebra",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zebra",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "lion",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Lion",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "kangaroo",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Kangaroo",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "elephant",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Elephant",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "manta-ray",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Manta Ray",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "pufferfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Pufferfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "rockfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Rockfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "triggerfish",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Triggerfish",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+      ],
+      "Contest": [
+        {
+          "@id": "best-animal-mammal",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Best Animal",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-horse",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "horse",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-otter",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "otter",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-fox",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "fox",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Best Animal",
+          "PrimaryPartyIds": [
+            "0",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "best-animal-fish",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Best Animal",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-seahorse",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "seahorse",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-salmon",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "salmon",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Best Animal",
+          "PrimaryPartyIds": [
+            "1",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "zoo-council-mammal",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zoo Council",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-zebra",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "zebra",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-lion",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "lion",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-kangaroo",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "kangaroo",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-elephant",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "elephant",
+              ],
+              "EndorsementPartyIds": [
+                "0",
+              ],
+            },
+            {
+              "@id": "option-write-in-1",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-2",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-3",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Zoo Council",
+          "PrimaryPartyIds": [
+            "0",
+          ],
+          "VotesAllowed": 3,
+        },
+        {
+          "@id": "aquarium-council-fish",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Zoo Council",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-manta-ray",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "manta-ray",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-pufferfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "pufferfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-rockfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "rockfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-triggerfish",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "triggerfish",
+              ],
+              "EndorsementPartyIds": [
+                "1",
+              ],
+            },
+            {
+              "@id": "option-write-in-1",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+            {
+              "@id": "option-write-in-2",
+              "@type": "BallotDefinition.CandidateOption",
+              "IsWriteIn": true,
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "Name": "Zoo Council",
+          "PrimaryPartyIds": [
+            "1",
+          ],
+          "VotesAllowed": 2,
+        },
+        {
+          "@id": "fishing",
+          "@type": "BallotDefinition.BallotMeasureContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Ballot Measure 3",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "ban-fishing",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "YES",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+            {
+              "@id": "allow-fishing",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "NO",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "FullText": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Should fishing be banned in all city owned lakes and rivers?",
+                "Language": "en",
+              },
+            ],
+          },
+          "Name": "Ballot Measure 3",
+        },
+        {
+          "@id": "kingdom",
+          "@type": "BallotDefinition.BallotMeasureContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Kingdom Preference",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "fish-better",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "YES",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+            {
+              "@id": "mammals-better",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "NO",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+          ],
+          "ElectionDistrictId": "district-1",
+          "FullText": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "Are fish better than mammals?",
+                "Language": "en",
+              },
+            ],
+          },
+          "Name": "Kingdom Preference",
+        },
+      ],
+      "ElectionScopeId": "state-of-sample",
+      "EndDate": "2021-09-08",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Example Primary Election",
+            "Language": "en",
+          },
+        ],
+      },
+      "StartDate": "2021-09-08",
+      "Type": "general",
+    },
+  ],
+  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GpUnit": [
+    {
+      "@id": "state-of-sample",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "sample-county",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "State of Sample",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "state",
+    },
+    {
+      "@id": "sample-county",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "district-1",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Sample County",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "county",
+    },
+    {
+      "@id": "district-1",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "precinct-1",
+        "precinct-2",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "District 1",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "other",
+    },
+    {
+      "@id": "precinct-1",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Precinct 1",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+    {
+      "@id": "precinct-2",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Precinct 2",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+  ],
+  "Issuer": "VotingWorks",
+  "IssuerAbbreviation": "VX",
+  "Party": [
+    {
+      "@id": "0",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Ma",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Mammal Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Mammal",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+    {
+      "@id": "1",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "F",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Fish Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Fish",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+  ],
+  "SequenceEnd": 1,
+  "SequenceStart": 1,
+  "VendorApplicationId": "VxSuite",
+  "Version": "1.0.0",
+}
+`;
+
+exports[`round trip conversion for election fixture: Primary Election 1`] = `
+{
+  "@type": "BallotDefinition.BallotDefinition",
+  "Election": [
+    {
+      "@type": "BallotDefinition.Election",
+      "BallotStyle": [
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "1D",
+            },
+          ],
+          "GpUnitIds": [
+            "P",
+          ],
+          "PartyIds": [
+            "DEM",
+          ],
+        },
+        {
+          "@type": "BallotDefinition.BallotStyle",
+          "ExternalIdentifier": [
+            {
+              "@type": "BallotDefinition.ExternalIdentifier",
+              "Type": "state-level",
+              "Value": "1R",
+            },
+          ],
+          "GpUnitIds": [
+            "P",
+          ],
+          "PartyIds": [
+            "REP",
+          ],
+        },
+      ],
+      "Candidate": [
+        {
+          "@id": "C",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "CANDIDATE",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+        {
+          "@id": "C",
+          "@type": "BallotDefinition.Candidate",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "CANDIDATE",
+                "Language": "en",
+              },
+            ],
+          },
+        },
+      ],
+      "Contest": [
+        {
+          "@id": "CCD",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "TITLE",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-C",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "C",
+              ],
+              "EndorsementPartyIds": undefined,
+            },
+          ],
+          "ElectionDistrictId": "D",
+          "Name": "TITLE",
+          "PrimaryPartyIds": [
+            "DEM",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "CCR",
+          "@type": "BallotDefinition.CandidateContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "TITLE",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-C",
+              "@type": "BallotDefinition.CandidateOption",
+              "CandidateIds": [
+                "C",
+              ],
+              "EndorsementPartyIds": undefined,
+            },
+          ],
+          "ElectionDistrictId": "D",
+          "Name": "TITLE",
+          "PrimaryPartyIds": [
+            "REP",
+          ],
+          "VotesAllowed": 1,
+        },
+        {
+          "@id": "YNC",
+          "@type": "BallotDefinition.BallotMeasureContest",
+          "BallotTitle": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "TITLE",
+                "Language": "en",
+              },
+            ],
+          },
+          "ContestOption": [
+            {
+              "@id": "option-yes",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "Yes",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+            {
+              "@id": "option-no",
+              "@type": "BallotDefinition.BallotMeasureOption",
+              "Selection": {
+                "@type": "BallotDefinition.InternationalizedText",
+                "Text": [
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Content": "No",
+                    "Language": "en",
+                  },
+                ],
+              },
+            },
+          ],
+          "ElectionDistrictId": "D",
+          "FullText": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Content": "DESCRIPTION",
+                "Language": "en",
+              },
+            ],
+          },
+          "Name": "TITLE",
+        },
+      ],
+      "ElectionScopeId": "state",
+      "EndDate": "2020-11-03",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Primary Election",
+            "Language": "en",
+          },
+        ],
+      },
+      "StartDate": "2020-11-03",
+      "Type": "general",
+    },
+  ],
+  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GpUnit": [
+    {
+      "@id": "state",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "COUNTY",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "STATE",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "state",
+    },
+    {
+      "@id": "COUNTY",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "D",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "COUNTY",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "county",
+    },
+    {
+      "@id": "D",
+      "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": [
+        "P",
+      ],
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "DISTRICT",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "other",
+    },
+    {
+      "@id": "P",
+      "@type": "BallotDefinition.ReportingUnit",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "PRECINCT",
+            "Language": "en",
+          },
+        ],
+      },
+      "Type": "precinct",
+    },
+  ],
+  "Issuer": "VotingWorks",
+  "IssuerAbbreviation": "VX",
+  "Party": [
+    {
+      "@id": "DEM",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "D",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Democratic Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Democrat",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+    {
+      "@id": "REP",
+      "@type": "BallotDefinition.Party",
+      "Abbreviation": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "R",
+            "Language": "en",
+          },
+        ],
+      },
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Republican Party",
+            "Language": "en",
+          },
+        ],
+      },
+      "vxBallotLabel": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Content": "Republican",
+            "Language": "en",
+          },
+        ],
+      },
+    },
+  ],
+  "SequenceEnd": 1,
+  "SequenceStart": 1,
+  "VendorApplicationId": "VxSuite",
+  "Version": "1.0.0",
+}
+`;

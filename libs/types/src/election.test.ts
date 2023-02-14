@@ -217,7 +217,7 @@ test('getContests', () => {
       })!,
       election,
     }).map((c) => c.id)
-  ).toMatchObject(['CC', 'YNC']);
+  ).toEqual(['CC', 'YNC']);
 
   // primary ballots without non-partisan races
   expect(
@@ -228,7 +228,7 @@ test('getContests', () => {
       })!,
       election: electionMinimalExhaustive,
     }).map((c) => c.id)
-  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal']);
+  ).toEqual(['best-animal-mammal', 'zoo-council-mammal', 'fishing']);
 
   expect(
     getContests({
@@ -238,7 +238,7 @@ test('getContests', () => {
       })!,
       election: electionMinimalExhaustive,
     }).map((c) => c.id)
-  ).toMatchObject(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
+  ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
 
   // primary ballots with non-partisan races
   expect(
@@ -249,7 +249,7 @@ test('getContests', () => {
       })!,
       election: electionPrimaryNonpartisanContests,
     }).map((c) => c.id)
-  ).toMatchObject(['best-animal-mammal', 'zoo-council-mammal', 'kingdom']);
+  ).toEqual(['best-animal-mammal', 'zoo-council-mammal', 'fishing', 'kingdom']);
 
   expect(
     getContests({
@@ -259,7 +259,7 @@ test('getContests', () => {
       })!,
       election: electionPrimaryNonpartisanContests,
     }).map((c) => c.id)
-  ).toMatchObject([
+  ).toEqual([
     'best-animal-fish',
     'aquarium-council-fish',
     'fishing',

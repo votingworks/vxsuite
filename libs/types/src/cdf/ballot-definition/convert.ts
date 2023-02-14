@@ -10,6 +10,17 @@ import {
 import * as Cdf from '.';
 import * as Vxf from '../../election';
 
+function dateString(date: Date) {
+  const isoString = date.toISOString();
+  return isoString.split('T')[0];
+}
+
+function dateTimeString(date: Date) {
+  const isoString = date.toISOString();
+  // Need to remove fractional seconds to satisfy CDF schema
+  return `${isoString.split('.')[0]}Z`;
+}
+
 export function convertVxfElectionToCdfBallotDefinition(
   vxfElection: Vxf.Election
 ): Cdf.BallotDefinition {
@@ -26,18 +37,8 @@ export function convertVxfElectionToCdfBallotDefinition(
     };
   }
 
-  function dateString(vxDateTimeString: string) {
-    const isoString = new Date(vxDateTimeString).toISOString();
-    return isoString.split('T')[0];
-  }
-
-  function dateTimeString(date: Date) {
-    const isoString = date.toISOString();
-    // Need to remove fractional seconds to satisfy CDF schema
-    return `${isoString.split('.')[0]}Z`;
-  }
-
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
+  const electionDate = dateString(new Date(vxfElection.date));
 
   return {
     '@type': 'BallotDefinition.BallotDefinition',
@@ -46,8 +47,8 @@ export function convertVxfElectionToCdfBallotDefinition(
       {
         '@type': 'BallotDefinition.Election',
         ElectionScopeId: stateId,
-        StartDate: dateString(vxfElection.date),
-        EndDate: dateString(vxfElection.date),
+        StartDate: electionDate,
+        EndDate: electionDate,
         Type: Cdf.ElectionType.General,
         Name: text(vxfElection.title),
 
@@ -96,6 +97,9 @@ export function convertVxfElectionToCdfBallotDefinition(
                       )
                     : []),
                 ],
+                PrimaryPartyIds: contest.partyId
+                  ? [contest.partyId]
+                  : undefined,
               };
 
             case 'yesno':
@@ -270,7 +274,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       id: county['@id'],
       name: englishText(assertDefined(county.Name)),
     },
-    date: `${election.StartDate}T00:00:00Z`,
+    date: dateTimeString(new Date(election.StartDate)),
 
     parties: assertDefined(cdfBallotDefinition.Party).map((party) => {
       assert(party['@type'] === 'BallotDefinition.Party');
@@ -290,6 +294,9 @@ export function convertCdfBallotDefinitionToVxfElection(
       } as const;
       switch (contest['@type']) {
         case 'BallotDefinition.CandidateContest': {
+          if (contest.PrimaryPartyIds) {
+            assert(contest.PrimaryPartyIds.length === 1);
+          }
           return {
             ...contestBase,
             type: 'candidate',
@@ -321,6 +328,9 @@ export function convertCdfBallotDefinitionToVxfElection(
                   partyIds: option.EndorsementPartyIds as Vxf.PartyId[],
                 };
               }),
+            partyId: contest.PrimaryPartyIds
+              ? (contest.PrimaryPartyIds[0] as Vxf.PartyId)
+              : undefined,
           };
         }
         case 'BallotDefinition.BallotMeasureContest': {

@@ -5,6 +5,12 @@ import {
   IdentifierType,
   ReportingUnitType,
 } from '.';
+import {
+  election,
+  electionMinimalExhaustive,
+  electionPrimaryNonpartisanContests,
+  primaryElection,
+} from '../../../test/election';
 import { DistrictId, Election, PartyId } from '../../election';
 import {
   convertCdfBallotDefinitionToVxfElection,
@@ -556,3 +562,61 @@ test('convertVxfElectionToCdfBallotDefinition supplies default yes/no contest op
     })
   ).toEqual(testCdfBallotDefinition);
 });
+
+/**
+ * For testing a round trip from VXF -> CDF -> VXF, we need to normalize a few
+ * less strict parts of VXF to match stricter CDF constraints.
+ */
+function normalizeVxf(vxfElection: Election) {
+  // Omit fields that are not part of CDF
+  const {
+    title,
+    date,
+    state,
+    county,
+    districts,
+    precincts,
+    parties,
+    contests,
+    ballotStyles,
+  } = vxfElection;
+  const dateWithoutTime = new Date(date.split('T')[0]);
+  const isoDateString = `${dateWithoutTime.toISOString().split('.')[0]}Z`;
+  return {
+    title,
+    date: isoDateString,
+    state,
+    county,
+    districts,
+    precincts,
+    parties,
+    // VXF allows optional yes/no options, but in CDF we always list them explicitly.
+    contests: contests.map((contest) =>
+      contest.type === 'yesno'
+        ? {
+            ...contest,
+            yesOption: contest.yesOption || { label: 'Yes', id: 'option-yes' },
+            noOption: contest.noOption || { label: 'No', id: 'option-no' },
+          }
+        : contest
+    ),
+    ballotStyles,
+  };
+}
+
+const elections = [
+  election,
+  primaryElection,
+  electionMinimalExhaustive,
+  electionPrimaryNonpartisanContests,
+];
+
+for (const vxf of elections) {
+  test(`round trip conversion for election fixture: ${vxf.title}`, () => {
+    const cdf = convertVxfElectionToCdfBallotDefinition(vxf);
+    expect(cdf).toMatchSnapshot();
+    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
+      normalizeVxf(vxf)
+    );
+  });
+}

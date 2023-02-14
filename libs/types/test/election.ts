@@ -71,6 +71,7 @@ const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
 const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {
   ...election,
+  title: 'Primary Election',
   ballotStyles: [
     ...election.ballotStyles.map((bs) => ({
       ...bs,
@@ -84,16 +85,21 @@ export const primaryElection: Election = {
     })),
   ],
   contests: [
-    ...election.contests.map((c) => ({
-      ...c,
-      id: `${c.id}D`,
-      partyId: democraticPartyId,
-    })),
-    ...election.contests.map((c) => ({
-      ...c,
-      id: `${c.id}R`,
-      partyId: republicanPartyId,
-    })),
+    ...election.contests
+      .filter((contest) => contest.type === 'candidate')
+      .map((c) => ({
+        ...c,
+        id: `${c.id}D`,
+        partyId: democraticPartyId,
+      })),
+    ...election.contests
+      .filter((contest) => contest.type === 'candidate')
+      .map((c) => ({
+        ...c,
+        id: `${c.id}R`,
+        partyId: republicanPartyId,
+      })),
+    ...election.contests.filter((contest) => contest.type !== 'candidate'),
   ],
   parties: [
     {
@@ -113,7 +119,7 @@ export const primaryElection: Election = {
 
 const electionMinimalExhaustiveData = `
 {
-  "title": "Example Primary Election",
+  "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
   "county": {
     "id": "sample-county",
@@ -258,7 +264,6 @@ const electionMinimalExhaustiveData = `
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 3",
-      "partyId": "1",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
       "yesOption": {
         "id": "ban-fishing",
@@ -449,7 +454,6 @@ const electionPrimaryNonpartisanContestsData = `
       "districtId": "district-1",
       "type": "yesno",
       "title": "Ballot Measure 3",
-      "partyId": "1",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
       "yesOption": {
         "id": "ban-fishing",
