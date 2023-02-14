@@ -170,16 +170,21 @@ test('printing: polls open, All Precincts, primary election + check additional r
     await expectPrint((printedElement) => {
       expect(
         printedElement.queryAllByText('TEST Polls Opened Report for Precinct 1')
-      ).toHaveLength(election.parties.length);
+      ).toHaveLength(election.parties.length + 1);
       expect(
         printedElement.queryAllByText('TEST Polls Opened Report for Precinct 2')
-      ).toHaveLength(election.parties.length);
+      ).toHaveLength(election.parties.length + 1);
 
       expect(
         printedElement.queryAllByText('Mammal Party Example Primary Election:')
       ).toHaveLength(election.precincts.length);
       expect(
         printedElement.queryAllByText('Fish Party Example Primary Election:')
+      ).toHaveLength(election.precincts.length);
+      expect(
+        printedElement.queryAllByText(
+          'Example Primary Election Nonpartisan Contests:'
+        )
       ).toHaveLength(election.precincts.length);
 
       // Check that there are no QR code pages since we are opening polls, even though reporting is turned on.
@@ -255,6 +260,8 @@ test('saving to card: polls open, All Precincts, primary election + test failed 
     '1,__ALL_PRECINCTS': [0, 0],
     '1,precinct-1': [0, 0],
     '1,precinct-2': [0, 0],
+    'undefined,precinct-1': [0, 0],
+    'undefined,precinct-2': [0, 0],
   };
   expect(
     apiMock.mockApiClient.saveScannerReportDataToCard
@@ -359,16 +366,21 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   await expectPrint((printedElement) => {
     expect(
       printedElement.queryAllByText('TEST Polls Closed Report for Precinct 1')
-    ).toHaveLength(election.parties.length);
+    ).toHaveLength(election.parties.length + 1);
     expect(
       printedElement.queryAllByText('TEST Polls Closed Report for Precinct 2')
-    ).toHaveLength(election.parties.length);
+    ).toHaveLength(election.parties.length + 1);
 
     expect(
       printedElement.queryAllByText('Mammal Party Example Primary Election:')
     ).toHaveLength(election.precincts.length);
     expect(
       printedElement.queryAllByText('Fish Party Example Primary Election:')
+    ).toHaveLength(election.precincts.length);
+    expect(
+      printedElement.queryAllByText(
+        'Example Primary Election Nonpartisan Contests:'
+      )
     ).toHaveLength(election.precincts.length);
 
     // Check that there is a QR code page since we are closing polls
@@ -400,25 +412,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
       0,
       { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
     );
-    expectContestResultsInReport(
-      precinct1MammalReport,
-      'new-zoo-either',
-      1,
-      0,
-      0,
-      { yes: 1, no: 0 }
-    );
-    expectContestResultsInReport(
-      precinct1MammalReport,
-      'new-zoo-pick',
-      1,
-      1,
-      0,
-      {
-        yes: 0,
-        no: 0,
-      }
-    );
+
     // Check that the expected results are on the tally report for Precinct 1 Fish Party
     const precinct1FishReport = printedElement.getByTestId(
       'tally-report-1-precinct-1'
@@ -451,10 +445,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
         'write-in': 0,
       }
     );
-    expectContestResultsInReport(precinct1FishReport, 'fishing', 0, 0, 0, {
-      yes: 0,
-      no: 0,
-    });
+
     // Check that the expected results are on the tally report for Precinct 2 Mammal Party
     const precinct2MammalReport = printedElement.getByTestId(
       'tally-report-0-precinct-2'
@@ -481,25 +472,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
       0,
       { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
     );
-    expectContestResultsInReport(
-      precinct2MammalReport,
-      'new-zoo-either',
-      1,
-      0,
-      0,
-      { yes: 1, no: 0 }
-    );
-    expectContestResultsInReport(
-      precinct2MammalReport,
-      'new-zoo-pick',
-      1,
-      0,
-      0,
-      {
-        yes: 0,
-        no: 1,
-      }
-    );
+
     // Check that the expected results are on the tally report for Precinct 2 Fish Party
     const precinct2FishReport = printedElement.getByTestId(
       'tally-report-1-precinct-2'
@@ -532,10 +505,76 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
         'write-in': 0,
       }
     );
-    expectContestResultsInReport(precinct2FishReport, 'fishing', 1, 0, 0, {
-      yes: 0,
-      no: 1,
-    });
+
+    // Check that the expected results are on the tally report for Precinct 1 Nonpartisan Contests
+    const precinct1NonpartisanReport = printedElement.getByTestId(
+      'tally-report-undefined-precinct-1'
+    );
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'new-zoo-either',
+      1,
+      0,
+      0,
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'new-zoo-pick',
+      1,
+      1,
+      0,
+      {
+        yes: 0,
+        no: 0,
+      }
+    );
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'fishing',
+      1,
+      1,
+      0,
+      {
+        yes: 0,
+        no: 0,
+      }
+    );
+
+    // Check that the expected results are on the tally report for Precinct 2 Nonpartisan Contests
+    const precinct2NonpartisanReport = printedElement.getByTestId(
+      'tally-report-undefined-precinct-2'
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
+      'new-zoo-either',
+      2,
+      1,
+      0,
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
+      'new-zoo-pick',
+      2,
+      1,
+      0,
+      {
+        yes: 0,
+        no: 1,
+      }
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
+      'fishing',
+      2,
+      1,
+      0,
+      {
+        yes: 0,
+        no: 1,
+      }
+    );
   });
 });
 
@@ -559,9 +598,9 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     [0, 0, 1, 1, 0, 0], // best animal fish
     [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
     [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [0, 0, 2, 2, 0], // new zoo either neither
-    [1, 0, 2, 0, 1], // new zoo pick one
-    [0, 0, 1, 0, 1], // fishing ban yes no
+    [1, 0, 3, 2, 0], // new zoo either neither
+    [2, 0, 3, 0, 1], // new zoo pick one
+    [2, 0, 3, 0, 1], // fishing ban yes no
   ];
   const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': [
@@ -571,16 +610,16 @@ test('saving to card: polls closed, primary election, all precincts', async () =
       [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
       [0, 0, 1, 1, 0], // new zoo either neither
       [1, 0, 1, 0, 0], // new zoo pick one
-      [0, 0, 0, 0, 0], // fishing ban yes no
+      [1, 0, 1, 0, 0], // fishing ban yes no
     ],
     'precinct-2': [
       [0, 1, 1, 0, 0, 0, 0], // best animal mammal
       [0, 0, 1, 1, 0, 0], // best animal fish
       [2, 0, 1, 0, 0, 0, 1, 0], // zoo council
       [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-      [0, 0, 1, 1, 0], // new zoo either neither
-      [0, 0, 1, 0, 1], // new zoo pick one
-      [0, 0, 1, 0, 1], // fishing ban yes no
+      [1, 0, 2, 1, 0], // new zoo either neither
+      [1, 0, 2, 0, 1], // new zoo pick one
+      [1, 0, 2, 0, 1], // fishing ban yes no
     ],
   };
   const expectedBallotCounts: Dictionary<BallotCountDetails> = {
@@ -590,6 +629,8 @@ test('saving to card: polls closed, primary election, all precincts', async () =
     '1,__ALL_PRECINCTS': [1, 0],
     '1,precinct-1': [0, 0],
     '1,precinct-2': [1, 0],
+    'undefined,precinct-1': [1, 0],
+    'undefined,precinct-2': [1, 1],
   };
   expect(
     apiMock.mockApiClient.saveScannerReportDataToCard
@@ -682,13 +723,16 @@ test('printing: polls closed, primary election, single precinct + check addition
     await expectPrint((printedElement) => {
       expect(
         printedElement.queryAllByText('TEST Polls Closed Report for Precinct 1')
-      ).toHaveLength(election.parties.length);
+      ).toHaveLength(election.parties.length + 1);
       expect(
         printedElement.queryAllByText('TEST Polls Closed Report for Precinct 2')
       ).toHaveLength(0);
 
       printedElement.getByText('Mammal Party Example Primary Election:');
       printedElement.getByText('Fish Party Example Primary Election:');
+      printedElement.getByText(
+        'Example Primary Election Nonpartisan Contests:'
+      );
 
       // quickresults disabled by default
       expect(
@@ -721,25 +765,7 @@ test('printing: polls closed, primary election, single precinct + check addition
         0,
         { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
       );
-      expectContestResultsInReport(
-        precinct1MammalReport,
-        'new-zoo-either',
-        2,
-        0,
-        0,
-        { yes: 2, no: 0 }
-      );
-      expectContestResultsInReport(
-        precinct1MammalReport,
-        'new-zoo-pick',
-        2,
-        1,
-        0,
-        {
-          yes: 0,
-          no: 1,
-        }
-      );
+
       // Check that the expected results are on the tally report for Precinct 1 Fish Party
       const precinct1FishReport = printedElement.getByTestId(
         'tally-report-1-precinct-1'
@@ -772,10 +798,40 @@ test('printing: polls closed, primary election, single precinct + check addition
           'write-in': 0,
         }
       );
-      expectContestResultsInReport(precinct1FishReport, 'fishing', 1, 0, 0, {
-        yes: 0,
-        no: 1,
-      });
+
+      const precinct1NonpartisanReport = printedElement.getByTestId(
+        'tally-report-undefined-precinct-1'
+      );
+      expectContestResultsInReport(
+        precinct1NonpartisanReport,
+        'new-zoo-either',
+        3,
+        1,
+        0,
+        { yes: 2, no: 0 }
+      );
+      expectContestResultsInReport(
+        precinct1NonpartisanReport,
+        'new-zoo-pick',
+        3,
+        2,
+        0,
+        {
+          yes: 0,
+          no: 1,
+        }
+      );
+      expectContestResultsInReport(
+        precinct1NonpartisanReport,
+        'fishing',
+        3,
+        2,
+        0,
+        {
+          yes: 0,
+          no: 1,
+        }
+      );
     });
   }
   await checkReport();
@@ -815,9 +871,9 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     [0, 0, 1, 1, 0, 0], // best animal fish
     [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
     [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [0, 0, 2, 2, 0], // new zoo either neither
-    [1, 0, 2, 0, 1], // new zoo pick one
-    [0, 0, 1, 0, 1], // fishing ban yes no
+    [1, 0, 3, 2, 0], // new zoo either neither
+    [2, 0, 3, 0, 1], // new zoo pick one
+    [2, 0, 3, 0, 1], // fishing ban yes no
   ];
   const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': expectedCombinedTally,
@@ -827,6 +883,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     '0,precinct-1': [1, 1],
     '1,__ALL_PRECINCTS': [1, 0],
     '1,precinct-1': [1, 0],
+    'undefined,precinct-1': [2, 1],
   };
   expect(
     apiMock.mockApiClient.saveScannerReportDataToCard
@@ -1275,7 +1332,7 @@ test('printing: polls closed, general election with non-partisan contests, all p
 
     // Check that partisan races do not appear on nonpartisan page
     const partisanContestIds = election.contests
-      .filter((c) => c.partyId)
+      .filter((c) => c.type === 'candidate' && c.partyId)
       .map((c) => c.id);
     for (const contestId of partisanContestIds) {
       expect(
@@ -1286,7 +1343,9 @@ test('printing: polls closed, general election with non-partisan contests, all p
     }
 
     // Check that nonpartisan races do not appear on partisan pages
-    const nonpartisanContestId = election.contests.find((c) => !c.partyId)!.id;
+    const nonpartisanContestId = election.contests.find(
+      (c) => c.type !== 'candidate' || !c.partyId
+    )!.id;
     expect(
       within(
         printedElement.getByTestId('tally-report-0-precinct-1')
