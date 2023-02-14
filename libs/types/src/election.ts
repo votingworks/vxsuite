@@ -170,7 +170,6 @@ export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 export interface Contest {
   readonly id: ContestId;
   readonly districtId: DistrictId;
-  readonly partyId?: PartyId;
   readonly title: string;
   readonly type: ContestTypes;
 }
@@ -178,7 +177,6 @@ const ContestInternalSchema = z.object({
   _lang: TranslationsSchema.optional(),
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
-  partyId: PartyIdSchema.optional(),
   title: z.string().nonempty(),
   type: ContestTypesSchema,
 });
@@ -188,6 +186,7 @@ export interface CandidateContest extends Contest {
   readonly seats: number;
   readonly candidates: readonly Candidate[];
   readonly allowWriteIns: boolean;
+  readonly partyId?: PartyId;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestInternalSchema.merge(
@@ -196,6 +195,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       seats: z.number().int().positive(),
       candidates: z.array(CandidateSchema),
       allowWriteIns: z.boolean(),
+      partyId: PartyIdSchema.optional(),
     })
   ).superRefine((contest, ctx) => {
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
@@ -1019,7 +1019,9 @@ export function getContests({
   return election.contests.filter(
     (c) =>
       ballotStyle.districts.includes(c.districtId) &&
-      (ballotStyle.partyId === c.partyId || !c.partyId)
+      (c.type !== 'candidate' ||
+        !c.partyId ||
+        ballotStyle.partyId === c.partyId)
   );
 }
 
@@ -1166,7 +1168,9 @@ export function electionHasPrimaryBallotStyle(election: Election): boolean {
  * Checks if an election has a contest affiliated with a party.
  */
 export function electionHasPrimaryContest(election: Election): boolean {
-  return election.contests.some((c) => Boolean(c.partyId));
+  return election.contests.some(
+    (c) => c.type === 'candidate' && Boolean(c.partyId)
+  );
 }
 
 /**
@@ -1235,7 +1239,13 @@ export function getDistrictIdsForPartyId(
 export function getPartyIdsWithContests(
   election: Election
 ): Array<PartyId | undefined> {
-  return [...new Set(election.contests.map((c) => c.partyId))];
+  return [
+    ...new Set(
+      election.contests.map((c) =>
+        c.type === 'candidate' ? c.partyId : undefined
+      )
+    ),
+  ];
 }
 
 /**
