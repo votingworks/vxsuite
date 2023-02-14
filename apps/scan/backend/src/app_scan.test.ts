@@ -1,7 +1,19 @@
 import { AdjudicationReason } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { Logger } from '@votingworks/logging';
-import { err, ok } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
+import {
+  fakeElectionManagerUser,
+  fakePollWorkerUser,
+  mockOf,
+} from '@votingworks/test-utils';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  ALL_PRECINCTS_SELECTION,
+  ReportSourceMachineType,
+  ScannerReportData,
+  ScannerReportDataSchema,
+} from '@votingworks/utils';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import { PrecinctScannerInterpreter } from './interpret';
 import {
@@ -1199,4 +1211,59 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
     state: 'unrecoverable_error',
     error: 'paper_status_timed_out',
   });
+});
+
+test('write scanner report data to card', async () => {
+  const { apiClient, mockAuth, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb);
+
+  mockOf(mockAuth.writeCardData).mockImplementation(() =>
+    Promise.resolve(ok())
+  );
+
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
+  const scannerReportData: ScannerReportData = {
+    ballotCounts: {},
+    isLiveMode: false,
+    machineId: '0000',
+    pollsTransition: 'close_polls',
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    tally: [],
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+    timePollsTransitioned: 0,
+    timeSaved: 0,
+    totalBallotsScanned: 0,
+  };
+  let result: Result<void, Error>;
+
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
+  result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
+  expect(result).toEqual(err(new Error('User is not logged in')));
+
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+    })
+  );
+  result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
+  expect(result).toEqual(err(new Error('User is not a poll worker')));
+
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakePollWorkerUser(electionDefinition),
+    })
+  );
+  result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
+  expect(result).toEqual(ok());
+  expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
+  expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { data: scannerReportData, schema: ScannerReportDataSchema }
+  );
 });

@@ -985,7 +985,7 @@ test('PATCH /admin/elections/:electionId bad election ID', async () => {
     .expect(404);
 });
 
-test('Auth', async () => {
+test('auth', async () => {
   const logger = fakeLogger();
   workspace.store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
@@ -1032,7 +1032,7 @@ test('Auth', async () => {
   expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionHash });
 });
 
-test('Auth before election definition has been configured', async () => {
+test('auth before election definition has been configured', async () => {
   const logger = fakeLogger();
   server = await start({ app, logger, workspace });
   const apiClient = grout.createClient<Api>({

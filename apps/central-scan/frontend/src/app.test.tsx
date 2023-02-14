@@ -436,8 +436,8 @@ test('authentication works', async () => {
     status: 'checking_passcode',
     user: fakeElectionManagerUser(electionSampleDefinition),
   });
-  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
+  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -472,8 +472,8 @@ test('authentication works', async () => {
     status: 'checking_passcode',
     user: fakeElectionManagerUser(electionSampleDefinition),
   });
-  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   await screen.findByText('Enter the card security code to unlock.');
+  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
   fireEvent.click(screen.getByText('3'));

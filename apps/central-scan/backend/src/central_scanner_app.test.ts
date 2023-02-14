@@ -809,7 +809,7 @@ test('get next sheet layouts', async () => {
     );
 });
 
-test('Auth', async () => {
+test('auth', async () => {
   const { electionHash } = stateOfHamilton.electionDefinition;
   const logger = fakeLogger();
   server = await start({ app, logger, workspace });
