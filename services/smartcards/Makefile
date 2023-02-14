@@ -1,14 +1,5 @@
 
-add-ppa:
-	apt-cache search --names-only "^python3.9$$" | grep python || sudo add-apt-repository -y ppa:deadsnakes/ppa # add deadsnakes only if we need to
-
-install-python: add-ppa
-	sudo apt install -y python3.9 python3.9-dev python3.9-distutils python3-pip
-
-install-smartcard:
-	sudo apt install -y libusb-1.0-0-dev libpcsclite-dev pcscd pcsc-tools swig
-
-install: install-python install-smartcard
+install: ;
 
 build:
 	python3.9 -m pip install pipenv
