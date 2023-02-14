@@ -184,6 +184,13 @@ export function buildPrecinctScannerApp(
     fsExtra.emptyDirSync(workspace.ballotImagesPath);
     store.setTestMode(bodyParseResult.ok().testMode);
     await configureMachine(machine, workspace);
+
+    // ensure directories are there for scanning
+    fsExtra.ensureDirSync(workspace.ballotImagesPath);
+    if (workspace.plustekImagesPath) {
+      fsExtra.ensureDirSync(workspace.plustekImagesPath);
+    }
+
     response.json({ status: 'ok' });
   });
 
