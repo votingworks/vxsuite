@@ -2,15 +2,17 @@
 
 set -euo pipefail
 
-#-- Ansible for all packages, then make build?
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-echo $DIR
+
+#-- Ensure all required packages are installed via Ansible
+cd ${DIR}/../ansible/
+ansible-playbook playbooks/install_packages.yaml
+cd ${DIR}
 
 for app in ${DIR}/../services/* ${DIR}/../apps/*/frontend ${DIR}/../apps/*/backend; do
   if [ -d "${app}" ]; then
     echo $app
-    #make -C "${app}" bootstrap
+    make -C "${app}" bootstrap
   fi
 done
 
