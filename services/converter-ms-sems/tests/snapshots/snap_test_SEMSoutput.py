@@ -2498,10 +2498,6 @@ snapshots['test_general_results_from_tallies 4'] = '''"franklin","20","primary-c
 "franklin","21","measure-101","Measure 101: College District","0","NP","2","Times Under Voted","0","NP","0",\r
 "franklin","21","measure-101","Measure 101: College District","0","NP","750000094","YES","0","NP","0",\r
 "franklin","21","measure-101","Measure 101: College District","0","NP","750000095","NO","0","NP","0",\r
-"franklin","21","measure-666","Measure 666: The Question No One Gets To","2","Li","1","Times Over Voted","0","NP","0",\r
-"franklin","21","measure-666","Measure 666: The Question No One Gets To","2","Li","2","Times Under Voted","0","NP","0",\r
-"franklin","21","measure-666","Measure 666: The Question No One Gets To","2","Li","750000094","YES","0","NP","0",\r
-"franklin","21","measure-666","Measure 666: The Question No One Gets To","2","Li","750000095","NO","0","NP","0",\r
 "franklin","21","president","President and Vice-President","0","NP","1","Times Over Voted","0","NP","1",\r
 "franklin","21","president","President and Vice-President","0","NP","2","Times Under Voted","0","NP","1",\r
 "franklin","21","president","President and Vice-President","0","NP","barchi-hallaren","Joseph Barchi and Joseph Hallaren","0","F","1",\r
@@ -2645,10 +2641,6 @@ snapshots['test_general_results_from_tallies 4'] = '''"franklin","20","primary-c
 "franklin","23","measure-101","Measure 101: College District","0","NP","2","Times Under Voted","0","NP","0",\r
 "franklin","23","measure-101","Measure 101: College District","0","NP","750000094","YES","0","NP","0",\r
 "franklin","23","measure-101","Measure 101: College District","0","NP","750000095","NO","0","NP","0",\r
-"franklin","23","measure-666","Measure 666: The Question No One Gets To","2","Li","1","Times Over Voted","0","NP","0",\r
-"franklin","23","measure-666","Measure 666: The Question No One Gets To","2","Li","2","Times Under Voted","0","NP","0",\r
-"franklin","23","measure-666","Measure 666: The Question No One Gets To","2","Li","750000094","YES","0","NP","0",\r
-"franklin","23","measure-666","Measure 666: The Question No One Gets To","2","Li","750000095","NO","0","NP","0",\r
 "franklin","23","president","President and Vice-President","0","NP","1","Times Over Voted","0","NP","0",\r
 "franklin","23","president","President and Vice-President","0","NP","2","Times Under Voted","0","NP","0",\r
 "franklin","23","president","President and Vice-President","0","NP","barchi-hallaren","Joseph Barchi and Joseph Hallaren","0","F","3",\r
