@@ -14,5 +14,4 @@ for app in ${DIR}/../services/* ${DIR}/../apps/*/frontend ${DIR}/../apps/*/backe
   fi
 done
 
-echo "${DIR}/.."
-#pnpm --dir "${DIR}/.." install
+pnpm --dir "${DIR}/.." install
