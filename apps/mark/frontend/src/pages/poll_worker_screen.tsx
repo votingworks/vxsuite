@@ -62,10 +62,7 @@ import { ScreenReader } from '../config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import {
-  clearScannerReportDataFromCard,
-  readScannerReportDataFromCard,
-} from '../api';
+import { clearScannerReportDataFromCard } from '../api';
 
 function parseScannerReportTallyData(
   scannerTallyReportData: ScannerTallyReportData,
@@ -456,6 +453,8 @@ export interface PollworkerScreenProps {
   updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
   logger: Logger;
+  scannerReportDataToBePrinted?: ScannerReportData;
+  clearScannerReportDataToBePrinted: () => void;
 }
 
 export function PollWorkerScreen({
@@ -476,13 +475,12 @@ export function PollWorkerScreen({
   hasVotes,
   reload,
   logger,
+  scannerReportDataToBePrinted,
+  clearScannerReportDataToBePrinted,
 }: PollworkerScreenProps): JSX.Element {
-  const { election, electionHash } = electionDefinition;
+  const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
-
-  const readScannerReportDataFromCardMutation =
-    readScannerReportDataFromCard.useMutation(electionHash);
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -507,20 +505,6 @@ export function PollWorkerScreen({
     return setIsConfirmingEnableLiveMode(false);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
-  const [scannerReportData, setScannerReportData] =
-    useState<ScannerReportData>();
-
-  useEffect(() => {
-    readScannerReportDataFromCardMutation.mutate(undefined, {
-      onSuccess(result) {
-        if (result.isOk() && result.ok() !== undefined) {
-          setScannerReportData(result.ok());
-        }
-      },
-    });
-    // Try to read scanner report data from the card once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -528,10 +512,10 @@ export function PollWorkerScreen({
    * add a new modal to this component add it's state parameter as a dependency here.
    */
   useEffect(() => {
-    if (!isConfirmingEnableLiveMode && !scannerReportData) {
+    if (!isConfirmingEnableLiveMode && !scannerReportDataToBePrinted) {
       triggerAudioFocus();
     }
-  }, [isConfirmingEnableLiveMode, scannerReportData]);
+  }, [isConfirmingEnableLiveMode, scannerReportDataToBePrinted]);
 
   const canSelectBallotStyle = pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
@@ -782,17 +766,18 @@ export function PollWorkerScreen({
           precinctSelection={appPrecinct}
         />
       </Screen>
-      {scannerReportData && scannerReportData.isLiveMode === isLiveMode && (
-        <ScannerReportModal
-          scannerReportData={scannerReportData}
-          electionDefinition={electionDefinition}
-          machineConfig={machineConfig}
-          pollsState={pollsState}
-          updatePollsState={updatePollsState}
-          onClose={() => setScannerReportData(undefined)}
-          logger={logger}
-        />
-      )}
+      {scannerReportDataToBePrinted &&
+        scannerReportDataToBePrinted.isLiveMode === isLiveMode && (
+          <ScannerReportModal
+            scannerReportData={scannerReportDataToBePrinted}
+            electionDefinition={electionDefinition}
+            machineConfig={machineConfig}
+            pollsState={pollsState}
+            updatePollsState={updatePollsState}
+            onClose={clearScannerReportDataToBePrinted}
+            logger={logger}
+          />
+        )}
     </React.Fragment>
   );
 }

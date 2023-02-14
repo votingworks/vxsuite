@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -24,6 +30,7 @@ import {
   Hardware,
   singlePrecinctSelectionFor,
   makeAsync,
+  ScannerReportData,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -38,6 +45,7 @@ import {
   usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -47,6 +55,7 @@ import {
   getAuthStatus,
   getMachineConfig,
   readElectionDefinitionFromCard,
+  readScannerReportDataFromCard,
   startCardlessVoterSession,
 } from './api';
 
@@ -310,6 +319,8 @@ export function AppRoot({
     endCardlessVoterSession.useMutation(electionHash);
   const readElectionDefinitionFromCardMutation =
     readElectionDefinitionFromCard.useMutation(electionHash);
+  const readScannerReportDataFromCardMutation =
+    readScannerReportDataFromCard.useMutation(electionHash);
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -619,6 +630,32 @@ export function AppRoot({
     void updateStorage();
   }, [storage]);
 
+  const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
+    useState<ScannerReportData>();
+
+  useQueryChangeListener(
+    authStatusQuery,
+    (
+      newAuthStatus,
+      previousAuthStatus = InsertedSmartCardAuth.DEFAULT_AUTH_STATUS
+    ) => {
+      if (
+        !isPollWorkerAuth(previousAuthStatus) &&
+        isPollWorkerAuth(newAuthStatus)
+      ) {
+        readScannerReportDataFromCardMutation.mutate(undefined, {
+          onSuccess(result) {
+            if (result.isOk() && result.ok() !== undefined) {
+              setScannerReportDataToBePrinted(result.ok());
+            }
+          },
+        });
+      } else if (!isPollWorkerAuth(newAuthStatus)) {
+        setScannerReportDataToBePrinted(undefined);
+      }
+    }
+  );
+
   // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
     async function storeAppState() {
@@ -641,6 +678,7 @@ export function AppRoot({
     storage,
     initializedFromStorage,
   ]);
+
   if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
     return null;
   }
@@ -766,6 +804,10 @@ export function AppRoot({
           hasVotes={!!votes}
           reload={reload}
           logger={logger}
+          scannerReportDataToBePrinted={scannerReportDataToBePrinted}
+          clearScannerReportDataToBePrinted={() =>
+            setScannerReportDataToBePrinted(undefined)
+          }
         />
       );
     }
