@@ -1026,11 +1026,14 @@ importers:
       '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/auth': workspace:*
       '@votingworks/basics': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
       dotenv: ^16.0.2
       dotenv-expand: ^9.0.0
       esbuild: ^0.14.29
@@ -1055,10 +1058,13 @@ importers:
       typescript: 4.6.3
       zod: 3.14.4
     dependencies:
+      '@votingworks/auth': link:../../../libs/auth
       '@votingworks/basics': link:../../../libs/basics
+      '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/logging': link:../../../libs/logging
       '@votingworks/types': link:../../../libs/types
+      '@votingworks/utils': link:../../../libs/utils
       dotenv: 16.0.2
       dotenv-expand: 9.0.0
       express: 4.18.2
