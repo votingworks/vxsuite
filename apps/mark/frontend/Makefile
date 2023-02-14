@@ -4,16 +4,13 @@ SMARTCARDS := ../../../services/smartcards
 # a phony dependency that can be used as a dependency to force builds
 FORCE:
 
-# install any required dependencies here, i.e. `sudo apt install -y DEPS`
-install:
+install: ;
 
 build-smartcards:
-	make -C $(SMARTCARDS) install-smartcard; \
 	make -C $(SMARTCARDS) build;
 
 build-backend:
-	make -C $(BACKEND) install; \
-	make -C $(BACKEND) build; \
+	make -C $(BACKEND) build; 
 
 build-frontend: build
 
