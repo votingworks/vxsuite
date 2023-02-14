@@ -12,13 +12,13 @@ base_packages:
   - libpango1.0-dev 
   - libgif-dev 
 
-svc_converter-ms-sems:
+svc_converter_ms_sems_packages:
   - python3.9 
   - python3.9-dev 
   - python3-distutils 
   - python3-pip
 
-svc_smartcards:
+svc_smartcards_packages:
   - python3.9 
   - python3.9-dev 
   - python3.9-distutils 
@@ -29,12 +29,12 @@ svc_smartcards:
   - pcsc-tools 
   - swig 
 
-app_admin:
+app_admin_packages:
   - fdisk 
   - dosfstools 
   - exfat-utils
 
-app_central-scan:
+app_central_scan_packages:
   - libsane 
   - libpng-dev 
   - libjpeg-dev 
@@ -45,9 +45,9 @@ app_central-scan:
   - libgif-dev
 
 # No package dependencies yet
-#app_mark:
+#app_mark_packages:
 
-app_scan:
+app_scan_packages:
   - libsane 
   - libpng-dev 
   - libjpeg-dev 

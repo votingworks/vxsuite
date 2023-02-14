@@ -1,0 +1,25 @@
+---
+
+#-- This might make more sense elsewhere
+- name: Create a list of all the packages we need
+  set_fact:
+    all_packages: "{{ all_packages | default([]) + [ item ] }}"
+  with_items:
+    - "{{ base_packages | default([]) }}"
+    - "{{ svc_converter_ms_sems_packages | default([]) }}"
+    - "{{ svc_smartcards_packages | default([]) }}"
+    - "{{ app_admin_packages | default([]) }}"
+    - "{{ app_central_scan_packages | default([]) }}"
+    - "{{ app_mark_packages | default([]) }}"
+    - "{{ app_scan_packages | default([]) }}"
+
+- name: De-dupe the list for efficiency
+  set_fact:
+    all_packages: "{{ all_packages | unique | select | list }}"
+
+- name: Install all necessary system packages
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items: 
+    - "{{ all_packages }}"
