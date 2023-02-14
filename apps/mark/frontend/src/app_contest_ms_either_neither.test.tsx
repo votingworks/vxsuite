@@ -7,7 +7,6 @@ import {
 } from '@testing-library/react';
 import {
   MemoryStorage,
-  MemoryCard,
   MemoryHardware,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -18,7 +17,7 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
-import { expectPrint, makePollWorkerCard } from '@votingworks/test-utils';
+import { expectPrint } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -205,7 +204,6 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -217,7 +215,6 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -227,14 +224,13 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   await advanceTimersAndPromises();
 
   // Start voter session
-  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
-  await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('2'));
-  card.removeCard();
-  await advanceTimersAndPromises();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '2',
+    precinctId: '6526',
+  });
 
   // Go to First Contest
-  fireEvent.click(screen.getByText('Start Voting'));
+  userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //

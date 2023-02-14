@@ -23,6 +23,7 @@ import userEvent from '@testing-library/user-event';
 import { Logger, LogSource } from '@votingworks/logging';
 import { ok } from '@votingworks/basics';
 
+import { QueryClientProvider } from '@tanstack/react-query';
 import { render } from '../../test/test_utils';
 
 import { defaultPrecinctId } from '../../test/helpers/election';
@@ -32,11 +33,20 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
+import { ApiClientContext, createQueryClient } from '../api';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 const electionSampleWithSeal = electionSampleDefinition.election;
 
+let apiMock: ApiMock;
+
 beforeEach(() => {
   jest.useFakeTimers();
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 function fakePollworkerAuth(
@@ -54,36 +64,43 @@ function fakePollworkerAuth(
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
+  pollWorkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
     electionSampleDefinition
   ),
   electionDefinition: ElectionDefinition = electionSampleDefinition
 ) {
   return render(
-    <PollWorkerScreen
-      pollworkerAuth={pollworkerAuth}
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
-      electionDefinition={electionDefinition}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode={false}
-      pollsState="polls_open"
-      ballotsPrintedCount={0}
-      machineConfig={fakeMachineConfig()}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      screenReader={new AriaScreenReader(fakeTts())}
-      updatePollsState={jest.fn()}
-      reload={jest.fn()}
-      logger={new Logger(LogSource.VxMarkFrontend)}
-      {...props}
-    />
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider client={createQueryClient()}>
+        <PollWorkerScreen
+          pollWorkerAuth={pollWorkerAuth}
+          activateCardlessVoterSession={jest.fn()}
+          resetCardlessVoterSession={jest.fn()}
+          appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
+          electionDefinition={electionDefinition}
+          enableLiveMode={jest.fn()}
+          hasVotes={false}
+          isLiveMode={false}
+          pollsState="polls_open"
+          ballotsPrintedCount={0}
+          machineConfig={fakeMachineConfig()}
+          hardware={MemoryHardware.buildStandard()}
+          devices={fakeDevices()}
+          screenReader={new AriaScreenReader(fakeTts())}
+          updatePollsState={jest.fn()}
+          reload={jest.fn()}
+          logger={new Logger(LogSource.VxMarkFrontend)}
+          {...props}
+        />
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
   );
 }
 
 test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   renderScreen(undefined, undefined, undefined);
   screen.getByText('Poll Worker Actions');
   expect(
@@ -92,6 +109,9 @@ test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
 });
 
 test('renders PollWorkerScreen', () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   renderScreen();
   screen.getByText('Poll Worker Actions');
 });
@@ -101,8 +121,15 @@ test('switching out of test mode on election day', () => {
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
   });
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionDefinition.electionHash })
+    .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
-  renderScreen({ electionDefinition, enableLiveMode });
+  renderScreen({
+    pollWorkerAuth: fakePollworkerAuth(electionDefinition),
+    electionDefinition,
+    enableLiveMode,
+  });
 
   screen.getByText(
     'Switch to Live Election Mode and reset the Ballots Printed count?'
@@ -116,6 +143,9 @@ test('keeping test mode on election day', () => {
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
   });
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionDefinition.electionHash })
+    .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
   renderScreen({ electionDefinition, enableLiveMode });
 
@@ -127,6 +157,9 @@ test('keeping test mode on election day', () => {
 });
 
 test('live mode on election day', () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   renderScreen({ isLiveMode: true });
   expect(
     screen.queryByText(
@@ -136,6 +169,9 @@ test('live mode on election day', () => {
 });
 
 test('navigates to System Diagnostics screen', () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   const { unmount } = renderScreen();
 
   userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
@@ -153,6 +189,9 @@ test('navigates to System Diagnostics screen', () => {
 });
 
 test('requires confirmation to open polls if no report on card', () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   const updatePollsState = jest.fn();
   renderScreen({
     pollsState: 'polls_closed_initial',
@@ -176,6 +215,9 @@ test('requires confirmation to open polls if no report on card', () => {
 });
 
 test('can toggle between vote activation and "other actions" during polls open', async () => {
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .resolves(ok(undefined));
   renderScreen({
     pollsState: 'polls_open',
     machineConfig: fakeMachineConfig(),

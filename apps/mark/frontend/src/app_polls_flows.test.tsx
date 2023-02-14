@@ -10,10 +10,8 @@ import {
   expectPrint,
   getZeroCompressedTally,
   hasTextAcrossElements,
-  makePollWorkerCard,
-  makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { typedAs } from '@votingworks/basics';
+import { err, ok, typedAs } from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -44,7 +42,6 @@ import {
 } from '../test/helpers/election';
 import { buildApp } from '../test/helpers/build_app';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
-import { enterPin } from '../test/test_utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -138,16 +135,13 @@ function checkPollsOpenedReport(printedElement: RenderResult) {
 }
 
 test('full polls flow with tally reports - general, single precinct', async () => {
-  const { renderApp, card, storage, logger } = buildApp(apiMock);
-  jest.spyOn(card, 'writeLongUint8Array');
+  const { electionHash } = electionSampleDefinition;
+  const { renderApp, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Opening Polls
@@ -167,10 +161,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
     },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(pollsOpenCardTallyReport));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsOpenCardTallyReport),
+  });
   await screen.findByText('Polls Opened Report on Card');
   screen.getByText(/contains a polls opened report/);
   screen.getByText(/the polls will be open on VxMark/);
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   userEvent.click(screen.getByText('Open Polls and Print Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
@@ -179,10 +178,6 @@ test('full polls flow with tally reports - general, single precinct', async () =
   screen.getByText(
     'The polls are now open. If needed, you may print additional copies of the polls opened report.'
   );
-  expect(card.writeLongUint8Array).toHaveBeenCalledTimes(1);
-  expect(card.writeLongUint8Array).toHaveBeenCalledWith(
-    expect.objectContaining([])
-  ); // Card clearing
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsOpened,
     'poll_worker',
@@ -216,7 +211,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   );
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 
   // Pausing Voting
@@ -232,13 +227,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
     pollsTransition: 'pause_voting',
   };
 
-  card.insertCard(
-    pollWorkerCard,
-    JSON.stringify(votingPausedCardBallotCountReport)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(votingPausedCardBallotCountReport),
+  });
   await screen.findByText('Voting Paused Report on Card');
   screen.getByText(/contains a voting paused report/);
   screen.getByText(/the polls will be paused on VxMark/);
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   userEvent.click(screen.getByText('Pause Voting and Print Report'));
   await screen.findByText('Printing voting paused report');
   function checkVotingPausedReport(printedElement: RenderResult) {
@@ -257,10 +254,6 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await expectPrint(checkVotingPausedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   await screen.findByText('Voting Paused Report Printed');
-  expect(card.writeLongUint8Array).toHaveBeenCalledTimes(2);
-  expect(card.writeLongUint8Array).toHaveBeenCalledWith(
-    expect.objectContaining([])
-  ); // Card cleared
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingPaused,
     'poll_worker',
@@ -286,7 +279,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Voting Paused Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Paused'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
 
   // Resuming Voting
@@ -302,13 +295,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
     pollsTransition: 'resume_voting',
   };
 
-  card.insertCard(
-    pollWorkerCard,
-    JSON.stringify(votingResumedCardBallotCountReport)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(votingResumedCardBallotCountReport),
+  });
   await screen.findByText('Voting Resumed Report on Card');
   screen.getByText(/contains a voting resumed report/);
   screen.getByText(/the polls will be open on VxMark/);
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   userEvent.click(screen.getByText('Resume Voting and Print Report'));
   await screen.findByText('Printing voting resumed report');
   function checkVotingResumedReport(printedElement: RenderResult) {
@@ -327,10 +322,6 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await expectPrint(checkVotingResumedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   await screen.findByText('Voting Resumed Report Printed');
-  expect(card.writeLongUint8Array).toHaveBeenCalledTimes(3);
-  expect(card.writeLongUint8Array).toHaveBeenCalledWith(
-    expect.objectContaining([])
-  ); // Card cleared
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingResumed,
     'poll_worker',
@@ -356,7 +347,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Voting Resumed Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 
   // Closing Polls
@@ -386,10 +377,15 @@ test('full polls flow with tally reports - general, single precinct', async () =
     },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(pollsClosedCardTallyReport));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsClosedCardTallyReport),
+  });
   await screen.findByText('Polls Closed Report on Card');
   screen.getByText(/contains a polls closed report/);
   screen.getByText(/the polls will be closed on VxMark/);
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   userEvent.click(screen.getByText('Close Polls and Print Report'));
   await screen.findByText('Printing polls closed report');
   function checkPollsClosedReport(printedElement: RenderResult) {
@@ -423,10 +419,6 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await expectPrint(checkPollsClosedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
   await screen.findByText('Polls Closed Report Printed');
-  expect(card.writeLongUint8Array).toHaveBeenCalledTimes(4);
-  expect(card.writeLongUint8Array).toHaveBeenCalledWith(
-    expect.objectContaining([])
-  ); // Card cleared
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsClosed,
     'poll_worker',
@@ -452,12 +444,13 @@ test('full polls flow with tally reports - general, single precinct', async () =
   await screen.findByText('Polls Closed Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Closed'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
 });
 
 test('tally report: as expected with all precinct combined data for general election', async () => {
+  const { electionHash } = electionSampleDefinition;
   const existingTally = getZeroCompressedTally(electionSample);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
@@ -478,16 +471,18 @@ test('tally report: as expected with all precinct combined data for general elec
     pollsTransition: 'close_polls',
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionSampleDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint((printedElement) => {
@@ -518,6 +513,7 @@ test('tally report: as expected with all precinct combined data for general elec
 });
 
 test('tally report: as expected with all precinct specific data for general election', async () => {
+  const { electionHash } = electionSampleDefinition;
   const centerSpringfield = getZeroCompressedTally(electionSample);
   const northSpringfield = getZeroCompressedTally(electionSample);
   const southSpringfield = getZeroCompressedTally(electionSample);
@@ -568,16 +564,18 @@ test('tally report: as expected with all precinct specific data for general elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionSampleDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint((printedElement) => {
@@ -786,6 +784,7 @@ function checkPrimaryElectionOverallTallyReports(printedElement: RenderResult) {
 
 test('tally report: as expected with a single precinct for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { electionHash } = electionDefinition;
 
   const tallyOnCard: ScannerTallyReportData = {
     tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
@@ -805,7 +804,7 @@ test('tally report: as expected with a single precinct for primary election', as
     },
   };
 
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -813,11 +812,13 @@ test('tally report: as expected with a single precinct for primary election', as
   });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint(checkPrimaryElectionOverallTallyReports);
@@ -825,6 +826,7 @@ test('tally report: as expected with a single precinct for primary election', as
 
 test('tally report: as expected with all precinct combined data for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { electionHash } = electionDefinition;
 
   const tallyOnCard: ScannerTallyReportData = {
     tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
@@ -846,7 +848,7 @@ test('tally report: as expected with all precinct combined data for primary elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -854,11 +856,13 @@ test('tally report: as expected with all precinct combined data for primary elec
   });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint(checkPrimaryElectionOverallTallyReports);
@@ -867,6 +871,7 @@ test('tally report: as expected with all precinct combined data for primary elec
 test('tally report: as expected with all precinct specific data for primary election + VxQR', async () => {
   const electionDefinition =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
+  const { electionHash } = electionDefinition;
 
   const talliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': [
@@ -971,7 +976,7 @@ test('tally report: as expected with all precinct specific data for primary elec
     },
   };
 
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -979,11 +984,13 @@ test('tally report: as expected with all precinct specific data for primary elec
   });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint((printedElement) => {
@@ -1180,6 +1187,7 @@ test('tally report: as expected with all precinct specific data for primary elec
 test('tally report: as expected with primary election with nonpartisan contests', async () => {
   const { electionDefinition, election } =
     electionPrimaryNonpartisanContestsFixtures;
+  const { electionHash } = electionDefinition;
 
   const tally: CompressedTally = [
     // best animal mammal
@@ -1343,7 +1351,7 @@ test('tally report: as expected with primary election with nonpartisan contests'
     },
   };
 
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
@@ -1351,11 +1359,13 @@ test('tally report: as expected with primary election with nonpartisan contests'
   });
   renderApp();
   await screen.findByText('Insert Card');
-  card.insertCard(
-    makePollWorkerCard(electionDefinition.electionHash),
-    JSON.stringify(tallyOnCard)
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    scannerReportDataReadResult: ok(tallyOnCard),
+  });
 
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   await printPollsClosedReport();
 
   await expectPrint((printedElement) => {
@@ -1420,16 +1430,14 @@ test('tally report: as expected with primary election with nonpartisan contests'
 });
 
 test('tally report: will print but not update polls state appropriate', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { electionHash } = electionSampleDefinition;
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   // The polls have already been closed
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Opening Polls
@@ -1449,11 +1457,16 @@ test('tally report: will print but not update polls state appropriate', async ()
     },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(pollsOpenCardTallyReport));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsOpenCardTallyReport),
+  });
   await screen.findByText('Polls Opened Report on Card');
   screen.getByText(
     'This poll worker card contains a polls opened report. After printing, the report will be cleared from the card.'
   );
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
   userEvent.click(screen.getByText('Print Report'));
   await expectPrint(checkPollsOpenedReport);
   jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
@@ -1469,7 +1482,7 @@ test('tally report: will print but not update polls state appropriate', async ()
   userEvent.click(screen.getByText('Continue'));
   // Polls should still be closed
   screen.getByText(hasTextAcrossElements('Polls: Closed'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
 });
@@ -1477,24 +1490,23 @@ test('tally report: will print but not update polls state appropriate', async ()
 test('full polls flow without tally reports', async () => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
-  const { renderApp, card, storage, logger } = buildApp(apiMock);
+  const { renderApp, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
 
   // Open Polls
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('No Polls Opened Report on Card');
   userEvent.click(screen.getByText('Open Polls on VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsOpened,
@@ -1503,14 +1515,16 @@ test('full polls flow without tally reports', async () => {
   );
 
   // Pause Voting
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Pause Voting'));
   await screen.findByText('No Voting Paused Report on Card');
   userEvent.click(screen.getByText('Pause Voting on VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingPaused,
@@ -1519,13 +1533,15 @@ test('full polls flow without tally reports', async () => {
   );
 
   // Resume Voting
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Resume Voting'));
   await screen.findByText('No Voting Resumed Report on Card');
   userEvent.click(screen.getByText('Resume Voting on VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingResumed,
@@ -1534,14 +1550,16 @@ test('full polls flow without tally reports', async () => {
   );
 
   // Close Polls
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   await screen.findByText('No Polls Closed Report on Card');
   userEvent.click(screen.getByText('Close Polls on VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
   expect(logger.log).toHaveBeenCalledWith(
@@ -1549,44 +1567,41 @@ test('full polls flow without tally reports', async () => {
     'poll_worker',
     expect.anything()
   );
-  apiMock.mockApiClient.assertComplete();
 });
 
 test('can close from paused without tally report', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
   renderApp();
   await screen.findByText('Voting Paused');
   screen.getByText('Insert Poll Worker card to resume voting.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
 
   // Close Polls
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
   await screen.findByText('No Polls Closed Report on Card');
   userEvent.click(screen.getByText('Close Polls on VxMark Now'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
 });
 
 test('no buttons to change polls from closed final', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
 
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(undefined),
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   expect(
     screen.queryByRole('button', { name: /open/i })
@@ -1600,13 +1615,12 @@ test('no buttons to change polls from closed final', async () => {
 });
 
 test('can reset polls to paused with system administrator card', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
-  card.insertCard(makeSystemAdministratorCard());
-  await enterPin();
+  apiMock.setAuthStatusSystemAdministratorLoggedIn();
 
   userEvent.click(await screen.findByText('Reset Polls to Paused'));
   const modal = await screen.findByRole('alertdialog');
@@ -1618,12 +1632,12 @@ test('can reset polls to paused with system administrator card', async () => {
   });
   expect(screen.getByText('Reset Polls to Paused')).toBeDisabled();
 
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
 });
 
 test('will not try to print report or change polls if report on card is in wrong mode', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_closed_initial',
@@ -1632,9 +1646,6 @@ test('will not try to print report or change polls if report on card is in wrong
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Closed polls report from L&A left on card
@@ -1654,7 +1665,9 @@ test('will not try to print report or change polls if report on card is in wrong
     },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(pollsOpenCardTallyReport));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsOpenCardTallyReport),
+  });
   await screen.findByText('Poll Worker Actions');
 
   // Must advance timers to allow time for card tally to load
@@ -1663,14 +1676,11 @@ test('will not try to print report or change polls if report on card is in wrong
 });
 
 test('cannot close polls from closed report on card if polls have not been opened', async () => {
-  const { renderApp, card, storage } = buildApp(apiMock);
+  const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
-  const pollWorkerCard = makePollWorkerCard(
-    electionSampleDefinition.electionHash
-  );
   const precinctSelection = singlePrecinctSelectionFor('23');
 
   // Polls closed report on card
@@ -1690,10 +1700,55 @@ test('cannot close polls from closed report on card if polls have not been opene
     },
   };
 
-  card.insertCard(pollWorkerCard, JSON.stringify(pollsClosedCardTallyReport));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsClosedCardTallyReport),
+  });
   await screen.findByText('Polls Closed Report on Card');
   screen.getByRole('button', { name: 'Print Report' });
   expect(
     screen.queryByRole('button', { name: 'Print Report and Close Polls' })
   ).not.toBeInTheDocument();
+});
+
+test('error clearing report from card does not affect printing and is logged', async () => {
+  const { electionHash } = electionSampleDefinition;
+  const { logger, renderApp, storage } = buildApp(apiMock);
+  await setElectionInStorage(storage, electionSampleDefinition);
+  await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
+  renderApp();
+
+  await screen.findByText('Polls Closed');
+  const pollsOpenedReport: ScannerTallyReportData = {
+    ballotCounts: {
+      'undefined,__ALL_PRECINCTS': [0, 0],
+      'undefined,23': [0, 0],
+    },
+    isLiveMode: true,
+    machineId: '001',
+    pollsTransition: 'open_polls',
+    precinctSelection: singlePrecinctSelectionFor('23'),
+    tally: getZeroCompressedTally(electionSample),
+    tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
+    timePollsTransitioned: new Date('2020-10-31').getTime(),
+    timeSaved: new Date('2020-10-31').getTime(),
+    totalBallotsScanned: 0,
+  };
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: ok(pollsOpenedReport),
+  });
+  await screen.findByText('Polls Opened Report on Card');
+
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(err(new Error('Error clearing report from card')));
+  userEvent.click(screen.getByText('Open Polls and Print Report'));
+  await screen.findByText('Printing polls opened report');
+  await expectPrint(checkPollsOpenedReport);
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  await screen.findByText('Polls Opened Report Printed');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportClearedFromCard,
+    'poll_worker',
+    expect.objectContaining({ disposition: 'failure' })
+  );
 });

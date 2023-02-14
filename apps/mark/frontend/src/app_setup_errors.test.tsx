@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import { makeElectionManagerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import {
   BATTERY_POLLING_INTERVAL,
@@ -19,7 +18,6 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
-import { enterPin } from '../test/test_utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -41,7 +39,6 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const card = new MemoryCard();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     hardware.setAccessibleControllerConnected(true);
@@ -51,7 +48,6 @@ describe('Displays setup warning messages and errors screens', () => {
 
     render(
       <App
-        card={card}
         hardware={hardware}
         storage={storage}
         apiClient={apiMock.mockApiClient}
@@ -88,7 +84,6 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const card = new MemoryCard();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
@@ -96,7 +91,6 @@ describe('Displays setup warning messages and errors screens', () => {
 
     render(
       <App
-        card={card}
         hardware={hardware}
         storage={storage}
         apiClient={apiMock.mockApiClient}
@@ -127,14 +121,12 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const card = new MemoryCard();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
     render(
       <App
-        card={card}
         hardware={hardware}
         storage={storage}
         apiClient={apiMock.mockApiClient}
@@ -163,17 +155,12 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
-    const card = new MemoryCard();
-    const electionManagerCard = makeElectionManagerCard(
-      electionDefinition.electionHash
-    );
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage, electionDefinition);
     await setStateInStorage(storage);
     render(
       <App
-        card={card}
         hardware={hardware}
         storage={storage}
         apiClient={apiMock.mockApiClient}
@@ -192,23 +179,20 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText('No Printer Detected');
 
     // Insert election manager card
-    card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-    await enterPin();
+    apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
 
     // expect to see election manager screen
-    screen.getByText('Election Manager Actions');
+    await screen.findByText('Election Manager Actions');
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
-    const card = new MemoryCard();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
     render(
       <App
-        card={card}
         hardware={hardware}
         storage={storage}
         apiClient={apiMock.mockApiClient}

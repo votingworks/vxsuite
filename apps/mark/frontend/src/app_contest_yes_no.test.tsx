@@ -1,11 +1,7 @@
 import React from 'react';
 import { fireEvent, render, within, act, screen } from '@testing-library/react';
-import {
-  electionSample,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
-import { makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { electionSample } from '@votingworks/fixtures';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -37,7 +33,6 @@ afterEach(() => {
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 
@@ -48,7 +43,6 @@ it('Single Seat Contest', async () => {
   render(
     <App
       apiClient={apiMock.mockApiClient}
-      card={card}
       hardware={hardware}
       storage={storage}
       reload={jest.fn()}
@@ -57,14 +51,13 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises();
 
   // Start voter session
-  card.insertCard(makePollWorkerCard(electionSampleDefinition.electionHash));
-  await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('12'));
-  card.removeCard();
-  await advanceTimersAndPromises();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
 
   // Go to First Contest
-  fireEvent.click(screen.getByText('Start Voting'));
+  userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //

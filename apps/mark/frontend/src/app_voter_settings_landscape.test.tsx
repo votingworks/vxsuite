@@ -1,14 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  makeElectionManagerCard,
-  makePollWorkerCard,
-} from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { ok } from '@votingworks/basics';
 
 import { App } from './app';
 
@@ -17,7 +14,6 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { voterContests } from '../test/helpers/election';
-import { enterPin } from '../test/test_utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -37,7 +33,7 @@ jest.setTimeout(15000);
 test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
-  const card = new MemoryCard();
+  const { electionData, electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
@@ -46,7 +42,6 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const reload = jest.fn();
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -55,21 +50,18 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     />
   );
   await advanceTimersAndPromises();
-  const electionManagerCard = makeElectionManagerCard(
-    electionDefinition.electionHash
-  );
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  const getByTextWithMarkup = withMarkup(screen.getByText);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  card.removeCard();
   await advanceTimersAndPromises();
 
   // ---------------
 
   // Configure with Election Manager Card
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
-  userEvent.click(screen.getByText('Load Election Definition'));
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .resolves(ok(electionData));
+  userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
   screen.getByText('Election Definition is loaded.');
@@ -78,36 +70,49 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     screen.getByText('Center Springfield')
   );
   userEvent.click(screen.getByText('Live Election Mode'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Polls Closed');
+  await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // ---------------
 
   // Open Polls with Poll Worker Card
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(screen.getByText('Open Polls on VxMark Now'));
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Complete Voter Happy Path
 
   // Start voter session
-  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('12'));
-  card.removeCard();
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
+  userEvent.click(await screen.findByText('12'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
   await advanceTimersAndPromises();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
 
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Your ballot has 20 contests.');
 
   // Adjust Text Size on Start Page
   expect(
