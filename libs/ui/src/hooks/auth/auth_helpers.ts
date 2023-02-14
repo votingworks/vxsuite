@@ -348,6 +348,15 @@ export function isPollWorkerAuth(
 
 export function isCardlessVoterAuth(
   auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.CardlessVoterLoggedIn {
+): auth is InsertedSmartcardAuth.CardlessVoterLoggedIn;
+export function isCardlessVoterAuth(
+  auth: InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.CardlessVoterLoggedIn;
+export function isCardlessVoterAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): auth is InsertedSmartCardAuth.CardlessVoterLoggedIn;
+export function isCardlessVoterAuth(
+  auth: InsertedSmartcardAuth.Auth | InsertedSmartCardAuth.AuthStatus
+): boolean {
   return auth.status === 'logged_in' && auth.user.role === 'cardless_voter';
 }
