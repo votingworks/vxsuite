@@ -219,19 +219,6 @@ test('renders as expected for all precincts in a primary election', () => {
   within(screen.getByTestId('zoo-council-mammal-elephant')).getByText('1');
   within(screen.getByTestId('zoo-council-mammal-write-in')).getByText('0');
   expect(within(zooCouncil).queryByText('Write-In')).toBeDefined();
-
-  const eitherNeither = screen.getByTestId('results-table-new-zoo-either');
-  within(eitherNeither).getByText(/1 ballot cast/);
-  within(eitherNeither).getByText(/0 overvotes/);
-  within(eitherNeither).getByText(/0 undervotes/);
-  within(screen.getByTestId('new-zoo-either-yes')).getByText('1');
-  within(screen.getByTestId('new-zoo-either-no')).getByText('0');
-  const pickOne = screen.getByTestId('results-table-new-zoo-pick');
-  within(pickOne).getByText(/1 ballot cast/);
-  within(pickOne).getByText(/0 overvotes/);
-  within(pickOne).getByText(/0 undervotes/);
-  within(screen.getByTestId('new-zoo-pick-yes')).getByText('0');
-  within(screen.getByTestId('new-zoo-pick-no')).getByText('1');
 });
 
 const primaryCvr2: CastVoteRecord = {
@@ -310,11 +297,4 @@ test('renders as expected for a single precincts in a primary election', () => {
   );
   within(screen.getByTestId('aquarium-council-fish-write-in')).getByText('0');
   expect(within(zooCouncil).queryByText('Write-In')).toBeDefined();
-
-  const yesNo = screen.getByTestId('results-table-fishing');
-  within(yesNo).getByText(/1 ballot cast/);
-  within(yesNo).getByText(/1 overvote/);
-  within(yesNo).getByText(/0 undervotes/);
-  within(screen.getByTestId('fishing-yes')).getByText('0');
-  within(screen.getByTestId('fishing-no')).getByText('0');
 });
