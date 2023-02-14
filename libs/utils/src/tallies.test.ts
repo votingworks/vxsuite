@@ -51,8 +51,12 @@ describe('getSubTalliesByPartyAndPrecinct', () => {
       tally: emptyTally,
     });
 
-    expect(Array.from(subTallies.keys()).sort()).toMatchObject(
-      ['0,__ALL_PRECINCTS', '1,__ALL_PRECINCTS'].sort()
+    expect(Array.from(subTallies.keys()).sort()).toEqual(
+      [
+        '0,__ALL_PRECINCTS',
+        '1,__ALL_PRECINCTS',
+        'undefined,__ALL_PRECINCTS',
+      ].sort()
     );
   });
 

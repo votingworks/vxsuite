@@ -1032,11 +1032,11 @@ test('filterTalliesByParams in a primary election with nonpartisan contests', ()
   const allContestIds = election.contests.map((c) => c.id);
 
   const partyContestIds = election.contests
-    .filter((c) => c.partyId === '0')
+    .filter((c) => c.type === 'candidate' && c.partyId === '0')
     .map((c) => c.id);
 
   const nonPartyContestIds = election.contests
-    .filter((c) => !c.partyId)
+    .filter((c) => c.type !== 'candidate' || !c.partyId)
     .map((c) => c.id);
 
   // Filtering on a party's CVRs only includes the party's contests by default
@@ -1162,7 +1162,10 @@ describe('filterTallyContestsByParty', () => {
     expect(Object.keys(electionTally.contestTallies)).toEqual(
       election.contests.map((c) => c.id)
     );
-    expect(Object.keys(filteredTally.contestTallies)).toMatchObject([
+    expect(Object.keys(filteredTally.contestTallies)).toEqual([
+      'new-zoo-either',
+      'new-zoo-pick',
+      'fishing',
       'kingdom',
     ]);
     expect(filteredTally.ballotCountsByVotingMethod).toStrictEqual(

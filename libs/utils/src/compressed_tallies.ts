@@ -156,7 +156,9 @@ export function readCompressedTally(
 ): Tally {
   const contestTallies: Dictionary<ContestTally> = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
-    if (contest.partyId === partyId) {
+    const contestPartyId =
+      contest.type === 'candidate' ? contest.partyId : undefined;
+    if (contestPartyId === partyId) {
       const serializedContestTally = serializedTally[contestIdx];
       assert(serializedContestTally);
       const tallies = getContestTalliesForCompressedContest(
