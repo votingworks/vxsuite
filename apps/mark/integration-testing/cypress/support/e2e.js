@@ -19,6 +19,7 @@ import './commands';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { makeElectionManagerCard, makePollWorkerCard } from '@votingworks/test-utils';
 import { CardData } from '@votingworks/types';
+import { methodUrl } from '@votingworks/grout';
 
 const ELECTION_MANAGER_CARD_DATA = makeElectionManagerCard(
   electionSampleDefinition.electionHash,
@@ -66,9 +67,14 @@ function removeCard() {
   });
 }
 
-beforeEach(() => {
-  insertCard(ELECTION_MANAGER_CARD_DATA, electionSampleDefinition.electionData);
+function endCardlessVoterSession() {
+  cy.request('POST', methodUrl('endCardlessVoterSession', 'http://localhost:3000/api'), {});
+}
 
+beforeEach(() => {
+  endCardlessVoterSession();
+
+  insertCard(ELECTION_MANAGER_CARD_DATA, electionSampleDefinition.electionData);
   cy.visit('/');
 
   // Authenticate
