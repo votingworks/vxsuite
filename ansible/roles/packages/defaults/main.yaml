@@ -36,18 +36,6 @@ app_admin:
 
 app_central-scan:
   - libsane 
-  - build-essential 
-  - libx11-dev 
-  - libjpeg-dev 
-  - libpng-dev
-  - libsane 
-  - build-essential 
-  - libpixman-1-dev 
-  - libcairo2-dev 
-  - libpango1.0-dev 
-  - libjpeg8-dev 
-  - libgif-dev
-  - libsane 
   - libpng-dev 
   - libjpeg-dev 
   - libx11-dev 
@@ -61,18 +49,6 @@ app_central-scan:
 
 app_scan:
   - libsane 
-  - build-essential 
-  - libx11-dev 
-  - libjpeg-dev 
-  - libpng-dev
-  - libsane 
-  - build-essential 
-  - libpixman-1-dev 
-  - libcairo2-dev 
-  - libpango1.0-dev 
-  - libjpeg8-dev 
-  - libgif-dev
-  - ibsane 
   - libpng-dev 
   - libjpeg-dev 
   - libx11-dev 
