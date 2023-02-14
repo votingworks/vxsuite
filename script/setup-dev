@@ -1,57 +1,22 @@
 #!/usr/bin/env bash
 
-### Setup development environment
-###
-### Installs NodeJS and uses `corepack` to make `yarn` and `pnpm` available.
-###
-### Note: To update the version of NodeJS, update the `.node-version` file at
-### the root of the repository and add `hashes/node-v*.sha256` files for the
-### new version.
+# This used to install node and other dependencies.
+# That functionality has been migrated to Ansible.
+# This script now simply calls that functionality.
 
 set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# install curl if it is not already present
-if ! command -v curl &> /dev/null; then
-  sudo apt install -y curl
-fi
+# Make sure Ansible is installed
+cd "${DIR}/../script"
+sudo ./install-ansible.sh
 
-# get the node version to install
-NODE_VERSION=$(cat "${DIR}/../.node-version")
+# Set up Node and dependencies
+cd "${DIR}/../ansible"
+sudo ansible-playbook playbooks/setup-node.yaml
 
-if command node -v 2>/dev/null | grep -q "${NODE_VERSION}"; then
-  echo "Node version ${NODE_VERSION} already installed"
-else 
+cd $DIR
 
-  echo "Installing Node version ${NODE_VERSION}"
+exit 0
 
-  case "$(arch)" in
-    aarch64)
-      ARCH=arm64
-      ;;
-
-    x86_64)
-      ARCH=x64
-      ;;
-
-    *)
-      echo "Unsupported architecture: $(arch)"
-      exit 1
-      ;;
-  esac
-
-  DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz"
-
-  TMPDIR=$(mktemp -d -t node-tmp-XXXXXX)
-  TMPFILE="${TMPDIR}/$(basename "${DOWNLOAD_URL}")"
-
-  (
-    cd "${TMPDIR}"
-    curl -sSLO ${DOWNLOAD_URL}
-    sha256sum --check "${DIR}/hashes/$(basename "${DOWNLOAD_URL}").sha256"
-    cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
-  )
-fi
-
-sudo corepack enable
