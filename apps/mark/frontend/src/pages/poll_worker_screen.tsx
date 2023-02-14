@@ -5,13 +5,13 @@ import {
   BallotStyleId,
   Election,
   ElectionDefinition,
-  InsertedSmartcardAuth,
   PrecinctId,
   Tally,
   PrecinctSelection,
   PollsState,
   PollsTransition,
   getPartyIdsWithContests,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import {
   Button,
@@ -48,7 +48,6 @@ import {
   getPollTransitionsFromState,
   ScannerReportData,
   ScannerTallyReportData,
-  ScannerReportDataSchema,
   isPollsSuspensionTransition,
   ScannerBallotCountReportData,
 } from '@votingworks/utils';
@@ -63,6 +62,10 @@ import { ScreenReader } from '../config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
+import {
+  clearScannerReportDataFromCard,
+  readScannerReportDataFromCard,
+} from '../api';
 
 function parseScannerReportTallyData(
   scannerTallyReportData: ScannerTallyReportData,
@@ -126,7 +129,6 @@ type ScannerReportModalState = 'initial' | 'printing' | 'reprint';
 function ScannerReportModal({
   electionDefinition,
   scannerReportData,
-  pollworkerAuth,
   machineConfig,
   pollsState,
   updatePollsState,
@@ -135,7 +137,6 @@ function ScannerReportModal({
 }: {
   electionDefinition: ElectionDefinition;
   scannerReportData: ScannerReportData;
-  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   machineConfig: MachineConfig;
   pollsState: PollsState;
   updatePollsState: (pollsState: PollsState) => void;
@@ -151,6 +152,9 @@ function ScannerReportModal({
   const [willUpdatePollsToMatchScanner] = useState(
     isValidPollsStateChange(pollsState, precinctScannerPollsState)
   );
+
+  const clearScannerReportDataFromCardMutation =
+    clearScannerReportDataFromCard.useMutation(electionDefinition.electionHash);
 
   async function printReport(copies: number) {
     const report = await (async () => {
@@ -221,8 +225,15 @@ function ScannerReportModal({
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-      /* istanbul ignore else */
-      if ((await pollworkerAuth.card.clearStoredData()).isOk()) {
+      let wasClearingSuccessful = false;
+      try {
+        wasClearingSuccessful = (
+          await clearScannerReportDataFromCardMutation.mutateAsync()
+        ).isOk();
+      } catch {
+        // Handled by default query client error handling
+      }
+      if (wasClearingSuccessful) {
         await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
           disposition: 'success',
         });
@@ -425,7 +436,7 @@ function UpdatePollsDirectlyButton({
 }
 
 export interface PollworkerScreenProps {
-  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId
@@ -448,7 +459,7 @@ export interface PollworkerScreenProps {
 }
 
 export function PollWorkerScreen({
-  pollworkerAuth,
+  pollWorkerAuth,
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
@@ -466,9 +477,12 @@ export function PollWorkerScreen({
   reload,
   logger,
 }: PollworkerScreenProps): JSX.Element {
-  const { election } = electionDefinition;
+  const { election, electionHash } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+
+  const readScannerReportDataFromCardMutation =
+    readScannerReportDataFromCard.useMutation(electionHash);
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -495,18 +509,18 @@ export function PollWorkerScreen({
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
   const [scannerReportData, setScannerReportData] =
     useState<ScannerReportData>();
+
   useEffect(() => {
-    if (scannerReportData) return;
-    if (!pollworkerAuth.card.hasStoredData) return;
-    async function loadTallyFromCard() {
-      setScannerReportData(
-        (
-          await pollworkerAuth.card.readStoredObject(ScannerReportDataSchema)
-        ).ok()
-      );
-    }
-    void loadTallyFromCard();
-  }, [pollworkerAuth, scannerReportData]);
+    readScannerReportDataFromCardMutation.mutate(undefined, {
+      onSuccess(result) {
+        if (result.isOk() && result.ok() !== undefined) {
+          setScannerReportData(result.ok());
+        }
+      },
+    });
+    // Try to read scanner report data from the card once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -528,13 +542,13 @@ export function PollWorkerScreen({
     setIsConfirmingEnableLiveMode(false);
   }
 
-  if (hasVotes && pollworkerAuth.activatedCardlessVoter) {
+  if (hasVotes && pollWorkerAuth.cardlessVoterUser) {
     return (
       <Screen white>
         <Main centerChild>
           <Prose textCenter>
             <h1
-              aria-label={`Ballot style ${pollworkerAuth.activatedCardlessVoter.ballotStyleId} has been activated.`}
+              aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
             >
               Ballot Contains Votes
             </h1>
@@ -552,8 +566,8 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollworkerAuth.activatedCardlessVoter) {
-    const { precinctId, ballotStyleId } = pollworkerAuth.activatedCardlessVoter;
+  if (pollWorkerAuth.cardlessVoterUser) {
+    const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
     return (
@@ -770,7 +784,6 @@ export function PollWorkerScreen({
       </Screen>
       {scannerReportData && scannerReportData.isLiveMode === isLiveMode && (
         <ScannerReportModal
-          pollworkerAuth={pollworkerAuth}
           scannerReportData={scannerReportData}
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}

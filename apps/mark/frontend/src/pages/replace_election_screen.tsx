@@ -51,7 +51,9 @@ export function ReplaceElectionScreen({
         await makeCancelable(getElectionDefinitionFromCard())
       );
     })();
-  }, [getElectionDefinitionFromCard, makeCancelable]);
+    // Try to read scanner report data from the card once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const muted = screenReader.isMuted();
