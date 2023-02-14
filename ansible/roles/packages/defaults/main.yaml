@@ -1,0 +1,82 @@
+---
+
+base_packages:
+  - build-essential
+  - curl
+  - libsane 
+  - libpng-dev 
+  - libjpeg-dev 
+  - libx11-dev 
+  - libpixman-1-dev 
+  - libcairo2-dev 
+  - libpango1.0-dev 
+  - libgif-dev 
+
+svc_converter-ms-sems:
+  - python3.9 
+  - python3.9-dev 
+  - python3-distutils 
+  - python3-pip
+
+svc_smartcards:
+  - python3.9 
+  - python3.9-dev 
+  - python3.9-distutils 
+  - python3-pip 
+  - libusb-1.0-0-dev 
+  - libpcsclite-dev 
+  - pcscd 
+  - pcsc-tools 
+  - swig 
+
+app_admin:
+  - fdisk 
+  - dosfstools 
+  - exfat-utils
+
+app_central-scan:
+  - libsane 
+  - build-essential 
+  - libx11-dev 
+  - libjpeg-dev 
+  - libpng-dev
+  - libsane 
+  - build-essential 
+  - libpixman-1-dev 
+  - libcairo2-dev 
+  - libpango1.0-dev 
+  - libjpeg8-dev 
+  - libgif-dev
+  - libsane 
+  - libpng-dev 
+  - libjpeg-dev 
+  - libx11-dev 
+  - libpixman-1-dev 
+  - libcairo2-dev 
+  - libpango1.0-dev 
+  - libgif-dev
+
+# No package dependencies yet
+#app_mark:
+
+app_scan:
+  - libsane 
+  - build-essential 
+  - libx11-dev 
+  - libjpeg-dev 
+  - libpng-dev
+  - libsane 
+  - build-essential 
+  - libpixman-1-dev 
+  - libcairo2-dev 
+  - libpango1.0-dev 
+  - libjpeg8-dev 
+  - libgif-dev
+  - ibsane 
+  - libpng-dev 
+  - libjpeg-dev 
+  - libx11-dev 
+  - libpixman-1-dev 
+  - libcairo2-dev 
+  - libpango1.0-dev 
+  - libgif-dev
