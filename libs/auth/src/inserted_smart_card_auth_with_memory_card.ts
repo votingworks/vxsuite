@@ -9,10 +9,13 @@ import {
   wrapException,
 } from '@votingworks/basics';
 import {
+  BallotStyleId,
   Card,
+  CardlessVoterUser,
   CardSummary,
   InsertedSmartCardAuth,
   Optional,
+  PrecinctId,
   User,
 } from '@votingworks/types';
 
@@ -45,6 +48,7 @@ export class InsertedSmartCardAuthWithMemoryCard
 {
   private authStatus: InsertedSmartCardAuth.AuthStatus;
   private readonly card: Card;
+  private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
 
   constructor({
@@ -56,6 +60,7 @@ export class InsertedSmartCardAuthWithMemoryCard
   }) {
     this.authStatus = InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
     this.card = card;
+    this.cardlessVoterUser = undefined;
     this.config = config;
   }
 
@@ -63,6 +68,31 @@ export class InsertedSmartCardAuthWithMemoryCard
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<InsertedSmartCardAuth.AuthStatus> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
+
+    // Cardless voter session has been started, but poll worker hasn't removed their card yet
+    if (
+      this.authStatus.status === 'logged_in' &&
+      this.authStatus.user.role === 'poll_worker' &&
+      this.cardlessVoterUser
+    ) {
+      return {
+        ...this.authStatus,
+        cardlessVoterUser: this.cardlessVoterUser,
+      };
+    }
+
+    // Cardless voter session has been started, and poll worker has removed their card
+    if (
+      this.authStatus.status === 'logged_out' &&
+      this.authStatus.reason === 'no_card' &&
+      this.cardlessVoterUser
+    ) {
+      return {
+        status: 'logged_in',
+        user: this.cardlessVoterUser,
+      };
+    }
+
     return this.authStatus;
   }
 
@@ -74,11 +104,51 @@ export class InsertedSmartCardAuthWithMemoryCard
     this.updateAuthStatus(machineState, { type: 'check_pin', pin: input.pin });
   }
 
-  readCardData<T>(
+  async startCardlessVoterSession(
+    machineState: InsertedSmartCardAuthMachineState,
+    input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
+  ): Promise<void> {
+    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    if (
+      this.authStatus.status !== 'logged_in' ||
+      this.authStatus.user.role !== 'poll_worker'
+    ) {
+      return;
+    }
+
+    this.cardlessVoterUser = { ...input, role: 'cardless_voter' };
+  }
+
+  async endCardlessVoterSession(): Promise<void> {
+    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+
+    this.cardlessVoterUser = undefined;
+    return Promise.resolve();
+  }
+
+  async readCardData<T>(
     machineState: InsertedSmartCardAuthMachineState,
     input: { schema: z.ZodSchema<T> }
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>> {
-    return this.card.readLongObject(input.schema);
+    let result: Result<Optional<T>, SyntaxError | z.ZodError | Error>;
+    try {
+      result = await this.card.readLongObject(input.schema);
+    } catch (error) {
+      return wrapException(error);
+    }
+    return result;
+  }
+
+  async readCardDataAsString(): Promise<Result<Optional<string>, Error>> {
+    let data: Optional<string>;
+    try {
+      data = await this.card.readLongString();
+    } catch (error) {
+      return wrapException(error);
+    }
+    return ok(data);
   }
 
   async writeCardData<T>(
@@ -183,7 +253,9 @@ export class InsertedSmartCardAuthWithMemoryCard
       }
 
       case 'check_pin': {
-        assert(currentAuthStatus.status === 'checking_passcode');
+        if (currentAuthStatus.status !== 'checking_passcode') {
+          return currentAuthStatus;
+        }
         if (action.pin === currentAuthStatus.user.passcode) {
           if (currentAuthStatus.user.role === 'system_administrator') {
             return { status: 'logged_in', user: currentAuthStatus.user };

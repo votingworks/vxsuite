@@ -38,6 +38,7 @@ export interface ElectionManagerLoggedIn {
 export interface PollWorkerLoggedIn {
   readonly status: 'logged_in';
   readonly user: PollWorkerUser;
+  readonly cardlessVoterUser?: CardlessVoterUser;
 }
 
 export interface CardlessVoterLoggedIn {
