@@ -30,7 +30,6 @@ import {
   Hardware,
   singlePrecinctSelectionFor,
   makeAsync,
-  ScannerReportData,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -55,7 +54,6 @@ import {
   getAuthStatus,
   getMachineConfig,
   readElectionDefinitionFromCard,
-  readScannerReportDataFromCard,
   startCardlessVoterSession,
 } from './api';
 
@@ -319,8 +317,6 @@ export function AppRoot({
     endCardlessVoterSession.useMutation(electionHash);
   const readElectionDefinitionFromCardMutation =
     readElectionDefinitionFromCard.useMutation(electionHash);
-  const readScannerReportDataFromCardMutation =
-    readScannerReportDataFromCard.useMutation(electionHash);
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -650,32 +646,6 @@ export function AppRoot({
     }
   });
 
-  const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
-    useState<ScannerReportData>();
-
-  useQueryChangeListener(
-    authStatusQuery,
-    (
-      newAuthStatus,
-      previousAuthStatus = InsertedSmartCardAuth.DEFAULT_AUTH_STATUS
-    ) => {
-      if (
-        !isPollWorkerAuth(previousAuthStatus) &&
-        isPollWorkerAuth(newAuthStatus)
-      ) {
-        readScannerReportDataFromCardMutation.mutate(undefined, {
-          onSuccess(result) {
-            if (result.isOk() && result.ok() !== undefined) {
-              setScannerReportDataToBePrinted(result.ok());
-            }
-          },
-        });
-      } else if (!isPollWorkerAuth(newAuthStatus)) {
-        setScannerReportDataToBePrinted(undefined);
-      }
-    }
-  );
-
   // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
     async function storeAppState() {
@@ -824,10 +794,6 @@ export function AppRoot({
           hasVotes={!!votes}
           reload={reload}
           logger={logger}
-          scannerReportDataToBePrinted={scannerReportDataToBePrinted}
-          clearScannerReportDataToBePrinted={() =>
-            setScannerReportDataToBePrinted(undefined)
-          }
         />
       );
     }

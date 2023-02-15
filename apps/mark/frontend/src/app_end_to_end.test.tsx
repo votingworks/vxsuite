@@ -386,6 +386,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.mockApiClient.clearScannerReportDataFromCard
     .expectCallWith({ electionHash })
     .resolves(ok());
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok(undefined));
   userEvent.click(screen.getByText('Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');

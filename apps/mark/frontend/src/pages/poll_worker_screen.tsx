@@ -32,6 +32,7 @@ import {
   ElectionInfoBar,
   TestMode,
   NoWrap,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import {
@@ -62,7 +63,10 @@ import { ScreenReader } from '../config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { clearScannerReportDataFromCard } from '../api';
+import {
+  clearScannerReportDataFromCard,
+  getScannerReportDataFromCard,
+} from '../api';
 
 function parseScannerReportTallyData(
   scannerTallyReportData: ScannerTallyReportData,
@@ -453,8 +457,6 @@ export interface PollworkerScreenProps {
   updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
   logger: Logger;
-  scannerReportDataToBePrinted?: ScannerReportData;
-  clearScannerReportDataToBePrinted: () => void;
 }
 
 export function PollWorkerScreen({
@@ -475,12 +477,37 @@ export function PollWorkerScreen({
   hasVotes,
   reload,
   logger,
-  scannerReportDataToBePrinted,
-  clearScannerReportDataToBePrinted,
 }: PollworkerScreenProps): JSX.Element {
-  const { election } = electionDefinition;
+  const { election, electionHash } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+
+  const scannerReportDataFromCardQuery =
+    getScannerReportDataFromCard.useQuery(electionHash);
+  const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
+    useState<ScannerReportData>();
+
+  /**
+   * We populate a scannerReportDataToBePrinted state value and don't use
+   * scannerReportDataFromCardQuery directly to control the scanner report modal because:
+   * 1. We support printing additional copies of the report even after report data has been cleared
+   *    from the card
+   * 2. We still want to be able to close the modal even if clearing report data fails
+   */
+  useQueryChangeListener(
+    scannerReportDataFromCardQuery,
+    (newScannerReportDataFromCardResult) => {
+      const newScannerReportDataFromCard =
+        newScannerReportDataFromCardResult.ok();
+      if (
+        !scannerReportDataToBePrinted &&
+        newScannerReportDataFromCard &&
+        newScannerReportDataFromCard.isLiveMode === isLiveMode
+      ) {
+        setScannerReportDataToBePrinted(newScannerReportDataFromCard);
+      }
+    }
+  );
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -766,18 +793,17 @@ export function PollWorkerScreen({
           precinctSelection={appPrecinct}
         />
       </Screen>
-      {scannerReportDataToBePrinted &&
-        scannerReportDataToBePrinted.isLiveMode === isLiveMode && (
-          <ScannerReportModal
-            scannerReportData={scannerReportDataToBePrinted}
-            electionDefinition={electionDefinition}
-            machineConfig={machineConfig}
-            pollsState={pollsState}
-            updatePollsState={updatePollsState}
-            onClose={clearScannerReportDataToBePrinted}
-            logger={logger}
-          />
-        )}
+      {scannerReportDataToBePrinted && (
+        <ScannerReportModal
+          scannerReportData={scannerReportDataToBePrinted}
+          electionDefinition={electionDefinition}
+          machineConfig={machineConfig}
+          pollsState={pollsState}
+          updatePollsState={updatePollsState}
+          onClose={() => setScannerReportDataToBePrinted(undefined)}
+          logger={logger}
+        />
+      )}
     </React.Fragment>
   );
 }

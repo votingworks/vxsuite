@@ -63,6 +63,22 @@ export const getAuthStatus = {
   },
 } as const;
 
+export const getScannerReportDataFromCard = {
+  queryKey(): QueryKey {
+    return ['getScannerReportDataFromCard'];
+  },
+  useQuery(electionHash?: string) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.readScannerReportDataFromCard({ electionHash }),
+      // Don't cache this since caching would require invalidation in response to external
+      // circumstances, like card removal
+      { cacheTime: 0, staleTime: 0 }
+    );
+  },
+} as const;
+
 export const checkPin = {
   useMutation(electionHash?: string) {
     const apiClient = useApiClient();
@@ -125,20 +141,21 @@ export const readElectionDefinitionFromCard = {
   },
 } as const;
 
-export const readScannerReportDataFromCard = {
-  useMutation(electionHash?: string) {
-    const apiClient = useApiClient();
-    return useMutation(() =>
-      apiClient.readScannerReportDataFromCard({ electionHash })
-    );
-  },
-} as const;
-
 export const clearScannerReportDataFromCard = {
   useMutation(electionHash?: string) {
     const apiClient = useApiClient();
-    return useMutation(() =>
-      apiClient.clearScannerReportDataFromCard({ electionHash })
+    const queryClient = useQueryClient();
+    return useMutation(
+      () => apiClient.clearScannerReportDataFromCard({ electionHash }),
+      {
+        async onSuccess() {
+          // Because we don't cache scanner report data from cards, this invalidation isn't
+          // strictly necessary
+          await queryClient.invalidateQueries(
+            getScannerReportDataFromCard.queryKey()
+          );
+        },
+      }
     );
   },
 } as const;
