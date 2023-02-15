@@ -11,7 +11,7 @@ import {
   mapResult,
   Uint4,
 } from './types';
-import { validateEnumValue } from './uint_coder';
+import { defaultEnumValue, validateEnumValue } from './uint_coder';
 
 /**
  * Coder for a uint4, aka a 4-bit unsigned integer.
@@ -19,6 +19,10 @@ import { validateEnumValue } from './uint_coder';
 export class Uint4Coder extends BaseCoder<Uint4> {
   constructor(private readonly enumeration?: unknown) {
     super();
+  }
+
+  default(): Uint4 {
+    return defaultEnumValue(this.enumeration);
   }
 
   bitLength(): BitLength {
@@ -90,5 +94,5 @@ export class Uint4Coder extends BaseCoder<Uint4> {
 export function uint4<T extends number = Uint4>(
   enumeration?: unknown
 ): Coder<T> {
-  return new Uint4Coder(enumeration) as Coder<T>;
+  return new Uint4Coder(enumeration) as unknown as Coder<T>;
 }

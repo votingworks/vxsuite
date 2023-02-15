@@ -23,6 +23,10 @@ export class LiteralCoder extends BaseCoder<void> {
     );
   }
 
+  default(): void {
+    return undefined;
+  }
+
   bitLength(): number {
     return toBitLength(this.value.byteLength);
   }

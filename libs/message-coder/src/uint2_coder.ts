@@ -11,7 +11,7 @@ import {
   mapResult,
   Uint2,
 } from './types';
-import { validateEnumValue } from './uint_coder';
+import { defaultEnumValue, validateEnumValue } from './uint_coder';
 
 /**
  * Coder for a uint2, aka a 2-bit unsigned integer.
@@ -19,6 +19,10 @@ import { validateEnumValue } from './uint_coder';
 class Uint2Coder extends BaseCoder<Uint2> {
   constructor(private readonly enumeration?: unknown) {
     super();
+  }
+
+  default(): Uint2 {
+    return defaultEnumValue(this.enumeration);
   }
 
   bitLength(): BitLength {
@@ -87,5 +91,5 @@ class Uint2Coder extends BaseCoder<Uint2> {
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics -- TS does not have a way of saying "I want an enum of numbers"
 export function uint2<T extends Uint2>(enumeration?: unknown): Coder<T> {
-  return new Uint2Coder(enumeration) as Coder<T>;
+  return new Uint2Coder(enumeration) as unknown as Coder<T>;
 }

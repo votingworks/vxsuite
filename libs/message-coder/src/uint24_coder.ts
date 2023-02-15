@@ -51,5 +51,5 @@ export class Uint24Coder extends UintCoder {
 export function uint24<T extends number = Uint24>(
   enumeration?: unknown
 ): Coder<T> {
-  return new Uint24Coder(enumeration) as Coder<T>;
+  return new Uint24Coder(enumeration) as unknown as Coder<T>;
 }

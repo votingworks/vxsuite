@@ -8,6 +8,8 @@ import { uint2 } from './uint2_coder';
 test('uint2 simple', () => {
   const coder = uint2();
 
+  expect(coder.default()).toEqual(0);
+
   // encode/decode
   expect(coder.encode(1)).toEqual(ok(Buffer.from([0b01000000])));
   expect(coder.decode(Buffer.from([0b01000000]))).toEqual(ok(1));
@@ -21,32 +23,34 @@ test('uint2 simple', () => {
 
 test('uint2 with enumeration', () => {
   enum Speed {
-    Slow = 0,
-    Medium = 1,
-    Fast = 2,
+    Slow = 1,
+    Medium = 2,
+    Fast = 3,
   }
 
   const coder = uint2<Speed>(Speed);
 
+  expect(coder.default()).toEqual(Speed.Slow);
+
   // encode/decode
-  expect(coder.encode(Speed.Fast)).toEqual(ok(Buffer.from([0b10000000])));
-  expect(coder.decode(Buffer.from([0b10000000]))).toEqual(ok(Speed.Fast));
+  expect(coder.encode(Speed.Fast)).toEqual(ok(Buffer.from([0b11000000])));
+  expect(coder.decode(Buffer.from([0b11000000]))).toEqual(ok(Speed.Fast));
 
   // invalid value
-  expect(coder.encode(3)).toEqual(err('InvalidValue'));
-  expect(coder.decode(Buffer.from([0b11000000]))).toEqual(err('InvalidValue'));
+  expect(coder.encode(0)).toEqual(err('InvalidValue'));
+  expect(coder.decode(Buffer.from([0b00000000]))).toEqual(err('InvalidValue'));
 
   // encodeInto/decodeFrom
   const buffer = Buffer.alloc(1);
   expect(coder.encodeInto(Speed.Fast, buffer, 0)).toEqual(ok(2));
-  expect(buffer.readUInt8(0)).toEqual(0b10000000);
+  expect(buffer.readUInt8(0)).toEqual(0b11000000);
   expect(coder.decodeFrom(buffer, 0)).toEqual(
     ok({ value: Speed.Fast, bitOffset: 2 })
   );
 
   // invalid value
-  expect(coder.encodeInto(3, buffer, 0)).toEqual(err('InvalidValue'));
-  buffer.writeUInt8(0b11000000, 0);
+  expect(coder.encodeInto(0, buffer, 0)).toEqual(err('InvalidValue'));
+  buffer.writeUInt8(0b00000000, 0);
   expect(coder.decodeFrom(buffer, 0)).toEqual(err('InvalidValue'));
 });
 
@@ -62,6 +66,7 @@ test('uint2 with arbitrary in-byte offset', () => {
         const bitOffset = toBitOffset(byteOffset) + shift;
         const encoded = coder.encodeInto(value, buffer, bitOffset);
 
+        expect(coder.default()).toEqual(0);
         expect(encoded).toEqual(ok(bitOffset + 2));
         expect(buffer.readUInt8(byteOffset)).toEqual(value << (8 - shift - 2));
         expect(coder.decodeFrom(buffer, bitOffset)).toEqual(

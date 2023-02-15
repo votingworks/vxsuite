@@ -10,6 +10,7 @@ test('empty message', () => {
   const m = message({});
   type m = CoderType<typeof m>;
 
+  expect(m.default()).toEqual({});
   expect(m.bitLength({})).toEqual(0);
   expect(m.encode({})).toEqual(ok(Buffer.alloc(0)));
   expect(m.decode(Buffer.alloc(0))).toEqual(typedAs<m>(ok({})));
@@ -25,6 +26,7 @@ test('message with single literal', () => {
   const m = message({ header: literal('PDF') });
   type m = CoderType<typeof m>;
 
+  expect(m.default()).toEqual({});
   expect(m.bitLength({})).toEqual(24);
   expect(m.encode({ header: 'PDF' })).toEqual(ok(Buffer.from('PDF')));
   expect(m.decode(Buffer.from('PDF'))).toEqual(ok(typedAs<m>({})));
@@ -33,6 +35,7 @@ test('message with single literal', () => {
 
 test('message with single uint8', () => {
   const m = message({ version: uint8() });
+  expect(m.default()).toEqual({ version: 0 });
   expect(m.bitLength({ version: 1 })).toEqual(8);
   expect(m.encode({ version: 1 })).toEqual(ok(Buffer.from([1])));
   expect(m.decode(Buffer.from([1]))).toEqual(ok({ version: 1 }));
@@ -44,6 +47,7 @@ test('message with multiple fields', () => {
     version: uint8(),
     flags: uint8(),
   });
+  expect(m.default()).toEqual({ version: 0, flags: 0 });
   expect(m.bitLength({ version: 1, flags: 2 })).toEqual(40);
   expect(m.encode({ version: 1, flags: 2 })).toEqual(
     // 0x01 = version, 0x02 = flags
@@ -97,4 +101,13 @@ test('id3v1 tag', () => {
   const encodeResult = id3v1.encode(tag);
   const decodeResult = id3v1.decode(encodeResult.assertOk('encode failed'));
   expect(decodeResult).toEqual(ok(tag));
+  expect(id3v1.default()).toEqual({
+    title: '',
+    artist: '',
+    album: '',
+    year: '',
+    comment: '',
+    track: 0,
+    genre: 0,
+  });
 });
