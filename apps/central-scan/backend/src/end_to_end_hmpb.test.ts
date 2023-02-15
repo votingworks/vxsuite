@@ -14,7 +14,10 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import { Scan } from '@votingworks/api';
+import {
+  advanceTo as setDateMock,
+  clear as clearDateMock,
+} from 'jest-date-mock';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -78,6 +81,8 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
+  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
+
   jest.setTimeout(25000);
 
   const { election } = stateOfHamilton;
@@ -179,13 +184,9 @@ test('going through the whole process works', async () => {
       { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
     ]);
 
-    const exportRequestBody: Scan.ExportToUsbDriveRequest = {
-      filename: 'cvrs_export.jsonl',
-    };
     await request(app)
       .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
-      .send(exportRequestBody)
       .expect(200);
 
     const exportFileContents = fs.readFileSync(
@@ -197,7 +198,7 @@ test('going through the whole process works', async () => {
           election,
           asElectionDefinition(election).electionHash
         ),
-        'cvrs_export.jsonl'
+        'machine_000__1_ballots__2018-06-27_00-00-00.jsonl'
       ),
       'utf-8'
     );
@@ -227,4 +228,6 @@ test('going through the whole process works', async () => {
       'state-senator-district-31': [],
     });
   }
+
+  clearDateMock();
 });

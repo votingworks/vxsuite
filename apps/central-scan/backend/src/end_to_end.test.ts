@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -18,6 +17,10 @@ import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
+import {
+  advanceTo as setDateMock,
+  clear as clearDateMock,
+} from 'jest-date-mock';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
@@ -60,15 +63,12 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
-  const export1RequestBody: Scan.ExportToUsbDriveRequest = {
-    filename: 'cvrs_export_1.jsonl',
-  };
+  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
 
   // try export before configure
   await request(app)
     .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .send(export1RequestBody)
     .expect(400);
 
   await request(app)
@@ -141,7 +141,6 @@ test('going through the whole process works', async () => {
     await request(app)
       .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
-      .send(export1RequestBody)
       .expect(200);
 
     const exportFileContents = fsExtra.readFileSync(
@@ -153,7 +152,7 @@ test('going through the whole process works', async () => {
           election,
           asElectionDefinition(election).electionHash
         ),
-        'cvrs_export_1.jsonl'
+        'TEST__machine_000__3_ballots__2018-06-27_00-00-00.jsonl'
       ),
       'utf-8'
     );
@@ -204,18 +203,15 @@ test('going through the whole process works', async () => {
   }
 
   // no CVRs!
+  setDateMock(new Date(2018, 5, 28, 0, 0, 0));
   const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
   await fsExtra.mkdir(mockUsbMountPoint, { recursive: true });
   mockGetUsbDrives.mockResolvedValue([
     { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
   ]);
-  const export2RequestBody: Scan.ExportToUsbDriveRequest = {
-    filename: 'cvrs_export_2.jsonl',
-  };
   await request(app)
     .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .send(export2RequestBody)
     .expect(200);
 
   expect(
@@ -229,7 +225,7 @@ test('going through the whole process works', async () => {
             election,
             asElectionDefinition(election).electionHash
           ),
-          'cvrs_export_2.jsonl'
+          'TEST__machine_000__0_ballots__2018-06-28_00-00-00.jsonl'
         )
       )
       .toString()
@@ -237,4 +233,5 @@ test('going through the whole process works', async () => {
 
   // clean up
   await request(app).delete('/central-scanner/config/election');
+  clearDateMock();
 });

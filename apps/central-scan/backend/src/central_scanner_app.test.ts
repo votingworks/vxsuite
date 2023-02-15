@@ -27,6 +27,10 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
+import {
+  advanceTo as setDateMock,
+  clear as clearDateMock,
+} from 'jest-date-mock';
 import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
@@ -447,6 +451,7 @@ test('POST /scan/scanBatch errors', async () => {
 });
 
 test('POST /scan/export-to-usb-drive', async () => {
+  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
   importer.doExport.mockImplementation((writeStream) => {
     writeStream.write('cvr file contents\n');
     return Promise.resolve();
@@ -458,13 +463,9 @@ test('POST /scan/export-to-usb-drive', async () => {
     { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
   ]);
 
-  const requestBody: Scan.ExportToUsbDriveRequest = {
-    filename: 'new_cvr_export.jsonl',
-  };
   await request(app)
     .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
-    .send(requestBody)
     .expect(200);
 
   const exportDirectoryPath = path.join(
@@ -477,25 +478,15 @@ test('POST /scan/export-to-usb-drive', async () => {
     )
   );
   await expect(
-    fs.readFile(path.join(exportDirectoryPath, 'new_cvr_export.jsonl'), 'utf-8')
+    fs.readFile(
+      path.join(
+        exportDirectoryPath,
+        'machine_000__0_ballots__2018-06-27_00-00-00.jsonl'
+      ),
+      'utf-8'
+    )
   ).resolves.toEqual('cvr file contents\n');
-});
-
-test('GET /scan/export', async () => {
-  importer.doExport.mockImplementation((writeStream) => {
-    writeStream.write('cvr file contents\n');
-    return Promise.resolve();
-  });
-
-  const response = await request(app)
-    .get('/central-scanner/scan/export?filename=new_cvr_export.jsonl')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  expect(response.get('Content-Disposition')).toEqual(
-    'attachment; filename="new_cvr_export.jsonl"'
-  );
-  expect(Buffer.from(response.body).toString()).toEqual('cvr file contents\n');
+  clearDateMock();
 });
 
 test('POST /scan/zero error', async () => {

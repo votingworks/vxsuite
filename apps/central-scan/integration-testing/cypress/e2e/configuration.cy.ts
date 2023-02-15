@@ -84,10 +84,16 @@ describe('BSD and services/Scan', () => {
     cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
     cy.contains('A total of 1 ballot has been scanned in 1 batch.');
-    cy.contains('Save CVRs').click();
-    cy.get('[data-testid="manual-export"]').click();
-    cy.contains('Cancel').click();
-    cy.contains('Admin').click();
+
+    /*
+     * Disabling these lines because with manual export removed from the
+     * product it requires a USB drive which we have not developed mocking for.
+     */
+    // cy.contains('Save CVRs').click();
+    // cy.contains('Save').click();
+    // cy.contains('Cancel').click();
+    // cy.contains('Admin').click();
+
     /* Disabling the remainder of this test because file download appears to be causing problems in Cypress.
      * See https://github.com/cypress-io/cypress/issues/14168#issuecomment-763323563 and https://github.com/cypress-io/cypress/issues/949
      * Potential solutions: upgrade to cypress 6.3.0 or intercept the file download? https://docs.cypress.io/faq/questions/using-cypress-faq#Is-there-a-way-to-test-that-a-file-got-downloaded-I-want-to-test-that-a-button-click-triggers-a-download

@@ -1,17 +1,15 @@
 import React from 'react';
 
 import { fireEvent, waitFor } from '@testing-library/react';
-import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { safeParseJson } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { typedAs } from '@votingworks/basics';
+import { Scan } from '@votingworks/api';
 import { ExportResultsModal } from './export_results_modal';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import {
   renderInAppContext,
   wrapInAppContext,
@@ -24,12 +22,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     const closeFn = jest.fn();
     const { getByText, unmount } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal
-          onClose={closeFn}
-          electionDefinition={electionDefinition}
-          numberOfBallots={5}
-          isTestMode
-        />
+        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
       </Router>,
       { usbDriveStatus: status }
     );
@@ -45,12 +38,7 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal
-          onClose={closeFn}
-          electionDefinition={electionDefinition}
-          numberOfBallots={5}
-          isTestMode
-        />
+        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
       </Router>,
       { usbDriveStatus: status }
     );
@@ -65,65 +53,21 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
   }
 });
 
-test('render export modal when a usb drive is mounted as expected and allows custom export', async () => {
-  const mockKiosk = fakeKiosk();
-  const fileWriter = fakeFileWriter();
-  window.kiosk = mockKiosk;
-  const saveAsFunction = jest.fn().mockResolvedValue(fileWriter);
-  mockKiosk.saveAs = saveAsFunction;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-
-  fetchMock.getOnce('/central-scanner/scan/export', {
-    body: '',
-  });
-
-  const closeFn = jest.fn();
-  const { getByText, getByAltText } = renderInAppContext(
-    <Router history={createMemoryHistory()}>
-      <ExportResultsModal
-        onClose={closeFn}
-        electionDefinition={electionDefinition}
-        numberOfBallots={5}
-        isTestMode
-      />
-    </Router>,
-    { usbDriveStatus: 'mounted' }
-  );
-  getByText('Save CVRs');
-  getByText(
-    /A CVR file will automatically be saved to the default location on the mounted USB drive. /
-  );
-  getByAltText('Insert USB Image');
-
-  fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText('CVRs Saved'));
-  await waitFor(() => {
-    expect(saveAsFunction).toHaveBeenCalledTimes(1);
-  });
-  expect(fetchMock.called('/central-scanner/scan/export')).toEqual(true);
-
-  fireEvent.click(getByText('Cancel'));
-  expect(closeFn).toHaveBeenCalled();
-});
-
 test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   fetchMock.postOnce('/central-scanner/scan/export-to-usb-drive', {
-    body: '',
+    body: typedAs<Scan.ExportToUsbDriveResponse>({
+      status: 'ok',
+    }),
   });
 
   const closeFn = jest.fn();
   const history = createMemoryHistory();
   const { getByText, rerender } = renderInAppContext(
-    <ExportResultsModal
-      onClose={closeFn}
-      electionDefinition={electionDefinition}
-      numberOfBallots={5}
-      isTestMode
-    />,
+    <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
     { usbDriveStatus: 'mounted', history }
   );
   getByText('Save CVRs');
@@ -134,31 +78,13 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     true
   );
 
-  const lastRequestOptions = fetchMock.lastOptions();
-  assert(lastRequestOptions);
-  assert(lastRequestOptions.body);
-
-  // fetchMock.lastOptions().body appears to be incorrectly typed and actually
-  // returns the stringified JSON request body instead of the parsed object -
-  // forcing it into a string type here.
-  const requestBody = lastRequestOptions.body.toString();
-
-  expect(safeParseJson(requestBody).unsafeUnwrap()).toEqual({
-    filename: expect.stringMatching(/^TEST__machine_0000__5_ballots__[\d-]+/),
-  });
-
   getByText('Eject USB');
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
     wrapInAppContext(
-      <ExportResultsModal
-        onClose={closeFn}
-        electionDefinition={electionDefinition}
-        numberOfBallots={5}
-        isTestMode
-      />,
+      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
       {
         history,
         usbDriveStatus: 'ejected',
@@ -175,28 +101,25 @@ test('render export modal with errors when appropriate', async () => {
   window.kiosk = mockKiosk;
 
   fetchMock.postOnce('/central-scanner/scan/export-to-usb-drive', {
-    body: '',
+    body: typedAs<Scan.ExportToUsbDriveResponse>({
+      status: 'error',
+      errors: [{ type: 'some-error', message: 'something bad happened' }],
+    }),
   });
 
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
-      <ExportResultsModal
-        onClose={closeFn}
-        electionDefinition={electionDefinition}
-        numberOfBallots={5}
-        isTestMode
-      />
+      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
     </Router>,
     { usbDriveStatus: 'mounted' }
   );
   getByText('Save CVRs');
 
-  mockKiosk.getUsbDriveInfo.mockRejectedValueOnce(new Error('NOPE'));
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('Failed to Save CVRs'));
   getByText(/Failed to save CVRs./);
-  getByText(/NOPE/);
+  getByText(/something bad happened/);
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
