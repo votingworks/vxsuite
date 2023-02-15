@@ -11,9 +11,6 @@ import { fakeTts } from '../../test/helpers/fake_tts';
 const screenReader = new AriaScreenReader(fakeTts());
 
 test('reads election definition from card', async () => {
-  const getElectionDefinitionFromCard = jest
-    .fn()
-    .mockResolvedValueOnce(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
 
   render(
@@ -21,13 +18,12 @@ test('reads election definition from card', async () => {
       ballotsPrintedCount={0}
       electionDefinition={electionDefinition}
       machineConfig={fakeMachineConfig()}
-      getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+      electionDefinitionFromCard={primaryElectionSampleDefinition}
       screenReader={screenReader}
       unconfigure={unconfigure}
     />
   );
 
-  expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
     screen.getByText(primaryElectionSampleDefinition.election.title)
   );
@@ -35,23 +31,19 @@ test('reads election definition from card', async () => {
 });
 
 test('allows unconfiguring', async () => {
-  const getElectionDefinitionFromCard = jest
-    .fn()
-    .mockResolvedValueOnce(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
 
   render(
     <ReplaceElectionScreen
       ballotsPrintedCount={0}
       electionDefinition={electionDefinition}
-      getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+      electionDefinitionFromCard={primaryElectionSampleDefinition}
       machineConfig={fakeMachineConfig()}
       screenReader={screenReader}
       unconfigure={unconfigure}
     />
   );
 
-  expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
     screen.getByText(primaryElectionSampleDefinition.election.title)
   );
@@ -60,9 +52,6 @@ test('allows unconfiguring', async () => {
 });
 
 test('shows count of ballots printed', async () => {
-  const getElectionDefinitionFromCard = jest
-    .fn()
-    .mockResolvedValue(primaryElectionSampleDefinition);
   const unconfigure = jest.fn();
   const machineConfig = fakeMachineConfig();
 
@@ -70,14 +59,13 @@ test('shows count of ballots printed', async () => {
     <ReplaceElectionScreen
       ballotsPrintedCount={0}
       electionDefinition={electionDefinition}
-      getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+      electionDefinitionFromCard={primaryElectionSampleDefinition}
       machineConfig={machineConfig}
       screenReader={screenReader}
       unconfigure={unconfigure}
     />
   );
 
-  expect(getElectionDefinitionFromCard).toHaveBeenCalled();
   await waitFor(() =>
     screen.getByText(primaryElectionSampleDefinition.election.title)
   );
@@ -89,7 +77,7 @@ test('shows count of ballots printed', async () => {
     <ReplaceElectionScreen
       ballotsPrintedCount={129}
       electionDefinition={electionDefinition}
-      getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+      electionDefinitionFromCard={primaryElectionSampleDefinition}
       machineConfig={machineConfig}
       screenReader={screenReader}
       unconfigure={unconfigure}

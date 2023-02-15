@@ -630,6 +630,26 @@ export function AppRoot({
     void updateStorage();
   }, [storage]);
 
+  const [
+    alternateElectionDefinitionFromCard,
+    setAlternateElectionDefinitionFromCard,
+  ] = useState<ElectionDefinition>();
+
+  useQueryChangeListener(authStatusQuery, async (newAuthStatus) => {
+    if (
+      isElectionManagerAuth(newAuthStatus) &&
+      optionalElectionDefinition &&
+      newAuthStatus.user.electionHash !==
+        optionalElectionDefinition.electionHash
+    ) {
+      setAlternateElectionDefinitionFromCard(
+        await getElectionDefinitionFromCard()
+      );
+    } else if (!isElectionManagerAuth(newAuthStatus)) {
+      setAlternateElectionDefinitionFromCard(undefined);
+    }
+  });
+
   const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
     useState<ScannerReportData>();
 
@@ -741,7 +761,7 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           electionDefinition={optionalElectionDefinition}
-          getElectionDefinitionFromCard={getElectionDefinitionFromCard}
+          electionDefinitionFromCard={alternateElectionDefinitionFromCard}
           machineConfig={machineConfig}
           screenReader={screenReader}
           unconfigure={unconfigure}

@@ -1,8 +1,4 @@
-import {
-  ElectionDefinition,
-  Optional,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   Button,
   ElectionInfoBar,
@@ -11,21 +7,20 @@ import {
   Screen,
   Table,
   Text,
-  useCancelablePromise,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
 
 interface Props {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
-  getElectionDefinitionFromCard(): Promise<Optional<ElectionDefinition>>;
+  electionDefinitionFromCard?: ElectionDefinition;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
   unconfigure(): Promise<void>;
@@ -35,25 +30,12 @@ export function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  getElectionDefinitionFromCard,
+  electionDefinitionFromCard,
   machineConfig,
   screenReader,
   unconfigure,
 }: Props): JSX.Element {
   const { election, electionHash } = electionDefinition;
-  const makeCancelable = useCancelablePromise();
-  const [cardElectionDefinition, setCardElectionDefinition] =
-    useState<ElectionDefinition>();
-
-  useEffect(() => {
-    void (async () => {
-      setCardElectionDefinition(
-        await makeCancelable(getElectionDefinitionFromCard())
-      );
-    })();
-    // Try to read scanner report data from the card once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     const muted = screenReader.isMuted();
@@ -61,7 +43,7 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
-  if (!cardElectionDefinition) {
+  if (!electionDefinitionFromCard) {
     return (
       <Screen>
         <Main padded centerChild>
@@ -74,7 +56,7 @@ export function ReplaceElectionScreen({
   }
 
   const { election: cardElection, electionHash: cardElectionHash } =
-    cardElectionDefinition;
+    electionDefinitionFromCard;
   return (
     <Screen>
       <Main padded centerChild>
