@@ -1,0 +1,42 @@
+---
+- name: Install Node and other dependencies
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    node_version: "16.19.0*"
+    node_repo_version: "16.x"
+    npm_packages:
+      - yarn
+      - pnpm@7.24.3
+
+  tasks:
+
+    - name: "Add nodejs apt key"
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+
+    - name: "Add nodejs {{ node_version }} apt repo"
+      ansible.builtin.apt_repository:
+        repo: deb https://deb.nodesource.com/node_{{ node_repo_version }} bullseye main
+        update_cache: yes
+
+    - name: "Add nodejs {{ node_version }} src apt repo"
+      ansible.builtin.apt_repository:
+        repo: deb-src https://deb.nodesource.com/node_{{ node_repo_version }} bullseye main
+        update_cache: yes
+
+    - name: "Install Node {{ node_version }}"
+      ansible.builtin.apt:
+        update_cache: yes
+        name: "nodejs={{ node_version }}"
+        state: present
+
+    - name: "Install base npm packages"
+      community.general.npm:
+        global: yes
+        name: "{{ item }}"
+      loop: "{{ npm_packages }}"
+
