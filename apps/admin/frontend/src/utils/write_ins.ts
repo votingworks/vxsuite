@@ -61,7 +61,11 @@ export function filterWriteInCountsByParty(
   const filteredCounts = new Map<ContestId, Map<string, number>>();
   for (const [contestId, contestCounts] of counts) {
     const contest = election.contests.find((c) => c.id === contestId);
-    if (contest && contest.partyId === partyId) {
+    if (
+      contest &&
+      contest.type === 'candidate' &&
+      contest.partyId === partyId
+    ) {
       filteredCounts.set(contestId, contestCounts);
     }
   }

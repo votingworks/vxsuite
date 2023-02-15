@@ -73,7 +73,7 @@ export function generateHeaderRowForBatchResultsCsv(
   const contestSelectionHeaders: string[] = [];
   for (const contest of election.contests) {
     let contestTitle = contest.title;
-    if (contest.partyId) {
+    if (contest.type === 'candidate' && contest.partyId) {
       const party = election.parties.find((p) => p.id === contest.partyId);
       if (party) {
         contestTitle = `${party.fullName} ${contestTitle}`;

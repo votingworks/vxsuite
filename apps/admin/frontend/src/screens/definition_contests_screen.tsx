@@ -393,14 +393,16 @@ ${fileContent}`;
               onChange={saveTextField}
               disabled
             />
-            <TextField
-              name="partyId"
-              label="Party ID"
-              value={contest.partyId || ''}
-              optional
-              onChange={saveTextField}
-              disabled
-            />
+            {contest.type === 'candidate' && (
+              <TextField
+                name="partyId"
+                label="Party ID"
+                value={contest.partyId || ''}
+                optional
+                onChange={saveTextField}
+                disabled
+              />
+            )}
             <TextField
               label="Title"
               name="title"

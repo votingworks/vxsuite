@@ -671,7 +671,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         <p>Enter the number of votes for each contest option.</p>
         {currentContests.map((contest) => {
           let contestTitle = contest.title;
-          if (contest.partyId) {
+          if (contest.type === 'candidate' && contest.partyId) {
             const party = election.parties.find(
               (p) => p.id === contest.partyId
             );
