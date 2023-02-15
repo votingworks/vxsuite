@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src"],
+  "include": ["src", "test"],
   "exclude": [],
   "references": [
     { "path": "../ballot-encoder/tsconfig.build.json" },

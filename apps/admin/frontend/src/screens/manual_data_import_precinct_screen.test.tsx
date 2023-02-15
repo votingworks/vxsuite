@@ -6,13 +6,6 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
-import {
-  act,
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
 
 import {
   ExternalTallySourceType,
@@ -23,6 +16,13 @@ import {
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { assert, sleep } from '@votingworks/basics';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyExternalTalliesByPrecinct,
@@ -247,8 +247,9 @@ test('can add and remove a write-in candidate when contest allows', async () => 
   const presidentContest = screen
     .getByText('President and Vice-President')
     .closest('div');
+  assert(presidentContest);
   expect(
-    within(presidentContest!).queryByText('Add Write-In Candidate')
+    within(presidentContest).queryByText('Add Write-In Candidate')
   ).not.toBeInTheDocument();
 
   // County Commissioners contest should allow write-ins

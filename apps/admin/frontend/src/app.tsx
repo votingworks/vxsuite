@@ -18,6 +18,7 @@ export function App({
   printer = getPrinter(),
   machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
+  generateBallotId,
 }: Props): JSX.Element {
   // Copied from old App.css
   const baseFontSizePx = 20;
@@ -38,6 +39,7 @@ export function App({
           hardware={hardware}
           machineConfigProvider={machineConfigProvider}
           converter={converter}
+          generateBallotId={generateBallotId}
         />
       </AppBase>
     </BrowserRouter>

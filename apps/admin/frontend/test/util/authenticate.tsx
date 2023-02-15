@@ -3,7 +3,7 @@ import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { screen } from '@testing-library/react';
+import { screen } from '../react_testing_library';
 
 import { MockApiClient, setAuthStatus } from '../helpers/api';
 

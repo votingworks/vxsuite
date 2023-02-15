@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import {
   electionSampleDefinition,
   primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
+import { render, screen } from '../test/react_testing_library';
 import { Seal } from './seal';
 
 test('Seal with svg value', () => {

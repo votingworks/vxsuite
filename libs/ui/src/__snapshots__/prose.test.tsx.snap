@@ -82,6 +82,18 @@ exports[`renders Prose with defaults 1`] = `
   border-top: 0.1em solid #666666;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
 >
@@ -199,6 +211,18 @@ exports[`renders Prose with right-aligned text 1`] = `
 .c0 hr {
   border: 0;
   border-top: 0.1em solid #666666;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
 }
 
 <div
@@ -321,6 +345,18 @@ exports[`renders Prose with theme 1`] = `
   border-top: 0.1em solid #666666;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
 >
@@ -438,6 +474,18 @@ exports[`renders Prose with with non-default options 1`] = `
 .c0 hr {
   border: 0;
   border-top: 0.1em solid #666666;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
 }
 
 <div

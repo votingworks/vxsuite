@@ -18,6 +18,7 @@ import {
   Hardware,
   computeFullElectionTally,
   getEmptyFullElectionTally,
+  randomBallotId,
 } from '@votingworks/utils';
 import { useUsbDrive, useDevices } from '@votingworks/ui';
 
@@ -44,6 +45,7 @@ export interface Props {
   hardware: Hardware;
   machineConfigProvider: Provider<MachineConfig>;
   converter?: ConverterClientType;
+  generateBallotId?: () => string;
 }
 
 export function AppRoot({
@@ -51,6 +53,7 @@ export function AppRoot({
   hardware,
   machineConfigProvider,
   converter,
+  generateBallotId = randomBallotId,
 }: Props): JSX.Element | null {
   const { logger } = useContext(ServicesContext);
 
@@ -217,6 +220,7 @@ export function AppRoot({
         usbDrive,
         fullElectionTally,
         fullElectionExternalTallies: store.fullElectionExternalTallies,
+        generateBallotId,
         updateExternalTally,
         manualTallyVotingMethod,
         setManualTallyVotingMethod,

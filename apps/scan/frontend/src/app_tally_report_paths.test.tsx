@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
@@ -40,6 +39,7 @@ import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
+import { render, screen, within } from '../test/react_testing_library';
 import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { App } from './app';
 import {

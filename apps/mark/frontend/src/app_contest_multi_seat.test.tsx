@@ -1,8 +1,8 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';

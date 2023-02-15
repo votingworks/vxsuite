@@ -1,16 +1,5 @@
 import React from 'react';
 import MockDate from 'mockdate';
-import {
-  fireEvent,
-  screen,
-  waitFor,
-  getByTestId as domGetByTestId,
-  getByText as domGetByText,
-  getAllByRole as domGetAllByRole,
-  act,
-  within,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import {
@@ -43,6 +32,17 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  getByTestId as domGetByTestId,
+  getByText as domGetByText,
+  getAllByRole as domGetAllByRole,
+  act,
+  within,
+  waitForElementToBeRemoved,
+} from '../test/react_testing_library';
 
 import { App } from './app';
 import {
@@ -85,16 +85,10 @@ jest.mock('@votingworks/ballot-encoder', () => {
     encodeBallot: () => new Uint8Array(),
   };
 });
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original: typeof import('@votingworks/utils') =
-    jest.requireActual('@votingworks/utils');
-  // Mock random string generation so that snapshots match, while leaving the rest of the module
-  // intact
-  return {
-    ...original,
-    randomBallotId: () => 'Asdf1234Asdf12',
-  };
-});
+
+function mockRandomBallotId() {
+  return 'Asdf1234Asdf12';
+}
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 let mockApiClient: MockApiClient;
@@ -381,11 +375,18 @@ test('L&A (logic and accuracy) flow', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
   const logger = fakeLogger();
-  renderRootElement(<App hardware={hardware} printer={printer} />, {
-    apiClient: mockApiClient,
-    backend,
-    logger,
-  });
+  renderRootElement(
+    <App
+      hardware={hardware}
+      printer={printer}
+      generateBallotId={mockRandomBallotId}
+    />,
+    {
+      apiClient: mockApiClient,
+      backend,
+      logger,
+    }
+  );
   await authenticateAsElectionManager(
     mockApiClient,
     eitherNeitherElectionDefinition
@@ -625,8 +626,17 @@ test('tabulating CVRs', async () => {
   const logger = fakeLogger();
   const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
-      <App hardware={hardware} printer={printer} converter="ms-sems" />,
-      { apiClient: mockApiClient, backend, logger }
+      <App
+        hardware={hardware}
+        printer={printer}
+        converter="ms-sems"
+        generateBallotId={mockRandomBallotId}
+      />,
+      {
+        apiClient: mockApiClient,
+        backend,
+        logger,
+      }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateAsElectionManager(

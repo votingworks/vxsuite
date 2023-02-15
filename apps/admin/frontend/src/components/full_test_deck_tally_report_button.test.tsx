@@ -1,4 +1,3 @@
-import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
@@ -6,6 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { expectPrint } from '@votingworks/test-utils';
 import React from 'react';
+import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
 

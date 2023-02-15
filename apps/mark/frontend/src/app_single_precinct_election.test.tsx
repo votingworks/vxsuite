@@ -1,10 +1,10 @@
 import React from 'react';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { screen } from '@testing-library/react';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { getDisplayElectionHash } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
+import { screen } from '../test/react_testing_library';
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';

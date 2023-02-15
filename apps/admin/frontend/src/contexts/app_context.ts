@@ -34,6 +34,7 @@ export interface AppContextInterface {
   usbDrive: UsbDrive;
   fullElectionTally: FullElectionTally;
   fullElectionExternalTallies: FullElectionExternalTallies;
+  generateBallotId: () => string;
   isTabulationRunning: boolean;
   updateExternalTally: (
     newExternalTally: FullElectionExternalTally
@@ -68,6 +69,7 @@ const appContext: AppContextInterface = {
   updateExternalTally: async () => undefined,
   manualTallyVotingMethod: VotingMethod.Precinct,
   setManualTallyVotingMethod: () => undefined,
+  generateBallotId: () => '',
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,

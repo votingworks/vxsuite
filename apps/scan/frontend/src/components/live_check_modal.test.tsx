@@ -2,10 +2,10 @@ import React from 'react';
 
 import MockDate from 'mockdate';
 
-import { fireEvent, render, waitFor } from '@testing-library/react';
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 
 import { fakeKiosk } from '@votingworks/test-utils';
+import { fireEvent, render, waitFor } from '../../test/react_testing_library';
 
 import { LiveCheckModal } from './live_check_modal';
 import { machineConfig } from '../../test/helpers/mock_api_client';

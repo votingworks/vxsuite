@@ -1,4 +1,3 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -10,6 +9,7 @@ import fetchMock from 'fetch-mock';
 import * as React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { fireEvent, screen, waitFor } from '../test/react_testing_library';
 import {
   setElectionInStorage,
   setStateInStorage,

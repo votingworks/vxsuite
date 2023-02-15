@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { deferred } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import {
   CalibrateScannerModal,
   CalibrateScannerModalProps,

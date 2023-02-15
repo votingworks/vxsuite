@@ -1,11 +1,3 @@
-import {
-  act,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -16,6 +8,14 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
+import {
+  act,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,

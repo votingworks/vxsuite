@@ -1,6 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Renders 1`] = `
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <img
     alt="something"
@@ -10,6 +22,18 @@ exports[`Renders 1`] = `
 `;
 
 exports[`Renders with style 1`] = `
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <img
     alt="something"

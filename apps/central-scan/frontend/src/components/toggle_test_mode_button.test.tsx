@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { render, screen } from '../../test/react_testing_library';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
 
 test('shows a button to toggle to live mode when in test mode', () => {

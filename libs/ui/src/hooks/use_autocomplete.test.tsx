@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useCallback, useMemo } from 'react';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import { AutocompleteProps, useAutocomplete } from './use_autocomplete';
 
 type onSuggestType<Option> = Exclude<

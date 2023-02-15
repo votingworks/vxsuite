@@ -1,12 +1,5 @@
 import fetchMock from 'fetch-mock';
 import React from 'react';
-import {
-  render,
-  waitFor,
-  within,
-  fireEvent,
-  screen,
-} from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import {
   electionSample,
@@ -25,6 +18,13 @@ import { Scan } from '@votingworks/api';
 import { ElectionDefinition } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger } from '@votingworks/logging';
+import {
+  render,
+  waitFor,
+  within,
+  fireEvent,
+  screen,
+} from '../test/react_testing_library';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import { createMockApiClient, MockApiClient, setAuthStatus } from '../test/api';

@@ -27,6 +27,7 @@ import {
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
+  randomBallotId,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -755,6 +756,7 @@ export function AppRoot({
                 ballotStyleId,
                 contests,
                 electionDefinition: optionalElectionDefinition,
+                generateBallotId: randomBallotId,
                 updateTally,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode,

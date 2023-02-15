@@ -6,7 +6,6 @@ import {
 } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
-import { fireEvent, screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
 import {
   fakePollWorkerUser,
@@ -16,8 +15,9 @@ import userEvent from '@testing-library/user-event';
 
 import { Logger, LogSource } from '@votingworks/logging';
 import { ok } from '@votingworks/basics';
-
 import { QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen } from '../../test/react_testing_library';
+
 import { render } from '../../test/test_utils';
 
 import { defaultPrecinctId } from '../../test/helpers/election';

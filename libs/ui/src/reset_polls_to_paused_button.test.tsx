@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 
 test('component flow', async () => {

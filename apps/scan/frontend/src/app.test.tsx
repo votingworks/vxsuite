@@ -7,7 +7,6 @@ import {
   MemoryStorage,
 } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { waitFor, screen, within, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   fakeKiosk,
@@ -29,6 +28,7 @@ import type {
   PrecinctScannerConfig,
   SheetInterpretation,
 } from '@votingworks/scan-backend';
+import { waitFor, screen, within, render } from '../test/react_testing_library';
 import {
   BALLOT_BAG_CAPACITY,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,

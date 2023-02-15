@@ -1,10 +1,10 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Scan } from '@votingworks/api';
 import { AdjudicationStatus } from '@votingworks/types';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
+import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { DashboardScreen } from './dashboard_screen';
 
 const noneLeftAdjudicationStatus: AdjudicationStatus = {

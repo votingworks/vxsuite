@@ -2,7 +2,7 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '../test/react_testing_library';
 
 import { RebootToBiosButton } from './reboot_to_bios_button';
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import {
@@ -7,6 +6,7 @@ import {
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { act, render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 

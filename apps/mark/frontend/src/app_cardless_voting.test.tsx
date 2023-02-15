@@ -1,10 +1,15 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { expectPrint } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';

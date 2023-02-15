@@ -23,6 +23,18 @@ exports[`renders ProgressEllipsis 1`] = `
   color: transparent;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <span
     class="c0"

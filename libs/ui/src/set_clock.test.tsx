@@ -1,16 +1,16 @@
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  within,
-} from '@testing-library/react';
 import { DateTime } from 'luxon';
 import MockDate from 'mockdate';
 import React from 'react';
 import fc from 'fast-check';
 import { arbitraryDateTime, fakeKiosk } from '@votingworks/test-utils';
 import { act } from '@testing-library/react-hooks';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import {
   PickDateTimeModal,
   MAX_YEAR,

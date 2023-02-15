@@ -1,12 +1,16 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
-import { err, ok } from '@votingworks/basics';
-import { deferred } from '@votingworks/basics';
+import { err, ok, deferred } from '@votingworks/basics';
 import MockDate from 'mockdate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   AdminActionScreenProps,

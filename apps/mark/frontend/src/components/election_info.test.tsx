@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
+import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
 test('renders horizontal ElectionInfo with hash when specified', () => {

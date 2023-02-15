@@ -1,7 +1,7 @@
-import { waitFor } from '@testing-library/react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { MemoryStorage } from '@votingworks/utils';
 import { z } from 'zod';
+import { waitFor } from '../../test/react_testing_library';
 import { useStoredState } from './use_stored_state';
 
 test('no initial value + updates', async () => {

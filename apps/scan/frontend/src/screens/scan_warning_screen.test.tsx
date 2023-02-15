@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
@@ -9,6 +8,7 @@ import {
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { integers, take } from '@votingworks/basics';
+import { render, screen } from '../../test/react_testing_library';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import {
   ApiMock,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { render, screen, within } from '../test/react_testing_library';
 import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
 import { fontSizeTheme } from './themes';

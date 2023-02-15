@@ -1,11 +1,4 @@
 import React from 'react';
-import {
-  waitFor,
-  fireEvent,
-  getByText as domGetByText,
-  getByTestId as domGetByTestId,
-  screen,
-} from '@testing-library/react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { Admin } from '@votingworks/api';
@@ -16,6 +9,13 @@ import {
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { UsbDriveStatus } from '@votingworks/ui';
+import {
+  waitFor,
+  fireEvent,
+  getByText as domGetByText,
+  getByTestId as domGetByTestId,
+  screen,
+} from '../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,

@@ -12,7 +12,7 @@ import {
   fakePrinterInfo,
 } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '../../test/react_testing_library';
 
 import {
   LAST_PRINT_JOB_SLEEP_MS,

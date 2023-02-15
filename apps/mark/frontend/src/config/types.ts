@@ -36,6 +36,7 @@ export interface BallotContextInterface {
   ballotStyleId?: BallotStyleId;
   contests: ContestsWithMsEitherNeither;
   readonly electionDefinition?: ElectionDefinition;
+  generateBallotId: () => string;
   isCardlessVoter: boolean;
   isLiveMode: boolean;
   endVoterSession: () => Promise<void>;

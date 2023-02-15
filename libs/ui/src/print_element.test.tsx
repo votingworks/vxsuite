@@ -5,9 +5,9 @@ import {
   fakeKiosk,
   fakePrinter,
 } from '@votingworks/test-utils';
-import { screen, waitFor, within } from '@testing-library/react';
 import { sleep } from '@votingworks/basics';
 import { PrintOptions } from '@votingworks/types';
+import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   printElement,
   printElementToPdf,

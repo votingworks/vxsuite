@@ -1,10 +1,10 @@
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
 
 import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
+import { fireEvent, screen } from '../../test/react_testing_library';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { CandidateContest } from './candidate_contest';
 

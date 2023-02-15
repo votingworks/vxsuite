@@ -3,10 +3,10 @@ import {
   primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
 import React from 'react';
-import { screen } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
 import {

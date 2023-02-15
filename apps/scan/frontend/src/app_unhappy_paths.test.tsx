@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
@@ -14,6 +13,7 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { deferred } from '@votingworks/basics';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
   ApiMock,

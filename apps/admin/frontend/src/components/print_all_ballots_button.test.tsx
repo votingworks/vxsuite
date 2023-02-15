@@ -1,5 +1,4 @@
 import fetchMock from 'fetch-mock';
-import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
@@ -15,6 +14,7 @@ import {
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
 import { BallotStyleId } from '@votingworks/types';
+import { act, screen, waitFor, within } from '../../test/react_testing_library';
 import {
   renderInAppContext,
   renderRootElement,

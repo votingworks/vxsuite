@@ -1,11 +1,5 @@
 import React from 'react';
 import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
-import {
   MemoryStorage,
   MemoryHardware,
   singlePrecinctSelectionFor,
@@ -22,6 +16,12 @@ import { expectPrint } from '@votingworks/test-utils';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+} from '../test/react_testing_library';
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
 

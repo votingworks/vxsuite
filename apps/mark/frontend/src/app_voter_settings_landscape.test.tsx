@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ok } from '@votingworks/basics';
+import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 

@@ -1,10 +1,16 @@
 import React from 'react';
-import { fireEvent, render, within, act, screen } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import {
+  fireEvent,
+  render,
+  within,
+  act,
+  screen,
+} from '../test/react_testing_library';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';

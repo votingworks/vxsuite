@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { render, screen } from '../test/react_testing_library';
+
 import { Text, successTextGreen, TextWithLineBreaks } from './text';
 
 describe('renders Text', () => {

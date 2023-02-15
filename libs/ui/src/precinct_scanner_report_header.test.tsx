@@ -3,12 +3,12 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { render, screen } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSampleDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { PartyId } from '@votingworks/types';
+import { render, screen } from '../test/react_testing_library';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000Z').getTime();

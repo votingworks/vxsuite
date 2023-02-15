@@ -26,6 +26,7 @@ export function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
     electionDefinition,
+    generateBallotId,
     isLiveMode,
     precinctId,
     resetBallot,
@@ -54,6 +55,7 @@ export function PrintPage(): JSX.Element {
       <BmdPaperBallot
         ballotStyleId={ballotStyleId}
         electionDefinition={electionDefinition}
+        generateBallotId={generateBallotId}
         isLiveMode={isLiveMode}
         precinctId={precinctId}
         votes={votes}
@@ -68,6 +70,7 @@ export function PrintPage(): JSX.Element {
     printLock,
     ballotStyleId,
     electionDefinition,
+    generateBallotId,
     isLiveMode,
     precinctId,
     votes,

@@ -104,6 +104,18 @@ exports[`Renders Loading with defaults 1`] = `
   border-top: 0.1em solid #666666;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
 >

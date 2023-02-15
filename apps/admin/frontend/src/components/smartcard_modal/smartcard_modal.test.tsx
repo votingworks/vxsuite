@@ -18,7 +18,7 @@ import {
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 
 import { App } from '../../app';
 import { authenticateAsSystemAdministrator } from '../../../test/util/authenticate';

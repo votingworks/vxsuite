@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
@@ -17,6 +16,7 @@ import {
   filterTallyContestsByParty,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { render, screen, within } from '../test/react_testing_library';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 

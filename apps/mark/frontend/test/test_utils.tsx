@@ -1,7 +1,6 @@
 import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import { render as testRender } from '@testing-library/react';
 import {
   BallotStyleId,
   Contests,
@@ -12,6 +11,8 @@ import {
 import { MachineConfig } from '@votingworks/mark-backend';
 
 import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
+import { randomBallotId } from '@votingworks/utils';
+import { render as testRender } from './react_testing_library';
 import * as GLOBALS from '../src/config/globals';
 
 import { UserSettings } from '../src/config/types';
@@ -28,6 +29,7 @@ export function render(
     contests = electionDefinition.election.contests,
     endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
+    generateBallotId = randomBallotId,
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = fakeMachineConfig(),
@@ -46,6 +48,7 @@ export function render(
     contests?: Contests;
     endVoterSession?: () => Promise<void>;
     history?: History;
+    generateBallotId?: () => string;
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
@@ -66,6 +69,7 @@ export function render(
           ballotStyleId,
           contests,
           electionDefinition,
+          generateBallotId,
           isCardlessVoter,
           isLiveMode,
           machineConfig,

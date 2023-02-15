@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import { sleep } from '@votingworks/basics';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 
 import {
   MIN_TIME_TO_UNCONFIGURE_MACHINE_MS,

@@ -1,8 +1,8 @@
-import { RenderResult } from '@testing-library/react';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { fakePrinter } from '@votingworks/test-utils';
 import { ElectionDefinition, Printer } from '@votingworks/types';
 import { MemoryHardware } from '@votingworks/utils';
+import { RenderResult } from '../react_testing_library';
 import { App } from '../../src/app';
 import { ElectionManagerStoreMemoryBackend } from '../../src/lib/backends';
 import { renderRootElement } from '../render_in_app_context';

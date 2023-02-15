@@ -4,12 +4,12 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
-import { configure } from '@testing-library/react';
 import {
   expectTestToEndWithAllPrintsAsserted,
   fakePrintElement as mockPrintElement,
   fakePrintElementWhenReady as mockPrintElementWhenReady,
 } from '@votingworks/test-utils';
+import { configure } from '../test/react_testing_library';
 
 configure({ asyncUtilTimeout: 5_000 });
 

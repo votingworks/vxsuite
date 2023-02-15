@@ -1,9 +1,14 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { expectPrint } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';

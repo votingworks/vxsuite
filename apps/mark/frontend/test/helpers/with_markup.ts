@@ -1,6 +1,6 @@
 // https://stackoverflow.com/questions/55509875/how-to-query-by-text-string-which-contains-html-tags-using-react-testing-library
 
-import { MatcherFunction } from '@testing-library/react';
+import { MatcherFunction } from '../react_testing_library';
 
 type Query<T> = (f: MatcherFunction) => T;
 

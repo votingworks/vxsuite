@@ -1,4 +1,3 @@
-import { screen, RenderResult, render } from '@testing-library/react';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -10,6 +9,7 @@ import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { screen, RenderResult, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
   ApiMock,

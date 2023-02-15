@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   getZeroCompressedTally,
@@ -15,6 +14,7 @@ import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ok } from '@votingworks/basics';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';

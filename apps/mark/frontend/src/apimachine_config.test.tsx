@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 
 import { MemoryStorage } from '@votingworks/utils';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { render, screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { App } from './app';
 import {

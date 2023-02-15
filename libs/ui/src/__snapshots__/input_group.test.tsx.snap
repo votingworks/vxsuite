@@ -56,6 +56,18 @@ exports[`renders InputGroup 1`] = `
   color: rgb(170,170,170);
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
 >

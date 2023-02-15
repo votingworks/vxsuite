@@ -21,22 +21,10 @@ jest.mock(
   }
 );
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original =
-    jest.requireActual<typeof import('@votingworks/utils')>(
-      '@votingworks/utils'
-    );
-  // Mock random string generation so that snapshots match, while leaving the rest of the module
-  // intact
-  return {
-    ...original,
-    randomBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
-  };
-});
-
 it('prints correct ballot without votes', async () => {
   render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
+    generateBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
     precinctId: '21',
     route: '/print',
   });
@@ -46,6 +34,7 @@ it('prints correct ballot without votes', async () => {
 it('prints correct ballot with votes', async () => {
   render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
+    generateBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
     precinctId: '21',
     route: '/print',
     votes: vote(
@@ -72,6 +61,7 @@ it('prints correct ballot without votes and inline seal', async () => {
   render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
+    generateBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
     precinctId: '21',
     route: '/print',
   });
@@ -83,6 +73,7 @@ it('prints correct ballot without votes and no seal', async () => {
   render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
+    generateBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
     precinctId: '21',
     route: '/print',
   });

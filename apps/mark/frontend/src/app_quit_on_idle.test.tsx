@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
