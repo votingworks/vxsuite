@@ -115,7 +115,7 @@ test('CastVoteRecordReport', () => {
 
 test('schema in sync', () => {
   const xsd = readFileSync(
-    join(__dirname, '../../../data/cdf/cast-vote-records/schema.xml'),
+    join(__dirname, '../../../data/cdf/cast-vote-records/schema.xsd'),
     'utf-8'
   );
   const json = readFileSync(
