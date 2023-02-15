@@ -11,6 +11,9 @@ executors:
     docker:
       #- image: cimg/node:16.14.2
       - image: adammcmanus/cimg-debian11:latest
+        auth:
+          username: $TMP_AMCMANUS_USER
+          password: $TMP_AMCMANUS_PASSWORD
 
 jobs:
   test-codemods:
@@ -871,40 +874,40 @@ workflows:
       - test-apps-mark-backend
       #- test-apps-mark-frontend
       #- test-apps-mark-integration-testing
-      #- test-apps-scan-backend
+      - test-apps-scan-backend
       #- test-apps-scan-frontend
       #- test-apps-admin-frontend
-      #- test-apps-admin-backend
+      - test-apps-admin-backend
       #- test-apps-admin-integration-testing
       #- test-apps-central-scan-frontend
-      #- test-apps-central-scan-backend
+      - test-apps-central-scan-backend
       #- test-apps-central-scan-integration-testing
-      #- test-libs-api
-      #- test-libs-auth
-      #- test-libs-ballot-encoder
-      #- test-libs-ballot-interpreter-nh
-      #- test-libs-ballot-interpreter-vx
+      - test-libs-api
+      - test-libs-auth
+      - test-libs-ballot-encoder
+      - test-libs-ballot-interpreter-nh
+      - test-libs-ballot-interpreter-vx
       #- test-libs-basics
-      #- test-libs-cdf-schema-builder
-      #- test-libs-cvr-fixture-generator
-      #- test-libs-backend
-      #- test-libs-db
+      - test-libs-cdf-schema-builder
+      - test-libs-cvr-fixture-generator
+      - test-libs-backend
+      - test-libs-db
       #- test-libs-eslint-plugin-vx
-      #- test-libs-fixtures
-      #- test-libs-grout
-      #- test-libs-grout-test-utils
-      #- test-libs-image-utils
-      #- test-libs-logging
-      #- test-libs-message-coder
-      #- test-libs-plustek-scanner
-      #- test-libs-res-to-ts
+      - test-libs-fixtures
+      - test-libs-grout
+      - test-libs-grout-test-utils
+      - test-libs-image-utils
+      - test-libs-logging
+      - test-libs-message-coder
+      - test-libs-plustek-scanner
+      - test-libs-res-to-ts
       #- test-libs-test-utils
-      #- test-libs-types
+      - test-libs-types
       #- test-libs-ui
       #- test-libs-utils
       #- test-services-converter-ms-sems
       #- test-services-smartcards
-      #- validate-monorepo
+      - validate-monorepo
 
 commands:
   checkout-and-install:
@@ -924,8 +927,8 @@ commands:
       - run:
           name: Setup Dependencies
           command: |
-            sudo apt update -y
-            sudo apt install libx11-dev libpng-dev libjpeg-dev
+            #sudo apt update -y
+            #sudo apt install libx11-dev libpng-dev libjpeg-dev
             pnpm install --frozen-lockfile
       - save_cache:
           key:
