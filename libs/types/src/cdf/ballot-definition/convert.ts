@@ -49,7 +49,12 @@ export function convertVxfElectionToCdfBallotDefinition(
         ElectionScopeId: stateId,
         StartDate: electionDate,
         EndDate: electionDate,
-        Type: Cdf.ElectionType.General,
+        // Guess the election type based on whether there are any party-associated contests.
+        Type: vxfElection.contests.some(
+          (contest) => contest.type === 'candidate' && contest.partyId
+        )
+          ? Cdf.ElectionType.Primary
+          : Cdf.ElectionType.General,
         Name: text(vxfElection.title),
 
         Candidate: vxfElection.contests
