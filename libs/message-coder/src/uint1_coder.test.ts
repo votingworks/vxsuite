@@ -10,6 +10,7 @@ test('uint1 offset=0', () => {
   type coder = CoderType<typeof coder>;
   const buffer = Buffer.alloc(1);
   const bitOffset = 0;
+  expect(coder.default()).toEqual(false);
   expect(coder.encodeInto(true, buffer, bitOffset)).toEqual(ok(bitOffset + 1));
   expect(buffer.readUInt8(0)).toEqual(0b10000000);
   expect(coder.decodeFrom(buffer, bitOffset)).toEqual(
@@ -27,6 +28,7 @@ test('uint1 true offset=3', () => {
   type coder = CoderType<typeof coder>;
   const buffer = Buffer.alloc(1);
   const bitOffset = 3;
+  expect(coder.default()).toEqual(false);
   expect(coder.encodeInto(true, buffer, bitOffset)).toEqual(ok(bitOffset + 1));
   expect(buffer.readUInt8(0)).toEqual(0b00010000);
   expect(coder.decodeFrom(buffer, bitOffset)).toEqual(
@@ -45,16 +47,16 @@ test('uint1', () => {
           'bitOffset should be aligned after subtracting remainder'
         );
         const buffer = Buffer.alloc(1 + byteOffset);
-        const field = uint1();
-        type field = CoderType<typeof field>;
+        const coder = uint1();
 
-        expect(field.encodeInto(value, buffer, bitOffset)).toEqual(
+        expect(coder.default()).toEqual(false);
+        expect(coder.encodeInto(value, buffer, bitOffset)).toEqual(
           ok(bitOffset + 1)
         );
         expect(
           (buffer.readUInt8(byteOffset) & (0b10000000 >> remainder)) !== 0
         ).toEqual(value);
-        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
+        expect(coder.decodeFrom(buffer, bitOffset)).toEqual(
           ok({ value, bitOffset: bitOffset + 1 })
         );
       }

@@ -49,5 +49,5 @@ export class Uint32Coder extends UintCoder {
 export function uint32<T extends number = Uint32>(
   enumeration?: unknown
 ): Coder<T> {
-  return new Uint32Coder(enumeration) as Coder<T>;
+  return new Uint32Coder(enumeration) as unknown as Coder<T>;
 }

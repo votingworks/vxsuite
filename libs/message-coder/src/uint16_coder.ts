@@ -49,5 +49,5 @@ export class Uint16Coder extends UintCoder {
 export function uint16<T extends number = Uint16>(
   enumeration?: unknown
 ): Coder<T> {
-  return new Uint16Coder(enumeration) as Coder<T>;
+  return new Uint16Coder(enumeration) as unknown as Coder<T>;
 }

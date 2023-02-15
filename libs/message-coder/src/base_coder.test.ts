@@ -6,6 +6,10 @@ import { bufferContainsBitOffset, toByteOffset } from './bits';
 import { DecodeResult, EncodeResult, Uint8 } from './types';
 
 class TestCoder extends BaseCoder<number> {
+  default(): number {
+    return 0;
+  }
+
   bitLength(): number {
     return 8;
   }

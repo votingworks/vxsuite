@@ -27,6 +27,7 @@ test('literal', () => {
         const lit = literal(...parts);
         type lit = CoderType<typeof lit>;
 
+        expect(lit.default()).toEqual(undefined);
         expect(lit.encodeInto(undefined, buffer, bitOffset)).toEqual(
           ok(bitOffset + bytes.length * 8)
         );

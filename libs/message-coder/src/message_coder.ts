@@ -73,6 +73,20 @@ class MessageCoder<P extends MessageCoderParts<object>>
     super();
   }
 
+  default(): ObjectFromParts<P> {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(this.parts)) {
+      const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
+      if (
+        !(coder instanceof LiteralCoder) &&
+        !(coder instanceof PaddingCoder)
+      ) {
+        result[k] = coder.default();
+      }
+    }
+    return result as ObjectFromParts<P>;
+  }
+
   bitLength(value: ObjectFromParts<P>): number {
     let length = 0;
     for (const [k, v] of Object.entries(this.parts)) {

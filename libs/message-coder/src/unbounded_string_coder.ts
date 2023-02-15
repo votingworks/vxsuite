@@ -21,6 +21,10 @@ import {
  * required to be the last field in a message.
  */
 export class UnboundedStringCoder implements Coder<string> {
+  default(): string {
+    return '';
+  }
+
   bitLength(string: string): BitLength {
     return toBitLength(Buffer.from(string).byteLength);
   }

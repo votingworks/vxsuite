@@ -10,6 +10,7 @@ test('fixed string', () => {
   const coder = fixedString(5);
   type coder = CoderType<typeof coder>;
 
+  expect(coder.default()).toEqual('');
   expect(coder.bitLength('hello')).toEqual(40);
   expect(coder.encode('hello')).toEqual(ok(Buffer.from('hello')));
   expect(coder.decode(Buffer.from('hello'))).toEqual(ok('hello'));
@@ -27,6 +28,8 @@ test('fixed string with trailing nulls', () => {
   const coder = fixedString(5, true);
   type coder = CoderType<typeof coder>;
   const buffer = Buffer.alloc(5);
+
+  expect(coder.default()).toEqual('\0\0\0\0\0');
   expect(coder.encodeInto('abc', buffer, 0)).toEqual(ok(40));
   expect(coder.decodeFrom(buffer, 0)).toEqual(
     typedAs<DecodeResult<coder>>(ok({ value: 'abc\0\0', bitOffset: 40 }))

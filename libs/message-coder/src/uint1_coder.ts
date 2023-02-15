@@ -14,6 +14,10 @@ import {
  * Coder for a uint1, aka a boolean.
  */
 export class Uint1Coder extends BaseCoder<boolean> {
+  default(): boolean {
+    return false;
+  }
+
   bitLength(): BitLength {
     return 1;
   }

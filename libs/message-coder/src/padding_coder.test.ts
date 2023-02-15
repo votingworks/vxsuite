@@ -12,6 +12,7 @@ test('padding', () => {
     b: uint8(),
   });
 
+  expect(m.default()).toEqual({ a: 0, b: 0 });
   expect(m.bitLength({ a: 1, b: 2 })).toEqual(16);
   expect(m.encode({ a: 1, b: 2 })).toEqual(ok(Buffer.from([0b00010000, 0x02])));
   expect(m.decode(Buffer.from([0b00010000, 0x02]))).toEqual(ok({ a: 1, b: 2 }));
@@ -25,6 +26,11 @@ test('padding with too small buffer', () => {
     padding: padding(16),
   });
 
+  expect(m.default()).toEqual({});
   expect(m.encodeInto({}, Buffer.alloc(1), 0)).toEqual(err('SmallBuffer'));
   expect(m.decodeFrom(Buffer.alloc(1), 0)).toEqual(err('SmallBuffer'));
+});
+
+test('padding has no default', () => {
+  expect(padding(1).default()).toBeUndefined();
 });

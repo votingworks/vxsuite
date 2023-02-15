@@ -12,6 +12,10 @@ export class PaddingCoder extends BaseCoder<void> {
     super();
   }
 
+  default(): void {
+    return undefined;
+  }
+
   bitLength(): number {
     return this.paddingBitsLength;
   }

@@ -31,11 +31,35 @@ export function validateEnumValue(
 }
 
 /**
+ * Gets the default–i.e. first–enum value.
+ */
+export function defaultEnumValue(enumeration: unknown): number {
+  if (typeof enumeration === 'object') {
+    const e = enumeration as Record<string, number | string>;
+
+    for (const value of Object.values(e)) {
+      if (typeof value === 'number') {
+        return value;
+      }
+    }
+
+    /* istanbul ignore next */
+    throw new Error('no enum values');
+  }
+
+  return 0;
+}
+
+/**
  * Base coder for byte-aligned uints.
  */
 export abstract class UintCoder extends BaseCoder<number> {
   constructor(private readonly enumeration?: unknown) {
     super();
+  }
+
+  default(): number {
+    return defaultEnumValue(this.enumeration);
   }
 
   abstract bitLength(): BitLength;

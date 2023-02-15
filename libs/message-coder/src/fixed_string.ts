@@ -26,6 +26,14 @@ export class FixedStringCoder implements Coder<string> {
     private readonly includeTrailingNulls = false
   ) {}
 
+  default(): string {
+    if (!this.includeTrailingNulls) {
+      return '';
+    }
+
+    return Buffer.alloc(this.byteLength).toString('utf8');
+  }
+
   bitLength(): BitLength {
     return toBitLength(this.byteLength);
   }

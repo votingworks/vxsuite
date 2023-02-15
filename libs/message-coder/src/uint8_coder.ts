@@ -44,5 +44,5 @@ export class Uint8Coder extends UintCoder {
 export function uint8<T extends number = Uint8>(
   enumeration?: unknown
 ): Coder<T> {
-  return new Uint8Coder(enumeration) as Coder<T>;
+  return new Uint8Coder(enumeration) as unknown as Coder<T>;
 }

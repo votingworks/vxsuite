@@ -65,6 +65,13 @@ export type Uint32 = number;
  */
 export interface Coder<T> {
   /**
+   * The default value for this coder, typically the value that is encoded as a
+   * sequence of zero bits. Useful for building "blank" versions of a type for
+   * test values or similar.
+   */
+  default(): T;
+
+  /**
    * Encode a value as a buffer.
    */
   encode(value: T): Result<Buffer, CoderError>;

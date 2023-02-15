@@ -14,6 +14,7 @@ import {
  * Base class for coders with default implementations for encoding and decoding.
  */
 export abstract class BaseCoder<T> implements Coder<T> {
+  abstract default(): T;
   abstract bitLength(value: T): number;
   abstract encodeInto(
     value: T,
