@@ -1,5 +1,4 @@
 import {
-  CandidateContest,
   ContestOptionTally,
   Dictionary,
   Election,
@@ -29,9 +28,7 @@ export function buildExternalTally(
     assert(emptyTally);
     const populatedTallies: Dictionary<ContestOptionTally> = {};
     const numSeats =
-      emptyTally.contest.type === 'candidate'
-        ? (emptyTally.contest as CandidateContest).seats
-        : 1;
+      emptyTally.contest.type === 'candidate' ? emptyTally.contest.seats : 1;
     let numberOfBallotsInContest = 2 * multiplier; // Undervotes and Overvotes
     for (const optionId of Object.keys(emptyTally.tallies)) {
       const option = emptyTally.tallies[optionId];

@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   CandidateContest,
-  Contest,
+  AnyContest,
   Dictionary,
   ContestVoteOption,
   ContestOptionTally,
@@ -178,7 +178,7 @@ interface TempContestTallyMeta {
   readonly overvotes: number | EmptyValue;
 }
 interface TempContestTally {
-  readonly contest: Contest;
+  readonly contest: AnyContest;
   readonly tallies: Dictionary<TempContestOptionTally>;
   readonly metadata: TempContestTallyMeta;
 }
@@ -246,9 +246,7 @@ export function getExpectedNumberOfBallotsForContestTally(
   contestTally: TempContestTally
 ): number {
   const numSeats =
-    contestTally.contest.type === 'candidate'
-      ? (contestTally.contest as CandidateContest).seats
-      : 1;
+    contestTally.contest.type === 'candidate' ? contestTally.contest.seats : 1;
   const sumOfCandidateVotes = Object.values(contestTally.tallies).reduce(
     (prevValue, optionTally) =>
       prevValue +
@@ -618,7 +616,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
   const [candidateToRemove, setCandidateToRemove] = useState<{
     candidate: Candidate;
-    contest: Contest;
+    contest: CandidateContest;
   }>();
 
   const onConfirmRemoveCandidate = useCallback(() => {

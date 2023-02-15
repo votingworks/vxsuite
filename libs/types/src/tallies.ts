@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CastVoteRecord } from './cast_vote_record';
-import { Contest, Candidate } from './election';
+import { Candidate, AnyContest } from './election';
 import { Dictionary, Optional } from './generic';
 
 export type YesNoVoteId = 'yes' | 'no';
@@ -17,7 +17,7 @@ export interface ContestOptionTally {
 }
 
 export interface ContestTally {
-  readonly contest: Contest;
+  readonly contest: AnyContest;
   readonly tallies: Dictionary<ContestOptionTally>;
   readonly metadata: ContestTallyMeta;
 }

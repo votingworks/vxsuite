@@ -15,7 +15,6 @@ import {
   PrecinctId,
   FullElectionExternalTallies,
   ContestId,
-  CandidateContest,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -149,7 +148,7 @@ function filterTallyForPartyId(
       contestTally &&
       districtsForParty.includes(contestTally.contest.districtId) &&
       contestTally.contest.type === 'candidate' &&
-      (contestTally.contest as CandidateContest).partyId === partyId
+      contestTally.contest.partyId === partyId
     ) {
       filteredContestTallies[contestId] = contestTally;
     }
