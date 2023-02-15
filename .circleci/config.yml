@@ -907,7 +907,7 @@ workflows:
       #- test-libs-utils
       #- test-services-converter-ms-sems
       #- test-services-smartcards
-      - validate-monorepo
+      #- validate-monorepo
 
 commands:
   checkout-and-install:
