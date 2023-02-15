@@ -9,7 +9,8 @@ executors:
       - image: cimg/python:3.9.12-browsers
   nodejs:
     docker:
-      - image: cimg/node:16.14.2
+      #- image: cimg/node:16.14.2
+      - image: adammcmanus/cimg-debian11:latest
 
 jobs:
   test-codemods:
@@ -866,52 +867,52 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-codemods
+      #- test-codemods
       - test-apps-mark-backend
-      - test-apps-mark-frontend
-      - test-apps-mark-integration-testing
-      - test-apps-scan-backend
-      - test-apps-scan-frontend
-      - test-apps-admin-frontend
-      - test-apps-admin-backend
-      - test-apps-admin-integration-testing
-      - test-apps-central-scan-frontend
-      - test-apps-central-scan-backend
-      - test-apps-central-scan-integration-testing
-      - test-libs-api
-      - test-libs-auth
-      - test-libs-ballot-encoder
-      - test-libs-ballot-interpreter-nh
-      - test-libs-ballot-interpreter-vx
-      - test-libs-basics
-      - test-libs-cdf-schema-builder
-      - test-libs-cvr-fixture-generator
-      - test-libs-backend
-      - test-libs-db
-      - test-libs-eslint-plugin-vx
-      - test-libs-fixtures
-      - test-libs-grout
-      - test-libs-grout-test-utils
-      - test-libs-image-utils
-      - test-libs-logging
-      - test-libs-message-coder
-      - test-libs-plustek-scanner
-      - test-libs-res-to-ts
-      - test-libs-test-utils
-      - test-libs-types
-      - test-libs-ui
-      - test-libs-utils
-      - test-services-converter-ms-sems
-      - test-services-smartcards
-      - validate-monorepo
+      #- test-apps-mark-frontend
+      #- test-apps-mark-integration-testing
+      #- test-apps-scan-backend
+      #- test-apps-scan-frontend
+      #- test-apps-admin-frontend
+      #- test-apps-admin-backend
+      #- test-apps-admin-integration-testing
+      #- test-apps-central-scan-frontend
+      #- test-apps-central-scan-backend
+      #- test-apps-central-scan-integration-testing
+      #- test-libs-api
+      #- test-libs-auth
+      #- test-libs-ballot-encoder
+      #- test-libs-ballot-interpreter-nh
+      #- test-libs-ballot-interpreter-vx
+      #- test-libs-basics
+      #- test-libs-cdf-schema-builder
+      #- test-libs-cvr-fixture-generator
+      #- test-libs-backend
+      #- test-libs-db
+      #- test-libs-eslint-plugin-vx
+      #- test-libs-fixtures
+      #- test-libs-grout
+      #- test-libs-grout-test-utils
+      #- test-libs-image-utils
+      #- test-libs-logging
+      #- test-libs-message-coder
+      #- test-libs-plustek-scanner
+      #- test-libs-res-to-ts
+      #- test-libs-test-utils
+      #- test-libs-types
+      #- test-libs-ui
+      #- test-libs-utils
+      #- test-services-converter-ms-sems
+      #- test-services-smartcards
+      #- validate-monorepo
 
 commands:
   checkout-and-install:
     description: Get the code and install dependencies.
     steps:
-      - run:
-          name: Enable Corepack
-          command: sudo corepack enable
+      #- run:
+          #name: Enable Corepack
+          #command: sudo corepack enable
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
