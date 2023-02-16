@@ -1,26 +1,17 @@
-import { MockScannerClient } from '@votingworks/plustek-scanner';
-import {
-  electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
-import waitForExpect from 'wait-for-expect';
-import { LogEventId } from '@votingworks/logging';
+import { assert, ok } from '@votingworks/basics';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
-import {
-  SCANNER_RESULTS_FOLDER,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
-import { assert, err, ok } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
+import { MockScannerClient } from '@votingworks/plustek-scanner';
+import { generateCvr } from '@votingworks/test-utils';
+import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
 import fs from 'fs';
 import { join } from 'path';
-import { generateCvr } from '@votingworks/test-utils';
+import waitForExpect from 'wait-for-expect';
+import { configureApp, waitForStatus } from '../../../test/helpers/app_helpers';
 import {
   ballotImages,
-  configureApp,
-  createApp,
-  createBallotPackageWithoutTemplates,
-  waitForStatus,
+  createPlustekScannerApp,
 } from '../../../test/helpers/scanners/plustek/app_helpers';
 import { Api } from '../../app';
 import { SheetInterpretation } from '../../types';
@@ -72,98 +63,9 @@ async function scanBallot(
   });
 }
 
-test('uses machine config from env', async () => {
-  const originalEnv = process.env;
-  process.env = {
-    ...originalEnv,
-    VX_MACHINE_ID: 'test-machine-id',
-    VX_CODE_VERSION: 'test-code-version',
-  };
-
-  const { apiClient } = await createApp();
-  expect(await apiClient.getMachineConfig()).toEqual({
-    machineId: 'test-machine-id',
-    codeVersion: 'test-code-version',
-  });
-
-  process.env = originalEnv;
-});
-
-test('uses default machine config if not set', async () => {
-  const { apiClient } = await createApp();
-  expect(await apiClient.getMachineConfig()).toEqual({
-    machineId: '0000',
-    codeVersion: 'dev',
-  });
-});
-
-test("fails to configure if there's no ballot package on the usb drive", async () => {
-  const { apiClient, mockUsb } = await createApp();
-  mockUsb.insertUsbDrive({});
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-    err('no_ballot_package_on_usb_drive')
-  );
-  mockUsb.removeUsbDrive();
-  mockUsb.insertUsbDrive({ 'ballot-packages': {} });
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-    err('no_ballot_package_on_usb_drive')
-  );
-});
-
-test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  const { apiClient, mockUsb } = await createApp();
-  mockUsb.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-        electionMinimalExhaustiveSampleSinglePrecinctDefinition
-      ),
-    },
-  });
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
-  const config = await apiClient.getConfig();
-  expect(config.precinctSelection).toMatchObject({
-    kind: 'SinglePrecinct',
-    precinctId: 'precinct-1',
-  });
-});
-
-test('configures using the most recently created ballot package on the usb drive', async () => {
-  const { apiClient, mockUsb } = await createApp();
-
-  mockUsb.insertUsbDrive({
-    'ballot-packages': {
-      'older-ballot-package.zip':
-        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
-      'newer-ballot-package.zip': createBallotPackageWithoutTemplates(
-        electionSampleDefinition
-      ),
-    },
-  });
-  // Ensure our mock actually created the files in the order we expect (the
-  // order of the keys in the object above)
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  assert(usbDrive.mountPoint !== undefined);
-  const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
-  const files = fs.readdirSync(dirPath);
-  const filesWithStats = files.map((file) => ({
-    file,
-    ...fs.statSync(join(dirPath, file)),
-  }));
-  expect(filesWithStats[0].file).toContain('newer-ballot-package.zip');
-  expect(filesWithStats[1].file).toContain('older-ballot-package.zip');
-  expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
-    filesWithStats[1].ctime.getTime()
-  );
-
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
-  const config = await apiClient.getConfig();
-  expect(config.electionDefinition?.election.title).toEqual(
-    electionSampleDefinition.election.title
-  );
-});
-
 test('export CVRs to USB in deprecated VotingWorks format', async () => {
-  const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
+  const { apiClient, workspace, mockPlustek, mockUsb } =
+    await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockPlustek, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
@@ -215,20 +117,9 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
   expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
 });
 
-test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
-  const { apiClient, mockUsb, workspace } = await createApp();
-  await configureApp(apiClient, mockUsb);
-
-  workspace.store.setPollsState('polls_open');
-  await apiClient.setPrecinctSelection({
-    precinctSelection: singlePrecinctSelectionFor('21'),
-  });
-  expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
-});
-
 test('ballot batching', async () => {
   const { apiClient, mockPlustek, logger, workspace, mockUsb } =
-    await createApp();
+    await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch

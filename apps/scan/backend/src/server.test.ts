@@ -1,18 +1,16 @@
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId, Logger } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
+import { createPrecinctScannerStateMachineMock } from '../test/helpers/app_helpers';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { createInterpreter } from './interpret';
 import { start } from './server';
-import { PrecinctScannerStateMachine } from './state_machine';
 import { createWorkspace, Workspace } from './util/workspace';
 
 jest.mock('./app');
-jest.mock('@votingworks/logging');
 
 const buildAppMock = buildApp as jest.MockedFunction<typeof buildApp>;
-const LoggerMock = Logger as jest.MockedClass<typeof Logger>;
 
 let workspace!: Workspace;
 
@@ -24,21 +22,11 @@ afterEach(() => {
   workspace.reset();
 });
 
-function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
-  return {
-    status: jest.fn(),
-    scan: jest.fn(),
-    accept: jest.fn(),
-    return: jest.fn(),
-    calibrate: jest.fn(),
-  };
-}
-
 test('start passes the state machine and workspace to `buildApp`', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
   const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
-  const logger = new LoggerMock(LogSource.VxScanBackend);
+  const logger = fakeLogger();
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
@@ -75,7 +63,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   );
 });
 
-test('start uses its own logger if none is provided', async () => {
+test('start uses its own logger if none is provided', () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
   const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
@@ -92,9 +80,4 @@ test('start uses its own logger if none is provided', async () => {
     expect.any(Logger)
   );
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
-
-  const callback = listen.mock.calls[0][1];
-  await callback();
-
-  expect(LoggerMock).toHaveBeenCalledWith(LogSource.VxScanBackend);
 });

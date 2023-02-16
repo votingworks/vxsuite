@@ -6,12 +6,14 @@ import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import { PrecinctScannerInterpreter } from '../../interpret';
 import {
   ballotImages,
-  configureApp,
-  createApp,
-  expectStatus,
-  waitForStatus,
+  createCustomScannerApp,
 } from '../../../test/helpers/scanners/custom/app_helpers';
 import { SheetInterpretation } from '../../types';
+import {
+  configureApp,
+  expectStatus,
+  waitForStatus,
+} from '../../../test/helpers/app_helpers';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -94,16 +96,12 @@ function mockInterpretation(
 }
 
 test('configure and scan hmpb', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -138,16 +136,12 @@ test('configure and scan hmpb', async () => {
 });
 
 test('configure and scan bmd ballot', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -172,7 +166,7 @@ test('configure and scan bmd ballot', async () => {
 
   // Test scanning again without first transitioning back to no_paper
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan', ballotsCounted: 1 });
 
@@ -189,17 +183,12 @@ const needsReviewInterpretation: SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    workspace,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, workspace, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -219,7 +208,7 @@ test('ballot needs review - return', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'no_paper',
   });
@@ -235,16 +224,12 @@ test('ballot needs review - return', async () => {
 });
 
 test('ballot needs review - accept', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -279,17 +264,12 @@ test('ballot needs review - accept', async () => {
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    workspace,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, workspace, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+    await mockScanner.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -309,7 +289,7 @@ test('invalid ballot rejected', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 
   // Check the CVR
@@ -323,12 +303,12 @@ test('invalid ballot rejected', async () => {
 });
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, { precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -348,12 +328,12 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, { precinctId: '23' });
   // Configure for the proper precinct and verify the ballot scans
 
@@ -362,7 +342,7 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
   };
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -375,7 +355,7 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
 });
 
 test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, {
     addTemplates: true,
     precinctId: '22',
@@ -383,7 +363,7 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   // Ballot should be rejected when configured for the wrong precinct
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -403,12 +383,12 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb, {
     addTemplates: true,
     precinctId: '21',
@@ -420,7 +400,7 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
   };
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.completeHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -433,10 +413,10 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
 });
 
 test('blank sheet ballot rejected', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
+  (await mockScanner.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const interpretation: SheetInterpretation = {
@@ -455,50 +435,46 @@ test('blank sheet ballot rejected', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('scanner powered off while waiting for paper', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn();
+  mockScanner.simulatePowerOn();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('scanner powered off while scanning', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
+  mockScanner.simulatePowerOn('jam');
   await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off while accepting', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -510,11 +486,11 @@ test('scanner powered off while accepting', async () => {
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await apiClient.acceptBallot();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('ready_to_eject');
+  mockScanner.simulatePowerOn('ready_to_eject');
   await waitForStatus(apiClient, {
     state: 'rejecting',
     error: 'paper_in_back_after_reconnect',
@@ -526,16 +502,12 @@ test('scanner powered off while accepting', async () => {
 });
 
 test('scanner powered off after accepting', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -558,27 +530,23 @@ test('scanner powered off after accepting', async () => {
     ballotsCounted: 1,
   });
 
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, {
     state: 'disconnected',
     ballotsCounted: 1,
   });
 
-  mockPlustek.simulatePowerOn('no_paper');
+  mockScanner.simulatePowerOn('no_paper');
   await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 });
 
 test('scanner powered off while rejecting', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+    await mockScanner.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -595,24 +563,20 @@ test('scanner powered off while rejecting', async () => {
     interpretation,
   });
 
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
+  mockScanner.simulatePowerOn('jam');
   await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off while returning', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -629,24 +593,20 @@ test('scanner powered off while returning', async () => {
     interpretation,
   });
 
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
+  mockScanner.simulatePowerOn('jam');
   await waitForStatus(apiClient, { state: 'jammed' });
 });
 
 test('scanner powered off after returning', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -667,10 +627,10 @@ test('scanner powered off after returning', async () => {
     interpretation,
   });
 
-  mockPlustek.simulatePowerOff();
+  mockScanner.simulatePowerOff();
   await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('ready_to_scan');
+  mockScanner.simulatePowerOn('ready_to_scan');
   await waitForStatus(apiClient, {
     state: 'rejected',
     error: 'paper_in_front_after_reconnect',
@@ -678,18 +638,14 @@ test('scanner powered off after returning', async () => {
 });
 
 test('insert second ballot while first ballot is scanning', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-  } = await createApp({
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp({
     delays: {},
     mockCustomOptions: { passthroughDuration: 500 },
   });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -697,11 +653,11 @@ test('insert second ballot while first ballot is scanning', async () => {
   await expectStatus(apiClient, { state: 'scanning' });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await expectStatus(apiClient, { state: 'both_sides_have_paper' });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'rejecting',
     error: 'both_sides_have_paper',
@@ -711,21 +667,17 @@ test('insert second ballot while first ballot is scanning', async () => {
     error: 'both_sides_have_paper',
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('insert second ballot before first ballot accept', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -738,7 +690,7 @@ test('insert second ballot before first ballot accept', async () => {
   await expectStatus(apiClient, { state: 'scanning' });
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await apiClient.acceptBallot();
 
@@ -747,7 +699,7 @@ test('insert second ballot before first ballot accept', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
   await apiClient.acceptBallot();
   await expectStatus(apiClient, { state: 'accepting', interpretation });
@@ -759,21 +711,17 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp({
-    delays: {
-      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
-    },
-  });
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp({
+      delays: {
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
+        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
+      },
+    });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -787,7 +735,7 @@ test('insert second ballot while first ballot is accepting', async () => {
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
   await apiClient.acceptBallot();
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
 
   await waitForStatus(apiClient, {
@@ -802,16 +750,12 @@ test('insert second ballot while first ballot is accepting', async () => {
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -823,14 +767,14 @@ test('insert second ballot while first ballot needs review', async () => {
   await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
   await apiClient.acceptBallot();
@@ -842,19 +786,15 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp({
-    delays: {},
-    mockCustomOptions: { passthroughDuration: 500 },
-  });
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp({
+      delays: {},
+      mockCustomOptions: { passthroughDuration: 500 },
+    });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+    await mockScanner.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -872,14 +812,14 @@ test('insert second ballot while first ballot is rejecting', async () => {
   });
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+    await mockScanner.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'rejecting',
     interpretation,
@@ -889,24 +829,20 @@ test('insert second ballot while first ballot is rejecting', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp({
-    delays: {},
-    mockCustomOptions: { passthroughDuration: 500 },
-  });
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp({
+      delays: {},
+      mockCustomOptions: { passthroughDuration: 500 },
+    });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -919,14 +855,14 @@ test('insert second ballot while first ballot is returning', async () => {
 
   await apiClient.returnBallot();
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'both_sides_have_paper',
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'needs_review',
     interpretation,
@@ -937,16 +873,12 @@ test('insert second ballot while first ballot is returning', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on scan', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-  } = await createApp({
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp({
     delays: {
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
     },
@@ -954,11 +886,11 @@ test('jam on scan', async () => {
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  mockPlustek.simulateJamOnNextOperation();
+  mockScanner.simulateJamOnNextOperation();
   await apiClient.scanBallot();
   await waitForStatus(apiClient, {
     state: 'recovering_from_error',
@@ -968,20 +900,16 @@ test('jam on scan', async () => {
 });
 
 test('jam on accept', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp({
-    delays: {
-      DELAY_ACCEPTING_TIMEOUT: 500,
-    },
-  });
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp({
+      delays: {
+        DELAY_ACCEPTING_TIMEOUT: 500,
+      },
+    });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -994,7 +922,7 @@ test('jam on accept', async () => {
   await waitForStatus(apiClient, { state: 'scanning' });
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
-  mockPlustek.simulateJamOnNextOperation();
+  mockScanner.simulateJamOnNextOperation();
   await apiClient.acceptBallot();
   await waitForStatus(apiClient, { state: 'accepting', interpretation });
   // The paper can't get permanently jammed on accept - it just stays held in
@@ -1010,21 +938,17 @@ test('jam on accept', async () => {
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on return', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+    await mockScanner.simulateLoadSheet(ballotImages.unmarkedHmpb)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -1035,28 +959,24 @@ test('jam on return', async () => {
   await expectStatus(apiClient, { state: 'scanning' });
   await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  mockPlustek.simulateJamOnNextOperation();
+  mockScanner.simulateJamOnNextOperation();
   await apiClient.returnBallot();
   await waitForStatus(apiClient, {
     state: 'jammed',
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('jam on reject', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+    await mockScanner.simulateLoadSheet(ballotImages.wrongElection)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -1068,21 +988,21 @@ test('jam on reject', async () => {
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulateJamOnNextOperation();
+  mockScanner.simulateJamOnNextOperation();
   await waitForStatus(apiClient, {
     state: 'jammed',
     interpretation,
   });
 
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+  (await mockScanner.simulateRemoveSheet()).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('calibrate', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
+  (await mockScanner.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   const calibratePromise = apiClient.calibrate();
@@ -1092,41 +1012,36 @@ test('calibrate', async () => {
 });
 
 test('calibrate not supported', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
+  (await mockScanner.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  mockPlustek.simulateCalibrateNotSupported();
+  mockScanner.simulateCalibrateNotSupported();
   const calibrateResult = await apiClient.calibrate();
   expect(calibrateResult).toEqual(false);
 });
 
 test('jam on calibrate', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
+  (await mockScanner.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  mockPlustek.simulateJamOnNextOperation();
+  mockScanner.simulateJamOnNextOperation();
   expect(await apiClient.calibrate()).toEqual(false);
   await expectStatus(apiClient, { state: 'jammed' });
 });
 
 test('scan fails and retries', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    logger,
-    interpreter,
-    mockUsb,
-  } = await createApp();
+  const { apiClient, mockScanner, logger, interpreter, mockUsb } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -1137,7 +1052,7 @@ test('scan fails and retries', async () => {
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulateScanError('error_feeding');
+  mockScanner.simulateScanError('error_feeding');
   await expectStatus(apiClient, { state: 'scanning' });
   await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
 
@@ -1156,22 +1071,22 @@ test('scan fails and retries', async () => {
 });
 
 test('scan fails repeatedly and eventually gives up', async () => {
-  const { apiClient, mockScanner: mockPlustek, mockUsb } = await createApp();
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const scanSpy = jest.spyOn(mockPlustek, 'scan');
+  const scanSpy = jest.spyOn(mockScanner, 'scan');
   await apiClient.scanBallot();
   for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
     await waitForExpect(() => {
       expect(scanSpy).toHaveBeenCalledTimes(i + 1);
     });
     await expectStatus(apiClient, { state: 'scanning' });
-    mockPlustek.simulateScanError('error_feeding');
+    mockScanner.simulateScanError('error_feeding');
   }
   await waitForStatus(apiClient, {
     state: 'rejected',
@@ -1180,22 +1095,18 @@ test('scan fails repeatedly and eventually gives up', async () => {
 });
 
 test('scan fails due to plustek returning only one file instead of two', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-    logger,
-  } = await createApp();
+  const { apiClient, mockScanner, mockUsb, logger } =
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulateScanError('only_one_file_returned');
+  mockScanner.simulateScanError('only_one_file_returned');
   await waitForStatus(apiClient, {
     state: 'unrecoverable_error',
     error: 'client_error',
@@ -1216,21 +1127,17 @@ test('scan fails due to plustek returning only one file instead of two', async (
 });
 
 test('scanning time out', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    logger,
-    mockUsb,
-  } = await createApp({
-    delays: {
-      DELAY_SCANNING_TIMEOUT: 50,
-      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-    },
-  });
+  const { apiClient, mockScanner, logger, mockUsb } =
+    await createCustomScannerApp({
+      delays: {
+        DELAY_SCANNING_TIMEOUT: 50,
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+      },
+    });
   await configureApp(apiClient, mockUsb);
 
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
@@ -1257,11 +1164,7 @@ test('scanning time out', async () => {
 });
 
 test('kills plustekctl if it freezes', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-  } = await createApp({
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp({
     delays: {
       DELAY_SCANNING_TIMEOUT: 50,
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
@@ -1273,13 +1176,13 @@ test('kills plustekctl if it freezes', async () => {
 
   await waitForStatus(apiClient, { state: 'no_paper' });
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulatePlustekctlFreeze();
+  mockScanner.simulatePlustekctlFreeze();
   await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'paper_status_timed_out',
@@ -1288,11 +1191,7 @@ test('kills plustekctl if it freezes', async () => {
 });
 
 test('stops completely if plustekctl freezes and cant be killed', async () => {
-  const {
-    apiClient,
-    mockScanner: mockPlustek,
-    mockUsb,
-  } = await createApp({
+  const { apiClient, mockScanner, mockUsb } = await createCustomScannerApp({
     delays: {
       DELAY_SCANNING_TIMEOUT: 50,
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
@@ -1304,14 +1203,14 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
 
   await waitForStatus(apiClient, { state: 'no_paper' });
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
   await apiClient.scanBallot();
   await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.kill = () => err(new Error('could not kill'));
-  mockPlustek.simulatePlustekctlFreeze();
+  mockScanner.kill = () => err(new Error('could not kill'));
+  mockScanner.simulatePlustekctlFreeze();
   await waitForStatus(apiClient, {
     state: 'recovering_from_error',
     error: 'paper_status_timed_out',
