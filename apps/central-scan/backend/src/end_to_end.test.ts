@@ -6,6 +6,7 @@ import { Exporter } from '@votingworks/backend';
 import {
   asElectionDefinition,
   electionSample as election,
+  sampleBallotImages,
 } from '@votingworks/fixtures';
 import { CastVoteRecord } from '@votingworks/types';
 import {
@@ -25,12 +26,6 @@ import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-
-const sampleBallotImagesPath = path.join(
-  __dirname,
-  '..',
-  'sample-ballot-images/'
-);
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
@@ -98,16 +93,16 @@ test('going through the whole process works', async () => {
     scanner
       .withNextScannerSession()
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-        path.join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ])
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
-        path.join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot2.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ])
       .sheet([
-        path.join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
-        path.join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot3.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ])
       .end();
     await request(app)

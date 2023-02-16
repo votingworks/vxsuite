@@ -40,6 +40,7 @@ test('has various election definitions', () => {
       "primaryElectionSample",
       "primaryElectionSampleDefinition",
       "primaryElectionSampleFixtures",
+      "sampleBallotImages",
     ]
   `);
 });

@@ -1,5 +1,5 @@
+import { sampleBallotImages } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { join, relative } from 'path';
 import { IO, main } from '.';
 
 test('help', async () => {
@@ -52,21 +52,11 @@ test('image with no QR code', async () => {
   const io: IO = { stdin, stdout, stderr };
 
   await main(
-    [
-      'node',
-      'read-qrcode',
-      relative(
-        join(__dirname, '../../..'),
-        join(__dirname, '../../../sample-ballot-images/not-a-ballot.jpg')
-      ),
-    ],
+    ['node', 'read-qrcode', sampleBallotImages.notBallot.asFilePath()],
     io
   );
 
-  expect(stdout.toString()).toMatchInlineSnapshot(`
-    "sample-ballot-images/not-a-ballot.jpg: no QR code detected
-    "
-  `);
+  expect(stdout.toString()).toContain('no QR code detected');
 });
 
 test('image with a QR code', async () => {
@@ -79,19 +69,12 @@ test('image with a QR code', async () => {
     [
       'node',
       'read-qrcode',
-      relative(
-        join(__dirname, '../../..'),
-        join(
-          __dirname,
-          '../../../sample-ballot-images/sample-batch-1-ballot-1.png'
-        )
-      ),
+      sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
     ],
     io
   );
 
-  expect(stdout.toString()).toMatchInlineSnapshot(`
-    "sample-ballot-images/sample-batch-1-ballot-1.png @top via qrdetect: VlgCtS6fRyi7NOf/SAMDFgggAAEA
-    "
-  `);
+  expect(stdout.toString()).toContain(
+    '@top via qrdetect: VlgCtS6fRyi7NOf/SAMDFgggAAEA'
+  );
 });

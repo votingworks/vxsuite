@@ -14,7 +14,10 @@ import {
   ScannerClient,
 } from '@votingworks/plustek-scanner';
 import tmp from 'tmp';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  sampleBallotImages,
+} from '@votingworks/fixtures';
 import { join } from 'path';
 import { AddressInfo } from 'net';
 import fs from 'fs';
@@ -208,7 +211,6 @@ export async function createApp({
   };
 }
 
-const sampleBallotImagesPath = join(__dirname, '../../sample-ballot-images/');
 export const ballotImages = {
   completeHmpb: [
     electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asFilePath(),
@@ -224,14 +226,14 @@ export const ballotImages = {
   ],
   wrongElection: [
     // A BMD ballot front from a different election
-    join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
+    sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
     // Blank BMD ballot back
     electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],
   // The interpreter expects two different image files, so we use two
   // different blank page images
   blankSheet: [
-    join(sampleBallotImagesPath, 'blank-page.png'),
+    sampleBallotImages.blankPage.asFilePath(),
     // Blank BMD ballot back
     electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],

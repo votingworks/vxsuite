@@ -11,6 +11,7 @@ export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as primaryElectionSampleFixtures from './data/electionPrimary';
 export * as electionPrimaryNonpartisanContestsFixtures from './data/electionPrimaryNonpartisanContests';
+export * as sampleBallotImages from './data/sample-ballot-images';
 export {
   electionDefinition as electionSampleDefinition,
   election as electionSample,
