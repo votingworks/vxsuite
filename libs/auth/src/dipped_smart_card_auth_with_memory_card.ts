@@ -42,6 +42,8 @@ type AuthAction =
  * - Locking to avoid concurrent card writes
  * - Logging
  * - Tests
+ *
+ * See the libs/auth README for notes on error handling
  */
 export class DippedSmartCardAuthWithMemoryCard
   implements DippedSmartCardAuthApi
