@@ -7,14 +7,8 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
-import {
-  ElectionInfoBar,
-  isElectionManagerAuth,
-  Main,
-  Modal,
-  Screen,
-  Text,
-} from '@votingworks/ui';
+import { ElectionInfoBar, Main, Modal, Screen, Text } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';

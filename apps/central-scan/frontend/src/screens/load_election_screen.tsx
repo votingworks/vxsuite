@@ -7,8 +7,9 @@ import {
   BallotPackage,
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
+  isElectionManagerAuth,
 } from '@votingworks/utils';
-import { Screen, Main, isElectionManagerAuth } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import * as config from '../api/config';

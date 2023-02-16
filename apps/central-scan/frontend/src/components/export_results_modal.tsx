@@ -1,11 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import {
-  isElectionManagerAuth,
-  Modal,
-  UsbControllerButton,
-} from '@votingworks/ui';
+import { Modal, UsbControllerButton } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';

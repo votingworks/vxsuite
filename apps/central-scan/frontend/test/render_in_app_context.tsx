@@ -1,7 +1,6 @@
 import { render, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
-import { Dipped } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { MemoryStorage, Storage } from '@votingworks/utils';
@@ -9,6 +8,7 @@ import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fakeElectionManagerUser } from '@votingworks/test-utils';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
 import { createMockApiClient } from './api';
@@ -36,7 +36,12 @@ export function makeAppContext({
   usbDriveStatus = 'absent',
   usbDriveEject = jest.fn(),
   storage = new MemoryStorage(),
-  auth = Dipped.fakeElectionManagerAuth(),
+  auth = {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionDefinition.electionHash,
+    }),
+  },
   logger = new Logger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {
