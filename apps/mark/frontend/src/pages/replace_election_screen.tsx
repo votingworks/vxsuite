@@ -37,7 +37,6 @@ export function ReplaceElectionScreen({
   const { election, electionHash } = electionDefinition;
   const electionDefinitionFromCardQuery =
     getElectionDefinitionFromCard.useQuery(electionHash);
-  const electionDefinitionFromCard = electionDefinitionFromCardQuery.data?.ok();
 
   useEffect(() => {
     const muted = screenReader.isMuted();
@@ -45,7 +44,7 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
-  if (!electionDefinitionFromCardQuery.data) {
+  if (!electionDefinitionFromCardQuery.isSuccess) {
     return (
       <Screen>
         <Main padded centerChild>
@@ -56,6 +55,8 @@ export function ReplaceElectionScreen({
       </Screen>
     );
   }
+
+  const electionDefinitionFromCard = electionDefinitionFromCardQuery.data.ok();
 
   if (!electionDefinitionFromCard) {
     return (
