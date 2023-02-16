@@ -46,10 +46,12 @@ export async function createCustomScannerApp({
   delays = {},
   mockScannerOptions = {},
   preconfiguredWorkspace,
+  logger = fakeLogger(),
 }: {
   delays?: Partial<Delays>;
   mockScannerOptions?: Partial<MockScannerClientOptions>;
   preconfiguredWorkspace?: Workspace;
+  logger?: Logger;
 } = {}): Promise<{
   apiClient: grout.Client<Api>;
   app: Application;
@@ -61,7 +63,6 @@ export async function createCustomScannerApp({
   interpreter: PrecinctScannerInterpreter;
 }> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
   const mockScanner = new mocks.MockCustomScanner({

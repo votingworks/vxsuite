@@ -12,6 +12,7 @@ import {
   ScannerStatus,
   ScanSide,
   SensorStatus,
+  waitForStatus,
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
@@ -178,6 +179,7 @@ async function killCustommClient({ client }: Context) {
 function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
+  // console.log('scannerStatusToEvent', scannerStatus);
   if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
     return { type: 'SCANNER_JAM' };
   }
@@ -216,6 +218,7 @@ function scannerStatusToEvent(
 }
 
 function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
+  // console.log('scannerStatusErrorToEvent', error, ErrorCode[error]);
   switch (error) {
     case ErrorCode.PaperJam:
     case ErrorCode.PaperHeldBack:
@@ -223,6 +226,7 @@ function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
 
     case ErrorCode.DeviceAnswerUnknown:
     case ErrorCode.NoDeviceAnswer:
+    case ErrorCode.ScannerOffline:
       return { type: 'SCANNER_DISCONNECTED' };
 
     default:
@@ -251,6 +255,7 @@ function buildPaperStatusObserver(
         const mapped = status.isOk()
           ? scannerStatusToEvent(status.ok())
           : scannerStatusErrorToEvent(status.err());
+        // console.log({ status, mapped });
         debugPaperStatus('Mapped paper status: %o', mapped);
         return mapped;
       }),
@@ -369,14 +374,15 @@ async function accept({ client }: Context) {
   debug('Accepting');
   const acceptResult = await client.move(FormMovement.EJECT_PAPER_FORWARD);
   debug('Accept result: %o', acceptResult);
-  // if (acceptResult.isOk()) {
-  //   const waitResult = await client.waitForStatus(
-  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER',
-  //     { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
-  //   );
-  //   debug('Wait result: %o', waitResult);
-  //   waitResult.unsafeUnwrap();
-  // }
+  if (acceptResult.isOk()) {
+    const waitResult = await waitForStatus(
+      client,
+      (status) => scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER',
+      { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
+    );
+    debug('Wait result: %o', waitResult);
+    waitResult.unsafeUnwrap();
+  }
   return acceptResult.unsafeUnwrap();
 }
 
@@ -385,14 +391,15 @@ async function reject({ client }: Context) {
   debug('Rejecting');
   const rejectResult = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
   debug('Reject result: %o', rejectResult);
-  // if (rejectResult.isOk()) {
-  //   const waitResult = await client.waitForStatus(
-  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
-  //     { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
-  //   );
-  //   debug('Wait result: %o', waitResult);
-  //   waitResult.unsafeUnwrap();
-  // }
+  if (rejectResult.isOk()) {
+    const waitResult = await waitForStatus(
+      client,
+      (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
+      { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
+    );
+    debug('Wait result: %o', waitResult);
+    waitResult.unsafeUnwrap();
+  }
   return rejectResult.unsafeUnwrap();
 }
 
@@ -587,6 +594,7 @@ function buildMachine({
           target: 'error',
           actions: assign({
             error: (_context, event) =>
+              // console.error('unexpected event', event),
               new PrecinctScannerError(
                 'unexpected_event',
                 `Unexpected event: ${event.type}`
@@ -963,6 +971,7 @@ function setupLogging(
 ) {
   machineService
     .onEvent(async (event) => {
+      // console.log('onEvent', event);
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       await logger.log(
@@ -1017,6 +1026,7 @@ function setupLogging(
     })
     .onTransition(async (state) => {
       if (!state.changed) return;
+      // console.log('onTransition', state.value);
       await logger.log(
         LogEventId.ScannerStateChanged,
         'system',
