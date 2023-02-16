@@ -5,6 +5,7 @@ import {
   ContestOptionSchema,
   HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
+  Side,
   TargetShape,
   TargetShapeSchema,
 } from './election';
@@ -93,18 +94,18 @@ export type SheetOf<T> = readonly [T, T];
  */
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => Promise<U>
+  fn: (page: T, side: Side) => Promise<U>
 ): Promise<SheetOf<U>>;
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => U
+  fn: (page: T, side: Side) => U
 ): SheetOf<U>;
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T) => U
+  fn: (page: T, side: Side) => U
 ): SheetOf<U> | Promise<SheetOf<U>> {
-  const front = fn(sheet[0]);
-  const back = fn(sheet[1]);
+  const front = fn(sheet[0], 'front');
+  const back = fn(sheet[1], 'back');
 
   if (
     front &&
