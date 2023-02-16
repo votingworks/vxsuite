@@ -184,7 +184,7 @@ export enum Errors {
 /**
  * Configuration options for {@link MockCustomScanner}.
  */
-export interface MockScannerClientOptions {
+export interface MockCustomScannerOptions {
   /**
    * How long does it take to take or release a paper hold forward or backward?
    */
@@ -225,7 +225,7 @@ export class MockCustomScanner implements CustomScanner {
   constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
-  }: MockScannerClientOptions = {}) {
+  }: MockCustomScannerOptions = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
     this.passthroughDuration = passthroughDuration;
     this.machine = initMachine(toggleHoldDuration, passthroughDuration).start();

@@ -36,11 +36,11 @@ import {
 
 export async function createCustomScannerApp({
   delays = {},
-  mockCustomOptions = {},
+  mockScannerOptions = {},
   preconfiguredWorkspace,
 }: {
   delays?: Partial<Delays>;
-  mockCustomOptions?: Partial<MockScannerClientOptions>;
+  mockScannerOptions?: Partial<MockScannerClientOptions>;
   preconfiguredWorkspace?: Workspace;
 } = {}): Promise<{
   apiClient: grout.Client<Api>;
@@ -59,7 +59,7 @@ export async function createCustomScannerApp({
   const mockScanner = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
-    ...mockCustomOptions,
+    ...mockScannerOptions,
   });
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<Result<ScannerClient, Error>> {

@@ -96,8 +96,12 @@ function mockInterpretation(
 }
 
 test('configure and scan hmpb', async () => {
-  const { apiClient, mockPlustek, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
@@ -136,8 +140,12 @@ test('configure and scan hmpb', async () => {
 });
 
 test('configure and scan bmd ballot', async () => {
-  const { apiClient, mockPlustek, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -183,8 +191,13 @@ const needsReviewInterpretation: SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const { apiClient, mockPlustek, workspace, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    workspace,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
@@ -224,8 +237,12 @@ test('ballot needs review - return', async () => {
 });
 
 test('ballot needs review - accept', async () => {
-  const { apiClient, mockPlustek, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, { addTemplates: true });
 
   (
@@ -264,8 +281,13 @@ test('ballot needs review - accept', async () => {
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const { apiClient, mockPlustek, workspace, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    workspace,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -303,7 +325,11 @@ test('invalid ballot rejected', async () => {
 });
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, { precinctId: '22' });
   // Ballot should be rejected when configured for the wrong precinct
 
@@ -333,7 +359,11 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, { precinctId: '23' });
   // Configure for the proper precinct and verify the ballot scans
 
@@ -355,7 +385,11 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
 });
 
 test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, {
     addTemplates: true,
     precinctId: '22',
@@ -388,7 +422,11 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb, {
     addTemplates: true,
     precinctId: '21',
@@ -413,7 +451,11 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
 });
 
 test('blank sheet ballot rejected', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
@@ -440,7 +482,11 @@ test('blank sheet ballot rejected', async () => {
 });
 
 test('scanner powered off while waiting for paper', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   mockPlustek.simulatePowerOff();
@@ -451,7 +497,11 @@ test('scanner powered off while waiting for paper', async () => {
 });
 
 test('scanner powered off while scanning', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -469,8 +519,12 @@ test('scanner powered off while scanning', async () => {
 });
 
 test('scanner powered off while accepting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -502,8 +556,12 @@ test('scanner powered off while accepting', async () => {
 });
 
 test('scanner powered off after accepting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -541,8 +599,12 @@ test('scanner powered off after accepting', async () => {
 });
 
 test('scanner powered off while rejecting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -571,8 +633,12 @@ test('scanner powered off while rejecting', async () => {
 });
 
 test('scanner powered off while returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -601,8 +667,12 @@ test('scanner powered off while returning', async () => {
 });
 
 test('scanner powered off after returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -638,9 +708,13 @@ test('scanner powered off after returning', async () => {
 });
 
 test('insert second ballot while first ballot is scanning', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp({
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp({
     delays: {},
-    mockPlustekOptions: { passthroughDuration: 500 },
+    mockScannerOptions: { passthroughDuration: 500 },
   });
   await configureApp(apiClient, mockUsb);
 
@@ -672,8 +746,12 @@ test('insert second ballot while first ballot is scanning', async () => {
 });
 
 test('insert second ballot before first ballot accept', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -711,13 +789,17 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp({
-      delays: {
-        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
-        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
-      },
-    });
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp({
+    delays: {
+      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
+    },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -750,8 +832,12 @@ test('insert second ballot while first ballot is accepting', async () => {
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -786,11 +872,15 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp({
-      delays: {},
-      mockPlustekOptions: { passthroughDuration: 500 },
-    });
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp({
+    delays: {},
+    mockScannerOptions: { passthroughDuration: 500 },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -834,11 +924,15 @@ test('insert second ballot while first ballot is rejecting', async () => {
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp({
-      delays: {},
-      mockPlustekOptions: { passthroughDuration: 500 },
-    });
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp({
+    delays: {},
+    mockScannerOptions: { passthroughDuration: 500 },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -878,7 +972,11 @@ test('insert second ballot while first ballot is returning', async () => {
 });
 
 test('jam on scan', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp({
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp({
     delays: {
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
     },
@@ -900,12 +998,16 @@ test('jam on scan', async () => {
 });
 
 test('jam on accept', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp({
-      delays: {
-        DELAY_ACCEPTING_TIMEOUT: 500,
-      },
-    });
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp({
+    delays: {
+      DELAY_ACCEPTING_TIMEOUT: 500,
+    },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -943,8 +1045,12 @@ test('jam on accept', async () => {
 });
 
 test('jam on return', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -971,8 +1077,12 @@ test('jam on return', async () => {
 });
 
 test('jam on reject', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -999,7 +1109,11 @@ test('jam on reject', async () => {
 });
 
 test('calibrate', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
@@ -1012,7 +1126,11 @@ test('calibrate', async () => {
 });
 
 test('calibrate not supported', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
@@ -1024,7 +1142,11 @@ test('calibrate not supported', async () => {
 });
 
 test('jam on calibrate', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
@@ -1036,8 +1158,13 @@ test('jam on calibrate', async () => {
 });
 
 test('scan fails and retries', async () => {
-  const { apiClient, mockPlustek, logger, interpreter, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    logger,
+    interpreter,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -1071,7 +1198,11 @@ test('scan fails and retries', async () => {
 });
 
 test('scan fails repeatedly and eventually gives up', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -1095,8 +1226,12 @@ test('scan fails repeatedly and eventually gives up', async () => {
 });
 
 test('scan fails due to plustek returning only one file instead of two', async () => {
-  const { apiClient, mockPlustek, mockUsb, logger } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+    logger,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   (
@@ -1127,13 +1262,17 @@ test('scan fails due to plustek returning only one file instead of two', async (
 });
 
 test('scanning time out', async () => {
-  const { apiClient, mockPlustek, logger, mockUsb } =
-    await createPlustekScannerApp({
-      delays: {
-        DELAY_SCANNING_TIMEOUT: 50,
-        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-      },
-    });
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    logger,
+    mockUsb,
+  } = await createPlustekScannerApp({
+    delays: {
+      DELAY_SCANNING_TIMEOUT: 50,
+      DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    },
+  });
   await configureApp(apiClient, mockUsb);
 
   (
@@ -1164,7 +1303,11 @@ test('scanning time out', async () => {
 });
 
 test('kills plustekctl if it freezes', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp({
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp({
     delays: {
       DELAY_SCANNING_TIMEOUT: 50,
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
@@ -1191,7 +1334,11 @@ test('kills plustekctl if it freezes', async () => {
 });
 
 test('stops completely if plustekctl freezes and cant be killed', async () => {
-  const { apiClient, mockPlustek, mockUsb } = await createPlustekScannerApp({
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp({
     delays: {
       DELAY_SCANNING_TIMEOUT: 50,
       DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,

@@ -36,17 +36,17 @@ import {
 
 export async function createPlustekScannerApp({
   delays = {},
-  mockPlustekOptions = {},
+  mockScannerOptions = {},
   preconfiguredWorkspace,
 }: {
   delays?: Partial<Delays>;
-  mockPlustekOptions?: Partial<MockScannerClientOptions>;
+  mockScannerOptions?: Partial<MockScannerClientOptions>;
   preconfiguredWorkspace?: Workspace;
 } = {}): Promise<{
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockPlustek: MockScannerClient;
+  mockScanner: MockScannerClient;
   workspace: Workspace;
   mockUsb: MockUsb;
   logger: Logger;
@@ -56,20 +56,20 @@ export async function createPlustekScannerApp({
   const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
-  const mockPlustek = new MockScannerClient({
+  const mockScanner = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
-    ...mockPlustekOptions,
+    ...mockScannerOptions,
   });
   const deferredConnect = deferred<void>();
-  async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
-    await mockPlustek.connect();
+  async function createScanner(): Promise<Result<ScannerClient, Error>> {
+    await mockScanner.connect();
     await deferredConnect.promise;
-    return ok(mockPlustek);
+    return ok(mockScanner);
   }
   const interpreter = createInterpreter();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
-    createPlustekClient,
+    createPlustekClient: createScanner,
     workspace,
     interpreter,
     logger,
@@ -100,7 +100,7 @@ export async function createPlustekScannerApp({
     apiClient,
     app,
     mockAuth,
-    mockPlustek,
+    mockScanner,
     workspace,
     mockUsb,
     logger,

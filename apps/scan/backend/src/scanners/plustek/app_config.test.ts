@@ -64,8 +64,12 @@ async function scanBallot(
 }
 
 test('export CVRs to USB in deprecated VotingWorks format', async () => {
-  const { apiClient, workspace, mockPlustek, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    workspace,
+    mockScanner: mockPlustek,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockPlustek, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
@@ -118,8 +122,13 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
 });
 
 test('ballot batching', async () => {
-  const { apiClient, mockPlustek, logger, workspace, mockUsb } =
-    await createPlustekScannerApp();
+  const {
+    apiClient,
+    mockScanner: mockPlustek,
+    logger,
+    workspace,
+    mockUsb,
+  } = await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch

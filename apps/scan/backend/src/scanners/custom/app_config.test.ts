@@ -11,8 +11,8 @@ import waitForExpect from 'wait-for-expect';
 import { configureApp, waitForStatus } from '../../../test/helpers/app_helpers';
 import {
   ballotImages,
-  createCustomScannerApp,
-} from '../../../test/helpers/scanners/custom/app_helpers';
+  createPlustekScannerApp,
+} from '../../../test/helpers/scanners/plustek/app_helpers';
 import { Api } from '../../app';
 import { SheetInterpretation } from '../../types';
 
@@ -65,7 +65,7 @@ async function scanBallot(
 
 test('export the CVRs to USB', async () => {
   const { apiClient, workspace, mockScanner, mockUsb } =
-    await createCustomScannerApp();
+    await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockScanner, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
@@ -119,7 +119,7 @@ test('export the CVRs to USB', async () => {
 
 test('ballot batching', async () => {
   const { apiClient, mockScanner, logger, workspace, mockUsb } =
-    await createCustomScannerApp();
+    await createPlustekScannerApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch
