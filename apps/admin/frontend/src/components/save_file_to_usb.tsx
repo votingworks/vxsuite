@@ -3,16 +3,13 @@ import styled from 'styled-components';
 import { join } from 'path';
 import fileDownload from 'js-file-download';
 import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
-import { usbstick } from '@votingworks/utils';
-
 import {
-  Button,
-  Modal,
-  UsbControllerButton,
-  Prose,
+  usbstick,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-} from '@votingworks/ui';
+} from '@votingworks/utils';
+
+import { Button, Modal, UsbControllerButton, Prose } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';

@@ -9,9 +9,9 @@ import {
   FullElectionTally,
   FullElectionExternalTally,
   FullElectionExternalTallies,
-  DippedSmartcardAuth,
   Printer,
   VotingMethod,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
   NullPrinter,
@@ -21,9 +21,12 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
-import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UsbDrive } from '@votingworks/ui';
+import {
+  fakeElectionManagerUser,
+  fakeSystemAdministratorUser,
+} from '@votingworks/test-utils';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -65,7 +68,7 @@ interface RenderInAppContextParams {
   setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
   fullElectionExternalTallies?: FullElectionExternalTallies;
   generateExportableTallies?: () => ExportableTallies;
-  auth?: DippedSmartcardAuth.Auth;
+  auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
@@ -125,7 +128,18 @@ export function renderInAppContext(
     setManualTallyVotingMethod = jest.fn(),
     fullElectionExternalTallies = new Map(),
     generateExportableTallies = jest.fn(),
-    auth = Dipped.fakeElectionManagerAuth(),
+    auth = electionDefinition === 'NONE'
+      ? {
+          status: 'logged_in',
+          user: fakeSystemAdministratorUser(),
+          programmableCard: { status: 'no_card' },
+        }
+      : {
+          status: 'logged_in',
+          user: fakeElectionManagerUser({
+            electionHash: electionDefinition.electionHash,
+          }),
+        },
     machineConfig = {
       machineId: '0000',
       codeVersion: '',

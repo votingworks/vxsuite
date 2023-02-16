@@ -1,15 +1,11 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
+import { Button, Modal, Prose, Loading, UsbImage } from '@votingworks/ui';
 import {
-  Button,
-  Modal,
-  Prose,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-  Loading,
-  UsbImage,
-} from '@votingworks/ui';
+} from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 
 export interface FormatUsbModalProps {

@@ -6,13 +6,15 @@ import { assert, find } from '@votingworks/basics';
 import {
   Button,
   SegmentedButton,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   NoWrap,
   Prose,
   Table,
   TD,
 } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';

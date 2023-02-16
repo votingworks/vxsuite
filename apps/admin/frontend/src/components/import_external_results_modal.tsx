@@ -1,14 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 
+import { Button, SegmentedButton, Modal, Prose } from '@votingworks/ui';
 import {
-  Button,
-  SegmentedButton,
+  format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-  Modal,
-  Prose,
-} from '@votingworks/ui';
-import { format } from '@votingworks/utils';
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';

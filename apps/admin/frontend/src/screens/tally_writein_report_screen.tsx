@@ -1,7 +1,10 @@
 import React, { useContext, useState, useMemo } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { filterTalliesByParamsAndBatchId } from '@votingworks/utils';
+import {
+  filterTalliesByParamsAndBatchId,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -10,7 +13,6 @@ import {
   ExternalTallySourceType,
 } from '@votingworks/types';
 import {
-  isElectionManagerAuth,
   Prose,
   TallyReportPreview,
   TallyReportMetadata,

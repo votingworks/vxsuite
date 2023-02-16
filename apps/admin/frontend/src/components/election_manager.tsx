@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import {
   SetupCardReaderPage,
-  isSystemAdministratorAuth,
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
@@ -11,6 +10,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { PartyId } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';

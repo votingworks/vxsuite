@@ -5,13 +5,15 @@ import { Admin } from '@votingworks/api';
 import { LogEventId } from '@votingworks/logging';
 import { BallotLocale, getPrecinctById } from '@votingworks/types';
 import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
-import { BallotStyleData } from '@votingworks/utils';
+import {
+  BallotStyleData,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import {
   Button,
   Modal,
   Prose,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   useCancelablePromise,
   Loading,
   printElementWhenReady,

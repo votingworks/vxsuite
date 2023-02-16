@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import {
   Button,
   ElectionInfoBar,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   Main,
   Screen,
   UsbControllerButton,
@@ -12,6 +10,8 @@ import {
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';

@@ -1,4 +1,8 @@
-import { BALLOT_PDFS_FOLDER } from '@votingworks/utils';
+import {
+  BALLOT_PDFS_FOLDER,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -16,8 +20,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   Button,
   SegmentedButton,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   Monospace,
   Prose,
   useStoredState,
