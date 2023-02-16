@@ -1,16 +1,25 @@
+import { assert, Result, throwIllegalValue } from '@votingworks/basics';
 import {
-  ClientDisconnectedError,
-  createClient,
-  DEFAULT_CONFIG,
-  InvalidClientResponseError,
-  PaperStatus,
-  ScannerClient,
-  ScannerError,
-} from '@votingworks/plustek-scanner';
-import { v4 as uuid } from 'uuid';
-import { Id, SheetOf } from '@votingworks/types';
-import { assert, throwIllegalValue, err, ok } from '@votingworks/basics';
+  CustomScanner,
+  DoubleSheetDetectOpt,
+  ErrorCode,
+  FormMovement,
+  FormStanding,
+  ImageColorDepthType,
+  ImageFromScanner,
+  ImageResolution,
+  openScanner,
+  ScannerStatus,
+  ScanSide,
+  SensorStatus,
+} from '@votingworks/custom-scanner';
+import { toRgba, writeImageData } from '@votingworks/image-utils';
+import { LogEventId, Logger, LogLine } from '@votingworks/logging';
+import { Id, mapSheet, SheetOf } from '@votingworks/types';
+import { createImageData } from 'canvas';
+import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 import {
   assign as xassign,
   Assigner,
@@ -23,32 +32,37 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import { waitFor } from 'xstate/lib/waitFor';
-import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import {
-  SheetInterpretationWithPages,
   PrecinctScannerInterpreter,
+  SheetInterpretationWithPages,
 } from '../../interpret';
 import { Store } from '../../store';
-import { Workspace } from '../../util/workspace';
-import { rootDebug } from '../../util/debug';
 import {
   PrecinctScannerErrorType,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
   SheetInterpretation,
 } from '../../types';
+import { rootDebug } from '../../util/debug';
+import { Workspace } from '../../util/workspace';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
 const debugEvents = debug.extend('events');
 
-// 10 attempts is about the amount of time it takes for the scanner to stop trying
+// NOTE: This is a holdover from the Plustek scanner. Keep it?
+// 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
 // rollers grab it, it will get scanned successfully.
 export const MAX_FAILED_SCAN_ATTEMPTS = 10;
 
-export type CreateCustomClient = typeof createClient;
+async function defaultCreateCustomClient(): Promise<
+  Result<CustomScanner, ErrorCode>
+> {
+  return await openScanner();
+}
+
+export type CreateCustomClient = typeof defaultCreateCustomClient;
 
 class PrecinctScannerError extends Error {
   // eslint-disable-next-line vx/gts-no-public-class-fields
@@ -60,10 +74,11 @@ class PrecinctScannerError extends Error {
 type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
 
 interface Context {
-  client?: ScannerClient;
+  client?: CustomScanner;
+  workspace: Workspace;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
-  error?: Error | ScannerError;
+  error?: Error | ErrorCode;
   failedScanAttempts?: number;
 }
 
@@ -81,11 +96,7 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_JAM' }
   | { type: 'SCANNER_DISCONNECTED' };
 
-type CommandEvent =
-  | { type: 'SCAN' }
-  | { type: 'ACCEPT' }
-  | { type: 'RETURN' }
-  | { type: 'CALIBRATE' };
+type CommandEvent = { type: 'SCAN' } | { type: 'ACCEPT' } | { type: 'RETURN' };
 
 export type Event = ScannerStatusEvent | CommandEvent;
 
@@ -102,79 +113,123 @@ export interface Delays {
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
-function connectToScanner(
-  createCustomClient: CreateCustomClient,
-  scannedImagesPath?: string
-) {
-  return async (): Promise<ScannerClient> => {
-    debug('Connecting to Custom');
-    const customClient = await createCustomClient({
-      ...DEFAULT_CONFIG,
-      savepath: scannedImagesPath,
-    });
-    debug('Custom client connected: %s', customClient.isOk());
+const defaultDelays: Delays = {
+  // Time between calls to get paper status from the scanner.
+  DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
+  // How long to wait for a single paper status call to return before giving up.
+  DELAY_PAPER_STATUS_POLLING_TIMEOUT: 2_000,
+  // How long to attempt scanning before giving up and disconnecting and
+  // reconnecting to the scanner.
+  DELAY_SCANNING_TIMEOUT: 5_000,
+  // How long to attempt accepting before giving up and rejecting the ballot.
+  DELAY_ACCEPTING_TIMEOUT: 5_000,
+  // When in accepted state, how long to ignore any new ballot that is
+  // inserted (this ensures the user sees the accepted screen for a bit
+  // before starting a new scan).
+  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
+  // How long to wait on the accepted state before automatically going
+  // back to no_paper.
+  DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
+  // How long to wait for the scanner to grab the paper and return paper status
+  // READY_TO_SCAN once it starts moving the ballot backward. Needs to be
+  // greater than PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a
+  // chance to see the READY_TO_SCAN status. Experimentally, 2000ms seems to be
+  // a good amount.  Don't change this delay lightly since it impacts the actual
+  // logic of the scanner.
+  DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 2_000,
+  // When disconnected, how long to wait before trying to reconnect.
+  DELAY_RECONNECT: 500,
+  // When we run into an unexpected error (e.g. unexpected paper status), how
+  // long to wait before trying to reconnect. This should be pretty long in
+  // order to let the scanner to finish whatever it's doing (yes, even after
+  // disconnecting, the scanner might keep scanning).
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
+  // When attempting to disconnect from the scanner after an unexpected error,
+  // how long to wait before giving up on disconnecting the "nice" way and
+  // just sending a kill signal.
+  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
+};
+
+function connectToCustom(createCustomClient: CreateCustomClient) {
+  return async (): Promise<CustomScanner> => {
+    debug('Connecting to Custom scanner');
+    const customClient = await createCustomClient();
+    debug('Custom scanner client connected: %s', customClient.isOk());
     return customClient.unsafeUnwrap();
   };
 }
 
 async function closeCustomClient({ client }: Context) {
   if (!client) return;
-  debug('Closing Custom client');
-  await client.close();
-  debug('Custom client closed');
+  debug('Closing Custom scanner client');
+  await client.disconnect();
+  debug('Custom scanner client closed');
 }
 
-async function killCustomClient({ client }: Context) {
+async function killCustommClient({ client }: Context) {
   if (!client) return;
-  debug('Killing Customm client');
+  debug('Killing Custom scanner client');
   await new Promise((resolve) => {
-    resolve(client.kill().unsafeUnwrap());
+    resolve(client.disconnect());
   });
-  debug('Customm client killed');
+  debug('Custom scanner client killed');
 }
 
-function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
-  switch (paperStatus) {
-    // When there's no paper in the scanner
-    case PaperStatus.NoPaperStatus:
-    case PaperStatus.VtmDevReadyNoPaper:
-      return { type: 'SCANNER_NO_PAPER' };
-    // When there's a paper held in the front
-    case PaperStatus.VtmReadyToScan:
-      return { type: 'SCANNER_READY_TO_SCAN' };
-    // When there's a paper held in the back
-    case PaperStatus.VtmReadyToEject:
-      return { type: 'SCANNER_READY_TO_EJECT' };
-    // When there's a paper held in the back and inserted in the front
-    case PaperStatus.VtmBothSideHavePaper:
-      return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
-    // When there's a paper jammed in the scanner
-    case PaperStatus.Jam:
-    case PaperStatus.VtmFrontAndBackSensorHavePaperReady:
+function scannerStatusToEvent(
+  scannerStatus: ScannerStatus
+): ScannerStatusEvent {
+  if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
+    return { type: 'SCANNER_JAM' };
+  }
+
+  const frontHasPaper =
+    scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent &&
+    scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent &&
+    scannerStatus.sensorInputCenterRight === SensorStatus.PaperPresent &&
+    scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
+  const backHasPaper =
+    scannerStatus.sensorOutputLeftLeft === SensorStatus.PaperPresent &&
+    scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent &&
+    scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent &&
+    scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+
+  if (!frontHasPaper && !backHasPaper) {
+    return { type: 'SCANNER_NO_PAPER' };
+  }
+
+  if (frontHasPaper && !backHasPaper) {
+    return { type: 'SCANNER_READY_TO_SCAN' };
+  }
+
+  if (!frontHasPaper && backHasPaper) {
+    return { type: 'SCANNER_READY_TO_EJECT' };
+  }
+
+  if (frontHasPaper && backHasPaper) {
+    return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  }
+
+  throw new PrecinctScannerError(
+    'unexpected_paper_status',
+    `Unexpected paper status: ${scannerStatus}`
+  );
+}
+
+function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
+  switch (error) {
+    case ErrorCode.PaperJam:
+    case ErrorCode.PaperHeldBack:
       return { type: 'SCANNER_JAM' };
+
+    case ErrorCode.DeviceAnswerUnknown:
+    case ErrorCode.NoDeviceAnswer:
+      return { type: 'SCANNER_DISCONNECTED' };
+
     default:
       throw new PrecinctScannerError(
         'unexpected_paper_status',
-        `Unexpected paper status: ${paperStatus}`
+        `Unexpected paper status error: ${ErrorCode[error]} (${error})`
       );
-  }
-}
-
-function paperStatusErrorToEvent(
-  error: ScannerError | Error
-): ScannerStatusEvent {
-  if (error instanceof ClientDisconnectedError) {
-    return { type: 'SCANNER_DISCONNECTED' };
-  }
-  switch (error) {
-    // This error code happens when the paper gets blocked and tries to scan for
-    // a long time (or if you just hold onto the paper while scanning).
-    case ScannerError.SaneStatusInval:
-      return { type: 'SCANNER_JAM' };
-    case ScannerError.SaneStatusIoError:
-      return { type: 'SCANNER_DISCONNECTED' };
-    default:
-      throw error;
   }
 }
 
@@ -191,11 +246,13 @@ function buildPaperStatusObserver(
     assert(client);
     return timer(0, pollingInterval).pipe(
       switchMap(async () => {
-        const paperStatus = await client.getPaperStatus();
-        debugPaperStatus('Paper status: %s', paperStatus);
-        return paperStatus.isOk()
-          ? paperStatusToEvent(paperStatus.ok())
-          : paperStatusErrorToEvent(paperStatus.err());
+        const status = await client.getStatus();
+        debugPaperStatus('Paper status: %o', status);
+        const mapped = status.isOk()
+          ? scannerStatusToEvent(status.ok())
+          : scannerStatusErrorToEvent(status.err());
+        debugPaperStatus('Mapped paper status: %o', mapped);
+        return mapped;
       }),
       timeout({
         each: pollingTimeout,
@@ -206,29 +263,90 @@ function buildPaperStatusObserver(
   };
 }
 
-async function scan({ client }: Context): Promise<SheetOf<string>> {
+async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   assert(client);
   debug('Scanning');
-  const scanResult = await client.scan();
+  const scanResult = await client.scan({
+    wantedScanSide: ScanSide.A_AND_B,
+    resolution: ImageResolution.RESOLUTION_200_DPI,
+    imageColorDepth: ImageColorDepthType.Grey8bpp,
+    formStandingAfterScan: FormStanding.HOLD_TICKET,
+    // The A4 scanner does not support double sheet detection.
+    doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
+  });
   debug('Scan result: %o', scanResult);
-  return scanResult.unsafeUnwrap().files;
-}
+  const images = scanResult.unsafeUnwrap();
 
-async function calibrate({ client }: Context) {
-  assert(client);
-  debug('Calibrating');
-  const calibrateResult = await client.calibrate();
-  if (
-    calibrateResult.isErr() &&
-    calibrateResult.err().toString().includes('Calibration failed')
-  ) {
-    throw new PrecinctScannerError(
-      'calibration_failed',
-      calibrateResult.err().toString()
+  /**
+   *
+   */
+  function trimBlackFromTopAndBottomOfImage(
+    image: ImageFromScanner
+  ): ImageFromScanner {
+    const { imageBuffer, imageWidth, imageHeight } = image;
+    const channelCount = imageBuffer.length / (imageWidth * imageHeight);
+
+    let indexOfFirstNonBlackValue = 0;
+
+    for (let i = 0; i < imageBuffer.length; i += 1) {
+      if (imageBuffer[i] !== 0) {
+        indexOfFirstNonBlackValue = i;
+        break;
+      }
+    }
+
+    let indexOfLastNonBlackValue = imageBuffer.length - 1;
+
+    for (let i = imageBuffer.length - 1; i >= 0; i -= 1) {
+      if (imageBuffer[i] !== 0) {
+        indexOfLastNonBlackValue = i;
+        break;
+      }
+    }
+
+    const offsetPerRow = imageWidth * channelCount;
+    const indexOfFirstNonBlackRow = Math.floor(
+      indexOfFirstNonBlackValue / offsetPerRow
     );
+    const indexOfLastNonBlackRow = Math.floor(
+      indexOfLastNonBlackValue / offsetPerRow
+    );
+    debug(
+      'Trimming black from top and bottom of image (keeping y=%d..%d)',
+      indexOfFirstNonBlackRow,
+      indexOfLastNonBlackRow
+    );
+
+    const trimmed: ImageFromScanner = {
+      ...image,
+      imageBuffer: imageBuffer.slice(
+        indexOfFirstNonBlackRow * offsetPerRow,
+        (indexOfLastNonBlackRow + 1) * offsetPerRow
+      ),
+      imageHeight: image.imageBuffer.length / offsetPerRow,
+    };
+    debug('Trimmed image: %O', trimmed);
+    return trimmed;
   }
-  debug('Calibrate result: %o', calibrateResult);
-  return calibrateResult.unsafeUnwrap();
+
+  // FIXME: we should be able to use the image format directly, but the
+  // rest of the system expects file paths instead of image buffers.
+  const sheetPrefix = uuid();
+  return await mapSheet(images, async (image, side) => {
+    const trimmedImage = trimBlackFromTopAndBottomOfImage(image);
+
+    const { scannedImagesPath } = workspace;
+    const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
+    const imageData = toRgba(
+      createImageData(
+        Uint8ClampedArray.from(trimmedImage.imageBuffer),
+        trimmedImage.imageWidth,
+        trimmedImage.imageHeight
+      )
+    ).assertOk('convert to RGBA');
+    await writeImageData(path, imageData);
+    return path;
+  });
 }
 
 async function interpretSheet(
@@ -249,16 +367,32 @@ async function interpretSheet(
 async function accept({ client }: Context) {
   assert(client);
   debug('Accepting');
-  const acceptResult = await client.accept();
+  const acceptResult = await client.move(FormMovement.EJECT_PAPER_FORWARD);
   debug('Accept result: %o', acceptResult);
+  // if (acceptResult.isOk()) {
+  //   const waitResult = await client.waitForStatus(
+  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER',
+  //     { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
+  //   );
+  //   debug('Wait result: %o', waitResult);
+  //   waitResult.unsafeUnwrap();
+  // }
   return acceptResult.unsafeUnwrap();
 }
 
 async function reject({ client }: Context) {
   assert(client);
   debug('Rejecting');
-  const rejectResult = await client.reject({ hold: true });
+  const rejectResult = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
   debug('Reject result: %o', rejectResult);
+  // if (rejectResult.isOk()) {
+  //   const waitResult = await client.waitForStatus(
+  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
+  //     { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
+  //   );
+  //   debug('Wait result: %o', waitResult);
+  //   waitResult.unsafeUnwrap();
+  // }
   return rejectResult.unsafeUnwrap();
 }
 
@@ -314,50 +448,13 @@ const clearError = assign({
 
 const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 
-const defaultDelays: Delays = {
-  // Time between calls to get paper status from the scanner.
-  DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
-  // How long to wait for a single paper status call to return before giving up.
-  DELAY_PAPER_STATUS_POLLING_TIMEOUT: 2_000,
-  // How long to attempt scanning before giving up and disconnecting and
-  // reconnecting to the scanner.
-  DELAY_SCANNING_TIMEOUT: 5_000,
-  // How long to attempt accepting before giving up and rejecting the ballot.
-  DELAY_ACCEPTING_TIMEOUT: 5_000,
-  // When in accepted state, how long to ignore any new ballot that is
-  // inserted (this ensures the user sees the accepted screen for a bit
-  // before starting a new scan).
-  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
-  // How long to wait on the accepted state before automatically going
-  // back to no_paper.
-  DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
-  // How long to wait for the scanner to grab the paper and return paper
-  // status READY_TO_SCAN after rejecting. Needs to be greater than
-  // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
-  // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
-  // good amount. Don't change this delay lightly since it impacts the
-  // actual logic of the scanner.
-  DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
-  // When disconnected, how long to wait before trying to reconnect.
-  DELAY_RECONNECT: 500,
-  // When we run into an unexpected error (e.g. unexpected paper status),
-  // how long to wait before trying to reconnect. This should be pretty
-  // long in order to let the scanner finish whatever it's doing (yes, even
-  // after disconnecting, the scanner might keep scanning).
-  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
-  // When attempting to disconnect from the scanner after an unexpected error,
-  // how long to wait before giving up on disconnecting the "nice" way and
-  // just sending a kill signal.
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
-};
-
 function buildMachine({
-  createCustomClient,
+  createCustomClient = defaultCreateCustomClient,
   workspace,
   interpreter,
   delayOverrides,
 }: {
-  createCustomClient: CreateCustomClient;
+  createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   delayOverrides: Partial<Delays>;
@@ -387,14 +484,11 @@ function buildMachine({
       starting: {
         invoke: {
           src: accept,
+          // Calling `accept` tells the Custom scanner to eject the ballot
+          // forward but does not wait for it to actually happen. We need to
+          // wait for the scanner to tell us that the ballot has been ejected
+          // before we can move on.
           onDone: 'checking_completed',
-          // In some cases, the scanner can return an error even if the paper got
-          // accepted, so we need to check paper status to determine what to do
-          // next. We still record the error for debugging purposes.
-          onError: {
-            target: 'checking_completed',
-            actions: assign({ error: (_context, event) => event.data }),
-          },
         },
       },
       checking_completed: {
@@ -437,24 +531,35 @@ function buildMachine({
           entry: (context) => recordRejectedSheet(workspace.store, context),
           invoke: {
             src: reject,
+            // Calling `reject` tells the Custom scanner to eject the ballot
+            // backward but does not wait for it to actually happen. We need to
+            // wait for the scanner to tell us that the ballot has been ejected
+            // before we can move on.
             onDone: 'checking_completed',
             onError: '#jammed',
           },
         },
-        // After rejecting, before the the scanner grabs the paper to hold it, it sends
-        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-        // wait for the READY_TO_SCAN.
         checking_completed: {
           invoke: pollPaperStatus,
           on: {
-            SCANNER_NO_PAPER: doNothing,
+            // Our expected end state is that the ballot is returned to the
+            // voter and held in front, i.e. "ready to scan".
             SCANNER_READY_TO_SCAN: onDoneState,
-            SCANNER_READY_TO_EJECT: '#jammed',
+
+            // If the voter pulls the paper out before we get to the expected
+            // end state, just jump straight to '#no_paper'.
+            SCANNER_NO_PAPER: '#no_paper',
+
+            // This happens immediately after `reject` is called since the
+            // paper hasn't really moved yet.
+            SCANNER_READY_TO_EJECT: doNothing,
+
+            // As the ballot is being ejected, the scanner will report that it
+            // has paper in front and back. This is an expected intermediate
+            // state.
+            SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
           },
-          // But, if you pull the paper out right after rejecting, we go straight to
-          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-          // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#no_paper' },
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#jammed' },
         },
       },
     };
@@ -465,7 +570,7 @@ function buildMachine({
       id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
-      context: {},
+      context: { workspace },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper',
@@ -476,7 +581,6 @@ function buildMachine({
         SCAN: doNothing,
         ACCEPT: doNothing,
         RETURN: doNothing,
-        CALIBRATE: doNothing,
         // On events that are not handled by a specified transition (e.g. unhandled
         // paper status), return an error so we can figure out what happened
         '*': {
@@ -493,10 +597,7 @@ function buildMachine({
       states: {
         connecting: {
           invoke: {
-            src: connectToScanner(
-              createCustomClient,
-              workspace.scannedImagesPath
-            ),
+            src: connectToCustom(createCustomClient),
             onDone: {
               target: 'checking_initial_paper_status',
               actions: assign((_context, event) => ({
@@ -515,10 +616,7 @@ function buildMachine({
             },
             reconnecting: {
               invoke: {
-                src: connectToScanner(
-                  createCustomClient,
-                  workspace.scannedImagesPath
-                ),
+                src: connectToCustom(createCustomClient),
                 onDone: {
                   target: '#checking_initial_paper_status',
                   actions: assign({
@@ -569,7 +667,6 @@ function buildMachine({
           invoke: pollPaperStatus,
           on: {
             SCAN: 'scanning',
-            CALIBRATE: 'calibrating',
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_READY_TO_SCAN: doNothing,
           },
@@ -593,21 +690,8 @@ function buildMachine({
                   // or fed through the scanner, retry.
                   {
                     cond: (_context, event) =>
-                      event.data === ScannerError.PaperStatusErrorFeeding ||
-                      event.data === ScannerError.PaperStatusNoPaper,
+                      event.data === ErrorCode.NoDocumentToBeScanned,
                     target: 'retry_scanning',
-                    actions: assign((_context, event) => ({
-                      error: event.data,
-                    })),
-                  },
-                  // Special case: sometimes the scanner only returns one image file
-                  // instead of two. It seems to not be able to recover even if
-                  // we disconnect/reconnect.
-                  {
-                    cond: (_context, event) =>
-                      event.data instanceof InvalidClientResponseError &&
-                      event.data.message.startsWith('expected two files'),
-                    target: '#unrecoverable_error',
                     actions: assign((_context, event) => ({
                       error: event.data,
                     })),
@@ -630,7 +714,8 @@ function buildMachine({
                 },
               },
             },
-            // Sometimes the scanner auto-rejects the ballot without returning a scanning
+            // NOTE: This is a holdover from the Plustek scanning behavior. Keep it?
+            // Sometimes Plustek auto-rejects the ballot without returning a scanning
             // error (e.g. if the paper is slightly mis-aligned). So we need to check
             // that the paper is still there before interpreting.
             checking_scanning_completed: {
@@ -780,38 +865,6 @@ function buildMachine({
             SCANNER_NO_PAPER: 'no_paper',
           },
         },
-        calibrating: {
-          initial: 'starting',
-          states: {
-            starting: {
-              entry: assign({ error: undefined }),
-              invoke: {
-                src: calibrate,
-                onDone: 'checking_completed',
-                onError: [
-                  {
-                    cond: (_, event) =>
-                      event.data instanceof PrecinctScannerError &&
-                      event.data.type === 'calibration_failed',
-                    target: '#error',
-                    actions: assign({ error: (_context, event) => event.data }),
-                  },
-                  {
-                    target: 'checking_completed',
-                    actions: assign({ error: (_context, event) => event.data }),
-                  },
-                ],
-              },
-            },
-            checking_completed: {
-              invoke: pollPaperStatus,
-              on: {
-                SCANNER_NO_PAPER: '#no_paper',
-                SCANNER_READY_TO_SCAN: '#ready_to_scan',
-              },
-            },
-          },
-        },
         jammed: {
           id: 'jammed',
           invoke: pollPaperStatus,
@@ -852,7 +905,8 @@ function buildMachine({
             ],
           },
         },
-        // If we see an unexpected error, try disconnecting from the scanner and starting over.
+        // If we see an unexpected error, try disconnecting from the scanner and
+        // starting over.
         error: {
           id: 'error',
           initial: 'disconnecting',
@@ -869,23 +923,20 @@ function buildMachine({
             // If that doesn't work or takes too long, send a kill signal
             killing: {
               invoke: {
-                src: killCustomClient,
+                src: killCustommClient,
                 onDone: 'cooling_off',
                 onError: '#unrecoverable_error',
               },
             },
-            // Now that we've disconnected, wait a bit to give the scanner time to
-            // finish up anything it might be doing
+            // Now that we've disconnected, wait a bit to give the scanner time
+            // to finish up anything it might be doing
             cooling_off: {
               after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
             },
             // Finally, we're ready to try reconnecting
             reconnecting: {
               invoke: {
-                src: connectToScanner(
-                  createCustomClient,
-                  workspace.scannedImagesPath
-                ),
+                src: connectToCustom(createCustomClient),
                 onDone: {
                   target: '#checking_initial_paper_status',
                   actions: assign({
@@ -927,9 +978,9 @@ function setupLogging(
         .filter(
           ([key, value]) => previousContext[key as keyof Context] !== value
         )
-        // We only log fields that are key for understanding state
-        // machine behavior, since others would be too verbose (e.g. Custom
-        // client object)
+        // We only log fields that are key for understanding state machine
+        // behavior, since others would be too verbose (e.g. scanner client
+        // object)
         .filter(([key]) =>
           [
             'scannedSheet',
@@ -999,7 +1050,7 @@ export function createPrecinctScannerStateMachine({
   logger,
   delays = {},
 }: {
-  createCustomClient: CreateCustomClient;
+  createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   logger: Logger;
@@ -1053,8 +1104,6 @@ export function createPrecinctScannerStateMachine({
             return 'rejecting';
           case state.matches('rejected'):
             return 'rejected';
-          case state.matches('calibrating'):
-            return 'calibrating';
           case state.matches('jammed'):
             return 'jammed';
           case state.matches('both_sides_have_paper'):
@@ -1116,15 +1165,6 @@ export function createPrecinctScannerStateMachine({
 
     return: () => {
       machineService.send('RETURN');
-    },
-
-    calibrate: async () => {
-      machineService.send('CALIBRATE');
-      await waitFor(machineService, (state) => !state.matches('calibrating'), {
-        timeout: 20_000,
-      });
-      const { error } = machineService.state.context;
-      return error ? err(errorToString(error)) : ok();
     },
   };
 }

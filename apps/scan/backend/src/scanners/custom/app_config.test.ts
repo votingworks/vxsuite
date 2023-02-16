@@ -1,8 +1,8 @@
 import { assert, ok } from '@votingworks/basics';
+import { mocks } from '@votingworks/custom-scanner';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
-import { MockScannerClient } from '@votingworks/plustek-scanner';
 import { generateCvr } from '@votingworks/test-utils';
 import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
 import fs from 'fs';
@@ -11,8 +11,8 @@ import waitForExpect from 'wait-for-expect';
 import { configureApp, waitForStatus } from '../../../test/helpers/app_helpers';
 import {
   ballotImages,
-  createPlustekScannerApp,
-} from '../../../test/helpers/scanners/plustek/app_helpers';
+  createCustomScannerApp,
+} from '../../../test/helpers/scanners/custom/app_helpers';
 import { Api } from '../../app';
 import { SheetInterpretation } from '../../types';
 
@@ -27,12 +27,12 @@ jest.mock('@votingworks/ballot-encoder', () => {
 });
 
 async function scanBallot(
-  mockScanner: MockScannerClient,
+  mockScanner: mocks.MockCustomScanner,
   apiClient: grout.Client<Api>,
   initialBallotsCounted: number
 ) {
   (
-    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(await ballotImages.completeBmd())
   ).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'ready_to_scan',
@@ -65,7 +65,7 @@ async function scanBallot(
 
 test('export the CVRs to USB', async () => {
   const { apiClient, workspace, mockScanner, mockUsb } =
-    await createPlustekScannerApp();
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockScanner, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
@@ -119,7 +119,7 @@ test('export the CVRs to USB', async () => {
 
 test('ballot batching', async () => {
   const { apiClient, mockScanner, logger, workspace, mockUsb } =
-    await createPlustekScannerApp();
+    await createCustomScannerApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch

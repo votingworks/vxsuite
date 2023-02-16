@@ -4,16 +4,24 @@ import {
 } from '@votingworks/auth';
 import { deferred, ok, Result } from '@votingworks/basics';
 import {
+  CustomScanner,
+  ErrorCode,
+  ImageColorDepthType,
+  ImageFileFormat,
+  ImageFromScanner,
+  mocks,
+  ScanSide,
+} from '@votingworks/custom-scanner';
+import {
   electionFamousNames2021Fixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
-import {
-  MockScannerClient,
-  MockScannerClientOptions,
-  ScannerClient,
-} from '@votingworks/plustek-scanner';
+import { MockScannerClientOptions } from '@votingworks/plustek-scanner';
+import { mapSheet, SheetOf } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import { Application } from 'express';
 import tmp from 'tmp';
 import { Api } from '../../../../src/app';
@@ -46,7 +54,7 @@ export async function createCustomScannerApp({
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockScanner: MockScannerClient;
+  mockScanner: mocks.MockCustomScanner;
   workspace: Workspace;
   mockUsb: MockUsb;
   logger: Logger;
@@ -56,14 +64,19 @@ export async function createCustomScannerApp({
   const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
-  const mockScanner = new MockScannerClient({
+  const mockScanner = new mocks.MockCustomScanner({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
     ...mockScannerOptions,
   });
   const deferredConnect = deferred<void>();
-  async function createCustomClient(): Promise<Result<ScannerClient, Error>> {
-    await mockScanner.connect();
+  async function createCustomClient(): Promise<
+    Result<CustomScanner, ErrorCode>
+  > {
+    const connectResult = await mockScanner.connect();
+    if (connectResult.isErr()) {
+      return connectResult;
+    }
     await deferredConnect.promise;
     return ok(mockScanner);
   }
@@ -108,30 +121,57 @@ export async function createCustomScannerApp({
   };
 }
 
+function customSheetOfImagesFromScannerFromBallotImageData(
+  ballotImageData: SheetOf<ImageData>
+): SheetOf<ImageFromScanner> {
+  return mapSheet(ballotImageData, (imageData, side): ImageFromScanner => {
+    const channelCount = getImageChannelCount(imageData);
+    const imageDepth =
+      channelCount === 1
+        ? ImageColorDepthType.Grey8bpp
+        : ImageColorDepthType.Color24bpp;
+
+    return {
+      scanSide: side === 'front' ? ScanSide.A : ScanSide.B,
+      imageBuffer: Buffer.from(imageData.data),
+      imageWidth: imageData.width,
+      imageHeight: imageData.height,
+      imageFormat: ImageFileFormat.Jpeg,
+      imageDepth,
+      imageResolution: Math.round(imageData.width / 8.5),
+    };
+  });
+}
+
 export const ballotImages = {
-  completeHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asFilePath(),
-  ],
-  completeBmd: [
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-  unmarkedHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asFilePath(),
-  ],
-  wrongElection: [
-    // A BMD ballot front from a different election
-    sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
+  completeHmpb: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asImageData(),
+      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asImageData(),
+    ]),
+  completeBmd: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
+      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
+    ]),
+  unmarkedHmpb: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asImageData(),
+      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asImageData(),
+    ]),
+  wrongElection: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      // A BMD ballot front from a different election
+      await sampleBallotImages.sampleBatch1Ballot1.asImageData(),
+      // Blank BMD ballot back
+      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
+    ]),
   // The interpreter expects two different image files, so we use two
   // different blank page images
-  blankSheet: [
-    sampleBallotImages.blankPage.asFilePath(),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
+  blankSheet: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await sampleBallotImages.blankPage.asImageData(),
+      // Blank BMD ballot back
+      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
+    ]),
 } as const;
