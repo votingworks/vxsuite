@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import {
-  DippedSmartCardAuth,
-  DippedSmartcardAuth,
-  InsertedSmartCardAuth,
-  InsertedSmartcardAuth,
-} from '@votingworks/types';
+import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { assert } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
 import { Text } from './text';
@@ -42,25 +36,21 @@ const EnteredCode = styled.div`
   font-weight: 600;
 `;
 
-type CheckingPassCodeAuth =
-  | DippedSmartcardAuth.CheckingPasscode
+type CheckingPinAuth =
   | DippedSmartCardAuth.CheckingPin
-  | InsertedSmartcardAuth.CheckingPasscode
   | InsertedSmartCardAuth.CheckingPin;
 
 interface Props {
-  auth: CheckingPassCodeAuth;
+  auth: CheckingPinAuth;
+  checkPin: (pin: string) => void;
   grayBackground?: boolean;
-  checkPin?: (pin: string) => void;
 }
 
 export function UnlockMachineScreen({
   auth,
+  checkPin,
   grayBackground,
-  checkPin: checkPinFromProps,
 }: Props): JSX.Element {
-  assert(auth.status === 'checking_passcode');
-
   const [currentPasscode, setCurrentPasscode] = useState('');
 
   const handleNumberEntry = useCallback(
@@ -71,16 +61,11 @@ export function UnlockMachineScreen({
       );
       setCurrentPasscode(passcode);
       if (passcode.length === SECURITY_PIN_LENGTH) {
-        if ('checkPasscode' in auth) {
-          auth.checkPasscode(passcode);
-        } else {
-          assert(checkPinFromProps !== undefined);
-          checkPinFromProps(passcode);
-        }
+        checkPin(passcode);
         setCurrentPasscode('');
       }
     },
-    [auth, checkPinFromProps, currentPasscode]
+    [checkPin, currentPasscode]
   );
 
   const handleBackspace = useCallback(() => {
@@ -93,12 +78,7 @@ export function UnlockMachineScreen({
 
   useEffect(() => {
     function bypassPinEntry() {
-      if ('checkPasscode' in auth) {
-        auth.checkPasscode(auth.user.passcode);
-      } else {
-        assert(checkPinFromProps !== undefined);
-        checkPinFromProps(auth.user.passcode);
-      }
+      checkPin(auth.user.passcode);
     }
     if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
       bypassPinEntry();
