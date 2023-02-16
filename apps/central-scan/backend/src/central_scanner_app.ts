@@ -52,14 +52,22 @@ function constructDippedSmartCardAuthMachineState(
 
 function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
   return grout.createApi({
-    getAuthStatus: () =>
-      auth.getAuthStatus(constructDippedSmartCardAuthMachineState(workspace)),
+    getAuthStatus() {
+      return auth.getAuthStatus(
+        constructDippedSmartCardAuthMachineState(workspace)
+      );
+    },
 
-    checkPin: (input: { pin: string }) =>
-      auth.checkPin(constructDippedSmartCardAuthMachineState(workspace), input),
+    checkPin(input: { pin: string }) {
+      return auth.checkPin(
+        constructDippedSmartCardAuthMachineState(workspace),
+        input
+      );
+    },
 
-    logOut: () =>
-      auth.logOut(constructDippedSmartCardAuthMachineState(workspace)),
+    logOut() {
+      return auth.logOut(constructDippedSmartCardAuthMachineState(workspace));
+    },
   });
 }
 

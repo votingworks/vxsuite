@@ -1,8 +1,4 @@
-import {
-  ElectionDefinition,
-  Optional,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   Button,
   ElectionInfoBar,
@@ -11,21 +7,20 @@ import {
   Screen,
   Table,
   Text,
-  useCancelablePromise,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
+import { getElectionDefinitionFromCard } from '../api';
 
-interface Props {
+export interface ReplaceElectionScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
-  getElectionDefinitionFromCard(): Promise<Optional<ElectionDefinition>>;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
   unconfigure(): Promise<void>;
@@ -35,23 +30,13 @@ export function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  getElectionDefinitionFromCard,
   machineConfig,
   screenReader,
   unconfigure,
-}: Props): JSX.Element {
+}: ReplaceElectionScreenProps): JSX.Element {
   const { election, electionHash } = electionDefinition;
-  const makeCancelable = useCancelablePromise();
-  const [cardElectionDefinition, setCardElectionDefinition] =
-    useState<ElectionDefinition>();
-
-  useEffect(() => {
-    void (async () => {
-      setCardElectionDefinition(
-        await makeCancelable(getElectionDefinitionFromCard())
-      );
-    })();
-  }, [getElectionDefinitionFromCard, makeCancelable]);
+  const electionDefinitionFromCardQuery =
+    getElectionDefinitionFromCard.useQuery(electionHash);
 
   useEffect(() => {
     const muted = screenReader.isMuted();
@@ -59,11 +44,11 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
-  if (!cardElectionDefinition) {
+  if (!electionDefinitionFromCardQuery.isSuccess) {
     return (
       <Screen>
         <Main padded centerChild>
-          <Prose>
+          <Prose textCenter>
             <p>Reading the election definition from Election Manager card…</p>
           </Prose>
         </Main>
@@ -71,8 +56,25 @@ export function ReplaceElectionScreen({
     );
   }
 
+  const electionDefinitionFromCard = electionDefinitionFromCardQuery.data.ok();
+
+  if (!electionDefinitionFromCard) {
+    return (
+      <Screen>
+        <Main padded centerChild>
+          <Prose textCenter>
+            <p>
+              Error reading the election definition from Election Manager card.
+            </p>
+            <p>Remove card to continue.</p>
+          </Prose>
+        </Main>
+      </Screen>
+    );
+  }
+
   const { election: cardElection, electionHash: cardElectionHash } =
-    cardElectionDefinition;
+    electionDefinitionFromCard;
   return (
     <Screen>
       <Main padded centerChild>

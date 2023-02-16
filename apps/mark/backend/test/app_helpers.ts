@@ -1,3 +1,7 @@
+import {
+  buildMockInsertedSmartCardAuth,
+  InsertedSmartCardAuthApi,
+} from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
@@ -6,8 +10,10 @@ import { Api, buildApp } from '../src/app';
 export function createApp(): {
   apiClient: grout.Client<Api>;
   app: Application;
+  mockAuth: InsertedSmartCardAuthApi;
 } {
-  const app = buildApp();
+  const mockAuth = buildMockInsertedSmartCardAuth();
+  const app = buildApp(mockAuth);
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -18,5 +24,6 @@ export function createApp(): {
   return {
     apiClient,
     app,
+    mockAuth,
   };
 }

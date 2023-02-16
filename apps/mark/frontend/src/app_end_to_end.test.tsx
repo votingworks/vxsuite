@@ -2,22 +2,19 @@ import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
-  makeElectionManagerCard,
-  makeInvalidPollWorkerCard,
-  makePollWorkerCard,
   getZeroCompressedTally,
-  makeSystemAdministratorCard,
   expectPrint,
+  fakeElectionManagerUser,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
-  MemoryCard,
   MemoryHardware,
   ReportSourceMachineType,
 } from '@votingworks/utils';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { ok } from '@votingworks/basics';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';
@@ -33,7 +30,6 @@ import {
   voterContests,
 } from '../test/helpers/election';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
-import { enterPin } from '../test/test_utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -53,18 +49,16 @@ jest.setTimeout(15000);
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
-  const card = new MemoryCard();
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
-  const writeLongUint8ArrayMock = jest.spyOn(card, 'writeLongUint8Array');
   const reload = jest.fn();
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       reload={reload}
@@ -73,14 +67,9 @@ test('MarkAndPrint end-to-end flow', async () => {
     />
   );
   await advanceTimersAndPromises();
-  const electionManagerCard = makeElectionManagerCard(
-    electionDefinition.electionHash
-  );
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  const invalidPollWorkerCard = makeInvalidPollWorkerCard();
   const getByTextWithMarkup = withMarkup(screen.getByText);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  card.removeCard();
   await advanceTimersAndPromises();
 
   // Default Unconfigured
@@ -88,32 +77,59 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
+  // Insert election manager card and enter incorrect PIN
+  apiMock.setAuthStatus({
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser(electionDefinition),
+  });
+  await screen.findByText('Enter the card security code to unlock.');
+  apiMock.mockApiClient.checkPin
+    .expectCallWith({ electionHash: undefined, pin: '111111' })
+    .resolves();
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  apiMock.setAuthStatus({
+    status: 'checking_passcode',
+    user: fakeElectionManagerUser({ electionHash }),
+    wrongPasscodeEnteredAt: new Date(),
+  });
+  await screen.findByText('Invalid code. Please try again.');
+
+  // Enter correct PIN
+  apiMock.mockApiClient.checkPin
+    .expectCallWith({ electionHash: undefined, pin: '123456' })
+    .resolves();
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+
   // Configure with Election Manager Card
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
-  userEvent.click(screen.getByText('Load Election Definition'));
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .resolves(ok(electionDefinition));
+  userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election Definition is loaded.');
+  await screen.findByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('VxMark is Not Configured');
-
-  // Basic auth logging check
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.AuthLogin,
-    'election_manager',
-    expect.objectContaining({ disposition: 'success' })
-  );
+  await screen.findByText('VxMark is Not Configured');
 
   // ---------------
 
   // Configure election with Election Manager Card
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
-  screen.getByLabelText('Precinct');
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  await screen.findByLabelText('Precinct');
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   screen.queryByText('Machine ID: 000');
 
@@ -131,29 +147,31 @@ test('MarkAndPrint end-to-end flow', async () => {
   ).toBeTruthy();
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Polls Closed');
+  await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // ---------------
 
   // Using an invalid Poll Worker Card shows an error
-  card.insertCard(invalidPollWorkerCard);
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'poll_worker_wrong_election',
+  });
   await advanceTimersAndPromises();
-  screen.getByText('Invalid Card Data');
+  await screen.findByText('Invalid Card Data');
   screen.getByText('Card is not configured for this election.');
   screen.getByText('Please ask admin for assistance.');
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
 
   // ---------------
 
   // Open Polls with Poll Worker Card
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  screen.queryByText(`Election ID: ${expectedElectionHash}`);
-  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(screen.getByText('Open Polls on VxMark Now'));
   screen.getByText('Select Voter’s Ballot Style');
   // Force refresh
@@ -163,24 +181,37 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Close Polls');
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Complete Voter Happy Path
 
   // Start voter session
-  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('12'));
-  card.removeCard();
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
+  userEvent.click(await screen.findByText('12'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Your ballot has 20 contests.');
 
   // Adjust Text Size on Start Page
   expect(
@@ -306,7 +337,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   screen.getByText('You’re Almost Done');
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   userEvent.click(screen.getByText('Done'));
+  apiMock.setAuthStatusLoggedOut();
 
   // Font size has been reset to default on Insert Card screen
   expect(window.document.documentElement.style.fontSize).toEqual('28px');
@@ -314,21 +349,20 @@ test('MarkAndPrint end-to-end flow', async () => {
   // ---------------
 
   // Close Polls with Poll Worker Card
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(screen.getByText('Close Polls on VxMark Now'));
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Voting is complete.');
+  await screen.findByText('Voting is complete.');
 
   // Insert pollworker card with precinct scanner tally
-  card.insertCard(
-    pollWorkerCard,
-    JSON.stringify({
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    scannerReportDataReadResult: ok({
       tally: getZeroCompressedTally(electionDefinition.election),
       tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
       machineId: '0002',
@@ -345,10 +379,16 @@ test('MarkAndPrint end-to-end flow', async () => {
         'undefined--ALL_PRECINCTS': [5, 5],
         'undefined--23': [5, 5],
       },
-    })
-  );
+    }),
+  });
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
+  apiMock.mockApiClient.clearScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok());
+  apiMock.mockApiClient.readScannerReportDataFromCard
+    .expectCallWith({ electionHash })
+    .resolves(ok(undefined));
   userEvent.click(screen.getByText('Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
@@ -356,55 +396,54 @@ test('MarkAndPrint end-to-end flow', async () => {
   await expectPrint();
   userEvent.click(await screen.findByText('Continue'));
 
-  expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(1);
-  expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(1, new Uint8Array());
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
 
   // Insert System Administrator card
-  card.insertCard(makeSystemAdministratorCard());
-  await enterPin();
+  apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
 
   // ---------------
 
   // Unconfigure with Election Manager Card
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
-  screen.getByText('Election Definition is loaded.');
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  await screen.findByText('Election Definition is loaded.');
   userEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is Not Configured');
 
   // Insert System Administrator card works when unconfigured
-  card.insertCard(makeSystemAdministratorCard());
-  await enterPin();
+  apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
 
   // ---------------
 
   // Configure with Election Manager card
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .resolves(ok(electionDefinition));
   userEvent.click(
-    screen.getByRole('button', { name: 'Load Election Definition' })
+    await screen.findByRole('button', { name: 'Load Election Definition' })
   );
   await screen.findByText('Election Definition is loaded.');
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
+  await screen.findByText('Insert Election Manager card to select a precinct.');
 
   // Unconfigure with System Administrator card
-  card.insertCard(makeSystemAdministratorCard());
-  await enterPin();
-  userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
+  apiMock.setAuthStatusSystemAdministratorLoggedIn();
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Unconfigure Machine' })
+  );
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
     within(modal).getByRole('button', {
@@ -414,12 +453,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
+  await screen.findByText('VxMark is Not Configured');
 
   // Verify that machine was unconfigured
-  screen.getByText('VxMark is Not Configured');
-  card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await enterPin();
-  screen.getByText('Election Definition is not loaded.');
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  await screen.findByText('Election Definition is not loaded.');
 });

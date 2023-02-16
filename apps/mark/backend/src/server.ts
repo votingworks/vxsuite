@@ -1,7 +1,10 @@
-import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Server } from 'http';
-import { PORT } from './globals';
+import { InsertedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { WebServiceCard } from '@votingworks/utils';
+
 import { buildApp } from './app';
+import { PORT } from './globals';
 
 export interface StartOptions {
   port: number | string;
@@ -15,7 +18,19 @@ export function start({
   port = PORT,
   logger = new Logger(LogSource.VxMarkBackend),
 }: Partial<StartOptions> = {}): Server {
-  const app = buildApp();
+  const auth = new InsertedSmartCardAuthWithMemoryCard({
+    card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+    config: {
+      allowedUserRoles: [
+        'system_administrator',
+        'election_manager',
+        'poll_worker',
+        'cardless_voter',
+      ],
+      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
+    },
+  });
+  const app = buildApp(auth);
 
   return app.listen(
     port,

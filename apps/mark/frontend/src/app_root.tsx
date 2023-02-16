@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
-  Card,
   ElectionDefinition,
   OptionalElectionDefinition,
   OptionalVote,
   VotesDict,
   getBallotStyle,
   getContests,
-  safeParseElectionDefinition,
   Optional,
   ContestId,
   PrecinctId,
   BallotStyleId,
   PrecinctSelection,
   PollsState,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 import Gamepad from 'react-gamepad';
@@ -36,13 +35,18 @@ import {
   SetupCardReaderPage,
   useDevices,
   usePrevious,
-  useInsertedSmartcardAuth,
   useUsbDrive,
   UnlockMachineScreen,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { getMachineConfig } from './api';
+import {
+  checkPin,
+  endCardlessVoterSession,
+  getAuthStatus,
+  getMachineConfig,
+  startCardlessVoterSession,
+} from './api';
 
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
@@ -97,7 +101,6 @@ export interface AppStorage {
   state?: Partial<State>;
 }
 export interface Props {
-  card: Card;
   hardware: Hardware;
   storage: Storage;
   screenReader: ScreenReader;
@@ -257,7 +260,6 @@ function appReducer(state: State, action: AppAction): State {
 }
 
 export function AppRoot({
-  card,
   hardware,
   screenReader,
   storage,
@@ -277,6 +279,7 @@ export function AppRoot({
     userSettings,
     votes,
   } = appState;
+  const electionHash = optionalElectionDefinition?.electionHash;
 
   const history = useHistory();
 
@@ -293,29 +296,22 @@ export function AppRoot({
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
-  const auth = useInsertedSmartcardAuth({
-    allowedUserRoles: [
-      'system_administrator',
-      'election_manager',
-      'poll_worker',
-      'cardless_voter',
-    ],
-    cardApi: card,
-    scope: {
-      // The BMD allows election managers to update the machine to use the election definition on
-      // the card in this case
-      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-      electionDefinition: optionalElectionDefinition,
-      precinct: appPrecinct,
-    },
-    logger,
-  });
+  const authStatusQuery = getAuthStatus.useQuery(electionHash);
+  const authStatus = authStatusQuery.isSuccess
+    ? authStatusQuery.data
+    : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
 
-  const precinctId = isCardlessVoterAuth(auth)
-    ? auth.user.precinctId
+  const checkPinMutation = checkPin.useMutation(electionHash);
+  const startCardlessVoterSessionMutation =
+    startCardlessVoterSession.useMutation(electionHash);
+  const endCardlessVoterSessionMutation =
+    endCardlessVoterSession.useMutation(electionHash);
+
+  const precinctId = isCardlessVoterAuth(authStatus)
+    ? authStatus.user.precinctId
     : undefined;
-  const ballotStyleId = isCardlessVoterAuth(auth)
-    ? auth.user.ballotStyleId
+  const ballotStyleId = isCardlessVoterAuth(authStatus)
+    ? authStatus.user.ballotStyleId
     : undefined;
   const ballotStyle =
     optionalElectionDefinition?.election && ballotStyleId
@@ -364,9 +360,12 @@ export function AppRoot({
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
-    if (isCardlessVoterAuth(auth)) auth.logOut();
-    dispatchAppState({ type: 'resetBallot' });
-  }, [auth]);
+    endCardlessVoterSessionMutation.mutate(undefined, {
+      onSuccess() {
+        dispatchAppState({ type: 'resetBallot' });
+      },
+    });
+  }, [endCardlessVoterSessionMutation]);
 
   // Hide Verify and Scan Instructions
   useEffect(() => {
@@ -474,19 +473,6 @@ export function AppRoot({
     dispatchAppState({ type: 'updateTally' });
   }, []);
 
-  const getElectionDefinitionFromCard = useCallback(async (): Promise<
-    Optional<ElectionDefinition>
-  > => {
-    assert(isElectionManagerAuth(auth));
-    const electionData = (await auth.card.readStoredString()).ok();
-    /* istanbul ignore else */
-    if (electionData) {
-      const electionDefinitionResult =
-        safeParseElectionDefinition(electionData);
-      return electionDefinitionResult.unsafeUnwrap();
-    }
-  }, [auth]);
-
   const updateElectionDefinition = useCallback(
     (electionDefinition: ElectionDefinition) => {
       dispatchAppState({
@@ -497,44 +483,53 @@ export function AppRoot({
     []
   );
 
-  const fetchElection = useCallback(async () => {
-    const newElectionDefinition = await getElectionDefinitionFromCard();
-    /* istanbul ignore else */
-    if (newElectionDefinition) {
-      updateElectionDefinition(newElectionDefinition);
-    }
-  }, [getElectionDefinitionFromCard, updateElectionDefinition]);
-
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
-      assert(isPollWorkerAuth(auth));
-      auth.activateCardlessVoter(sessionPrecinctId, sessionBallotStyleId);
-      resetBallot();
+      assert(isPollWorkerAuth(authStatus));
+      startCardlessVoterSessionMutation.mutate(
+        {
+          ballotStyleId: sessionBallotStyleId,
+          precinctId: sessionPrecinctId,
+        },
+        {
+          onSuccess() {
+            resetBallot();
+          },
+        }
+      );
     },
-    [auth, resetBallot]
+    [authStatus, resetBallot, startCardlessVoterSessionMutation]
   );
 
   const resetCardlessBallot = useCallback(() => {
-    assert(isPollWorkerAuth(auth));
-    auth.deactivateCardlessVoter();
-    history.push('/');
-  }, [history, auth]);
+    assert(isPollWorkerAuth(authStatus));
+    endCardlessVoterSessionMutation.mutate(undefined, {
+      onSuccess() {
+        history.push('/');
+      },
+    });
+  }, [authStatus, endCardlessVoterSessionMutation, history]);
 
   useEffect(() => {
     function resetBallotOnLogout() {
       if (!initializedFromStorage) return;
-      if (auth.status === 'logged_out' && auth.reason === 'no_card') {
+      if (
+        authStatus.status === 'logged_out' &&
+        authStatus.reason === 'no_card'
+      ) {
         resetBallot();
       }
     }
     resetBallotOnLogout();
-  }, [auth, resetBallot, initializedFromStorage]);
+  }, [authStatus, resetBallot, initializedFromStorage]);
 
-  const endVoterSession = useCallback(() => {
-    assert(isCardlessVoterAuth(auth));
-    auth.logOut();
-    return Promise.resolve();
-  }, [auth]);
+  const endVoterSession = useCallback(async () => {
+    try {
+      await endCardlessVoterSessionMutation.mutateAsync();
+    } catch {
+      // Handled by default query client error handling
+    }
+  }, [endCardlessVoterSessionMutation]);
 
   // Handle Hardware Observer Subscription
   useEffect(() => {
@@ -614,7 +609,8 @@ export function AppRoot({
     storage,
     initializedFromStorage,
   ]);
-  if (!machineConfigQuery.isSuccess) {
+
+  if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
@@ -626,7 +622,10 @@ export function AppRoot({
       />
     );
   }
-  if (auth.status === 'logged_out' && auth.reason === 'card_error') {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'card_error'
+  ) {
     return (
       <CardErrorScreen
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -640,10 +639,15 @@ export function AppRoot({
       />
     );
   }
-  if (auth.status === 'checking_passcode') {
-    return <UnlockMachineScreen auth={auth} />;
+  if (authStatus.status === 'checking_passcode') {
+    return (
+      <UnlockMachineScreen
+        auth={authStatus}
+        checkPin={(pin) => checkPinMutation.mutate({ pin })}
+      />
+    );
   }
-  if (isSystemAdministratorAuth(auth)) {
+  if (isSystemAdministratorAuth(authStatus)) {
     return (
       <SystemAdministratorScreen
         logger={logger}
@@ -658,17 +662,16 @@ export function AppRoot({
       />
     );
   }
-  if (isElectionManagerAuth(auth)) {
+  if (isElectionManagerAuth(authStatus)) {
     if (
       optionalElectionDefinition &&
-      auth.user.electionHash !== optionalElectionDefinition.electionHash
+      authStatus.user.electionHash !== optionalElectionDefinition.electionHash
     ) {
       return (
         <ReplaceElectionScreen
           appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           electionDefinition={optionalElectionDefinition}
-          getElectionDefinitionFromCard={getElectionDefinitionFromCard}
           machineConfig={machineConfig}
           screenReader={screenReader}
           unconfigure={unconfigure}
@@ -681,7 +684,7 @@ export function AppRoot({
         appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
-        fetchElection={fetchElection}
+        updateElectionDefinition={updateElectionDefinition}
         isLiveMode={isLiveMode}
         updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}
@@ -702,8 +705,8 @@ export function AppRoot({
       );
     }
     if (
-      auth.status === 'logged_out' &&
-      auth.reason === 'poll_worker_wrong_election'
+      authStatus.status === 'logged_out' &&
+      authStatus.reason === 'poll_worker_wrong_election'
     ) {
       return (
         <WrongElectionScreen
@@ -711,10 +714,10 @@ export function AppRoot({
         />
       );
     }
-    if (isPollWorkerAuth(auth)) {
+    if (isPollWorkerAuth(authStatus)) {
       return (
         <PollWorkerScreen
-          pollworkerAuth={auth}
+          pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
@@ -742,7 +745,7 @@ export function AppRoot({
       );
     }
     if (pollsState === 'polls_open') {
-      if (isCardlessVoterAuth(auth)) {
+      if (isCardlessVoterAuth(authStatus)) {
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
@@ -753,7 +756,7 @@ export function AppRoot({
                 contests,
                 electionDefinition: optionalElectionDefinition,
                 updateTally,
-                isCardlessVoter: isCardlessVoterAuth(auth),
+                isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode,
                 endVoterSession,
                 resetBallot,

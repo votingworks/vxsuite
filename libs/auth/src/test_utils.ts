@@ -21,7 +21,10 @@ export function buildMockInsertedSmartCardAuth(): InsertedSmartCardAuthApi {
   return {
     getAuthStatus: jest.fn(),
     checkPin: jest.fn(),
+    startCardlessVoterSession: jest.fn(),
+    endCardlessVoterSession: jest.fn(),
     readCardData: jest.fn(),
+    readCardDataAsString: jest.fn(),
     writeCardData: jest.fn(),
     clearCardData: jest.fn(),
   };

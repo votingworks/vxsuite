@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { fakeKiosk } from '@votingworks/test-utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
@@ -36,7 +36,6 @@ afterEach(() => {
 });
 
 test('Insert Card screen idle timeout to quit app', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
@@ -50,7 +49,6 @@ test('Insert Card screen idle timeout to quit app', async () => {
 
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -73,7 +71,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
 
 test('Voter idle timeout', async () => {
   const electionDefinition = electionSampleDefinition;
-  const card = new MemoryCard();
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -82,21 +80,19 @@ test('Voter idle timeout', async () => {
   render(
     <App
       apiClient={apiMock.mockApiClient}
-      card={card}
       hardware={hardware}
       storage={storage}
     />
   );
 
   // Start voter session
-  await screen.findByText('Insert Card');
-  card.insertCard(makePollWorkerCard(electionDefinition.electionHash));
-  userEvent.click(await screen.findByText('12'));
-  card.removeCard();
-  await advanceTimersAndPromises();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
 
   // Let idle timeout kick in and acknowledge
-  userEvent.click(screen.getByText('Start Voting'));
+  userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS);
   screen.getByText('Are you still voting?');
   userEvent.click(
@@ -109,7 +105,11 @@ test('Voter idle timeout', async () => {
   // Let idle timeout kick in and don't acknowledge
   await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS);
   screen.getByText('Are you still voting?');
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
   screen.getByText('Clearing ballot');
+  apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });

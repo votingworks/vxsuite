@@ -60,14 +60,18 @@ function buildApi(
   return grout.createApi({
     getMachineConfig,
 
-    getAuthStatus: () =>
-      auth.getAuthStatus(constructInsertedSmartCardAuthMachineState(workspace)),
+    getAuthStatus() {
+      return auth.getAuthStatus(
+        constructInsertedSmartCardAuthMachineState(workspace)
+      );
+    },
 
-    checkPin: (input: { pin: string }) =>
-      auth.checkPin(
+    checkPin(input: { pin: string }) {
+      return auth.checkPin(
         constructInsertedSmartCardAuthMachineState(workspace),
         input
-      ),
+      );
+    },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, ConfigurationError>
@@ -323,10 +327,6 @@ function buildApi(
       const machineState =
         constructInsertedSmartCardAuthMachineState(workspace);
       const authStatus = await auth.getAuthStatus(machineState);
-
-      // Though we only initiate this action when a poll worker is logged in, a poll worker could
-      // remove their card right after, so we treat these as user errors rather than unexpected
-      // errors
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
       }

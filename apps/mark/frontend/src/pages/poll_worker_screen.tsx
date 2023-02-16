@@ -5,13 +5,13 @@ import {
   BallotStyleId,
   Election,
   ElectionDefinition,
-  InsertedSmartcardAuth,
   PrecinctId,
   Tally,
   PrecinctSelection,
   PollsState,
   PollsTransition,
   getPartyIdsWithContests,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import {
   Button,
@@ -32,6 +32,7 @@ import {
   ElectionInfoBar,
   TestMode,
   NoWrap,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import {
@@ -48,7 +49,6 @@ import {
   getPollTransitionsFromState,
   ScannerReportData,
   ScannerTallyReportData,
-  ScannerReportDataSchema,
   isPollsSuspensionTransition,
   ScannerBallotCountReportData,
 } from '@votingworks/utils';
@@ -63,6 +63,10 @@ import { ScreenReader } from '../config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
+import {
+  clearScannerReportDataFromCard,
+  getScannerReportDataFromCard,
+} from '../api';
 
 function parseScannerReportTallyData(
   scannerTallyReportData: ScannerTallyReportData,
@@ -126,7 +130,6 @@ type ScannerReportModalState = 'initial' | 'printing' | 'reprint';
 function ScannerReportModal({
   electionDefinition,
   scannerReportData,
-  pollworkerAuth,
   machineConfig,
   pollsState,
   updatePollsState,
@@ -135,7 +138,6 @@ function ScannerReportModal({
 }: {
   electionDefinition: ElectionDefinition;
   scannerReportData: ScannerReportData;
-  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   machineConfig: MachineConfig;
   pollsState: PollsState;
   updatePollsState: (pollsState: PollsState) => void;
@@ -151,6 +153,9 @@ function ScannerReportModal({
   const [willUpdatePollsToMatchScanner] = useState(
     isValidPollsStateChange(pollsState, precinctScannerPollsState)
   );
+
+  const clearScannerReportDataFromCardMutation =
+    clearScannerReportDataFromCard.useMutation(electionDefinition.electionHash);
 
   async function printReport(copies: number) {
     const report = await (async () => {
@@ -221,8 +226,15 @@ function ScannerReportModal({
     setModalState('printing');
     try {
       await printReport(DEFAULT_NUMBER_POLL_REPORT_COPIES);
-      /* istanbul ignore else */
-      if ((await pollworkerAuth.card.clearStoredData()).isOk()) {
+      let wasClearingSuccessful = false;
+      try {
+        wasClearingSuccessful = (
+          await clearScannerReportDataFromCardMutation.mutateAsync()
+        ).isOk();
+      } catch {
+        // Handled by default query client error handling
+      }
+      if (wasClearingSuccessful) {
         await logger.log(LogEventId.TallyReportClearedFromCard, 'poll_worker', {
           disposition: 'success',
         });
@@ -425,7 +437,7 @@ function UpdatePollsDirectlyButton({
 }
 
 export interface PollworkerScreenProps {
-  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId
@@ -448,7 +460,7 @@ export interface PollworkerScreenProps {
 }
 
 export function PollWorkerScreen({
-  pollworkerAuth,
+  pollWorkerAuth,
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
@@ -466,9 +478,36 @@ export function PollWorkerScreen({
   reload,
   logger,
 }: PollworkerScreenProps): JSX.Element {
-  const { election } = electionDefinition;
+  const { election, electionHash } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+
+  const scannerReportDataFromCardQuery =
+    getScannerReportDataFromCard.useQuery(electionHash);
+  const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
+    useState<ScannerReportData>();
+
+  /**
+   * We populate a scannerReportDataToBePrinted state value and don't use
+   * scannerReportDataFromCardQuery directly to control the scanner report modal because:
+   * 1. We support printing additional copies of the report even after report data has been cleared
+   *    from the card
+   * 2. We still want to be able to close the modal even if clearing report data fails
+   */
+  useQueryChangeListener(
+    scannerReportDataFromCardQuery,
+    (newScannerReportDataFromCardResult) => {
+      const newScannerReportDataFromCard =
+        newScannerReportDataFromCardResult.ok();
+      if (
+        !scannerReportDataToBePrinted &&
+        newScannerReportDataFromCard &&
+        newScannerReportDataFromCard.isLiveMode === isLiveMode
+      ) {
+        setScannerReportDataToBePrinted(newScannerReportDataFromCard);
+      }
+    }
+  );
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -493,20 +532,6 @@ export function PollWorkerScreen({
     return setIsConfirmingEnableLiveMode(false);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
-  const [scannerReportData, setScannerReportData] =
-    useState<ScannerReportData>();
-  useEffect(() => {
-    if (scannerReportData) return;
-    if (!pollworkerAuth.card.hasStoredData) return;
-    async function loadTallyFromCard() {
-      setScannerReportData(
-        (
-          await pollworkerAuth.card.readStoredObject(ScannerReportDataSchema)
-        ).ok()
-      );
-    }
-    void loadTallyFromCard();
-  }, [pollworkerAuth, scannerReportData]);
 
   /*
    * Trigger audiofocus for the PollWorker screen landing page. This occurs when
@@ -514,10 +539,10 @@ export function PollWorkerScreen({
    * add a new modal to this component add it's state parameter as a dependency here.
    */
   useEffect(() => {
-    if (!isConfirmingEnableLiveMode && !scannerReportData) {
+    if (!isConfirmingEnableLiveMode && !scannerReportDataToBePrinted) {
       triggerAudioFocus();
     }
-  }, [isConfirmingEnableLiveMode, scannerReportData]);
+  }, [isConfirmingEnableLiveMode, scannerReportDataToBePrinted]);
 
   const canSelectBallotStyle = pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
@@ -528,13 +553,13 @@ export function PollWorkerScreen({
     setIsConfirmingEnableLiveMode(false);
   }
 
-  if (hasVotes && pollworkerAuth.activatedCardlessVoter) {
+  if (hasVotes && pollWorkerAuth.cardlessVoterUser) {
     return (
       <Screen white>
         <Main centerChild>
           <Prose textCenter>
             <h1
-              aria-label={`Ballot style ${pollworkerAuth.activatedCardlessVoter.ballotStyleId} has been activated.`}
+              aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
             >
               Ballot Contains Votes
             </h1>
@@ -552,8 +577,8 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollworkerAuth.activatedCardlessVoter) {
-    const { precinctId, ballotStyleId } = pollworkerAuth.activatedCardlessVoter;
+  if (pollWorkerAuth.cardlessVoterUser) {
+    const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
     return (
@@ -768,15 +793,14 @@ export function PollWorkerScreen({
           precinctSelection={appPrecinct}
         />
       </Screen>
-      {scannerReportData && scannerReportData.isLiveMode === isLiveMode && (
+      {scannerReportDataToBePrinted && (
         <ScannerReportModal
-          pollworkerAuth={pollworkerAuth}
-          scannerReportData={scannerReportData}
+          scannerReportData={scannerReportDataToBePrinted}
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}
           pollsState={pollsState}
           updatePollsState={updatePollsState}
-          onClose={() => setScannerReportData(undefined)}
+          onClose={() => setScannerReportDataToBePrinted(undefined)}
           logger={logger}
         />
       )}

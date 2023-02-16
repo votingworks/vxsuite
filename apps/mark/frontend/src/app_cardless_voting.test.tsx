@@ -1,20 +1,18 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import {
-  makeElectionManagerCard,
-  makePollWorkerCard,
-  expectPrint,
-} from '@votingworks/test-utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { expectPrint } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { ok } from '@votingworks/basics';
+import userEvent from '@testing-library/user-event';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';
 
 import {
+  presidentContest,
   setElectionInStorage,
   setStateInStorage,
-  presidentContest,
   voterContests,
 } from '../test/helpers/election';
 
@@ -22,7 +20,6 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
-import { enterPin } from '../test/test_utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -41,16 +38,12 @@ jest.setTimeout(15000);
 
 test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
-  const card = new MemoryCard();
-  const electionManagerCard = makeElectionManagerCard(electionHash);
-  const pollWorkerCard = makePollWorkerCard(electionHash);
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   render(
     <App
-      card={card}
       hardware={hardware}
       apiClient={apiMock.mockApiClient}
       storage={storage}
@@ -59,8 +52,9 @@ test('Cardless Voting Flow', async () => {
   );
   await advanceTimersAndPromises();
   const getByTextWithMarkup = withMarkup(screen.getByText);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
 
   // Default Unconfigured
@@ -69,9 +63,11 @@ test('Cardless Voting Flow', async () => {
   // ---------------
 
   // Configure with Election Manager Card
-  card.insertCard(electionManagerCard, electionData);
-  await enterPin();
-  fireEvent.click(screen.getByText('Load Election Definition'));
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .resolves(ok(electionDefinition));
+  userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
   screen.getByText('Election Definition is loaded.');
@@ -94,42 +90,71 @@ test('Cardless Voting Flow', async () => {
   ).toBeTruthy();
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Polls Closed');
+  await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // ---------------
 
   // Open Polls with Poll Worker Card
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  fireEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
   fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  screen.getByText('Select Voter’s Ballot Style');
+  await screen.findByText('Select Voter’s Ballot Style');
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
   screen.getByText(/(12)/);
 
   // Poll Worker deactivates ballot style
-  fireEvent.click(screen.getByText('Deactivate Voting Session'));
-  screen.getByText('Select Voter’s Ballot Style');
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
+  userEvent.click(await screen.findByText('Deactivate Voting Session'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+  });
+  await screen.findByText('Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
 
   // Poll Worker removes their card
-  card.removeCard();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
@@ -142,27 +167,51 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Next'));
 
   // Poll Worker inserts card and sees message that there are votes
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
   await advanceTimersAndPromises();
-  screen.getByText('Ballot Contains Votes');
+  await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+  });
 
   // Back on Poll Worker screen
-  screen.getByText('Select Voter’s Ballot Style');
+  await screen.findByText('Select Voter’s Ballot Style');
 
   // Activates Ballot Style again
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voting Session Active: 12 at Center Springfield');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
+  await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
-  card.removeCard();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
@@ -198,28 +247,28 @@ test('Cardless Voting Flow', async () => {
   ).toBeFalsy();
 
   // Wait for timeout to return to Insert Card screen
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
-  screen.getByText('Insert Card');
+  apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 });
 
 test('Another Voter submits blank ballot and clicks Done', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const electionDefinition = electionSampleDefinition;
-  const card = new MemoryCard();
-  const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-
-  card.removeCard();
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage);
 
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -229,22 +278,38 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   await advanceTimersAndPromises();
 
   const getByTextWithMarkup = withMarkup(screen.getByText);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
 
   // ====================== END CONTEST SETUP ====================== //
 
   // Activate Voter Session for Cardless Voter
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voting Session Active: 12 at Center Springfield');
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
+  userEvent.click(
+    within(await screen.findByTestId('ballot-styles')).getByText('12')
+  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
+  await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
-  card.removeCard();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter advances through contests without voting in any
@@ -274,23 +339,22 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   expect(screen.queryByText('3. Return the card.')).toBeFalsy();
 
   // Click "Done" to get back to Insert Card screen
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   fireEvent.click(screen.getByText('Done'));
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 });
 
 test('poll worker must select a precinct first', async () => {
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
-  const card = new MemoryCard();
-  const electionManagerCard = makeElectionManagerCard(electionHash);
-  const pollWorkerCard = makePollWorkerCard(electionHash);
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   render(
     <App
-      card={card}
       hardware={hardware}
       apiClient={apiMock.mockApiClient}
       storage={storage}
@@ -299,8 +363,8 @@ test('poll worker must select a precinct first', async () => {
   );
   await advanceTimersAndPromises();
   const getByTextWithMarkup = withMarkup(screen.getByText);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  card.removeCard();
   await advanceTimersAndPromises();
 
   // Default Unconfigured
@@ -309,9 +373,11 @@ test('poll worker must select a precinct first', async () => {
   // ---------------
 
   // Configure with Election Manager Card
-  card.insertCard(electionManagerCard, electionData);
-  await enterPin();
-  fireEvent.click(screen.getByText('Load Election Definition'));
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .resolves(ok(electionDefinition));
+  userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
   screen.getByText('Election Definition is loaded.');
@@ -332,49 +398,78 @@ test('poll worker must select a precinct first', async () => {
   ).toBeTruthy();
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Polls Closed');
+  await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // ---------------
 
   // Open Polls with Poll Worker Card
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  fireEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
   fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
 
   // Remove card
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
-  screen.getByText('1. Select Voter’s Precinct');
+  await screen.findByText('1. Select Voter’s Precinct');
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
   screen.getByText('2. Select Voter’s Ballot Style');
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voting Session Active: 12 at Center Springfield');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
+  await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker deactivates ballot style
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   fireEvent.click(screen.getByText('Deactivate Voting Session'));
-  screen.getByText('2. Select Voter’s Ballot Style');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+  });
+  await screen.findByText('2. Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
 
   // Poll Worker removes their card
-  card.removeCard();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
@@ -387,31 +482,55 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.click(screen.getByText('Next'));
 
   // Poll Worker inserts card and sees message that there are votes
-  card.insertCard(pollWorkerCard);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
   await advanceTimersAndPromises();
-  screen.getByText('Ballot Contains Votes');
+  await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+  });
 
   // Back on Poll Worker screen
-  screen.getByText('1. Select Voter’s Precinct');
+  await screen.findByText('1. Select Voter’s Precinct');
 
   // Activates Ballot Style again
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
   screen.getByText('2. Select Voter’s Ballot Style');
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
-  screen.getByText('Voting Session Active: 12 at Center Springfield');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    isScannerReportDataReadExpected: false,
+    cardlessVoterUserParams: {
+      ballotStyleId: '12',
+      precinctId: '23',
+    },
+  });
+  await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
-  card.removeCard();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
   await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
@@ -448,6 +567,10 @@ test('poll worker must select a precinct first', async () => {
   ).toBeFalsy();
 
   // Wait for timeout to return to Insert Card screen
+  apiMock.mockApiClient.endCardlessVoterSession
+    .expectCallWith({ electionHash })
+    .resolves();
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
-  screen.getByText('Insert Card');
+  apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 });

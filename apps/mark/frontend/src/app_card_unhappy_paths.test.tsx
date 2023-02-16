@@ -1,17 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import {
-  electionSampleDefinition as election,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
-import {
-  makePollWorkerCard,
-  hasTextAcrossElements,
-} from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { err } from '@votingworks/basics';
 
 import { App } from './app';
-
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import {
@@ -32,15 +26,12 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('Inserting pollworker card with invalid long data fall back as if there is no long data', async () => {
+test('Poll worker card with invalid scanner report data is treated like card without scanner report data', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-
-  card.removeCard();
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, {
@@ -49,7 +40,6 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -62,19 +52,19 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
   screen.getByText('Insert Poll Worker card to open.');
 
-  const pollworkerCard = makePollWorkerCard(election.electionHash);
-  card.insertCard(pollworkerCard, electionSampleDefinition.electionData);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
+    scannerReportDataReadResult: err(new Error('Invalid scanner report data')),
+  });
   await advanceTimersAndPromises();
 
   // Land on pollworker screen
-  screen.getByText(hasTextAcrossElements('Polls: Closed'));
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
 
   // No prompt to print precinct tally report
   expect(screen.queryAllByText('Tally Report on Card')).toHaveLength(0);
 });
 
 test('Shows card backwards screen when card connection error occurs', async () => {
-  const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -84,7 +74,6 @@ test('Shows card backwards screen when card connection error occurs', async () =
 
   render(
     <App
-      card={card}
       hardware={hardware}
       storage={storage}
       apiClient={apiMock.mockApiClient}
@@ -94,12 +83,15 @@ test('Shows card backwards screen when card connection error occurs', async () =
   await advanceTimersAndPromises();
   screen.getByText('Insert Card');
 
-  card.insertCard(undefined, undefined, 'error');
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'card_error',
+  });
   await advanceTimersAndPromises();
-  screen.getByText('Card is Backwards');
+  await screen.findByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
-  card.removeCard();
+  apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 });

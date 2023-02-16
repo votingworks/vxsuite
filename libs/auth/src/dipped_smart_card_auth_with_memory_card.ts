@@ -42,6 +42,8 @@ type AuthAction =
  * - Locking to avoid concurrent card writes
  * - Logging
  * - Tests
+ *
+ * See the libs/auth README for notes on error handling
  */
 export class DippedSmartCardAuthWithMemoryCard
   implements DippedSmartCardAuthApi
@@ -89,6 +91,14 @@ export class DippedSmartCardAuthWithMemoryCard
       | { userRole: 'election_manager'; electionData: string }
       | { userRole: 'poll_worker' }
   ): Promise<Result<{ pin?: string }, Error>> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    if (this.authStatus.status !== 'logged_in') {
+      return err(new Error('User is not logged in'));
+    }
+    if (this.authStatus.user.role !== 'system_administrator') {
+      return err(new Error('User is not a system administrator'));
+    }
+
     const { electionHash } = machineState;
     const pin = generatePin();
     try {
@@ -136,7 +146,17 @@ export class DippedSmartCardAuthWithMemoryCard
     return ok({ pin });
   }
 
-  async unprogramCard(): Promise<Result<void, Error>> {
+  async unprogramCard(
+    machineState: DippedSmartCardAuthMachineState
+  ): Promise<Result<void, Error>> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    if (this.authStatus.status !== 'logged_in') {
+      return err(new Error('User is not logged in'));
+    }
+    if (this.authStatus.user.role !== 'system_administrator') {
+      return err(new Error('User is not a system administrator'));
+    }
+
     try {
       await this.card.overrideWriteProtection();
       await this.card.writeShortAndLongValues({
@@ -262,7 +282,9 @@ export class DippedSmartCardAuthWithMemoryCard
       }
 
       case 'check_pin': {
-        assert(currentAuthStatus.status === 'checking_passcode');
+        if (currentAuthStatus.status !== 'checking_passcode') {
+          return currentAuthStatus;
+        }
         return action.pin === currentAuthStatus.user.passcode
           ? { status: 'remove_card', user: currentAuthStatus.user }
           : { ...currentAuthStatus, wrongPasscodeEnteredAt: new Date() };

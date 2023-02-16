@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import * as grout from '@votingworks/grout';
-// eslint-disable-next-line vx/gts-no-import-export-type
-import type { Api } from '@votingworks/mark-backend';
 
 import {
-  WebServiceCard,
   KioskStorage,
   LocalStorage,
   getHardware,
@@ -13,13 +9,7 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  AppBase,
-  ErrorBoundary,
-  Prose,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
-  Text,
-} from '@votingworks/ui';
+import { AppBase, ErrorBoundary, Prose, Text } from '@votingworks/ui';
 import { ColorMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
@@ -32,7 +22,12 @@ import { getUsEnglishVoice } from './utils/voices';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
-import { ApiClientContext } from './api';
+import {
+  ApiClient,
+  ApiClientContext,
+  createApiClient,
+  createQueryClient,
+} from './api';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -40,12 +35,11 @@ window.oncontextmenu = (e: MouseEvent): void => {
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
-  card?: AppRootProps['card'];
   storage?: AppRootProps['storage'];
   screenReader?: ScreenReader;
   reload?: VoidFunction;
   logger?: AppRootProps['logger'];
-  apiClient?: grout.Client<Api>;
+  apiClient?: ApiClient;
   queryClient?: QueryClient;
 }
 
@@ -55,18 +49,12 @@ export function App({
       ? new KioskTextToSpeech()
       : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
   ),
-
-  card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   hardware = getHardware(),
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
-  /* istanbul ignore next */ apiClient = grout.createClient<Api>({
-    baseUrl: '/api',
-  }),
-  queryClient = new QueryClient({
-    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
-  }),
+  /* istanbul ignore next */ apiClient = createApiClient(),
+  queryClient = createQueryClient(),
 }: Props): JSX.Element {
   screenReader.mute();
   /* istanbul ignore next - need to figure out how to test this */
@@ -162,7 +150,6 @@ export function App({
                 legacyBaseFontSizePx={baseFontSizePx}
               >
                 <AppRoot
-                  card={card}
                   hardware={hardware}
                   storage={storage}
                   screenReader={screenReader}

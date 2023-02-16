@@ -48,7 +48,7 @@ export const statusNoPaper: PrecinctScannerStatus = {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  'getAuthStatus' | 'writeCardData'
+  'getAuthStatus' | 'saveScannerReportDataToCard'
 > & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
