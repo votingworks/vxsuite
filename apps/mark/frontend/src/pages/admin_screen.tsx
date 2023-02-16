@@ -68,7 +68,8 @@ export function AdminScreen({
     const { data } = await electionDefinitionFromCardQuery.refetch();
     assert(data !== undefined);
     const electionDefinitionFromCard = data.ok();
-    // TODO: Handle case that electionDefinitionFromCard is undefined, e.g. because it's malformed
+    // TODO: Handle case that electionDefinitionFromCard is undefined, e.g. because it couldn't be
+    // parsed
     if (electionDefinitionFromCard) {
       updateElectionDefinition(electionDefinitionFromCard);
     }

@@ -38,7 +38,7 @@ jest.setTimeout(15000);
 
 test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -66,7 +66,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
@@ -349,7 +349,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
 test('poll worker must select a precinct first', async () => {
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -376,7 +376,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();

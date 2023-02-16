@@ -13,8 +13,14 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
+import userEvent from '@testing-library/user-event';
+import { ok, sleep } from '@votingworks/basics';
 import { render } from '../../test/test_utils';
-import { election, defaultPrecinctId } from '../../test/helpers/election';
+import {
+  election,
+  defaultPrecinctId,
+  electionDefinition,
+} from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/smartcards';
 
@@ -135,5 +141,26 @@ test('precinct selection disabled if single precinct election', async () => {
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
   screen.getByText(
     'Precinct can not be changed because there is only one precinct configured for this election.'
+  );
+});
+
+test('election definition loading state', async () => {
+  renderScreen({ electionDefinition: undefined });
+
+  await screen.findByText('Election Manager Actions');
+  apiMock.mockApiClient.readElectionDefinitionFromCard
+    .expectCallWith({ electionHash: undefined })
+    .returns(
+      (async () => {
+        // Add an artificial delay to ensure that the loading state is actually rendered
+        await sleep(1000);
+        return Promise.resolve(ok(electionDefinition));
+      })()
+    );
+  userEvent.click(
+    screen.getByRole('button', { name: 'Load Election Definition' })
+  );
+  await screen.findByText(
+    'Loading Election Definition from Election Manager card…'
   );
 });

@@ -1,9 +1,15 @@
 import express, { Application } from 'express';
 import { z } from 'zod';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { err, Result } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { BallotStyleId, Optional, PrecinctId } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  Optional,
+  PrecinctId,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
 
 import { getMachineConfig } from './machine_config';
@@ -45,7 +51,7 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
       electionHash,
     }: {
       electionHash?: string;
-    }): Promise<Result<Optional<string>, Error>> {
+    }): Promise<Result<ElectionDefinition, Error>> {
       const authStatus = await auth.getAuthStatus({ electionHash });
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
@@ -54,7 +60,18 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
         return err(new Error('User is not an election manager'));
       }
 
-      return await auth.readCardDataAsString({ electionHash });
+      const result = await auth.readCardDataAsString({ electionHash });
+      const electionData = result.ok();
+      const electionDefinition = electionData
+        ? safeParseElectionDefinition(electionData).ok()
+        : undefined;
+
+      if (!electionDefinition) {
+        // While we could provide more specific error messages for different error cases, the
+        // frontend doesn't need that much detail
+        return err(new Error('Unable to read election definition from card'));
+      }
+      return ok(electionDefinition);
     },
 
     async readScannerReportDataFromCard({

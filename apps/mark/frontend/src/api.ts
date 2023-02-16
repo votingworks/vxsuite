@@ -17,11 +17,9 @@ import {
 import {
   BallotStyleId,
   ElectionDefinition,
-  Optional,
   PrecinctId,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
-import { ok, Result } from '@votingworks/basics';
+import { Result } from '@votingworks/basics';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -77,21 +75,12 @@ export const getElectionDefinitionFromCard = {
   },
   useQuery(
     electionHash?: string,
-    options: UseQueryOptions<Result<Optional<ElectionDefinition>, Error>> = {}
+    options: UseQueryOptions<Result<ElectionDefinition, Error>> = {}
   ) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
-      async () => {
-        const result = await apiClient.readElectionDefinitionFromCard({
-          electionHash,
-        });
-        const electionData = result.ok();
-        const electionDefinition = electionData
-          ? safeParseElectionDefinition(electionData).ok()
-          : undefined;
-        return ok<Optional<ElectionDefinition>, Error>(electionDefinition);
-      },
+      () => apiClient.readElectionDefinitionFromCard({ electionHash }),
       // Don't cache this since caching would require invalidation in response to external
       // circumstances, like card removal
       { cacheTime: 0, staleTime: 0, ...options }

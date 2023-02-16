@@ -5,7 +5,7 @@ import {
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
@@ -21,7 +21,6 @@ import { ApiClientContext, createQueryClient } from '../api';
 const machineElectionDefinition = electionSampleDefinition;
 const { electionHash: machineElectionHash } = machineElectionDefinition;
 const cardElectionDefinition = primaryElectionSampleDefinition;
-const { electionData: cardElectionData } = cardElectionDefinition;
 const screenReader = new AriaScreenReader(fakeTts());
 
 let apiMock: ApiMock;
@@ -54,7 +53,7 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
 test('reading election definition from card', async () => {
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionData));
+    .resolves(ok(cardElectionDefinition));
   const unconfigure = jest.fn();
 
   renderScreen({ unconfigure });
@@ -66,7 +65,7 @@ test('reading election definition from card', async () => {
 test('unconfiguring', async () => {
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionData));
+    .resolves(ok(cardElectionDefinition));
   const unconfigure = jest.fn();
 
   renderScreen({ unconfigure });
@@ -79,7 +78,7 @@ test('unconfiguring', async () => {
 test('showing count of ballots printed: 0 ballots', async () => {
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionData));
+    .resolves(ok(cardElectionDefinition));
 
   renderScreen();
 
@@ -92,7 +91,7 @@ test('showing count of ballots printed: 0 ballots', async () => {
 test('showing count of ballots printed: >0 ballots', async () => {
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionData));
+    .resolves(ok(cardElectionDefinition));
 
   renderScreen({ ballotsPrintedCount: 129 });
 
@@ -105,7 +104,7 @@ test('showing count of ballots printed: >0 ballots', async () => {
 test('error reading election definition from card', async () => {
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(undefined));
+    .resolves(err(new Error('Unable to read election definition from card')));
 
   renderScreen();
 

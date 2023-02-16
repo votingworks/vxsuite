@@ -51,7 +51,7 @@ test('replacing a loaded election with one from a card', async () => {
   // insert election manager card with different election
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
-    .resolves(ok(electionSample2Definition.electionData));
+    .resolves(ok(electionSample2Definition));
   apiMock.setAuthStatusElectionManagerLoggedIn(electionSample2Definition);
   await screen.findByText('This card is configured for a different election.');
 
@@ -63,7 +63,7 @@ test('replacing a loaded election with one from a card', async () => {
   await screen.findByText('Election Manager Actions');
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionSample2Definition.electionData));
+    .resolves(ok(electionSample2Definition));
   userEvent.click(screen.getByText('Load Election Definition'));
   await advanceTimersAndPromises();
   screen.getByText(electionSample2Definition.election.title);

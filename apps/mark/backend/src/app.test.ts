@@ -5,7 +5,7 @@ import {
   fakePollWorkerUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { Optional } from '@votingworks/types';
+import { ElectionDefinition, Optional } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -44,7 +44,8 @@ test('uses default machine config if not set', async () => {
 });
 
 test('auth', async () => {
-  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
   const { apiClient, mockAuth } = createApp();
 
   await apiClient.getAuthStatus({ electionHash });
@@ -79,15 +80,15 @@ test('auth', async () => {
 });
 
 test('read election definition from card', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionData, electionHash } = electionDefinition;
   const { apiClient, mockAuth } = createApp();
 
   mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
-    Promise.resolve(ok('election-data'))
+    Promise.resolve(ok(electionData))
   );
 
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
-  let result: Result<Optional<string>, Error>;
+  let result: Result<ElectionDefinition, Error>;
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
@@ -111,14 +112,28 @@ test('read election definition from card', async () => {
     })
   );
   result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(ok('election-data'));
+  expect(result).toEqual(ok(electionDefinition));
   expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(1, {
+    electionHash,
+  });
+
+  mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
+    Promise.resolve(ok(undefined))
+  );
+  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
+  expect(result).toEqual(
+    err(new Error('Unable to read election definition from card'))
+  );
+  expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(2);
+  expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(2, {
     electionHash,
   });
 });
 
 test('read scanner report data from card', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
   const { apiClient, mockAuth } = createApp();
 
   const scannerReportData: ScannerReportData = {
@@ -137,8 +152,6 @@ test('read scanner report data from card', async () => {
     Promise.resolve(ok(scannerReportData))
   );
 
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
   let result: Result<Optional<ScannerReportData>, Error>;
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -173,14 +186,14 @@ test('read scanner report data from card', async () => {
 });
 
 test('clear scanner report data from card', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
   const { apiClient, mockAuth } = createApp();
 
   mockOf(mockAuth.clearCardData).mockImplementation(() =>
     Promise.resolve(ok())
   );
 
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
   let result: Result<void, Error>;
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>

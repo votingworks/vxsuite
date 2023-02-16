@@ -26,7 +26,6 @@ jest.setTimeout(15000);
 test('loading election with a single precinct automatically sets precinct', async () => {
   const electionDefinition =
     electionMinimalExhaustiveSampleSinglePrecinctDefinition;
-  const { electionData } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -45,7 +44,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(await screen.findByText('Load Election Definition'));
   await screen.findByText(getDisplayElectionHash(electionDefinition));
   // Should not be able to select a precinct

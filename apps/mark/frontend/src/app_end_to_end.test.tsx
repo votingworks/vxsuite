@@ -49,7 +49,7 @@ jest.setTimeout(15000);
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
@@ -114,11 +114,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Configure with Election Manager Card
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election Definition is loaded.');
+  await screen.findByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
@@ -430,7 +430,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(
     await screen.findByRole('button', { name: 'Load Election Definition' })
   );

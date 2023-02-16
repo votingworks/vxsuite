@@ -33,7 +33,7 @@ jest.setTimeout(15000);
 test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
-  const { electionData, electionHash } = electionDefinition;
+  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
@@ -60,7 +60,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.mockApiClient.readElectionDefinitionFromCard
     .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionData));
+    .resolves(ok(electionDefinition));
   userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
