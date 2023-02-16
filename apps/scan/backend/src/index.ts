@@ -1,9 +1,13 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { createClient } from '@votingworks/plustek-scanner';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
-import { NODE_ENV } from './globals';
+import { NODE_ENV, SCAN_WORKSPACE } from './globals';
+import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
+import * as plustekStateMachine from './state_machine';
 import * as server from './server';
+import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
 export * from './types';
@@ -35,8 +39,47 @@ for (const dotenvFile of dotenvFiles) {
 
 const logger = new Logger(LogSource.VxScanBackend);
 
+async function resolveWorkspace(): Promise<Workspace> {
+  const workspacePath = SCAN_WORKSPACE;
+  if (!workspacePath) {
+    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+      message:
+        'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
+      disposition: 'failure',
+    });
+    throw new Error(
+      'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
+    );
+  }
+  return await createWorkspace(workspacePath);
+}
+
+function createPrecinctScannerStateMachine(
+  workspace: Workspace,
+  interpreter: PrecinctScannerInterpreter
+): plustekStateMachine.PrecinctScannerStateMachine {
+  return plustekStateMachine.createPrecinctScannerStateMachine({
+    createPlustekClient: createClient,
+    workspace,
+    interpreter,
+    logger,
+  });
+}
+
 async function main(): Promise<number> {
-  await server.start();
+  const workspace = await resolveWorkspace();
+  const precinctScannerInterpreter = createInterpreter();
+  const precinctScannerStateMachine = createPrecinctScannerStateMachine(
+    workspace,
+    precinctScannerInterpreter
+  );
+
+  server.start({
+    precinctScannerStateMachine,
+    precinctScannerInterpreter,
+    workspace,
+  });
+
   return 0;
 }
 

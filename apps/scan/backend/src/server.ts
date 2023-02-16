@@ -1,54 +1,32 @@
-import { Logger, LogEventId, LogSource } from '@votingworks/logging';
-import { createClient } from '@votingworks/plustek-scanner';
-import { getUsbDrives } from '@votingworks/backend';
 import { InsertedSmartCardAuth, MemoryCard } from '@votingworks/auth';
-import { PORT, SCAN_WORKSPACE } from './globals';
-import { createWorkspace, Workspace } from './util/workspace';
-import {
-  CreatePlustekClient,
-  createPrecinctScannerStateMachine,
-} from './state_machine';
+import { getUsbDrives } from '@votingworks/backend';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { buildApp } from './app';
-import { createInterpreter } from './interpret';
+import { PORT } from './globals';
+import { PrecinctScannerInterpreter } from './interpret';
+import { PrecinctScannerStateMachine } from './state_machine';
 import { Usb } from './util/usb';
+import { Workspace } from './util/workspace';
 
 export interface StartOptions {
-  port: number | string;
-  createPlustekClient: CreatePlustekClient;
-  logger: Logger;
+  precinctScannerStateMachine: PrecinctScannerStateMachine;
+  precinctScannerInterpreter: PrecinctScannerInterpreter;
   workspace: Workspace;
+  port?: number | string;
+  logger?: Logger;
 }
 
 /**
- * Starts the server with all the default options.
+ * Starts the server.
  */
-export async function start({
-  port = PORT,
-  createPlustekClient = createClient,
-  logger = new Logger(LogSource.VxScanBackend),
+export function start({
+  precinctScannerStateMachine,
+  precinctScannerInterpreter,
   workspace,
-}: Partial<StartOptions> = {}): Promise<void> {
-  let resolvedWorkspace: Workspace;
-
-  if (workspace) {
-    resolvedWorkspace = workspace;
-  } else {
-    const workspacePath = SCAN_WORKSPACE;
-    if (!workspacePath) {
-      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
-        message:
-          'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
-        disposition: 'failure',
-      });
-      throw new Error(
-        'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
-      );
-    }
-    resolvedWorkspace = await createWorkspace(workspacePath);
-  }
-
+  logger = new Logger(LogSource.VxScanBackend),
+}: StartOptions): void {
   // clear any cached data
-  resolvedWorkspace.clearUploads();
+  workspace.clearUploads();
 
   const auth = new InsertedSmartCardAuth({
     card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
@@ -60,33 +38,24 @@ export async function start({
       ],
     },
   });
-  const precinctScannerInterpreter = createInterpreter();
-  const precinctScannerMachine = createPrecinctScannerStateMachine({
-    createPlustekClient,
-    workspace: resolvedWorkspace,
-    interpreter: precinctScannerInterpreter,
-    logger,
-  });
   const usb: Usb = { getUsbDrives };
   const app = buildApp(
     auth,
-    precinctScannerMachine,
+    precinctScannerStateMachine,
     precinctScannerInterpreter,
-    resolvedWorkspace,
+    workspace,
     usb,
     logger
   );
 
-  app.listen(port, async () => {
+  app.listen(PORT, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `VxScan backend running at http://localhost:${port}/`,
+      message: `VxScan backend running at http://localhost:${PORT}/`,
       disposition: 'success',
     });
 
-    if (resolvedWorkspace) {
-      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
-        message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
-      });
-    }
+    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+      message: `Scanning ballots into ${workspace.ballotImagesPath}`,
+    });
   });
 }
