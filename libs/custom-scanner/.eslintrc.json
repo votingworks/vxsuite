@@ -1,0 +1,6 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    "no-bitwise": "off"
+  }
+}
