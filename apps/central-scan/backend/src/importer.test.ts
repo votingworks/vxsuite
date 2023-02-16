@@ -1,26 +1,24 @@
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { assert, sleep } from '@votingworks/basics';
 import {
   electionSample as election,
   electionSampleDefinition as electionDefinition,
+  sampleBallotImages,
 } from '@votingworks/fixtures';
 import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
-import { join } from 'path';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks';
-import { Importer } from './importer';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
+import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
-
-const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 
 let workspace: Workspace;
 
@@ -78,8 +76,8 @@ test('startImport calls scanner.scanSheet', async () => {
     scanSheet: jest
       .fn()
       .mockResolvedValueOnce([
-        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-        join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ]),
     endBatch: jest.fn(),
   });
@@ -359,16 +357,16 @@ test('scanning pauses on adjudication then continues', async () => {
     scanSheet: jest
       .fn()
       .mockResolvedValueOnce([
-        join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
-        join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ])
       .mockResolvedValueOnce([
-        join(sampleBallotImagesPath, 'sample-batch-1-ballot-2.png'),
-        join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot2.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ])
       .mockResolvedValueOnce([
-        join(sampleBallotImagesPath, 'sample-batch-1-ballot-3.png'),
-        join(sampleBallotImagesPath, 'blank-page.png'),
+        sampleBallotImages.sampleBatch1Ballot3.asFilePath(),
+        sampleBallotImages.blankPage.asFilePath(),
       ]),
     endBatch: jest.fn(),
   });

@@ -1,4 +1,7 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionSampleDefinition,
+  sampleBallotImages,
+} from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
@@ -25,15 +28,11 @@ import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
 
-const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
 
 test('extracts votes encoded in a QR code', async () => {
-  const ballotImagePath = join(
-    sampleBallotImagesPath,
-    'sample-batch-1-ballot-1.png'
-  );
+  const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   expect(
     (
       await new Interpreter({
@@ -105,10 +104,7 @@ test.skip('properly scans a BMD ballot with a phantom QR code on back', async ()
 });
 
 test('properly detects test ballot in live mode', async () => {
-  const ballotImagePath = join(
-    sampleBallotImagesPath,
-    'sample-batch-1-ballot-1.png'
-  );
+  const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   const interpretationResult = await new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
@@ -134,10 +130,7 @@ test('properly detects test ballot in live mode', async () => {
 });
 
 test('properly detects bmd ballot with wrong precinct', async () => {
-  const ballotImagePath = join(
-    sampleBallotImagesPath,
-    'sample-batch-1-ballot-1.png'
-  );
+  const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   const interpretationResult = await new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
@@ -163,10 +156,7 @@ test('properly detects bmd ballot with wrong precinct', async () => {
 });
 
 test('properly detects bmd ballot with correct precinct', async () => {
-  const ballotImagePath = join(
-    sampleBallotImagesPath,
-    'sample-batch-1-ballot-1.png'
-  );
+  const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   const interpretationResult = await new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
@@ -192,7 +182,7 @@ test('properly detects bmd ballot with correct precinct', async () => {
 });
 
 test('detects a blank page', async () => {
-  const ballotImagePath = join(sampleBallotImagesPath, 'blank-page.png');
+  const ballotImagePath = sampleBallotImages.blankPage.asFilePath();
   const interpretationResult = await new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
