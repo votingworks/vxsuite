@@ -2,16 +2,16 @@ import { AdjudicationReason } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { Logger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
-import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine_plustek';
-import { PrecinctScannerInterpreter } from './interpret';
+import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
+import { PrecinctScannerInterpreter } from '../../interpret';
 import {
   ballotImages,
   configureApp,
   createApp,
   expectStatus,
   waitForStatus,
-} from '../test/helpers/app_helpers';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/scanners/plustek/app_helpers';
+import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {

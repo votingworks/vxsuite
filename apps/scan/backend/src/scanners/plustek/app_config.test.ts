@@ -21,9 +21,9 @@ import {
   createApp,
   createBallotPackageWithoutTemplates,
   waitForStatus,
-} from '../test/helpers/app_helpers';
-import { Api } from './app';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/scanners/plustek/app_helpers';
+import { Api } from '../../app';
+import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {

@@ -25,20 +25,20 @@ import {
 } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { PLUSTEKCTL_PATH } from './globals';
+import { PLUSTEKCTL_PATH } from '../../globals';
 import {
   SheetInterpretationWithPages,
   PrecinctScannerInterpreter,
-} from './interpret';
-import { Store } from './store';
-import { Workspace } from './util/workspace';
-import { rootDebug } from './util/debug';
+} from '../../interpret';
+import { Store } from '../../store';
+import { Workspace } from '../../util/workspace';
+import { rootDebug } from '../../util/debug';
 import {
   PrecinctScannerErrorType,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
   SheetInterpretation,
-} from './types';
+} from '../../types';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');

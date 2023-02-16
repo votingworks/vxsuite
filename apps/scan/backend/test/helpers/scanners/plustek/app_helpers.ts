@@ -27,18 +27,21 @@ import {
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { buildApp, Api } from '../../src/app';
+import { buildApp, Api } from '../../../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
-} from '../../src/state_machine_plustek';
+} from '../../../../src/scanners/plustek/state_machine';
 import {
   createInterpreter,
   PrecinctScannerInterpreter,
-} from '../../src/interpret';
-import { createWorkspace, Workspace } from '../../src/util/workspace';
-import { Usb } from '../../src/util/usb';
-import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
+} from '../../../../src/interpret';
+import { createWorkspace, Workspace } from '../../../../src/util/workspace';
+import { Usb } from '../../../../src/util/usb';
+import {
+  PrecinctScannerState,
+  PrecinctScannerStatus,
+} from '../../../../src/types';
 
 type MockFileTree = MockFile | MockDirectory;
 type MockFile = Buffer;
