@@ -23,15 +23,15 @@ import {
   Hardware,
   singlePrecinctSelectionFor,
   makeAsync,
+  isElectionManagerAuth,
+  isCardlessVoterAuth,
+  isPollWorkerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import {
-  isElectionManagerAuth,
-  isCardlessVoterAuth,
-  isPollWorkerAuth,
-  isSystemAdministratorAuth,
   SetupCardReaderPage,
   useDevices,
   usePrevious,

@@ -11,7 +11,7 @@ import { withMarkup } from '../test/helpers/with_markup';
 import {
   advanceTimers,
   advanceTimersAndPromises,
-} from '../test/helpers/smartcards';
+} from '../test/helpers/timers';
 
 import {
   singleSeatContestWithWriteIn,

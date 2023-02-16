@@ -7,7 +7,7 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 

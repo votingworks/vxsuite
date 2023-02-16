@@ -15,7 +15,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { fakeTts } from '../test/helpers/fake_tts';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { AriaScreenReader } from './utils/ScreenReader';

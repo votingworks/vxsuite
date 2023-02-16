@@ -10,7 +10,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { setStateInStorage } from '../test/helpers/election';
 import { electionStorageKey } from './app_root';

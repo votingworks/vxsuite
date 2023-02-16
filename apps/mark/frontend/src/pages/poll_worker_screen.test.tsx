@@ -4,18 +4,12 @@ import {
   asElectionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { ElectionDefinition, InsertedSmartcardAuth } from '@votingworks/types';
+import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { fireEvent, screen } from '@testing-library/react';
+import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
 import {
-  ScannerReportData,
-  singlePrecinctSelectionFor,
-  MemoryHardware,
-} from '@votingworks/utils';
-import {
-  Inserted,
   fakePollWorkerUser,
-  fakeCardStorage,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -49,22 +43,18 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function fakePollworkerAuth(
-  electionDefinition: ElectionDefinition,
-  tally?: ScannerReportData
-): InsertedSmartcardAuth.PollWorkerLoggedIn {
-  return Inserted.fakePollWorkerAuth(
-    fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    fakeCardStorage({
-      hasStoredData: tally !== undefined,
-      readStoredObject: jest.fn().mockResolvedValue(ok(tally)),
-    })
-  );
+function fakePollWorkerAuth(
+  electionDefinition: ElectionDefinition
+): InsertedSmartCardAuth.PollWorkerLoggedIn {
+  return {
+    status: 'logged_in',
+    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
+  };
 }
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollWorkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
     electionSampleDefinition
   ),
   electionDefinition: ElectionDefinition = electionSampleDefinition
@@ -126,7 +116,7 @@ test('switching out of test mode on election day', () => {
     .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
   renderScreen({
-    pollWorkerAuth: fakePollworkerAuth(electionDefinition),
+    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
     electionDefinition,
     enableLiveMode,
   });

@@ -27,7 +27,7 @@ import { PrintPage } from './pages/print_page';
 
 import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   setElectionInStorage,

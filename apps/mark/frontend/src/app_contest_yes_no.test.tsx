@@ -9,7 +9,7 @@ import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
 
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   measure102Contest,

@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { App } from '../app';
 
-import { advanceTimersAndPromises } from '../../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../../test/helpers/timers';
 
 import {
   contest0,
