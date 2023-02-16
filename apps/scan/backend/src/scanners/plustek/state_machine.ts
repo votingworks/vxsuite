@@ -25,7 +25,6 @@ import {
 } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { PLUSTEKCTL_PATH } from '../../globals';
 import {
   SheetInterpretationWithPages,
   PrecinctScannerInterpreter,
@@ -109,13 +108,10 @@ function connectToPlustek(
 ) {
   return async (): Promise<ScannerClient> => {
     debug('Connecting to plustek');
-    const plustekClient = await createPlustekClient(
-      {
-        ...DEFAULT_CONFIG,
-        savepath: scannedImagesPath,
-      },
-      { plustekctlPath: PLUSTEKCTL_PATH }
-    );
+    const plustekClient = await createPlustekClient({
+      ...DEFAULT_CONFIG,
+      savepath: scannedImagesPath,
+    });
     debug('Plustek client connected: %s', plustekClient.isOk());
     return plustekClient.unsafeUnwrap();
   };

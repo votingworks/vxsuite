@@ -43,8 +43,3 @@ export const SCAN_ALLOWED_EXPORT_PATTERNS =
   defaultAllowedExportPatterns;
 
 export const CVR_EXPORT_FORMAT = process.env.CVR_EXPORT_FORMAT ?? 'vxf';
-
-/**
- * Path to the `plustekctl` binary.
- */
-export const { PLUSTEKCTL_PATH } = process.env;
