@@ -31,7 +31,7 @@ import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
   Delays,
-} from '../../src/state_machine';
+} from '../../src/state_machine_plustek';
 import {
   createInterpreter,
   PrecinctScannerInterpreter,

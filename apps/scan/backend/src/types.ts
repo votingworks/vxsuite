@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/basics';
 import {
   AdjudicationReasonInfo,
   BallotTargetMark,
@@ -97,7 +98,7 @@ export type PrecinctScannerErrorType =
   | 'unexpected_paper_status'
   | 'unexpected_event'
   | 'calibration_failed'
-  | 'plustek_error';
+  | 'client_error';
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
   interpretation?: SheetInterpretation;
@@ -119,4 +120,22 @@ export interface PrecinctScannerConfig {
   isTestMode: boolean;
   pollsState: PollsState;
   ballotCountWhenBallotBagLastReplaced: number;
+}
+
+/**
+ * The precinct scanner state machine can:
+ * - return its status
+ * - accept scanning commands * - calibrate
+ */
+export interface PrecinctScannerStateMachine {
+  status: () => PrecinctScannerMachineStatus;
+  // The commands are non-blocking and do not return a result. They just send an
+  // event to the machine. The effects of the event (or any error) will show up
+  // in the status.
+  scan: () => void;
+  accept: () => void;
+  return: () => void;
+  // Calibrate is the exception, which blocks until calibration is finished and
+  // returns a result.
+  calibrate?: () => Promise<Result<void, string>>;
 }
