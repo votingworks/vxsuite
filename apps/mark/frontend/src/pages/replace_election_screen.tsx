@@ -15,12 +15,12 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
+import { getElectionDefinitionFromCard } from '../api';
 
-interface Props {
+export interface ReplaceElectionScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
-  electionDefinitionFromCard?: ElectionDefinition;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
   unconfigure(): Promise<void>;
@@ -30,12 +30,14 @@ export function ReplaceElectionScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  electionDefinitionFromCard,
   machineConfig,
   screenReader,
   unconfigure,
-}: Props): JSX.Element {
+}: ReplaceElectionScreenProps): JSX.Element {
   const { election, electionHash } = electionDefinition;
+  const electionDefinitionFromCardQuery =
+    getElectionDefinitionFromCard.useQuery(electionHash);
+  const electionDefinitionFromCard = electionDefinitionFromCardQuery.data?.ok();
 
   useEffect(() => {
     const muted = screenReader.isMuted();
@@ -43,12 +45,27 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
+  if (!electionDefinitionFromCardQuery.data) {
+    return (
+      <Screen>
+        <Main padded centerChild>
+          <Prose textCenter>
+            <p>Reading the election definition from Election Manager card…</p>
+          </Prose>
+        </Main>
+      </Screen>
+    );
+  }
+
   if (!electionDefinitionFromCard) {
     return (
       <Screen>
         <Main padded centerChild>
-          <Prose>
-            <p>Reading the election definition from Election Manager card…</p>
+          <Prose textCenter>
+            <p>
+              Error reading the election definition from Election Manager card.
+            </p>
+            <p>Remove card to continue.</p>
           </Prose>
         </Main>
       </Screen>

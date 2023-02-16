@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import {
   ElectionDefinition,
@@ -22,14 +22,16 @@ import {
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
+import { assert } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
+import { getElectionDefinitionFromCard } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition?: ElectionDefinition;
+  updateElectionDefinition: (electionDefinition: ElectionDefinition) => void;
   isLiveMode: boolean;
-  fetchElection: VoidFunction;
   updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
   toggleLiveMode: VoidFunction;
   unconfigure: () => Promise<void>;
@@ -43,8 +45,8 @@ export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
+  updateElectionDefinition,
   isLiveMode,
-  fetchElection,
   updateAppPrecinct,
   toggleLiveMode,
   unconfigure,
@@ -54,11 +56,22 @@ export function AdminScreen({
   logger,
 }: AdminScreenProps): JSX.Element {
   const election = electionDefinition?.election;
+  const electionHash = electionDefinition?.electionHash;
 
-  const [isFetchingElection, setIsFetchingElection] = useState(false);
-  function loadElection() {
-    setIsFetchingElection(true);
-    fetchElection();
+  const electionDefinitionFromCardQuery =
+    getElectionDefinitionFromCard.useQuery(electionHash, {
+      // Disable automatic fetching and only allow manual fetching through .refetch()
+      enabled: false,
+    });
+
+  async function loadElection() {
+    const { data } = await electionDefinitionFromCardQuery.refetch();
+    assert(data !== undefined);
+    const electionDefinitionFromCard = data.ok();
+    // TODO: Handle case that electionDefinitionFromCard is undefined, e.g. because it's malformed
+    if (electionDefinitionFromCard) {
+      updateElectionDefinition(electionDefinitionFromCard);
+    }
   }
 
   // Disable the audiotrack when in admin mode
@@ -158,7 +171,7 @@ export function AdminScreen({
                 Unconfigure Machine
               </Button>
             </p>
-          ) : isFetchingElection ? (
+          ) : electionDefinitionFromCardQuery.isFetching ? (
             <p>Loading Election Definition from Election Manager card…</p>
           ) : (
             <React.Fragment>

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -12,7 +6,6 @@ import {
   VotesDict,
   getBallotStyle,
   getContests,
-  safeParseElectionDefinition,
   Optional,
   ContestId,
   PrecinctId,
@@ -44,7 +37,6 @@ import {
   usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
-  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -53,7 +45,6 @@ import {
   endCardlessVoterSession,
   getAuthStatus,
   getMachineConfig,
-  readElectionDefinitionFromCard,
   startCardlessVoterSession,
 } from './api';
 
@@ -315,8 +306,6 @@ export function AppRoot({
     startCardlessVoterSession.useMutation(electionHash);
   const endCardlessVoterSessionMutation =
     endCardlessVoterSession.useMutation(electionHash);
-  const readElectionDefinitionFromCardMutation =
-    readElectionDefinitionFromCard.useMutation(electionHash);
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -484,26 +473,6 @@ export function AppRoot({
     dispatchAppState({ type: 'updateTally' });
   }, []);
 
-  const getElectionDefinitionFromCard = useCallback(async (): Promise<
-    Optional<ElectionDefinition>
-  > => {
-    assert(isElectionManagerAuth(authStatus));
-    let electionData: Optional<string>;
-    try {
-      electionData = (
-        await readElectionDefinitionFromCardMutation.mutateAsync()
-      ).ok();
-    } catch {
-      // Handled by default query client error handling
-    }
-    /* istanbul ignore else */
-    if (electionData) {
-      const electionDefinitionResult =
-        safeParseElectionDefinition(electionData);
-      return electionDefinitionResult.unsafeUnwrap();
-    }
-  }, [authStatus, readElectionDefinitionFromCardMutation]);
-
   const updateElectionDefinition = useCallback(
     (electionDefinition: ElectionDefinition) => {
       dispatchAppState({
@@ -513,14 +482,6 @@ export function AppRoot({
     },
     []
   );
-
-  const fetchElection = useCallback(async () => {
-    const newElectionDefinition = await getElectionDefinitionFromCard();
-    /* istanbul ignore else */
-    if (newElectionDefinition) {
-      updateElectionDefinition(newElectionDefinition);
-    }
-  }, [getElectionDefinitionFromCard, updateElectionDefinition]);
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
@@ -626,26 +587,6 @@ export function AppRoot({
     void updateStorage();
   }, [storage]);
 
-  const [
-    alternateElectionDefinitionFromCard,
-    setAlternateElectionDefinitionFromCard,
-  ] = useState<ElectionDefinition>();
-
-  useQueryChangeListener(authStatusQuery, async (newAuthStatus) => {
-    if (
-      isElectionManagerAuth(newAuthStatus) &&
-      optionalElectionDefinition &&
-      newAuthStatus.user.electionHash !==
-        optionalElectionDefinition.electionHash
-    ) {
-      setAlternateElectionDefinitionFromCard(
-        await getElectionDefinitionFromCard()
-      );
-    } else if (!isElectionManagerAuth(newAuthStatus)) {
-      setAlternateElectionDefinitionFromCard(undefined);
-    }
-  });
-
   // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
   useEffect(() => {
     async function storeAppState() {
@@ -731,7 +672,6 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           electionDefinition={optionalElectionDefinition}
-          electionDefinitionFromCard={alternateElectionDefinitionFromCard}
           machineConfig={machineConfig}
           screenReader={screenReader}
           unconfigure={unconfigure}
@@ -744,7 +684,7 @@ export function AppRoot({
         appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
-        fetchElection={fetchElection}
+        updateElectionDefinition={updateElectionDefinition}
         isLiveMode={isLiveMode}
         updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}

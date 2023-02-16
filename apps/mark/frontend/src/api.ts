@@ -8,12 +8,20 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
-import { BallotStyleId, PrecinctId } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  Optional,
+  PrecinctId,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
+import { ok, Result } from '@votingworks/basics';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -59,6 +67,34 @@ export const getAuthStatus = {
       this.queryKey(),
       () => apiClient.getAuthStatus({ electionHash }),
       { refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS }
+    );
+  },
+} as const;
+
+export const getElectionDefinitionFromCard = {
+  queryKey(): QueryKey {
+    return ['getElectionDefinitionFromCard'];
+  },
+  useQuery(
+    electionHash?: string,
+    options: UseQueryOptions<Result<Optional<ElectionDefinition>, Error>> = {}
+  ) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      async () => {
+        const result = await apiClient.readElectionDefinitionFromCard({
+          electionHash,
+        });
+        const electionData = result.ok();
+        const electionDefinition = electionData
+          ? safeParseElectionDefinition(electionData).ok()
+          : undefined;
+        return ok<Optional<ElectionDefinition>, Error>(electionDefinition);
+      },
+      // Don't cache this since caching would require invalidation in response to external
+      // circumstances, like card removal
+      { cacheTime: 0, staleTime: 0, ...options }
     );
   },
 } as const;
@@ -128,15 +164,6 @@ export const endCardlessVoterSession = {
           await queryClient.invalidateQueries(getAuthStatus.queryKey());
         },
       }
-    );
-  },
-} as const;
-
-export const readElectionDefinitionFromCard = {
-  useMutation(electionHash?: string) {
-    const apiClient = useApiClient();
-    return useMutation(() =>
-      apiClient.readElectionDefinitionFromCard({ electionHash })
     );
   },
 } as const;

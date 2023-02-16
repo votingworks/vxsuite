@@ -12,6 +12,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -23,38 +24,48 @@ import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from '../utils/ScreenReader';
+import { ApiClientContext, createQueryClient } from '../api';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 MockDate.set('2020-10-31T00:00:00.000Z');
+
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
   window.kiosk = undefined;
+  apiMock.mockApiClient.assertComplete();
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
   return render(
-    <AdminScreen
-      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
-      ballotsPrintedCount={0}
-      electionDefinition={asElectionDefinition(election)}
-      fetchElection={jest.fn()}
-      isLiveMode={false}
-      updateAppPrecinct={jest.fn()}
-      toggleLiveMode={jest.fn()}
-      unconfigure={jest.fn()}
-      machineConfig={fakeMachineConfig({
-        codeVersion: 'test', // Override default
-      })}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-      pollsState="polls_open"
-      logger={fakeLogger()}
-      {...props}
-    />
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider client={createQueryClient()}>
+        <AdminScreen
+          appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
+          ballotsPrintedCount={0}
+          electionDefinition={asElectionDefinition(election)}
+          updateElectionDefinition={jest.fn()}
+          isLiveMode={false}
+          updateAppPrecinct={jest.fn()}
+          toggleLiveMode={jest.fn()}
+          unconfigure={jest.fn()}
+          machineConfig={fakeMachineConfig({
+            codeVersion: 'test', // Override default
+          })}
+          screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+          pollsState="polls_open"
+          logger={fakeLogger()}
+          {...props}
+        />
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
   );
 }
 
