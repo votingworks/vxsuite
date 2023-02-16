@@ -43,12 +43,12 @@ const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
 const debugEvents = debug.extend('events');
 
-// 10 attempts is about the amount of time it takes for Plustek to stop trying
+// 10 attempts is about the amount of time it takes for the scanner to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
 // rollers grab it, it will get scanned successfully.
 export const MAX_FAILED_SCAN_ATTEMPTS = 10;
 
-export type CreatePlustekClient = typeof createClient;
+export type CreateCustomClient = typeof createClient;
 
 class PrecinctScannerError extends Error {
   // eslint-disable-next-line vx/gts-no-public-class-fields
@@ -102,35 +102,35 @@ export interface Delays {
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
-function connectToPlustek(
-  createPlustekClient: CreatePlustekClient,
+function connectToScanner(
+  createCustomClient: CreateCustomClient,
   scannedImagesPath?: string
 ) {
   return async (): Promise<ScannerClient> => {
-    debug('Connecting to plustek');
-    const plustekClient = await createPlustekClient({
+    debug('Connecting to Custom');
+    const customClient = await createCustomClient({
       ...DEFAULT_CONFIG,
       savepath: scannedImagesPath,
     });
-    debug('Plustek client connected: %s', plustekClient.isOk());
-    return plustekClient.unsafeUnwrap();
+    debug('Custom client connected: %s', customClient.isOk());
+    return customClient.unsafeUnwrap();
   };
 }
 
-async function closePlustekClient({ client }: Context) {
+async function closeCustomClient({ client }: Context) {
   if (!client) return;
-  debug('Closing plustek client');
+  debug('Closing Custom client');
   await client.close();
-  debug('Plustek client closed');
+  debug('Custom client closed');
 }
 
-async function killPlustekClient({ client }: Context) {
+async function killCustomClient({ client }: Context) {
   if (!client) return;
-  debug('Killing plustek client');
+  debug('Killing Customm client');
   await new Promise((resolve) => {
     resolve(client.kill().unsafeUnwrap());
   });
-  debug('Plustek client killed');
+  debug('Customm client killed');
 }
 
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
@@ -320,7 +320,7 @@ const defaultDelays: Delays = {
   // How long to wait for a single paper status call to return before giving up.
   DELAY_PAPER_STATUS_POLLING_TIMEOUT: 2_000,
   // How long to attempt scanning before giving up and disconnecting and
-  // reconnecting to Plustek.
+  // reconnecting to the scanner.
   DELAY_SCANNING_TIMEOUT: 5_000,
   // How long to attempt accepting before giving up and rejecting the ballot.
   DELAY_ACCEPTING_TIMEOUT: 5_000,
@@ -331,7 +331,7 @@ const defaultDelays: Delays = {
   // How long to wait on the accepted state before automatically going
   // back to no_paper.
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
-  // How long to wait for Plustek to grab the paper and return paper
+  // How long to wait for the scanner to grab the paper and return paper
   // status READY_TO_SCAN after rejecting. Needs to be greater than
   // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
   // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
@@ -342,22 +342,22 @@ const defaultDelays: Delays = {
   DELAY_RECONNECT: 500,
   // When we run into an unexpected error (e.g. unexpected paper status),
   // how long to wait before trying to reconnect. This should be pretty
-  // long in order to let Plustek finish whatever it's doing (yes, even
-  // after disconnecting, Plustek might keep scanning).
+  // long in order to let the scanner finish whatever it's doing (yes, even
+  // after disconnecting, the scanner might keep scanning).
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
-  // When attempting to disconnect from Plustek after an unexpected error,
+  // When attempting to disconnect from the scanner after an unexpected error,
   // how long to wait before giving up on disconnecting the "nice" way and
   // just sending a kill signal.
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
 };
 
 function buildMachine({
-  createPlustekClient,
+  createCustomClient,
   workspace,
   interpreter,
   delayOverrides,
 }: {
-  createPlustekClient: CreatePlustekClient;
+  createCustomClient: CreateCustomClient;
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   delayOverrides: Partial<Delays>;
@@ -388,7 +388,7 @@ function buildMachine({
         invoke: {
           src: accept,
           onDone: 'checking_completed',
-          // In some cases, Plustek can return an error even if the paper got
+          // In some cases, the scanner can return an error even if the paper got
           // accepted, so we need to check paper status to determine what to do
           // next. We still record the error for debugging purposes.
           onError: {
@@ -441,7 +441,7 @@ function buildMachine({
             onError: '#jammed',
           },
         },
-        // After rejecting, before the plustek grabs the paper to hold it, it sends
+        // After rejecting, before the the scanner grabs the paper to hold it, it sends
         // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
         // wait for the READY_TO_SCAN.
         checking_completed: {
@@ -493,8 +493,8 @@ function buildMachine({
       states: {
         connecting: {
           invoke: {
-            src: connectToPlustek(
-              createPlustekClient,
+            src: connectToScanner(
+              createCustomClient,
               workspace.scannedImagesPath
             ),
             onDone: {
@@ -515,8 +515,8 @@ function buildMachine({
             },
             reconnecting: {
               invoke: {
-                src: connectToPlustek(
-                  createPlustekClient,
+                src: connectToScanner(
+                  createCustomClient,
                   workspace.scannedImagesPath
                 ),
                 onDone: {
@@ -600,7 +600,7 @@ function buildMachine({
                       error: event.data,
                     })),
                   },
-                  // Special case: sometimes Plustek only returns one image file
+                  // Special case: sometimes the scanner only returns one image file
                   // instead of two. It seems to not be able to recover even if
                   // we disconnect/reconnect.
                   {
@@ -630,7 +630,7 @@ function buildMachine({
                 },
               },
             },
-            // Sometimes Plustek auto-rejects the ballot without returning a scanning
+            // Sometimes the scanner auto-rejects the ballot without returning a scanning
             // error (e.g. if the paper is slightly mis-aligned). So we need to check
             // that the paper is still there before interpreting.
             checking_scanning_completed: {
@@ -852,7 +852,7 @@ function buildMachine({
             ],
           },
         },
-        // If we see an unexpected error, try disconnecting from Plustek and starting over.
+        // If we see an unexpected error, try disconnecting from the scanner and starting over.
         error: {
           id: 'error',
           initial: 'disconnecting',
@@ -860,7 +860,7 @@ function buildMachine({
             // First, try disconnecting the "nice" way
             disconnecting: {
               invoke: {
-                src: closePlustekClient,
+                src: closeCustomClient,
                 onDone: 'cooling_off',
                 onError: 'killing',
               },
@@ -869,12 +869,12 @@ function buildMachine({
             // If that doesn't work or takes too long, send a kill signal
             killing: {
               invoke: {
-                src: killPlustekClient,
+                src: killCustomClient,
                 onDone: 'cooling_off',
                 onError: '#unrecoverable_error',
               },
             },
-            // Now that we've disconnected, wait a bit to give Plustek time to
+            // Now that we've disconnected, wait a bit to give the scanner time to
             // finish up anything it might be doing
             cooling_off: {
               after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
@@ -882,8 +882,8 @@ function buildMachine({
             // Finally, we're ready to try reconnecting
             reconnecting: {
               invoke: {
-                src: connectToPlustek(
-                  createPlustekClient,
+                src: connectToScanner(
+                  createCustomClient,
                   workspace.scannedImagesPath
                 ),
                 onDone: {
@@ -928,7 +928,7 @@ function setupLogging(
           ([key, value]) => previousContext[key as keyof Context] !== value
         )
         // We only log fields that are key for understanding state
-        // machine behavior, since others would be too verbose (e.g. Plustek
+        // machine behavior, since others would be too verbose (e.g. Custom
         // client object)
         .filter(([key]) =>
           [
@@ -983,7 +983,7 @@ function errorToString(error: NonNullable<Context['error']>) {
  * Creates the state machine for the precinct scanner.
  *
  * The machine tracks the state of the precinct scanner app, which adds a layer
- * of logic for scanning and interpreting ballots on top of the Plustek scanner
+ * of logic for scanning and interpreting ballots on top of the Custom scanner
  * API (which is the source of truth for the actual hardware state).
  *
  * The machine transitions between states in response to commands (e.g. scan or
@@ -993,20 +993,20 @@ function errorToString(error: NonNullable<Context['error']>) {
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
 export function createPrecinctScannerStateMachine({
-  createPlustekClient,
+  createCustomClient,
   workspace,
   interpreter,
   logger,
   delays = {},
 }: {
-  createPlustekClient: CreatePlustekClient;
+  createCustomClient: CreateCustomClient;
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   logger: Logger;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
-    createPlustekClient,
+    createCustomClient,
     workspace,
     interpreter,
     delayOverrides: delays,

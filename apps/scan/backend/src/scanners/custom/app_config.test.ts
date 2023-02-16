@@ -45,12 +45,12 @@ jest.mock('@votingworks/ballot-encoder', () => {
 });
 
 async function scanBallot(
-  mockPlustek: MockScannerClient,
+  mockScanner: MockScannerClient,
   apiClient: grout.Client<Api>,
   initialBallotsCounted: number
 ) {
   (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    await mockScanner.simulateLoadSheet(ballotImages.completeBmd)
   ).unsafeUnwrap();
   await waitForStatus(apiClient, {
     state: 'ready_to_scan',
@@ -172,9 +172,9 @@ test('configures using the most recently created ballot package on the usb drive
 });
 
 test('export the CVRs to USB', async () => {
-  const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
+  const { apiClient, workspace, mockScanner, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);
-  await scanBallot(mockPlustek, apiClient, 0);
+  await scanBallot(mockScanner, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
   const [usbDrive] = await mockUsb.mock.getUsbDrives();
@@ -236,13 +236,13 @@ test('setPrecinctSelection will reset polls to closed and update auth instance',
 });
 
 test('ballot batching', async () => {
-  const { apiClient, mockPlustek, logger, workspace, mockUsb } =
+  const { apiClient, mockScanner, logger, workspace, mockUsb } =
     await createApp();
   await configureApp(apiClient, mockUsb);
 
   // Scan two ballots, which should have the same batch
-  await scanBallot(mockPlustek, apiClient, 0);
-  await scanBallot(mockPlustek, apiClient, 1);
+  await scanBallot(mockScanner, apiClient, 0);
+  await scanBallot(mockScanner, apiClient, 1);
   let cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(2);
   const batch1Id = cvrs[0]._batchId;
@@ -279,8 +279,8 @@ test('ballot batching', async () => {
   });
 
   // Confirm there is a new, second batch distinct from the first
-  await scanBallot(mockPlustek, apiClient, 2);
-  await scanBallot(mockPlustek, apiClient, 3);
+  await scanBallot(mockScanner, apiClient, 2);
+  await scanBallot(mockScanner, apiClient, 3);
   cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(4);
   const batch2Id = cvrs[2]._batchId;
@@ -314,8 +314,8 @@ test('ballot batching', async () => {
   });
 
   // Confirm there is a third batch, distinct from the second
-  await scanBallot(mockPlustek, apiClient, 4);
-  await scanBallot(mockPlustek, apiClient, 5);
+  await scanBallot(mockScanner, apiClient, 4);
+  await scanBallot(mockScanner, apiClient, 5);
   cvrs = await apiClient.getCastVoteRecordsForTally();
   expect(cvrs).toHaveLength(6);
   const batch3Id = cvrs[4]._batchId;

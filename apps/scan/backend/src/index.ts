@@ -63,7 +63,7 @@ function createPrecinctScannerStateMachine(
   switch (SCANNER_MODEL) {
     case 'custom':
       return customStateMachine.createPrecinctScannerStateMachine({
-        createPlustekClient: createClient,
+        createCustomClient: createClient,
         workspace,
         interpreter,
         logger,
