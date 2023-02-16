@@ -43,3 +43,23 @@ export const SCAN_ALLOWED_EXPORT_PATTERNS =
   defaultAllowedExportPatterns;
 
 export const CVR_EXPORT_FORMAT = process.env.CVR_EXPORT_FORMAT ?? 'vxf';
+
+const ScannerModelSchema = z.union([z.literal('custom'), z.literal('plustek')]);
+
+/**
+ * Scanner models we support.
+ */
+export type ScannerModel = z.infer<typeof ScannerModelSchema>;
+
+/**
+ * Which scanner model is the default?
+ */
+export const DEFAULT_SCANNER_MODEL: ScannerModel = 'custom';
+
+/**
+ * Which scanner model are we using?
+ */
+export const SCANNER_MODEL = unsafeParse(
+  ScannerModelSchema,
+  process.env.SCANNER_MODEL ?? DEFAULT_SCANNER_MODEL
+);
