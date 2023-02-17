@@ -96,7 +96,7 @@ export function generateElectionBasedSubfolderName(
 }
 
 /**
- * Generate the filename for the scanning results CVR file
+ * @deprecated Generate the filename for the scanning results CVR file
  */
 export function generateFilenameForScanningResults(
   machineId: string,
@@ -110,6 +110,24 @@ export function generateFilenameForScanningResults(
   const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`;
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
   const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.jsonl`;
+  return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
+}
+
+/**
+ * Generate the filename for the cast vote record report file.
+ */
+export function generateCastVoteRecordReportFilename(
+  machineId: string,
+  numBallotsScanned: number,
+  isTestMode: boolean,
+  time: Date = new Date()
+): string {
+  const machineString = `machine${SUBSECTION_SEPARATOR}${
+    maybeParse(MachineId, machineId) ?? sanitizeString(machineId)
+  }`;
+  const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`;
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
+  const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.json`;
   return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
 }
 
