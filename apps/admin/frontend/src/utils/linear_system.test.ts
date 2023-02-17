@@ -1,7 +1,25 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { solveLinearSystem } from './linear_system';
 
 test('solveLinearSystem', () => {
+  // Example from result of buildExternalTallies
+  expect(
+    solveLinearSystem([
+      [1, 1, 0, 0, 0, 0, 4],
+      [0, 0, 1, 0, 0, 0, 6],
+      [0, 0, 0, 1, 1, 1, 4],
+      [1, 0, 0, 0, 0, 0, 4],
+      [0, 0, 1, 0, 0, 0, 6],
+      [0, 0, 0, 0, 1, 1, 0],
+      [1, 0, 0, 0, 0, 0, 4],
+      [0, 1, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 6],
+      [0, 0, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 6],
+      [0, 0, 0, 0, 0, 1, 0],
+    ])
+  ).toEqual([4, 0, 6, 4, 0, 0]);
+
   // Basic cases
   expect(solveLinearSystem([])).toEqual([]);
 

@@ -1,9 +1,8 @@
 /* eslint-disable no-param-reassign */
-import { assert } from 'console';
 
 function range(start: number, end: number): number[] {
   const result = [];
-  for (let i = start; i < end; i++) {
+  for (let i = start; i < end; i += 1) {
     result.push(i);
   }
   return result;
@@ -105,7 +104,7 @@ export function solveLinearSystem(augmentedMatrix: Matrix): Vector | undefined {
     const lastRow = A[A.length - 1];
     const coefficients = lastRow.slice(0, -1);
     const solution = lastRow[lastRow.length - 1];
-    return !coefficients.every((x) => x === 0) && solution !== 0;
+    return !(coefficients.every((x) => x === 0) && solution !== 0);
   }
 
   function backSubstitute(A: Matrix): Vector {
@@ -127,8 +126,10 @@ export function solveLinearSystem(augmentedMatrix: Matrix): Vector | undefined {
   if (!isConsistent) return undefined;
   const solutions = backSubstitute(upperTriangularMatrix);
   // Deal with floating point precision errors
-  const roundedSolutions = solutions.map(
-    (solution) => Math.round(solution * 100) / 100
-  );
+  const roundedSolutions = solutions.map((solution) => {
+    const rounded = Math.round(solution * 100) / 100;
+    if (Object.is(rounded, -0)) return 0;
+    return rounded;
+  });
   return roundedSolutions;
 }

@@ -8,7 +8,7 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,
@@ -23,39 +23,38 @@ export function buildExternalTally(
   // Initialize an empty set of contest tallies
   const contestTallies = getEmptyContestTallies(election);
   for (const ballotStyle of ballotStyles) {
-    const contestIds = getContests({ ballotStyle, election }).map((c) => c.id);
-    for (const contestId of contestIds) {
-      if (!(contestId in contestTallies)) {
-        throw new Error(
-          `Contest ID ${contestId} is not in the provided election`
-        );
-      }
-      const contestTally = contestTallies[contestId];
+    const contests = getContests({ ballotStyle, election });
+    const maxContestOptions = Math.max(
+      ...contests.map(
+        (contest) =>
+          Object.keys(assertDefined(contestTallies[contest.id]).tallies).length
+      )
+    );
+    const numBallots = (2 + maxContestOptions) * multiplier;
+    for (const contest of contests) {
+      const contestTally = contestTallies[contest.id];
       assert(contestTally);
       const populatedTallies: Dictionary<ContestOptionTally> = {};
-      const numSeats =
-        contestTally.contest.type === 'candidate'
-          ? contestTally.contest.seats
-          : 1;
-      let numberOfBallotsInContest = 2 * multiplier; // Undervotes and Overvotes
-      for (const optionId of Object.keys(contestTally.tallies)) {
+      const numSeats = contest.type === 'candidate' ? contest.seats : 1;
+      const optionIds = Object.keys(contestTally.tallies);
+      for (const optionId of optionIds) {
         const option = contestTally.tallies[optionId];
         assert(option);
         populatedTallies[optionId] = {
           ...option,
           tally: option.tally + 1 * multiplier * numSeats,
         };
-        numberOfBallotsInContest += 1 * multiplier;
       }
-      contestTallies[contestId] = {
+      const numOptionVotes = optionIds.length * multiplier * numSeats;
+      const numOvervotes = 1 * multiplier * numSeats;
+      const numUndervotes = numBallots - numOptionVotes - numOvervotes;
+      contestTallies[contest.id] = {
         ...contestTally,
         tallies: populatedTallies,
         metadata: {
-          undervotes:
-            contestTally.metadata.undervotes + 1 * multiplier * numSeats,
-          overvotes:
-            contestTally.metadata.overvotes + 1 * multiplier * numSeats,
-          ballots: contestTally.metadata.ballots + numberOfBallotsInContest,
+          undervotes: contestTally.metadata.undervotes + numUndervotes,
+          overvotes: contestTally.metadata.overvotes + numOvervotes,
+          ballots: contestTally.metadata.ballots + numBallots,
         },
       };
     }

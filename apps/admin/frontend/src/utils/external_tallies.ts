@@ -72,9 +72,9 @@ export function getTotalNumberOfBallots(
   election: Election
 ): number {
   const ballotStyleToContestIds = Object.fromEntries(
-    election.ballotStyles.map((bs) => [
-      bs.id,
-      getContests({ ballotStyle: bs, election }).map((c) => c.id),
+    election.ballotStyles.map((ballotStyle) => [
+      ballotStyle.id,
+      getContests({ ballotStyle, election }).map((c) => c.id),
     ])
   );
   // console.log(contestTallies);
@@ -86,11 +86,11 @@ export function getTotalNumberOfBallots(
       tally?.metadata.ballots ?? 0,
     ]
   );
-  console.log(augmentedMatrix);
-  console.log(augmentedMatrix.length, augmentedMatrix[0].length);
-  console.log(augmentedMatrix.map((row) => row.join(' ')).join('\n'));
+  // console.log(augmentedMatrix);
+  // console.log(augmentedMatrix.length, augmentedMatrix[0].length);
+  // console.log(augmentedMatrix.map((row) => row.join(' ')).join('\n'));
   const solution = solveLinearSystem(augmentedMatrix);
-  console.log(solution);
+  // console.log(solution);
   // TODO return an error for inconsistent tallies
   return solution?.reduce((a, b) => a + b, 0) ?? -1;
 }
@@ -200,7 +200,6 @@ export function convertTalliesByPrecinctToFullExternalTally(
   const overallContestTallies: Dictionary<ContestTally> = {};
   for (const precinctTally of Object.values(talliesByPrecinct)) {
     assert(precinctTally);
-    console.log(precinctTally);
     totalNumberOfBallots += precinctTally.numberOfBallotsCounted;
     for (const contestId of Object.keys(precinctTally.contestTallies)) {
       if (!(contestId in overallContestTallies)) {
