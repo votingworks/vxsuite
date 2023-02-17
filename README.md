@@ -14,7 +14,7 @@ more information about VotingWorks.
 ## Development
 
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
-v16.14.2 and [pnpm](https://pnpm.js.org) v7 (or use `corepack enable` to automatically use the right package manager).
+v16.19.0 and [pnpm](https://pnpm.js.org) v7.24.3
 
 Most of the code is written in TypeScript. We follow the
 [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
@@ -33,39 +33,53 @@ quickstart below to get developing.
 
 ### Debian Quickstart
 
-This expects Debian 11.02, though it may work on other versions.
+This expects Debian 11.6, though it may work on other versions.
 
-Debian, by default, does not give your primary user account sudo access. Most of
-our scripts are designed assuming you will have sudo access so is most
-straightforward to simply add yourself to the sudoers file. You can do this with
-the following commands.
+Most of our scripts assume your user account has sudo access.
+
+If you use our automated build process to create your VM, your user account will 
+have passwordless sudo enabled by default. 
+
+If you build your VM on your own, you will need to grant sudo access to your account.
+You can do this with the following commands.
 
 ```sh
 su - # this will prompt for the root password
-echo "USERNAME ALL=(ALL:ALL) ALL" > /etc/sudoers.d/USERNAME # use your user account username
+echo "USERNAME ALL=NOPASSWD: ALL" > /etc/sudoers.d/USERNAME # use your user account username
 exit
 ```
 
 Verify your account has sudo privileges by running `sudo whoami` in the terminal.
 You should see `root`.
 
-Next install git, and create an SSH key following the
+Next create an SSH key following the
 [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
-You will need to add the key to your github account. Then clone the vxsuite
-repositories.
+You will need to add the key to your github account.
+
+Alternatively, you can use an existing SSH key. You will need to import it to your VM.
+The instructions below assume creating a new key.
 
 ```sh
-sudo apt update
-sudo apt install -y git make
 echo "export PATH=\${PATH}:/usr/sbin" >> ~/.bashrc # Only for debian, add sbin to your path
 ssh-keygen -t ed25519 -C "your_github_email@example.com" # Save to the default location, and chose a passphrase
 eval "$(ssh-agent -s)" # start the ssh agent
 ssh-add ~/.ssh/id_ed25519 # add your ssh key to the agent
 cat ~/.ssh/id_ed25519.pub # Copy the public key and add it to your github account
 ssh -T git@github.com # This should return `Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+If you are using our automated build process, we automatically clone our primary
+github repositories in the ~/code directory for you. Please note: these are https clones.
+You will need to convert them to ssh once your ssh key is properly configured.
+You can find instructions on converting an https repo here: https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories#switching-remote-urls-from-https-to-ssh
+
+If you are not using our automated build process, you can clone manually.
+
+```sh
 mkdir code
 cd code
 git clone git@github.com:votingworks/vxsuite.git
+```
 
 # If you are doing a lot of development in vxsuite you will likely eventually need the following repos.
 # kiosk-browser is an electron-based browser where our apps run in production.
@@ -80,18 +94,10 @@ up [GPG Keys](#setting-up-gpg-keys) for your github account.
 Install Node, npm, yarn, and pnpm by running the following script:
 
 ```sh
-cd vxsuite
+cd ~/code/vxsuite
 ./script/setup-dev
 node -v # this should return 16.x.x
 pnpm -v # this should return 7.x.x
-```
-
-NOTE: The initial bootstrap will take some time. You may be prompted for your
-`sudo` password during the run. To minimize the chance of it happening, you can
-reset the timer by running a quick sudo command before the bootstrap:
-
-```sh
-sudo whoami
 ```
 
 Automatically install and build all dependencies in the vxsuite repo with the following command:
