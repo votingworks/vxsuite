@@ -203,7 +203,7 @@ function buildCVRCandidateContest({
     Overvotes: overvoted ? vote.length - contest.seats : undefined, // VVSG 2.0 1.1.5-E.2
     Undervotes: undervoted ? contest.seats - vote.length : undefined, // VVSG 2.0 1.1.5-E.2
     WriteIns: writeInCount > 0 ? writeInCount : undefined, // VVSG 2.0 1.1.5-E.3
-    Status: statuses,
+    Status: statuses.length > 0 ? statuses : undefined,
     Selections: contest.seats,
     CVRContestSelection: vote.map((candidate) => {
       const { isWriteIn } = candidate;

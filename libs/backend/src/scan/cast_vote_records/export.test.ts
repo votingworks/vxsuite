@@ -109,7 +109,6 @@ test('getCastVoteRecordReportStream', async () => {
       includeInlineBallotImages: false,
     },
     resultSheetGenerator: resultSheetGenerator(),
-    ballotsCounted: 2,
   });
 
   // report is valid cast vote record report
@@ -150,7 +149,6 @@ test('getCastVoteRecordReportStream throws error when validation fails', async (
       includeInlineBallotImages: false,
     },
     resultSheetGenerator: resultSheetGenerator(),
-    ballotsCounted: 1,
   });
 
   // the error is not thrown until the stream is read from
@@ -197,7 +195,6 @@ test('getCastVoteRecordReportStream can include inline ballot images and layouts
       includeInlineBallotImages: true,
     },
     resultSheetGenerator: resultSheetGenerator(),
-    ballotsCounted: 1,
   });
 
   const parseResult = safeParseJson(
@@ -263,7 +260,6 @@ test('getCastVoteRecordReportStream can include file uris', async () => {
       includeInlineBallotImages: false,
     },
     resultSheetGenerator: resultSheetGenerator(),
-    ballotsCounted: 1,
   });
 
   const parseResult = safeParseJson(

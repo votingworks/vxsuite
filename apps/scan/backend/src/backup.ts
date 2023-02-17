@@ -1,4 +1,7 @@
-import { ExportDataError } from '@votingworks/backend';
+import {
+  ExportDataError,
+  getCastVoteRecordReportStream,
+} from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
@@ -8,11 +11,13 @@ import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { getDisplayElectionHash } from '@votingworks/types';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
 import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
 import { Usb } from './util/usb';
+import { CVR_EXPORT_FORMAT, VX_MACHINE_ID } from './globals';
 
 const debug = rootDebug.extend('backup');
 
@@ -95,10 +100,33 @@ export class Backup {
     debug('added election.json to backup');
 
     debug('adding CVRs to backup...');
-    await this.addEntry(
-      'cvrs.jsonl',
-      exportCastVoteRecordsAsNdJson({ store: this.store })
-    );
+    if (CVR_EXPORT_FORMAT === 'vxf') {
+      await this.addEntry(
+        'cvrs.jsonl',
+        exportCastVoteRecordsAsNdJson({ store: this.store })
+      );
+    } else {
+      await this.addEntry(
+        'castVoteRecordReport.json',
+        getCastVoteRecordReportStream({
+          election: electionDefinition.election,
+          electionId: getDisplayElectionHash(electionDefinition),
+          scannerId: VX_MACHINE_ID,
+          definiteMarkThreshold:
+            this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+          isTestMode: this.store.getTestMode(),
+          ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
+          resultSheetGenerator: this.store.forEachResultSheet(),
+          batchInfo: this.store.batchStatus(),
+          imageOptions: {
+            includeInlineBallotImages: false,
+            includedImageFileUris: 'all',
+            imagesDirectory: '', // currently we don't place backup images in a subdirectory
+          },
+        })
+      );
+    }
+
     debug('added CVRs to backup');
 
     debug('adding database files to backup...');

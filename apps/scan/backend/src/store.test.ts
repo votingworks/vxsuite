@@ -23,9 +23,10 @@ import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { readFileSync } from 'fs';
 import { sleep, typedAs } from '@votingworks/basics';
+import { ResultSheet } from '@votingworks/backend';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import { ResultSheet, Store } from './store';
+import { Store } from './store';
 import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -832,6 +833,8 @@ test('iterating over all result sheets', () => {
         batchId,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
+        frontNormalizedFilename: '/normalized.png',
+        backNormalizedFilename: '/normalized.png',
       },
     ])
   );
@@ -1005,4 +1008,16 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
+});
+
+test('getBallotPageLayoutsLookup', async () => {
+  const store = Store.memoryStore();
+  expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
+  await store.setHmpbTemplates(ballotTemplates);
+  expect(store.getBallotPageLayoutsLookup()).toMatchObject([
+    {
+      ballotMetadata: metadata,
+      ballotPageLayouts: ballotTemplates[0].layout,
+    },
+  ]);
 });

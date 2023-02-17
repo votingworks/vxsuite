@@ -16,7 +16,7 @@ import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { join } from 'path';
+import { basename, join } from 'path';
 import {
   describeSheetValidationError,
   validateSheetInterpretation,
@@ -32,7 +32,7 @@ import { getInlineBallotImage } from './get_inline_ballot_image';
 interface CastVoteRecordReportImageOptions {
   imagesDirectory: string;
   includedImageFileUris: 'none' | 'write-ins' | 'all';
-  // TODO: Remove option. Only applies to write-ins
+  // TODO: Remove option. Currently only applies to write-ins
   includeInlineBallotImages: boolean;
 }
 
@@ -125,7 +125,9 @@ async function* getCastVoteRecordGenerator({
               imageOptions.includedImageFileUris === 'all' ||
               (imageOptions.includedImageFileUris === 'write-ins' &&
                 frontHasWriteIns)
-                ? `file:./${imageOptions.imagesDirectory}/${frontFilename}`
+                ? `file:./${imageOptions.imagesDirectory}/${basename(
+                    frontFilename
+                  )}`
                 : undefined,
           },
           {
@@ -138,7 +140,9 @@ async function* getCastVoteRecordGenerator({
               imageOptions.includedImageFileUris === 'all' ||
               (imageOptions.includedImageFileUris === 'write-ins' &&
                 backHasWriteIns)
-                ? `file:./${imageOptions.imagesDirectory}/${backFilename}`
+                ? `file:./${imageOptions.imagesDirectory}/${basename(
+                    backFilename
+                  )}`
                 : undefined,
           },
         ],
@@ -180,7 +184,6 @@ async function* commaSeparateStringGenerator(
 
 interface GetCastVoteRecordReportStreamParams
   extends GetCastVoteRecordGeneratorParams {
-  ballotsCounted: number;
   isTestMode: boolean;
   batchInfo: BatchInfo[];
 }
@@ -284,7 +287,6 @@ export async function exportCastVoteRecordReportToUsbDrive({
       electionId: electionHash.slice(0, 10),
       scannerId: VX_MACHINE_ID,
       isTestMode,
-      ballotsCounted,
       ...rest,
     })
   );

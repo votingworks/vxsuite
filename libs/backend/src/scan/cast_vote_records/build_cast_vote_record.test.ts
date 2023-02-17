@@ -253,7 +253,7 @@ describe('buildCVRContestsFromVotes', () => {
         "ContestId": "zoo-council-mammal",
         "Overvotes": undefined,
         "Selections": 3,
-        "Status": Array [],
+        "Status": undefined,
         "Undervotes": undefined,
         "WriteIns": undefined,
       }
