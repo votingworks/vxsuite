@@ -23,9 +23,8 @@ export type BallotPageLayoutsLookup = Array<{
 
 /**
  * Retrieves the ballot page layouts for a ballot given a lookup array and the ballot
- * metadata to use as a key. For `gridLayouts` elections, this method may *mutate
- * the array in place* by adding generated page layouts. The purpose is to avoid
- * re-generating the ballot layouts for every single cast vote record.
+ * metadata to use as a key. For `gridLayouts` elections, this method generates
+ * the template on the fly.
  *
  * @param ballotPageLayoutsLookup Layout lookup array: {@link BallotPageLayoutsLookup}
  * @param ballotPageMetadata Metadata of the ballot for which you want a layout
@@ -55,11 +54,6 @@ function getBallotPageLayouts({
         election,
         ballotMetadata
       ).unsafeUnwrap();
-
-      ballotPageLayoutsLookup.push({
-        ballotMetadata,
-        ballotPageLayouts,
-      });
     } else {
       throw new Error('unable to find template layout for the current ballot');
     }
@@ -69,10 +63,9 @@ function getBallotPageLayouts({
 }
 
 /**
- * Retrieves a ballot page layout given a lookup array and the ballot page
- * metadata to use as a key. For `gridLayouts` elections, this method may *mutate
- * the array in place* by adding generated page layouts. The purpose is to avoid
- * re-generating the ballot layouts for every single cast vote record.
+ * Retrieves the ballot page layout for a ballot given a lookup array and the ballot
+ * page metadata to use as a key. For `gridLayouts` elections, this method generates
+ * the template on the fly.
  *
  * @param ballotPageLayoutsLookup Layout lookup array: {@link BallotPageLayoutsLookup}
  * @param ballotPageMetadata Metadata of the ballot page for which you want a layout
