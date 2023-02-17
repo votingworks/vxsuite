@@ -5,9 +5,11 @@
 
 /* eslint-disable */
 
-import { z } from 'zod';
+import { z, ZodNull } from 'zod';
 
 import check8601 from '@antongolub/iso8601';
+import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb';
+import { Optional } from './generic';
 
 const Iso8601Date = z
   .string()
@@ -703,6 +705,17 @@ export interface CVR {
    * The sequence number for this CVR. This represents the ordinal number that this CVR was processed by the tabulating device.
    */
   readonly UniqueId?: string;
+
+  /**
+   * Indicates whether a ballot is absentee, precinct, or provisional
+   */
+  readonly vxBallotType: 'absentee' | 'provisional' | 'standard';
+
+  /**
+   * @deprecated Use to include the layout data of the ballot as scanned.
+   * Deprecated as we will move to including these as separate files.
+   */
+  readonly vxLayouts?: SheetOf<BallotPageLayout | null>;
 }
 
 /**
@@ -728,6 +741,17 @@ export const CVRSchema: z.ZodSchema<CVR> = z.object({
   ElectionId: z.string(),
   PartyIds: z.optional(z.array(z.string())),
   UniqueId: z.optional(z.string()),
+  vxBallotType: z.union([
+    z.literal('absentee'),
+    z.literal('provisional'),
+    z.literal('standard'),
+  ]),
+  vxLayouts: z
+    .tuple([
+      BallotPageLayoutSchema.nullable(),
+      BallotPageLayoutSchema.nullable(),
+    ])
+    .optional(),
 });
 
 /**
@@ -1113,6 +1137,25 @@ export const CandidateSelectionSchema: z.ZodSchema<CandidateSelection> =
   });
 
 /**
+ * Represents metadata about a batch (like it's label) and is linked to by
+ * a BatchId in {@link CVR}.
+ */
+export interface Batch {
+  '@type': 'CVR.vxBatch';
+  '@id': string;
+  BatchLabel?: string;
+}
+
+/**
+ * Schema for {@link Batch}.
+ */
+export const BatchSchema: z.ZodSchema<Batch> = z.object({
+  '@type': z.literal('CVR.vxBatch'),
+  '@id': z.string(),
+  BatchLabel: z.string().optional(),
+});
+
+/**
  * The root class/element; attributes pertain to the status and format of the report and when created.CastVoteRecordReport includes multiple instances of CVR, one per CVR or sheet of a multi-page cast vote record.  CastVoteRecordReport also includes multiple instances of Contest, typically only for those contests that were voted so as to reduce file size.  The Contest instances are later referenced by other classes to link them to contest options that were voted and the indication(s)/mark(s) made.
  */
 export interface CastVoteRecordReport {
@@ -1172,6 +1215,11 @@ export interface CastVoteRecordReport {
    * The version of the CVR specification being used (1.0).
    */
   readonly Version: CastVoteRecordVersion;
+
+  /**
+   * The batches which contain the included CVRs.
+   */
+  readonly Batch?: Batch[];
 }
 
 /**

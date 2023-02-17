@@ -8,6 +8,8 @@ import {
 import { BallotPageLayout, SheetOf } from './hmpb';
 import { Dictionary } from './generic';
 
+export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'standard';
+
 export interface CastVoteRecord
   extends Dictionary<
     | string
@@ -23,7 +25,7 @@ export interface CastVoteRecord
   readonly _ballotId?: BallotId;
   readonly _ballotImages?: SheetOf<InlineBallotImage>;
   readonly _ballotStyleId: BallotStyleId;
-  readonly _ballotType: 'absentee' | 'provisional' | 'standard';
+  readonly _ballotType: CastVoteRecordBallotType;
   readonly _batchId: string;
   readonly _batchLabel: string;
   readonly _testBallot: boolean;
