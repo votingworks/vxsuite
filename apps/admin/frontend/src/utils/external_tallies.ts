@@ -17,13 +17,15 @@ import {
   ContestId,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
 } from './election';
 import { getAdjudicatedWriteInCandidate } from './write_ins';
+import { solveLinearSystem } from './linear_system';
+import { convertSemsFileToExternalTally } from './sems_tallies';
 
 export function convertExternalTalliesToStorageString(
   tallies: FullElectionExternalTallies
@@ -69,46 +71,28 @@ export function getTotalNumberOfBallots(
   contestTallies: Dictionary<ContestTally>,
   election: Election
 ): number {
-  // Get Separate Ballot Style Sets
-  // Get Contest IDs by Ballot Style
-  let contestIdSets = election.ballotStyles.map((bs) => {
-    return new Set(
-      getContests({
-        ballotStyle: bs,
-        election,
-      }).map((c) => c.id)
-    );
-  });
-
-  // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
-  for (const contest of election.contests) {
-    const combinedSetForContest = new Set<string>();
-    const newListOfContestIdSets: Array<Set<string>> = [];
-    for (const contestIdSet of contestIdSets) {
-      if (contestIdSet.has(contest.id)) {
-        for (const id of contestIdSet) combinedSetForContest.add(id);
-      } else {
-        newListOfContestIdSets.push(contestIdSet);
-      }
-    }
-    newListOfContestIdSets.push(combinedSetForContest);
-    contestIdSets = newListOfContestIdSets;
-  }
-
-  // Within each ballot set find the maximum number of ballots cast on a contest, that is the number of ballots cast amongst ballot styles represented.
-  const ballotsCastPerSet = contestIdSets.map((set) =>
-    [...set].reduce(
-      (prevValue, contestId) =>
-        Math.max(prevValue, contestTallies[contestId]?.metadata.ballots || 0),
-      0
-    )
+  const ballotStyleToContestIds = Object.fromEntries(
+    election.ballotStyles.map((bs) => [
+      bs.id,
+      getContests({ ballotStyle: bs, election }).map((c) => c.id),
+    ])
   );
-
-  // Sum across disjoint sets of ballot styles to get the total number of ballots cast.
-  return ballotsCastPerSet.reduce(
-    (prevValue, maxBallotCount) => prevValue + maxBallotCount,
-    0
+  // console.log(contestTallies);
+  const augmentedMatrix = Object.entries(contestTallies).map(
+    ([contestId, tally]) => [
+      ...election.ballotStyles.map((ballotStyle) =>
+        ballotStyleToContestIds[ballotStyle.id].includes(contestId) ? 1 : 0
+      ),
+      tally?.metadata.ballots ?? 0,
+    ]
   );
+  console.log(augmentedMatrix);
+  console.log(augmentedMatrix.length, augmentedMatrix[0].length);
+  console.log(augmentedMatrix.map((row) => row.join(' ')).join('\n'));
+  const solution = solveLinearSystem(augmentedMatrix);
+  console.log(solution);
+  // TODO return an error for inconsistent tallies
+  return solution?.reduce((a, b) => a + b, 0) ?? -1;
 }
 
 export function getEmptyExternalTally(): ExternalTally {
@@ -216,6 +200,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
   const overallContestTallies: Dictionary<ContestTally> = {};
   for (const precinctTally of Object.values(talliesByPrecinct)) {
     assert(precinctTally);
+    console.log(precinctTally);
     totalNumberOfBallots += precinctTally.numberOfBallotsCounted;
     for (const contestId of Object.keys(precinctTally.contestTallies)) {
       if (!(contestId in overallContestTallies)) {
