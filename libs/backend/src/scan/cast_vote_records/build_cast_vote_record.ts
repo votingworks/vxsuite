@@ -75,6 +75,7 @@ function buildCVRBallotMeasureContest({
     CVRContestSelection: vote.map((option) => ({
       '@type': 'CVR.CVRContestSelection',
       ContestSelectionId: option,
+      // include position on the ballot per VVSG 2.0 1.1.5-C.2
       OptionPosition: option === 'yes' ? 0 : 1,
       Status: overvoted
         ? [CVR.ContestSelectionStatus.InvalidatedRules]
@@ -220,6 +221,7 @@ function buildCVRCandidateContest({
       return {
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId,
+        // include position on the ballot per VVSG 2.0 1.1.5-C.2
         OptionPosition,
         Status: overvoted
           ? [CVR.ContestSelectionStatus.InvalidatedRules]
@@ -242,10 +244,12 @@ function buildCVRCandidateContest({
             CVRWriteIn: isWriteIn
               ? {
                   '@type': 'CVR.CVRWriteIn',
+                  // include name of write-in for machine-marked ballots per VVSG 2.0 1.1.5-D.2
                   Text:
                     options.ballotMarkingMode === 'machine'
                       ? candidate.name
                       : undefined,
+                  // include image of write-in for hand-marked ballots per VVSG 2.0 1.1.5-D.3
                   WriteInImage:
                     options.ballotMarkingMode === 'hand'
                       ? {
@@ -349,6 +353,7 @@ function buildOriginalSnapshot({
         CVRContestSelection: [...contestMarks].map((mark) => ({
           '@type': 'CVR.CVRContestSelection',
           ContestSelectionId: mark.optionId,
+          // include position on the ballot per VVSG 2.0 1.1.5-C.2
           OptionPosition: getOptionPosition({
             optionId: mark.optionId,
             contest: find(
