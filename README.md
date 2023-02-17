@@ -52,7 +52,7 @@ exit
 Verify your account has sudo privileges by running `sudo whoami` in the terminal.
 You should see `root`.
 
-Next create an SSH key following the
+Next, create an SSH key following the
 [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 You will need to add the key to your github account.
 
@@ -70,7 +70,7 @@ ssh -T git@github.com # This should return `Hi username! You've successfully aut
 
 If you are using our automated build process, we automatically clone our primary
 github repositories in the ~/code directory for you. Please note: these are https clones.
-You will need to convert them to ssh once your ssh key is properly configured.
+You will need to convert them to ssh once your ssh key is properly configured if you plan to contribute. .
 You can find instructions on converting an https repo here: https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories#switching-remote-urls-from-https-to-ssh
 
 If you are not using our automated build process, you can clone manually.
@@ -88,7 +88,7 @@ git clone git@github.com:votingworks/kiosk-browser.git
 git clone git@github.com:votingworks/vxsuite-complete-system.git
 ```
 
-Once you finish setting up your VM before you start develop you should also set
+Once you finish setting up your VM, and before you start developing, you should also set
 up [GPG Keys](#setting-up-gpg-keys) for your github account.
 
 Install Node, npm, yarn, and pnpm by running the following script:

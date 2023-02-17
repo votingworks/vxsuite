@@ -4,7 +4,7 @@ Follow the steps below to configure a Virtual Machine for development at VotingW
 
 ## Create Debian Virtual Machine
 
-In an effort to simplify the development process on Macs, we now provide an automated build system for Parallels VMs. You can find instructions on creating a Debian VM for Parallels in the `vxsuite-build-system` repository: https://github.com/votingworks/vxsuite-build-system
+In an effort to simplify the development process on macOS, we now provide an automated build system for Parallels VMs. You can find instructions for creating a Debian VM in Parallels in the `vxsuite-build-system` repository: https://github.com/votingworks/vxsuite-build-system
 
 Once you've successfully created your VM, return to this guide for steps to configure ssh and VS Code access.
 
