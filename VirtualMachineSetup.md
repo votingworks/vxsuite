@@ -8,7 +8,7 @@ In an effort to simplify the development process on Macs, we now provide an auto
 
 Once you've successfully created your VM, return to this guide for steps to configure ssh and VS Code access.
 
-(Note: If you would like to create your Debian VM manually, you can refer to our previous documentation here <link>. Please be aware we are no longer maintaining that guide, and it will eventually be removed entirely.)
+(Note: If you would like to create your Debian VM manually, you can refer to our previous documentation [here](./VirtualMachineSetup-deprecated.md). Please be aware we are no longer maintaining that guide, and it will eventually be removed entirely.)
 
 ## Using the Terminal and VS Code on your home machine
 
