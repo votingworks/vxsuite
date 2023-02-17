@@ -1,4 +1,6 @@
-# Virtual Machine Setup
+# Virtual Machine Setup - Deprecated
+
+## NOTE: This guide is deprecated and will be removed at some point in the future.
 
 Follow the steps below to configure a Virtual Machine for development at VotingWorks. This guide assumes you are using macOS, if you are not modify the instructions as appropriate. 
 
