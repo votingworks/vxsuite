@@ -6,5 +6,6 @@ declare namespace NodeJS {
     readonly SCAN_ALLOWED_EXPORT_PATTERNS?: string;
     readonly SCAN_WORKSPACE?: string;
     readonly VX_MACHINE_ID?: string;
+    readonly CVR_EXPORT_FORMAT?: 'vxf' | 'cdf';
   }
 }
