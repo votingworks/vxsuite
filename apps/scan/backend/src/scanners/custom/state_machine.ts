@@ -12,7 +12,6 @@ import {
   ScannerStatus,
   ScanSide,
   SensorStatus,
-  waitForStatus,
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
@@ -167,7 +166,7 @@ async function closeCustomClient({ client }: Context) {
   debug('Custom scanner client closed');
 }
 
-async function killCustommClient({ client }: Context) {
+async function killCustomClient({ client }: Context) {
   if (!client) return;
   debug('Killing Custom scanner client');
   await new Promise((resolve) => {
@@ -374,15 +373,22 @@ async function accept({ client }: Context) {
   debug('Accepting');
   const acceptResult = await client.move(FormMovement.EJECT_PAPER_FORWARD);
   debug('Accept result: %o', acceptResult);
-  if (acceptResult.isOk()) {
-    const waitResult = await waitForStatus(
-      client,
-      (status) => scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER',
-      { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
-    );
-    debug('Wait result: %o', waitResult);
-    waitResult.unsafeUnwrap();
-  }
+  // if (acceptResult.isOk()) {
+  //   const waitResult = await waitForStatus(
+  //     client,
+  //     (status) => {
+  //       console.log(
+  //         'accept polling status',
+  //         status,
+  //         scannerStatusToEvent(status).type
+  //       );
+  //       return scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER';
+  //     },
+  //     { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
+  //   );
+  //   debug('Wait result: %o', waitResult);
+  //   waitResult.unsafeUnwrap();
+  // }
   return acceptResult.unsafeUnwrap();
 }
 
@@ -391,15 +397,15 @@ async function reject({ client }: Context) {
   debug('Rejecting');
   const rejectResult = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
   debug('Reject result: %o', rejectResult);
-  if (rejectResult.isOk()) {
-    const waitResult = await waitForStatus(
-      client,
-      (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
-      { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
-    );
-    debug('Wait result: %o', waitResult);
-    waitResult.unsafeUnwrap();
-  }
+  // if (rejectResult.isOk()) {
+  //   const waitResult = await waitForStatus(
+  //     client,
+  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
+  //     { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
+  //   );
+  //   debug('Wait result: %o', waitResult);
+  //   waitResult.unsafeUnwrap();
+  // }
   return rejectResult.unsafeUnwrap();
 }
 
@@ -817,7 +823,11 @@ function buildMachine({
         },
         ready_to_accept: {
           id: 'ready_to_accept',
-          on: { ACCEPT: 'accepting' },
+          invoke: pollPaperStatus,
+          on: {
+            ACCEPT: 'accepting',
+            SCANNER_READY_TO_EJECT: doNothing,
+          },
         },
         accepting: acceptingState,
         accepted: {
@@ -931,7 +941,7 @@ function buildMachine({
             // If that doesn't work or takes too long, send a kill signal
             killing: {
               invoke: {
-                src: killCustommClient,
+                src: killCustomClient,
                 onDone: 'cooling_off',
                 onError: '#unrecoverable_error',
               },

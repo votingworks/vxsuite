@@ -533,10 +533,6 @@ export class MockCustomScanner implements CustomScanner {
           debug('scan failed, jam');
           return err(oneOf(ErrorCode.PaperJam, ErrorCode.PaperHeldBack));
         }
-        if ((value as string) === 'both_sides_have_paper') {
-          debug('scan failed, both sides have paper');
-          return err(ErrorCode.ScannerError);
-        }
         if ((value as string) === 'powered_off') {
           debug('scan failed, powered off');
           return err(ErrorCode.ScannerOffline);
@@ -582,6 +578,7 @@ export class MockCustomScanner implements CustomScanner {
   }
 
   private async accept(): Promise<Result<void, ErrorCode>> {
+    // console.log('MockScanner.accept', this.machine.state.value);
     debug('accept');
     switch (this.machine.state.value) {
       case 'powered_off': {
@@ -613,7 +610,10 @@ export class MockCustomScanner implements CustomScanner {
       }
       case 'ready_to_eject': {
         this.machine.send({ type: 'ACCEPT' });
-        await waitFor(this.machine, (state) => state.value !== 'accepting');
+        await waitFor(this.machine, (state) => {
+          // console.log('MockScanner.accept.waitFor', state.value);
+          return state.value !== 'accepting';
+        });
         if ((this.machine.state.value as string) === 'powered_off') {
           debug('accept failed, power off');
           return err(ErrorCode.ScannerOffline);

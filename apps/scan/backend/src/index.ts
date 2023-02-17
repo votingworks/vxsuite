@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
 import { throwIllegalValue } from '@votingworks/basics';
+import { openScanner } from '@votingworks/custom-scanner';
 import { NODE_ENV, SCANNER_MODEL, SCAN_WORKSPACE } from './globals';
 import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
 import * as plustekStateMachine from './scanners/plustek/state_machine';
@@ -63,7 +64,7 @@ function createPrecinctScannerStateMachine(
   switch (SCANNER_MODEL) {
     case 'custom':
       return customStateMachine.createPrecinctScannerStateMachine({
-        createCustomClient: createClient,
+        createCustomClient: openScanner,
         workspace,
         interpreter,
         logger,
