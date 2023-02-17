@@ -4,7 +4,7 @@
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
-import { Bindable, Client as DbClient } from '@votingworks/db';
+import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationStatus,
@@ -103,63 +103,6 @@ export class Store {
     await newStore.loadLayouts();
 
     return newStore;
-  }
-
-  /**
-   * Runs `sql` with interpolated data.
-   *
-   * @example
-   *
-   * store.dbRun('insert into muppets (name) values (?)', 'Kermit')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbRun<P extends Bindable[]>(sql: string, ...params: P): void {
-    return this.client.run(sql, ...params);
-  }
-
-  /**
-   * Executes `sql`, which can be multiple statements.
-   *
-   * @example
-   *
-   * store.dbExec(`
-   *   pragma foreign_keys = 1;
-   *
-   *   create table if not exist muppets (name varchar(255));
-   *   create table if not exist images (url integer unique not null);
-   * `)
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbExec(sql: string): void {
-    return this.client.exec(sql);
-  }
-
-  /**
-   * Runs `sql` to fetch a list of rows.
-   *
-   * @example
-   *
-   * store.dbAll('select * from muppets')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbAll<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
-    return this.client.all(sql, ...params);
-  }
-
-  /**
-   * Runs `sql` to fetch a single row.
-   *
-   * @example
-   *
-   * store.dbGet('select count(*) as count from muppets')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbGet<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
-    return this.client.one(sql, ...params);
   }
 
   /**
