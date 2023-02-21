@@ -88,9 +88,8 @@ function buildElection({
   electionScopeId: string;
 }): CVR.Election {
   const allCandidates = election.contests
-    .filter((c) => c.type === 'candidate')
-    .map((c) => (c as CandidateContest).candidates)
-    .flat();
+    .filter((c): c is CandidateContest => c.type === 'candidate')
+    .flatMap((c) => c.candidates);
 
   // The VotingWorks election format nests candidate definitions under
   // each contest, meaning that it's possible a candidate is defined twice
