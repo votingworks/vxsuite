@@ -6,6 +6,7 @@ import {
   BallotId,
   BallotMark,
   BallotType,
+  Candidate,
   CandidateContest,
   CandidateVote,
   CastVoteRecordBallotType,
@@ -194,9 +195,28 @@ function buildCVRCandidateContest({
     0
   );
 
-  // We track the write in counter in order to give the BMD write-ins an
-  // increasing index. For HMPB write-ins, we use the index in the write-in id
-  let writeInCounter = 0;
+  // Write-ins on hand-marked paper ballots are have Id's indexed according to
+  // their position on the ballot. For machine-marked ballots the Id's are not
+  // numerically indexed but instead contain the write-in name. We convert to
+  // the indexed version so that the CVR ContestSelectionId's correspond to the
+  // Id's defined in the cast vote record metadata.
+  let voteWriteInIndexed: Candidate[] = [];
+  if (options.ballotMarkingMode === 'hand') {
+    voteWriteInIndexed = [...vote];
+  } else {
+    let writeInCounter = 0;
+    for (const candidate of vote) {
+      if (!candidate.isWriteIn) {
+        voteWriteInIndexed.push(candidate);
+      } else {
+        voteWriteInIndexed.push({
+          ...candidate,
+          id: `write-in-${writeInCounter}`,
+        });
+        writeInCounter += 1;
+      }
+    }
+  }
 
   return {
     '@type': 'CVR.CVRContest',
@@ -207,23 +227,14 @@ function buildCVRCandidateContest({
     Status: statuses.length > 0 ? statuses : undefined,
     Selections:
       contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0),
-    CVRContestSelection: vote.map((candidate) => {
+    CVRContestSelection: voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
-      const isMachineWriteIn =
-        isWriteIn && options.ballotMarkingMode === 'machine';
-      const ContestSelectionId = isMachineWriteIn
-        ? `write-in-${writeInCounter}`
-        : candidate.id;
-      const OptionPosition = isMachineWriteIn
-        ? contest.candidates.length + writeInCounter
-        : getOptionPosition({ contest, optionId: candidate.id });
-      if (isWriteIn) writeInCounter += 1;
 
       return {
         '@type': 'CVR.CVRContestSelection',
-        ContestSelectionId,
+        ContestSelectionId: candidate.id,
         // include position on the ballot per VVSG 2.0 1.1.5-C.2
-        OptionPosition,
+        OptionPosition: getOptionPosition({ contest, optionId: candidate.id }),
         Status: overvoted
           ? [CVR.ContestSelectionStatus.InvalidatedRules]
           : isWriteIn
