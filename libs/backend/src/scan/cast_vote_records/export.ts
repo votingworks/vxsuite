@@ -284,7 +284,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
     join(electionFolderName, cvrFilename),
     getCastVoteRecordReportStream({
       election,
-      electionId: electionHash.slice(0, 10),
+      electionId: electionHash,
       scannerId: VX_MACHINE_ID,
       isTestMode,
       ...rest,

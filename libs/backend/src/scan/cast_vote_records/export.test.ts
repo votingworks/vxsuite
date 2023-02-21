@@ -31,9 +31,7 @@ import {
 import { BallotPageLayoutsLookup } from './page_layouts';
 
 const { election, electionHash } = electionMinimalExhaustiveSampleDefinition;
-const electionId = getDisplayElectionHash(
-  electionMinimalExhaustiveSampleDefinition
-);
+const electionId = electionHash;
 const scannerId = 'SC-00-000';
 const definiteMarkThreshold = 0.15;
 const ballotPageLayoutsLookup: BallotPageLayoutsLookup = [];

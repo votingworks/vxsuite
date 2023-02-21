@@ -10,7 +10,6 @@ import {
   CVR,
   getBallotStyle,
   getContests,
-  getDisplayElectionHash,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -30,7 +29,7 @@ import {
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-const { election } = electionDefinition;
+const { election, electionHash } = electionDefinition;
 
 test('getCVRBallotType', () => {
   expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee');
@@ -491,7 +490,7 @@ jest.mock('./page_layouts', () => {
   };
 });
 
-const electionId = getDisplayElectionHash(electionDefinition);
+const electionId = electionHash;
 const scannerId = 'SC-00-000';
 const batchId = 'batch-1';
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');

@@ -1,24 +1,17 @@
 import { assert, find } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
-import {
-  CandidateContest,
-  CVR,
-  getDisplayElectionHash,
-  YesNoContest,
-} from '@votingworks/types';
+import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
 import {
   advanceTo as setMockDate,
   clear as clearMockDate,
 } from 'jest-date-mock';
 import { buildCastVoteRecordReport } from './build_report_metadata';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const { election, electionHash } = electionMinimalExhaustiveSampleDefinition;
 
-const electionId = getDisplayElectionHash(
-  electionMinimalExhaustiveSampleDefinition
-);
 const scannerId = 'SC-00-000';
 const mockDate = new Date(2018, 5, 27, 0, 0, 0);
+const electionId = electionHash;
 
 test('builds well-formed cast vote record report', () => {
   setMockDate(mockDate);
