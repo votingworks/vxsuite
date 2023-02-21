@@ -159,6 +159,7 @@ export function buildCastVoteRecordReport({
   isTestMode,
   batchInfo,
 }: BuildCastVoteRecordReportParams): CVR.CastVoteRecordReport {
+  // TODO: pull from ballot definition once it exists
   const electionScopeId = 'election-scope';
 
   return {

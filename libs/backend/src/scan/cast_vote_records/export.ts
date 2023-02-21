@@ -43,6 +43,7 @@ interface CastVoteRecordReportImageOptions {
 export interface ResultSheet {
   readonly id: Id;
   readonly batchId: Id;
+  // TODO: remove once the deprecated CVR export is no longer using batchLabel
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;
   readonly frontNormalizedFilename: string;
