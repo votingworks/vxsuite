@@ -13,6 +13,9 @@ import type { DefaultOptions } from '@tanstack/react-query';
  * = 15 seconds of total wait time
  *
  * Otherwise, don't retry. Because everything is local, we don't expect intermittent errors.
+ *
+ * TODO: Remove this custom retry logic if/when we update our infrastructure to only start the
+ * frontend once the backend is running.
  */
 export function shouldRetry(failedRetryCount: number, error: unknown): boolean {
   const isBackendLikelyStartingUp =
