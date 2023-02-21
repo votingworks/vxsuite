@@ -50,7 +50,7 @@ test('builds well-formed cast vote record report', () => {
   ]);
 
   // Check GpUnits
-  expect(report.GpUnit).toHaveLength(election.precincts.length + 1);
+  expect(report.GpUnit).toHaveLength(election.precincts.length + 2);
   for (const precinct of election.precincts) {
     expect(report.GpUnit).toEqual(
       expect.arrayContaining([
@@ -65,9 +65,18 @@ test('builds well-formed cast vote record report', () => {
   expect(report.GpUnit).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
-        '@id': 'election-scope',
+        '@id': 'election-state',
         Type: CVR.ReportingUnitType.Other,
-        Name: 'State of Sample, Sample County',
+        Name: 'State of Sample',
+      }),
+    ])
+  );
+  expect(report.GpUnit).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        '@id': 'election-county',
+        Type: CVR.ReportingUnitType.Other,
+        Name: 'Sample County',
       }),
     ])
   );

@@ -157,8 +157,9 @@ export function buildCastVoteRecordReport({
   isTestMode,
   batchInfo,
 }: BuildCastVoteRecordReportParams): CVR.CastVoteRecordReport {
-  // TODO: pull from ballot definition once it exists
-  const electionScopeId = 'election-scope';
+  // TODO: pull from ballot definition once it exists. For now, the scope
+  // is just the current state
+  const electionScopeId = 'election-state';
 
   return {
     '@type': 'CVR.CastVoteRecordReport',
@@ -193,12 +194,18 @@ export function buildCastVoteRecordReport({
           Name: precinct.name,
         })
       ),
+      // VVSG 1.1.5-G.2 requires identification of the geographical location of the device
+      {
+        '@type': 'CVR.GpUnit',
+        '@id': 'election-county',
+        Type: CVR.ReportingUnitType.Other,
+        Name: `${election.county.name}`,
+      },
       {
         '@type': 'CVR.GpUnit',
         '@id': electionScopeId,
         Type: CVR.ReportingUnitType.Other,
-        // VVSG 1.1.5-G.2 requires identification of the geographical location of the device
-        Name: `${election.state}, ${election.county.name}`,
+        Name: `${election.state}`,
       },
     ],
     Batch: batchInfo.map((batch) => ({
