@@ -72,7 +72,6 @@ function buildCVRBallotMeasureContest({
       : undervoted
       ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
       : undefined,
-    Selections: 2,
     CVRContestSelection: vote.map((option) => ({
       '@type': 'CVR.CVRContestSelection',
       ContestSelectionId: option,
@@ -225,8 +224,6 @@ function buildCVRCandidateContest({
     Undervotes: undervoted ? contest.seats - vote.length : undefined, // VVSG 2.0 1.1.5-E.2
     WriteIns: numWriteIns > 0 ? numWriteIns : undefined, // VVSG 2.0 1.1.5-E.3
     Status: statuses.length > 0 ? statuses : undefined,
-    Selections:
-      contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0),
     CVRContestSelection: voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
 
