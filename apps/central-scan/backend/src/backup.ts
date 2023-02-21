@@ -1,5 +1,9 @@
 import { Scan } from '@votingworks/api';
-import { Exporter, getCastVoteRecordReportStream } from '@votingworks/backend';
+import {
+  Exporter,
+  getCastVoteRecordReportStream,
+  VX_MACHINE_ID,
+} from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
@@ -13,7 +17,7 @@ import ZipStream from 'zip-stream';
 import { getDisplayElectionHash } from '@votingworks/types';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
-import { CVR_EXPORT_FORMAT, VX_MACHINE_ID } from './globals';
+import { CVR_EXPORT_FORMAT } from './globals';
 
 const debug = makeDebug('scan:backup');
 

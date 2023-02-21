@@ -1,6 +1,7 @@
 import {
   ExportDataError,
   getCastVoteRecordReportStream,
+  VX_MACHINE_ID,
 } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
@@ -17,7 +18,7 @@ import { Store } from './store';
 import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
 import { Usb } from './util/usb';
-import { CVR_EXPORT_FORMAT, VX_MACHINE_ID } from './globals';
+import { CVR_EXPORT_FORMAT } from './globals';
 
 const debug = rootDebug.extend('backup');
 
