@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
+import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { fontSizeTheme } from './themes';
 import { Main } from './main';
@@ -13,8 +13,8 @@ const RotateCardImage = styled.img`
 `;
 
 type LoggedOutReason =
-  | DippedSmartcardAuth.LoggedOut['reason']
-  | InsertedSmartcardAuth.LoggedOut['reason'];
+  | DippedSmartCardAuth.LoggedOut['reason']
+  | InsertedSmartCardAuth.LoggedOut['reason'];
 
 export interface Props {
   reason: LoggedOutReason;

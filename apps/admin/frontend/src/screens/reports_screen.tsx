@@ -5,13 +5,9 @@ import {
   canDistinguishVotingMethods,
   generateSemsFinalExportDefaultFilename,
   format,
-} from '@votingworks/utils';
-import {
-  Button,
-  Prose,
-  useCancelablePromise,
   isElectionManagerAuth,
-} from '@votingworks/ui';
+} from '@votingworks/utils';
+import { Button, Prose, useCancelablePromise } from '@votingworks/ui';
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 

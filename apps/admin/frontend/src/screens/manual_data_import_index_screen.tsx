@@ -6,12 +6,12 @@ import styled from 'styled-components';
 import {
   Button,
   SegmentedButton,
-  isElectionManagerAuth,
   Prose,
   Table,
   TD,
   Text,
 } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import {
   ExternalTallySourceType,
   TallyCategory,

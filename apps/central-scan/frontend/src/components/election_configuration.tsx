@@ -7,14 +7,9 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   ElectionData,
-} from '@votingworks/utils';
-import {
   isElectionManagerAuth,
-  Main,
-  Screen,
-  Text,
-  UsbControllerButton,
-} from '@votingworks/ui';
+} from '@votingworks/utils';
+import { Main, Screen, Text, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Prose } from './prose';

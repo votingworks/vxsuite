@@ -630,31 +630,6 @@ test('validates uniqueness of candidate ids within a contest', () => {
   `);
 });
 
-test('validates election manager cards have hex-encoded hashes', () => {
-  unsafeParse(t.ElectionManagerCardDataSchema, {
-    t: 'election_manager',
-    h: 'd34db33f',
-    p: '123456',
-  });
-  expect(
-    safeParse(t.ElectionManagerCardDataSchema, {
-      t: 'election_manager',
-      h: 'not hex',
-      p: '123456',
-    }).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "message": "Election hashes must be hex strings containing only 0-9 and a-f",
-        "path": [
-          "h"
-        ]
-      }
-    ]]
-  `);
-});
-
 test('safeParseElectionDefinition computes the election hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash

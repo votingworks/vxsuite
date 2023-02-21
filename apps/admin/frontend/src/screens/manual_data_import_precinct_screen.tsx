@@ -19,15 +19,8 @@ import {
   Election,
   getContestDistrictName,
 } from '@votingworks/types';
-import {
-  Button,
-  isElectionManagerAuth,
-  Modal,
-  Prose,
-  Table,
-  TD,
-  Text,
-} from '@votingworks/ui';
+import { Button, Modal, Prose, Table, TD, Text } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';

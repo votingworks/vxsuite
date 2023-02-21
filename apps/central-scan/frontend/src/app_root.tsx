@@ -9,10 +9,14 @@ import {
 import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
-import { KioskStorage, LocalStorage, Hardware } from '@votingworks/utils';
+import {
+  KioskStorage,
+  LocalStorage,
+  Hardware,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import {
   ElectionInfoBar,
-  isSystemAdministratorAuth,
   Main,
   Prose,
   UnlockMachineScreen,

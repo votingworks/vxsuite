@@ -11,7 +11,7 @@ import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
 
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { voterContests } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';

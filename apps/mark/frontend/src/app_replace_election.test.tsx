@@ -13,7 +13,7 @@ import {
 } from '../test/helpers/election';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;

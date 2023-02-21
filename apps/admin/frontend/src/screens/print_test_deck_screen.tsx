@@ -16,12 +16,14 @@ import {
   useCancelablePromise,
   Modal,
   Prose,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   HorizontalRule,
   printElement,
   printElementWhenReady,
 } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { ButtonList } from '../components/button_list';

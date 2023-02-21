@@ -4,7 +4,6 @@ import { LogEventId } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import {
   ExportLogsButtonRow,
-  isElectionManagerAuth,
   Loading,
   Main,
   Modal,
@@ -12,6 +11,7 @@ import {
   SetClockButton,
   Text,
 } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';

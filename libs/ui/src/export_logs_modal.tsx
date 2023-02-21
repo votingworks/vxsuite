@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { join } from 'path';
-import { usbstick, generateLogFilename, LogFileType } from '@votingworks/utils';
+import {
+  usbstick,
+  generateLogFilename,
+  LogFileType,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 
 import {
   LogEventId,
@@ -10,16 +16,11 @@ import {
   Logger,
 } from '@votingworks/logging';
 
-import {
-  DippedSmartCardAuth,
-  DippedSmartcardAuth,
-  ElectionDefinition,
-} from '@votingworks/types';
+import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
-import { isElectionManagerAuth, isSystemAdministratorAuth } from './hooks/auth';
 
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
@@ -28,7 +29,7 @@ import { UsbImage } from './graphics';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
-  auth: DippedSmartcardAuth.Auth | DippedSmartCardAuth.AuthStatus;
+  auth: DippedSmartCardAuth.AuthStatus;
   logFileType: LogFileType;
   logger: Logger;
   electionDefinition?: ElectionDefinition;

@@ -5,12 +5,14 @@ import {
   SetupCardReaderPage,
   useDevices,
   UnlockMachineScreen,
+  SystemAdministratorScreenContents,
+} from '@votingworks/ui';
+import {
+  Hardware,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
-  SystemAdministratorScreenContents,
-} from '@votingworks/ui';
-import { Hardware } from '@votingworks/utils';
+} from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';

@@ -4,19 +4,13 @@ import { join } from 'path';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
-import {
-  Modal,
-  ModalWidth,
-  Table,
-  TD,
-  Prose,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/ui';
+import { Modal, ModalWidth, Table, TD, Prose } from '@votingworks/ui';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
   usbstick,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';

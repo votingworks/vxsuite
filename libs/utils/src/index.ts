@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './as_boolean';
+export * from './auth';
 export * from './ballot_package';
 export * from './Card';
 export * from './pins';

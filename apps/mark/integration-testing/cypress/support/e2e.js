@@ -17,17 +17,19 @@ import '@testing-library/cypress/add-commands';
 import './commands';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { makeElectionManagerCard, makePollWorkerCard } from '@votingworks/test-utils';
 import { CardData } from '@votingworks/types';
 import { methodUrl } from '@votingworks/grout';
 
-const ELECTION_MANAGER_CARD_DATA = makeElectionManagerCard(
-  electionSampleDefinition.electionHash,
-  '000000'
-);
-const POLL_WORKER_CARD_DATA = makePollWorkerCard(
-  electionSampleDefinition.electionHash
-);
+const ELECTION_MANAGER_CARD_DATA = {
+  t: 'election_manager',
+  h: electionSampleDefinition.electionHash,
+  p: '000000',
+};
+
+const POLL_WORKER_CARD_DATA = {
+  t: 'poll_worker',
+  h: electionSampleDefinition.electionHash,
+};
 
 /**
  * 

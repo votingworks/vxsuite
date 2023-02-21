@@ -11,9 +11,6 @@ import {
   Card,
   CardSummary,
   DippedSmartCardAuth,
-  ElectionManagerCardData,
-  PollWorkerCardData,
-  SystemAdministratorCardData,
   User,
 } from '@votingworks/types';
 import { generatePin } from '@votingworks/utils';
@@ -23,7 +20,12 @@ import {
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth';
-import { parseUserFromCardSummary } from './memory_card';
+import {
+  ElectionManagerCardData,
+  parseUserFromCardSummary,
+  PollWorkerCardData,
+  SystemAdministratorCardData,
+} from './memory_card';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

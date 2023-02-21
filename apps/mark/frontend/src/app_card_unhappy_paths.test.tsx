@@ -6,7 +6,7 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { err } from '@votingworks/basics';
 
 import { App } from './app';
-import { advanceTimersAndPromises } from '../test/helpers/smartcards';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   setElectionInStorage,

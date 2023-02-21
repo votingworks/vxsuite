@@ -4,14 +4,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import {
   fakeKiosk,
   fakeUsbDrive,
-  Dipped,
   fakeFileWriter,
+  fakeSystemAdministratorUser,
+  fakeElectionManagerUser,
 } from '@votingworks/test-utils';
 import { LogFileType } from '@votingworks/utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 
@@ -30,6 +32,18 @@ const fileSystemEntry: KioskBrowser.FileSystemEntry = {
   mtime: new Date(),
 };
 
+const systemAdministratorAuthStatus: DippedSmartCardAuth.SystemAdministratorLoggedIn =
+  {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    programmableCard: { status: 'no_card' },
+  };
+
+const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
+  status: 'logged_in',
+  user: fakeElectionManagerUser(),
+};
+
 test('renders loading screen when usb drive is mounting or ejecting in export modal', async () => {
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValue([
@@ -45,7 +59,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         usbDriveStatus={status}
         machineConfig={machineConfig}
         logger={fakeLogger()}
-        auth={Dipped.fakeSystemAdministratorAuth()}
+        auth={systemAdministratorAuthStatus}
       />
     );
     userEvent.click(screen.getByText('Save Log File'));
@@ -70,7 +84,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
       logFileType={LogFileType.Raw}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );
@@ -99,7 +113,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
         usbDriveStatus={status}
         machineConfig={machineConfig}
         logger={fakeLogger()}
-        auth={Dipped.fakeSystemAdministratorAuth()}
+        auth={systemAdministratorAuthStatus}
       />
     );
     userEvent.click(screen.getByText('Save Log File'));
@@ -137,7 +151,7 @@ test('successful save raw log flow', async () => {
       logFileType={LogFileType.Raw}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );
@@ -197,7 +211,7 @@ test('successful save cdf log file flow', async () => {
       logFileType={LogFileType.Cdf}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
       electionDefinition={electionFamousNames2021Fixtures.electionDefinition}
     />
@@ -255,7 +269,7 @@ test('failed export flow', async () => {
       logFileType={LogFileType.Raw}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );
@@ -301,7 +315,7 @@ test('successful save to custom location', async () => {
       logFileType={LogFileType.Raw}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );
@@ -346,7 +360,7 @@ test('failed save to custom location', async () => {
       logFileType={LogFileType.Raw}
       usbDriveStatus="mounted"
       logger={logger}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );
@@ -373,7 +387,7 @@ test('button row renders both buttons', () => {
     <ExportLogsButtonRow
       usbDriveStatus="mounted"
       logger={fakeLogger()}
-      auth={Dipped.fakeElectionManagerAuth()}
+      auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
     />
   );

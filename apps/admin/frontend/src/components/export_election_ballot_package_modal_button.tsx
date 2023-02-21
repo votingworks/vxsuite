@@ -18,6 +18,8 @@ import {
   BALLOT_PACKAGE_FOLDER,
   usbstick,
   BallotConfig,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -26,8 +28,6 @@ import {
   Modal,
   Prose,
   UsbControllerButton,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
   printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';

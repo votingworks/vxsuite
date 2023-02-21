@@ -1,22 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/basics';
-import {
-  InvalidCardScreen,
-  isSystemAdministratorAuth,
-  Modal,
-} from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+import { InvalidCardScreen, Modal } from '@votingworks/ui';
+import { isSystemAdministratorAuth } from '@votingworks/utils';
 
 import { AppContext } from '../../contexts/app_context';
+import { routerPaths } from '../../router_paths';
 import { CardDetailsView } from './card_details_view';
+import { ProgramElectionCardView } from './program_election_card_view';
+import { ProgramSystemAdministratorCardView } from './program_system_administrator_card_view';
 import {
   InProgressStatusMessage,
   isSmartcardActionInProgress,
   SmartcardActionStatus,
 } from './status_message';
-import { ProgramElectionCardView } from './program_election_card_view';
-import { ProgramSystemAdministratorCardView } from './program_system_administrator_card_view';
-import { routerPaths } from '../../router_paths';
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
