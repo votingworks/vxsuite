@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable vx/gts-jsdoc */
-import { find } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   BallotMetadata,
@@ -63,7 +62,7 @@ export const interpretedHmpbPage1: InterpretedHmpbPage = {
         bounds: defaultShape.bounds,
         contestId: fishCouncilContest.id,
         target: defaultShape,
-        optionId: fishCouncilContest.candidates[0]!.id,
+        optionId: assertDefined(fishCouncilContest.candidates[0]).id,
         score: 0.16,
         scoredOffset: { x: 1, y: 1 },
       },
