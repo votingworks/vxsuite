@@ -7,6 +7,7 @@ import { assert } from '@votingworks/basics';
 import {
   exportCastVoteRecordReportToUsbDrive,
   Exporter,
+  VX_MACHINE_ID,
 } from '@votingworks/backend';
 import {
   BallotPageLayout,
@@ -33,7 +34,7 @@ import * as grout from '@votingworks/grout';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { CVR_EXPORT_FORMAT, VX_MACHINE_ID } from './globals';
+import { CVR_EXPORT_FORMAT } from './globals';
 import { DefaultMarkThresholds } from './store';
 
 const debug = makeDebug('scan:central-scanner');
