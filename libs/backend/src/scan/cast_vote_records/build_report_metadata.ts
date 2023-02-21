@@ -205,7 +205,7 @@ export function buildCastVoteRecordReport({
     Batch: batchInfo.map((batch) => ({
       '@type': 'CVR.vxBatch',
       '@id': batch.id,
-      label: batch.label,
+      BatchLabel: batch.label,
     })),
   };
 }

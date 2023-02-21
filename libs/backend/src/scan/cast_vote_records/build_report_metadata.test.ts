@@ -52,7 +52,7 @@ test('builds well-formed cast vote record report', () => {
   expect(report.Batch).toMatchObject([
     {
       '@id': 'batch-1',
-      label: 'Batch 1',
+      BatchLabel: 'Batch 1',
     },
   ]);
 
