@@ -112,7 +112,7 @@ describe('buildCVRContestsFromVotes', () => {
         ],
         "ContestId": "fishing",
         "Overvotes": undefined,
-        "Selections": 1,
+        "Selections": 2,
         "Status": undefined,
         "Undervotes": undefined,
       }
@@ -252,7 +252,7 @@ describe('buildCVRContestsFromVotes', () => {
         ],
         "ContestId": "zoo-council-mammal",
         "Overvotes": undefined,
-        "Selections": 3,
+        "Selections": 7,
         "Status": undefined,
         "Undervotes": undefined,
         "WriteIns": undefined,

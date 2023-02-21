@@ -19,7 +19,7 @@ Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "best-animal-fish",
-              "Selections": 1,
+              "Selections": 2,
               "Status": Array [
                 "not-indicated",
                 "undervoted",
@@ -44,7 +44,7 @@ Object {
                 },
               ],
               "ContestId": "aquarium-council-fish",
-              "Selections": 2,
+              "Selections": 6,
               "Status": Array [
                 "undervoted",
               ],
@@ -68,7 +68,7 @@ Object {
                 },
               ],
               "ContestId": "fishing",
-              "Selections": 1,
+              "Selections": 2,
             },
           ],
           "Type": "modified",
@@ -161,7 +161,7 @@ Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "best-animal-fish",
-              "Selections": 1,
+              "Selections": 2,
               "Status": Array [
                 "not-indicated",
                 "undervoted",
@@ -186,7 +186,7 @@ Object {
                 },
               ],
               "ContestId": "aquarium-council-fish",
-              "Selections": 2,
+              "Selections": 6,
               "Status": Array [
                 "undervoted",
               ],
@@ -210,7 +210,7 @@ Object {
                 },
               ],
               "ContestId": "fishing",
-              "Selections": 1,
+              "Selections": 2,
             },
           ],
           "Type": "original",
