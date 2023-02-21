@@ -1143,7 +1143,7 @@ export const CandidateSelectionSchema: z.ZodSchema<CandidateSelection> =
 export interface Batch {
   '@type': 'CVR.vxBatch';
   '@id': string;
-  BatchLabel?: string;
+  BatchLabel: string;
 }
 
 /**
@@ -1152,7 +1152,7 @@ export interface Batch {
 export const BatchSchema: z.ZodSchema<Batch> = z.object({
   '@type': z.literal('CVR.vxBatch'),
   '@id': z.string(),
-  BatchLabel: z.string().optional(),
+  BatchLabel: z.string(),
 });
 
 /**
