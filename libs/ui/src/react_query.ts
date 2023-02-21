@@ -2,6 +2,25 @@
 import type { DefaultOptions } from '@tanstack/react-query';
 
 /**
+ * A custom retry function
+ *
+ * A 504 in VxSuite usually just indicates that the backend is starting up (or restarting), in
+ * which case we should retry, but still with a bound in case the backend is completely failing to
+ * start up.
+ *
+ * 1 original attempt + 4 retry attempts
+ * = 0 + 1 + 2 + 4 + 8 seconds (because of exponential backoff)
+ * = 15 seconds of total wait time
+ *
+ * Otherwise, don't retry. Because everything is local, we don't expect intermittent errors.
+ */
+export function shouldRetry(failedRetryCount: number, error: unknown): boolean {
+  const isBackendLikelyStartingUp =
+    error instanceof Error && error.message.includes('504');
+  return isBackendLikelyStartingUp && failedRetryCount < 4;
+}
+
+/**
  * Recommended default options for react-query query clients
  */
 export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
@@ -10,8 +29,7 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
     // when it can't detect a network connection.
     networkMode: 'always',
 
-    // If the server is unreachable or an unexpected error occurs, don't retry.
-    retry: false,
+    retry: shouldRetry,
 
     // Never mark cached data as stale automatically. This will prevent
     // automatic refetching of data (e.g. upon navigating to a page). Cached
@@ -28,7 +46,7 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
   },
   mutations: {
     networkMode: 'always',
-    retry: false,
+    retry: shouldRetry,
     useErrorBoundary: true,
   },
 };
