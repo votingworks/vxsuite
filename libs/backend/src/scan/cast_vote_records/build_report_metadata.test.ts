@@ -128,9 +128,6 @@ test('builds well-formed cast vote record report', () => {
       (c) => c['@id'] === candidateContest.id
     );
     expect(ReportCandidateContest.Name).toEqual(candidateContest.title);
-    expect(ReportCandidateContest.NumberElected).toEqual(
-      candidateContest.seats
-    );
     expect(ReportCandidateContest.VotesAllowed).toEqual(candidateContest.seats);
     expect(ReportCandidateContest.PrimaryPartyId).toEqual(
       candidateContest.partyId

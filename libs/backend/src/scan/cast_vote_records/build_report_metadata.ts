@@ -32,7 +32,6 @@ function buildCandidateContest(
     '@id': contest.id,
     '@type': 'CVR.CandidateContest',
     Name: contest.title,
-    NumberElected: contest.seats,
     VotesAllowed: contest.seats,
     ContestSelection: [
       ...contest.candidates.map(
