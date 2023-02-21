@@ -20,7 +20,6 @@ type JsonBuiltInValue =
 function isJsonBuiltInValueShallow(value: unknown): value is JsonBuiltInValue {
   return (
     value === null ||
-    value === undefined ||
     isBoolean(value) ||
     isNumber(value) ||
     isString(value) ||
