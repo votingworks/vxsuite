@@ -734,26 +734,7 @@ function checkPrimaryElectionOverallTallyReports(printedElement: RenderResult) {
     },
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
-  expectContestResultsInReport(
-    allPrecinctMammalReport,
-    'new-zoo-either',
-    {
-      ballotsCast: 2,
-      undervotes: 0,
-      overvotes: 0,
-    },
-    { yes: 2, no: 0 }
-  );
-  expectContestResultsInReport(
-    allPrecinctMammalReport,
-    'new-zoo-pick',
-    {
-      ballotsCast: 2,
-      undervotes: 1,
-      overvotes: 0,
-    },
-    { yes: 0, no: 1 }
-  );
+
   // Check that the expected results are on the tally report for Fish Party
   const allPrecinctFishReport = printedElement.getByTestId(/tally-report-1-/);
   expectBallotCountsInReport(allPrecinctFishReport, 1, 0, 1);
@@ -788,8 +769,33 @@ function checkPrimaryElectionOverallTallyReports(printedElement: RenderResult) {
       'write-in': 0,
     }
   );
+
+  // Check that the expected results are on the tally report for Nonpartisan Contests
+  const allPrecinctNonpartisanReport = printedElement.getByTestId(
+    /tally-report-undefined-/
+  );
   expectContestResultsInReport(
-    allPrecinctFishReport,
+    allPrecinctNonpartisanReport,
+    'new-zoo-either',
+    {
+      ballotsCast: 2,
+      undervotes: 0,
+      overvotes: 0,
+    },
+    { yes: 2, no: 0 }
+  );
+  expectContestResultsInReport(
+    allPrecinctNonpartisanReport,
+    'new-zoo-pick',
+    {
+      ballotsCast: 2,
+      undervotes: 1,
+      overvotes: 0,
+    },
+    { yes: 0, no: 1 }
+  );
+  expectContestResultsInReport(
+    allPrecinctNonpartisanReport,
     'fishing',
     {
       ballotsCast: 1,
@@ -1054,26 +1060,7 @@ test('tally report: as expected with all precinct specific data for primary elec
       },
       { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
     );
-    expectContestResultsInReport(
-      precinct1MammalReport,
-      'new-zoo-either',
-      {
-        ballotsCast: 1,
-        undervotes: 0,
-        overvotes: 0,
-      },
-      { yes: 1, no: 0 }
-    );
-    expectContestResultsInReport(
-      precinct1MammalReport,
-      'new-zoo-pick',
-      {
-        ballotsCast: 1,
-        undervotes: 1,
-        overvotes: 0,
-      },
-      { yes: 0, no: 0 }
-    );
+
     // Check that the expected results are on the tally report for Precinct 1 Fish Party
     const precinct1FishReport = printedElement.getByTestId(
       'tally-report-1-precinct-1'
@@ -1110,12 +1097,7 @@ test('tally report: as expected with all precinct specific data for primary elec
         'write-in': 0,
       }
     );
-    expectContestResultsInReport(
-      precinct1FishReport,
-      'fishing',
-      { ballotsCast: 0, undervotes: 0, overvotes: 0 },
-      { yes: 0, no: 0 }
-    );
+
     // Check that the expected results are on the tally report for Precinct 2 Mammal Party
     const precinct2MammalReport = printedElement.getByTestId(
       'tally-report-0-precinct-2'
@@ -1146,26 +1128,7 @@ test('tally report: as expected with all precinct specific data for primary elec
       },
       { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
     );
-    expectContestResultsInReport(
-      precinct2MammalReport,
-      'new-zoo-either',
-      {
-        ballotsCast: 1,
-        undervotes: 0,
-        overvotes: 0,
-      },
-      { yes: 1, no: 0 }
-    );
-    expectContestResultsInReport(
-      precinct2MammalReport,
-      'new-zoo-pick',
-      {
-        ballotsCast: 1,
-        undervotes: 0,
-        overvotes: 0,
-      },
-      { yes: 0, no: 1 }
-    );
+
     // Check that the expected results are on the tally report for Precinct 2 Fish Party
     const precinct2FishReport = printedElement.getByTestId(
       'tally-report-1-precinct-2'
@@ -1202,8 +1165,64 @@ test('tally report: as expected with all precinct specific data for primary elec
         'write-in': 0,
       }
     );
+
+    // Check that the expected results are on the tally report for Precinct 1 Nonpartisan Contests
+    const precinct1NonpartisanReport = printedElement.getByTestId(
+      'tally-report-undefined-precinct-1'
+    );
     expectContestResultsInReport(
-      precinct2FishReport,
+      precinct1NonpartisanReport,
+      'new-zoo-either',
+      {
+        ballotsCast: 1,
+        undervotes: 0,
+        overvotes: 0,
+      },
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'new-zoo-pick',
+      {
+        ballotsCast: 1,
+        undervotes: 1,
+        overvotes: 0,
+      },
+      { yes: 0, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct1NonpartisanReport,
+      'fishing',
+      { ballotsCast: 0, undervotes: 0, overvotes: 0 },
+      { yes: 0, no: 0 }
+    );
+
+    // Check that the expected results are on the tally report for Precinct 2 Nonpartisan Contests
+    const precinct2NonpartisanReport = printedElement.getByTestId(
+      'tally-report-undefined-precinct-2'
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
+      'new-zoo-either',
+      {
+        ballotsCast: 1,
+        undervotes: 0,
+        overvotes: 0,
+      },
+      { yes: 1, no: 0 }
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
+      'new-zoo-pick',
+      {
+        ballotsCast: 1,
+        undervotes: 0,
+        overvotes: 0,
+      },
+      { yes: 0, no: 1 }
+    );
+    expectContestResultsInReport(
+      precinct2NonpartisanReport,
       'fishing',
       { ballotsCast: 1, undervotes: 0, overvotes: 0 },
       { yes: 0, no: 1 }
@@ -1436,6 +1455,7 @@ test('tally report: as expected with primary election with nonpartisan contests'
       },
       { horse: 1, otter: 0, fox: 0 }
     );
+
     // Check that the expected results are on the tally report for nonpartisan contests
     const precinct1NonpartisanReport = printedElement.getByTestId(
       'tally-report-undefined-precinct-1'

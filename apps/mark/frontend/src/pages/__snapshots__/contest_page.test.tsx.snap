@@ -196,7 +196,7 @@ exports[`Renders ContestPage 1`] = `
           </strong>
            of
            
-          22 contests
+          21 contests
            on your ballot.
         </p>
       </div>
@@ -866,7 +866,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             </strong>
              of
              
-            22 contests
+            21 contests
             .
           </p>
           <p>

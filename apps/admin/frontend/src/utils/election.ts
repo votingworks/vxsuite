@@ -207,7 +207,10 @@ export function getContestsForPrecinct(
 
   return election.contests.filter((c) => {
     const districts = precinctBallotStyles
-      .filter((bs) => bs.partyId === c.partyId)
+      .filter((bs) => {
+        const contestPartyId = c.type === 'candidate' ? c.partyId : undefined;
+        return bs.partyId === contestPartyId;
+      })
       .flatMap((bs) => bs.districts);
     return districts.includes(c.districtId);
   });
@@ -348,11 +351,13 @@ export function generateOvervoteBallot({
 
   const votes: VotesDict = {};
   for (const ballotStyle of precinctBallotStyles) {
-    const contests = election.contests.filter(
-      (c) =>
+    const contests = election.contests.filter((c) => {
+      const contestPartyId = c.type === 'candidate' ? c.partyId : undefined;
+      return (
         ballotStyle.districts.includes(c.districtId) &&
-        ballotStyle.partyId === c.partyId
-    );
+        ballotStyle.partyId === contestPartyId
+      );
+    });
 
     const candidateContests = contests.filter(
       (c) => c.type === 'candidate'

@@ -160,7 +160,7 @@ exports[`renders StartPage 1`] = `
           Your ballot has
            
           <strong>
-            22 contests
+            21 contests
           </strong>
           .
         </p>
@@ -790,7 +790,7 @@ exports[`renders StartPage with no seal 1`] = `
           Your ballot has
            
           <strong>
-            22 contests
+            21 contests
           </strong>
           .
         </p>

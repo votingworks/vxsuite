@@ -651,14 +651,6 @@
       "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
     },
     {
-      "id": "measure-666",
-      "districtId": "district-1",
-      "partyId": "2",
-      "type": "yesno",
-      "title": "Measure 666: The Question No One Gets To",
-      "description": "This question has a partyId, but no ballot style with the corresponding districts has that partyId, so this question will never get selected by a ballot style. This completes test coverage."
-    },
-    {
       "id": "primary-constitution-head-of-party",
       "districtId": "7",
       "partyId": "3",

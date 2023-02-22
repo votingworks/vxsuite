@@ -1542,7 +1542,7 @@ test('primary election with nonpartisan contests', async () => {
   userEvent.click(screen.getByText('Ballots'));
   userEvent.click(screen.getAllByText('View Ballot')[0]);
   screen.getByText(
-    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
+    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 6 contests')
   );
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests

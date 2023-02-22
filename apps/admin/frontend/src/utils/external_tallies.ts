@@ -147,6 +147,7 @@ function filterTallyForPartyId(
     if (
       contestTally &&
       districtsForParty.includes(contestTally.contest.districtId) &&
+      contestTally.contest.type === 'candidate' &&
       contestTally.contest.partyId === partyId
     ) {
       filteredContestTallies[contestId] = contestTally;

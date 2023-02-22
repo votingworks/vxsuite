@@ -172,7 +172,7 @@ test('manual write-in data end-to-end test', async () => {
     .closest('tr')!;
   expect(
     within(precinct1SummaryRow).getByTestId('numBallots').textContent
-  ).toEqual('18');
+  ).toEqual('11');
 
   // Check our write-ins appear for precinct 2
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 2'));
@@ -208,7 +208,7 @@ test('manual write-in data end-to-end test', async () => {
   // alters the candidates and results from another precinct
   expect(
     within(precinct1SummaryRow).getByTestId('numBallots').textContent
-  ).toEqual('15');
+  ).toEqual('8');
   expect(
     within(precinct2SummaryRow).getByTestId('numBallots').textContent
   ).toEqual('5');

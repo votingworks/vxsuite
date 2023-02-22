@@ -222,11 +222,9 @@ export function arbitraryYesNoOption({
 export function arbitraryYesNoContest({
   id = arbitraryContestId(),
   districtId = arbitraryDistrictId(),
-  partyId = arbitraryOptional(arbitraryPartyId()),
 }: {
   id?: fc.Arbitrary<YesNoContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
-  partyId?: fc.Arbitrary<Party['id'] | undefined>;
 } = {}): fc.Arbitrary<YesNoContest> {
   return fc.boolean().chain((hasCustomOptions) =>
     fc.record({
@@ -235,7 +233,6 @@ export function arbitraryYesNoContest({
       description: fc.string({ minLength: 1 }),
       id,
       districtId,
-      partyId,
       yesOption: hasCustomOptions
         ? arbitraryYesNoOption({ id: fc.constant('yes') })
         : fc.constant(undefined),

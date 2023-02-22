@@ -42,9 +42,10 @@ test('polls closed: tally reports for each party in primary, single precinct', (
 
   expect(
     screen.getAllByText('Official Polls Closed Report for Precinct 1')
-  ).toHaveLength(2);
+  ).toHaveLength(3);
   screen.getByText('Mammal Party Example Primary Election:');
   screen.getByText('Fish Party Example Primary Election:');
+  screen.getByText('Example Primary Election Nonpartisan Contests:');
   expect(
     screen.queryByText('Automatic Election Results Reporting')
   ).not.toBeInTheDocument();

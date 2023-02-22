@@ -407,11 +407,12 @@ function filterContestTalliesByParty(
   if (partyFilter === ALL_PARTY_FILTER) return contestTallies;
 
   const contestIds = election.contests
-    .filter(
-      (contest) =>
-        contest.partyId ===
-        (partyFilter === NONPARTISAN_FILTER ? undefined : partyFilter)
-    )
+    .filter((contest) => {
+      if (partyFilter === NONPARTISAN_FILTER) {
+        return contest.type !== 'candidate' || contest.partyId === undefined;
+      }
+      return contest.type === 'candidate' && contest.partyId === partyFilter;
+    })
     .map((contest) => contest.id);
 
   const filteredContestTallies: Dictionary<ContestTally> = {};

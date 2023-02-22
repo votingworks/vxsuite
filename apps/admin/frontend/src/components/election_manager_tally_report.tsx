@@ -82,11 +82,11 @@ export function ElectionManagerTallyReport({
       return getPartyIdsWithContests(election);
     }
 
-    // If the report is specific to a party, there will only a section for that
+    // If the report is specific to a party, there will only be a section for that
     // party or, if there are also nonpartisan races, a section for those as well.
-    return election.contests.some((c) => !c.partyId)
-      ? [reportPartyId, undefined]
-      : [reportPartyId];
+    return election.contests.every((c) => c.type === 'candidate' && c.partyId)
+      ? [reportPartyId]
+      : [reportPartyId, undefined];
   })();
 
   const precinctIds =

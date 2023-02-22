@@ -581,7 +581,7 @@ test('throws on decoding an incorrect number of contests', () => {
     .toUint8Array();
 
   expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'expected 22 contest(s), but read 21 from encoded config'
+    'expected 21 contest(s), but read 20 from encoded config'
   );
 });
 
