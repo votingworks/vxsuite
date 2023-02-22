@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+import { UserRole } from '@votingworks/types';
 import { Loading, Modal, Text } from '@votingworks/ui';
 import { hyphenatePin } from '@votingworks/utils';
-import { throwIllegalValue } from '@votingworks/basics';
-import { User, UserRole } from '@votingworks/types';
 
 import { userRoleToReadableString } from './user_roles';
 
@@ -15,6 +15,7 @@ export type SmartcardAction = 'Program' | 'PinReset' | 'Unprogram';
 
 interface SmartcardActionComplete {
   action: SmartcardAction;
+  newPin?: string;
   role: UserRole;
   status: 'Success' | 'Error';
 }
@@ -41,9 +42,8 @@ export function isSmartcardActionInProgress(
   return actionStatus?.status === 'InProgress';
 }
 
-interface SuccessOrErrorStatusMessageProps {
+interface Props {
   actionStatus: SmartcardActionComplete;
-  programmedUser?: User;
 }
 
 /**
@@ -52,9 +52,8 @@ interface SuccessOrErrorStatusMessageProps {
  */
 export function SuccessOrErrorStatusMessage({
   actionStatus,
-  programmedUser,
-}: SuccessOrErrorStatusMessageProps): JSX.Element | null {
-  const { action, status } = actionStatus;
+}: Props): JSX.Element | null {
+  const { action, newPin, status } = actionStatus;
   const actionRoleReadableString = userRoleToReadableString(actionStatus.role);
 
   if (status === 'Error') {
@@ -80,13 +79,12 @@ export function SuccessOrErrorStatusMessage({
     return <Text error>{text} Please try again.</Text>;
   }
 
-  if (action === 'Program' && programmedUser) {
+  if (action === 'Program') {
     return (
       <TextLarge success>
-        {'passcode' in programmedUser ? (
+        {newPin ? (
           <React.Fragment>
-            New card PIN is{' '}
-            <strong>{hyphenatePin(programmedUser.passcode)}</strong>.
+            New card PIN is <strong>{hyphenatePin(newPin)}</strong>.
           </React.Fragment>
         ) : (
           <React.Fragment>New card created.</React.Fragment>
@@ -95,11 +93,11 @@ export function SuccessOrErrorStatusMessage({
     );
   }
 
-  if (action === 'PinReset' && programmedUser && 'passcode' in programmedUser) {
+  if (action === 'PinReset') {
+    assert(newPin !== undefined);
     return (
       <TextLarge success>
-        New card PIN is <strong>{hyphenatePin(programmedUser.passcode)}</strong>
-        .
+        New card PIN is <strong>{hyphenatePin(newPin)}</strong>.
       </TextLarge>
     );
   }

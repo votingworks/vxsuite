@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 
+import { programCard } from '../../api';
 import {
   isSmartcardActionComplete,
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
-import { programCard } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -36,6 +36,7 @@ export function ProgramSystemAdministratorCardView({
         onSuccess: (result) => {
           setActionStatus({
             action: 'Program',
+            newPin: result.ok()?.pin,
             role: 'system_administrator',
             status: result.isOk() ? 'Success' : 'Error',
           });
