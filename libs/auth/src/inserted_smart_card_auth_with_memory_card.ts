@@ -24,7 +24,7 @@ import {
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth';
-import { parseUserFromCardSummary } from './memory_card';
+import { parseUserDataFromCardSummary } from './memory_card';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -32,7 +32,7 @@ global.fetch = fetch;
 
 type AuthAction =
   | { type: 'check_card_reader'; cardSummary: CardSummary }
-  | { type: 'check_pin'; pin: string };
+  | { type: 'check_pin'; cardSummary: CardSummary; pin: string };
 
 /**
  * An implementation of the dipped smart card auth API, backed by a memory card
@@ -102,8 +102,14 @@ export class InsertedSmartCardAuthWithMemoryCard
     machineState: InsertedSmartCardAuthMachineState,
     input: { pin: string }
   ): Promise<void> {
-    await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    this.updateAuthStatus(machineState, { type: 'check_pin', pin: input.pin });
+    const cardSummary = await this.checkCardReaderAndUpdateAuthStatus(
+      machineState
+    );
+    this.updateAuthStatus(machineState, {
+      type: 'check_pin',
+      cardSummary,
+      pin: input.pin,
+    });
   }
 
   async startCardlessVoterSession(
@@ -185,12 +191,13 @@ export class InsertedSmartCardAuthWithMemoryCard
 
   private async checkCardReaderAndUpdateAuthStatus(
     machineState: InsertedSmartCardAuthMachineState
-  ) {
+  ): Promise<CardSummary> {
     const cardSummary = await this.card.readSummary();
     this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
       cardSummary,
     });
+    return cardSummary;
   }
 
   private updateAuthStatus(
@@ -217,7 +224,7 @@ export class InsertedSmartCardAuthWithMemoryCard
               return { status: 'logged_out', reason: 'card_error' };
 
             case 'ready': {
-              const user = parseUserFromCardSummary(action.cardSummary);
+              const { user } = parseUserDataFromCardSummary(action.cardSummary);
               const validationResult = this.validateCardUser(
                 machineState,
                 user
@@ -255,10 +262,14 @@ export class InsertedSmartCardAuthWithMemoryCard
       }
 
       case 'check_pin': {
-        if (currentAuthStatus.status !== 'checking_passcode') {
+        if (
+          currentAuthStatus.status !== 'checking_passcode' ||
+          action.cardSummary.status !== 'ready'
+        ) {
           return currentAuthStatus;
         }
-        if (action.pin === currentAuthStatus.user.passcode) {
+        const { pin } = parseUserDataFromCardSummary(action.cardSummary);
+        if (action.pin === pin) {
           if (currentAuthStatus.user.role === 'system_administrator') {
             return { status: 'logged_in', user: currentAuthStatus.user };
           }
