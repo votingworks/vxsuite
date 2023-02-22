@@ -18,6 +18,7 @@ import {
   ExternalTallySourceType,
   FullElectionExternalTally,
   getContests,
+  safeParseInt,
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
@@ -447,6 +448,31 @@ test('can enter data for yes no contests as expected', async () => {
 
   // A yes no contest does not allow write ins has no write in row.
   expect(screen.queryAllByTestId('president-write-in').length).toEqual(0);
+
+  // In order to make the results consistent, we need to set the same number of
+  // ballots for all contests on the given ballot style
+  const totalBallots = safeParseInt(
+    screen.getByTestId('judicial-robert-demergue-numBallots').textContent
+  ).unsafeUnwrap();
+  const { election } = electionSampleDefinition;
+  const ballotStyle = election.ballotStyles[0];
+  const contests = getContests({ ballotStyle, election });
+  assert(contests.some((c) => c.id === 'judicial-robert-demergue'));
+  for (const contest of contests) {
+    if (contest.id === 'judicial-robert-demergue') continue;
+    userEvent.type(
+      screen.getByTestId(`${contest.id}-undervotes-input`).closest('input')!,
+      contest.type === 'candidate'
+        ? String(totalBallots * contest.seats)
+        : String(totalBallots)
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(`${contest.id}-numBallots`).textContent
+      ).toEqual(String(totalBallots));
+    });
+  }
+
   fireEvent.click(
     screen.getByText('Save Precinct Results for Center Springfield')
   );
@@ -557,4 +583,34 @@ test('loads preexisting manual data to edit', async () => {
     screen.getByTestId('judicial-robert-demergue-no-input').closest('input')!
       .value
   ).toEqual(tallyJudicial.tallies['no']!.tally.toString());
+});
+
+test('shows an error message on save if the contest tallies are inconsistent', async () => {
+  const updateExternalTally = jest.fn();
+  const logger = fakeLogger();
+  renderInAppContext(
+    <Route path="/tally/manual-data-import/precinct/:precinctId">
+      <ManualDataImportPrecinctScreen />
+    </Route>,
+    {
+      route: '/tally/manual-data-import/precinct/23',
+      updateExternalTally,
+      electionDefinition: electionSampleDefinition,
+      logger,
+    }
+  );
+  await screen.findByText('Manually Entered Precinct Results:');
+  screen.getByText('Center Springfield');
+
+  userEvent.type(
+    screen.getByTestId('president-undervotes-input').closest('input')!,
+    '4'
+  );
+  userEvent.click(
+    screen.getByText('Save Precinct Results for Center Springfield')
+  );
+  await screen.findByText('Inconsistent Results');
+  userEvent.click(screen.getByText('Close'));
+  expect(screen.queryByText('Inconsistent Results')).not.toBeInTheDocument();
+  expect(updateExternalTally).not.toHaveBeenCalled();
 });

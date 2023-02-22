@@ -195,7 +195,6 @@ export function convertTalliesByPrecinctToFullExternalTally(
   const overallContestTallies: Dictionary<ContestTally> = {};
   for (const precinctTally of Object.values(talliesByPrecinct)) {
     assert(precinctTally);
-    console.log(precinctTally.numberOfBallotsCounted);
     totalNumberOfBallots += precinctTally.numberOfBallotsCounted;
     for (const contestId of Object.keys(precinctTally.contestTallies)) {
       if (!(contestId in overallContestTallies)) {

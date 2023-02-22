@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  CandidateContest,
   Contest,
   Dictionary,
   ContestVoteOption,
@@ -17,6 +16,7 @@ import {
   Candidate,
   CandidateId,
   getContestDistrictName,
+  AnyContest,
 } from '@votingworks/types';
 import { Button, Modal, Prose, Table, TD, Text } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
@@ -170,7 +170,7 @@ interface TempContestTallyMeta {
   readonly overvotes: number | EmptyValue;
 }
 interface TempContestTally {
-  readonly contest: Contest;
+  readonly contest: AnyContest;
   readonly tallies: Dictionary<TempContestOptionTally>;
   readonly metadata: TempContestTallyMeta;
 }
@@ -231,9 +231,7 @@ export function getExpectedNumberOfBallotsForContestTally(
   contestTally: TempContestTally
 ): number {
   const numSeats =
-    contestTally.contest.type === 'candidate'
-      ? (contestTally.contest as CandidateContest).seats
-      : 1;
+    contestTally.contest.type === 'candidate' ? contestTally.contest.seats : 1;
   const sumOfCandidateVotes = Object.values(contestTally.tallies).reduce(
     (prevValue, optionTally) =>
       prevValue +
@@ -406,7 +404,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       numberOfBallotsInPrecinct: currentPrecinctTally.numberOfBallotsCounted,
       precinctId: currentPrecinctId,
     });
-    console.log(externalTally);
     await updateExternalTally(externalTally);
     history.push(routerPaths.manualDataImport);
   }
