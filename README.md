@@ -5,10 +5,9 @@ The VotingWorks in-person voting system.
 ## About
 
 Includes software for a [ballot-marking device (BMD)](./apps/mark/frontend), a
-[ballot activation system (BAS)](./frontends/bas), a
-[ballot scanning device (BSD)](./frontends/bsd), a
-[precinct scanner](./frontends/precinct-scanner), and an
-[election manager](./frontends/election-manager). See https://voting.works for
+[ballot scanning device (BSD)](./apps/central-scan/frontend), a
+[precinct scanner](./apps/scan/frontend), and an
+[election manager](./apps/admin/frontend). See https://voting.works for
 more information about VotingWorks.
 
 ## Development
