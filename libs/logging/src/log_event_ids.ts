@@ -21,7 +21,7 @@ export enum LogEventId {
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
   // Authentication related logs
-  AuthPasscodeEntry = 'auth-passcode-entry',
+  AuthPinEntry = 'auth-pin-entry',
   AuthLogout = 'auth-logout',
   AuthLogin = 'auth-login',
   // USB related logs
@@ -172,10 +172,10 @@ const MachineShutdownCompleteEvent: LogDetails = {
     'The machine has completed all the steps to shutdown and will now power down or reboot.',
 };
 
-const AuthPasscodeEntryEvent: LogDetails = {
-  eventId: LogEventId.AuthPasscodeEntry,
+const AuthPinEntryEvent: LogDetails = {
+  eventId: LogEventId.AuthPinEntry,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'A user attempted to enter a passcode to log in.',
+  documentationMessage: 'A user attempted to enter a PIN to log in.',
 };
 
 const AuthLoginEvent: LogDetails = {
@@ -881,8 +881,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownInitEvent;
     case LogEventId.MachineShutdownComplete:
       return MachineShutdownCompleteEvent;
-    case LogEventId.AuthPasscodeEntry:
-      return AuthPasscodeEntryEvent;
+    case LogEventId.AuthPinEntry:
+      return AuthPinEntryEvent;
     case LogEventId.AuthLogin:
       return AuthLoginEvent;
     case LogEventId.AuthLogout:

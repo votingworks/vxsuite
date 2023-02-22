@@ -241,14 +241,14 @@ export class InsertedSmartCardAuthWithMemoryCard
                       BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                     )
                       ? { status: 'logged_in', user }
-                      : { status: 'checking_passcode', user };
+                      : { status: 'checking_pin', user };
                   }
                   if (user.role === 'election_manager') {
                     return isFeatureFlagEnabled(
                       BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                     )
                       ? { status: 'logged_in', user }
-                      : { status: 'checking_passcode', user };
+                      : { status: 'checking_pin', user };
                   }
                   if (user.role === 'poll_worker') {
                     return { status: 'logged_in', user };
@@ -275,7 +275,7 @@ export class InsertedSmartCardAuthWithMemoryCard
 
       case 'check_pin': {
         if (
-          currentAuthStatus.status !== 'checking_passcode' ||
+          currentAuthStatus.status !== 'checking_pin' ||
           action.cardSummary.status !== 'ready'
         ) {
           return currentAuthStatus;
@@ -287,7 +287,7 @@ export class InsertedSmartCardAuthWithMemoryCard
           }
           return { status: 'logged_in', user: currentAuthStatus.user };
         }
-        return { ...currentAuthStatus, wrongPasscodeEnteredAt: new Date() };
+        return { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
       /* istanbul ignore next: Compile-time check for completeness */

@@ -639,7 +639,7 @@ export function AppRoot({
       />
     );
   }
-  if (authStatus.status === 'checking_passcode') {
+  if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={authStatus}

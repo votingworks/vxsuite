@@ -235,7 +235,7 @@ export class DippedSmartCardAuthWithMemoryCard
                       BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                     )
                       ? { status: 'remove_card', user }
-                      : { status: 'checking_passcode', user };
+                      : { status: 'checking_pin', user };
                   }
                   return {
                     status: 'logged_out',
@@ -250,7 +250,7 @@ export class DippedSmartCardAuthWithMemoryCard
               }
             }
 
-            case 'checking_passcode': {
+            case 'checking_pin': {
               if (action.cardSummary.status === 'no_card') {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
@@ -302,7 +302,7 @@ export class DippedSmartCardAuthWithMemoryCard
 
       case 'check_pin': {
         if (
-          currentAuthStatus.status !== 'checking_passcode' ||
+          currentAuthStatus.status !== 'checking_pin' ||
           action.cardSummary.status !== 'ready'
         ) {
           return currentAuthStatus;
@@ -310,7 +310,7 @@ export class DippedSmartCardAuthWithMemoryCard
         const { pin } = parseUserDataFromCardSummary(action.cardSummary);
         return action.pin === pin
           ? { status: 'remove_card', user: currentAuthStatus.user }
-          : { ...currentAuthStatus, wrongPasscodeEnteredAt: new Date() };
+          : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
       case 'log_out':

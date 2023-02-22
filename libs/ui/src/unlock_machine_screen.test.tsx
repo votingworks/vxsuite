@@ -6,11 +6,11 @@ import React from 'react';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
-  status: 'checking_passcode',
+  status: 'checking_pin',
   user: fakeSystemAdministratorUser(),
 };
 
-test('Unlock machine screen submits passcode', async () => {
+test('Unlock machine screen submits pin', async () => {
   const checkPin = jest.fn();
   const { getByText } = render(
     <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
@@ -50,16 +50,16 @@ test('Unlock machine screen submits passcode', async () => {
   getByText('- - - - - -');
 });
 
-test('If passcode is incorrect, error message is shown', () => {
+test('If PIN is incorrect, error message is shown', () => {
   const checkPin = jest.fn();
   const { getByText } = render(
     <UnlockMachineScreen
       auth={{
         ...checkingPinAuthStatus,
-        wrongPasscodeEnteredAt: new Date(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />
   );
-  getByText('Invalid code. Please try again.');
+  getByText('Invalid PIN. Please try again.');
 });

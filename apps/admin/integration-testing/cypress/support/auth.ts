@@ -31,7 +31,7 @@ export function mockElectionManagerCardInsertion({
 }
 
 export function enterPin(): void {
-  cy.contains('Enter the card security code to unlock.');
+  cy.contains('Enter the card PIN to unlock.');
   for (const digit of PIN) {
     cy.get(`button:contains(${digit})`).click();
   }

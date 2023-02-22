@@ -87,19 +87,19 @@ const checkingPinAuthStatus: {
   insertedElectionManager: InsertedSmartCardAuth.CheckingPin;
 } = {
   dippedSysAdmin: {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeSystemAdministratorUser(),
   },
   insertedSysAdmin: {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeSystemAdministratorUser(),
   },
   dippedElectionManager: {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser(),
   },
   insertedElectionManager: {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser(),
   },
 };

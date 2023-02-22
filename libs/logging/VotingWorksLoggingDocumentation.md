@@ -42,9 +42,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.  
 **Machines:** All
-### auth-passcode-entry
+### auth-pin-entry
 **Type:** [user-action](#user-action)  
-**Description:** A user attempted to enter a passcode to log in.  
+**Description:** A user attempted to enter a PIN to log in.  
 **Machines:** All
 ### auth-logout
 **Type:** [user-action](#user-action)  
