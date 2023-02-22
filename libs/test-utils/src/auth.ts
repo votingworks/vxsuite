@@ -10,7 +10,6 @@ export function fakeSystemAdministratorUser(
 ): SystemAdministratorUser {
   return {
     role: 'system_administrator',
-    passcode: '123456',
     ...props,
   };
 }
@@ -21,7 +20,6 @@ export function fakeElectionManagerUser(
   return {
     role: 'election_manager',
     electionHash: 'election-hash',
-    passcode: '123456',
     ...props,
   };
 }
