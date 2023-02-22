@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
@@ -6,7 +6,7 @@ import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { Button, Prose, Table, TD, Text } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
-import { InputEventFunction, ResultsFileType } from '../config/types';
+import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
 import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
@@ -15,10 +15,8 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
-import { FileInputButton } from '../components/file_input_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
-import { ImportExternalResultsModal } from '../components/import_external_results_modal';
 import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
 import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 import { Loading } from '../components/loading';
@@ -26,7 +24,6 @@ import { Loading } from '../components/loading';
 export function TallyScreen(): JSX.Element {
   const {
     electionDefinition,
-    converter,
     isOfficialResults,
     fullElectionExternalTallies,
     resetFiles,
@@ -35,7 +32,6 @@ export function TallyScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
-  const externalFileInput = useRef<HTMLInputElement>(null);
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
@@ -63,34 +59,9 @@ export function TallyScreen(): JSX.Element {
     cvrFilesQuery.isLoading || cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
   const hasAnyFiles =
     castVoteRecordFileList.length > 0 || fullElectionExternalTallies.size > 0;
-  const hasExternalSemsFile = fullElectionExternalTallies.has(
-    ExternalTallySourceType.SEMS
-  );
   const hasExternalManualData = fullElectionExternalTallies.has(
     ExternalTallySourceType.Manual
   );
-
-  const [isImportExternalModalOpen, setIsImportExternalModalOpen] =
-    useState(false);
-  const [externalResultsSelectedFile, setExternalResultsSelectedFile] =
-    useState<File>();
-
-  const importExternalSemsFile: InputEventFunction = (event) => {
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    if (files.length === 1) {
-      setIsImportExternalModalOpen(true);
-      setExternalResultsSelectedFile(files[0]);
-    }
-  };
-
-  function closeExternalFileImport() {
-    setIsImportExternalModalOpen(false);
-    setExternalResultsSelectedFile(undefined);
-    if (externalFileInput?.current) {
-      externalFileInput.current.value = '';
-    }
-  }
 
   const fileMode = useCvrFileModeQuery().data;
   const fileModeText =
@@ -252,28 +223,6 @@ export function TallyScreen(): JSX.Element {
               Remove Manual Data
             </Button>
           </p>
-          {converter === 'ms-sems' && (
-            <React.Fragment>
-              <h2>External Results</h2>
-              <p>
-                <FileInputButton
-                  innerRef={externalFileInput}
-                  onChange={importExternalSemsFile}
-                  accept="*"
-                  data-testid="import-sems-button"
-                  disabled={hasExternalSemsFile || isOfficialResults}
-                >
-                  Load External Results File
-                </FileInputButton>{' '}
-                <Button
-                  disabled={!hasExternalSemsFile || isOfficialResults}
-                  onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
-                >
-                  Remove External Results File
-                </Button>
-              </p>
-            </React.Fragment>
-          )}
         </Prose>
       </NavigationScreen>
       {confirmingRemoveFileType && (
@@ -281,12 +230,6 @@ export function TallyScreen(): JSX.Element {
           fileType={confirmingRemoveFileType}
           onConfirm={confirmRemoveFiles}
           onCancel={cancelConfirmingRemoveFiles}
-        />
-      )}
-      {isImportExternalModalOpen && (
-        <ImportExternalResultsModal
-          onClose={closeExternalFileImport}
-          selectedFile={externalResultsSelectedFile}
         />
       )}
       {isImportCvrModalOpen && (

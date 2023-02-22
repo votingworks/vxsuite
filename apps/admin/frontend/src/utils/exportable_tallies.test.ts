@@ -7,6 +7,8 @@ import {
   CastVoteRecord,
   ContestTally,
   Election,
+  ExternalTallySourceType,
+  FullElectionExternalTally,
   VotingMethod,
   writeInCandidate,
   YesNoContest,
@@ -17,7 +19,6 @@ import {
   getCombinedExportableContestTally,
   getExportableTallies,
 } from './exportable_tallies';
-import { convertSemsFileToExternalTally } from './sems_tallies';
 
 const multiPartyPrimaryElection =
   electionMultiPartyPrimaryFixtures.electionDefinition.election;
@@ -272,20 +273,21 @@ describe('getExportableTallies', () => {
       electionWithMsEitherNeither,
       new Set(castVoteRecords)
     );
-    const fullExternalTally = convertSemsFileToExternalTally(
-      electionWithMsEitherNeitherFixtures.semsData,
-      electionWithMsEitherNeither,
-      VotingMethod.Precinct,
-      'file-name',
-      new Date()
-    );
+    const fullExternalTally: FullElectionExternalTally = {
+      overallTally: fullInternalTally.overallTally,
+      resultsByCategory: fullInternalTally.resultsByCategory,
+      source: ExternalTallySourceType.Manual,
+      inputSourceName: 'manual',
+      timestampCreated: new Date(),
+      votingMethod: VotingMethod.Precinct,
+    };
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
       new Map(),
       electionWithMsEitherNeither
     );
-    // Get tally with CVR and SEMS data
+    // Get tally with CVR and external data
     const doubleTally = getExportableTallies(
       fullInternalTally,
       new Map([[fullExternalTally.source, fullExternalTally]]),
@@ -322,20 +324,21 @@ describe('getExportableTallies', () => {
       multiPartyPrimaryElection,
       new Set(castVoteRecords)
     );
-    const fullExternalTally = convertSemsFileToExternalTally(
-      electionMultiPartyPrimaryFixtures.semsData,
-      multiPartyPrimaryElection,
-      VotingMethod.Precinct,
-      'file-name',
-      new Date()
-    );
+    const fullExternalTally: FullElectionExternalTally = {
+      overallTally: fullInternalTally.overallTally,
+      resultsByCategory: fullInternalTally.resultsByCategory,
+      source: ExternalTallySourceType.Manual,
+      inputSourceName: 'manual',
+      timestampCreated: new Date(),
+      votingMethod: VotingMethod.Precinct,
+    };
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
       new Map(),
       multiPartyPrimaryElection
     );
-    // Get tally with CVR and SEMS data
+    // Get tally with CVR and external data
     const doubleTally = getExportableTallies(
       fullInternalTally,
       new Map([[fullExternalTally.source, fullExternalTally]]),

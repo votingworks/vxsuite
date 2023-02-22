@@ -263,41 +263,21 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       '6522': singleVotes,
       '6524': singleVotes,
     });
-    const fullTallySems: FullElectionExternalTally = {
+    const fullTally1: FullElectionExternalTally = {
       overallTally: doubleVotes,
       resultsByCategory,
       votingMethod: VotingMethod.Absentee,
-      source: ExternalTallySourceType.SEMS,
+      source: ExternalTallySourceType.Manual,
       inputSourceName: 'the-heartbreak-prince',
       timestampCreated: new Date(1989, 11, 13),
     }; // Have information both in the main tally and results by category
 
     const storageString = convertExternalTalliesToStorageString(
-      new Map([[fullTallySems.source, fullTallySems]])
+      new Map([[fullTally1.source, fullTally1]])
     );
     const recreatedTallies =
       convertStorageStringToExternalTallies(storageString);
-    expect(recreatedTallies).toStrictEqual([fullTallySems]);
-
-    // Test with multiple external tallies.
-    const fullTallyManual: FullElectionExternalTally = {
-      overallTally: singleVotes,
-      resultsByCategory: new Map(),
-      votingMethod: VotingMethod.Precinct,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'call-it-what-you-want',
-      timestampCreated: new Date(2013, 1, 3),
-    };
-
-    const storageString2 = convertExternalTalliesToStorageString(
-      new Map([
-        [fullTallySems.source, fullTallySems],
-        [fullTallyManual.source, fullTallyManual],
-      ])
-    );
-    const recreatedTallies2 =
-      convertStorageStringToExternalTallies(storageString2);
-    expect(recreatedTallies2).toStrictEqual([fullTallySems, fullTallyManual]);
+    expect(recreatedTallies).toStrictEqual([fullTally1]);
   });
 });
 
@@ -367,11 +347,11 @@ describe('filterExternalTalliesByParams', () => {
     '6524': singleVotesEitherNeither,
     '6529': emptyVotesEitherNeither,
   });
-  const sharedFullTallySems: FullElectionExternalTally = {
+  const sharedFullTally: FullElectionExternalTally = {
     overallTally: doubleVotesEitherNeither,
     resultsByCategory: sharedResultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'the-heartbreak-prince',
     timestampCreated: new Date(1989, 11, 13),
   };
@@ -383,7 +363,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns undefined when filtering by an unsupported parameter', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { scannerId: '1' }
       )
@@ -393,7 +373,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns an empty tally when filtering for a different voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Precinct }
       )
@@ -403,7 +383,7 @@ describe('filterExternalTalliesByParams', () => {
   it('returns the current tally when filtering for a matching voting method', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { votingMethod: VotingMethod.Absentee }
       )
@@ -413,7 +393,7 @@ describe('filterExternalTalliesByParams', () => {
   it('filters by precinct as expected', () => {
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6524' }
       )
@@ -421,7 +401,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Absentee }
       )
@@ -429,7 +409,7 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6524', votingMethod: VotingMethod.Precinct }
       )
@@ -437,21 +417,21 @@ describe('filterExternalTalliesByParams', () => {
 
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6529' }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6529', votingMethod: VotingMethod.Absentee }
       )
     ).toStrictEqual(emptyVotesEitherNeither);
     expect(
       filterExternalTalliesByParams(
-        sharedFullTallySems,
+        sharedFullTally,
         electionWithMsEitherNeither,
         { precinctId: '6537' }
       )
@@ -472,16 +452,16 @@ describe('filterExternalTalliesByParams', () => {
         'governor-contest-federalist',
       ]
     );
-    const fullTallySems: FullElectionExternalTally = {
+    const fullTally: FullElectionExternalTally = {
       overallTally: singleVotesPrimary,
       resultsByCategory: new Map(),
       votingMethod: VotingMethod.Absentee,
-      source: ExternalTallySourceType.SEMS,
+      source: ExternalTallySourceType.Manual,
       inputSourceName: 'the-heartbreak-prince',
       timestampCreated: new Date(1989, 11, 13),
     };
     const libertyResults = filterExternalTalliesByParams(
-      fullTallySems,
+      fullTally,
       multiPartyPrimaryElection,
       {
         partyId: libertyPartyId,
@@ -503,7 +483,7 @@ describe('filterExternalTalliesByParams', () => {
     );
 
     const constitutionResults = filterExternalTalliesByParams(
-      fullTallySems,
+      fullTally,
       multiPartyPrimaryElection,
       {
         partyId: constitutionPartyId,
@@ -524,7 +504,7 @@ describe('filterExternalTalliesByParams', () => {
       'governor-contest-federalist'
     );
     const federalistResults = filterExternalTalliesByParams(
-      fullTallySems,
+      fullTally,
       multiPartyPrimaryElection,
       {
         partyId: federalistPartyId,
@@ -547,13 +527,13 @@ describe('filterExternalTalliesByParams', () => {
 
     // Filtering by voting method with party works as expected
     expect(
-      filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
+      filterExternalTalliesByParams(fullTally, multiPartyPrimaryElection, {
         partyId: federalistPartyId,
         votingMethod: VotingMethod.Precinct,
       })
     ).toStrictEqual(getEmptyExternalTally());
     expect(
-      filterExternalTalliesByParams(fullTallySems, multiPartyPrimaryElection, {
+      filterExternalTalliesByParams(fullTally, multiPartyPrimaryElection, {
         partyId: federalistPartyId,
         votingMethod: VotingMethod.Absentee,
       })
@@ -644,7 +624,7 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
       resultsByPrecinct,
       multiPartyPrimaryElection,
       VotingMethod.Absentee,
-      ExternalTallySourceType.SEMS,
+      ExternalTallySourceType.Manual,
       'one-single-thread-of-gold',
       new Date(2020, 3, 1)
     );
@@ -652,7 +632,7 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
       buildExternalTally(multiPartyPrimaryElection, 6, contestIds)
     );
     expect(results.votingMethod).toEqual(VotingMethod.Absentee);
-    expect(results.source).toEqual(ExternalTallySourceType.SEMS);
+    expect(results.source).toEqual(ExternalTallySourceType.Manual);
     expect(results.inputSourceName).toEqual('one-single-thread-of-gold');
     expect(results.timestampCreated).toStrictEqual(new Date(2020, 3, 1));
     expect([...results.resultsByCategory.keys()]).toStrictEqual([

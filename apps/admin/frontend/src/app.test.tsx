@@ -31,7 +31,6 @@ import {
   fakePrinterInfo,
   fakeUsbDrive,
   hasTextAcrossElements,
-  ReactTestingLibraryQueryable,
 } from '@votingworks/test-utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
@@ -41,7 +40,6 @@ import {
   eitherNeitherElectionDefinition,
   renderRootElement,
 } from '../test/render_in_app_context';
-import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
@@ -68,8 +66,6 @@ const EITHER_NEITHER_CVR_TEST_FILE = new File(
   [EITHER_NEITHER_CVR_TEST_DATA],
   'cvrs.txt'
 );
-
-const EITHER_NEITHER_SEMS_DATA = electionWithMsEitherNeitherFixtures.semsData;
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
@@ -744,144 +740,11 @@ test('tabulating CVRs', async () => {
   await advanceTimersAndPromises();
 });
 
-test('tabulating CVRs with SEMS file', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-
-  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
-
-  const semsFileTally = convertSemsFileToExternalTally(
-    EITHER_NEITHER_SEMS_DATA,
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Precinct,
-    'sems-results.csv',
-    new Date()
-  );
-  await backend.updateFullElectionExternalTally(
-    semsFileTally.source,
-    semsFileTally
-  );
-
-  const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, getAllByText } = renderRootElement(
-    <App hardware={hardware} converter="ms-sems" />,
-    { apiClient: mockApiClient, backend }
-  );
-  jest.advanceTimersByTime(2000);
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
-
-  fireEvent.click(getByText('Tally'));
-  await screen.findByText('External Results (sems-results.csv)');
-
-  fireEvent.click(getByText('Reports'));
-  getByText('External Results (sems-results.csv)');
-  expect(getByTestId('total-ballot-count').textContent).toEqual('200');
-
-  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-
-  // Report title should be rendered 2 times - app and preview
-  expect(
-    getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
-      .length
-  ).toEqual(2);
-
-  function checkTallyReport(reportContent: ReactTestingLibraryQueryable) {
-    reportContent.getByText(
-      'Unofficial Mock General Election Choctaw 2020 Tally Report'
-    );
-    const absenteeRow = reportContent.getByTestId('absentee');
-    within(absenteeRow).getByText('Absentee');
-    within(absenteeRow).getByText('50');
-
-    const precinctRow = reportContent.getByTestId('standard');
-    within(precinctRow).getByText('Precinct');
-    within(precinctRow).getByText('150');
-
-    const totalRow = reportContent.getByTestId('total');
-    within(totalRow).getByText('Total Ballots Cast');
-    within(totalRow).getByText('200');
-  }
-
-  const reportPreview = screen.getByTestId('report-preview');
-  checkTallyReport(within(reportPreview));
-
-  userEvent.click(screen.getByText('Print Report'));
-  await screen.findByText('Printing');
-  await expectPrint((printedElement) => {
-    // Confirm our printed report matches our preview at a very basic level
-    checkTallyReport(printedElement);
-  });
-  fireEvent.click(getByText('Back to Reports'));
-
-  // Test saving the final results
-  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
-  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } });
-
-  fetchMock.getOnce('/convert/tallies/output?name=name', {
-    body: 'test-content',
-  });
-
-  fetchMock.post('/convert/reset', { body: { status: 'ok' } });
-  await waitFor(() => getByText('Save SEMS Results'));
-  fireEvent.click(getByText('Save SEMS Results'));
-  jest.advanceTimersByTime(2000);
-  getByText(
-    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
-  );
-
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2000);
-  await waitFor(() => getByText(/Results Saved/));
-  await waitFor(() => {
-    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
-      1,
-      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
-      'test-content'
-    );
-  });
-  expect(fetchMock.called('/convert/tallies/files')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/submitfile')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/process')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/output?name=name')).toEqual(true);
-  expect(fetchMock.called('/convert/reset')).toEqual(true);
-
-  fireEvent.click(getByText('Close'));
-
-  // Test removing the SEMS file
-  fireEvent.click(getByText('Tally'));
-  fireEvent.click(await screen.findByText('Remove External Results File'));
-  fireEvent.click(getByText('Remove External Files'));
-  await waitFor(() =>
-    expect(getByTestId('total-cvr-count').textContent).toEqual('100')
-  );
-
-  fireEvent.click(getByText('Reports'));
-  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-});
-
-test('tabulating CVRs with SEMS file and manual data', async () => {
+test('tabulating CVRs with manual data', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
   await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
-
-  const semsFileTally = convertSemsFileToExternalTally(
-    EITHER_NEITHER_SEMS_DATA,
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Precinct,
-    'sems-results.csv',
-    new Date()
-  );
-  await backend.updateFullElectionExternalTally(
-    semsFileTally.source,
-    semsFileTally
-  );
 
   const hardware = MemoryHardware.buildStandard();
 
@@ -897,7 +760,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   fireEvent.click(getByText('Tally'));
   await advanceTimersAndPromises(5); // Allow async queries to resolve first.
-  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('200');
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('100');
 
   fireEvent.click(getByText('Add Manually Entered Results'));
   getByText('Manually Entered Precinct Results');
@@ -925,7 +788,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('100');
   });
   fireEvent.click(getByText('Back to Tally'));
-  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('200');
 
   const fileTable = getByTestId('loaded-file-table');
   const manualRow = domGetByText(
@@ -937,7 +800,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   fireEvent.click(getByText('Reports'));
   getByText('External Results (Manually Added Data)');
-  expect(getByTestId('total-ballot-count').textContent).toEqual('300');
+  expect(getByTestId('total-ballot-count').textContent).toEqual('200');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 2 times - app and preview
@@ -956,11 +819,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   const precinctRow = within(reportPreview).getByTestId('standard');
   within(precinctRow).getByText('Precinct');
-  within(precinctRow).getByText('250');
+  within(precinctRow).getByText('150');
 
   const totalRow = within(reportPreview).getByTestId('total');
   within(totalRow).getByText('Total Ballots Cast');
-  within(totalRow).getByText('300');
+  within(totalRow).getByText('200');
 
   // Now edit the manual data
   fireEvent.click(getByText('Tally'));
@@ -998,7 +861,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   });
 
   fireEvent.click(getByText('Back to Tally'));
-  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('400');
+  expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
   const fileTable2 = getByTestId('loaded-file-table');
   const manualRow2 = domGetByText(
     fileTable2,
@@ -1008,7 +871,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(manualRow2, 'District 5, Panhandle');
 
   fireEvent.click(getByText('Reports'));
-  expect(getByTestId('total-ballot-count').textContent).toEqual('400');
+  expect(getByTestId('total-ballot-count').textContent).toEqual('300');
   getByText('External Results (Manually Added Data)');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
@@ -1027,11 +890,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   const precinctRow2 = within(reportPreview2).getByTestId('standard');
   within(precinctRow2).getByText('Precinct');
-  within(precinctRow2).getByText('150');
+  within(precinctRow2).getByText('50');
 
   const totalRow2 = within(reportPreview2).getByTestId('total');
   within(totalRow2).getByText('Total Ballots Cast');
-  within(totalRow2).getByText('400');
+  within(totalRow2).getByText('300');
 
   // Remove the manual data
   fireEvent.click(getByText('Tally'));
@@ -1041,26 +904,19 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
-    expect(getByTestId('total-cvr-count').textContent).toEqual('200');
+    expect(getByTestId('total-cvr-count').textContent).toEqual('100');
     expect(
       queryAllByText('External Results (Manually Added Data)').length
     ).toEqual(0);
   });
 });
 
-test('changing election resets sems, cvr, and manual data files', async () => {
+test('changing election resets cvr and manual data files', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
   await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
-  const semsFileTally = convertSemsFileToExternalTally(
-    EITHER_NEITHER_SEMS_DATA,
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Precinct,
-    'sems-results.csv',
-    new Date()
-  );
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
     { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
@@ -1068,10 +924,6 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     ExternalTallySourceType.Manual,
     'Manually Added Data',
     new Date()
-  );
-  await backend.updateFullElectionExternalTally(
-    semsFileTally.source,
-    semsFileTally
   );
   await backend.updateFullElectionExternalTally(
     manualTally.source,
@@ -1096,7 +948,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     '0 ballots have been printed.'
   );
   await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('300')
+    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   );
 
   await logOut(mockApiClient);
@@ -1129,19 +981,12 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   await advanceTimersAndPromises();
 });
 
-test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
+test('clearing all files after marking as official clears CVR and manual file', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
   await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
-  const semsFileTally = convertSemsFileToExternalTally(
-    EITHER_NEITHER_SEMS_DATA,
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Precinct,
-    'sems-results.csv',
-    new Date()
-  );
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
     { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
@@ -1149,10 +994,6 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     ExternalTallySourceType.Manual,
     'Manually Added Data',
     new Date()
-  );
-  await backend.updateFullElectionExternalTally(
-    semsFileTally.source,
-    semsFileTally
   );
   await backend.updateFullElectionExternalTally(
     manualTally.source,
@@ -1175,7 +1016,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     '0 ballots have been printed.'
   );
   await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('300')
+    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
   );
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
@@ -1199,14 +1040,10 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     getByText('Edit Manually Entered Results').closest('button')
   ).toBeDisabled();
   expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
-  expect(getByTestId('import-sems-button')).toBeDisabled();
-  expect(
-    getByText('Remove External Results File').closest('button')
-  ).toBeDisabled();
 
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
-    'Do you want to remove the 1 loaded CVR file, the external results file sems-results.csv, and the manually entered data?'
+    'Do you want to remove the 1 loaded CVR file and the manually entered data?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
@@ -1218,13 +1055,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
       getByText('Add Manually Entered Results').closest('button')
     ).toBeEnabled();
   });
-  expect(getByTestId('import-sems-button')).toBeEnabled();
 
   expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
   expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
-  expect(
-    getByText('Remove External Results File').closest('button')
-  ).toBeDisabled();
 
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
