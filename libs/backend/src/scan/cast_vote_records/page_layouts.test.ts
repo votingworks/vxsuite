@@ -120,7 +120,9 @@ test('getContestsForBallotPage', () => {
     'aquarium-council-fish',
   ]);
   // Should have third contest in election definition
-  expect(page2Contests.map((contest) => contest.id)).toEqual(['fishing']);
+  expect(page2Contests.map((contest) => contest.id)).toEqual([
+    'new-zoo-either',
+  ]);
 
   // Should throw error if page doesn't exist
   expect(() =>

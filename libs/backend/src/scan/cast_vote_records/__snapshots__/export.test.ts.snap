@@ -137,7 +137,7 @@ Object {
       ],
       "CreatingDeviceId": "SC-00-000",
       "CurrentSnapshotId": "ballot-1-modified",
-      "ElectionId": "a1fb1df59bc42f44b5838d2b8bb58ca1d7438e2b2a485a7a1f4630cc147a8ef1",
+      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
       "PartyIds": Array [
         "1",
       ],
@@ -189,6 +189,26 @@ Object {
             },
             Object {
               "@type": "CVR.CVRContest",
+              "CVRContestSelection": Array [],
+              "ContestId": "new-zoo-either",
+              "Status": Array [
+                "undervoted",
+                "not-indicated",
+              ],
+              "Undervotes": 1,
+            },
+            Object {
+              "@type": "CVR.CVRContest",
+              "CVRContestSelection": Array [],
+              "ContestId": "new-zoo-pick",
+              "Status": Array [
+                "undervoted",
+                "not-indicated",
+              ],
+              "Undervotes": 1,
+            },
+            Object {
+              "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [
                 Object {
                   "@type": "CVR.CVRContestSelection",
@@ -212,7 +232,7 @@ Object {
       ],
       "CreatingDeviceId": "SC-00-000",
       "CurrentSnapshotId": "ballot-2-original",
-      "ElectionId": "a1fb1df59bc42f44b5838d2b8bb58ca1d7438e2b2a485a7a1f4630cc147a8ef1",
+      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
       "PartyIds": Array [
         "1",
       ],
@@ -222,7 +242,7 @@ Object {
   ],
   "Election": Array [
     Object {
-      "@id": "a1fb1df59bc42f44b5838d2b8bb58ca1d7438e2b2a485a7a1f4630cc147a8ef1",
+      "@id": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
       "@type": "CVR.Election",
       "Candidate": Array [
         Object {
