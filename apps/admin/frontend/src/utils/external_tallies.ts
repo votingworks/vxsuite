@@ -84,6 +84,7 @@ export function getTotalNumberOfBallots(
       tally?.metadata.ballots ?? 0,
     ]
   );
+  console.log(augmentedMatrix.map((row) => row.join(' ')).join('\n'));
   const solution = solveLinearSystem(augmentedMatrix);
   return solution ? sum(solution) : undefined;
 }

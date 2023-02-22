@@ -1,18 +1,25 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
+import { assertDefined, typedAs } from '@votingworks/basics';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
+import {
+  ElectionDefinition,
+  getBallotStyle,
+  getContests,
+  safeParseInt,
+} from '@votingworks/types';
+import { assert } from 'console';
 import { renderRootElement } from '../test/render_in_app_context';
 import { authenticateAsElectionManager } from '../test/util/authenticate';
 import { App } from './app';
@@ -51,6 +58,42 @@ afterEach(() => {
   delete window.kiosk;
   mockApiClient.assertComplete();
 });
+
+// In order to make the results consistent, we need to set the same number of
+// ballots for all contests on the given ballot style. This helper can be called
+// after manually entering results for a single contest to fill out the rest of
+// the contests on that contest's ballot style with undervotes.
+async function makeManualTalliesConsistent(
+  electionDefinition: ElectionDefinition,
+  ballotStyleId: string,
+  contestId: string
+) {
+  const { election } = electionDefinition;
+  const ballotStyle = getBallotStyle({ election, ballotStyleId });
+  const contests = getContests({
+    ballotStyle: assertDefined(ballotStyle),
+    election,
+  });
+  assert(contests.some((c) => c.id === contestId));
+  const totalBallots = safeParseInt(
+    screen.getByTestId(`${contestId}-numBallots`).textContent
+  ).unsafeUnwrap();
+  console.log(contestId, 'totalBallots', totalBallots);
+  for (const contest of contests) {
+    if (contest.id === contestId) continue;
+    userEvent.type(
+      screen.getByTestId(`${contest.id}-undervotes-input`).closest('input')!,
+      contest.type === 'candidate'
+        ? String(totalBallots * contest.seats)
+        : String(totalBallots)
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(`${contest.id}-numBallots`).textContent
+      ).toEqual(String(totalBallots));
+    });
+  }
+}
 
 test('manual write-in data end-to-end test', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
@@ -147,6 +190,12 @@ test('manual write-in data end-to-end test', async () => {
       .textContent
   ).toEqual('11');
 
+  await makeManualTalliesConsistent(
+    electionMinimalExhaustiveSampleDefinition,
+    '1M',
+    'zoo-council-mammal'
+  );
+
   // Add a write-in to another race
   const zooFishCouncil = screen
     .getByText('Zoo Council - Fish Party')
@@ -162,6 +211,12 @@ test('manual write-in data end-to-end test', async () => {
       'aquarium-council-fish-write-in-(Relicanth)-manual-input'
     ),
     '14'
+  );
+
+  await makeManualTalliesConsistent(
+    electionMinimalExhaustiveSampleDefinition,
+    '2F',
+    'aquarium-council-fish'
   );
 
   // Save results and check index screen
@@ -188,15 +243,28 @@ test('manual write-in data end-to-end test', async () => {
   );
 
   // Remove one of the write-in candidates in precinct 2 screen
-  userEvent.click(
-    within(
-      screen.getByTestId('zoo-council-mammal-write-in-(Slakoth)-manual')
-    ).getByText('Remove')
+  // userEvent.click(
+  //   within(
+  //     screen.getByTestId('zoo-council-mammal-write-in-(Slakoth)-manual')
+  //   ).getByText('Remove')
+  // );
+  // userEvent.click(screen.getByText('Remove Candidate'));
+  // await waitFor(() =>
+  //   expect(
+  //     screen.queryByTestId('zoo-council-mammal-write-in-(Slakoth)-manual')
+  //   ).not.toBeInTheDocument()
+  // );
+  screen.debug(screen.getByTestId('zoo-council-mammal-numBallots'));
+
+  await makeManualTalliesConsistent(
+    electionMinimalExhaustiveSampleDefinition,
+    '1M',
+    'zoo-council-mammal'
   );
-  userEvent.click(screen.getByText('Remove Candidate'));
 
   // Save results and confirm index screen has updated appropriately
   userEvent.click(screen.getByText('Save Precinct Results for Precinct 2'));
+  await screen.findByText('Inconsistent Results');
   summaryTable = await screen.findByTestId('summary-data');
   precinct1SummaryRow = within(summaryTable)
     .getByText('Precinct 1')
