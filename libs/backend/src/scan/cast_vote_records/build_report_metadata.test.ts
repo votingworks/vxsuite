@@ -117,7 +117,6 @@ test('builds well-formed cast vote record report', () => {
         expect.objectContaining({
           '@id': candidate.id,
           Name: candidate.name,
-          PartyId: candidate.partyIds?.[0],
         }),
       ])
     );

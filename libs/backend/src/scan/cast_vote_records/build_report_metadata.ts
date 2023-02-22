@@ -108,10 +108,6 @@ function buildElection({
         '@type': 'CVR.Candidate',
         '@id': candidate.id,
         Name: candidate.name,
-        // The VotingWorks election format allows associating candidates
-        // with multiple parties. Although the Ballot Definition CDF allows
-        // something similar, the Cast Vote Records CDF does not.
-        PartyId: candidate.partyIds?.[0],
       };
     }),
     Contest: election.contests.map(buildContest),
