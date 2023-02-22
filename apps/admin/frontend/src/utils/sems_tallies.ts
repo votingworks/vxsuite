@@ -333,6 +333,11 @@ export function convertSemsFileToExternalTally(
       contestTallies,
       election
     );
+    if (!numBallotsInPrecinct) {
+      throw new Error(
+        `Inconsistent contest tallies for precinct: ${precinctId}`
+      );
+    }
     contestTalliesByPrecinct[precinctId] = {
       contestTallies,
       numberOfBallotsCounted: numBallotsInPrecinct,

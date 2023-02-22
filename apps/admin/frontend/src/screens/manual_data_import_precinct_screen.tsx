@@ -16,7 +16,6 @@ import {
   ContestId,
   Candidate,
   CandidateId,
-  Election,
   getContestDistrictName,
 } from '@votingworks/types';
 import { Button, Modal, Prose, Table, TD, Text } from '@votingworks/ui';
@@ -178,7 +177,7 @@ interface TempContestTally {
 
 interface TempExternalTally {
   readonly contestTallies: Dictionary<TempContestTally>;
-  readonly numberOfBallotsCounted: number;
+  readonly numberOfBallotsCounted?: number;
 }
 
 function getNumericalValueForTally(tally: number | EmptyValue): number {
@@ -219,18 +218,11 @@ function convertContestTallies(
   return convertedContestTallies;
 }
 
-// Re-calculates the total number of ballots in each contest to create an
-// external tally from contest tallies
-export function getExternalTallyFromContestTallies(
-  contestTallies: Dictionary<TempContestTally>,
-  election: Election
+export function getTempExternalTallyFromContestTallies(
+  contestTallies: Dictionary<TempContestTally>
 ): TempExternalTally {
-  const numberBallotsInPrecinct = getTotalNumberOfBallots(
-    convertContestTallies(contestTallies),
-    election
-  );
   return {
-    numberOfBallotsCounted: numberBallotsInPrecinct,
+    numberOfBallotsCounted: undefined,
     contestTallies,
   };
 }
@@ -329,6 +321,9 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const [currentPrecinctTally, setCurrentPrecinctTally] = useState(
     existingPrecinctTally
   );
+  const [error, setError] = useState<
+    'inconsistent_contest_tallies' | undefined
+  >();
 
   const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
   // Get empty tallies with previously adjudicated candidate names, only
@@ -379,9 +374,21 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
           ? currentPrecinctTally
           : talliesByPrecinct[precinctId];
       assert(precinctTally);
+      const contestTallies = convertContestTallies(
+        precinctTally.contestTallies
+      );
+      const numberOfBallotsCounted = getTotalNumberOfBallots(
+        contestTallies,
+        election
+      );
+      if (numberOfBallotsCounted === undefined) {
+        setError('inconsistent_contest_tallies');
+        return;
+      }
       convertedTalliesByPrecinct[precinctId] = {
         ...precinctTally,
-        contestTallies: convertContestTallies(precinctTally.contestTallies),
+        contestTallies,
+        numberOfBallotsCounted,
       };
     }
 
@@ -399,6 +406,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       numberOfBallotsInPrecinct: currentPrecinctTally.numberOfBallotsCounted,
       precinctId: currentPrecinctId,
     });
+    console.log(externalTally);
     await updateExternalTally(externalTally);
     history.push(routerPaths.manualDataImport);
   }
@@ -478,16 +486,16 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     // Update the total number of ballots for this contest
     newContestTally =
       getContestTallyWithUpdatedNumberOfBallots(newContestTally);
-    setCurrentPrecinctTally(
-      // Create tally with updated total number of ballots for the entire tally
-      getExternalTallyFromContestTallies(
-        {
-          ...currentPrecinctTally.contestTallies,
-          [contestId]: newContestTally,
-        },
-        election
-      )
-    );
+    setCurrentPrecinctTally({
+      contestTallies: {
+        ...currentPrecinctTally.contestTallies,
+        [contestId]: newContestTally,
+      },
+      // Since the contest tallies are in the process of being edited, they may
+      // not be consistent, so we may not be able to compute the total ballot
+      // count yet. We'll compute and check that on save.
+      numberOfBallotsCounted: undefined,
+    });
   }
 
   // Modifies the external tally in place and returns the same object
@@ -532,15 +540,18 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         tallies: newContestOptionTallies,
       });
 
-      return getExternalTallyFromContestTallies(
-        {
+      return {
+        contestTallies: {
           ...externalTally.contestTallies,
           [contestId]: newContestTally,
         },
-        election
-      );
+        // Since the contest tallies are in the process of being edited, they may
+        // not be consistent, so we may not be able to compute the total ballot
+        // count yet. We'll compute and check that on save.
+        numberOfBallotsCounted: undefined,
+      };
     },
-    [election]
+    []
   );
 
   const addWriteInCandidate = useCallback(
@@ -833,6 +844,22 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
             </React.Fragment>
           }
           onOverlayClick={onCancelRemoveCandidate}
+        />
+      )}
+      {error && (
+        <Modal
+          centerContent
+          content={
+            <Prose>
+              <h3>Inconsistent Results</h3>
+              <p>
+                Each ballot cast must be counted in the tally for every contest
+                on that ballot.
+              </p>
+            </Prose>
+          }
+          actions={<Button onPress={() => setError(undefined)}>Close</Button>}
+          onOverlayClick={() => setError(undefined)}
         />
       )}
     </NavigationScreen>

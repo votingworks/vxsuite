@@ -17,7 +17,7 @@ import {
   ContestId,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assert, sum, throwIllegalValue } from '@votingworks/basics';
 
 import {
   getDistrictIdsForPartyId,
@@ -25,7 +25,6 @@ import {
 } from './election';
 import { getAdjudicatedWriteInCandidate } from './write_ins';
 import { solveLinearSystem } from './linear_system';
-import { convertSemsFileToExternalTally } from './sems_tallies';
 
 export function convertExternalTalliesToStorageString(
   tallies: FullElectionExternalTallies
@@ -70,14 +69,13 @@ export function convertStorageStringToExternalTallies(
 export function getTotalNumberOfBallots(
   contestTallies: Dictionary<ContestTally>,
   election: Election
-): number {
+): number | undefined {
   const ballotStyleToContestIds = Object.fromEntries(
     election.ballotStyles.map((ballotStyle) => [
       ballotStyle.id,
       getContests({ ballotStyle, election }).map((c) => c.id),
     ])
   );
-  // console.log(contestTallies);
   const augmentedMatrix = Object.entries(contestTallies).map(
     ([contestId, tally]) => [
       ...election.ballotStyles.map((ballotStyle) =>
@@ -86,13 +84,8 @@ export function getTotalNumberOfBallots(
       tally?.metadata.ballots ?? 0,
     ]
   );
-  // console.log(augmentedMatrix);
-  // console.log(augmentedMatrix.length, augmentedMatrix[0].length);
-  // console.log(augmentedMatrix.map((row) => row.join(' ')).join('\n'));
   const solution = solveLinearSystem(augmentedMatrix);
-  // console.log(solution);
-  // TODO return an error for inconsistent tallies
-  return solution?.reduce((a, b) => a + b, 0) ?? -1;
+  return solution ? sum(solution) : undefined;
 }
 
 export function getEmptyExternalTally(): ExternalTally {
@@ -140,6 +133,8 @@ function filterTallyForPartyId(
     filteredContestTallies,
     election
   );
+  // TODO maybe we need to filter ballot styles by party rather than filtering contests
+  assert(numberOfBallotsCounted !== undefined);
   return {
     contestTallies: filteredContestTallies,
     numberOfBallotsCounted,
@@ -200,6 +195,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
   const overallContestTallies: Dictionary<ContestTally> = {};
   for (const precinctTally of Object.values(talliesByPrecinct)) {
     assert(precinctTally);
+    console.log(precinctTally.numberOfBallotsCounted);
     totalNumberOfBallots += precinctTally.numberOfBallotsCounted;
     for (const contestId of Object.keys(precinctTally.contestTallies)) {
       if (!(contestId in overallContestTallies)) {

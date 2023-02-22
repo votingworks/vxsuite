@@ -6,6 +6,7 @@ export * from './find';
 export * from './group_by';
 export * from './in_groups_of';
 export * from './iterators';
+export * from './math';
 export * from './result';
 export * from './sleep';
 export * from './typed_as';

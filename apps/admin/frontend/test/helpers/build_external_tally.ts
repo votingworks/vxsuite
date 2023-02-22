@@ -8,7 +8,7 @@ import {
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, sum } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,
@@ -24,13 +24,6 @@ export function buildExternalTally(
   const contestTallies = getEmptyContestTallies(election);
   for (const ballotStyle of ballotStyles) {
     const contests = getContests({ ballotStyle, election });
-    const maxContestOptions = Math.max(
-      ...contests.map(
-        (contest) =>
-          Object.keys(assertDefined(contestTallies[contest.id]).tallies).length
-      )
-    );
-    const numBallots = (2 + maxContestOptions) * multiplier;
     for (const contest of contests) {
       const contestTally = contestTallies[contest.id];
       assert(contestTally);
@@ -45,22 +38,30 @@ export function buildExternalTally(
           tally: option.tally + 1 * multiplier * numSeats,
         };
       }
-      const numOptionVotes = optionIds.length * multiplier * numSeats;
+      const numOptionVotes = sum(
+        Object.values(populatedTallies).map((tally) => tally?.tally ?? 0)
+      );
       const numOvervotes = 1 * multiplier * numSeats;
-      const numUndervotes = numBallots - numOptionVotes - numOvervotes;
+      const numUndervotes = 1 * multiplier * numSeats;
       contestTallies[contest.id] = {
         ...contestTally,
         tallies: populatedTallies,
         metadata: {
           undervotes: contestTally.metadata.undervotes + numUndervotes,
           overvotes: contestTally.metadata.overvotes + numOvervotes,
-          ballots: contestTally.metadata.ballots + numBallots,
+          ballots:
+            contestTally.metadata.ballots +
+            numOptionVotes +
+            numOvervotes +
+            numUndervotes,
         },
       };
     }
   }
   return {
     contestTallies,
-    numberOfBallotsCounted: getTotalNumberOfBallots(contestTallies, election),
+    numberOfBallotsCounted: assertDefined(
+      getTotalNumberOfBallots(contestTallies, election)
+    ),
   };
 }

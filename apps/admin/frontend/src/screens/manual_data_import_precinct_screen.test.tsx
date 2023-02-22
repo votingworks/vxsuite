@@ -17,6 +17,7 @@ import {
 import {
   ExternalTallySourceType,
   FullElectionExternalTally,
+  getContests,
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
@@ -196,6 +197,25 @@ test('can edit counts and update totals', async () => {
       '100'
     );
   });
+
+  // In order to make the results consistent, we need to set the same number of
+  // ballots for all contests on the given ballot style
+  const { election } = electionSampleDefinition;
+  const ballotStyle = election.ballotStyles[0];
+  const contests = getContests({ ballotStyle, election });
+  assert(contests.some((c) => c.id === 'president'));
+  for (const contest of contests) {
+    if (contest.id === 'president') continue;
+    userEvent.type(
+      screen.getByTestId(`${contest.id}-undervotes-input`).closest('input')!,
+      contest.type === 'candidate' ? String(100 * contest.seats) : '100'
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(`${contest.id}-numBallots`).textContent
+      ).toEqual('100');
+    });
+  }
 
   userEvent.click(
     screen.getByText('Save Precinct Results for Center Springfield')
@@ -459,13 +479,12 @@ test('can enter data for yes no contests as expected', async () => {
 test('loads preexisting manual data to edit', async () => {
   const { election } = electionSampleDefinition;
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(election);
-  talliesByPrecinct['23'] = buildExternalTally(election, 1, [
-    'county-commissioners',
-    'judicial-robert-demergue',
-  ]);
-  talliesByPrecinct['20'] = buildExternalTally(election, 1, [
-    'primary-constitution-head-of-party',
-  ]);
+  const ballotStyle1 = election.ballotStyles[0];
+  const ballotStyle2 = election.ballotStyles[1];
+  const tally1 = buildExternalTally(election, 1, [ballotStyle1]);
+  const tally2 = buildExternalTally(election, 2, [ballotStyle2]);
+  talliesByPrecinct['23'] = tally1;
+  talliesByPrecinct['20'] = tally2;
 
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct);
@@ -496,42 +515,46 @@ test('loads preexisting manual data to edit', async () => {
   await screen.findByText('Manually Entered Absentee Results:');
 
   // Check contests with mock data
+  const commissionersTally = tally1.contestTallies['county-commissioners'];
+  assert(commissionersTally);
   expect(
     screen.getByTestId('county-commissioners-numBallots')
-  ).toHaveTextContent('13');
+  ).toHaveTextContent(commissionersTally.metadata.ballots.toString());
   expect(
     screen
       .getByTestId('county-commissioners-undervotes-input')
       .closest('input')!.value
-  ).toEqual('4');
+  ).toEqual(commissionersTally.metadata.undervotes.toString());
   expect(
     screen.getByTestId('county-commissioners-overvotes-input').closest('input')!
       .value
-  ).toEqual('4');
+  ).toEqual(commissionersTally.metadata.overvotes.toString());
   expect(
     screen.getByTestId('county-commissioners-argent-input').closest('input')!
       .value
-  ).toEqual('4');
+  ).toEqual(commissionersTally.tallies['argent']!.tally.toString());
 
+  const tallyJudicial = tally1.contestTallies['judicial-robert-demergue'];
+  assert(tallyJudicial);
   expect(
     screen.getByTestId('judicial-robert-demergue-numBallots')
-  ).toHaveTextContent('4');
+  ).toHaveTextContent(tallyJudicial.metadata.ballots.toString());
   expect(
     screen
       .getByTestId('judicial-robert-demergue-undervotes-input')
       .closest('input')!.value
-  ).toEqual('1');
+  ).toEqual(tallyJudicial.metadata.undervotes.toString());
   expect(
     screen
       .getByTestId('judicial-robert-demergue-overvotes-input')
       .closest('input')!.value
-  ).toEqual('1');
+  ).toEqual(tallyJudicial.metadata.overvotes.toString());
   expect(
     screen.getByTestId('judicial-robert-demergue-yes-input').closest('input')!
       .value
-  ).toEqual('1');
+  ).toEqual(tallyJudicial.tallies['yes']!.tally.toString());
   expect(
     screen.getByTestId('judicial-robert-demergue-no-input').closest('input')!
       .value
-  ).toEqual('1');
+  ).toEqual(tallyJudicial.tallies['no']!.tally.toString());
 });
