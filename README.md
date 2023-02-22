@@ -4,11 +4,10 @@ The VotingWorks in-person voting system.
 
 ## About
 
-Includes software for a [ballot-marking device (BMD)](./frontends/bmd), a
-[ballot activation system (BAS)](./frontends/bas), a
-[ballot scanning device (BSD)](./frontends/bsd), a
-[precinct scanner](./frontends/precinct-scanner), and an
-[election manager](./frontends/election-manager). See https://voting.works for
+Includes software for a [ballot-marking device (BMD)](./apps/mark/frontend), a
+[ballot scanning device (BSD)](./apps/central-scan/frontend), a
+[precinct scanner](./apps/scan/frontend), and an
+[election manager](./apps/admin/frontend). See https://voting.works for
 more information about VotingWorks.
 
 ## Development
@@ -79,8 +78,6 @@ If you are not using our automated build process, you can clone manually.
 mkdir code
 cd code
 git clone git@github.com:votingworks/vxsuite.git
-```
-
 # If you are doing a lot of development in vxsuite you will likely eventually need the following repos.
 # kiosk-browser is an electron-based browser where our apps run in production.
 git clone git@github.com:votingworks/kiosk-browser.git
@@ -110,7 +107,7 @@ Test that you can run the code
 
 ```sh
 # try out BMD:
-cd frontends/bmd
+cd apps/mark/frontend
 pnpm start
 # if it worked, go to http://localhost:3000/ in your VM
 ```
