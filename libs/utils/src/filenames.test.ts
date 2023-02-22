@@ -19,6 +19,7 @@ import {
   generateLogFilename,
   LogFileType,
   generateSemsFinalExportDefaultFilename,
+  generateCastVoteRecordReportDirectoryName,
 } from './filenames';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -175,6 +176,40 @@ describe('generateFilenameForScanningResults', () => {
 
   test('generates basic scanning results filename with default time', () => {
     expect(generateFilenameForScanningResults('1', 0, false)).toEqual(
+      expect.stringMatching('machine_1__0_ballots__')
+    );
+  });
+});
+
+describe('generateCastVoteRecordReportDirectoryName', () => {
+  test('generates basic scanning results filename in test mode', () => {
+    const time = new Date(2019, 2, 14, 15, 9, 26);
+    expect(
+      generateCastVoteRecordReportDirectoryName('1', 0, true, time)
+    ).toEqual('TEST__machine_1__0_ballots__2019-03-14_15-09-26');
+
+    expect(
+      generateCastVoteRecordReportDirectoryName('po!n@y:__', 35, true, time)
+    ).toEqual('TEST__machine_pony__35_ballots__2019-03-14_15-09-26');
+  });
+
+  test('generates basic scanning results filename not in test mode', () => {
+    const time = new Date(2019, 2, 14, 15, 9, 26);
+    expect(
+      generateCastVoteRecordReportDirectoryName('1', 0, false, time)
+    ).toEqual('machine_1__0_ballots__2019-03-14_15-09-26');
+    expect(
+      generateCastVoteRecordReportDirectoryName(
+        '<3-u!n#icorn<3',
+        1,
+        false,
+        time
+      )
+    ).toEqual('machine_3unicorn3__1_ballot__2019-03-14_15-09-26');
+  });
+
+  test('generates basic scanning results filename with default time', () => {
+    expect(generateCastVoteRecordReportDirectoryName('1', 0, false)).toEqual(
       expect.stringMatching('machine_1__0_ballots__')
     );
   });

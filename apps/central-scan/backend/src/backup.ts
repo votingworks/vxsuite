@@ -1,9 +1,5 @@
 import { Scan } from '@votingworks/api';
-import {
-  Exporter,
-  getCastVoteRecordReportStream,
-  VX_MACHINE_ID,
-} from '@votingworks/backend';
+import { buildCastVoteRecordReport, Exporter } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
@@ -14,7 +10,6 @@ import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { getDisplayElectionHash } from '@votingworks/types';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
 import { CVR_EXPORT_FORMAT } from './globals';
@@ -106,24 +101,26 @@ export class Backup {
         exportCastVoteRecordsAsNdJson({ store: this.store })
       );
     } else {
+      const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
+        electionDefinition,
+        definiteMarkThreshold:
+          this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+        isTestMode: this.store.getTestMode(),
+        ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
+        resultSheetGenerator: this.store.forEachResultSheet(),
+        batchInfo: this.store.batchStatus(),
+        imageOptions: {
+          which: 'all',
+          directory: '', // currently we don't place backup images in a subdirectory
+        },
+      });
+      if (buildCastVoteRecordReportResult.isErr()) {
+        throw new Error('failed to export cast vote record report');
+      }
+
       await this.addEntry(
-        'castVoteRecordReport.json',
-        getCastVoteRecordReportStream({
-          election: electionDefinition.election,
-          electionId: getDisplayElectionHash(electionDefinition),
-          scannerId: VX_MACHINE_ID,
-          definiteMarkThreshold:
-            this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
-          isTestMode: this.store.getTestMode(),
-          ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
-          resultSheetGenerator: this.store.forEachResultSheet(),
-          batchInfo: this.store.batchStatus(),
-          imageOptions: {
-            includeInlineBallotImages: false,
-            includedImageFileUris: 'all',
-            imagesDirectory: '', // currently we don't place backup images in a subdirectory
-          },
-        })
+        'cast-vote-record-report.json',
+        buildCastVoteRecordReportResult.ok()
       );
     }
 

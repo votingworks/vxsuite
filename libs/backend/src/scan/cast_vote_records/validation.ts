@@ -91,6 +91,7 @@ export type SheetValidationError =
 export type ValidatedSheet =
   | {
       type: 'bmd';
+      wasReversed: boolean;
       interpretation: InterpretedBmdPage;
     }
   | {
@@ -123,6 +124,7 @@ export function validateSheetInterpretation([
   ) {
     return ok({
       type: 'bmd',
+      wasReversed: false,
       interpretation: front,
     });
   }
@@ -134,6 +136,7 @@ export function validateSheetInterpretation([
   ) {
     return ok({
       type: 'bmd',
+      wasReversed: true,
       interpretation: back,
     });
   }

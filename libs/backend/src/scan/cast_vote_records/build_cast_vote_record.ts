@@ -15,10 +15,8 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
-  mapSheet,
   safeParseInt,
   SheetOf,
   VotesDict,
@@ -28,7 +26,6 @@ import {
 
 import {
   BallotPageLayoutsLookup,
-  getBallotPageLayout,
   getContestsForBallotPage,
 } from './page_layouts';
 
@@ -260,7 +257,7 @@ function buildCVRCandidateContest({
                       : undefined,
                   // include image of write-in for hand-marked ballots per VVSG 2.0 1.1.5-D.3
                   WriteInImage:
-                    options.ballotMarkingMode === 'hand'
+                    options.ballotMarkingMode === 'hand' && options.imageFileUri
                       ? {
                           '@type': 'CVR.ImageData',
                           Location: options.imageFileUri,
@@ -429,8 +426,6 @@ type BuildCastVoteRecordParams = {
       definiteMarkThreshold: number;
       pages: SheetOf<{
         interpretation: InterpretedHmpbPage;
-        // TODO: Remove inlineBallotImage option, only use imageFileUri
-        inlineBallotImage?: InlineBallotImage;
         imageFileUri?: string;
       }>;
       ballotPageLayoutsLookup: BallotPageLayoutsLookup;
@@ -513,9 +508,6 @@ export function buildCastVoteRecord({
     ) / 2
   ).toString();
 
-  const hasInlineBallotImages =
-    pages[0].inlineBallotImage || pages[1].inlineBallotImage;
-
   const hasImageFileUris = pages[0].imageFileUri || pages[1].imageFileUri;
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with
@@ -566,37 +558,17 @@ export function buildCastVoteRecord({
         election,
       }),
     ],
-    BallotImage:
-      hasInlineBallotImages || hasImageFileUris
-        ? pages.map((page) =>
-            page.inlineBallotImage
-              ? {
-                  '@type': 'CVR.ImageData',
-                  Image: {
-                    '@type': 'CVR.Image',
-                    Data: page.inlineBallotImage.normalized,
-                  },
-                }
-              : page.imageFileUri
-              ? {
-                  '@type': 'CVR.ImageData',
-                  Location: page.imageFileUri,
-                }
-              : {
-                  // empty object to represent a page with no image
-                  '@type': 'CVR.ImageData',
-                }
-          )
-        : undefined,
-    vxLayouts: hasInlineBallotImages
-      ? mapSheet(pages, (page) =>
-          page.inlineBallotImage
-            ? getBallotPageLayout({
-                ballotPageMetadata: page.interpretation.metadata,
-                ballotPageLayoutsLookup,
-                election,
-              })
-            : null
+    BallotImage: hasImageFileUris
+      ? pages.map((page) =>
+          page.imageFileUri
+            ? {
+                '@type': 'CVR.ImageData',
+                Location: page.imageFileUri,
+              }
+            : {
+                // empty object to represent a page with no included image
+                '@type': 'CVR.ImageData',
+              }
         )
       : undefined,
   };

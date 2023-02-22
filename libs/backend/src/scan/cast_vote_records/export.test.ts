@@ -25,14 +25,12 @@ import {
 } from '../../../test/fixtures/interpretations';
 import {
   exportCastVoteRecordReportToUsbDrive,
-  getCastVoteRecordReportStream,
+  buildCastVoteRecordReport,
   ResultSheet,
 } from './export';
 import { BallotPageLayoutsLookup } from './page_layouts';
 
-const { election, electionHash } = electionMinimalExhaustiveSampleDefinition;
-const electionId = electionHash;
-const scannerId = 'SC-00-000';
+const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const definiteMarkThreshold = 0.15;
 const ballotPageLayoutsLookup: BallotPageLayoutsLookup = [];
 const batchInfo: BatchInfo[] = [];
@@ -59,12 +57,6 @@ jest.mock('./page_layouts', () => ({
       : [fishingContest],
 }));
 
-jest.mock('./get_inline_ballot_image', () => ({
-  getInlineBallotImage: (imageFilename: string) => ({
-    normalized: imageFilename,
-  }),
-}));
-
 async function streamToString(stream: NodeJS.ReadableStream) {
   const reportChunks: string[] = [];
   for await (const chunk of stream) {
@@ -73,7 +65,7 @@ async function streamToString(stream: NodeJS.ReadableStream) {
   return reportChunks.join('');
 }
 
-test('getCastVoteRecordReportStream', async () => {
+test('buildCastVoteRecordReport', async () => {
   setDateMock(new Date(2020, 3, 14));
   function* resultSheetGenerator(): Generator<ResultSheet> {
     yield {
@@ -93,21 +85,21 @@ test('getCastVoteRecordReportStream', async () => {
     };
   }
 
-  const stream = getCastVoteRecordReportStream({
-    election,
-    electionId,
-    scannerId,
+  const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
+    electionDefinition,
     definiteMarkThreshold,
     ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
     imageOptions: {
-      imagesDirectory: 'ballot-images',
-      includedImageFileUris: 'none',
-      includeInlineBallotImages: false,
+      directory: 'ballot-images',
+      which: 'write-ins',
     },
     resultSheetGenerator: resultSheetGenerator(),
   });
+
+  expect(buildCastVoteRecordReportResult.isOk()).toBeTruthy();
+  const stream = buildCastVoteRecordReportResult.unsafeUnwrap();
 
   // report is valid cast vote record report
   const parseResult = safeParseJson(
@@ -122,7 +114,7 @@ test('getCastVoteRecordReportStream', async () => {
   clearDateMock();
 });
 
-test('getCastVoteRecordReportStream throws error when validation fails', async () => {
+test('buildCastVoteRecordReport results in error when validation fails', async () => {
   function* resultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
@@ -133,32 +125,23 @@ test('getCastVoteRecordReportStream throws error when validation fails', async (
     };
   }
 
-  const stream = getCastVoteRecordReportStream({
-    election,
-    electionId,
-    scannerId,
+  const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
+    electionDefinition,
     definiteMarkThreshold,
     ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
     imageOptions: {
-      imagesDirectory: 'ballot-images',
-      includedImageFileUris: 'write-ins',
-      includeInlineBallotImages: false,
+      directory: 'ballot-images',
+      which: 'write-ins',
     },
     resultSheetGenerator: resultSheetGenerator(),
   });
 
-  // the error is not thrown until the stream is read from
-  try {
-    await streamToString(stream);
-  } catch (error) {
-    expect(error).toBeDefined();
-  }
-  expect.assertions(1);
+  expect(buildCastVoteRecordReportResult.isErr()).toBeTruthy();
 });
 
-test('getCastVoteRecordReportStream can include inline ballot images and layouts', async () => {
+test('buildCastVoteRecordReport can include file uris according to setting', async () => {
   function* resultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
@@ -179,123 +162,91 @@ test('getCastVoteRecordReportStream can include inline ballot images and layouts
     };
   }
 
-  const stream = getCastVoteRecordReportStream({
-    election,
-    electionId,
-    scannerId,
-    definiteMarkThreshold,
-    ballotPageLayoutsLookup,
-    isTestMode: false,
-    batchInfo,
-    imageOptions: {
-      imagesDirectory: 'ballot-images',
-      includedImageFileUris: 'none',
-      includeInlineBallotImages: true,
-    },
-    resultSheetGenerator: resultSheetGenerator(),
-  });
-
-  const parseResult = safeParseJson(
-    await streamToString(stream),
-    CastVoteRecordReportSchema
-  );
-  expect(parseResult.isOk()).toEqual(true);
-  const result = parseResult.ok();
-  expect(result?.CVR).toHaveLength(1);
-  expect(result?.CVR?.[0]?.BallotImage).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "@type": "CVR.ImageData",
-        "Image": Object {
-          "@type": "CVR.Image",
-          "Data": "front.jpg",
-        },
-      },
-      Object {
-        "@type": "CVR.ImageData",
-      },
-    ]
-  `);
-
-  expect(result?.CVR?.[0]?.vxLayouts).toMatchObject([
-    mockBallotPageLayout,
-    null,
-  ]);
-});
-
-test('getCastVoteRecordReportStream can include file uris', async () => {
-  function* resultSheetGenerator(): Generator<ResultSheet> {
-    yield {
-      id: 'ballot-1',
-      batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
-      interpretation: [
+  const testCases = [
+    {
+      which: 'write-ins',
+      expectedBallotImages: [
         {
-          ...interpretedHmpbPage1,
-          votes: {
-            [fishCouncilContest.id]: [
-              { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
-            ],
-          },
+          '@type': 'CVR.ImageData',
+          Location: 'file:./ballot-images/front.jpg',
         },
-        interpretedHmpbPage2,
+        {
+          '@type': 'CVR.ImageData',
+        },
       ],
-    };
-  }
-
-  const stream = getCastVoteRecordReportStream({
-    election,
-    electionId,
-    scannerId,
-    definiteMarkThreshold,
-    ballotPageLayoutsLookup,
-    isTestMode: false,
-    batchInfo,
-    imageOptions: {
-      imagesDirectory: 'ballot-images',
-      includedImageFileUris: 'all',
-      includeInlineBallotImages: false,
+      expectedWriteInImage: {
+        '@type': 'CVR.ImageData',
+        Location: 'file:./ballot-images/front.jpg',
+      },
     },
-    resultSheetGenerator: resultSheetGenerator(),
-  });
-
-  const parseResult = safeParseJson(
-    await streamToString(stream),
-    CastVoteRecordReportSchema
-  );
-  expect(parseResult.isOk()).toEqual(true);
-  const result = parseResult.ok();
-  expect(result?.CVR).toHaveLength(1);
-
-  // Check that file URI appears at the top level of the CVR
-  expect(result?.CVR?.[0]?.vxLayouts).toBeUndefined();
-  expect(result?.CVR?.[0]?.BallotImage).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "@type": "CVR.ImageData",
-        "Location": "file:./ballot-images/front.jpg",
+    {
+      which: 'all',
+      expectedBallotImages: [
+        {
+          '@type': 'CVR.ImageData',
+          Location: 'file:./ballot-images/front.jpg',
+        },
+        {
+          '@type': 'CVR.ImageData',
+          Location: 'file:./ballot-images/back.jpg',
+        },
+      ],
+      expectedWriteInImage: {
+        '@type': 'CVR.ImageData',
+        Location: 'file:./ballot-images/front.jpg',
       },
-      Object {
-        "@type": "CVR.ImageData",
-        "Location": "file:./ballot-images/back.jpg",
-      },
-    ]
-  `);
+    },
+    {
+      which: 'none',
+      expectedBallotImages: undefined,
+      expectedWriteInImage: undefined,
+    },
+  ] as const;
 
-  // Check that file URI appears adjacent to the write-in
-  const modifiedSnapshot = result?.CVR?.[0]?.CVRSnapshot?.find(
-    (snapshot) => snapshot.Type === CVR.CVRType.Modified
-  );
-  assert(modifiedSnapshot);
-  const contestWithWriteIn = modifiedSnapshot.CVRContest?.find(
-    (contest) => contest.ContestId === fishCouncilContest.id
-  );
-  assert(contestWithWriteIn);
-  expect(
-    contestWithWriteIn.CVRContestSelection?.[0]?.SelectionPosition?.[0]
-      ?.CVRWriteIn?.WriteInImage
-  ).toMatchObject({ Location: 'file:./ballot-images/front.jpg' });
+  for (const testCase of testCases) {
+    const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
+      electionDefinition,
+      definiteMarkThreshold,
+      ballotPageLayoutsLookup,
+      isTestMode: false,
+      batchInfo,
+      imageOptions: {
+        directory: 'ballot-images',
+        which: testCase.which,
+      },
+      resultSheetGenerator: resultSheetGenerator(),
+    });
+
+    expect(buildCastVoteRecordReportResult.isOk()).toBeTruthy();
+    const stream = buildCastVoteRecordReportResult.unsafeUnwrap();
+
+    const parseResult = safeParseJson(
+      await streamToString(stream),
+      CastVoteRecordReportSchema
+    );
+    expect(parseResult.isOk()).toEqual(true);
+    const result = parseResult.ok();
+    expect(result?.CVR).toHaveLength(1);
+
+    // Check that file URI appears at the top level of the CVR
+    expect(result?.CVR?.[0]?.BallotImage).toEqual(
+      testCase.expectedBallotImages
+    );
+
+    // Check that file URI appears adjacent to the write-in
+    const modifiedSnapshot = result?.CVR?.[0]?.CVRSnapshot?.find(
+      (snapshot) => snapshot.Type === CVR.CVRType.Modified
+    );
+    assert(modifiedSnapshot);
+    const contestWithWriteIn = modifiedSnapshot.CVRContest?.find(
+      (contest) => contest.ContestId === fishCouncilContest.id
+    );
+    assert(contestWithWriteIn);
+    expect(
+      contestWithWriteIn.CVRContestSelection?.[0]?.SelectionPosition?.[0]
+        ?.CVRWriteIn?.WriteInImage
+    ).toEqual(testCase.expectedWriteInImage);
+  }
 });
 
 const exportDataToUsbDriveMock = jest.fn().mockImplementation(() => ok());
@@ -307,7 +258,16 @@ jest.mock('../../exporter', () => ({
   })),
 }));
 
-test('exportCastVoteRecordReportToUsbDrive', async () => {
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  createReadStream: () => 'mock-image-data',
+}));
+
+const expectedReportPath = `${SCANNER_RESULTS_FOLDER}/sample-county_example-primary-election_${getDisplayElectionHash(
+  electionMinimalExhaustiveSampleDefinition
+)}/machine_000__1_ballot__2020-04-14_00-00-00`;
+
+test('exportCastVoteRecordReportToUsbDrive, no images', async () => {
   setDateMock(new Date(2020, 3, 14));
   function* resultSheetGenerator(): Generator<ResultSheet> {
     yield {
@@ -328,28 +288,21 @@ test('exportCastVoteRecordReportToUsbDrive', async () => {
   }
 
   const exportResult = await exportCastVoteRecordReportToUsbDrive({
-    election,
-    electionHash,
+    electionDefinition,
     definiteMarkThreshold,
     ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
-    imageOptions: {
-      imagesDirectory: 'ballot-images',
-      includedImageFileUris: 'none',
-      includeInlineBallotImages: false,
-    },
+    whichImages: 'none',
     resultSheetGenerator: resultSheetGenerator(),
   });
 
   expect(exportResult.isOk()).toEqual(true);
   expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(1);
   expect(exportDataToUsbDriveMock).toHaveBeenCalledWith(
-    SCANNER_RESULTS_FOLDER,
-    `sample-county_example-primary-election_${getDisplayElectionHash(
-      electionMinimalExhaustiveSampleDefinition
-    )}/machine_000__1_ballots__2020-04-14_00-00-00.json`,
+    expectedReportPath,
+    'report.json',
     expect.anything()
   );
 
@@ -360,6 +313,76 @@ test('exportCastVoteRecordReportToUsbDrive', async () => {
     CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
-
   clearDateMock();
+});
+
+test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
+  setDateMock(new Date(2020, 3, 14));
+  function* resultSheetGenerator(): Generator<ResultSheet> {
+    yield {
+      id: 'ballot-1',
+      batchId: 'batch-1',
+      frontNormalizedFilename: 'front.jpg',
+      backNormalizedFilename: 'back.jpg',
+      interpretation: [
+        {
+          ...interpretedHmpbPage1,
+          votes: {
+            [fishCouncilContest.id]: [
+              { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+            ],
+          },
+        },
+        interpretedHmpbPage2,
+      ],
+    };
+
+    yield {
+      id: 'ballot-2',
+      batchId: 'batch-1',
+      frontNormalizedFilename: 'front.jpg',
+      backNormalizedFilename: 'back.jpg',
+      interpretation: [interpretedBmdPage, { type: 'BlankPage' }],
+    };
+  }
+
+  const exportResult = await exportCastVoteRecordReportToUsbDrive({
+    electionDefinition,
+    definiteMarkThreshold,
+    ballotPageLayoutsLookup,
+    isTestMode: false,
+    batchInfo: [],
+    ballotsCounted: 1,
+    whichImages: 'write-ins',
+    resultSheetGenerator: resultSheetGenerator(),
+  });
+
+  expect(exportResult.isOk()).toEqual(true);
+  expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(3);
+  expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
+    1,
+    expectedReportPath,
+    'ballot-images/front.jpg',
+    'mock-image-data'
+  );
+  expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
+    2,
+    expectedReportPath,
+    'ballot-layouts/front.layout.json',
+    JSON.stringify(mockBallotPageLayout, undefined, 2)
+  );
+  expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
+    3,
+    expectedReportPath,
+    'report.json',
+    expect.anything()
+  );
+
+  const exportStream = exportDataToUsbDriveMock.mock.calls[2][2];
+
+  const parseResult = safeParseJson(
+    await streamToString(exportStream),
+    CastVoteRecordReportSchema
+  );
+  expect(parseResult.isOk()).toEqual(true);
 });

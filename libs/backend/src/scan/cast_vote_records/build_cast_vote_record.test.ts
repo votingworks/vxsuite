@@ -476,7 +476,6 @@ test('hasWriteIns', () => {
 jest.mock('./page_layouts', () => {
   return {
     ...jest.requireActual('./page_layouts'),
-    getBallotPageLayout: () => 'notLayout',
     getContestsForBallotPage: ({
       ballotPageMetadata,
     }: {
@@ -635,7 +634,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
   });
 });
 
-test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
+test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
   const castVoteRecord = buildCastVoteRecord({
     election,
     electionId,
@@ -646,9 +645,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
     pages: [
       {
         interpretation: interpretedHmpbPage1,
-        inlineBallotImage: {
-          normalized: 'normalized',
-        },
+        imageFileUri: 'file:./ballot-images/front.jpg',
       },
       {
         interpretation: interpretedHmpbPage2,
@@ -662,20 +659,11 @@ test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
     Array [
       Object {
         "@type": "CVR.ImageData",
-        "Image": Object {
-          "@type": "CVR.Image",
-          "Data": "normalized",
-        },
+        "Location": "file:./ballot-images/front.jpg",
       },
       Object {
         "@type": "CVR.ImageData",
       },
-    ]
-  `);
-  expect(castVoteRecord.vxLayouts).toMatchInlineSnapshot(`
-    Array [
-      "notLayout",
-      null,
     ]
   `);
 });

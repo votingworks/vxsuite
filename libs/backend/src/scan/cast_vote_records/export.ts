@@ -1,40 +1,35 @@
 import {
   BallotIdSchema,
+  BallotPageMetadata,
   BatchInfo,
   CVR,
   Election,
+  ElectionDefinition,
   Id,
-  Optional,
   PageInterpretation,
   SheetOf,
   unsafeParse,
 } from '@votingworks/types';
-import { mapAsync, ok, Result } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import { Readable } from 'stream';
 import {
-  generateCastVoteRecordReportFilename,
+  generateCastVoteRecordReportDirectoryName,
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { basename, join } from 'path';
+import { basename, join, parse } from 'path';
+import fs from 'fs';
 import {
   describeSheetValidationError,
+  ValidatedSheet,
   validateSheetInterpretation,
 } from './validation';
 import { buildCastVoteRecord, hasWriteIns } from './build_cast_vote_record';
 import { ExportDataError, Exporter } from '../../exporter';
 import { getUsbDrives } from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
-import { BallotPageLayoutsLookup } from './page_layouts';
-import { buildCastVoteRecordReport } from './build_report_metadata';
-import { getInlineBallotImage } from './get_inline_ballot_image';
-
-interface CastVoteRecordReportImageOptions {
-  imagesDirectory: string;
-  includedImageFileUris: 'none' | 'write-ins' | 'all';
-  // TODO: Remove option. Currently only applies to write-ins
-  includeInlineBallotImages: boolean;
-}
+import { BallotPageLayoutsLookup, getBallotPageLayout } from './page_layouts';
+import { buildCastVoteRecordReportWithoutCastVoteRecords } from './build_report_metadata';
 
 /**
  * Properties of each sheet that are needed to generate a cast vote record
@@ -50,25 +45,96 @@ export interface ResultSheet {
   readonly backNormalizedFilename: string;
 }
 
-interface GetCastVoteRecordGeneratorParams {
-  election: Election;
-  electionId: string;
-  scannerId: string;
-  definiteMarkThreshold: number;
-  ballotPageLayoutsLookup: BallotPageLayoutsLookup;
-  resultSheetGenerator: Generator<ResultSheet>;
-  imageOptions: CastVoteRecordReportImageOptions;
+/**
+ * Combines the report metadata and an array of cast vote records into a
+ * consumable readable stream representing the entire, saturated report.
+ */
+function streamifyCastVoteRecordReport({
+  castVoteRecordReportWithoutCastVoteRecords,
+  castVoteRecords,
+}: {
+  castVoteRecordReportWithoutCastVoteRecords: CVR.CastVoteRecordReport;
+  castVoteRecords: CVR.CVR[];
+}): NodeJS.ReadableStream {
+  if (castVoteRecordReportWithoutCastVoteRecords.CVR) {
+    throw new Error('report metadata should contain no cast vote records');
+  }
+
+  function* reportGenerator() {
+    yield JSON.stringify(
+      castVoteRecordReportWithoutCastVoteRecords,
+      undefined,
+      2
+    ).replace(/\n\}$/, ',\n  "CVR": [');
+
+    for (const [index, castVoteRecord] of castVoteRecords.entries()) {
+      if (index < castVoteRecords.length - 1) {
+        yield `\n    ${JSON.stringify(castVoteRecord)},`;
+      } else {
+        yield `\n    ${JSON.stringify(castVoteRecord)}`;
+      }
+    }
+
+    yield '\n  ]\n}';
+  }
+
+  return Readable.from(reportGenerator());
 }
 
-async function* getCastVoteRecordGenerator({
-  election,
-  electionId,
-  scannerId,
+interface CastVoteRecordReportImageOptions {
+  which: 'all' | 'write-ins' | 'none';
+  directory: string;
+}
+
+interface BuildCastVoteRecordReportParams {
+  electionDefinition: ElectionDefinition;
+  isTestMode: boolean;
+  definiteMarkThreshold: number;
+  resultSheetGenerator: Generator<ResultSheet>;
+  ballotPageLayoutsLookup: BallotPageLayoutsLookup;
+  batchInfo: BatchInfo[];
+  imageOptions: CastVoteRecordReportImageOptions;
+  sheetExportCallback?: ({
+    validatedSheet,
+    imageFilenames,
+  }: {
+    validatedSheet: ValidatedSheet;
+    imageFilenames: [frontFilename: string, backFilename: string];
+  }) => Promise<Result<void, ExportDataError>>;
+}
+
+/**
+ * Errors that can occur when generating the cast vote record report. Either
+ * an invalid sheet was found or there was an error during export.
+ */
+export type BuildCastVoteRecordReportError =
+  | { type: 'invalid-sheet-found'; message: string }
+  | ExportDataError;
+
+/**
+ * Builds a cast vote record report {@link CVR.CastVoteRecordReport} and
+ * returns it in the form of a readable stream. If it's necessary to do
+ * particular export operations on each sheet, you may pass in a
+ * `sheetExportCallback`.
+ */
+export async function buildCastVoteRecordReport({
+  electionDefinition,
+  isTestMode,
   definiteMarkThreshold,
-  ballotPageLayoutsLookup,
   resultSheetGenerator,
+  ballotPageLayoutsLookup,
+  batchInfo,
   imageOptions,
-}: GetCastVoteRecordGeneratorParams): AsyncGenerator<CVR.CVR> {
+  sheetExportCallback,
+}: BuildCastVoteRecordReportParams): Promise<
+  Result<NodeJS.ReadableStream, BuildCastVoteRecordReportError>
+> {
+  const { electionHash, election } = electionDefinition;
+  const electionId = electionHash;
+  const scannerId = VX_MACHINE_ID;
+
+  const castVoteRecords: CVR.CVR[] = [];
+
   for (const {
     id,
     batchId,
@@ -79,35 +145,56 @@ async function* getCastVoteRecordGenerator({
     const validationResult = validateSheetInterpretation([sideOne, sideTwo]);
 
     if (validationResult.isErr()) {
-      throw new Error(describeSheetValidationError(validationResult.err()));
+      return err({
+        type: 'invalid-sheet-found',
+        message: describeSheetValidationError(validationResult.err()),
+      });
     }
 
     const validatedSheet = validationResult.ok();
+    const [frontFilename, backFilename] = validatedSheet.wasReversed
+      ? [sideTwoFilename, sideOneFilename]
+      : [sideOneFilename, sideTwoFilename];
 
-    // Build BMD cast vote record. For the ID, we use the ballot ID if available,
-    // otherwise the UUID from the scanner database.
-    if (validatedSheet.type === 'bmd') {
-      yield buildCastVoteRecord({
-        election,
-        electionId,
-        scannerId,
-        castVoteRecordId:
-          validatedSheet.interpretation.ballotId ||
-          unsafeParse(BallotIdSchema, id),
-        batchId,
-        ballotMarkingMode: 'machine',
-        interpretation: validatedSheet.interpretation,
+    if (sheetExportCallback) {
+      const exportResult = await sheetExportCallback({
+        validatedSheet,
+        imageFilenames: [frontFilename, backFilename],
       });
-    } else {
-      const [front, back] = validatedSheet.interpretation;
-      const [frontFilename, backFilename] = validatedSheet.wasReversed
-        ? [sideTwoFilename, sideOneFilename]
-        : [sideOneFilename, sideTwoFilename];
 
-      const frontHasWriteIns = hasWriteIns(front.votes);
-      const backHasWriteIns = hasWriteIns(back.votes);
+      if (exportResult.isErr()) {
+        return exportResult;
+      }
+    }
 
-      yield buildCastVoteRecord({
+    // Build BMD cast vote record. Use the ballot ID as the cast vote record ID
+    // if available, otherwise the UUID from the scanner database.
+    if (validatedSheet.type === 'bmd') {
+      castVoteRecords.push(
+        buildCastVoteRecord({
+          election,
+          electionId,
+          scannerId,
+          castVoteRecordId:
+            validatedSheet.interpretation.ballotId ||
+            unsafeParse(BallotIdSchema, id),
+          batchId,
+          ballotMarkingMode: 'machine',
+          interpretation: validatedSheet.interpretation,
+        })
+      );
+
+      continue;
+    }
+
+    // Build the HMPB cast vote record
+    const [front, back] = validatedSheet.interpretation;
+    const frontHasWriteIns = hasWriteIns(front.votes);
+    const backHasWriteIns = hasWriteIns(back.votes);
+
+    // Build the HMPB cast vote record
+    castVoteRecords.push(
+      buildCastVoteRecord({
         election,
         electionId,
         scannerId,
@@ -118,181 +205,201 @@ async function* getCastVoteRecordGenerator({
         pages: [
           {
             interpretation: front,
-            inlineBallotImage:
-              frontHasWriteIns && imageOptions.includeInlineBallotImages
-                ? await getInlineBallotImage(frontFilename)
-                : undefined,
             imageFileUri:
-              imageOptions.includedImageFileUris === 'all' ||
-              (imageOptions.includedImageFileUris === 'write-ins' &&
-                frontHasWriteIns)
-                ? `file:./${imageOptions.imagesDirectory}/${basename(
-                    frontFilename
-                  )}`
+              imageOptions.which === 'all' ||
+              (imageOptions.which === 'write-ins' && frontHasWriteIns)
+                ? `file:./${imageOptions.directory}/${basename(frontFilename)}`
                 : undefined,
           },
           {
             interpretation: back,
-            inlineBallotImage:
-              backHasWriteIns && imageOptions.includeInlineBallotImages
-                ? await getInlineBallotImage(backFilename)
-                : undefined,
             imageFileUri:
-              imageOptions.includedImageFileUris === 'all' ||
-              (imageOptions.includedImageFileUris === 'write-ins' &&
-                backHasWriteIns)
-                ? `file:./${imageOptions.imagesDirectory}/${basename(
-                    backFilename
-                  )}`
+              imageOptions.which === 'all' ||
+              (imageOptions.which === 'write-ins' && backHasWriteIns)
+                ? `file:./${imageOptions.directory}/${basename(backFilename)}`
                 : undefined,
           },
         ],
         ballotPageLayoutsLookup,
-      });
-    }
-  }
-}
-
-async function* concatStreams(readables: NodeJS.ReadableStream[]) {
-  for (const readable of readables) {
-    for await (const chunk of readable) {
-      yield chunk;
-    }
-  }
-}
-
-/**
- * JSON format requires that we have no trailing commas, so we must
- * post-process the cast vote records iterator to add a comma after all but
- * the last.
- */
-async function* commaSeparateStringGenerator(
-  asyncGenerator: AsyncGenerator<string>
-): AsyncGenerator<string> {
-  let previous: Optional<string>;
-  for await (const current of asyncGenerator) {
-    if (previous) {
-      yield `${previous},`;
-    }
-    previous = current;
+      })
+    );
   }
 
-  // yield last element without trailing comma
-  if (previous) {
-    yield previous;
-  }
+  const castVoteRecordReportWithoutCastVoteRecords =
+    buildCastVoteRecordReportWithoutCastVoteRecords({
+      election,
+      electionId,
+      generatingDeviceId: scannerId,
+      scannerIds: [scannerId],
+      reportTypes: [CVR.ReportType.OriginatingDeviceExport],
+      isTestMode,
+      batchInfo,
+    });
+
+  return ok(
+    streamifyCastVoteRecordReport({
+      castVoteRecordReportWithoutCastVoteRecords,
+      castVoteRecords,
+    })
+  );
 }
 
-interface GetCastVoteRecordReportStreamParams
-  extends GetCastVoteRecordGeneratorParams {
-  isTestMode: boolean;
-  batchInfo: BatchInfo[];
-}
+const CVR_BALLOT_IMAGES_SUBDIRECTORY = 'ballot-images';
+const CVR_BALLOT_LAYOUTS_SUBDIRECTORY = 'ballot-layouts';
 
-/**
- * Returns a readable stream consisting of a cast vote record report.
- */
-export function getCastVoteRecordReportStream({
-  election,
-  electionId,
-  scannerId,
-  definiteMarkThreshold,
-  isTestMode,
+async function exportPageImageAndLayoutToUsbDrive({
+  exporter,
+  bucket,
+  imageFilename,
   ballotPageLayoutsLookup,
-  resultSheetGenerator,
-  batchInfo,
-  imageOptions,
-}: GetCastVoteRecordReportStreamParams): NodeJS.ReadableStream {
-  const castVoteRecordGenerator = getCastVoteRecordGenerator({
-    election,
-    electionId,
-    scannerId,
-    definiteMarkThreshold,
+  ballotPageMetadata,
+  election,
+}: {
+  exporter: Exporter;
+  bucket: string;
+  imageFilename: string;
+  ballotPageLayoutsLookup: BallotPageLayoutsLookup;
+  ballotPageMetadata: BallotPageMetadata;
+  election: Election;
+}): Promise<Result<void, ExportDataError>> {
+  const layout = getBallotPageLayout({
+    ballotPageMetadata,
     ballotPageLayoutsLookup,
-    resultSheetGenerator,
-    imageOptions,
-  });
-  const reportMetadata = buildCastVoteRecordReport({
     election,
-    electionId,
-    generatingDeviceId: scannerId,
-    scannerIds: [scannerId],
-    reportTypes: [CVR.ReportType.OriginatingDeviceExport],
-    isTestMode,
-    batchInfo,
   });
-
-  const reportMetadataJson = JSON.stringify(reportMetadata, undefined, 2);
-
-  const reportMetadataStream = Readable.from(
-    reportMetadataJson.replace(/\n\}$/, ',\n  "CVR": [')
+  const exportImageResult = await exporter.exportDataToUsbDrive(
+    bucket,
+    join(CVR_BALLOT_IMAGES_SUBDIRECTORY, basename(imageFilename)),
+    fs.createReadStream(imageFilename)
   );
+  if (exportImageResult.isErr()) {
+    return exportImageResult;
+  }
 
-  const cvrStream = Readable.from(
-    commaSeparateStringGenerator(
-      mapAsync(castVoteRecordGenerator, (cvr) => `\n    ${JSON.stringify(cvr)}`)
-    )
+  const layoutBasename = `${parse(imageFilename).name}.layout.json`;
+  const exportLayoutResult = await exporter.exportDataToUsbDrive(
+    bucket,
+    join(CVR_BALLOT_LAYOUTS_SUBDIRECTORY, layoutBasename),
+    JSON.stringify(layout, undefined, 2)
   );
+  if (exportLayoutResult.isErr()) {
+    return exportLayoutResult;
+  }
 
-  const closingStream = Readable.from('  ]\n}');
-
-  return Readable.from(
-    concatStreams([reportMetadataStream, cvrStream, closingStream])
-  );
+  return ok();
 }
 
-interface ExportCastVoteRecordReportToUsbDriveParams {
-  electionHash: string;
+interface ExportCastVoteRecordReportToUsbDriveParams
+  extends Omit<BuildCastVoteRecordReportParams, 'imageOptions'> {
   ballotsCounted: number;
-  election: Election;
-  definiteMarkThreshold: number;
-  ballotPageLayoutsLookup: BallotPageLayoutsLookup;
-  resultSheetGenerator: Generator<ResultSheet>;
-  isTestMode: boolean;
-  batchInfo: BatchInfo[];
-  imageOptions: CastVoteRecordReportImageOptions;
+  whichImages: CastVoteRecordReportImageOptions['which'];
 }
 
 /**
- * Exports a CDF cast vote record report to an inserted and mounted USB drive
+ * Exports a complete cast vote record report to an inserted and mounted USB
+ * drive, including ballot images and layouts.
  */
 export async function exportCastVoteRecordReportToUsbDrive({
-  election,
-  electionHash,
+  electionDefinition,
   isTestMode,
   ballotsCounted,
-  ...rest
+  resultSheetGenerator,
+  ballotPageLayoutsLookup,
+  definiteMarkThreshold,
+  batchInfo,
+  whichImages,
 }: ExportCastVoteRecordReportToUsbDriveParams): Promise<
-  Result<void, ExportDataError>
+  Result<void, BuildCastVoteRecordReportError>
 > {
-  const cvrFilename = generateCastVoteRecordReportFilename(
-    VX_MACHINE_ID,
-    ballotsCounted,
-    isTestMode,
-    new Date()
-  );
-  const electionFolderName = generateElectionBasedSubfolderName(
-    election,
-    electionHash
-  );
-
+  const { electionHash, election } = electionDefinition;
   const exporter = new Exporter({
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
     getUsbDrives,
   });
-  const result = await exporter.exportDataToUsbDrive(
+
+  const reportDirectory = join(
     SCANNER_RESULTS_FOLDER,
-    join(electionFolderName, cvrFilename),
-    getCastVoteRecordReportStream({
-      election,
-      electionId: electionHash,
-      scannerId: VX_MACHINE_ID,
+    generateElectionBasedSubfolderName(election, electionHash),
+    generateCastVoteRecordReportDirectoryName(
+      VX_MACHINE_ID,
+      ballotsCounted,
       isTestMode,
-      ...rest,
-    })
+      new Date()
+    )
   );
-  if (result.isErr()) {
-    return result;
+
+  const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
+    electionDefinition,
+    isTestMode,
+    resultSheetGenerator,
+    ballotPageLayoutsLookup,
+    definiteMarkThreshold,
+    batchInfo,
+    imageOptions: {
+      which: whichImages,
+      directory: CVR_BALLOT_IMAGES_SUBDIRECTORY,
+    },
+    sheetExportCallback: async ({ validatedSheet, imageFilenames }) => {
+      // do not export BMD ballot images
+      if (validatedSheet.type === 'bmd' || whichImages === 'none') {
+        return ok();
+      }
+
+      const [front, back] = validatedSheet.interpretation;
+      const [frontFilename, backFilename] = imageFilenames;
+      const frontHasWriteIns = hasWriteIns(front.votes);
+      const backHasWriteIns = hasWriteIns(back.votes);
+
+      // Export front image and layout if front has write-ins
+      if (frontHasWriteIns || whichImages === 'all') {
+        const exportFrontPageImageAndLayoutResult =
+          await exportPageImageAndLayoutToUsbDrive({
+            exporter,
+            bucket: reportDirectory,
+            imageFilename: frontFilename,
+            ballotPageMetadata: front.metadata,
+            ballotPageLayoutsLookup,
+            election,
+          });
+        if (exportFrontPageImageAndLayoutResult.isErr()) {
+          return exportFrontPageImageAndLayoutResult;
+        }
+      }
+
+      // Export back image and layout if back has write-ins
+      if (backHasWriteIns || whichImages === 'all') {
+        const exportBackPageImageAndLayoutResult =
+          await exportPageImageAndLayoutToUsbDrive({
+            exporter,
+            bucket: reportDirectory,
+            imageFilename: backFilename,
+            ballotPageMetadata: back.metadata,
+            ballotPageLayoutsLookup,
+            election,
+          });
+        if (exportBackPageImageAndLayoutResult.isErr()) {
+          return exportBackPageImageAndLayoutResult;
+        }
+      }
+
+      return ok();
+    },
+  });
+
+  if (buildCastVoteRecordReportResult.isErr()) {
+    return buildCastVoteRecordReportResult;
+  }
+
+  const castVoteRecordReport = buildCastVoteRecordReportResult.ok();
+
+  const exportReportResult = await exporter.exportDataToUsbDrive(
+    reportDirectory,
+    'report.json',
+    castVoteRecordReport
+  );
+
+  if (exportReportResult.isErr()) {
+    return exportReportResult;
   }
 
   return ok();

@@ -589,8 +589,7 @@ export async function buildCentralScannerApp({
       }
     } else {
       const exportResult = await exportCastVoteRecordReportToUsbDrive({
-        election: electionDefinition.election,
-        electionHash: electionDefinition.electionHash,
+        electionDefinition,
         isTestMode: store.getTestMode(),
         ballotsCounted: store.getBallotsCounted(),
         batchInfo: store.batchStatus(),
@@ -599,11 +598,7 @@ export async function buildCentralScannerApp({
         definiteMarkThreshold:
           store.getCurrentMarkThresholds()?.definite ??
           DefaultMarkThresholds.definite,
-        imageOptions: {
-          includeInlineBallotImages: true,
-          imagesDirectory: 'ballot-images', // not using this yet
-          includedImageFileUris: 'none',
-        },
+        whichImages: 'write-ins',
       });
 
       if (exportResult.isErr()) {
