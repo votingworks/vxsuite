@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 
 import { Screen } from './screen';
 import { Main } from './main';
@@ -74,17 +70,6 @@ export function UnlockMachineScreen({
 
   const handleClear = useCallback(() => {
     setCurrentPasscode('');
-  }, []);
-
-  useEffect(() => {
-    function bypassPinEntry() {
-      checkPin(auth.user.passcode);
-    }
-    if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
-      bypassPinEntry();
-    }
-    // Run this hook once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currentPasscodeDisplayString = '•'
