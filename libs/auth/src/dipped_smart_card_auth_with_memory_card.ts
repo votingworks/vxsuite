@@ -13,7 +13,11 @@ import {
   DippedSmartCardAuth,
   User,
 } from '@votingworks/types';
-import { generatePin } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  generatePin,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import {
   DippedSmartCardAuthApi,
@@ -22,7 +26,7 @@ import {
 } from './dipped_smart_card_auth';
 import {
   ElectionManagerCardData,
-  parseUserFromCardSummary,
+  parseUserDataFromCardSummary,
   PollWorkerCardData,
   SystemAdministratorCardData,
 } from './memory_card';
@@ -33,7 +37,7 @@ global.fetch = fetch;
 
 type AuthAction =
   | { type: 'check_card_reader'; cardSummary: CardSummary }
-  | { type: 'check_pin'; pin: string }
+  | { type: 'check_pin'; cardSummary: CardSummary; pin: string }
   | { type: 'log_out' };
 
 /**
@@ -77,8 +81,14 @@ export class DippedSmartCardAuthWithMemoryCard
     machineState: DippedSmartCardAuthMachineState,
     input: { pin: string }
   ): Promise<void> {
-    await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    this.updateAuthStatus(machineState, { type: 'check_pin', pin: input.pin });
+    const cardSummary = await this.checkCardReaderAndUpdateAuthStatus(
+      machineState
+    );
+    this.updateAuthStatus(machineState, {
+      type: 'check_pin',
+      cardSummary,
+      pin: input.pin,
+    });
   }
 
   async logOut(machineState: DippedSmartCardAuthMachineState): Promise<void> {
@@ -173,12 +183,13 @@ export class DippedSmartCardAuthWithMemoryCard
 
   private async checkCardReaderAndUpdateAuthStatus(
     machineState: DippedSmartCardAuthMachineState
-  ) {
+  ): Promise<CardSummary> {
     const cardSummary = await this.card.readSummary();
     this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
       cardSummary,
     });
+    return cardSummary;
   }
 
   private updateAuthStatus(
@@ -207,7 +218,9 @@ export class DippedSmartCardAuthWithMemoryCard
                   return { status: 'logged_out', reason: 'card_error' };
 
                 case 'ready': {
-                  const user = parseUserFromCardSummary(action.cardSummary);
+                  const { user } = parseUserDataFromCardSummary(
+                    action.cardSummary
+                  );
                   const validationResult = this.validateCardUser(
                     machineState,
                     user
@@ -218,7 +231,11 @@ export class DippedSmartCardAuthWithMemoryCard
                         (user.role === 'system_administrator' ||
                           user.role === 'election_manager')
                     );
-                    return { status: 'checking_passcode', user };
+                    return isFeatureFlagEnabled(
+                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                    )
+                      ? { status: 'remove_card', user }
+                      : { status: 'checking_pin', user };
                   }
                   return {
                     status: 'logged_out',
@@ -233,7 +250,7 @@ export class DippedSmartCardAuthWithMemoryCard
               }
             }
 
-            case 'checking_passcode': {
+            case 'checking_pin': {
               if (action.cardSummary.status === 'no_card') {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
@@ -264,9 +281,9 @@ export class DippedSmartCardAuthWithMemoryCard
                     action.cardSummary.status === 'ready'
                       ? {
                           status: 'ready',
-                          programmedUser: parseUserFromCardSummary(
+                          programmedUser: parseUserDataFromCardSummary(
                             action.cardSummary
-                          ),
+                          ).user,
                         }
                       : action.cardSummary,
                 };
@@ -284,12 +301,16 @@ export class DippedSmartCardAuthWithMemoryCard
       }
 
       case 'check_pin': {
-        if (currentAuthStatus.status !== 'checking_passcode') {
+        if (
+          currentAuthStatus.status !== 'checking_pin' ||
+          action.cardSummary.status !== 'ready'
+        ) {
           return currentAuthStatus;
         }
-        return action.pin === currentAuthStatus.user.passcode
+        const { pin } = parseUserDataFromCardSummary(action.cardSummary);
+        return action.pin === pin
           ? { status: 'remove_card', user: currentAuthStatus.user }
-          : { ...currentAuthStatus, wrongPasscodeEnteredAt: new Date() };
+          : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
       case 'log_out':

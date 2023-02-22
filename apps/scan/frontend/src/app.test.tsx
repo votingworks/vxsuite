@@ -868,10 +868,10 @@ test('system administrator allowed to log in on unconfigured machine', async () 
   renderApp();
 
   apiMock.setAuthStatus({
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeSystemAdministratorUser(),
   });
-  await screen.findByText('Enter the card security code to unlock.');
+  await screen.findByText('Enter the card PIN to unlock.');
 });
 
 test('system administrator can reset polls to paused', async () => {

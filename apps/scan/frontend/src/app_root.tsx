@@ -106,7 +106,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   }
 
   if (
-    authStatus.status === 'checking_passcode' &&
+    authStatus.status === 'checking_pin' &&
     authStatus.user.role === 'system_administrator'
   ) {
     return (
@@ -162,7 +162,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     return <UnconfiguredElectionScreen usbDriveStatus={usbDrive.status} />;
   }
 
-  if (authStatus.status === 'checking_passcode') {
+  if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={authStatus}

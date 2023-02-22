@@ -1,31 +1,16 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { fakeSystemAdministratorUser, mockOf } from '@votingworks/test-utils';
+import { fakeSystemAdministratorUser } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import React from 'react';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: jest.fn(),
-  };
-});
-
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
-  status: 'checking_passcode',
+  status: 'checking_pin',
   user: fakeSystemAdministratorUser(),
 };
 
-beforeEach(() => {
-  mockOf(isFeatureFlagEnabled).mockReset();
-});
-
-test('Unlock machine screen submits passcode', async () => {
+test('Unlock machine screen submits pin', async () => {
   const checkPin = jest.fn();
   const { getByText } = render(
     <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
@@ -65,35 +50,16 @@ test('Unlock machine screen submits passcode', async () => {
   getByText('- - - - - -');
 });
 
-test('If passcode is incorrect, error message is shown', () => {
+test('If PIN is incorrect, error message is shown', () => {
   const checkPin = jest.fn();
   const { getByText } = render(
     <UnlockMachineScreen
       auth={{
         ...checkingPinAuthStatus,
-        wrongPasscodeEnteredAt: new Date(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />
   );
-  getByText('Invalid code. Please try again.');
-});
-
-test('If SKIP_PIN_ENTRY flag is on in development, submits correct PIN immediately', async () => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag: BooleanEnvironmentVariableName) => {
-      return flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY;
-    }
-  );
-  const checkPin = jest.fn();
-  render(
-    <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
-  );
-
-  await waitFor(() =>
-    expect(checkPin).toHaveBeenNthCalledWith(
-      1,
-      checkingPinAuthStatus.user.passcode
-    )
-  );
+  getByText('Invalid PIN. Please try again.');
 });

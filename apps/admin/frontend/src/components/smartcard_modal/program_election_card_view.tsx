@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 
+import { programCard } from '../../api';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {
@@ -10,7 +11,6 @@ import {
   SmartcardActionStatus,
   SuccessOrErrorStatusMessage,
 } from './status_message';
-import { programCard } from '../../api';
 
 const StatusMessageContainer = styled.div`
   margin-bottom: 2.5em;
@@ -42,6 +42,7 @@ export function ProgramElectionCardView({
         onSuccess: (result) => {
           setActionStatus({
             action: 'Program',
+            newPin: result.ok()?.pin,
             role: 'election_manager',
             status: result.isOk() ? 'Success' : 'Error',
           });

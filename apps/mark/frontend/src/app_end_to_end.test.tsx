@@ -79,10 +79,10 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Insert election manager card and enter incorrect PIN
   apiMock.setAuthStatus({
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser(electionDefinition),
   });
-  await screen.findByText('Enter the card security code to unlock.');
+  await screen.findByText('Enter the card PIN to unlock.');
   apiMock.mockApiClient.checkPin
     .expectCallWith({ electionHash: undefined, pin: '111111' })
     .resolves();
@@ -93,11 +93,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser({ electionHash }),
-    wrongPasscodeEnteredAt: new Date(),
+    wrongPinEnteredAt: new Date(),
   });
-  await screen.findByText('Invalid code. Please try again.');
+  await screen.findByText('Invalid PIN. Please try again.');
 
   // Enter correct PIN
   apiMock.mockApiClient.checkPin

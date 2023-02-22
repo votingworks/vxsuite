@@ -49,7 +49,7 @@ export function ElectionManager(): JSX.Element {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
 
-  if (auth.status === 'checking_passcode') {
+  if (auth.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={auth}

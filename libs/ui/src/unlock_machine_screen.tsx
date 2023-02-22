@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 
 import { Screen } from './screen';
 import { Main } from './main';
@@ -51,53 +47,37 @@ export function UnlockMachineScreen({
   checkPin,
   grayBackground,
 }: Props): JSX.Element {
-  const [currentPasscode, setCurrentPasscode] = useState('');
+  const [currentPin, setCurrentPin] = useState('');
 
   const handleNumberEntry = useCallback(
     (digit: number) => {
-      const passcode = `${currentPasscode}${digit}`.slice(
-        0,
-        SECURITY_PIN_LENGTH
-      );
-      setCurrentPasscode(passcode);
-      if (passcode.length === SECURITY_PIN_LENGTH) {
-        checkPin(passcode);
-        setCurrentPasscode('');
+      const pin = `${currentPin}${digit}`.slice(0, SECURITY_PIN_LENGTH);
+      setCurrentPin(pin);
+      if (pin.length === SECURITY_PIN_LENGTH) {
+        checkPin(pin);
+        setCurrentPin('');
       }
     },
-    [checkPin, currentPasscode]
+    [checkPin, currentPin]
   );
 
   const handleBackspace = useCallback(() => {
-    setCurrentPasscode((prev) => prev.slice(0, -1));
+    setCurrentPin((prev) => prev.slice(0, -1));
   }, []);
 
   const handleClear = useCallback(() => {
-    setCurrentPasscode('');
+    setCurrentPin('');
   }, []);
 
-  useEffect(() => {
-    function bypassPinEntry() {
-      checkPin(auth.user.passcode);
-    }
-    if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY)) {
-      bypassPinEntry();
-    }
-    // Run this hook once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const currentPasscodeDisplayString = '•'
-    .repeat(currentPasscode.length)
+  const currentPinDisplayString = '•'
+    .repeat(currentPin.length)
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
     .join(' ');
 
-  let primarySentence: JSX.Element = (
-    <p>Enter the card security code to unlock.</p>
-  );
-  if (auth.wrongPasscodeEnteredAt) {
-    primarySentence = <Text warning>Invalid code. Please try again.</Text>;
+  let primarySentence: JSX.Element = <p>Enter the card PIN to unlock.</p>;
+  if (auth.wrongPinEnteredAt) {
+    primarySentence = <Text warning>Invalid PIN. Please try again.</Text>;
   }
 
   return (
@@ -109,7 +89,7 @@ export function UnlockMachineScreen({
           maxWidth={false}
         >
           {primarySentence}
-          <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
+          <EnteredCode>{currentPinDisplayString}</EnteredCode>
           <NumberPadWrapper>
             <NumberPad
               onButtonPress={handleNumberEntry}

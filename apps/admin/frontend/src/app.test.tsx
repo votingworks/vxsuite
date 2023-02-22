@@ -230,14 +230,14 @@ test('authentication works', async () => {
   act(() => hardware.setCardReaderConnected(true));
   await screen.findByText('VxAdmin is Locked');
 
-  // Insert an election manager card and enter the wrong code.
+  // Insert an election manager card and enter the wrong PIN.
   setAuthStatus(mockApiClient, {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
-  await screen.findByText('Enter the card security code to unlock.');
+  await screen.findByText('Enter the card PIN to unlock.');
   mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -246,13 +246,13 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   setAuthStatus(mockApiClient, {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    wrongPasscodeEnteredAt: new Date(),
+    wrongPinEnteredAt: new Date(),
   });
-  await screen.findByText('Invalid code. Please try again.');
+  await screen.findByText('Invalid PIN. Please try again.');
 
   // Remove card and insert an invalid card, e.g. a pollworker card.
   setAuthStatus(mockApiClient, {
@@ -270,14 +270,14 @@ test('authentication works', async () => {
     reason: 'machine_locked',
   });
 
-  // Insert election manager card and enter correct code.
+  // Insert election manager card and enter correct PIN.
   setAuthStatus(mockApiClient, {
-    status: 'checking_passcode',
+    status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
-  await screen.findByText('Enter the card security code to unlock.');
+  await screen.findByText('Enter the card PIN to unlock.');
   mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));

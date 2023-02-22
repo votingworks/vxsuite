@@ -3,7 +3,6 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   CardSummaryReady,
   ElectionHash,
-  Optional,
   safeParseJson,
   User,
   UserRole,
@@ -80,13 +79,14 @@ const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
 ]);
 
 /**
- * Parses a user from a memory card summary
+ * Parses user data from a memory card summary
  */
-export function parseUserFromCardSummary(
-  cardSummary: CardSummaryReady
-): Optional<User> {
+export function parseUserDataFromCardSummary(cardSummary: CardSummaryReady): {
+  user?: User;
+  pin?: string;
+} {
   if (!cardSummary.shortValue) {
-    return undefined;
+    return {};
   }
 
   const cardData = safeParseJson(
@@ -94,25 +94,23 @@ export function parseUserFromCardSummary(
     AnyCardDataSchema
   ).ok();
   if (!cardData) {
-    return undefined;
+    return {};
   }
 
   switch (cardData.t) {
     case 'system_administrator':
       return {
-        role: 'system_administrator',
-        passcode: cardData.p,
+        user: { role: 'system_administrator' },
+        pin: cardData.p,
       };
     case 'election_manager':
       return {
-        role: 'election_manager',
-        electionHash: cardData.h,
-        passcode: cardData.p,
+        user: { role: 'election_manager', electionHash: cardData.h },
+        pin: cardData.p,
       };
     case 'poll_worker':
       return {
-        role: 'poll_worker',
-        electionHash: cardData.h,
+        user: { role: 'poll_worker', electionHash: cardData.h },
       };
     /* istanbul ignore next: Compile-time check for completeness */
     default:

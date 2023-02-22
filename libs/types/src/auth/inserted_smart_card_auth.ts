@@ -20,9 +20,9 @@ export interface LoggedOut {
 }
 
 export interface CheckingPin {
-  readonly status: 'checking_passcode';
+  readonly status: 'checking_pin';
   readonly user: SystemAdministratorUser | ElectionManagerUser;
-  readonly wrongPasscodeEnteredAt?: Date;
+  readonly wrongPinEnteredAt?: Date;
 }
 
 export interface SystemAdministratorLoggedIn {

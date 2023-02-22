@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
+import { ElectionDefinition, User } from '@votingworks/types';
 import {
   Button,
   fontSizeTheme,
@@ -8,11 +9,10 @@ import {
   Prose,
   Text,
 } from '@votingworks/ui';
-import { ElectionDefinition, User } from '@votingworks/types';
 
+import { programCard, unprogramCard as unprogramCardBase } from '../../api';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
-import { programCard, unprogramCard as unprogramCardBase } from '../../api';
 import {
   SmartcardAction,
   SmartcardActionStatus,
@@ -71,6 +71,7 @@ export function CardDetailsView({
         onSuccess: (result) => {
           setActionStatus({
             action: 'PinReset',
+            newPin: result.ok()?.pin,
             role,
             status: result.isOk() ? 'Success' : 'Error',
           });
@@ -102,8 +103,8 @@ export function CardDetailsView({
 
   const possibleActions = new Set<SmartcardAction>();
   if (
-    'passcode' in programmedUser &&
-    (role === 'system_administrator' ||
+    role === 'system_administrator' ||
+    (role === 'election_manager' &&
       // We can support PIN resets on cards from other elections once we update PIN resetting to
       // change only PINs and leave other card data, like election definitions, intact. As of
       // 8/4/22, PIN resetting reprograms cards entirely
@@ -126,10 +127,7 @@ export function CardDetailsView({
     bodyContent = (
       <React.Fragment>
         <HorizontalRule />
-        <SuccessOrErrorStatusMessage
-          actionStatus={actionStatus}
-          programmedUser={programmedUser}
-        />
+        <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
         <HorizontalRule />
 
         <Text bold>Remove card to continue.</Text>
