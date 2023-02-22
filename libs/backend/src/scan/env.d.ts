@@ -1,10 +1,10 @@
 declare namespace NodeJS {
+  /**
+   * Properties of the running process that may be used in the backend
+   */
   export interface ProcessEnv {
-    readonly CI?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
-    readonly PORT?: string;
     readonly SCAN_ALLOWED_EXPORT_PATTERNS?: string;
-    readonly SCAN_WORKSPACE?: string;
-    readonly CVR_EXPORT_FORMAT?: 'vxf' | 'cdf';
+    readonly VX_MACHINE_ID?: string;
   }
 }

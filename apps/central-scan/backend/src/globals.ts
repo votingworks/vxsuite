@@ -20,11 +20,6 @@ export const { MOCK_SCANNER_FILES } = process.env;
 export const PORT = Number(process.env.PORT || 3002);
 
 /**
- * What's the unique ID for this machine?
- */
-export const VX_MACHINE_ID = process.env.VX_MACHINE_ID ?? '000';
-
-/**
  * Which node environment is this?
  */
 export const NODE_ENV = unsafeParse(
@@ -40,6 +35,9 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
+
+export const CVR_EXPORT_FORMAT: 'vxf' | 'cdf' =
+  process.env.CVR_EXPORT_FORMAT ?? 'vxf';
 
 /**
  * Where are exported files allowed to be written to?

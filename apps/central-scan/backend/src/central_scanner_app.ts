@@ -4,7 +4,11 @@ import {
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { assert } from '@votingworks/basics';
-import { Exporter } from '@votingworks/backend';
+import {
+  exportCastVoteRecordReportToUsbDrive,
+  Exporter,
+  VX_MACHINE_ID,
+} from '@votingworks/backend';
 import {
   BallotPageLayout,
   BallotPageLayoutSchema,
@@ -30,7 +34,8 @@ import * as grout from '@votingworks/grout';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { VX_MACHINE_ID } from './globals';
+import { CVR_EXPORT_FORMAT } from './globals';
+import { DefaultMarkThresholds } from './store';
 
 const debug = makeDebug('scan:central-scanner');
 
@@ -544,42 +549,76 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    const filename = generateFilenameForScanningResults(
-      VX_MACHINE_ID,
-      store.getBallotsCounted(),
-      store.getTestMode(),
-      new Date()
-    );
+    if (CVR_EXPORT_FORMAT === 'vxf') {
+      const filename = generateFilenameForScanningResults(
+        VX_MACHINE_ID,
+        store.getBallotsCounted(),
+        store.getTestMode(),
+        new Date()
+      );
 
-    const exportStream = new PassThrough();
-    const exportResultPromise = exporter.exportDataToUsbDrive(
-      SCANNER_RESULTS_FOLDER,
-      path.join(
-        generateElectionBasedSubfolderName(
-          electionDefinition.election,
-          electionDefinition.electionHash
+      const exportStream = new PassThrough();
+      const exportResultPromise = exporter.exportDataToUsbDrive(
+        SCANNER_RESULTS_FOLDER,
+        path.join(
+          generateElectionBasedSubfolderName(
+            electionDefinition.election,
+            electionDefinition.electionHash
+          ),
+          filename
         ),
-        filename
-      ),
-      exportStream
-    );
+        exportStream
+      );
 
-    await importer.doExport(exportStream);
-    exportStream.end();
+      await importer.doExport(exportStream);
+      exportStream.end();
 
-    const exportResult = await exportResultPromise;
-    if (exportResult.isErr()) {
-      response.status(500).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'export-failed',
-            message: exportResult.err().message,
-          },
-        ],
+      const exportResult = await exportResultPromise;
+      if (exportResult.isErr()) {
+        response.status(500).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'export-failed',
+              message: exportResult.err().message,
+            },
+          ],
+        });
+
+        return;
+      }
+    } else {
+      const exportResult = await exportCastVoteRecordReportToUsbDrive({
+        election: electionDefinition.election,
+        electionHash: electionDefinition.electionHash,
+        isTestMode: store.getTestMode(),
+        ballotsCounted: store.getBallotsCounted(),
+        batchInfo: store.batchStatus(),
+        resultSheetGenerator: store.forEachResultSheet(),
+        ballotPageLayoutsLookup: store.getBallotPageLayoutsLookup(),
+        definiteMarkThreshold:
+          store.getCurrentMarkThresholds()?.definite ??
+          DefaultMarkThresholds.definite,
+        imageOptions: {
+          includeInlineBallotImages: true,
+          imagesDirectory: 'ballot-images', // not using this yet
+          includedImageFileUris: 'none',
+        },
       });
 
-      return;
+      if (exportResult.isErr()) {
+        response.status(500).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'export-failed',
+              message: exportResult.err().message,
+            },
+          ],
+        });
+
+        return;
+      }
     }
 
     store.setCvrsBackedUp();

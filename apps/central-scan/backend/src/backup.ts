@@ -1,5 +1,9 @@
 import { Scan } from '@votingworks/api';
-import { Exporter } from '@votingworks/backend';
+import {
+  Exporter,
+  getCastVoteRecordReportStream,
+  VX_MACHINE_ID,
+} from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
@@ -10,8 +14,10 @@ import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { getDisplayElectionHash } from '@votingworks/types';
 import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
+import { CVR_EXPORT_FORMAT } from './globals';
 
 const debug = makeDebug('scan:backup');
 
@@ -94,10 +100,33 @@ export class Backup {
     debug('added election.json to backup');
 
     debug('adding CVRs to backup...');
-    await this.addEntry(
-      'cvrs.jsonl',
-      exportCastVoteRecordsAsNdJson({ store: this.store })
-    );
+    if (CVR_EXPORT_FORMAT === 'vxf') {
+      await this.addEntry(
+        'cvrs.jsonl',
+        exportCastVoteRecordsAsNdJson({ store: this.store })
+      );
+    } else {
+      await this.addEntry(
+        'castVoteRecordReport.json',
+        getCastVoteRecordReportStream({
+          election: electionDefinition.election,
+          electionId: getDisplayElectionHash(electionDefinition),
+          scannerId: VX_MACHINE_ID,
+          definiteMarkThreshold:
+            this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+          isTestMode: this.store.getTestMode(),
+          ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
+          resultSheetGenerator: this.store.forEachResultSheet(),
+          batchInfo: this.store.batchStatus(),
+          imageOptions: {
+            includeInlineBallotImages: false,
+            includedImageFileUris: 'all',
+            imagesDirectory: '', // currently we don't place backup images in a subdirectory
+          },
+        })
+      );
+    }
+
     debug('added CVRs to backup');
 
     debug('adding database files to backup...');

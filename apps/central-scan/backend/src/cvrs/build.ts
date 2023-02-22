@@ -1,3 +1,4 @@
+import { VX_MACHINE_ID } from '@votingworks/backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
@@ -24,7 +25,6 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { allContestOptions } from '@votingworks/utils';
-import { VX_MACHINE_ID } from '../globals';
 import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from '../types';
 import {
   describeValidationError,

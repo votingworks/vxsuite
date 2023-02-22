@@ -8,7 +8,12 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   coverageThreshold: {
-    ...shared.coverageThreshold,
+    global: {
+      statements: 95,
+      branches: 95,
+      functions: 95,
+      lines: 95,
+    },
     // Moved from frontends/election-manager with pre-existing low coverage:
     'src/votecounting.ts': {
       statements: 78,

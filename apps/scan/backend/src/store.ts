@@ -4,7 +4,7 @@
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
-import { Bindable, Client as DbClient } from '@votingworks/db';
+import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationStatus,
@@ -21,12 +21,10 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  Id,
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
   Optional,
-  PageInterpretation,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -49,6 +47,7 @@ import { dirname, join } from 'path';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
+import { BallotPageLayoutsLookup, ResultSheet } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './vx_interpreter';
 import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
@@ -61,13 +60,6 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
   marginal: 0.17,
   definite: 0.25,
 };
-
-export interface ResultSheet {
-  readonly id: Id;
-  readonly batchId: Id;
-  readonly batchLabel?: string;
-  readonly interpretation: SheetOf<PageInterpretation>;
-}
 
 function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
@@ -112,63 +104,6 @@ export class Store {
     await newStore.loadLayouts();
 
     return newStore;
-  }
-
-  /**
-   * Runs `sql` with interpolated data.
-   *
-   * @example
-   *
-   * store.dbRun('insert into muppets (name) values (?)', 'Kermit')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbRun<P extends Bindable[]>(sql: string, ...params: P): void {
-    return this.client.run(sql, ...params);
-  }
-
-  /**
-   * Executes `sql`, which can be multiple statements.
-   *
-   * @example
-   *
-   * store.dbExec(`
-   *   pragma foreign_keys = 1;
-   *
-   *   create table if not exist muppets (name varchar(255));
-   *   create table if not exist images (url integer unique not null);
-   * `)
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbExec(sql: string): void {
-    return this.client.exec(sql);
-  }
-
-  /**
-   * Runs `sql` to fetch a list of rows.
-   *
-   * @example
-   *
-   * store.dbAll('select * from muppets')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbAll<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
-    return this.client.all(sql, ...params);
-  }
-
-  /**
-   * Runs `sql` to fetch a single row.
-   *
-   * @example
-   *
-   * store.dbGet('select count(*) as count from muppets')
-   *
-   * @deprecated provide a method to do whatever callers need to do
-   */
-  dbGet<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
-    return this.client.one(sql, ...params);
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -794,6 +729,9 @@ export class Store {
     this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
+  /**
+   * @deprecated We can get this information via `forEachResultSheet`
+   */
   getBallotFilenames(
     sheetId: string,
     side: Side
@@ -1042,7 +980,9 @@ export class Store {
         batches.id as batchId,
         batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson
+        back_interpretation_json as backInterpretationJson,
+        front_normalized_filename as frontNormalizedFilename,
+        back_normalized_filename as backNormalizedFilename
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
@@ -1057,6 +997,8 @@ export class Store {
       batchLabel: string | null;
       frontInterpretationJson: string;
       backInterpretationJson: string;
+      frontNormalizedFilename: string;
+      backNormalizedFilename: string;
     }>) {
       yield {
         id: row.id,
@@ -1066,6 +1008,8 @@ export class Store {
           [row.frontInterpretationJson, row.backInterpretationJson],
           (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
         ),
+        frontNormalizedFilename: row.frontNormalizedFilename,
+        backNormalizedFilename: row.backNormalizedFilename,
       };
     }
   }
@@ -1174,6 +1118,39 @@ export class Store {
     return loadedLayouts;
   }
 
+  /**
+   * Gets all ballot page layouts listed by metadata. Will return an empty
+   * array if it is a `gridLayouts` election.
+   */
+  getBallotPageLayoutsLookup(): BallotPageLayoutsLookup {
+    const rows = this.client.all(
+      `
+        select
+          layouts_json as layoutsJson,
+          metadata_json as metadataJson
+        from hmpb_templates
+      `
+    ) as Array<{
+      layoutsJson: string;
+      metadataJson: string;
+    }>;
+
+    return rows.map(({ layoutsJson, metadataJson }) => ({
+      ballotMetadata: safeParseJson(
+        metadataJson,
+        BallotMetadataSchema
+      ).unsafeUnwrap(),
+      ballotPageLayouts: safeParseJson(
+        layoutsJson,
+        z.array(BallotPageLayoutSchema)
+      ).unsafeUnwrap(),
+    }));
+  }
+
+  /**
+   * @deprecated use {@link getBallotPageLayoutsLookup} to get ballot
+   * page layouts and then do filtering outside the store
+   */
   getBallotPageLayoutForMetadata(
     metadata: BallotPageMetadata,
     electionDefinition?: ElectionDefinition
@@ -1184,6 +1161,10 @@ export class Store {
     ).find((layout) => layout.metadata.pageNumber === metadata.pageNumber);
   }
 
+  /**
+   * @deprecated use {@link getBallotPageLayoutsLookup} to get ballot
+   * page layouts and then do filtering outside the store
+   */
   getBallotPageLayoutsForMetadata(
     metadata: BallotMetadata,
     electionDefinition = this.getElectionDefinition()

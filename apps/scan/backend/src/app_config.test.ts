@@ -162,7 +162,7 @@ test('configures using the most recently created ballot package on the usb drive
   );
 });
 
-test('export the CVRs to USB', async () => {
+test('export CVRs to USB in deprecated VotingWorks format', async () => {
   const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
   await configureApp(apiClient, mockUsb);
   await scanBallot(mockPlustek, apiClient, 0);

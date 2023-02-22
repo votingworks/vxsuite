@@ -20,13 +20,14 @@ import * as tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
+import { ResultSheet } from '@votingworks/backend';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import {
   getMockBallotPageLayoutsWithImages,
   getMockImageData,
 } from '../test/helpers/mock_layouts';
-import { ResultSheet, Store } from './store';
+import { Store } from './store';
 import { ballotPdf } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -818,6 +819,8 @@ test('iterating over all result sheets', () => {
         batchId,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
+        frontNormalizedFilename: '/normalized.png',
+        backNormalizedFilename: '/normalized.png',
       },
     ])
   );
@@ -991,4 +994,37 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
+});
+
+test('getBallotPageLayoutsLookup', () => {
+  const store = Store.memoryStore();
+  expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
+
+  const metadata: BallotMetadata = {
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+    ballotType: BallotType.Standard,
+  };
+
+  const mockBallotPageLayoutsWithImages = getMockBallotPageLayoutsWithImages(
+    metadata,
+    2
+  );
+
+  store.addHmpbTemplate(
+    Buffer.of(1, 2, 3),
+    metadata,
+    mockBallotPageLayoutsWithImages
+  );
+  expect(store.getBallotPageLayoutsLookup()).toMatchObject([
+    {
+      ballotMetadata: metadata,
+      ballotPageLayouts: mockBallotPageLayoutsWithImages.map(
+        (layoutWithImage) => layoutWithImage.ballotPageLayout
+      ),
+    },
+  ]);
 });

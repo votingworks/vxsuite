@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src", "src/data/*.json"],
+  "include": ["src", "src/data/*.json", "test"],
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
@@ -19,6 +19,8 @@
     { "path": "../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
-    { "path": "../../libs/utils/tsconfig.build.json" }
+    { "path": "../../libs/utils/tsconfig.build.json" },
+    { "path": "../../libs/image-utils/tsconfig.build.json" },
+    { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" }
   ]
 }

@@ -16,7 +16,10 @@ import {
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
-import { ExportDataError } from '@votingworks/backend';
+import {
+  ExportDataError,
+  exportCastVoteRecordReportToUsbDrive,
+} from '@votingworks/backend';
 import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
@@ -39,6 +42,8 @@ import {
   PrecinctScannerStatus,
 } from './types';
 import { getMachineConfig } from './machine_config';
+import { CVR_EXPORT_FORMAT } from './globals';
+import { DefaultMarkThresholds } from './store';
 
 function constructInsertedSmartCardAuthMachineState(
   workspace: Workspace
@@ -250,6 +255,38 @@ function buildApi(
     async exportCastVoteRecordsToUsbDrive(): Promise<
       Result<void, ExportDataError>
     > {
+      if (CVR_EXPORT_FORMAT === 'cdf') {
+        const electionDefinition = store.getElectionDefinition();
+        assert(
+          electionDefinition,
+          'Cannot export CVRs without election definition'
+        );
+
+        const exportResult = await exportCastVoteRecordReportToUsbDrive({
+          election: electionDefinition.election,
+          electionHash: electionDefinition.electionHash,
+          isTestMode: store.getTestMode(),
+          ballotsCounted: store.getBallotsCounted(),
+          batchInfo: store.batchStatus(),
+          resultSheetGenerator: store.forEachResultSheet(),
+          ballotPageLayoutsLookup: store.getBallotPageLayoutsLookup(),
+          definiteMarkThreshold:
+            store.getCurrentMarkThresholds()?.definite ??
+            DefaultMarkThresholds.definite,
+          imageOptions: {
+            includeInlineBallotImages: true,
+            imagesDirectory: 'ballot-images', // not using this yet
+            includedImageFileUris: 'none',
+          },
+        });
+
+        if (exportResult.isOk()) {
+          store.setCvrsBackedUp();
+        }
+
+        return exportResult;
+      }
+
       return await exportCastVoteRecordsToUsbDrive(
         store,
         usb,
