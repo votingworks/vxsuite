@@ -14,7 +14,7 @@ more information about VotingWorks.
 ## Development
 
 Building VxSuite for development requires git, [NodeJS](https://nodejs.org/)
-v16.19.0 and [pnpm](https://pnpm.js.org) v7.24.3
+v16.19.1 and [pnpm](https://pnpm.js.org) v7.24.3
 
 Most of the code is written in TypeScript. We follow the
 [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
