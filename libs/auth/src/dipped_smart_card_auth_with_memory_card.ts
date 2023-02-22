@@ -13,7 +13,11 @@ import {
   DippedSmartCardAuth,
   User,
 } from '@votingworks/types';
-import { generatePin } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  generatePin,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import {
   DippedSmartCardAuthApi,
@@ -227,7 +231,11 @@ export class DippedSmartCardAuthWithMemoryCard
                         (user.role === 'system_administrator' ||
                           user.role === 'election_manager')
                     );
-                    return { status: 'checking_passcode', user };
+                    return isFeatureFlagEnabled(
+                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                    )
+                      ? { status: 'remove_card', user }
+                      : { status: 'checking_passcode', user };
                   }
                   return {
                     status: 'logged_out',

@@ -18,6 +18,10 @@ import {
   PrecinctId,
   User,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import {
   InsertedSmartCardAuthApi,
@@ -232,11 +236,19 @@ export class InsertedSmartCardAuthWithMemoryCard
               if (validationResult.isOk()) {
                 assert(user);
                 if (currentAuthStatus.status === 'logged_out') {
-                  if (
-                    user.role === 'system_administrator' ||
-                    user.role === 'election_manager'
-                  ) {
-                    return { status: 'checking_passcode', user };
+                  if (user.role === 'system_administrator') {
+                    return isFeatureFlagEnabled(
+                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                    )
+                      ? { status: 'logged_in', user }
+                      : { status: 'checking_passcode', user };
+                  }
+                  if (user.role === 'election_manager') {
+                    return isFeatureFlagEnabled(
+                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                    )
+                      ? { status: 'logged_in', user }
+                      : { status: 'checking_passcode', user };
                   }
                   if (user.role === 'poll_worker') {
                     return { status: 'logged_in', user };
