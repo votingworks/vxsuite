@@ -58,12 +58,14 @@ function buildBallotMeasureContest(
       {
         '@type': 'CVR.BallotMeasureSelection',
         '@id': 'yes',
-        Selection: 'yes' || contest.yesOption,
+        // TODO: always use the yesOption once it is required
+        Selection: 'yes' || contest.yesOption?.label,
       },
       {
         '@type': 'CVR.BallotMeasureSelection',
         '@id': 'no',
-        Selection: 'no' || contest.noOption,
+        // TODO: always use the noOption once it is required
+        Selection: 'no' || contest.noOption?.label,
       },
     ],
   };
