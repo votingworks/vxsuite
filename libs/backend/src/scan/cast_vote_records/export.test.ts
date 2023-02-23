@@ -1,4 +1,4 @@
-import { assert, ok } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   BallotPageLayout,
@@ -6,6 +6,7 @@ import {
   BatchInfo,
   CVR,
   getDisplayElectionHash,
+  InterpretedHmpbPage,
   safeParseJson,
 } from '@votingworks/types';
 import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
@@ -22,6 +23,7 @@ import {
   interpretedHmpbPage2,
   mockBallotMetadata,
 } from '../../../test/fixtures/interpretations';
+import { ExportDataError } from '../../exporter';
 import {
   exportCastVoteRecordReportToUsbDrive,
   buildCastVoteRecordReport,
@@ -195,11 +197,6 @@ test('buildCastVoteRecordReport can include file uris according to setting', asy
         Location: 'file:./ballot-images/front.jpg',
       },
     },
-    {
-      which: 'none',
-      expectedBallotImages: undefined,
-      expectedWriteInImage: undefined,
-    },
   ] as const;
 
   for (const testCase of testCases) {
@@ -266,54 +263,14 @@ const expectedReportPath = `${SCANNER_RESULTS_FOLDER}/sample-county_example-prim
   electionMinimalExhaustiveSampleDefinition
 )}/machine_000__1_ballot__2020-04-14_00-00-00`;
 
-test('exportCastVoteRecordReportToUsbDrive, no images', async () => {
-  setDateMock(new Date(2020, 3, 14));
-  function* resultSheetGenerator(): Generator<ResultSheet> {
-    yield {
-      id: 'ballot-1',
-      batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
-      interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
-    };
-
-    yield {
-      id: 'ballot-2',
-      batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
-      interpretation: [interpretedBmdPage, { type: 'BlankPage' }],
-    };
-  }
-
-  const exportResult = await exportCastVoteRecordReportToUsbDrive({
-    electionDefinition,
-    definiteMarkThreshold,
-    ballotPageLayoutsLookup,
-    isTestMode: false,
-    batchInfo: [],
-    ballotsCounted: 1,
-    whichImages: 'none',
-    resultSheetGenerator: resultSheetGenerator(),
-  });
-
-  expect(exportResult.isOk()).toEqual(true);
-  expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(1);
-  expect(exportDataToUsbDriveMock).toHaveBeenCalledWith(
-    expectedReportPath,
-    'report.json',
-    expect.anything()
-  );
-
-  const exportStream = exportDataToUsbDriveMock.mock.calls[0][2];
-
-  const parseResult = safeParseJson(
-    await streamToString(exportStream),
-    CVR.CastVoteRecordReportSchema
-  );
-  expect(parseResult.isOk()).toEqual(true);
-  clearDateMock();
-});
+const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
+  ...interpretedHmpbPage1,
+  votes: {
+    [fishCouncilContest.id]: [
+      { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+    ],
+  },
+};
 
 test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   setDateMock(new Date(2020, 3, 14));
@@ -323,17 +280,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
       batchId: 'batch-1',
       frontNormalizedFilename: 'front.jpg',
       backNormalizedFilename: 'back.jpg',
-      interpretation: [
-        {
-          ...interpretedHmpbPage1,
-          votes: {
-            [fishCouncilContest.id]: [
-              { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
-            ],
-          },
-        },
-        interpretedHmpbPage2,
-      ],
+      interpretation: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
     };
 
     yield {
@@ -352,7 +299,6 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
-    whichImages: 'write-ins',
     resultSheetGenerator: resultSheetGenerator(),
   });
 
@@ -384,4 +330,36 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     CVR.CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
+});
+
+test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () => {
+  function* resultSheetGenerator(): Generator<ResultSheet> {
+    yield {
+      id: 'ballot-1',
+      batchId: 'batch-1',
+      frontNormalizedFilename: 'front.jpg',
+      backNormalizedFilename: 'back.jpg',
+      interpretation: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
+    };
+  }
+
+  const exportDataError: ExportDataError = {
+    type: 'permission-denied',
+    message: 'unable to access image file',
+  };
+
+  exportDataToUsbDriveMock.mockResolvedValueOnce(err(exportDataError));
+
+  const exportResult = await exportCastVoteRecordReportToUsbDrive({
+    electionDefinition,
+    definiteMarkThreshold,
+    ballotPageLayoutsLookup,
+    isTestMode: false,
+    batchInfo: [],
+    ballotsCounted: 1,
+    resultSheetGenerator: resultSheetGenerator(),
+  });
+
+  expect(exportResult.isErr()).toEqual(true);
+  expect(exportResult.err()).toEqual(exportDataError);
 });

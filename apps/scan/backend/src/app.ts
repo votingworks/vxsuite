@@ -273,7 +273,6 @@ function buildApi(
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
-          whichImages: 'write-ins',
         });
 
         if (exportResult.isOk()) {

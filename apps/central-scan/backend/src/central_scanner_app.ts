@@ -598,7 +598,6 @@ export async function buildCentralScannerApp({
         definiteMarkThreshold:
           store.getCurrentMarkThresholds()?.definite ??
           DefaultMarkThresholds.definite,
-        whichImages: 'write-ins',
       });
 
       if (exportResult.isErr()) {

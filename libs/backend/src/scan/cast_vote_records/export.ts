@@ -82,7 +82,7 @@ function streamifyCastVoteRecordReport({
 }
 
 interface CastVoteRecordReportImageOptions {
-  which: 'all' | 'write-ins' | 'none';
+  which: 'all' | 'write-ins';
   directory: string;
 }
 
@@ -292,7 +292,6 @@ async function exportPageImageAndLayoutToUsbDrive({
 interface ExportCastVoteRecordReportToUsbDriveParams
   extends Omit<BuildCastVoteRecordReportParams, 'imageOptions'> {
   ballotsCounted: number;
-  whichImages: CastVoteRecordReportImageOptions['which'];
 }
 
 /**
@@ -307,7 +306,6 @@ export async function exportCastVoteRecordReportToUsbDrive({
   ballotPageLayoutsLookup,
   definiteMarkThreshold,
   batchInfo,
-  whichImages,
 }: ExportCastVoteRecordReportToUsbDriveParams): Promise<
   Result<void, BuildCastVoteRecordReportError>
 > {
@@ -336,12 +334,12 @@ export async function exportCastVoteRecordReportToUsbDrive({
     definiteMarkThreshold,
     batchInfo,
     imageOptions: {
-      which: whichImages,
+      which: 'write-ins',
       directory: CVR_BALLOT_IMAGES_SUBDIRECTORY,
     },
     sheetExportCallback: async ({ canonicalizedSheet, imageFilenames }) => {
-      // do not export BMD ballot images
-      if (canonicalizedSheet.type === 'bmd' || whichImages === 'none') {
+      // we are only including HMPB write-ins so skip BMD ballot images
+      if (canonicalizedSheet.type === 'bmd') {
         return ok();
       }
 
@@ -351,7 +349,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
       const backHasWriteIns = hasWriteIns(back.votes);
 
       // Export front image and layout if front has write-ins
-      if (frontHasWriteIns || whichImages === 'all') {
+      if (frontHasWriteIns) {
         const exportFrontPageImageAndLayoutResult =
           await exportPageImageAndLayoutToUsbDrive({
             exporter,
@@ -367,7 +365,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
       }
 
       // Export back image and layout if back has write-ins
-      if (backHasWriteIns || whichImages === 'all') {
+      if (backHasWriteIns) {
         const exportBackPageImageAndLayoutResult =
           await exportPageImageAndLayoutToUsbDrive({
             exporter,

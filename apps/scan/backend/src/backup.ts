@@ -105,7 +105,6 @@ export class Backup {
         exportCastVoteRecordsAsNdJson({ store: this.store })
       );
     } else {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
         electionDefinition,
         definiteMarkThreshold:
