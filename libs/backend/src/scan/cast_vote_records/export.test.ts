@@ -5,7 +5,7 @@ import {
   BallotPageMetadata,
   BatchInfo,
   CVR,
-  getDisplayElectionHash,
+  ElectionDefinition,
   InterpretedHmpbPage,
   safeParseJson,
 } from '@votingworks/types';
@@ -31,7 +31,10 @@ import {
 } from './export';
 import { BallotPageLayoutsLookup } from './page_layouts';
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition: ElectionDefinition = {
+  ...electionMinimalExhaustiveSampleDefinition,
+  electionHash: '0000000000', // fixed for resiliency to hash change
+};
 const definiteMarkThreshold = 0.15;
 const ballotPageLayoutsLookup: BallotPageLayoutsLookup = [];
 const batchInfo: BatchInfo[] = [];
@@ -259,9 +262,7 @@ jest.mock('fs', () => ({
   createReadStream: () => 'mock-image-data',
 }));
 
-const expectedReportPath = `${SCANNER_RESULTS_FOLDER}/sample-county_example-primary-election_${getDisplayElectionHash(
-  electionMinimalExhaustiveSampleDefinition
-)}/machine_000__1_ballot__2020-04-14_00-00-00`;
+const expectedReportPath = `${SCANNER_RESULTS_FOLDER}/sample-county_example-primary-election_0000000000/machine_000__1_ballot__2020-04-14_00-00-00`;
 
 const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
   ...interpretedHmpbPage1,

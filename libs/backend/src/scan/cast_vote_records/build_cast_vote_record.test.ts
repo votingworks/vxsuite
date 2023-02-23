@@ -29,7 +29,7 @@ import {
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-const { election, electionHash } = electionDefinition;
+const { election } = electionDefinition;
 
 test('toCdfBallotType', () => {
   expect(toCdfBallotType(BallotType.Absentee)).toEqual(
@@ -493,7 +493,7 @@ jest.mock('./page_layouts', () => {
   };
 });
 
-const electionId = electionHash;
+const electionId = '0000000000'; // fixed for resiliency to hash change
 const scannerId = 'SC-00-000';
 const batchId = 'batch-1';
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');

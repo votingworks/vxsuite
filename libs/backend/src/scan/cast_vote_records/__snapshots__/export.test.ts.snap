@@ -137,7 +137,7 @@ Object {
       ],
       "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-1-modified",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "0000000000",
       "PartyIds": Array [
         "1",
       ],
@@ -232,7 +232,7 @@ Object {
       ],
       "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-2-original",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "0000000000",
       "PartyIds": Array [
         "1",
       ],
@@ -242,7 +242,7 @@ Object {
   ],
   "Election": Array [
     Object {
-      "@id": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "@id": "0000000000",
       "@type": "CVR.Election",
       "Candidate": Array [
         Object {

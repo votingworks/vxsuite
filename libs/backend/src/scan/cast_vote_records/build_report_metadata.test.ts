@@ -7,11 +7,11 @@ import {
 } from 'jest-date-mock';
 import { buildCastVoteRecordReportWithoutCastVoteRecords } from './build_report_metadata';
 
-const { election, electionHash } = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionMinimalExhaustiveSampleDefinition;
 
 const scannerId = 'SC-00-000';
 const mockDate = new Date(2018, 5, 27, 0, 0, 0);
-const electionId = electionHash;
+const electionId = '0000000000'; // fixed for resiliency to hash changes
 
 test('builds well-formed cast vote record report', () => {
   setMockDate(mockDate);
