@@ -13,37 +13,37 @@ import {
  * kept in the card reader for the user to remain authenticated
  */
 export interface InsertedSmartCardAuthApi {
-  getAuthStatus: (
+  getAuthStatus(
     machineState: InsertedSmartCardAuthMachineState
-  ) => Promise<InsertedSmartCardAuth.AuthStatus>;
+  ): Promise<InsertedSmartCardAuth.AuthStatus>;
 
-  checkPin: (
+  checkPin(
     machineState: InsertedSmartCardAuthMachineState,
     input: { pin: string }
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  startCardlessVoterSession: (
+  startCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState,
     input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
-  ) => Promise<void>;
-  endCardlessVoterSession: (
+  ): Promise<void>;
+  endCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  readCardData: <T>(
+  readCardData<T>(
     machineState: InsertedSmartCardAuthMachineState,
     input: { schema: z.ZodSchema<T> }
-  ) => Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>>;
-  readCardDataAsString: (
+  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>>;
+  readCardDataAsString(
     machineState: InsertedSmartCardAuthMachineState
-  ) => Promise<Result<Optional<string>, Error>>;
-  writeCardData: <T>(
+  ): Promise<Result<Optional<string>, Error>>;
+  writeCardData<T>(
     machineState: InsertedSmartCardAuthMachineState,
     input: { data: T; schema: z.ZodSchema<T> }
-  ) => Promise<Result<void, Error>>;
-  clearCardData: (
+  ): Promise<Result<void, Error>>;
+  clearCardData(
     machineState: InsertedSmartCardAuthMachineState
-  ) => Promise<Result<void, Error>>;
+  ): Promise<Result<void, Error>>;
 }
 
 /**

@@ -11,26 +11,26 @@ import {
  * inserted and removed from the card reader for the user to be authenticated
  */
 export interface DippedSmartCardAuthApi {
-  getAuthStatus: (
+  getAuthStatus(
     machineState: DippedSmartCardAuthMachineState
-  ) => Promise<DippedSmartCardAuth.AuthStatus>;
+  ): Promise<DippedSmartCardAuth.AuthStatus>;
 
-  checkPin: (
+  checkPin(
     machineState: DippedSmartCardAuthMachineState,
     input: { pin: string }
-  ) => Promise<void>;
-  logOut: (machineState: DippedSmartCardAuthMachineState) => Promise<void>;
+  ): Promise<void>;
+  logOut(machineState: DippedSmartCardAuthMachineState): Promise<void>;
 
-  programCard: (
+  programCard(
     machineState: DippedSmartCardAuthMachineState,
     input:
       | { userRole: SystemAdministratorUser['role'] }
       | { userRole: ElectionManagerUser['role']; electionData: string }
       | { userRole: PollWorkerUser['role'] }
-  ) => Promise<Result<{ pin?: string }, Error>>;
-  unprogramCard: (
+  ): Promise<Result<{ pin?: string }, Error>>;
+  unprogramCard(
     machineState: DippedSmartCardAuthMachineState
-  ) => Promise<Result<void, Error>>;
+  ): Promise<Result<void, Error>>;
 }
 
 /**
