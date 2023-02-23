@@ -12,7 +12,7 @@ test('shows a button to toggle to live mode when in test mode', () => {
     />
   );
 
-  getByText('Toggle to Live Mode');
+  getByText('Toggle to Official Ballot Mode');
 });
 
 test('shows a button to toggle to test mode when in live mode', () => {
@@ -25,7 +25,7 @@ test('shows a button to toggle to test mode when in live mode', () => {
     />
   );
 
-  getByText('Toggle to Test Mode');
+  getByText('Toggle to Test Ballot Mode');
 });
 
 test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
@@ -39,7 +39,7 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
   );
 
   expect(
-    (getByText('Toggle to Test Mode') as HTMLButtonElement).disabled
+    (getByText('Toggle to Test Ballot Mode') as HTMLButtonElement).disabled
   ).toEqual(true);
 });
 
@@ -68,10 +68,10 @@ test('calls the callback on confirmation', () => {
   );
 
   // Click the button.
-  fireEvent.click(getByText('Toggle to Live Mode'));
+  fireEvent.click(getByText('Toggle to Official Ballot Mode'));
 
   // Then click the confirmation button inside the modal.
-  const [confirmButton] = getAllByText('Toggle to Live Mode').filter(
+  const [confirmButton] = getAllByText('Toggle to Official Ballot Mode').filter(
     (element) => element instanceof HTMLButtonElement && !element.disabled
   );
   expect(toggleTestMode).not.toHaveBeenCalled();
@@ -90,7 +90,7 @@ test('shows a modal when toggling to live mode', () => {
     />
   );
 
-  getByText('Toggling to Live Mode');
+  getByText('Toggling to Official Ballot Mode');
   getByText('Zeroing out scanned ballots and reloading…');
 });
 
@@ -105,6 +105,6 @@ test('shows a modal when toggling to test mode', () => {
     />
   );
 
-  getByText('Toggling to Test Mode');
+  getByText('Toggling to Test Ballot Mode');
   getByText('Zeroing out scanned ballots and reloading…');
 });

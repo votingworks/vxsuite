@@ -180,14 +180,14 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', a
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
 });
 
-test('cannot toggle to testing mode when the machine cannot be unconfigured', async () => {
+test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured', async () => {
   apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig({ isTestMode: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByText('Testing Mode'));
-  screen.getByText('Save Backup to switch to Test Mode');
+  userEvent.click(screen.getByText('Test Ballot Mode'));
+  screen.getByText('Save Backup to switch to Test Ballot Mode');
   userEvent.click(screen.getByText('Cancel'));
 });
 

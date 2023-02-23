@@ -66,9 +66,9 @@ export function TallyScreen(): JSX.Element {
   const fileMode = useCvrFileModeQuery().data;
   const fileModeText =
     fileMode === Admin.CvrFileMode.Test
-      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before loading live ballot results.'
+      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying official ballots remove all of the loaded CVR files before loading official ballot results.'
       : fileMode === Admin.CvrFileMode.Official
-      ? 'Currently tallying live ballots.'
+      ? 'Currently tallying official ballots.'
       : '';
 
   const externalTallyRows = Array.from(

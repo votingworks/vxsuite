@@ -403,7 +403,7 @@ test('says the ballot sheet is blank if it is', async () => {
   });
 });
 
-test('calls out live ballot sheets in test mode', async () => {
+test('calls out official ballot sheets in test mode', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
@@ -457,9 +457,9 @@ test('calls out live ballot sheets in test mode', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  screen.getByText('Live Ballot');
+  screen.getByText('Official Ballot');
   screen.getByText('The last scanned ballot was not tabulated.');
-  screen.getByText('Remove the LIVE ballot before continuing.');
+  screen.getByText('Remove the OFFICIAL ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
     'The ballot has been removed'
   );

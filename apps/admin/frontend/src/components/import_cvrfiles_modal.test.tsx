@@ -273,7 +273,7 @@ describe('Screens display properly when USB is mounted', () => {
     );
     await waitFor(() =>
       expect(getByTestId('modal-title')).toHaveTextContent(
-        'Load Test Mode CVR Files'
+        'Load Test Ballot Mode CVR Files'
       )
     );
 
@@ -381,7 +381,7 @@ describe('Screens display properly when USB is mounted', () => {
         backend,
       }
     );
-    await screen.findByText('Load Live Mode CVR Files');
+    await screen.findByText('Load Official Ballot Mode CVR Files');
 
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
@@ -450,9 +450,9 @@ describe('Screens display properly when USB is mounted', () => {
         backend,
       }
     );
-    await screen.findByText('Load Live Mode CVR Files');
+    await screen.findByText('Load Official Ballot Mode CVR Files');
     getByText(
-      /There were no new Live Mode CVR files automatically found on this USB drive./
+      /There were no new Official Ballot Mode CVR files automatically found on this USB drive./
     );
 
     const tableRows = getAllByTestId('table-row');

@@ -131,14 +131,14 @@ export function ElectionManagerScreen({
               onPress={handleTogglingTestMode}
               disabled={isTestMode || setTestModeMutation.isLoading}
             >
-              Testing Mode
+              Test Ballot Mode
             </Button>
             <Button
               large
               onPress={handleTogglingTestMode}
               disabled={!isTestMode || setTestModeMutation.isLoading}
             >
-              Live Election Mode
+              Official Ballot Mode
             </Button>
           </SegmentedButton>
         </p>
@@ -219,10 +219,10 @@ export function ElectionManagerScreen({
         <Modal
           content={
             <Prose>
-              <h1>Save Backup to switch to Test Mode</h1>
+              <h1>Save Backup to switch to Test Ballot Mode</h1>
               <p>
-                You must &quot;Save Backup&quot; before you may switch to
-                Testing Mode.
+                You must &quot;Save Backup&quot; before you may switch to Test
+                Ballot Mode.
               </p>
             </Prose>
           }

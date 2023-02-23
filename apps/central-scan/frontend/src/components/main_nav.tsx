@@ -71,7 +71,7 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
           </MakeName>
           <ModelName>VxCentralScan</ModelName>
         </Brand>
-        {isTestMode && <TestMode>Machine is in Testing Mode</TestMode>}
+        {isTestMode && <TestMode>Machine is in Test Ballot Mode</TestMode>}
         <NavButtons>{children}</NavButtons>
       </Nav>
     </NavWrapper>

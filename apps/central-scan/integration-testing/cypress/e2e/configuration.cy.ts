@@ -77,9 +77,9 @@ describe('BSD and services/Scan', () => {
     cy.contains('Successfully Configured', { timeout: 20000 });
     cy.contains('Close').click();
     cy.contains('Admin').click();
-    cy.contains('Toggle to Live Mode').click();
+    cy.contains('Toggle to Official Ballot Mode').click();
     cy.get('button[data-testid="confirm-toggle"]')
-      .contains('Toggle to Live Mode')
+      .contains('Toggle to Official Ballot Mode')
       .click();
     cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
@@ -106,18 +106,18 @@ describe('BSD and services/Scan', () => {
     // cy.contains('Scan New Batch').click();
     // cy.contains('A total of 1 ballot has been scanned in 1 batch.');
     // cy.contains('Admin').click();
-    // cy.contains('Toggle to Test Mode').click();
+    // cy.contains('Toggle to Test Ballot Mode').click();
     // cy.get('button[data-testid="confirm-toggle"]')
-    //   .contains('Toggle to Test Mode')
+    //   .contains('Toggle to Test Ballot Mode')
     //   .click();
     // cy.contains('VxCentralScan TEST MODE', { timeout: 30000 });
     // cy.contains('No ballots have been scanned');
     // cy.contains('Scan New Batch').click();
-    // // We are now in test mode so the live ballot will not scan
-    // cy.contains('Remove the LIVE ballot before continuing');
+    // // We are now in test mode so the official ballot will not scan
+    // cy.contains('Remove the OFFICIAL ballot before continuing');
     // cy.contains('Confirm Ballot Removed and Continue Scanning').click();
     // cy.contains('Admin').click();
-    // cy.contains('Toggle to Live Mode');
+    // cy.contains('Toggle to Official Ballot Mode');
     // cy.contains('Save Backup').click();
     // cy.contains('Delete Election Data from VxCentralScan').click();
     // cy.contains('Yes, Delete Election Data').click();
