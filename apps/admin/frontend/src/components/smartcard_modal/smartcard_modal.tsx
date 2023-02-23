@@ -12,6 +12,7 @@ import { ProgramSystemAdministratorCardView } from './program_system_administrat
 import {
   InProgressStatusMessage,
   isSmartcardActionInProgress,
+  isSmartcardProgrammingInProgress,
   SmartcardActionStatus,
 } from './status_message';
 
@@ -45,7 +46,13 @@ export function SmartcardModal(): JSX.Element | null {
           smartcardType: 'system-administrator',
         });
       let contents: JSX.Element;
-      if (auth.programmableCard.programmedUser) {
+      if (
+        auth.programmableCard.programmedUser &&
+        // Writing user data may finish before writing additional data (e.g. the election
+        // definition). Don't transition from the card programming view to the card details view
+        // until all data has been written
+        !isSmartcardProgrammingInProgress(actionStatus)
+      ) {
         contents = (
           <CardDetailsView
             actionStatus={actionStatus}
