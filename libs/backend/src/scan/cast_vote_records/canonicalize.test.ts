@@ -6,10 +6,10 @@ import {
 import { typedAs } from '@votingworks/basics';
 import {
   describeSheetValidationError,
-  validateSheetInterpretation,
+  canonicalizeSheet,
   SheetValidationError,
   SheetValidationErrorType,
-} from './validation';
+} from './canonicalize';
 import {
   interpretedBmdPage,
   interpretedHmpbPage1,
@@ -26,7 +26,7 @@ const uninterpretedHmpbPage: UninterpretedHmpbPage = {
 };
 
 test('Invalid page type', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     uninterpretedHmpbPage,
     uninterpretedHmpbPage,
   ]).err();
@@ -41,29 +41,26 @@ test('Invalid page type', () => {
 });
 
 test('BMD ballot', () => {
-  expect(
-    validateSheetInterpretation([interpretedBmdPage, blankPage]).ok()
-  ).toMatchObject({
-    type: 'bmd',
-    interpretation: interpretedBmdPage,
-  });
+  expect(canonicalizeSheet([interpretedBmdPage, blankPage]).ok()).toMatchObject(
+    {
+      type: 'bmd',
+      interpretation: interpretedBmdPage,
+    }
+  );
 });
 
 test('BMD ballot reversed', () => {
-  expect(
-    validateSheetInterpretation([blankPage, interpretedBmdPage]).ok()
-  ).toMatchObject({
-    type: 'bmd',
-    interpretation: interpretedBmdPage,
-  });
+  expect(canonicalizeSheet([blankPage, interpretedBmdPage]).ok()).toMatchObject(
+    {
+      type: 'bmd',
+      interpretation: interpretedBmdPage,
+    }
+  );
 });
 
 test('HMPB ballot', () => {
   expect(
-    validateSheetInterpretation([
-      interpretedHmpbPage1,
-      interpretedHmpbPage2,
-    ]).ok()
+    canonicalizeSheet([interpretedHmpbPage1, interpretedHmpbPage2]).ok()
   ).toMatchObject({
     type: 'hmpb',
     interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
@@ -73,10 +70,7 @@ test('HMPB ballot', () => {
 
 test('HMPB ballot reversed', () => {
   expect(
-    validateSheetInterpretation([
-      interpretedHmpbPage2,
-      interpretedHmpbPage1,
-    ]).ok()
+    canonicalizeSheet([interpretedHmpbPage2, interpretedHmpbPage1]).ok()
   ).toMatchObject({
     type: 'hmpb',
     interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
@@ -85,7 +79,7 @@ test('HMPB ballot reversed', () => {
 });
 
 test('BMD ballot with two BMD sides', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedBmdPage,
     interpretedBmdPage,
   ]).unsafeUnwrapErr();
@@ -101,7 +95,7 @@ test('BMD ballot with two BMD sides', () => {
 });
 
 test('HMPB ballot with non-consecutive pages', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedHmpbPage1,
     interpretedHmpbPage1,
   ]).unsafeUnwrapErr();
@@ -117,7 +111,7 @@ test('HMPB ballot with non-consecutive pages', () => {
 });
 
 test('HMPB ballot with mismatched ballot style', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedHmpbPage1,
     {
       ...interpretedHmpbPage2,
@@ -136,7 +130,7 @@ test('HMPB ballot with mismatched ballot style', () => {
 });
 
 test('HMPB ballot with mismatched precinct', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedHmpbPage1,
     {
       ...interpretedHmpbPage2,
@@ -156,7 +150,7 @@ test('HMPB ballot with mismatched precinct', () => {
 });
 
 test('HMPB ballot with mismatched election', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     {
       ...interpretedHmpbPage1,
       metadata: { ...interpretedHmpbPage1.metadata, electionHash: 'abc' },
@@ -179,7 +173,7 @@ test('HMPB ballot with mismatched election', () => {
 });
 
 test('HMPB ballot with mismatched ballot type', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedHmpbPage1,
     {
       ...interpretedHmpbPage2,
@@ -202,7 +196,7 @@ test('HMPB ballot with mismatched ballot type', () => {
 });
 
 test('sheet with HMPB and BMD pages', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedHmpbPage1,
     interpretedBmdPage,
   ]).unsafeUnwrapErr();
@@ -218,7 +212,7 @@ test('sheet with HMPB and BMD pages', () => {
 });
 
 test('sheet with BMD and HMPB pages', () => {
-  const error = validateSheetInterpretation([
+  const error = canonicalizeSheet([
     interpretedBmdPage,
     interpretedHmpbPage1,
   ]).unsafeUnwrapErr();

@@ -83,30 +83,36 @@ export type SheetValidationError =
     };
 
 /**
- * Result of a successful validation including the type of ballot and the
- * relevant interpretations. The interpretations in the `hmpb` type are always
- * in consecutive, [front, back] order. The `wasReversed` property indicates
- * whether the sheet passed to the validator was original in reverse order or not.
+ * Validated sheet from the database in a standard format:
+ * - `type` indicates whether this is a hand- or machine-marked ballot
+ * - `interpretation` is the page interpretations ordered `[front, back]`
+ * for HMPB ballots. It is a single page interpretation for BMD ballots
+ * - `wasReversed` indicates whether the passed original sheet was in reverse
+ * order
  */
-export type ValidatedSheet =
+export type CanonicalizedSheet =
   | {
       type: 'bmd';
-      wasReversed: boolean;
       interpretation: InterpretedBmdPage;
+      wasReversed: boolean;
     }
   | {
       type: 'hmpb';
-      wasReversed: boolean;
       interpretation: SheetOf<InterpretedHmpbPage>;
+      wasReversed: boolean;
     };
 
 /**
- * Validates sheet interpretations
+ * Validates and canonicalizes sheet interpretations. When successful, returns
+ * a {@link CanonicalizedSheet}. When validation fails, returns a {@link SheetValidationError}
  */
-export function validateSheetInterpretation([
+export function canonicalizeSheet([
   front,
   back,
-]: SheetOf<PageInterpretation>): Result<ValidatedSheet, SheetValidationError> {
+]: SheetOf<PageInterpretation>): Result<
+  CanonicalizedSheet,
+  SheetValidationError
+> {
   if (
     !VALID_PAGE_TYPES.includes(front.type) ||
     !VALID_PAGE_TYPES.includes(back.type)

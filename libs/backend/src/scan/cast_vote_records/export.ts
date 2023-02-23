@@ -21,9 +21,9 @@ import { basename, join, parse } from 'path';
 import fs from 'fs';
 import {
   describeSheetValidationError,
-  ValidatedSheet,
-  validateSheetInterpretation,
-} from './validation';
+  CanonicalizedSheet,
+  canonicalizeSheet,
+} from './canonicalize';
 import { buildCastVoteRecord, hasWriteIns } from './build_cast_vote_record';
 import { ExportDataError, Exporter } from '../../exporter';
 import { getUsbDrives } from '../../get_usb_drives';
@@ -95,10 +95,10 @@ interface BuildCastVoteRecordReportParams {
   batchInfo: BatchInfo[];
   imageOptions: CastVoteRecordReportImageOptions;
   sheetExportCallback?: ({
-    validatedSheet,
+    canonicalizedSheet,
     imageFilenames,
   }: {
-    validatedSheet: ValidatedSheet;
+    canonicalizedSheet: CanonicalizedSheet;
     imageFilenames: [frontFilename: string, backFilename: string];
   }) => Promise<Result<void, ExportDataError>>;
 }
@@ -142,7 +142,7 @@ export async function buildCastVoteRecordReport({
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
   } of resultSheetGenerator) {
-    const validationResult = validateSheetInterpretation([sideOne, sideTwo]);
+    const validationResult = canonicalizeSheet([sideOne, sideTwo]);
 
     if (validationResult.isErr()) {
       return err({
@@ -151,14 +151,14 @@ export async function buildCastVoteRecordReport({
       });
     }
 
-    const validatedSheet = validationResult.ok();
-    const [frontFilename, backFilename] = validatedSheet.wasReversed
+    const canonicalizedSheet = validationResult.ok();
+    const [frontFilename, backFilename] = canonicalizedSheet.wasReversed
       ? [sideTwoFilename, sideOneFilename]
       : [sideOneFilename, sideTwoFilename];
 
     if (sheetExportCallback) {
       const exportResult = await sheetExportCallback({
-        validatedSheet,
+        canonicalizedSheet,
         imageFilenames: [frontFilename, backFilename],
       });
 
@@ -169,18 +169,18 @@ export async function buildCastVoteRecordReport({
 
     // Build BMD cast vote record. Use the ballot ID as the cast vote record ID
     // if available, otherwise the UUID from the scanner database.
-    if (validatedSheet.type === 'bmd') {
+    if (canonicalizedSheet.type === 'bmd') {
       castVoteRecords.push(
         buildCastVoteRecord({
           election,
           electionId,
           scannerId,
           castVoteRecordId:
-            validatedSheet.interpretation.ballotId ||
+            canonicalizedSheet.interpretation.ballotId ||
             unsafeParse(BallotIdSchema, id),
           batchId,
           ballotMarkingMode: 'machine',
-          interpretation: validatedSheet.interpretation,
+          interpretation: canonicalizedSheet.interpretation,
         })
       );
 
@@ -188,7 +188,7 @@ export async function buildCastVoteRecordReport({
     }
 
     // Build the HMPB cast vote record
-    const [front, back] = validatedSheet.interpretation;
+    const [front, back] = canonicalizedSheet.interpretation;
     const frontHasWriteIns = hasWriteIns(front.votes);
     const backHasWriteIns = hasWriteIns(back.votes);
 
@@ -339,13 +339,13 @@ export async function exportCastVoteRecordReportToUsbDrive({
       which: whichImages,
       directory: CVR_BALLOT_IMAGES_SUBDIRECTORY,
     },
-    sheetExportCallback: async ({ validatedSheet, imageFilenames }) => {
+    sheetExportCallback: async ({ canonicalizedSheet, imageFilenames }) => {
       // do not export BMD ballot images
-      if (validatedSheet.type === 'bmd' || whichImages === 'none') {
+      if (canonicalizedSheet.type === 'bmd' || whichImages === 'none') {
         return ok();
       }
 
-      const [front, back] = validatedSheet.interpretation;
+      const [front, back] = canonicalizedSheet.interpretation;
       const [frontFilename, backFilename] = imageFilenames;
       const frontHasWriteIns = hasWriteIns(front.votes);
       const backHasWriteIns = hasWriteIns(back.votes);
