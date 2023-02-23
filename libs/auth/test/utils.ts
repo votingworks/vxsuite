@@ -10,6 +10,7 @@ export function buildMockCard(): Card {
     writeUser: jest.fn(),
     readData: jest.fn(),
     writeData: jest.fn(),
+    clearData: jest.fn(),
     clearUserAndData: jest.fn(),
   };
 }

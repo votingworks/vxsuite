@@ -179,7 +179,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   async clearCardData(): Promise<Result<void, Error>> {
     try {
-      await this.card.writeData(Buffer.from([]));
+      await this.card.clearData();
     } catch (error) {
       return wrapException(error);
     }
