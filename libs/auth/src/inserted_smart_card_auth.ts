@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { Buffer } from 'buffer';
 import { z } from 'zod';
 import {
   assert,
@@ -10,12 +10,11 @@ import {
 } from '@votingworks/basics';
 import {
   BallotStyleId,
-  Card,
   CardlessVoterUser,
-  CardSummary,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   Optional,
   PrecinctId,
+  safeParseJson,
   User,
 } from '@votingworks/types';
 import {
@@ -23,26 +22,21 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
+import { Card, CardStatus, CheckPinResponse } from './card';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api';
-import { parseUserDataFromCardSummary } from './memory_card';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global.fetch = fetch;
 
 type AuthAction =
-  | { type: 'check_card_reader'; cardSummary: CardSummary }
-  | { type: 'check_pin'; cardSummary: CardSummary; pin: string };
+  | { type: 'check_card_reader'; cardStatus: CardStatus }
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponse };
 
 /**
- * An implementation of the dipped smart card auth API, backed by a memory card
+ * An implementation of the dipped smart card auth API
  *
- * Since this is just a stopgap until we implement InsertedSmartCardAuthWithJavaCard, I haven't
- * implemented the following:
+ * TODO:
  * - Locking to avoid concurrent card writes
  * - Logging
  * - Tests
@@ -104,13 +98,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     input: { pin: string }
   ): Promise<void> {
-    const cardSummary = await this.checkCardReaderAndUpdateAuthStatus(
-      machineState
-    );
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    const checkPinResponse = await this.card.checkPin(input.pin);
     this.updateAuthStatus(machineState, {
       type: 'check_pin',
-      cardSummary,
-      pin: input.pin,
+      checkPinResponse,
     });
   }
 
@@ -144,7 +136,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>> {
     let result: Result<Optional<T>, SyntaxError | z.ZodError | Error>;
     try {
-      result = await this.card.readLongObject(input.schema);
+      const data = (await this.card.readData()).toString('utf-8') || undefined;
+      result = data ? safeParseJson(data, input.schema) : ok(undefined);
     } catch (error) {
       return wrapException(error);
     }
@@ -154,7 +147,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   async readCardDataAsString(): Promise<Result<Optional<string>, Error>> {
     let data: Optional<string>;
     try {
-      data = await this.card.readLongString();
+      data = (await this.card.readData()).toString('utf-8') || undefined;
     } catch (error) {
       return wrapException(error);
     }
@@ -166,7 +159,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     input: { data: T; schema: z.ZodSchema<T> }
   ): Promise<Result<void, Error>> {
     try {
-      await this.card.writeLongObject(input.data);
+      await this.card.writeData(
+        Buffer.from(JSON.stringify(input.data), 'utf-8')
+      );
     } catch (error) {
       return wrapException(error);
     }
@@ -184,7 +179,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   async clearCardData(): Promise<Result<void, Error>> {
     try {
-      await this.card.writeLongUint8Array(Uint8Array.of());
+      await this.card.writeData(Buffer.from([]));
     } catch (error) {
       return wrapException(error);
     }
@@ -193,13 +188,12 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   private async checkCardReaderAndUpdateAuthStatus(
     machineState: InsertedSmartCardAuthMachineState
-  ): Promise<CardSummary> {
-    const cardSummary = await this.card.readSummary();
+  ): Promise<void> {
+    const cardStatus = await this.card.getCardStatus();
     this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
-      cardSummary,
+      cardStatus,
     });
-    return cardSummary;
   }
 
   private updateAuthStatus(
@@ -218,7 +212,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     switch (action.type) {
       case 'check_card_reader': {
         const newAuthStatus = ((): InsertedSmartCardAuthTypes.AuthStatus => {
-          switch (action.cardSummary.status) {
+          switch (action.cardStatus.status) {
             case 'no_card':
               return { status: 'logged_out', reason: 'no_card' };
 
@@ -226,7 +220,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               return { status: 'logged_out', reason: 'card_error' };
 
             case 'ready': {
-              const { user } = parseUserDataFromCardSummary(action.cardSummary);
+              const { user } = action.cardStatus;
               const validationResult = this.validateCardUser(
                 machineState,
                 user
@@ -264,7 +258,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
             /* istanbul ignore next: Compile-time check for completeness */
             default:
-              throwIllegalValue(action.cardSummary, 'status');
+              throwIllegalValue(action.cardStatus, 'status');
           }
         })();
 
@@ -274,12 +268,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       case 'check_pin': {
         if (
           currentAuthStatus.status !== 'checking_pin' ||
-          action.cardSummary.status !== 'ready'
+          action.checkPinResponse.response === 'error'
         ) {
           return currentAuthStatus;
         }
-        const { pin } = parseUserDataFromCardSummary(action.cardSummary);
-        if (action.pin === pin) {
+        if (action.checkPinResponse.response === 'correct') {
           if (currentAuthStatus.user.role === 'system_administrator') {
             return { status: 'logged_in', user: currentAuthStatus.user };
           }

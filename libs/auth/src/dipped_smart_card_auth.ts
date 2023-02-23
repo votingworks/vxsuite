@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { Buffer } from 'buffer';
 import {
   assert,
   err,
@@ -8,8 +8,6 @@ import {
   wrapException,
 } from '@votingworks/basics';
 import {
-  Card,
-  CardSummary,
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
   User,
 } from '@votingworks/types';
@@ -19,32 +17,22 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
+import { Card, CardStatus, CheckPinResponse } from './card';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
-import {
-  ElectionManagerCardData,
-  parseUserDataFromCardSummary,
-  PollWorkerCardData,
-  SystemAdministratorCardData,
-} from './memory_card';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global.fetch = fetch;
 
 type AuthAction =
-  | { type: 'check_card_reader'; cardSummary: CardSummary }
-  | { type: 'check_pin'; cardSummary: CardSummary; pin: string }
+  | { type: 'check_card_reader'; cardStatus: CardStatus }
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponse }
   | { type: 'log_out' };
 
 /**
- * An implementation of the dipped smart card auth API, backed by a memory card
+ * An implementation of the dipped smart card auth API
  *
- * Since this is just a stopgap until we implement DippedSmartCardAuthWithJavaCard, I haven't
- * implemented the following:
+ * TODO:
  * - Locking to avoid concurrent card writes
  * - Logging
  * - Tests
@@ -79,13 +67,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     input: { pin: string }
   ): Promise<void> {
-    const cardSummary = await this.checkCardReaderAndUpdateAuthStatus(
-      machineState
-    );
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    const checkPinResponse = await this.card.checkPin(input.pin);
     this.updateAuthStatus(machineState, {
       type: 'check_pin',
-      cardSummary,
-      pin: input.pin,
+      checkPinResponse,
     });
   }
 
@@ -114,36 +100,27 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     try {
       switch (input.userRole) {
         case 'system_administrator': {
-          const cardData: SystemAdministratorCardData = {
-            t: 'system_administrator',
-            p: pin,
-          };
-          await this.card.overrideWriteProtection();
-          await this.card.writeShortValue(JSON.stringify(cardData));
+          await this.card.writeUser({
+            user: { role: 'system_administrator' },
+            pin,
+          });
           break;
         }
         case 'election_manager': {
           assert(electionHash !== undefined);
-          const cardData: ElectionManagerCardData = {
-            t: 'election_manager',
-            h: electionHash,
-            p: pin,
-          };
-          await this.card.overrideWriteProtection();
-          await this.card.writeShortAndLongValues({
-            shortValue: JSON.stringify(cardData),
-            longValue: input.electionData,
+          await this.card.writeUser({
+            user: { role: 'election_manager', electionHash },
+            pin,
           });
+          await this.card.writeData(Buffer.from(input.electionData, 'utf-8'));
           break;
         }
         case 'poll_worker': {
           assert(electionHash !== undefined);
-          const cardData: PollWorkerCardData = {
-            t: 'poll_worker',
-            h: electionHash,
-          };
-          await this.card.overrideWriteProtection();
-          await this.card.writeShortValue(JSON.stringify(cardData));
+          await this.card.writeUser({
+            user: { role: 'poll_worker', electionHash },
+            pin,
+          });
           break;
         }
         /* istanbul ignore next: Compile-time check for completeness */
@@ -168,11 +145,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     try {
-      await this.card.overrideWriteProtection();
-      await this.card.writeShortAndLongValues({
-        shortValue: '',
-        longValue: '',
-      });
+      await this.card.clearUserAndData();
     } catch (error) {
       return wrapException(error);
     }
@@ -181,19 +154,18 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
   private async checkCardReaderAndUpdateAuthStatus(
     machineState: DippedSmartCardAuthMachineState
-  ): Promise<CardSummary> {
-    const cardSummary = await this.card.readSummary();
+  ): Promise<void> {
+    const cardStatus = await this.card.getCardStatus();
     this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
-      cardSummary,
+      cardStatus,
     });
-    return cardSummary;
   }
 
   private updateAuthStatus(
     machineState: DippedSmartCardAuthMachineState,
     action: AuthAction
-  ) {
+  ): void {
     this.authStatus = this.determineNewAuthStatus(machineState, action);
   }
 
@@ -208,7 +180,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         const newAuthStatus = ((): DippedSmartCardAuthTypes.AuthStatus => {
           switch (currentAuthStatus.status) {
             case 'logged_out': {
-              switch (action.cardSummary.status) {
+              switch (action.cardStatus.status) {
                 case 'no_card':
                   return { status: 'logged_out', reason: 'machine_locked' };
 
@@ -216,9 +188,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   return { status: 'logged_out', reason: 'card_error' };
 
                 case 'ready': {
-                  const { user } = parseUserDataFromCardSummary(
-                    action.cardSummary
-                  );
+                  const { user } = action.cardStatus;
                   const validationResult = this.validateCardUser(
                     machineState,
                     user
@@ -244,25 +214,25 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
                 /* istanbul ignore next: Compile-time check for completeness */
                 default:
-                  return throwIllegalValue(action.cardSummary, 'status');
+                  return throwIllegalValue(action.cardStatus, 'status');
               }
             }
 
             case 'checking_pin': {
-              if (action.cardSummary.status === 'no_card') {
+              if (action.cardStatus.status === 'no_card') {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
               return currentAuthStatus;
             }
 
             case 'remove_card': {
-              if (action.cardSummary.status === 'no_card') {
+              if (action.cardStatus.status === 'no_card') {
                 const { user } = currentAuthStatus;
                 if (user.role === 'system_administrator') {
                   return {
                     status: 'logged_in',
                     user,
-                    programmableCard: action.cardSummary,
+                    programmableCard: action.cardStatus,
                   };
                 }
                 return { status: 'logged_in', user };
@@ -276,14 +246,12 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return {
                   ...currentAuthStatus,
                   programmableCard:
-                    action.cardSummary.status === 'ready'
+                    action.cardStatus.status === 'ready'
                       ? {
                           status: 'ready',
-                          programmedUser: parseUserDataFromCardSummary(
-                            action.cardSummary
-                          ).user,
+                          programmedUser: action.cardStatus.user,
                         }
-                      : action.cardSummary,
+                      : action.cardStatus,
                 };
               }
               return currentAuthStatus;
@@ -301,12 +269,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       case 'check_pin': {
         if (
           currentAuthStatus.status !== 'checking_pin' ||
-          action.cardSummary.status !== 'ready'
+          action.checkPinResponse.response === 'error'
         ) {
           return currentAuthStatus;
         }
-        const { pin } = parseUserDataFromCardSummary(action.cardSummary);
-        return action.pin === pin
+        return action.checkPinResponse.response === 'correct'
           ? { status: 'remove_card', user: currentAuthStatus.user }
           : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
