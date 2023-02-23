@@ -27,6 +27,8 @@ test('has various election definitions', () => {
       "electionSample2",
       "electionSample2Definition",
       "electionSample2Fixtures",
+      "electionSampleCdf",
+      "electionSampleCdfDefinition",
       "electionSampleDefinition",
       "electionSampleLongContent",
       "electionSampleLongContentDefinition",
