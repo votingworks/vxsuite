@@ -1,16 +1,16 @@
-import { Result, ok } from '@votingworks/basics';
+import { fromByteArray, toByteArray } from 'base64-js';
+import fetch from 'node-fetch';
+import { z } from 'zod';
+import { ok, Result } from '@votingworks/basics';
+import { Optional, safeParseJson, unsafeParse } from '@votingworks/types';
+import { fetchJson } from '@votingworks/utils';
+
 import {
   Card,
   CardSummary,
   CardSummarySchema,
-  Optional,
-  safeParseJson,
   ShortAndLongValues,
-  unsafeParse,
-} from '@votingworks/types';
-import { fromByteArray, toByteArray } from 'base64-js';
-import { z } from 'zod';
-import { fetchJson } from '../fetch_json';
+} from './card';
 
 interface LongValueResponse {
   longValue?: string;
@@ -19,6 +19,10 @@ interface LongValueResponse {
 interface SuccessIndicationResponse {
   success: boolean;
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+global.fetch = fetch;
 
 /**
  * Implements the `Card` API by accessing it through a web service.

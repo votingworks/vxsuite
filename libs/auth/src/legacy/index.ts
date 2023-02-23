@@ -1,2 +1,2 @@
-export * from './memory_card';
+export * from './card';
 export * from './web_service_card';

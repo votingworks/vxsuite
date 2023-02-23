@@ -1,6 +1,7 @@
+/* eslint-disable vx/gts-jsdoc */
 import { z } from 'zod';
 import { Result } from '@votingworks/basics';
-import { Optional } from './generic';
+import { Optional } from '@votingworks/types';
 
 export interface CardSummaryNotReady {
   status: 'no_card' | 'error';
