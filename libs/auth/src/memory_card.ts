@@ -1,18 +1,19 @@
+import { Buffer } from 'buffer';
 import { z } from 'zod';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
-  CardSummaryReady,
   ElectionHash,
+  ElectionManagerUser,
+  PollWorkerUser,
   safeParseJson,
+  SystemAdministratorUser,
   User,
   UserRole,
   UserRoleSchema,
 } from '@votingworks/types';
 
-/**
- * The frequency with which we poll the memory card summary
- */
-export const CARD_POLLING_INTERVAL_MS = 100;
+import { Card, CardStatus, CheckPinResponse } from './card';
+import * as Legacy from './legacy';
 
 interface CardData {
   readonly t: UserRole;
@@ -25,8 +26,10 @@ const CardDataSchema = z.object({
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CardDataSchemaTypeCheck: z.ZodSchema<CardData> = CardDataSchema;
 
-/** The representation of a system administrator on a memory card */
-export interface SystemAdministratorCardData extends CardData {
+/**
+ * The representation of a system administrator on a memory card
+ */
+interface SystemAdministratorCardData extends CardData {
   readonly t: 'system_administrator';
   /** PIN */
   readonly p: string;
@@ -38,8 +41,10 @@ const SystemAdministratorCardDataSchema: z.ZodSchema<SystemAdministratorCardData
     p: z.string(),
   });
 
-/** The representation of an election manager on a memory card */
-export interface ElectionManagerCardData extends CardData {
+/**
+ * The representation of an election manager on a memory card
+ */
+interface ElectionManagerCardData extends CardData {
   readonly t: 'election_manager';
   /** Election hash */
   readonly h: string;
@@ -54,8 +59,10 @@ const ElectionManagerCardDataSchema: z.ZodSchema<ElectionManagerCardData> =
     p: z.string(),
   });
 
-/** The representation of a poll worker on a memory card */
-export interface PollWorkerCardData extends CardData {
+/**
+ * The representation of a poll worker on a memory card
+ */
+interface PollWorkerCardData extends CardData {
   readonly t: 'poll_worker';
   /** Election hash */
   readonly h: string;
@@ -78,10 +85,7 @@ const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
   SystemAdministratorCardDataSchema,
 ]);
 
-/**
- * Parses user data from a memory card summary
- */
-export function parseUserDataFromCardSummary(cardSummary: CardSummaryReady): {
+function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
   user?: User;
   pin?: string;
 } {
@@ -115,5 +119,103 @@ export function parseUserDataFromCardSummary(cardSummary: CardSummaryReady): {
     /* istanbul ignore next: Compile-time check for completeness */
     default:
       throwIllegalValue(cardData, 't');
+  }
+}
+
+/**
+ * An implementation of the card API that uses a memory card under the hood. Wraps around the
+ * legacy card API
+ */
+export class MemoryCard implements Card {
+  private readonly card: Legacy.Card;
+
+  constructor({ baseUrl }: { baseUrl: string }) {
+    this.card = new Legacy.WebServiceCard({ baseUrl });
+  }
+
+  async getCardStatus(): Promise<CardStatus> {
+    const cardSummary = await this.card.readSummary();
+    return {
+      status: cardSummary.status,
+      user:
+        cardSummary.status === 'ready'
+          ? parseUserDataFromCardSummary(cardSummary).user
+          : undefined,
+    };
+  }
+
+  async checkPin(pin: string): Promise<CheckPinResponse> {
+    const cardSummary = await this.card.readSummary();
+    if (cardSummary.status !== 'ready') {
+      return { response: 'error' };
+    }
+    const { pin: correctPin } = parseUserDataFromCardSummary(cardSummary);
+    return pin === correctPin
+      ? { response: 'correct' }
+      : { response: 'incorrect', numRemainingAttempts: Infinity };
+  }
+
+  async writeUser(
+    input:
+      | { user: SystemAdministratorUser; pin: string }
+      | { user: ElectionManagerUser; pin: string }
+      | { user: PollWorkerUser }
+  ): Promise<void> {
+    const { user } = input;
+    switch (user.role) {
+      case 'system_administrator': {
+        assert('pin' in input);
+        const cardData: SystemAdministratorCardData = {
+          t: 'system_administrator',
+          p: input.pin,
+        };
+        await this.card.overrideWriteProtection();
+        await this.card.writeShortValue(JSON.stringify(cardData));
+        break;
+      }
+      case 'election_manager': {
+        assert('electionHash' in input.user);
+        assert('pin' in input);
+        const cardData: ElectionManagerCardData = {
+          t: 'election_manager',
+          h: input.user.electionHash,
+          p: input.pin,
+        };
+        await this.card.overrideWriteProtection();
+        await this.card.writeShortValue(JSON.stringify(cardData));
+        break;
+      }
+      case 'poll_worker': {
+        assert('electionHash' in input.user);
+        assert('pin' in input);
+        const cardData: PollWorkerCardData = {
+          t: 'poll_worker',
+          h: input.user.electionHash,
+        };
+        await this.card.overrideWriteProtection();
+        await this.card.writeShortValue(JSON.stringify(cardData));
+        break;
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default:
+        throwIllegalValue(user, 'role');
+    }
+  }
+
+  async readData(): Promise<Buffer> {
+    const data = await this.card.readLongString();
+    return data ? Buffer.from(data, 'utf-8') : Buffer.from([]);
+  }
+
+  async writeData(data: Buffer): Promise<void> {
+    await this.card.writeLongUint8Array(data);
+  }
+
+  async clearUserAndData(): Promise<void> {
+    await this.card.overrideWriteProtection();
+    await this.card.writeShortAndLongValues({
+      shortValue: '',
+      longValue: '',
+    });
   }
 }
