@@ -75,7 +75,7 @@ describe('Ballot Counts by Precinct', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
@@ -142,7 +142,7 @@ describe('Ballot Counts by Precinct', () => {
     );
   });
 
-  it('renders as expected when there is tally data and sems data', () => {
+  it('renders as expected when there is tally data and external data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
@@ -209,7 +209,7 @@ describe('Ballot Counts by Scanner', () => {
     }),
     votingMethod: VotingMethod.Precinct,
     resultsByCategory: new Map(),
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
@@ -265,7 +265,7 @@ describe('Ballot Counts by Scanner', () => {
     expect(getAllByTestId('table-row').length).toEqual(scannerIds.length + 2);
   });
 
-  it('renders as expected when there is tally data and sems data', () => {
+  it('renders as expected when there is tally data and external data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
@@ -355,7 +355,7 @@ describe('Ballots Counts by Party', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
@@ -445,7 +445,7 @@ describe('Ballots Counts by Party', () => {
     );
   });
 
-  it('renders as expected where there is tally data and sems data', () => {
+  it('renders as expected where there is tally data and external data', () => {
     const expectedParties = [
       { partyName: 'Constitution Party', partyId: '3' },
       { partyName: 'Federalist Party', partyId: '4' },
@@ -521,7 +521,7 @@ describe('Ballots Counts by VotingMethod', () => {
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
@@ -591,7 +591,7 @@ describe('Ballots Counts by VotingMethod', () => {
     );
   });
 
-  it('renders as expected where there is tally data and sems data', () => {
+  it('renders as expected where there is tally data and external data', () => {
     const expectedLabels = [
       {
         method: VotingMethod.Absentee,
@@ -689,7 +689,7 @@ describe('Ballots Counts by Batch', () => {
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.SEMS,
+    source: ExternalTallySourceType.Manual,
     inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
@@ -762,7 +762,7 @@ describe('Ballots Counts by Batch', () => {
     );
   });
 
-  it('renders as expected where there is tally data and sems data', () => {
+  it('renders as expected where there is tally data and external data', () => {
     const expectedLabels = [
       {
         batchId: '12341',

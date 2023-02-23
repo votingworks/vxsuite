@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Modal, Prose, Button } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
@@ -22,9 +22,6 @@ export function ConfirmRemovingFileModal({
 }: Props): JSX.Element {
   const { fullElectionExternalTallies } = useContext(AppContext);
 
-  const semsFile = fullElectionExternalTallies.get(
-    ExternalTallySourceType.SEMS
-  );
   const manualData = fullElectionExternalTallies.get(
     ExternalTallySourceType.Manual
   );
@@ -62,18 +59,6 @@ export function ConfirmRemovingFileModal({
       );
       break;
     }
-    case ResultsFileType.SEMS: {
-      assert(semsFile);
-      fileTypeName = 'External Files';
-      mainContent = (
-        <p>
-          Do you want to remove the external results{' '}
-          {pluralize('files', fullElectionExternalTallies.size)}{' '}
-          {semsFile.inputSourceName}?
-        </p>
-      );
-      break;
-    }
     case ResultsFileType.Manual: {
       fileTypeName = 'Manual Data';
       mainContent = <p>Do you want to remove the manually entered data?</p>;
@@ -90,20 +75,12 @@ export function ConfirmRemovingFileModal({
         cvrFilesQuery.isLoading || cvrFilesQuery.isError
           ? []
           : cvrFilesQuery.data;
-      let externalDetails = '';
-      if (semsFile !== undefined && manualData !== undefined) {
-        externalDetails = `, the external results file ${semsFile.inputSourceName}, and the manually entered data`;
-      } else if (semsFile !== undefined) {
-        externalDetails = ` and the external results file ${semsFile.inputSourceName}`;
-      } else if (manualData !== undefined) {
-        externalDetails = ' and the manually entered data';
-      }
       mainContent = (
         <React.Fragment>
           <p>
             Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('files', fileList.length)}
-            {externalDetails}?
+            {manualData !== undefined && ' and the manually entered data'}?
           </p>
           <p>All reports will be unavailable without CVR data.</p>
         </React.Fragment>

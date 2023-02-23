@@ -363,8 +363,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     setCurrentPrecinctTally(emptyExternalTalliesByPrecinct[currentPrecinctId]);
   }, [writeInSummaryQuery, talliesByPrecinct, currentPrecinctId, election]);
 
-  // Turn the precinct tallies into a CSV SEMS file and save that file as the
-  // external results file with a name implying manual data entry happened
   async function handleImportingData() {
     // Convert the temporary data structure that allows empty strings or
     // numbers for all tallies to fill in 0s for any empty strings.

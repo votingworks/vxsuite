@@ -118,7 +118,6 @@ export interface ExternalFileConfiguration {
 export enum ResultsFileType {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   CastVoteRecord = 'cvr',
-  SEMS = 'sems',
   All = 'all',
   Manual = 'manual',
 }

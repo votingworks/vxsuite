@@ -30,7 +30,7 @@ export interface ElectionManagerStore {
   readonly electionDefinition?: ElectionDefinition;
 
   /**
-   * Tallies from external sources, e.g. SEMS or manually entered tallies.
+   * Tallies from external sources, e.g. manually entered tallies.
    */
   readonly fullElectionExternalTallies: FullElectionExternalTallies;
 

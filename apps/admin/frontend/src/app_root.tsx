@@ -172,17 +172,6 @@ export function AppRoot({
           });
           await clearCastVoteRecordFilesMutation.mutateAsync();
           break;
-        case ResultsFileType.SEMS: {
-          await store.removeFullElectionExternalTally(
-            ExternalTallySourceType.SEMS
-          );
-          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-            message: 'User removed all SEMS external tally files.',
-            fileType,
-            disposition: 'success',
-          });
-          break;
-        }
         case ResultsFileType.Manual: {
           await store.removeFullElectionExternalTally(
             ExternalTallySourceType.Manual
