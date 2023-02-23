@@ -9,7 +9,6 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
-  CastVoteRecordBallotType,
   Contests,
   CVR,
   Election,
@@ -33,16 +32,14 @@ import {
  * Converts from the ballot type enumeration to a test representation used
  * in cast vote records.
  */
-export function getCVRBallotType(
-  ballotType: BallotType
-): CastVoteRecordBallotType {
+export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   switch (ballotType) {
     case BallotType.Absentee:
-      return 'absentee';
+      return CVR.vxBallotType.Absentee;
     case BallotType.Provisional:
-      return 'provisional';
+      return CVR.vxBallotType.Provisional;
     case BallotType.Standard:
-      return 'standard';
+      return CVR.vxBallotType.Precinct;
     // istanbul ignore next
     default:
       throwIllegalValue(ballotType);
@@ -462,7 +459,7 @@ export function buildCastVoteRecord({
     ElectionId: electionId,
     BatchId: batchId, // VVSG 2.0 1.1.5-G.6
     UniqueId: castVoteRecordId,
-    vxBallotType: getCVRBallotType(ballotMetadata.ballotType),
+    vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
   } as const;
 
   // CVR for machine-marked ballot, only has "original" snapshot because the

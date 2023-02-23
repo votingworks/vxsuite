@@ -23,7 +23,7 @@ import {
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
-  getCVRBallotType,
+  toCdfBallotType,
   getOptionPosition,
   hasWriteIns,
 } from './build_cast_vote_record';
@@ -31,10 +31,16 @@ import {
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const { election, electionHash } = electionDefinition;
 
-test('getCVRBallotType', () => {
-  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee');
-  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard');
-  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional');
+test('toCdfBallotType', () => {
+  expect(toCdfBallotType(BallotType.Absentee)).toEqual(
+    CVR.vxBallotType.Absentee
+  );
+  expect(toCdfBallotType(BallotType.Standard)).toEqual(
+    CVR.vxBallotType.Precinct
+  );
+  expect(toCdfBallotType(BallotType.Provisional)).toEqual(
+    CVR.vxBallotType.Provisional
+  );
 });
 
 const mammalCouncilContest = find(
@@ -513,7 +519,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     ElectionId: electionId,
     BatchId: batchId,
     UniqueId: castVoteRecordId,
-    vxBallotType: 'standard',
+    vxBallotType: CVR.vxBallotType.Precinct,
   });
 
   expect(castVoteRecord.CurrentSnapshotId).toEqual(
@@ -560,7 +566,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       ElectionId: electionId,
       BatchId: batchId,
       UniqueId: castVoteRecordId,
-      vxBallotType: 'standard',
+      vxBallotType: CVR.vxBallotType.Precinct,
       BallotSheetId: '1',
     });
 

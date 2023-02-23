@@ -206,7 +206,7 @@ export function buildCastVoteRecordReportWithoutCastVoteRecords({
         Name: `${election.state}`,
       },
     ],
-    Batch: batchInfo.map((batch) => ({
+    vxBatch: batchInfo.map((batch) => ({
       '@type': 'CVR.vxBatch',
       '@id': batch.id,
       BatchLabel: batch.label,

@@ -8,7 +8,6 @@ import {
   getDisplayElectionHash,
   safeParseJson,
 } from '@votingworks/types';
-import { CastVoteRecordReportSchema } from '@votingworks/types/src/cdf_cast_vote_records';
 import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
 import {
   advanceTo as setDateMock,
@@ -104,7 +103,7 @@ test('buildCastVoteRecordReport', async () => {
   // report is valid cast vote record report
   const parseResult = safeParseJson(
     await streamToString(stream),
-    CastVoteRecordReportSchema
+    CVR.CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
   const report = parseResult.ok();
@@ -222,7 +221,7 @@ test('buildCastVoteRecordReport can include file uris according to setting', asy
 
     const parseResult = safeParseJson(
       await streamToString(stream),
-      CastVoteRecordReportSchema
+      CVR.CastVoteRecordReportSchema
     );
     expect(parseResult.isOk()).toEqual(true);
     const result = parseResult.ok();
@@ -310,7 +309,7 @@ test('exportCastVoteRecordReportToUsbDrive, no images', async () => {
 
   const parseResult = safeParseJson(
     await streamToString(exportStream),
-    CastVoteRecordReportSchema
+    CVR.CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
   clearDateMock();
@@ -382,7 +381,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
 
   const parseResult = safeParseJson(
     await streamToString(exportStream),
-    CastVoteRecordReportSchema
+    CVR.CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
 });

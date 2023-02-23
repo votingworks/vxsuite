@@ -42,7 +42,7 @@ test('builds well-formed cast vote record report', () => {
       Manufacturer: 'VotingWorks',
     },
   ]);
-  expect(report.Batch).toMatchObject([
+  expect(report.vxBatch).toMatchObject([
     {
       '@id': 'batch-1',
       BatchLabel: 'Batch 1',

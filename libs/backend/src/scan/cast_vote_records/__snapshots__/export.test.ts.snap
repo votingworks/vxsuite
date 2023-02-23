@@ -142,7 +142,7 @@ Object {
         "1",
       ],
       "UniqueId": "ballot-1",
-      "vxBallotType": "standard",
+      "vxBallotType": "precinct",
     },
     Object {
       "@type": "CVR.CVR",
@@ -237,7 +237,7 @@ Object {
         "1",
       ],
       "UniqueId": "ballot-2",
-      "vxBallotType": "standard",
+      "vxBallotType": "precinct",
     },
   ],
   "Election": Array [
@@ -576,5 +576,6 @@ Object {
     },
   ],
   "Version": "1.0.0",
+  "vxBatch": Array [],
 }
 `;
