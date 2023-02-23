@@ -1,5 +1,4 @@
-import { MemoryCard as MockMemoryCard } from '@votingworks/utils';
-
+import { buildMockCard } from '../test/utils';
 import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 
 beforeEach(() => {
@@ -7,7 +6,7 @@ beforeEach(() => {
 });
 
 test('DippedSmartCardAuth returns auth status', async () => {
-  const card = new MockMemoryCard();
+  const card = buildMockCard();
   const auth = new DippedSmartCardAuth({ card, config: {} });
   expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
     status: 'logged_out',

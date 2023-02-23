@@ -1,5 +1,4 @@
-import { MemoryCard as MockMemoryCard } from '@votingworks/utils';
-
+import { buildMockCard } from '../test/utils';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
 
 beforeEach(() => {
@@ -7,9 +6,8 @@ beforeEach(() => {
 });
 
 test('InsertedSmartCardAuth returns auth status', async () => {
-  const card = new MockMemoryCard();
   const auth = new InsertedSmartCardAuth({
-    card,
+    card: buildMockCard(),
     config: { allowedUserRoles: [] },
   });
   expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
