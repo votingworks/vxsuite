@@ -10,7 +10,7 @@ import {
 import {
   Card,
   CardSummary,
-  DippedSmartCardAuth,
+  DippedSmartCardAuth as DippedSmartCardAuthTypes,
   User,
 } from '@votingworks/types';
 import {
@@ -23,7 +23,7 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
-} from './dipped_smart_card_auth';
+} from './dipped_smart_card_auth_api';
 import {
   ElectionManagerCardData,
   parseUserDataFromCardSummary,
@@ -51,10 +51,8 @@ type AuthAction =
  *
  * See the libs/auth README for notes on error handling
  */
-export class DippedSmartCardAuthWithMemoryCard
-  implements DippedSmartCardAuthApi
-{
-  private authStatus: DippedSmartCardAuth.AuthStatus;
+export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
+  private authStatus: DippedSmartCardAuthTypes.AuthStatus;
   private readonly card: Card;
   private readonly config: DippedSmartCardAuthConfig;
 
@@ -65,14 +63,14 @@ export class DippedSmartCardAuthWithMemoryCard
     card: Card;
     config: DippedSmartCardAuthConfig;
   }) {
-    this.authStatus = DippedSmartCardAuth.DEFAULT_AUTH_STATUS;
+    this.authStatus = DippedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = card;
     this.config = config;
   }
 
   async getAuthStatus(
     machineState: DippedSmartCardAuthMachineState
-  ): Promise<DippedSmartCardAuth.AuthStatus> {
+  ): Promise<DippedSmartCardAuthTypes.AuthStatus> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     return this.authStatus;
   }
@@ -202,12 +200,12 @@ export class DippedSmartCardAuthWithMemoryCard
   private determineNewAuthStatus(
     machineState: DippedSmartCardAuthMachineState,
     action: AuthAction
-  ): DippedSmartCardAuth.AuthStatus {
+  ): DippedSmartCardAuthTypes.AuthStatus {
     const currentAuthStatus = this.authStatus;
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): DippedSmartCardAuth.AuthStatus => {
+        const newAuthStatus = ((): DippedSmartCardAuthTypes.AuthStatus => {
           switch (currentAuthStatus.status) {
             case 'logged_out': {
               switch (action.cardSummary.status) {
@@ -325,7 +323,7 @@ export class DippedSmartCardAuthWithMemoryCard
   private validateCardUser(
     machineState: DippedSmartCardAuthMachineState,
     user?: User
-  ): Result<void, DippedSmartCardAuth.LoggedOut['reason']> {
+  ): Result<void, DippedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');
     }

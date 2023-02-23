@@ -1,7 +1,7 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { createClient } from '@votingworks/plustek-scanner';
 import { getUsbDrives } from '@votingworks/backend';
-import { InsertedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
+import { InsertedSmartCardAuth } from '@votingworks/auth';
 import { WebServiceCard } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -51,7 +51,7 @@ export async function start({
   // clear any cached data
   resolvedWorkspace.clearUploads();
 
-  const auth = new InsertedSmartCardAuthWithMemoryCard({
+  const auth = new InsertedSmartCardAuth({
     card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowedUserRoles: [

@@ -1,7 +1,7 @@
 import { Exporter, getUsbDrives } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
+import { DippedSmartCardAuth } from '@votingworks/auth';
 import { WebServiceCard } from '@votingworks/utils';
 import { Server } from 'http';
 import { PORT, SCAN_ALLOWED_EXPORT_PATTERNS, SCAN_WORKSPACE } from './globals';
@@ -84,7 +84,7 @@ export async function start({
   const resolvedApp =
     app ??
     (await buildCentralScannerApp({
-      auth: new DippedSmartCardAuthWithMemoryCard({
+      auth: new DippedSmartCardAuth({
         card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
         config: {
           allowElectionManagersToAccessUnconfiguredMachines: true,

@@ -1,14 +1,14 @@
 import { MemoryCard as MockMemoryCard } from '@votingworks/utils';
 
-import { DippedSmartCardAuthWithMemoryCard } from './dipped_smart_card_auth_with_memory_card';
+import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 
 beforeEach(() => {
   jest.useFakeTimers();
 });
 
-test('DippedSmartCardAuthWithMemoryCard returns auth status', async () => {
+test('DippedSmartCardAuth returns auth status', async () => {
   const card = new MockMemoryCard();
-  const auth = new DippedSmartCardAuthWithMemoryCard({ card, config: {} });
+  const auth = new DippedSmartCardAuth({ card, config: {} });
   expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
     status: 'logged_out',
     reason: 'machine_locked',

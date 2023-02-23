@@ -13,7 +13,7 @@ import {
   Card,
   CardlessVoterUser,
   CardSummary,
-  InsertedSmartCardAuth,
+  InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   Optional,
   PrecinctId,
   User,
@@ -27,7 +27,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
-} from './inserted_smart_card_auth';
+} from './inserted_smart_card_auth_api';
 import { parseUserDataFromCardSummary } from './memory_card';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -49,10 +49,8 @@ type AuthAction =
  *
  * See the libs/auth README for notes on error handling
  */
-export class InsertedSmartCardAuthWithMemoryCard
-  implements InsertedSmartCardAuthApi
-{
-  private authStatus: InsertedSmartCardAuth.AuthStatus;
+export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
+  private authStatus: InsertedSmartCardAuthTypes.AuthStatus;
   private readonly card: Card;
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
@@ -64,7 +62,7 @@ export class InsertedSmartCardAuthWithMemoryCard
     card: Card;
     config: InsertedSmartCardAuthConfig;
   }) {
-    this.authStatus = InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
+    this.authStatus = InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = card;
     this.cardlessVoterUser = undefined;
     this.config = config;
@@ -72,7 +70,7 @@ export class InsertedSmartCardAuthWithMemoryCard
 
   async getAuthStatus(
     machineState: InsertedSmartCardAuthMachineState
-  ): Promise<InsertedSmartCardAuth.AuthStatus> {
+  ): Promise<InsertedSmartCardAuthTypes.AuthStatus> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
 
     // Cardless voter session has been started, but poll worker hasn't removed their card yet
@@ -214,12 +212,12 @@ export class InsertedSmartCardAuthWithMemoryCard
   private determineNewAuthStatus(
     machineState: InsertedSmartCardAuthMachineState,
     action: AuthAction
-  ): InsertedSmartCardAuth.AuthStatus {
+  ): InsertedSmartCardAuthTypes.AuthStatus {
     const currentAuthStatus = this.authStatus;
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): InsertedSmartCardAuth.AuthStatus => {
+        const newAuthStatus = ((): InsertedSmartCardAuthTypes.AuthStatus => {
           switch (action.cardSummary.status) {
             case 'no_card':
               return { status: 'logged_out', reason: 'no_card' };
@@ -299,7 +297,7 @@ export class InsertedSmartCardAuthWithMemoryCard
   private validateCardUser(
     machineState: InsertedSmartCardAuthMachineState,
     user?: User
-  ): Result<void, InsertedSmartCardAuth.LoggedOut['reason']> {
+  ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');
     }
