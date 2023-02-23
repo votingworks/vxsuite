@@ -1,13 +1,32 @@
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import {
-  BallotIdSchema,
+  electionHasPrimaryBallotStyle,
+  electionHasPrimaryContest,
+  getBallotStyle,
+  getCandidateParties,
+  getCandidatePartiesDescription,
+  getContestDistrictName,
+  getContests,
+  getContestsFromIds,
+  getDisplayElectionHash,
   getDistrictIdsForPartyId,
+  getElectionLocales,
+  getPartyAbbreviationByPartyId,
+  getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
-  safeParse,
+  getPartyIdsWithContests,
+  getPartyPrimaryAdjectiveFromBallotStyle,
+  getPartySpecificElectionTitle,
+  getPrecinctById,
+  getPrecinctIndexById,
+  isVotePresent,
   safeParseElection,
-  WriteInIdSchema,
-} from '.';
+  safeParseElectionDefinition,
+  validateVotes,
+  vote,
+  withLocale,
+} from './election_utils';
 import {
   election,
   electionMinimalExhaustive,
@@ -15,37 +34,17 @@ import {
   primaryElection,
 } from '../test/election';
 import {
+  BallotIdSchema,
   CandidateContest,
   CandidateSchema,
   ElectionDefinitionSchema,
-  electionHasPrimaryBallotStyle,
-  electionHasPrimaryContest,
-  getBallotStyle,
-  getCandidateParties,
-  getCandidatePartiesDescription,
-  getContests,
-  getContestDistrictName,
-  getContestsFromIds,
-  getElectionLocales,
-  getPartyAbbreviationByPartyId,
-  getPartyFullNameFromBallotStyle,
-  getPartyIdsWithContests,
-  getPartyPrimaryAdjectiveFromBallotStyle,
-  getPartySpecificElectionTitle,
-  getPrecinctById,
-  getPrecinctIndexById,
-  isVotePresent,
   PartyId,
   PartyIdSchema,
   PartySchema,
-  validateVotes,
-  vote,
-  withLocale,
+  WriteInIdSchema,
   YesNoContest,
-  getDisplayElectionHash,
-  safeParseElectionDefinition,
 } from './election';
-import { unsafeParse } from './generic';
+import { safeParse, unsafeParse } from './generic';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -653,6 +652,6 @@ test('ElectionDefinitionSchema', () => {
 test('getDisplayElectionHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
-  ).ok();
-  expect(getDisplayElectionHash(electionDefinition!)).toEqual('7dcbb8f101');
+  ).unsafeUnwrap();
+  expect(getDisplayElectionHash(electionDefinition)).toEqual('7dcbb8f101');
 });
