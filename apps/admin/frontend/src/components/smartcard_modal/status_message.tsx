@@ -42,15 +42,6 @@ export function isSmartcardActionInProgress(
   return actionStatus?.status === 'InProgress';
 }
 
-export function isSmartcardProgrammingInProgress(
-  actionStatus?: SmartcardActionStatus
-): boolean {
-  return (
-    isSmartcardActionInProgress(actionStatus) &&
-    actionStatus?.action === 'Program'
-  );
-}
-
 interface Props {
   actionStatus: SmartcardActionComplete;
 }

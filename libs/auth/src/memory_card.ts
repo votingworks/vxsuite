@@ -155,10 +155,10 @@ export class MemoryCard implements Card {
       : { response: 'incorrect', numRemainingAttempts: Infinity };
   }
 
-  async writeUser(
+  async program(
     input:
       | { user: SystemAdministratorUser; pin: string }
-      | { user: ElectionManagerUser; pin: string }
+      | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void> {
     const { user } = input;
@@ -176,13 +176,17 @@ export class MemoryCard implements Card {
       case 'election_manager': {
         assert('electionHash' in input.user);
         assert('pin' in input);
+        assert('electionData' in input);
         const cardData: ElectionManagerCardData = {
           t: 'election_manager',
           h: input.user.electionHash,
           p: input.pin,
         };
         await this.card.overrideWriteProtection();
-        await this.card.writeShortValue(JSON.stringify(cardData));
+        await this.card.writeShortAndLongValues({
+          shortValue: JSON.stringify(cardData),
+          longValue: input.electionData,
+        });
         break;
       }
       case 'poll_worker': {

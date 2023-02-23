@@ -53,10 +53,10 @@ export interface Card {
 
   checkPin(pin: string): Promise<CheckPinResponse>;
 
-  writeUser(
+  program(
     input:
       | { user: SystemAdministratorUser; pin: string }
-      | { user: ElectionManagerUser; pin: string }
+      | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void>;
 

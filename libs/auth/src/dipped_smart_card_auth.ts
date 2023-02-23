@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import {
   assert,
   err,
@@ -100,7 +99,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     try {
       switch (input.userRole) {
         case 'system_administrator': {
-          await this.card.writeUser({
+          await this.card.program({
             user: { role: 'system_administrator' },
             pin,
           });
@@ -108,16 +107,16 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         }
         case 'election_manager': {
           assert(electionHash !== undefined);
-          await this.card.writeUser({
+          await this.card.program({
             user: { role: 'election_manager', electionHash },
             pin,
+            electionData: input.electionData,
           });
-          await this.card.writeData(Buffer.from(input.electionData, 'utf-8'));
           break;
         }
         case 'poll_worker': {
           assert(electionHash !== undefined);
-          await this.card.writeUser({
+          await this.card.program({
             user: { role: 'poll_worker', electionHash },
             pin,
           });
