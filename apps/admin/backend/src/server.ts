@@ -24,9 +24,9 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
   DippedSmartCardAuth,
+  MemoryCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import { WebServiceCard } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -922,7 +922,7 @@ export async function start({
     app ??
     buildApp({
       auth: new DippedSmartCardAuth({
-        card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+        card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
         config: {
           allowElectionManagersToAccessUnconfiguredMachines: false,
         },
