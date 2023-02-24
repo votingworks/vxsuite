@@ -45,6 +45,10 @@ import {
   YesNoContest,
 } from './election';
 import { safeParse, unsafeParse } from './generic';
+import {
+  testCdfBallotDefinition,
+  testVxfElection,
+} from './cdf/ballot-definition/fixtures';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -654,4 +658,32 @@ test('getDisplayElectionHash', () => {
     JSON.stringify(election)
   ).unsafeUnwrap();
   expect(getDisplayElectionHash(electionDefinition)).toEqual('7dcbb8f101');
+});
+
+test('safeParseElection converts CDF to VXF', () => {
+  expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
+    testVxfElection
+  );
+  expect(
+    safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
+  ).toEqual(testVxfElection);
+});
+
+test('safeParseElection shows VXF and CDF parsing errors', () => {
+  // Try an election that doesn't parse as either
+  let error = safeParseElection({}).unsafeUnwrapErr();
+  expect(error.message).toContain('Invalid election definition');
+  expect(error.message).toContain('VXF error:');
+  expect(error.message).toContain('CDF error:');
+  expect(error).toMatchSnapshot();
+
+  // Try a malformed CDF ballot definition
+  error = safeParseElection({
+    ...testCdfBallotDefinition,
+    Election: [],
+  }).unsafeUnwrapErr();
+  expect(error.message).toContain('Invalid election definition');
+  expect(error.message).toContain('VXF error:');
+  expect(error.message).toContain('CDF error:');
+  expect(error).toMatchSnapshot();
 });

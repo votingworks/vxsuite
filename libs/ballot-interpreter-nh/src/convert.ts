@@ -356,7 +356,7 @@ export type ConvertIssue =
   | {
       kind: ConvertIssueKind.ElectionValidationFailed;
       message: string;
-      validationError: ZodError;
+      validationError: Error;
     }
   | {
       kind: ConvertIssueKind.InvalidBallotSize;

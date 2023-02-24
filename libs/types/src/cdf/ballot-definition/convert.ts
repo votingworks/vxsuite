@@ -3,12 +3,16 @@ import {
   assertDefined,
   find,
   naturals,
+  ok,
+  Result,
   take,
   throwIllegalValue,
   unique,
+  wrapException,
 } from '@votingworks/basics';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
+import { safeParse } from '../../generic';
 
 function dateString(date: Date) {
   const isoString = date.toISOString();
@@ -424,4 +428,16 @@ export function convertCdfBallotDefinitionToVxfElection(
       }
     ),
   };
+}
+
+export function safeParseCdfBallotDefinition(
+  value: unknown
+): Result<Vxf.Election, Error> {
+  const parseResult = safeParse(Cdf.BallotDefinitionSchema, value);
+  if (parseResult.isErr()) return parseResult;
+  try {
+    return ok(convertCdfBallotDefinitionToVxfElection(parseResult.ok()));
+  } catch (error) {
+    return wrapException(error);
+  }
 }

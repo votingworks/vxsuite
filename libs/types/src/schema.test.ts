@@ -3,7 +3,7 @@ import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
 test('parsing fails on an empty object', () => {
-  t.safeParseElection({}).unsafeUnwrapErr();
+  t.safeParseVxfElection({}).unsafeUnwrapErr();
 });
 
 test('parsing JSON.parses a string', () => {
@@ -25,7 +25,7 @@ test('parsing JSON without a schema', () => {
 test('parsing gives specific errors for nested objects', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         contests: [
           ...electionSample.contests.slice(1),
@@ -109,7 +109,7 @@ test('parsing gives specific errors for nested objects', () => {
 test('ensures dates are ISO 8601-formatted', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         date: 'not ISO',
       })
@@ -128,7 +128,9 @@ test('ensures dates are ISO 8601-formatted', () => {
 });
 
 test('parsing a valid election object succeeds', () => {
-  const parsed = t.safeParseElection(electionSample as unknown).unsafeUnwrap();
+  const parsed = t
+    .safeParseVxfElection(electionSample as unknown)
+    .unsafeUnwrap();
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
   expect(parsed.title).toEqual(electionSample.title);
@@ -138,7 +140,7 @@ test('parsing a valid election object succeeds', () => {
 });
 
 test('parsing a valid election', () => {
-  expect(t.safeParseElection(electionSample).unsafeUnwrap()).toEqual(
+  expect(t.safeParseVxfElection(electionSample).unsafeUnwrap()).toEqual(
     electionSample
   );
 });
@@ -163,12 +165,12 @@ test('contest IDs cannot start with an underscore', () => {
 });
 
 test('allows valid mark thresholds', () => {
-  t.safeParseElection({
+  t.safeParseVxfElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.2 },
   }).unsafeUnwrap();
 
-  t.safeParseElection({
+  t.safeParseVxfElection({
     ...electionSample,
     markThresholds: { definite: 0.2, marginal: 0.1 },
   }).unsafeUnwrap();
@@ -177,7 +179,7 @@ test('allows valid mark thresholds', () => {
 test('disallows invalid mark thresholds', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         markThresholds: { definite: 0.2, marginal: 0.3 },
       })
@@ -196,7 +198,7 @@ test('disallows invalid mark thresholds', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         markThresholds: { marginal: 0.3 },
       })
@@ -218,7 +220,7 @@ test('disallows invalid mark thresholds', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         markThresholds: { definite: 1.2, marginal: 0.3 },
       })
@@ -241,12 +243,12 @@ test('disallows invalid mark thresholds', () => {
 });
 
 test('allows valid adjudication reasons', () => {
-  t.safeParseElection({
+  t.safeParseVxfElection({
     ...electionSample,
     adjudicationReasons: [],
   }).unsafeUnwrap();
 
-  t.safeParseElection({
+  t.safeParseVxfElection({
     ...electionSample,
     adjudicationReasons: [
       t.AdjudicationReason.MarginalMark,
@@ -258,7 +260,7 @@ test('allows valid adjudication reasons', () => {
 test('disallows invalid adjudication reasons', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         precinctScanAdjudicationReasons: ['abcdefg'],
       })
@@ -285,7 +287,7 @@ test('disallows invalid adjudication reasons', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         centralScanAdjudicationReasons: 'foooo',
       })
@@ -308,7 +310,7 @@ test('disallows invalid adjudication reasons', () => {
 test('supports ballot layout paper size', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         ballotLayout: {
           paperSize: 'A4',
@@ -335,7 +337,7 @@ test('supports ballot layout paper size', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         ballotLayout: 'letter',
       })
@@ -358,7 +360,7 @@ test('supports ballot layout paper size', () => {
 test('parsing validates district references', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         districts: [{ id: 'DIS', name: 'DIS' }],
       })
@@ -382,7 +384,7 @@ test('parsing validates district references', () => {
 test('parsing validates precinct references', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         precincts: [{ id: 'PRE', name: 'PRE' }],
       })
@@ -413,7 +415,7 @@ test('parsing validates contest party references', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         contests: [
           {
@@ -450,7 +452,7 @@ test('parsing validates candidate party references', () => {
 
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         contests: [
           {
@@ -489,7 +491,7 @@ test('parsing validates candidate party references', () => {
 test('validates uniqueness of district ids', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         districts: [...electionSample.districts, ...electionSample.districts],
       })
@@ -532,7 +534,7 @@ test('validates uniqueness of ballot style ids', () => {
 test('validates uniqueness of precinct ids', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         precincts: [...electionSample.precincts, ...electionSample.precincts],
       })
@@ -555,7 +557,7 @@ test('validates uniqueness of precinct ids', () => {
 test('validates uniqueness of contest ids', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         contests: [...electionSample.contests, ...electionSample.contests],
       })
@@ -587,7 +589,7 @@ test('validates uniqueness of contest ids', () => {
 test('validates uniqueness of party ids', () => {
   expect(
     t
-      .safeParseElection({
+      .safeParseVxfElection({
         ...electionSample,
         parties: [...electionSample.parties, ...electionSample.parties],
       })
@@ -630,7 +632,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
   `);
 });
 
-test('safeParseElectionDefinition computes the election hash', () => {
+test('safeParseVxfElectionDefinition computes the election hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
@@ -638,7 +640,7 @@ test('safeParseElectionDefinition computes the election hash', () => {
   );
 });
 
-test('safeParseElectionDefinition error result', () => {
+test('safeParseVxfElectionDefinition error result', () => {
   expect(t.safeParseElectionDefinition('').err()).toBeDefined();
 });
 

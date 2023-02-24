@@ -1,7 +1,8 @@
-import { Result, ok } from '@votingworks/basics';
+import { Result, ok, err } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
+import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import {
   AdjudicationReason,
   AnyContest,
@@ -600,17 +601,18 @@ function preprocessElection(value: unknown): unknown {
 }
 
 /**
- * Parses `value` as an `Election` encoded as a JSON string. Equivalent to
- * `safeParseJson(Election, value)`.
+ * Parses `value` as a VXF `Election` object.
  */
-export function safeParseElection(
-  value: string
-): Result<Election, z.ZodError | SyntaxError>;
+export function safeParseVxfElection(
+  value: unknown
+): Result<Election, z.ZodError> {
+  return safeParse(ElectionSchema, preprocessElection(value));
+}
+
 /**
- * Parses `value` as an `Election` object. Equivalent to
- * `safeParse(Election, value)`.
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
+ * string, will attempt to parse it as JSON first.
  */
-export function safeParseElection(value: unknown): Result<Election, z.ZodError>;
 export function safeParseElection(
   value: unknown
 ): Result<Election, Error | SyntaxError> {
@@ -621,7 +623,26 @@ export function safeParseElection(
     }
     return safeParseElection(parsed.ok());
   }
-  return safeParse(ElectionSchema, preprocessElection(value));
+
+  const vxfResult = safeParseVxfElection(value);
+  if (vxfResult.isOk()) {
+    return vxfResult;
+  }
+
+  const cdfResult = safeParseCdfBallotDefinition(value);
+  if (cdfResult.isOk()) {
+    return cdfResult;
+  }
+
+  return err(
+    new Error(
+      [
+        'Invalid election definition',
+        `VXF error: ${vxfResult.err()}`,
+        `CDF error: ${cdfResult.err()}`,
+      ].join('\n\n')
+    )
+  );
 }
 
 /**
