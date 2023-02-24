@@ -142,16 +142,16 @@ export async function buildCastVoteRecordReport({
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
   } of resultSheetGenerator) {
-    const validationResult = canonicalizeSheet([sideOne, sideTwo]);
+    const canonicalizationResult = canonicalizeSheet([sideOne, sideTwo]);
 
-    if (validationResult.isErr()) {
+    if (canonicalizationResult.isErr()) {
       return err({
         type: 'invalid-sheet-found',
-        message: describeSheetValidationError(validationResult.err()),
+        message: describeSheetValidationError(canonicalizationResult.err()),
       });
     }
 
-    const canonicalizedSheet = validationResult.ok();
+    const canonicalizedSheet = canonicalizationResult.ok();
     const [frontFilename, backFilename] = canonicalizedSheet.wasReversed
       ? [sideTwoFilename, sideOneFilename]
       : [sideOneFilename, sideTwoFilename];
