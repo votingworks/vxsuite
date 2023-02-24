@@ -146,7 +146,7 @@ interface BuildCastVoteRecordReportParams {
  * necessary to make sense of those CVRs. We generate this separately because
  * we want to write the CVRs to file separately, one-by-one.
  */
-export function buildCastVoteRecordReportWithoutCastVoteRecords({
+export function buildCastVoteRecordReportMetadata({
   election,
   electionId,
   generatingDeviceId,

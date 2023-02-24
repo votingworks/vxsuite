@@ -29,7 +29,7 @@ import { ExportDataError, Exporter } from '../../exporter';
 import { getUsbDrives } from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
 import { BallotPageLayoutsLookup, getBallotPageLayout } from './page_layouts';
-import { buildCastVoteRecordReportWithoutCastVoteRecords } from './build_report_metadata';
+import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 
 /**
  * Properties of each sheet that are needed to generate a cast vote record
@@ -226,7 +226,7 @@ export async function buildCastVoteRecordReport({
   }
 
   const castVoteRecordReportWithoutCastVoteRecords =
-    buildCastVoteRecordReportWithoutCastVoteRecords({
+    buildCastVoteRecordReportMetadata({
       election,
       electionId,
       generatingDeviceId: scannerId,
