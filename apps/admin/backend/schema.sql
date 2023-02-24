@@ -6,6 +6,13 @@ create table elections (
   deleted_at timestamp
 );
 
+create table current_election (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  election_id varchar(36),
+  foreign key (election_id) references elections(id)
+);
+
 create table write_in_adjudications (
   id varchar(36) primary key,
   election_id varchar(36) not null,

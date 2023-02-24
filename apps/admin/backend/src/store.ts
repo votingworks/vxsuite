@@ -13,6 +13,7 @@ import {
   ContestOptionId,
   Id,
   Iso8601Timestamp,
+  Optional,
   PrecinctId,
   safeParse,
   safeParseElectionDefinition,
@@ -205,6 +206,26 @@ export class Store {
     if (!election) {
       throw new Error(`Election not found: ${electionId}`);
     }
+  }
+
+  setCurrentElectionId(electionId?: Id): void {
+    this.client.run('delete from current_election');
+    if (electionId) {
+      this.client.run(
+        'insert into current_election (election_id) values (?)',
+        electionId
+      );
+    }
+  }
+
+  getCurrentElectionId(): Optional<Id> {
+    const currentElection = this.client.one(
+      `
+      select election_id as electionId from current_election_id
+    `
+    ) as { electionId: Id } | undefined;
+
+    return currentElection ? currentElection.electionId : undefined;
   }
 
   private convertCvrParseErrorsToApiError(
