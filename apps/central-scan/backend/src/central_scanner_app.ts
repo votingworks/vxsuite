@@ -593,7 +593,7 @@ export async function buildCentralScannerApp({
         isTestMode: store.getTestMode(),
         ballotsCounted: store.getBallotsCounted(),
         batchInfo: store.batchStatus(),
-        getResultSheetGenerator: store.forEachResultSheet,
+        getResultSheetGenerator: store.forEachResultSheet.bind(store),
         ballotPageLayoutsLookup: store.getBallotPageLayoutsLookup(),
         definiteMarkThreshold:
           store.getCurrentMarkThresholds()?.definite ??
