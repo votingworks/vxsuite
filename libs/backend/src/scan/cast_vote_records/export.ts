@@ -134,7 +134,10 @@ export function buildCastVoteRecordReport({
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
   } of resultSheetGenerator()) {
-    const canonicalizationResult = canonicalizeSheet([sideOne, sideTwo]);
+    const canonicalizationResult = canonicalizeSheet(
+      [sideOne, sideTwo],
+      [sideOneFilename, sideTwoFilename]
+    );
 
     if (canonicalizationResult.isErr()) {
       return err({
@@ -144,9 +147,6 @@ export function buildCastVoteRecordReport({
     }
 
     const canonicalizedSheet = canonicalizationResult.ok();
-    const [frontFilename, backFilename] = canonicalizedSheet.wasReversed
-      ? [sideTwoFilename, sideOneFilename]
-      : [sideOneFilename, sideTwoFilename];
 
     // Build BMD cast vote record. Use the ballot ID as the cast vote record ID
     // if available, otherwise the UUID from the scanner database.
@@ -170,6 +170,7 @@ export function buildCastVoteRecordReport({
 
     // Build the HMPB cast vote record
     const [front, back] = canonicalizedSheet.interpretation;
+    const [frontFilename, backFilename] = canonicalizedSheet.filenames;
     const frontHasWriteIns = hasWriteIns(front.votes);
     const backHasWriteIns = hasWriteIns(back.votes);
 
@@ -348,7 +349,10 @@ export async function exportCastVoteRecordReportToUsbDrive({
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
   } of resultSheetGenerator()) {
-    const canonicalizationResult = canonicalizeSheet([sideOne, sideTwo]);
+    const canonicalizationResult = canonicalizeSheet(
+      [sideOne, sideTwo],
+      [sideOneFilename, sideTwoFilename]
+    );
 
     if (canonicalizationResult.isErr()) {
       return err({
@@ -358,15 +362,14 @@ export async function exportCastVoteRecordReportToUsbDrive({
     }
 
     const canonicalizedSheet = canonicalizationResult.ok();
+
     // we are only including HMPB write-ins so skip BMD ballot images
     if (canonicalizedSheet.type === 'bmd') {
       continue;
     }
 
     const [front, back] = canonicalizedSheet.interpretation;
-    const [frontFilename, backFilename] = canonicalizedSheet.wasReversed
-      ? [sideTwoFilename, sideOneFilename]
-      : [sideOneFilename, sideTwoFilename];
+    const [frontFilename, backFilename] = canonicalizedSheet.filenames;
 
     const frontHasWriteIns = hasWriteIns(front.votes);
     const backHasWriteIns = hasWriteIns(back.votes);

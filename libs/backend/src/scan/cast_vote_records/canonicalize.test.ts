@@ -1,6 +1,7 @@
 import {
   BallotType,
   BlankPage,
+  SheetOf,
   UninterpretedHmpbPage,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';
@@ -25,11 +26,14 @@ const uninterpretedHmpbPage: UninterpretedHmpbPage = {
   metadata: interpretedHmpbPage1.metadata,
 };
 
+const filenames: SheetOf<string> = ['sideOne', 'sideTwo'];
+const filenamesReversed: SheetOf<string> = ['sideTwo', 'sideOne'];
+
 test('Invalid page type', () => {
-  const error = canonicalizeSheet([
-    uninterpretedHmpbPage,
-    uninterpretedHmpbPage,
-  ]).err();
+  const error = canonicalizeSheet(
+    [uninterpretedHmpbPage, uninterpretedHmpbPage],
+    filenames
+  ).err();
   expect(error).toMatchObject({
     type: 'InvalidPageType',
     pageTypes: ['UninterpretedHmpbPage', 'UninterpretedHmpbPage'],
@@ -41,48 +45,56 @@ test('Invalid page type', () => {
 });
 
 test('BMD ballot', () => {
-  expect(canonicalizeSheet([interpretedBmdPage, blankPage]).ok()).toMatchObject(
-    {
-      type: 'bmd',
-      interpretation: interpretedBmdPage,
-    }
-  );
+  expect(
+    canonicalizeSheet([interpretedBmdPage, blankPage], filenames).ok()
+  ).toMatchObject({
+    type: 'bmd',
+    interpretation: interpretedBmdPage,
+    filenames,
+  });
 });
 
 test('BMD ballot reversed', () => {
-  expect(canonicalizeSheet([blankPage, interpretedBmdPage]).ok()).toMatchObject(
-    {
-      type: 'bmd',
-      interpretation: interpretedBmdPage,
-    }
-  );
+  expect(
+    canonicalizeSheet([blankPage, interpretedBmdPage], filenamesReversed).ok()
+  ).toMatchObject({
+    type: 'bmd',
+    interpretation: interpretedBmdPage,
+    filenames,
+  });
 });
 
 test('HMPB ballot', () => {
   expect(
-    canonicalizeSheet([interpretedHmpbPage1, interpretedHmpbPage2]).ok()
+    canonicalizeSheet(
+      [interpretedHmpbPage1, interpretedHmpbPage2],
+      filenames
+    ).ok()
   ).toMatchObject({
     type: 'hmpb',
     interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
-    wasReversed: false,
+    filenames,
   });
 });
 
 test('HMPB ballot reversed', () => {
   expect(
-    canonicalizeSheet([interpretedHmpbPage2, interpretedHmpbPage1]).ok()
+    canonicalizeSheet(
+      [interpretedHmpbPage2, interpretedHmpbPage1],
+      filenamesReversed
+    ).ok()
   ).toMatchObject({
     type: 'hmpb',
     interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
-    wasReversed: true,
+    filenames,
   });
 });
 
 test('BMD ballot with two BMD sides', () => {
-  const error = canonicalizeSheet([
-    interpretedBmdPage,
-    interpretedBmdPage,
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [interpretedBmdPage, interpretedBmdPage],
+    filenames
+  ).unsafeUnwrapErr();
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.InvalidFrontBackPageTypes,
@@ -95,10 +107,10 @@ test('BMD ballot with two BMD sides', () => {
 });
 
 test('HMPB ballot with non-consecutive pages', () => {
-  const error = canonicalizeSheet([
-    interpretedHmpbPage1,
-    interpretedHmpbPage1,
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [interpretedHmpbPage1, interpretedHmpbPage1],
+    filenames
+  ).unsafeUnwrapErr();
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.NonConsecutivePages,
@@ -111,13 +123,16 @@ test('HMPB ballot with non-consecutive pages', () => {
 });
 
 test('HMPB ballot with mismatched ballot style', () => {
-  const error = canonicalizeSheet([
-    interpretedHmpbPage1,
-    {
-      ...interpretedHmpbPage2,
-      metadata: { ...interpretedHmpbPage2.metadata, ballotStyleId: '1M' },
-    },
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [
+      interpretedHmpbPage1,
+      {
+        ...interpretedHmpbPage2,
+        metadata: { ...interpretedHmpbPage2.metadata, ballotStyleId: '1M' },
+      },
+    ],
+    filenames
+  ).unsafeUnwrapErr();
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.MismatchedBallotStyle,
@@ -130,13 +145,19 @@ test('HMPB ballot with mismatched ballot style', () => {
 });
 
 test('HMPB ballot with mismatched precinct', () => {
-  const error = canonicalizeSheet([
-    interpretedHmpbPage1,
-    {
-      ...interpretedHmpbPage2,
-      metadata: { ...interpretedHmpbPage2.metadata, precinctId: 'precinct-2' },
-    },
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [
+      interpretedHmpbPage1,
+      {
+        ...interpretedHmpbPage2,
+        metadata: {
+          ...interpretedHmpbPage2.metadata,
+          precinctId: 'precinct-2',
+        },
+      },
+    ],
+    filenames
+  ).unsafeUnwrapErr();
 
   expect(error).toEqual(
     typedAs<SheetValidationError>({
@@ -150,16 +171,19 @@ test('HMPB ballot with mismatched precinct', () => {
 });
 
 test('HMPB ballot with mismatched election', () => {
-  const error = canonicalizeSheet([
-    {
-      ...interpretedHmpbPage1,
-      metadata: { ...interpretedHmpbPage1.metadata, electionHash: 'abc' },
-    },
-    {
-      ...interpretedHmpbPage2,
-      metadata: { ...interpretedHmpbPage2.metadata, electionHash: 'def' },
-    },
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [
+      {
+        ...interpretedHmpbPage1,
+        metadata: { ...interpretedHmpbPage1.metadata, electionHash: 'abc' },
+      },
+      {
+        ...interpretedHmpbPage2,
+        metadata: { ...interpretedHmpbPage2.metadata, electionHash: 'def' },
+      },
+    ],
+    filenames
+  ).unsafeUnwrapErr();
 
   expect(error).toEqual(
     typedAs<SheetValidationError>({
@@ -173,16 +197,19 @@ test('HMPB ballot with mismatched election', () => {
 });
 
 test('HMPB ballot with mismatched ballot type', () => {
-  const error = canonicalizeSheet([
-    interpretedHmpbPage1,
-    {
-      ...interpretedHmpbPage2,
-      metadata: {
-        ...interpretedHmpbPage2.metadata,
-        ballotType: BallotType.Absentee,
+  const error = canonicalizeSheet(
+    [
+      interpretedHmpbPage1,
+      {
+        ...interpretedHmpbPage2,
+        metadata: {
+          ...interpretedHmpbPage2.metadata,
+          ballotType: BallotType.Absentee,
+        },
       },
-    },
-  ]).unsafeUnwrapErr();
+    ],
+    filenames
+  ).unsafeUnwrapErr();
 
   expect(error).toEqual(
     typedAs<SheetValidationError>({
@@ -196,10 +223,10 @@ test('HMPB ballot with mismatched ballot type', () => {
 });
 
 test('sheet with HMPB and BMD pages', () => {
-  const error = canonicalizeSheet([
-    interpretedHmpbPage1,
-    interpretedBmdPage,
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [interpretedHmpbPage1, interpretedBmdPage],
+    filenames
+  ).unsafeUnwrapErr();
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.InvalidFrontBackPageTypes,
@@ -212,10 +239,10 @@ test('sheet with HMPB and BMD pages', () => {
 });
 
 test('sheet with BMD and HMPB pages', () => {
-  const error = canonicalizeSheet([
-    interpretedBmdPage,
-    interpretedHmpbPage1,
-  ]).unsafeUnwrapErr();
+  const error = canonicalizeSheet(
+    [interpretedBmdPage, interpretedHmpbPage1],
+    filenames
+  ).unsafeUnwrapErr();
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.InvalidFrontBackPageTypes,

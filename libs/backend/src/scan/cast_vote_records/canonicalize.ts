@@ -94,25 +94,22 @@ export type CanonicalizedSheet =
   | {
       type: 'bmd';
       interpretation: InterpretedBmdPage;
-      wasReversed: boolean;
+      filenames: SheetOf<string>;
     }
   | {
       type: 'hmpb';
       interpretation: SheetOf<InterpretedHmpbPage>;
-      wasReversed: boolean;
+      filenames: SheetOf<string>;
     };
 
 /**
  * Validates and canonicalizes sheet interpretations. When successful, returns
  * a {@link CanonicalizedSheet}. When validation fails, returns a {@link SheetValidationError}
  */
-export function canonicalizeSheet([
-  front,
-  back,
-]: SheetOf<PageInterpretation>): Result<
-  CanonicalizedSheet,
-  SheetValidationError
-> {
+export function canonicalizeSheet(
+  [front, back]: SheetOf<PageInterpretation>,
+  [frontFilename, backFilename]: SheetOf<string>
+): Result<CanonicalizedSheet, SheetValidationError> {
   if (
     !VALID_PAGE_TYPES.includes(front.type) ||
     !VALID_PAGE_TYPES.includes(back.type)
@@ -130,8 +127,8 @@ export function canonicalizeSheet([
   ) {
     return ok({
       type: 'bmd',
-      wasReversed: false,
       interpretation: front,
+      filenames: [frontFilename, backFilename],
     });
   }
 
@@ -142,8 +139,8 @@ export function canonicalizeSheet([
   ) {
     return ok({
       type: 'bmd',
-      wasReversed: true,
       interpretation: back,
+      filenames: [backFilename, frontFilename],
     });
   }
 
@@ -204,8 +201,8 @@ export function canonicalizeSheet([
   if (front.metadata.pageNumber + 1 === back.metadata.pageNumber) {
     return ok({
       type: 'hmpb',
-      wasReversed: false,
       interpretation: [front, back],
+      filenames: [frontFilename, backFilename],
     });
   }
 
@@ -213,8 +210,8 @@ export function canonicalizeSheet([
   if (back.metadata.pageNumber + 1 === front.metadata.pageNumber) {
     return ok({
       type: 'hmpb',
-      wasReversed: true,
       interpretation: [back, front],
+      filenames: [backFilename, frontFilename],
     });
   }
 
