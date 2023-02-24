@@ -272,7 +272,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     1,
     expectedReportPath,
-    'report.json',
+    'cast-vote-record-report.json',
     expect.anything()
   );
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(

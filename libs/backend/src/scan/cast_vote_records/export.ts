@@ -391,7 +391,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
   try {
     const exportReportResult = await exporter.exportDataToUsbDrive(
       reportDirectory,
-      'report.json',
+      'cast-vote-record-report.json',
       castVoteRecordReportStream
     );
 
