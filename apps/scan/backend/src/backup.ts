@@ -1,6 +1,6 @@
 import {
   ExportDataError,
-  buildCastVoteRecordReport,
+  getCastVoteRecordReportStream,
 } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
@@ -105,26 +105,21 @@ export class Backup {
         exportCastVoteRecordsAsNdJson({ store: this.store })
       );
     } else {
-      const buildCastVoteRecordReportResult = await buildCastVoteRecordReport({
-        electionDefinition,
-        definiteMarkThreshold:
-          this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
-        isTestMode: this.store.getTestMode(),
-        ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
-        resultSheetGenerator: this.store.forEachResultSheet,
-        batchInfo: this.store.batchStatus(),
-        imageOptions: {
-          which: 'all',
-          directory: '', // currently we don't place backup images in a subdirectory
-        },
-      });
-      if (buildCastVoteRecordReportResult.isErr()) {
-        throw new Error('failed to export cast vote record report');
-      }
-
       await this.addEntry(
         'cast-vote-record-report.json',
-        buildCastVoteRecordReportResult.ok()
+        getCastVoteRecordReportStream({
+          electionDefinition,
+          definiteMarkThreshold:
+            this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+          isTestMode: this.store.getTestMode(),
+          ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
+          resultSheetGenerator: this.store.forEachResultSheet(),
+          batchInfo: this.store.batchStatus(),
+          imageOptions: {
+            which: 'all',
+            directory: '', // currently we don't place backup images in a subdirectory
+          },
+        })
       );
     }
 

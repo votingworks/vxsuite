@@ -6,6 +6,7 @@ import {
   Election,
   ElectionDefinition,
   Id,
+  Optional,
   PageInterpretation,
   SheetOf,
   unsafeParse,
@@ -44,88 +45,40 @@ export interface ResultSheet {
   readonly backNormalizedFilename: string;
 }
 
-/**
- * Combines the report metadata and an array of cast vote records into a
- * consumable readable stream representing the entire, saturated report.
- */
-function streamifyCastVoteRecordReport({
-  castVoteRecordReportMetadata,
-  castVoteRecords,
-}: {
-  castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
-  castVoteRecords: CVR.CVR[];
-}): NodeJS.ReadableStream {
-  if (castVoteRecordReportMetadata.CVR) {
-    throw new Error('report metadata should contain no cast vote records');
-  }
-
-  function* reportGenerator() {
-    yield JSON.stringify(castVoteRecordReportMetadata, undefined, 2).replace(
-      /\n\}$/,
-      ',\n  "CVR": ['
-    );
-
-    for (const [index, castVoteRecord] of castVoteRecords.entries()) {
-      if (index < castVoteRecords.length - 1) {
-        yield `\n    ${JSON.stringify(castVoteRecord)},`;
-      } else {
-        yield `\n    ${JSON.stringify(castVoteRecord)}`;
-      }
-    }
-
-    yield '\n  ]\n}';
-  }
-
-  return Readable.from(reportGenerator());
-}
-
-/**
- * Error that can occur when generating the cast vote record report. Currently
- * the only possible error is a sheet that fails to pass validation.
- */
-export interface BuildCastVoteRecordReportError {
-  type: 'invalid-sheet-found';
-  message: string;
-}
-
 interface CastVoteRecordReportImageOptions {
   which: 'all' | 'write-ins';
   directory: string;
 }
 
-interface BuildCastVoteRecordReportParams {
+interface GetCastVoteRecordGeneratorParams {
   electionDefinition: ElectionDefinition;
-  isTestMode: boolean;
   definiteMarkThreshold: number;
-  resultSheetGenerator: () => Generator<ResultSheet>;
+  resultSheetGenerator: Generator<ResultSheet>;
   ballotPageLayoutsLookup: BallotPageLayoutsLookup;
-  batchInfo: BatchInfo[];
   imageOptions: CastVoteRecordReportImageOptions;
 }
 
 /**
- * Builds a cast vote record report {@link CVR.CastVoteRecordReport} and
- * returns it in the form of a readable stream. If it's necessary to do
- * particular export operations on each sheet, you may pass in a
- * `sheetExportCallback`.
+ * Error thrown if an invalid sheet is found when attempting to convert
+ * sheets to cast vote records.
  */
-export function buildCastVoteRecordReport({
+export class InvalidSheetFoundError extends Error {}
+
+/**
+ * Generator for cast vote records in CDF format {@link CVR.CVR}. Used to
+ * generate a full cast vote record report. Throws an error if it is not
+ * possible to generate a cast vote record from a sheet.
+ */
+function* getCastVoteRecordGenerator({
   electionDefinition,
-  isTestMode,
   definiteMarkThreshold,
   resultSheetGenerator,
   ballotPageLayoutsLookup,
-  batchInfo,
   imageOptions,
-}: BuildCastVoteRecordReportParams): Result<
-  NodeJS.ReadableStream,
-  BuildCastVoteRecordReportError
-> {
+}: GetCastVoteRecordGeneratorParams): Generator<CVR.CVR> {
   const { electionHash, election } = electionDefinition;
   const electionId = electionHash;
   const scannerId = VX_MACHINE_ID;
-
-  const castVoteRecords: CVR.CVR[] = [];
 
   for (const {
     id,
@@ -133,17 +86,16 @@ export function buildCastVoteRecordReport({
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
-  } of resultSheetGenerator()) {
+  } of resultSheetGenerator) {
     const canonicalizationResult = canonicalizeSheet(
       [sideOne, sideTwo],
       [sideOneFilename, sideTwoFilename]
     );
 
     if (canonicalizationResult.isErr()) {
-      return err({
-        type: 'invalid-sheet-found',
-        message: describeSheetValidationError(canonicalizationResult.err()),
-      });
+      throw new InvalidSheetFoundError(
+        describeSheetValidationError(canonicalizationResult.err())
+      );
     }
 
     const canonicalizedSheet = canonicalizationResult.ok();
@@ -151,61 +103,132 @@ export function buildCastVoteRecordReport({
     // Build BMD cast vote record. Use the ballot ID as the cast vote record ID
     // if available, otherwise the UUID from the scanner database.
     if (canonicalizedSheet.type === 'bmd') {
-      castVoteRecords.push(
-        buildCastVoteRecord({
-          election,
-          electionId,
-          scannerId,
-          castVoteRecordId:
-            canonicalizedSheet.interpretation.ballotId ||
-            unsafeParse(BallotIdSchema, id),
-          batchId,
-          ballotMarkingMode: 'machine',
-          interpretation: canonicalizedSheet.interpretation,
-        })
-      );
+      yield buildCastVoteRecord({
+        election,
+        electionId,
+        scannerId,
+        castVoteRecordId:
+          canonicalizedSheet.interpretation.ballotId ||
+          unsafeParse(BallotIdSchema, id),
+        batchId,
+        ballotMarkingMode: 'machine',
+        interpretation: canonicalizedSheet.interpretation,
+      });
 
       continue;
     }
 
-    // Build the HMPB cast vote record
+    // Build the HMPB cast vote record. Include file references to images if
+    // the image contains write-ins
     const [front, back] = canonicalizedSheet.interpretation;
     const [frontFilename, backFilename] = canonicalizedSheet.filenames;
     const frontHasWriteIns = hasWriteIns(front.votes);
     const backHasWriteIns = hasWriteIns(back.votes);
 
-    // Build the HMPB cast vote record
-    castVoteRecords.push(
-      buildCastVoteRecord({
-        election,
-        electionId,
-        scannerId,
-        castVoteRecordId: unsafeParse(BallotIdSchema, id),
-        batchId,
-        ballotMarkingMode: 'hand',
-        definiteMarkThreshold,
-        pages: [
-          {
-            interpretation: front,
-            imageFileUri:
-              imageOptions.which === 'all' ||
-              (imageOptions.which === 'write-ins' && frontHasWriteIns)
-                ? `file:./${imageOptions.directory}/${basename(frontFilename)}`
-                : undefined,
-          },
-          {
-            interpretation: back,
-            imageFileUri:
-              imageOptions.which === 'all' ||
-              (imageOptions.which === 'write-ins' && backHasWriteIns)
-                ? `file:./${imageOptions.directory}/${basename(backFilename)}`
-                : undefined,
-          },
-        ],
-        ballotPageLayoutsLookup,
-      })
-    );
+    yield buildCastVoteRecord({
+      election,
+      electionId,
+      scannerId,
+      castVoteRecordId: unsafeParse(BallotIdSchema, id),
+      batchId,
+      ballotMarkingMode: 'hand',
+      definiteMarkThreshold,
+      pages: [
+        {
+          interpretation: front,
+          imageFileUri:
+            imageOptions.which === 'all' ||
+            (imageOptions.which === 'write-ins' && frontHasWriteIns)
+              ? `file:./${imageOptions.directory}/${basename(frontFilename)}`
+              : undefined,
+        },
+        {
+          interpretation: back,
+          imageFileUri:
+            imageOptions.which === 'all' ||
+            (imageOptions.which === 'write-ins' && backHasWriteIns)
+              ? `file:./${imageOptions.directory}/${basename(backFilename)}`
+              : undefined,
+        },
+      ],
+      ballotPageLayoutsLookup,
+    });
   }
+}
+
+/**
+ * Combines the report metadata and a cast vote record generator string
+ * generator which yields the entire contents of the report.
+ */
+function* getCastVoteRecordReportGenerator({
+  castVoteRecordReportMetadata,
+  castVoteRecordGenerator,
+}: {
+  castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
+  castVoteRecordGenerator: Generator<CVR.CVR>;
+}): Generator<string> {
+  if (castVoteRecordReportMetadata.CVR) {
+    throw new Error('report metadata should contain no cast vote records');
+  }
+
+  // report metadata, with unclosed JSON to append cast vote records
+  yield JSON.stringify(castVoteRecordReportMetadata, undefined, 2).replace(
+    /\n\}$/,
+    ',\n  "CVR": ['
+  );
+
+  // we don't know how many cast vote records there are until they are
+  // generated, but we must identify the last element to avoid a trailing
+  // comma, which would create invalid JSON.
+  let previousCastVoteRecord: Optional<CVR.CVR>;
+  for (const castVoteRecord of castVoteRecordGenerator) {
+    // yield non-final elements with trailing comma
+    if (previousCastVoteRecord) {
+      yield `\n    ${JSON.stringify(previousCastVoteRecord)},`;
+    }
+    previousCastVoteRecord = castVoteRecord;
+  }
+
+  // yield final element without trailing comma
+  if (previousCastVoteRecord) {
+    yield `\n    ${JSON.stringify(previousCastVoteRecord)}\n  `;
+  }
+
+  // closing brackets to make JSON valid
+  yield ']\n}';
+}
+
+interface BuildCastVoteRecordReportMetadataParams
+  extends GetCastVoteRecordGeneratorParams {
+  isTestMode: boolean;
+  batchInfo: BatchInfo[];
+}
+
+/**
+ * Builds a cast vote record report {@link CVR.CastVoteRecordReport} and
+ * returns it in the form of a readable stream. Will throw an error when
+ * streamed if a sheet is invalid and a cast vote record cannot be created.
+ */
+export function getCastVoteRecordReportStream({
+  electionDefinition,
+  isTestMode,
+  definiteMarkThreshold,
+  resultSheetGenerator,
+  ballotPageLayoutsLookup,
+  batchInfo,
+  imageOptions,
+}: BuildCastVoteRecordReportMetadataParams): NodeJS.ReadableStream {
+  const { electionHash, election } = electionDefinition;
+  const electionId = electionHash;
+  const scannerId = VX_MACHINE_ID;
+
+  const castVoteRecordGenerator = getCastVoteRecordGenerator({
+    electionDefinition,
+    definiteMarkThreshold,
+    resultSheetGenerator,
+    ballotPageLayoutsLookup,
+    imageOptions,
+  });
 
   const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata({
     election,
@@ -217,10 +240,10 @@ export function buildCastVoteRecordReport({
     batchInfo,
   });
 
-  return ok(
-    streamifyCastVoteRecordReport({
+  return Readable.from(
+    getCastVoteRecordReportGenerator({
       castVoteRecordReportMetadata,
-      castVoteRecords,
+      castVoteRecordGenerator,
     })
   );
 }
@@ -271,8 +294,12 @@ async function exportPageImageAndLayoutToUsbDrive({
 }
 
 interface ExportCastVoteRecordReportToUsbDriveParams
-  extends Omit<BuildCastVoteRecordReportParams, 'imageOptions'> {
+  extends Omit<
+    BuildCastVoteRecordReportMetadataParams,
+    'imageOptions' | 'resultSheetGenerator'
+  > {
   ballotsCounted: number;
+  getResultSheetGenerator: () => Generator<ResultSheet>;
 }
 
 /**
@@ -280,7 +307,7 @@ interface ExportCastVoteRecordReportToUsbDriveParams
  * to a USB drive.
  */
 export type ExportCastVoteRecordReportToUsbDriveError =
-  | BuildCastVoteRecordReportError
+  | { type: 'invalid-sheet-found'; message: string }
   | ExportDataError;
 
 /**
@@ -291,12 +318,12 @@ export async function exportCastVoteRecordReportToUsbDrive({
   electionDefinition,
   isTestMode,
   ballotsCounted,
-  resultSheetGenerator,
+  getResultSheetGenerator,
   ballotPageLayoutsLookup,
   definiteMarkThreshold,
   batchInfo,
 }: ExportCastVoteRecordReportToUsbDriveParams): Promise<
-  Result<void, BuildCastVoteRecordReportError | ExportDataError>
+  Result<void, ExportCastVoteRecordReportToUsbDriveError>
 > {
   const { electionHash, election } = electionDefinition;
   const exporter = new Exporter({
@@ -315,10 +342,10 @@ export async function exportCastVoteRecordReportToUsbDrive({
     )
   );
 
-  const buildCastVoteRecordReportResult = buildCastVoteRecordReport({
+  const castVoteRecordReportStream = getCastVoteRecordReportStream({
     electionDefinition,
     isTestMode,
-    resultSheetGenerator,
+    resultSheetGenerator: getResultSheetGenerator(),
     ballotPageLayoutsLookup,
     definiteMarkThreshold,
     batchInfo,
@@ -328,27 +355,32 @@ export async function exportCastVoteRecordReportToUsbDrive({
     },
   });
 
-  if (buildCastVoteRecordReportResult.isErr()) {
-    return buildCastVoteRecordReportResult;
-  }
+  // it's possible the report generation throws an error due to an invalid
+  // result sheet from the store, so wrap in a try-catch
+  try {
+    const exportReportResult = await exporter.exportDataToUsbDrive(
+      reportDirectory,
+      'report.json',
+      castVoteRecordReportStream
+    );
 
-  const castVoteRecordReport = buildCastVoteRecordReportResult.ok();
+    if (exportReportResult.isErr()) {
+      return exportReportResult;
+    }
+  } catch (error) {
+    if (error instanceof InvalidSheetFoundError) {
+      return err({ type: 'invalid-sheet-found', message: error.message });
+    }
 
-  const exportReportResult = await exporter.exportDataToUsbDrive(
-    reportDirectory,
-    'report.json',
-    castVoteRecordReport
-  );
-
-  if (exportReportResult.isErr()) {
-    return exportReportResult;
+    // unknown error during report generation
+    throw error;
   }
 
   for (const {
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
-  } of resultSheetGenerator()) {
+  } of getResultSheetGenerator()) {
     const canonicalizationResult = canonicalizeSheet(
       [sideOne, sideTwo],
       [sideOneFilename, sideTwoFilename]

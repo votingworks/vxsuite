@@ -26,7 +26,8 @@ import {
 import { ExportDataError } from '../../exporter';
 import {
   exportCastVoteRecordReportToUsbDrive,
-  buildCastVoteRecordReport,
+  getCastVoteRecordReportStream,
+  InvalidSheetFoundError,
   ResultSheet,
 } from './export';
 import { BallotPageLayoutsLookup } from './page_layouts';
@@ -69,9 +70,9 @@ async function streamToString(stream: NodeJS.ReadableStream) {
   return reportChunks.join('');
 }
 
-test('buildCastVoteRecordReport', async () => {
+test('getCastVoteRecordReportStream', async () => {
   setDateMock(new Date(2020, 3, 14));
-  function* resultSheetGenerator(): Generator<ResultSheet> {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
@@ -89,7 +90,7 @@ test('buildCastVoteRecordReport', async () => {
     };
   }
 
-  const buildCastVoteRecordReportResult = buildCastVoteRecordReport({
+  const stream = getCastVoteRecordReportStream({
     electionDefinition,
     definiteMarkThreshold,
     ballotPageLayoutsLookup,
@@ -99,11 +100,8 @@ test('buildCastVoteRecordReport', async () => {
       directory: 'ballot-images',
       which: 'write-ins',
     },
-    resultSheetGenerator,
+    resultSheetGenerator: getResultSheetGenerator(),
   });
-
-  expect(buildCastVoteRecordReportResult.isOk()).toBeTruthy();
-  const stream = buildCastVoteRecordReportResult.unsafeUnwrap();
 
   // report is valid cast vote record report
   const parseResult = safeParseJson(
@@ -118,8 +116,8 @@ test('buildCastVoteRecordReport', async () => {
   clearDateMock();
 });
 
-test('buildCastVoteRecordReport results in error when validation fails', () => {
-  function* resultSheetGenerator(): Generator<ResultSheet> {
+test('getCastVoteRecordReportStream results in error when validation fails', async () => {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
@@ -129,7 +127,7 @@ test('buildCastVoteRecordReport results in error when validation fails', () => {
     };
   }
 
-  const buildCastVoteRecordReportResult = buildCastVoteRecordReport({
+  const stream = getCastVoteRecordReportStream({
     electionDefinition,
     definiteMarkThreshold,
     ballotPageLayoutsLookup,
@@ -139,14 +137,19 @@ test('buildCastVoteRecordReport results in error when validation fails', () => {
       directory: 'ballot-images',
       which: 'write-ins',
     },
-    resultSheetGenerator,
+    resultSheetGenerator: getResultSheetGenerator(),
   });
 
-  expect(buildCastVoteRecordReportResult.isErr()).toBeTruthy();
+  try {
+    await streamToString(stream);
+  } catch (error) {
+    expect(error).toBeInstanceOf(InvalidSheetFoundError);
+  }
+  expect.assertions(1);
 });
 
-test('buildCastVoteRecordReport can include file uris according to setting', async () => {
-  function* resultSheetGenerator(): Generator<ResultSheet> {
+test('getCastVoteRecordReportStream can include file uris according to setting', async () => {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
@@ -203,7 +206,7 @@ test('buildCastVoteRecordReport can include file uris according to setting', asy
   ] as const;
 
   for (const testCase of testCases) {
-    const buildCastVoteRecordReportResult = buildCastVoteRecordReport({
+    const stream = getCastVoteRecordReportStream({
       electionDefinition,
       definiteMarkThreshold,
       ballotPageLayoutsLookup,
@@ -213,11 +216,8 @@ test('buildCastVoteRecordReport can include file uris according to setting', asy
         directory: 'ballot-images',
         which: testCase.which,
       },
-      resultSheetGenerator,
+      resultSheetGenerator: getResultSheetGenerator(),
     });
-
-    expect(buildCastVoteRecordReportResult.isOk()).toBeTruthy();
-    const stream = buildCastVoteRecordReportResult.unsafeUnwrap();
 
     const parseResult = safeParseJson(
       await streamToString(stream),
@@ -275,7 +275,7 @@ const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
 
 test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   setDateMock(new Date(2020, 3, 14));
-  function* resultSheetGenerator(): Generator<ResultSheet> {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
@@ -300,7 +300,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
-    resultSheetGenerator,
+    getResultSheetGenerator,
   });
 
   expect(exportResult.isOk()).toEqual(true);
@@ -334,7 +334,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
 });
 
 test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () => {
-  function* resultSheetGenerator(): Generator<ResultSheet> {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
@@ -358,7 +358,7 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
-    resultSheetGenerator,
+    getResultSheetGenerator,
   });
 
   expect(exportResult.isErr()).toEqual(true);

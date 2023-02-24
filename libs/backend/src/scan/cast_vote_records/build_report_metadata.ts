@@ -131,7 +131,7 @@ function buildReportingDevices(
   }));
 }
 
-interface BuildCastVoteRecordReportParams {
+interface BuildCastVoteRecordReportMetadataParams {
   election: Election;
   electionId: string;
   generatingDeviceId: string;
@@ -154,7 +154,7 @@ export function buildCastVoteRecordReportMetadata({
   reportTypes,
   isTestMode,
   batchInfo,
-}: BuildCastVoteRecordReportParams): CVR.CastVoteRecordReport {
+}: BuildCastVoteRecordReportMetadataParams): CVR.CastVoteRecordReport {
   // TODO: pull from ballot definition once it exists. For now, the scope
   // is just the current state
   const electionScopeId = 'election-state';

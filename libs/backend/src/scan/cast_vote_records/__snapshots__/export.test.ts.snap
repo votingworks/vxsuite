@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`buildCastVoteRecordReport 1`] = `
+exports[`getCastVoteRecordReportStream 1`] = `
 Object {
   "@type": "CVR.CastVoteRecordReport",
   "CVR": Array [
