@@ -11,6 +11,6 @@ export function buildMockCard(): Card {
     readData: jest.fn(),
     writeData: jest.fn(),
     clearData: jest.fn(),
-    clearUserAndData: jest.fn(),
+    unprogram: jest.fn(),
   };
 }

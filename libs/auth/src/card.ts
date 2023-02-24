@@ -64,5 +64,5 @@ export interface Card {
   writeData(data: Buffer): Promise<void>;
   clearData(): Promise<void>;
 
-  clearUserAndData(): Promise<void>;
+  unprogram(): Promise<void>;
 }

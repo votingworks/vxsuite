@@ -219,7 +219,7 @@ export class MemoryCard implements Card {
     await this.card.writeLongUint8Array(Buffer.from([]));
   }
 
-  async clearUserAndData(): Promise<void> {
+  async unprogram(): Promise<void> {
     await this.card.overrideWriteProtection();
     await this.card.writeShortAndLongValues({
       shortValue: '',

@@ -144,7 +144,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     try {
-      await this.card.clearUserAndData();
+      await this.card.unprogram();
     } catch (error) {
       return wrapException(error);
     }
