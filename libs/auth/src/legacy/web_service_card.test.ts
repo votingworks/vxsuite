@@ -1,11 +1,16 @@
-import { CardSummaryReady } from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import fetchMock, { MockRequest } from 'fetch-mock';
 import { z } from 'zod';
 import { typedAs } from '@votingworks/basics';
-import { WebServiceCard } from '.';
+
+import { CardSummaryReady } from './card';
+import { WebServiceCard } from './web_service_card';
 
 const AbSchema = z.object({ a: z.number(), b: z.number() });
+
+beforeEach(() => {
+  fetchMock.reset();
+});
 
 it('fetches card status and short value from /card/read', async () => {
   fetchMock.get(

@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 export * from './auth';
 export * from './hmpb';
-export * from './card';
 export * from './cast_vote_record';
 export * as EventLogging from './cdf/election-event-logging';
 export * as CVR from './cdf_cast_vote_records';

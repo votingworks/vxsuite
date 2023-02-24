@@ -1,5 +1,5 @@
-import { DippedSmartCardAuthApi } from './dipped_smart_card_auth';
-import { InsertedSmartCardAuthApi } from './inserted_smart_card_auth';
+import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api';
+import { InsertedSmartCardAuthApi } from './inserted_smart_card_auth_api';
 
 /**
  * Builds a mock dipped smart card auth instance for application-level tests

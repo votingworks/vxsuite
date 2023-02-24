@@ -1,7 +1,6 @@
 import { Server } from 'http';
-import { InsertedSmartCardAuthWithMemoryCard } from '@votingworks/auth';
+import { InsertedSmartCardAuth, MemoryCard } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { WebServiceCard } from '@votingworks/utils';
 
 import { buildApp } from './app';
 import { PORT } from './globals';
@@ -18,8 +17,8 @@ export function start({
   port = PORT,
   logger = new Logger(LogSource.VxMarkBackend),
 }: Partial<StartOptions> = {}): Server {
-  const auth = new InsertedSmartCardAuthWithMemoryCard({
-    card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+  const auth = new InsertedSmartCardAuth({
+    card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowedUserRoles: [
         'system_administrator',

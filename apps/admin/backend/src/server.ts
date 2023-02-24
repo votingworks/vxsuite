@@ -23,10 +23,10 @@ import multer from 'multer';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
-  DippedSmartCardAuthWithMemoryCard,
+  DippedSmartCardAuth,
+  MemoryCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import { WebServiceCard } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -921,8 +921,8 @@ export async function start({
   const resolvedApp =
     app ??
     buildApp({
-      auth: new DippedSmartCardAuthWithMemoryCard({
-        card: new WebServiceCard({ baseUrl: 'http://localhost:3001' }),
+      auth: new DippedSmartCardAuth({
+        card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
         config: {
           allowElectionManagersToAccessUnconfiguredMachines: false,
         },
