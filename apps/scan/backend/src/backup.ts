@@ -115,10 +115,7 @@ export class Backup {
           ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
           resultSheetGenerator: this.store.forEachResultSheet(),
           batchInfo: this.store.batchStatus(),
-          imageOptions: {
-            which: 'all',
-            directory: '', // currently we don't place backup images in a subdirectory
-          },
+          reportContext: 'backup',
         })
       );
     }

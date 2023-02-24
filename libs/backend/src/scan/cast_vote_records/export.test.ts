@@ -1,4 +1,4 @@
-import { assert, err, ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   BallotPageLayout,
@@ -96,10 +96,7 @@ test('getCastVoteRecordReportStream', async () => {
     ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
-    imageOptions: {
-      directory: 'ballot-images',
-      which: 'write-ins',
-    },
+    reportContext: 'report-only',
     resultSheetGenerator: getResultSheetGenerator(),
   });
 
@@ -133,10 +130,7 @@ test('getCastVoteRecordReportStream results in error when validation fails', asy
     ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
-    imageOptions: {
-      directory: 'ballot-images',
-      which: 'write-ins',
-    },
+    reportContext: 'backup',
     resultSheetGenerator: getResultSheetGenerator(),
   });
 
@@ -148,7 +142,7 @@ test('getCastVoteRecordReportStream results in error when validation fails', asy
   expect.assertions(1);
 });
 
-test('getCastVoteRecordReportStream can include file uris according to setting', async () => {
+test('getCastVoteRecordReportStream can include file uris in backup format', async () => {
   function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
@@ -169,83 +163,53 @@ test('getCastVoteRecordReportStream can include file uris according to setting',
     };
   }
 
-  const testCases = [
-    {
-      which: 'write-ins',
-      expectedBallotImages: [
-        {
-          '@type': 'CVR.ImageData',
-          Location: 'file:./ballot-images/front.jpg',
-        },
-        {
-          '@type': 'CVR.ImageData',
-        },
-      ],
-      expectedWriteInImage: {
-        '@type': 'CVR.ImageData',
-        Location: 'file:./ballot-images/front.jpg',
-      },
-    },
-    {
-      which: 'all',
-      expectedBallotImages: [
-        {
-          '@type': 'CVR.ImageData',
-          Location: 'file:./ballot-images/front.jpg',
-        },
-        {
-          '@type': 'CVR.ImageData',
-          Location: 'file:./ballot-images/back.jpg',
-        },
-      ],
-      expectedWriteInImage: {
-        '@type': 'CVR.ImageData',
-        Location: 'file:./ballot-images/front.jpg',
-      },
-    },
-  ] as const;
+  const stream = getCastVoteRecordReportStream({
+    electionDefinition,
+    definiteMarkThreshold,
+    ballotPageLayoutsLookup,
+    isTestMode: false,
+    batchInfo,
+    reportContext: 'backup',
+    resultSheetGenerator: getResultSheetGenerator(),
+  });
 
-  for (const testCase of testCases) {
-    const stream = getCastVoteRecordReportStream({
-      electionDefinition,
-      definiteMarkThreshold,
-      ballotPageLayoutsLookup,
-      isTestMode: false,
-      batchInfo,
-      imageOptions: {
-        directory: 'ballot-images',
-        which: testCase.which,
-      },
-      resultSheetGenerator: getResultSheetGenerator(),
-    });
+  const parseResult = safeParseJson(
+    await streamToString(stream),
+    CVR.CastVoteRecordReportSchema
+  );
+  expect(parseResult.isOk()).toEqual(true);
+  const report = parseResult.ok();
+  expect(report?.CVR).toHaveLength(1);
 
-    const parseResult = safeParseJson(
-      await streamToString(stream),
-      CVR.CastVoteRecordReportSchema
-    );
-    expect(parseResult.isOk()).toEqual(true);
-    const result = parseResult.ok();
-    expect(result?.CVR).toHaveLength(1);
+  // check that file URIs appears at the top level of the CVR
+  expect(report).toHaveProperty(
+    ['CVR', 0, 'BallotImage', 0, 'Location'],
+    'file:./front.jpg'
+  );
+  expect(report).toHaveProperty(
+    ['CVR', 0, 'BallotImage', 1, 'Location'],
+    'file:./back.jpg'
+  );
 
-    // Check that file URI appears at the top level of the CVR
-    expect(result?.CVR?.[0]?.BallotImage).toEqual(
-      testCase.expectedBallotImages
-    );
-
-    // Check that file URI appears adjacent to the write-in
-    const modifiedSnapshot = result?.CVR?.[0]?.CVRSnapshot?.find(
-      (snapshot) => snapshot.Type === CVR.CVRType.Modified
-    );
-    assert(modifiedSnapshot);
-    const contestWithWriteIn = modifiedSnapshot.CVRContest?.find(
-      (contest) => contest.ContestId === fishCouncilContest.id
-    );
-    assert(contestWithWriteIn);
-    expect(
-      contestWithWriteIn.CVRContestSelection?.[0]?.SelectionPosition?.[0]
-        ?.CVRWriteIn?.WriteInImage
-    ).toEqual(testCase.expectedWriteInImage);
-  }
+  // check that relevant file URI appears adjacent to the write-in
+  expect(report).toHaveProperty(
+    [
+      'CVR',
+      0,
+      'CVRSnapshot',
+      0, // modified snapshot has index 0
+      'CVRContest',
+      1, // write-in contest has index 1
+      'CVRContestSelection',
+      0,
+      'SelectionPosition',
+      0,
+      'CVRWriteIn',
+      'WriteInImage',
+      'Location',
+    ],
+    'file:./front.jpg'
+  );
 });
 
 const exportDataToUsbDriveMock = jest.fn().mockImplementation(() => ok());
@@ -314,13 +278,13 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     2,
     expectedReportPath,
-    'ballot-images/front.jpg',
+    'ballot-images/batch-1/front.jpg',
     'mock-image-data'
   );
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     3,
     expectedReportPath,
-    'ballot-layouts/front.layout.json',
+    'ballot-layouts/batch-1/front.layout.json',
     JSON.stringify(mockBallotPageLayout, undefined, 2)
   );
 
@@ -331,6 +295,39 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     CVR.CastVoteRecordReportSchema
   );
   expect(parseResult.isOk()).toEqual(true);
+
+  const report = parseResult.ok();
+  // check that file URI appears at top-level of CVR for front page
+  expect(report).toHaveProperty(
+    ['CVR', 0, 'BallotImage', 0, 'Location'],
+    'file:./ballot-images/batch-1/front.jpg'
+  );
+
+  // check that file URI does not appear at top-level of CVR for back page
+  expect(report).toHaveProperty(
+    ['CVR', 0, 'BallotImage', 1, 'Location'],
+    undefined
+  );
+
+  // check that file URI appears adjacent to the write-in
+  expect(report).toHaveProperty(
+    [
+      'CVR',
+      0,
+      'CVRSnapshot',
+      0, // modified snapshot has index 0
+      'CVRContest',
+      1, // write-in contest has index 1
+      'CVRContestSelection',
+      0,
+      'SelectionPosition',
+      0,
+      'CVRWriteIn',
+      'WriteInImage',
+      'Location',
+    ],
+    'file:./ballot-images/batch-1/front.jpg'
+  );
 });
 
 test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () => {

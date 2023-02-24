@@ -45,9 +45,42 @@ export interface ResultSheet {
   readonly backNormalizedFilename: string;
 }
 
-interface CastVoteRecordReportImageOptions {
-  which: 'all' | 'write-ins';
-  directory: string;
+/**
+ * In cast vote record exports, the subdirectory under which images are
+ * stored.
+ */
+export const CVR_BALLOT_IMAGES_SUBDIRECTORY = 'ballot-images';
+
+/**
+ * In cast vote record exports, the subdirectory under which layouts are
+ * stored.
+ */
+export const CVR_BALLOT_LAYOUTS_SUBDIRECTORY = 'ballot-layouts';
+
+type ReportContext = 'backup' | 'report-only';
+
+function getImageFileUri({
+  reportContext,
+  batchId,
+  pageHasWriteIns,
+  filename,
+}: {
+  reportContext: ReportContext;
+  batchId: string;
+  pageHasWriteIns: boolean;
+  filename: string;
+}): Optional<string> {
+  if (reportContext === 'backup') {
+    return `file:./${basename(filename)}`;
+  }
+
+  if (pageHasWriteIns) {
+    return `file:./${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${batchId}/${basename(
+      filename
+    )}`;
+  }
+
+  return undefined;
 }
 
 interface GetCastVoteRecordGeneratorParams {
@@ -55,7 +88,7 @@ interface GetCastVoteRecordGeneratorParams {
   definiteMarkThreshold: number;
   resultSheetGenerator: Generator<ResultSheet>;
   ballotPageLayoutsLookup: BallotPageLayoutsLookup;
-  imageOptions: CastVoteRecordReportImageOptions;
+  reportContext: ReportContext;
 }
 
 /**
@@ -74,7 +107,7 @@ function* getCastVoteRecordGenerator({
   definiteMarkThreshold,
   resultSheetGenerator,
   ballotPageLayoutsLookup,
-  imageOptions,
+  reportContext,
 }: GetCastVoteRecordGeneratorParams): Generator<CVR.CVR> {
   const { electionHash, election } = electionDefinition;
   const electionId = electionHash;
@@ -136,19 +169,21 @@ function* getCastVoteRecordGenerator({
       pages: [
         {
           interpretation: front,
-          imageFileUri:
-            imageOptions.which === 'all' ||
-            (imageOptions.which === 'write-ins' && frontHasWriteIns)
-              ? `file:./${imageOptions.directory}/${basename(frontFilename)}`
-              : undefined,
+          imageFileUri: getImageFileUri({
+            reportContext,
+            batchId,
+            pageHasWriteIns: frontHasWriteIns,
+            filename: frontFilename,
+          }),
         },
         {
           interpretation: back,
-          imageFileUri:
-            imageOptions.which === 'all' ||
-            (imageOptions.which === 'write-ins' && backHasWriteIns)
-              ? `file:./${imageOptions.directory}/${basename(backFilename)}`
-              : undefined,
+          imageFileUri: getImageFileUri({
+            reportContext,
+            batchId,
+            pageHasWriteIns: backHasWriteIns,
+            filename: backFilename,
+          }),
         },
       ],
       ballotPageLayoutsLookup,
@@ -216,7 +251,7 @@ export function getCastVoteRecordReportStream({
   resultSheetGenerator,
   ballotPageLayoutsLookup,
   batchInfo,
-  imageOptions,
+  reportContext,
 }: BuildCastVoteRecordReportMetadataParams): NodeJS.ReadableStream {
   const { electionHash, election } = electionDefinition;
   const electionId = electionHash;
@@ -227,7 +262,7 @@ export function getCastVoteRecordReportStream({
     definiteMarkThreshold,
     resultSheetGenerator,
     ballotPageLayoutsLookup,
-    imageOptions,
+    reportContext,
   });
 
   const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata({
@@ -248,9 +283,6 @@ export function getCastVoteRecordReportStream({
   );
 }
 
-const CVR_BALLOT_IMAGES_SUBDIRECTORY = 'ballot-images';
-const CVR_BALLOT_LAYOUTS_SUBDIRECTORY = 'ballot-layouts';
-
 async function exportPageImageAndLayoutToUsbDrive({
   exporter,
   bucket,
@@ -258,6 +290,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   ballotPageLayoutsLookup,
   ballotPageMetadata,
   election,
+  batchId,
 }: {
   exporter: Exporter;
   bucket: string;
@@ -265,6 +298,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   ballotPageLayoutsLookup: BallotPageLayoutsLookup;
   ballotPageMetadata: BallotPageMetadata;
   election: Election;
+  batchId: string;
 }): Promise<Result<void, ExportDataError>> {
   const layout = getBallotPageLayout({
     ballotPageMetadata,
@@ -273,7 +307,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   });
   const exportImageResult = await exporter.exportDataToUsbDrive(
     bucket,
-    join(CVR_BALLOT_IMAGES_SUBDIRECTORY, basename(imageFilename)),
+    join(CVR_BALLOT_IMAGES_SUBDIRECTORY, batchId, basename(imageFilename)),
     fs.createReadStream(imageFilename)
   );
   if (exportImageResult.isErr()) {
@@ -283,7 +317,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   const layoutBasename = `${parse(imageFilename).name}.layout.json`;
   const exportLayoutResult = await exporter.exportDataToUsbDrive(
     bucket,
-    join(CVR_BALLOT_LAYOUTS_SUBDIRECTORY, layoutBasename),
+    join(CVR_BALLOT_LAYOUTS_SUBDIRECTORY, batchId, layoutBasename),
     JSON.stringify(layout, undefined, 2)
   );
   if (exportLayoutResult.isErr()) {
@@ -296,7 +330,7 @@ async function exportPageImageAndLayoutToUsbDrive({
 interface ExportCastVoteRecordReportToUsbDriveParams
   extends Omit<
     BuildCastVoteRecordReportMetadataParams,
-    'imageOptions' | 'resultSheetGenerator'
+    'reportContext' | 'resultSheetGenerator'
   > {
   ballotsCounted: number;
   getResultSheetGenerator: () => Generator<ResultSheet>;
@@ -349,10 +383,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
     ballotPageLayoutsLookup,
     definiteMarkThreshold,
     batchInfo,
-    imageOptions: {
-      which: 'write-ins',
-      directory: CVR_BALLOT_IMAGES_SUBDIRECTORY,
-    },
+    reportContext: 'report-only',
   });
 
   // it's possible the report generation throws an error due to an invalid
@@ -377,6 +408,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
   }
 
   for (const {
+    batchId,
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
@@ -416,6 +448,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
           ballotPageMetadata: front.metadata,
           ballotPageLayoutsLookup,
           election,
+          batchId,
         });
       if (exportFrontPageImageAndLayoutResult.isErr()) {
         return exportFrontPageImageAndLayoutResult;
@@ -432,6 +465,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
           ballotPageMetadata: back.metadata,
           ballotPageLayoutsLookup,
           election,
+          batchId,
         });
       if (exportBackPageImageAndLayoutResult.isErr()) {
         return exportBackPageImageAndLayoutResult;
