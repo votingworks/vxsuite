@@ -32,7 +32,6 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
-import { useMarkResultsOfficialMutation } from '../hooks/use_mark_results_official_mutation';
 import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
@@ -40,6 +39,7 @@ import { ElectionManagerTallyReport } from '../components/election_manager_tally
 import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
 import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 import { PrintButton } from '../components/print_button';
+import { markResultsOfficial } from '../api';
 
 export function TallyReportScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -60,7 +60,7 @@ export function TallyReportScreen(): JSX.Element {
     auth,
     logger,
   } = useContext(AppContext);
-  const markResultsOfficialMutation = useMarkResultsOfficialMutation();
+  const markResultsOfficialMutation = markResultsOfficial.useMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
@@ -215,6 +215,11 @@ export function TallyReportScreen(): JSX.Element {
   async function markOfficial() {
     setIsMarkOfficialModalOpen(false);
     await markResultsOfficialMutation.mutateAsync();
+    await logger.log(LogEventId.MarkedTallyResultsOfficial, userRole, {
+      message:
+        'User has marked the tally results as official, no more cast vote record files can be loaded.',
+      disposition: 'success',
+    });
   }
 
   if (isTabulationRunning) {

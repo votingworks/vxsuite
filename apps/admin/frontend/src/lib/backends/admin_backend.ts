@@ -384,30 +384,6 @@ export class ElectionManagerStoreAdminBackend
     });
   }
 
-  async markResultsOfficial(): Promise<void> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
-    await fetchJson(`/admin/elections/${currentElectionId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(
-        typedAs<Admin.PatchElectionRequest>({ isOfficialResults: true })
-      ),
-    });
-
-    await this.logger.log(
-      LogEventId.MarkedTallyResultsOfficial,
-      this.currentUserRole,
-      {
-        message:
-          'User has marked the tally results as official, no more Cvr files can be loaded.',
-        disposition: 'success',
-      }
-    );
-  }
-
   async reset(): Promise<void> {
     const currentElectionId = await this.loadCurrentElectionId();
 

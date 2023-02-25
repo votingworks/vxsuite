@@ -35,6 +35,7 @@ import {
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 
+import { QueryClient } from '@tanstack/react-query';
 import { App } from './app';
 import {
   eitherNeitherElectionDefinition,
@@ -560,10 +561,12 @@ test('tabulating CVRs', async () => {
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const logger = fakeLogger();
+  const queryClient = new QueryClient();
+
   const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
       <App hardware={hardware} printer={printer} converter="ms-sems" />,
-      { apiClient: mockApiClient, backend, logger }
+      { apiClient: mockApiClient, backend, logger, queryClient }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateAsElectionManager(
@@ -586,7 +589,13 @@ test('tabulating CVRs', async () => {
   fireEvent.click(markOfficialButton);
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
+  mockApiClient.markResultsOfficial.expectCallWith().resolves();
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
+
+  // since isOfficial is fetched from the memory backend, not the mock api
+  // client, have to set its results as official and also invalidate the query
+  await backend.markResultsOfficial();
+  await queryClient.invalidateQueries();
 
   // Report title should be rendered 2 times - app and preview
   await waitFor(() => {
@@ -986,6 +995,7 @@ test('clearing all files after marking as official clears CVR and manual file', 
     electionDefinition: eitherNeitherElectionDefinition,
   });
   await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
+  const queryClient = new QueryClient();
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
     { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -1003,7 +1013,7 @@ test('clearing all files after marking as official clears CVR and manual file', 
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, queryByText } = renderRootElement(
     <App hardware={hardware} converter="ms-sems" />,
-    { apiClient: mockApiClient, backend }
+    { apiClient: mockApiClient, backend, queryClient }
   );
   await authenticateAsElectionManager(
     mockApiClient,
@@ -1024,7 +1034,13 @@ test('clearing all files after marking as official clears CVR and manual file', 
   await waitFor(() => expect(markOfficialButton).toBeEnabled());
   fireEvent.click(markOfficialButton);
   const modal = await screen.findByRole('alertdialog');
+  mockApiClient.markResultsOfficial.expectCallWith().resolves();
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
+
+  // since isOfficial is fetched from the memory backend, not the mock api
+  // client, have to set its results as official and also invalidate the query
+  await backend.markResultsOfficial();
+  await queryClient.invalidateQueries();
 
   fireEvent.click(getByText('Reports'));
   await waitFor(() => {

@@ -102,3 +102,10 @@ export const unprogramCard = {
     });
   },
 } as const;
+
+export const markResultsOfficial = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.markResultsOfficial);
+  },
+} as const;

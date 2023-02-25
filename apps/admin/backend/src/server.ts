@@ -15,7 +15,7 @@ import {
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import { assert, zip } from '@votingworks/basics';
+import { assert, assertDefined, zip } from '@votingworks/basics';
 import express, { Application } from 'express';
 import compression from 'compression';
 import * as fs from 'fs/promises';
@@ -51,6 +51,11 @@ function getMostRecentlyCreateElectionDefinition(
   return mostRecentlyCreatedElection?.electionDefinition;
 }
 
+function assertCurrentElectionId(workspace: Workspace): Id {
+  const currentElectionId = workspace.store.getCurrentElectionId();
+  return assertDefined(currentElectionId);
+}
+
 function constructDippedSmartCardAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
@@ -67,6 +72,8 @@ function constructDippedSmartCardAuthMachineState(
 }
 
 function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
+  const { store } = workspace;
+
   return grout.createApi({
     getAuthStatus() {
       return auth.getAuthStatus(
@@ -107,6 +114,13 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
     unprogramCard() {
       return auth.unprogramCard(
         constructDippedSmartCardAuthMachineState(workspace)
+      );
+    },
+
+    markResultsOfficial() {
+      store.setElectionResultsOfficial(
+        assertCurrentElectionId(workspace),
+        true
       );
     },
   });
@@ -180,45 +194,6 @@ export function buildApp({
 
     store.setCurrentElectionId(electionId);
     response.json({ status: 'ok', id: electionId });
-  });
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Admin.PatchElectionResponse,
-    Admin.PatchElectionRequest
-  >('/admin/elections/:electionId', (request, response) => {
-    const parseResult = safeParse(
-      Admin.PatchElectionRequestSchema,
-      request.body
-    );
-
-    if (parseResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          { type: 'ValidationError', message: parseResult.err().message },
-        ],
-      });
-      return;
-    }
-
-    const { electionId } = request.params;
-    const { isOfficialResults } = parseResult.ok();
-
-    const election = store.getElection(electionId);
-    if (!election) {
-      response.status(404).json({
-        status: 'error',
-        errors: [{ type: 'NotFound', message: 'Election not found' }],
-      });
-      return;
-    }
-
-    if (typeof isOfficialResults === 'boolean') {
-      store.setElectionResultsOfficial(electionId, isOfficialResults);
-    }
-
-    response.json({ status: 'ok' });
   });
 
   // deletes the only current election

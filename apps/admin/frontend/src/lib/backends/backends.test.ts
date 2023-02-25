@@ -430,17 +430,8 @@ describe.each([
     await backend.configure(
       electionFamousNames2021Fixtures.electionDefinition.electionData
     );
-    await backend.markResultsOfficial();
     await backend.reset();
     expect(await backend.loadCurrentElectionMetadata()).toBeUndefined();
-  });
-
-  test('marking results as official', async () => {
-    const backend = makeBackend();
-    await backend.configure(
-      electionFamousNames2021Fixtures.electionDefinition.electionData
-    );
-    await backend.markResultsOfficial();
   });
 
   test('cast vote record files', async () => {

@@ -90,11 +90,6 @@ export interface ElectionManagerStoreBackend {
   clearFullElectionExternalTallies(): Promise<void>;
 
   /**
-   * Marks the results as official. No more tallies can be added after this.
-   */
-  markResultsOfficial(): Promise<void>;
-
-  /**
    * Loads the existing printed ballots.
    */
   loadPrintedBallots(options?: {

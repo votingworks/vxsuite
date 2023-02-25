@@ -944,56 +944,6 @@ test('GET /admin/elections/:electionId/write-in-adjudications bad query', async 
     .expect(400);
 });
 
-test('PATCH /admin/elections/:electionId isOfficialResults', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-
-  await request(app)
-    .patch(`/admin/elections/${electionId}`)
-    .send({ isOfficialResults: true })
-    .expect(200);
-
-  expect(workspace.store.getElection(electionId)).toEqual(
-    expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
-        isOfficialResults: true,
-      })
-    )
-  );
-
-  await request(app)
-    .patch(`/admin/elections/${electionId}`)
-    .send({ isOfficialResults: false })
-    .expect(200);
-
-  expect(workspace.store.getElection(electionId)).toEqual(
-    expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
-        isOfficialResults: false,
-      })
-    )
-  );
-});
-
-test('PATCH /admin/elections/:electionId bad request', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-
-  await request(app)
-    .patch(`/admin/elections/${electionId}`)
-    .send({ bad: 'request' })
-    .expect(400);
-});
-
-test('PATCH /admin/elections/:electionId bad election ID', async () => {
-  await request(app)
-    .patch(`/admin/elections/unknown-election-id`)
-    .send({})
-    .expect(404);
-});
-
 test('auth', async () => {
   const logger = fakeLogger();
   workspace.store.addElection(
@@ -1066,4 +1016,26 @@ test('auth before election definition has been configured', async () => {
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     electionHash: undefined,
   });
+});
+
+test('setElectionResultsOfficial', async () => {
+  const logger = fakeLogger();
+
+  server = await start({ app, logger, workspace });
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${PORT}/api`,
+  });
+
+  await request(app)
+    .post('/admin/elections')
+    .set('Content-Type', 'application/json')
+    .send(electionMinimalExhaustiveSampleFixtures.electionDefinition)
+    .expect(200);
+
+  let elections = await request(app).get('/admin/elections').expect(200);
+  expect(elections.body[0]).toMatchObject({ isOfficialResults: false });
+
+  await apiClient.markResultsOfficial();
+  elections = await request(app).get('/admin/elections').expect(200);
+  expect(elections.body[0]).toMatchObject({ isOfficialResults: true });
 });
