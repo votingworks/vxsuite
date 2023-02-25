@@ -221,7 +221,7 @@ export class Store {
   getCurrentElectionId(): Optional<Id> {
     const currentElection = this.client.one(
       `
-      select election_id as electionId from current_election_id
+      select election_id as electionId from current_election
     `
     ) as { electionId: Id } | undefined;
 

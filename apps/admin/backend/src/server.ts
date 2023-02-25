@@ -177,6 +177,8 @@ export function buildApp({
 
     const electionDefinition = parseResult.ok();
     const electionId = store.addElection(electionDefinition.electionData);
+
+    store.setCurrentElectionId(electionId);
     response.json({ status: 'ok', id: electionId });
   });
 
@@ -219,10 +221,15 @@ export function buildApp({
     response.json({ status: 'ok' });
   });
 
+  // deletes the only current election
   deprecatedApiRouter.delete<{ electionId: Id }>(
-    '/admin/elections/:electionId',
-    (request, response) => {
-      store.deleteElection(request.params.electionId);
+    '/admin/elections',
+    (_request, response) => {
+      const currentElectionId = store.getCurrentElectionId();
+      if (currentElectionId) {
+        store.deleteElection(currentElectionId);
+        store.setCurrentElectionId();
+      }
       response.json({ status: 'ok' });
     }
   );

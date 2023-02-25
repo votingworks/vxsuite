@@ -1108,6 +1108,7 @@ test('write-in adjudication lifecycle', async () => {
 
   expect(store.getDebugSummary()).toMatchInlineSnapshot(`
     Map {
+      "current_election" => 0,
       "cvr_file_entries" => 2,
       "cvr_files" => 1,
       "cvrs" => 2,
@@ -1122,6 +1123,7 @@ test('write-in adjudication lifecycle', async () => {
 
   expect(store.getDebugSummary()).toMatchInlineSnapshot(`
     Map {
+      "current_election" => 0,
       "cvr_file_entries" => 0,
       "cvr_files" => 0,
       "cvrs" => 0,
@@ -1225,4 +1227,19 @@ test('printed ballots', () => {
       }
     )
   );
+});
+
+test('manage current election id', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  expect(store.getCurrentElectionId()).toBeUndefined();
+
+  store.setCurrentElectionId(electionId);
+  expect(store.getCurrentElectionId()).toEqual(electionId);
+
+  store.setCurrentElectionId(undefined);
+  expect(store.getCurrentElectionId()).toBeUndefined();
 });

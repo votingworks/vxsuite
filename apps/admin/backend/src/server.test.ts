@@ -113,6 +113,7 @@ test('GET /admin/elections', async () => {
 });
 
 test('POST /admin/elections', async () => {
+  expect(workspace.store.getCurrentElectionId()).toBeUndefined();
   const response = await request(app)
     .post('/admin/elections')
     .set('Content-Type', 'application/json')
@@ -122,6 +123,7 @@ test('POST /admin/elections', async () => {
     status: 'ok',
     id: expect.any(String),
   });
+  expect(workspace.store.getCurrentElectionId()).toBeDefined();
 
   const getResponse = await request(app).get('/admin/elections').expect(200);
   expect(getResponse.body).toEqual([
@@ -149,13 +151,20 @@ test('POST /admin/elections', async () => {
     .expect(400);
 });
 
-test('DELETE /admin/elections/:electionId', async () => {
-  const electionId = workspace.store.addElection(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-
-  await request(app).delete(`/admin/elections/${electionId}`).expect(200);
-  await request(app).get('/admin/elections').expect(200, []);
+test('DELETE /admin/elections', async () => {
+  await request(app)
+    .post('/admin/elections')
+    .set('Content-Type', 'application/json')
+    .send(electionFamousNames2021Fixtures.electionDefinition)
+    .expect(200);
+  const nonEmptyResponse = await request(app)
+    .get('/admin/elections')
+    .expect(200);
+  expect(nonEmptyResponse.body).toHaveLength(1);
+  await request(app).delete(`/admin/elections`).expect(200);
+  const emptyResponse = await request(app).get('/admin/elections').expect(200);
+  expect(emptyResponse.body).toHaveLength(0);
+  expect(workspace.store.getCurrentElectionId()).toBeUndefined();
 });
 
 test('GET /admin/elections/:electionId/cvr-files happy path', async () => {
