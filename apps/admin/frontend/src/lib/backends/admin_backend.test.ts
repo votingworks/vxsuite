@@ -10,57 +10,49 @@ import { BallotId, CastVoteRecord } from '@votingworks/types';
 import { MemoryStorage } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import moment from 'moment';
-import {
-  currentElectionIdStorageKey,
-  ElectionManagerStoreAdminBackend,
-} from './admin_backend';
+import { ElectionManagerStoreAdminBackend } from './admin_backend';
 
-const getElectionsResponse: Admin.GetElectionsResponse = [
-  {
+const getCurrentElectionResponse: Admin.GetCurrentElectionResponse = {
+  status: 'ok',
+  electionRecord: {
     id: 'test-election-1',
-    electionDefinition: electionWithMsEitherNeitherDefinition,
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
     createdAt: '2021-01-01T00:00:00.000Z',
     isOfficialResults: false,
   },
-  {
-    id: 'test-election-2',
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-    createdAt: '2022-01-01T00:00:00.000Z',
-    isOfficialResults: false,
-  },
-];
+};
 
 beforeEach(() => {
   fetchMock.reset();
 });
 
-test('load election without a current election ID', async () => {
+test('load election can return undefined', async () => {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  fetchMock.reset().get('/admin/elections', {
-    body: getElectionsResponse,
+  fetchMock.reset().get('/admin/elections/current', {
+    body: { status: 'ok' },
   });
 
   await expect(backend.loadCurrentElectionMetadata()).resolves.toBeUndefined();
 });
 
-test('load election with a current election ID', async () => {
+test('load election can return an election', async () => {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.reset().get('/admin/elections', {
-    body: getElectionsResponse,
+  fetchMock.reset().get('/admin/elections/current', {
+    body: getCurrentElectionResponse,
   });
 
   await expect(backend.loadCurrentElectionMetadata()).resolves.toStrictEqual(
     expect.objectContaining(
       typedAs<Partial<Admin.ElectionRecord>>({
+        id: 'test-election-1',
         electionDefinition: electionMinimalExhaustiveSampleDefinition,
-        createdAt: '2022-01-01T00:00:00.000Z',
+        createdAt: '2021-01-01T00:00:00.000Z',
       })
     )
   );
@@ -71,8 +63,7 @@ test('load election HTTP error', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-1');
-  fetchMock.reset().get('/admin/elections', 500);
+  fetchMock.reset().get('/admin/elections/current', 500);
 
   await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();
 });
@@ -82,8 +73,7 @@ test('load election invalid response', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-1');
-  fetchMock.reset().get('/admin/elections', [{ invalid: 'response' }]);
+  fetchMock.reset().get('/admin/elections/current', [{ invalid: 'response' }]);
 
   await expect(backend.loadCurrentElectionMetadata()).rejects.toThrowError();
 });
@@ -100,7 +90,10 @@ test('configure HTTP error', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  fetchMock.reset().post('/admin/elections', 500);
+  fetchMock
+    .reset()
+    .post('/admin/elections', 500)
+    .delete('/admin/elections/current', 200);
 
   await expect(
     backend.configure(electionWithMsEitherNeitherDefinition.electionData)
@@ -112,7 +105,10 @@ test('configure invalid response', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  fetchMock.reset().post('/admin/elections', { invalid: 'response' });
+  fetchMock
+    .reset()
+    .post('/admin/elections', { invalid: 'response' })
+    .delete('/admin/elections/current', { body: { status: 'ok' } });
 
   await expect(
     backend.configure(electionWithMsEitherNeitherDefinition.electionData)
@@ -124,15 +120,18 @@ test('configure errors response', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  fetchMock.reset().post('/admin/elections', {
-    body: typedAs<Admin.PostElectionResponse>({
-      status: 'error',
-      errors: [
-        { type: 'invalid', message: 'invalid election' },
-        { type: 'another', message: 'I do not like you' },
-      ],
-    }),
-  });
+  fetchMock
+    .reset()
+    .post('/admin/elections', {
+      body: typedAs<Admin.PostElectionResponse>({
+        status: 'error',
+        errors: [
+          { type: 'invalid', message: 'invalid election' },
+          { type: 'another', message: 'I do not like you' },
+        ],
+      }),
+    })
+    .delete('/admin/elections/current', { body: { status: 'ok' } });
 
   await expect(
     backend.configure(electionWithMsEitherNeitherDefinition.electionData)
@@ -144,8 +143,7 @@ test('getCvrFiles happy path', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', getElectionsResponse);
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
   const getCvrFilesResponse: Admin.GetCvrFilesResponse = [
     {
@@ -172,10 +170,7 @@ test('getCvrFiles happy path', async () => {
     },
   ];
 
-  fetchMock.get(
-    '/admin/elections/test-election-2/cvr-files',
-    getCvrFilesResponse
-  );
+  fetchMock.get('/admin/elections/cvr-files', getCvrFilesResponse);
 
   await expect(backend.getCvrFiles()).resolves.toEqual<
     Admin.CastVoteRecordFileRecord[]
@@ -187,10 +182,9 @@ test('getCvrFiles throws on fetch error', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', getElectionsResponse);
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
-  fetchMock.get('/admin/elections/test-election-2/cvr-files', { status: 500 });
+  fetchMock.get('/admin/elections/cvr-files', { status: 500 });
 
   await expect(backend.getCvrFiles()).rejects.toThrowError();
 });
@@ -200,8 +194,7 @@ test('getCvrs happy path', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-1');
-  fetchMock.get('/admin/elections', getElectionsResponse);
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
   const getCvrsResponse: Admin.GetCvrsResponse = [
     {
@@ -226,7 +219,7 @@ test('getCvrs happy path', async () => {
     },
   ];
 
-  fetchMock.get('/admin/elections/test-election-1/cvrs', getCvrsResponse);
+  fetchMock.get('/admin/elections/cvrs', getCvrsResponse);
 
   await expect(backend.getCvrs()).resolves.toEqual<CastVoteRecord[]>(
     getCvrsResponse
@@ -238,10 +231,9 @@ test('getCvrs throws on fetch error', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', getElectionsResponse);
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
-  fetchMock.get('/admin/elections/test-election-2/cvrs', { status: 500 });
+  fetchMock.get('/admin/elections/cvrs', { status: 500 });
 
   await expect(backend.getCvrs()).rejects.toThrowError();
 });
@@ -252,8 +244,7 @@ test('addCastVoteRecordFile happy path', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', { body: getElectionsResponse });
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
   const exportedTimestamp = '2021-09-02T22:27:58.327Z';
   const apiResponse: Admin.PostCvrFileResponse = {
@@ -267,17 +258,14 @@ test('addCastVoteRecordFile happy path', async () => {
     scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   };
-  fetchMock.post(
-    '/admin/elections/test-election-2/cvr-files?',
-    (_url, mockRequest) => {
-      assert(mockRequest.body instanceof FormData);
+  fetchMock.post('/admin/elections/cvr-files?', (_url, mockRequest) => {
+    assert(mockRequest.body instanceof FormData);
 
-      const formData: FormData = mockRequest.body;
-      expect(formData.get('exportedTimestamp')).toEqual(exportedTimestamp);
+    const formData: FormData = mockRequest.body;
+    expect(formData.get('exportedTimestamp')).toEqual(exportedTimestamp);
 
-      return apiResponse;
-    }
-  );
+    return apiResponse;
+  });
 
   await expect(
     backend.addCastVoteRecordFile(
@@ -303,8 +291,7 @@ test('addCastVoteRecordFile prioritizes export timestamp in filename', async () 
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', { body: getElectionsResponse });
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
   const timestampFromFileInfo = '2022-01-01T00:00:00.000Z';
   const timestampFromFilename = '2021-09-12_08-11-25';
@@ -327,19 +314,16 @@ test('addCastVoteRecordFile prioritizes export timestamp in filename', async () 
     scannerIds: ['scanner-4', 'scanner-6'],
     wasExistingFile: false,
   };
-  fetchMock.post(
-    '/admin/elections/test-election-2/cvr-files?',
-    (_url, mockRequest) => {
-      assert(mockRequest.body instanceof FormData);
+  fetchMock.post('/admin/elections/cvr-files?', (_url, mockRequest) => {
+    assert(mockRequest.body instanceof FormData);
 
-      const formData: FormData = mockRequest.body;
-      expect(formData.get('exportedTimestamp')).toEqual(
-        timestampFromFilenameIsoString
-      );
+    const formData: FormData = mockRequest.body;
+    expect(formData.get('exportedTimestamp')).toEqual(
+      timestampFromFilenameIsoString
+    );
 
-      return apiResponse;
-    }
-  );
+    return apiResponse;
+  });
 
   await expect(
     backend.addCastVoteRecordFile(
@@ -365,8 +349,6 @@ test('addCastVoteRecordFile analyze only', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-
   const exportedTimestamp = '2021-09-02T22:27:58.327Z';
   const apiResponse: Admin.PostCvrFileResponse = {
     status: 'ok',
@@ -379,10 +361,7 @@ test('addCastVoteRecordFile analyze only', async () => {
     scannerIds: ['scanner-2', 'scanner-3'],
     wasExistingFile: false,
   };
-  fetchMock.post(
-    `/admin/elections/test-election-2/cvr-files?analyzeOnly=true`,
-    apiResponse
-  );
+  fetchMock.post(`/admin/elections/cvr-files?analyzeOnly=true`, apiResponse);
 
   await expect(
     backend.addCastVoteRecordFile(
@@ -407,16 +386,13 @@ test('addCastVoteRecordFile handles api errors', async () => {
   const logger = fakeLogger();
   const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 
-  await storage.set(currentElectionIdStorageKey, 'test-election-2');
-  fetchMock.get('/admin/elections', { body: getElectionsResponse });
-
-  await storage.set(currentElectionIdStorageKey, 'test-election-id');
+  fetchMock.get('/admin/elections/current', getCurrentElectionResponse);
 
   const apiError: Admin.PostCvrFileResponse = {
     status: 'error',
     errors: [{ type: 'oops', message: 'that was unexpected' }],
   };
-  fetchMock.post(`/admin/elections/test-election-id/cvr-files?`, apiError);
+  fetchMock.post(`/admin/elections/cvr-files?`, apiError);
 
   await expect(
     backend.addCastVoteRecordFile(

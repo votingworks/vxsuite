@@ -154,7 +154,7 @@ test('POST /admin/elections', async () => {
     .expect(400);
 });
 
-test('DELETE /admin/elections', async () => {
+test('DELETE /admin/elections/current', async () => {
   await request(app)
     .post('/admin/elections')
     .set('Content-Type', 'application/json')
@@ -164,10 +164,26 @@ test('DELETE /admin/elections', async () => {
     .get('/admin/elections')
     .expect(200);
   expect(nonEmptyResponse.body).toHaveLength(1);
-  await request(app).delete(`/admin/elections`).expect(200);
+  await request(app).delete(`/admin/elections/current`).expect(200);
   const emptyResponse = await request(app).get('/admin/elections').expect(200);
   expect(emptyResponse.body).toHaveLength(0);
   expect(workspace.store.getCurrentElectionId()).toBeUndefined();
+});
+
+test('GET /admin/elections/current', async () => {
+  const emptyResponse = await request(app)
+    .get('/admin/elections/current')
+    .expect(200);
+  expect(emptyResponse.body.electionRecord).toBeUndefined();
+
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+
+  const nonEmptyResponse = await request(app)
+    .get('/admin/elections/current')
+    .expect(200);
+  expect(nonEmptyResponse.body.electionRecord).toMatchObject({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+  });
 });
 
 test('GET /admin/elections/cvr-files happy path', async () => {

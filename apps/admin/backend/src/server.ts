@@ -51,9 +51,12 @@ function getMostRecentlyCreateElectionDefinition(
   return mostRecentlyCreatedElection?.electionDefinition;
 }
 
+function loadCurrentElectionId(workspace: Workspace): Optional<Id> {
+  return workspace.store.getCurrentElectionId();
+}
+
 function loadCurrentElectionIdOrThrow(workspace: Workspace): Id {
-  const currentElectionId = workspace.store.getCurrentElectionId();
-  return assertDefined(currentElectionId);
+  return assertDefined(loadCurrentElectionId(workspace));
 }
 
 function constructDippedSmartCardAuthMachineState(
@@ -196,15 +199,32 @@ export function buildApp({
     response.json({ status: 'ok' });
   });
 
-  // deletes the current election
-  deprecatedApiRouter.delete('/admin/elections', (_request, response) => {
-    const currentElectionId = store.getCurrentElectionId();
-    if (currentElectionId) {
-      store.deleteElection(currentElectionId);
-      store.setCurrentElectionId();
+  deprecatedApiRouter.get<NoParams, Admin.GetCurrentElectionResponse>(
+    '/admin/elections/current',
+    (_request, response) => {
+      const electionId = loadCurrentElectionId(workspace);
+      if (!electionId) {
+        response.json({ status: 'ok' });
+      } else {
+        response.json({
+          status: 'ok',
+          electionRecord: store.getElection(electionId),
+        });
+      }
     }
-    response.json({ status: 'ok' });
-  });
+  );
+
+  deprecatedApiRouter.delete(
+    '/admin/elections/current',
+    (_request, response) => {
+      const currentElectionId = store.getCurrentElectionId();
+      if (currentElectionId) {
+        store.deleteElection(currentElectionId);
+        store.setCurrentElectionId();
+      }
+      response.json({ status: 'ok' });
+    }
+  );
 
   deprecatedApiRouter.get<NoParams, Admin.GetCvrFilesResponse>(
     '/admin/elections/cvr-files',
@@ -220,20 +240,26 @@ export function buildApp({
   deprecatedApiRouter.get<NoParams, Admin.GetCvrsResponse>(
     '/admin/elections/cvrs',
     (_request, response) => {
-      response.json(
-        store
-          .getCastVoteRecordEntries(loadCurrentElectionIdOrThrow(workspace))
-          .map(
-            (entry) =>
-              safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
-          )
-          .map((cvr) => ({
-            ...cvr,
-            // Strip out ballot images to keep the response size low, since
-            // they're not needed client-side.
-            _ballotImages: undefined,
-          }))
-      );
+      const currentElectionId = loadCurrentElectionId(workspace);
+
+      if (!currentElectionId) {
+        response.json([]);
+      } else {
+        response.json(
+          store
+            .getCastVoteRecordEntries(currentElectionId)
+            .map(
+              (entry) =>
+                safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
+            )
+            .map((cvr) => ({
+              ...cvr,
+              // Strip out ballot images to keep the response size low, since
+              // they're not needed client-side.
+              _ballotImages: undefined,
+            }))
+        );
+      }
     }
   );
 

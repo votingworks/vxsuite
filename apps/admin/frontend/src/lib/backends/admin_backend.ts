@@ -10,7 +10,6 @@ import {
   FullElectionExternalTallies,
   FullElectionExternalTally,
   Id,
-  IdSchema,
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -58,16 +57,6 @@ export class ElectionManagerStoreAdminBackend
     this.storage = storage;
     this.logger = logger;
     this.currentUserRole = currentUserRole ?? 'unknown';
-  }
-
-  private async loadCurrentElectionIdOrThrow(): Promise<Id> {
-    const electionId = await this.loadCurrentElectionId();
-
-    if (!electionId) {
-      throw new Error('Election definition must be configured first');
-    }
-
-    return electionId;
   }
 
   async loadFullElectionExternalTallies(): Promise<
@@ -138,14 +127,12 @@ export class ElectionManagerStoreAdminBackend
   }: { ballotMode?: Admin.BallotMode } = {}): Promise<
     Admin.PrintedBallotRecord[]
   > {
-    const electionId = await this.loadCurrentElectionIdOrThrow();
-
     const searchParams = new URLSearchParams();
     if (ballotMode) {
       searchParams.set('ballotMode', ballotMode);
     }
     const response = await fetchJson(
-      `/admin/elections/${electionId}/printed-ballots?${searchParams}`
+      `/admin/elections/printed-ballots?${searchParams}`
     );
 
     const parseResult = safeParse(
@@ -168,18 +155,13 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async addPrintedBallot(newPrintedBallot: Admin.PrintedBallot): Promise<Id> {
-    const electionId = await this.loadCurrentElectionIdOrThrow();
-
-    const response = await fetchJson(
-      `/admin/elections/${electionId}/printed-ballots`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPrintedBallot),
-      }
-    );
+    const response = await fetchJson(`/admin/elections/printed-ballots`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newPrintedBallot),
+    });
 
     const parseResult = safeParse(
       Admin.PostPrintedBallotResponseSchema,
@@ -200,25 +182,12 @@ export class ElectionManagerStoreAdminBackend
     return body.id;
   }
 
-  private async loadCurrentElectionId(): Promise<Id | undefined> {
-    return safeParse(
-      IdSchema,
-      await this.storage.get(currentElectionIdStorageKey)
-    ).ok();
-  }
-
   async loadCurrentElectionMetadata(): Promise<
     Admin.ElectionRecord | undefined
   > {
-    const currentElectionId = await this.loadCurrentElectionId();
-
-    if (!currentElectionId) {
-      return undefined;
-    }
-
     const parseResult = safeParse(
-      Admin.GetElectionsResponseSchema,
-      await fetchJson('/admin/elections')
+      Admin.GetCurrentElectionResponseSchema,
+      await fetchJson('/admin/elections/current')
     );
 
     /* istanbul ignore next */
@@ -226,11 +195,7 @@ export class ElectionManagerStoreAdminBackend
       throw parseResult.err();
     }
 
-    for (const election of parseResult.ok()) {
-      if (election.id === currentElectionId) {
-        return election;
-      }
-    }
+    return parseResult.ok().electionRecord;
   }
 
   async configure(newElectionData: string): Promise<ElectionDefinition> {
@@ -272,16 +237,12 @@ export class ElectionManagerStoreAdminBackend
       );
     }
 
-    await this.storage.set(currentElectionIdStorageKey, parsedResponse.id);
-
     return parsedElectionDefinition;
   }
 
   async getCurrentCvrFileMode(): Promise<Admin.CvrFileMode> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/cvr-file-mode`
+      `/admin/elections/cvr-file-mode`
     )) as Admin.GetCvrFileModeResponse;
 
     if (response.status !== 'ok') {
@@ -296,30 +257,19 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async getCvrFiles(): Promise<Admin.CastVoteRecordFileRecord[]> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     return (await fetchJson(
-      `/admin/elections/${currentElectionId}/cvr-files`
+      `/admin/elections/cvr-files`
     )) as Admin.CastVoteRecordFileRecord[];
   }
 
   async getCvrs(): Promise<CastVoteRecord[]> {
-    const currentElectionId = await this.loadCurrentElectionId();
-    if (!currentElectionId) {
-      return [];
-    }
-
-    return (await fetchJson(
-      `/admin/elections/${currentElectionId}/cvrs`
-    )) as CastVoteRecord[];
+    return (await fetchJson(`/admin/elections/cvrs`)) as CastVoteRecord[];
   }
 
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File,
     options?: { analyzeOnly?: boolean }
   ): Promise<Admin.CvrFileImportInfo> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const infoFromFilename = parseCvrFileInfoFromFilename(
       newCastVoteRecordFile.name
     );
@@ -341,7 +291,7 @@ export class ElectionManagerStoreAdminBackend
 
     const addCastVoteRecordFileResponse = await fetchWithSchema(
       Admin.PostCvrFileResponseSchema,
-      `/admin/elections/${currentElectionId}/cvr-files?${query}`,
+      `/admin/elections/cvr-files?${query}`,
       { method: 'POST', body: formData }
     );
 
@@ -377,31 +327,23 @@ export class ElectionManagerStoreAdminBackend
   }
 
   async clearCastVoteRecordFiles(): Promise<void> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
-    await fetchJson(`/admin/elections/${currentElectionId}/cvr-files`, {
+    await fetchJson(`/admin/elections/cvr-files`, {
       method: 'DELETE',
     });
   }
 
   async reset(): Promise<void> {
-    const currentElectionId = await this.loadCurrentElectionId();
-
     await this.storage.clear();
 
-    if (currentElectionId) {
-      await fetchJson(`/admin/elections/${currentElectionId}`, {
-        method: 'DELETE',
-      });
-    }
+    await fetchJson(`/admin/elections/current`, {
+      method: 'DELETE',
+    });
   }
 
   async loadWriteIns(options?: {
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const query = new URLSearchParams();
     if (options?.contestId) {
       query.set('contestId', options.contestId);
@@ -411,7 +353,7 @@ export class ElectionManagerStoreAdminBackend
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/write-ins?${query}`
+      `/admin/elections/write-ins?${query}`
     )) as Admin.GetWriteInsResponse;
 
     if (!Array.isArray(response)) {
@@ -462,15 +404,13 @@ export class ElectionManagerStoreAdminBackend
   async loadWriteInAdjudications(options?: {
     contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const query = new URLSearchParams();
     if (options?.contestId) {
       query.set('contestId', options.contestId);
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/write-in-adjudications?${query}`
+      `/admin/elections/write-in-adjudications?${query}`
     )) as Admin.GetWriteInAdjudicationsResponse;
 
     if (!Array.isArray(response)) {
@@ -486,10 +426,8 @@ export class ElectionManagerStoreAdminBackend
     adjudicatedValue: string,
     adjudicatedOptionId?: ContestOptionId
   ): Promise<Id> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/write-in-adjudications`,
+      `/admin/elections/write-in-adjudications`,
       {
         method: 'POST',
         headers: {
@@ -554,8 +492,6 @@ export class ElectionManagerStoreAdminBackend
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const query = new URLSearchParams();
     if (options?.contestId) {
       query.set('contestId', options.contestId);
@@ -566,7 +502,7 @@ export class ElectionManagerStoreAdminBackend
     }
 
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/write-in-summary?${query}`
+      `/admin/elections/write-in-summary?${query}`
     )) as Admin.GetWriteInSummaryResponse;
 
     if (!Array.isArray(response)) {
@@ -579,10 +515,8 @@ export class ElectionManagerStoreAdminBackend
   async getWriteInAdjudicationTable(
     contestId: ContestId
   ): Promise<Admin.WriteInAdjudicationTable> {
-    const currentElectionId = await this.loadCurrentElectionIdOrThrow();
-
     const response = (await fetchJson(
-      `/admin/elections/${currentElectionId}/contests/${contestId}/write-in-adjudication-table`
+      `/admin/elections/contests/${contestId}/write-in-adjudication-table`
     )) as Admin.GetWriteInAdjudicationTableResponse;
 
     if (response.status === 'error') {

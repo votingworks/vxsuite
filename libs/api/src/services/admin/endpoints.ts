@@ -98,61 +98,58 @@ export const PostElectionResponseSchema = z.union([
 ]);
 
 /**
- * @url /admin/elections
- * @method PATCH
+ * @url /admin/elections/current
+ * @method GET
  */
-export interface PatchElectionRequest {
-  isOfficialResults?: boolean;
-}
+export type GetCurrentElectionRequest = never;
 
 /**
- * @url /admin/elections
- * @method PATCH
+ * @url /admin/elections/current
+ * @method GET
  */
-export const PatchElectionRequestSchema: z.ZodSchema<PatchElectionRequest> = z
-  .object({
-    isOfficialResults: z.boolean().optional(),
-  })
-  .strict();
+export const GetCurrentElectionRequestSchema = z.never();
 
 /**
- * @url /admin/elections
- * @method PATCH
+ * @url /admin/elections/current
+ * @method GET
  */
-export type PatchElectionResponse = ErrorsResponse | OkResponse;
+export type GetCurrentElectionResponse = OkResponse<{
+  electionRecord?: ElectionRecord;
+}>;
 
 /**
- * @url /admin/elections
- * @method PATCH
+ * @url /admin/elections/current
+ * @method GET
  */
-export const PatchElectionResponseSchema = z.union([
-  ErrorsResponseSchema,
-  OkResponseSchema,
-]);
+export const GetCurrentElectionResponseSchema: z.ZodSchema<GetCurrentElectionResponse> =
+  z.object({
+    status: z.literal('ok'),
+    electionRecord: ElectionRecordSchema.optional(),
+  });
 
 /**
- * @url /admin/elections
+ * @url /admin/elections/current
  * @method DELETE
  */
-export type DeleteElectionRequest = never;
+export type DeleteCurrentElectionRequest = never;
 
 /**
- * @url /admin/elections
+ * @url /admin/elections/current
  * @method DELETE
  */
-export const DeleteElectionRequestSchema = z.never();
+export const DeleteCurrentElectionRequestSchema = z.never();
 
 /**
- * @url /admin/elections
+ * @url /admin/elections/current
  * @method DELETE
  */
-export type DeleteElectionResponse = ErrorsResponse | OkResponse;
+export type DeleteCurrentElectionResponse = ErrorsResponse | OkResponse;
 
 /**
- * @url /admin/elections
+ * @url /admin/elections/current
  * @method DELETE
  */
-export const DeleteElectionResponseSchema = z.union([
+export const DeleteCurrentElectionResponseSchema = z.union([
   ErrorsResponseSchema,
   OkResponseSchema,
 ]);

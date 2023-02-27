@@ -8,12 +8,13 @@ import { fakeLogger } from '@votingworks/logging';
 import {
   ExternalTallySourceType,
   Id,
+  Optional,
   safeParse,
   safeParseJson,
   VotingMethod,
 } from '@votingworks/types';
 import { MemoryStorage } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
+import { assert, assertDefined, typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
@@ -32,41 +33,34 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
 
-  let nextElectionIndex = 1;
-  const db = new Map<
-    Id,
-    {
-      electionRecord: Admin.ElectionRecord;
-      memoryBackend: ElectionManagerStoreMemoryBackend;
-    }
-  >();
+  const electionId = 'test-election-1';
+  let memoryBackend: Optional<ElectionManagerStoreMemoryBackend>;
+  let electionRecord: Optional<Admin.ElectionRecord>;
 
   fetchMock
     .reset()
-    .get('/admin/elections', () => ({
-      body: typedAs<Admin.GetElectionsResponse>(
-        Array.from(db.values()).map(({ electionRecord }) => electionRecord)
-      ),
+    .get('/admin/elections/current', () => ({
+      body: typedAs<Admin.GetCurrentElectionResponse>({
+        status: 'ok',
+        electionRecord,
+      }),
     }))
     .post('/admin/elections', (url, request) => {
-      const electionId = `test-election-${nextElectionIndex}`;
-      nextElectionIndex += 1;
       const electionDefinition = safeParseJson(
         request.body as string,
         Admin.PostElectionRequestSchema
       ).unsafeUnwrap();
-      db.set(electionId, {
-        electionRecord: {
-          id: electionId,
-          electionDefinition,
-          createdAt: new Date().toISOString(),
-          isOfficialResults: false,
-        },
-        memoryBackend: new ElectionManagerStoreMemoryBackend({
-          electionId,
-          electionDefinition,
-        }),
+      electionRecord = {
+        id: electionId,
+        electionDefinition,
+        createdAt: new Date().toISOString(),
+        isOfficialResults: false,
+      };
+      memoryBackend = new ElectionManagerStoreMemoryBackend({
+        electionId,
+        electionDefinition,
       });
+
       return {
         body: typedAs<Admin.PostElectionResponse>({
           status: 'ok',
@@ -74,71 +68,32 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
         }),
       };
     })
-    .patch('glob:/admin/elections/*', (url, request) => {
-      const match = url.match(/^\/admin\/elections\/(.+)$/);
-      const electionId = match?.[1] as Id;
-      const dbEntry = electionId && db.get(electionId);
-
-      if (!dbEntry) {
-        return { status: 404 };
-      }
-
-      const body = safeParseJson(
-        request.body as string,
-        Admin.PatchElectionRequestSchema
-      ).unsafeUnwrap();
-
-      if (typeof body.isOfficialResults === 'boolean') {
-        dbEntry.electionRecord = {
-          ...dbEntry.electionRecord,
-          isOfficialResults: body.isOfficialResults,
-        };
-      }
-
-      return { body: typedAs<Admin.PatchElectionResponse>({ status: 'ok' }) };
-    })
-    .delete('glob:/admin/elections/*/cvr-files', async (url) => {
-      const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
-      const electionId = match?.[1] as Id;
-
-      const dbEntry = electionId && db.get(electionId);
-      if (!dbEntry) {
-        return { status: 404 };
-      }
-
-      await dbEntry.memoryBackend.clearCastVoteRecordFiles();
+    .delete('glob:/admin/elections/cvr-files', async () => {
+      await assertDefined(memoryBackend).clearCastVoteRecordFiles();
 
       return { body: { status: 'ok' } };
     })
-    .delete('glob:/admin/elections/*', (url) => {
-      const match = url.match(/^\/admin\/elections\/(.+)$/);
-      db.delete(match?.[1] ?? '');
-      return { body: typedAs<Admin.DeleteElectionResponse>({ status: 'ok' }) };
+    .delete('glob:/admin/elections/current', () => {
+      memoryBackend = undefined;
+      electionRecord = undefined;
+      return {
+        body: typedAs<Admin.DeleteCurrentElectionResponse>({ status: 'ok' }),
+      };
     })
-    .get('glob:/admin/elections/*/cvr-files', async (url) => {
-      const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
-      const electionId = match?.[1] as Id;
-
-      const dbEntry = electionId && db.get(electionId);
-      if (!dbEntry) {
-        return { status: 404 };
-      }
-
-      return { body: await dbEntry.memoryBackend.getCvrFiles() };
+    .get('glob:/admin/elections/cvr-files', async () => {
+      return { body: await assertDefined(memoryBackend).getCvrFiles() };
     })
-    .post('glob:/admin/elections/*/cvr-files', async (url, request) => {
-      const match = url.match(/^\/admin\/elections\/(.+)\/cvr-files$/);
+    .post('glob:/admin/elections/cvr-files', async (_url, request) => {
       const body = request.body as FormData;
       const cvrFile = body.get('cvrFile') as File | undefined;
 
-      const electionId = match?.[1] as Id;
-      const dbEntry = electionId && db.get(electionId);
-
-      if (!dbEntry || !cvrFile) {
+      if (!cvrFile) {
         return { status: 404 };
       }
 
-      const result = await dbEntry.memoryBackend.addCastVoteRecordFile(cvrFile);
+      const result = await assertDefined(memoryBackend).addCastVoteRecordFile(
+        cvrFile
+      );
 
       return {
         body: typedAs<Admin.PostCvrFileResponse>({
@@ -154,19 +109,13 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
         }),
       };
     })
-    .get('glob:/admin/elections/*/write-ins\\?*', async (url) => {
-      const match = url.match(/^\/admin\/elections\/(.+)\/write-ins(\?.*)?$/);
-      const electionId = match?.[1] as Id;
-      const dbEntry = electionId && db.get(electionId);
-      const query = new URLSearchParams(match?.[2] ?? '');
-
-      if (!dbEntry) {
-        return { status: 404 };
-      }
+    .get('glob:/admin/elections/write-ins\\?*', async (url) => {
+      const match = url.match(/^\/admin\/elections\/write-ins(\?.*)?$/);
+      const query = new URLSearchParams(match?.[1] ?? '');
 
       return {
         body: typedAs<Admin.GetWriteInsResponse>(
-          (await dbEntry.memoryBackend.loadWriteIns(
+          (await assertDefined(memoryBackend).loadWriteIns(
             safeParse(Admin.GetWriteInsQueryParamsSchema, {
               contestId: query.get('contestId') ?? undefined,
               status: query.get('status') ?? undefined,
@@ -183,32 +132,25 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
         Admin.PutWriteInTranscriptionRequestSchema
       ).unsafeUnwrap();
 
-      for (const dbEntry of db.values()) {
-        const writeIns = await dbEntry.memoryBackend.loadWriteIns();
+      assert(memoryBackend);
+      const writeIns = await memoryBackend.loadWriteIns();
 
-        if (writeIns.some((writeIn) => writeIn.id === writeInId)) {
-          await dbEntry.memoryBackend.transcribeWriteIn(writeInId, body.value);
-          return {
-            body: typedAs<Admin.PutWriteInTranscriptionResponse>({
-              status: 'ok',
-            }),
-          };
-        }
+      if (writeIns.some((writeIn) => writeIn.id === writeInId)) {
+        await memoryBackend.transcribeWriteIn(writeInId, body.value);
+        return {
+          body: typedAs<Admin.PutWriteInTranscriptionResponse>({
+            status: 'ok',
+          }),
+        };
       }
 
       return { status: 404 };
     })
-    .get('glob:/admin/elections/*/write-in-adjudications\\?*', async (url) => {
+    .get('glob:/admin/elections/write-in-adjudications\\?*', async (url) => {
       const match = url.match(
-        /^\/admin\/elections\/(.+)\/write-in-adjudications(\?.*)?$/
+        /^\/admin\/elections\/write-in-adjudications(\?.*)?$/
       );
-      const electionId = match?.[1] as Id;
-      const query = new URLSearchParams(match?.[2] ?? '');
-      const dbEntry = electionId && db.get(electionId);
-
-      if (!dbEntry) {
-        return { status: 404 };
-      }
+      const query = new URLSearchParams(match?.[1] ?? '');
 
       const parseQueryResult = safeParse(
         Admin.GetWriteInAdjudicationsQueryParamsSchema,
@@ -221,30 +163,23 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
 
       return {
         body: typedAs<Admin.GetWriteInAdjudicationsResponse>(
-          await dbEntry.memoryBackend.loadWriteInAdjudications(
+          await assertDefined(memoryBackend).loadWriteInAdjudications(
             parseQueryResult.ok()
           )
         ),
       };
     })
     .post(
-      'glob:/admin/elections/*/write-in-adjudications',
-      async (url, request) => {
-        const match = url.match(
-          /^\/admin\/elections\/(.+)\/write-in-adjudications$/
-        );
-        const electionId = match?.[1] as Id;
-        const dbEntry = electionId && db.get(electionId);
+      'glob:/admin/elections/write-in-adjudications',
+      async (_url, request) => {
         const body = safeParseJson(
           request.body as string,
           Admin.PostWriteInAdjudicationRequestSchema
         ).unsafeUnwrap();
 
-        if (!dbEntry) {
-          return { status: 404 };
-        }
-
-        const id = await dbEntry.memoryBackend.adjudicateWriteInTranscription(
+        const id = await assertDefined(
+          memoryBackend
+        ).adjudicateWriteInTranscription(
           body.contestId,
           body.transcribedValue,
           body.adjudicatedValue,
@@ -267,26 +202,26 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
         Admin.PutWriteInAdjudicationRequestSchema
       ).unsafeUnwrap();
 
-      for (const dbEntry of db.values()) {
-        const writeInAdjudications =
-          await dbEntry.memoryBackend.loadWriteInAdjudications();
+      assert(memoryBackend);
 
-        if (
-          writeInAdjudications.some(
-            (adjudication) => adjudication.id === adjudicationId
-          )
-        ) {
-          await dbEntry.memoryBackend.updateWriteInAdjudication(
-            adjudicationId,
-            body.adjudicatedValue,
-            body.adjudicatedOptionId
-          );
-          return {
-            body: typedAs<Admin.PutWriteInAdjudicationResponse>({
-              status: 'ok',
-            }),
-          };
-        }
+      const writeInAdjudications =
+        await memoryBackend.loadWriteInAdjudications();
+
+      if (
+        writeInAdjudications.some(
+          (adjudication) => adjudication.id === adjudicationId
+        )
+      ) {
+        await memoryBackend.updateWriteInAdjudication(
+          adjudicationId,
+          body.adjudicatedValue,
+          body.adjudicatedOptionId
+        );
+        return {
+          body: typedAs<Admin.PutWriteInAdjudicationResponse>({
+            status: 'ok',
+          }),
+        };
       }
 
       return { status: 404 };
@@ -295,35 +230,31 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       const match = url.match(/^\/admin\/write-in-adjudications\/(.+)$/);
       const adjudicationId = match?.[1] as Id;
 
-      for (const dbEntry of db.values()) {
-        const writeInAdjudications =
-          await dbEntry.memoryBackend.loadWriteInAdjudications();
+      assert(memoryBackend);
 
-        if (
-          writeInAdjudications.some(
-            (adjudication) => adjudication.id === adjudicationId
-          )
-        ) {
-          await dbEntry.memoryBackend.deleteWriteInAdjudication(adjudicationId);
-          return {
-            body: typedAs<Admin.DeleteWriteInAdjudicationResponse>({
-              status: 'ok',
-            }),
-          };
-        }
+      const writeInAdjudications =
+        await memoryBackend.loadWriteInAdjudications();
+
+      if (
+        writeInAdjudications.some(
+          (adjudication) => adjudication.id === adjudicationId
+        )
+      ) {
+        await memoryBackend.deleteWriteInAdjudication(adjudicationId);
+        return {
+          body: typedAs<Admin.DeleteWriteInAdjudicationResponse>({
+            status: 'ok',
+          }),
+        };
       }
 
       return { status: 404 };
     })
-    .get('glob:/admin/elections/*/printed-ballots\\?*', async (url) => {
-      const match = url.match(
-        /^\/admin\/elections\/(.+)\/printed-ballots(\?.*)?$/
-      );
-      const electionId = match?.[1] as Id;
-      const dbEntry = db.get(electionId);
-      const query = new URLSearchParams(match?.[2] ?? '');
+    .get('glob:/admin/elections/printed-ballots\\?*', async (url) => {
+      const match = url.match(/^\/admin\/elections\/printed-ballots(\?.*)?$/);
+      const query = new URLSearchParams(match?.[1] ?? '');
 
-      if (!dbEntry) {
+      if (!memoryBackend) {
         return { status: 404 };
       }
 
@@ -339,26 +270,18 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       return {
         body: typedAs<Admin.GetPrintedBallotsResponse>({
           status: 'ok',
-          printedBallots: await dbEntry.memoryBackend.loadPrintedBallots(
+          printedBallots: await assertDefined(memoryBackend).loadPrintedBallots(
             parseQueryResult.ok()
           ),
         }),
       };
     })
-    .post('glob:/admin/elections/*/printed-ballots', async (url, request) => {
-      const match = url.match(/^\/admin\/elections\/(.+)\/printed-ballots$/);
-      const electionId = match?.[1] as Id;
-      const dbEntry = db.get(electionId);
-
-      if (!dbEntry) {
-        return { status: 404 };
-      }
-
+    .post('glob:/admin/elections/printed-ballots', async (_url, request) => {
       const body = safeParseJson(
         request.body as string,
         Admin.PostPrintedBallotRequestSchema
       ).unsafeUnwrap();
-      const id = await dbEntry.memoryBackend.addPrintedBallot(body);
+      const id = await assertDefined(memoryBackend).addPrintedBallot(body);
 
       return {
         body: typedAs<Admin.PostPrintedBallotResponse>({ status: 'ok', id }),
@@ -394,9 +317,7 @@ describe.each([
   test('add printed ballot', async () => {
     const backend = makeBackend();
 
-    await expect(backend.loadPrintedBallots()).rejects.toThrowError(
-      'Election definition must be configured first'
-    );
+    await expect(backend.loadPrintedBallots()).rejects.toThrowError();
 
     await backend.configure(
       electionFamousNames2021Fixtures.electionDefinition.electionData
