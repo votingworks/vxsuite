@@ -125,9 +125,14 @@ export function constructTlv(
 
   /**
    * The convention for TLV length is as follows:
-   * - 0xXX           if < 128
-   * - 0x81 0xXX      if > 128 and < 256
-   * - 0x82 0xXX 0xXX if > 256 and < 65536
+   * - 0xXX           if value length < 128 bytes
+   * - 0x81 0xXX      if value length > 128 and < 256 bytes
+   * - 0x82 0xXX 0xXX if value length > 256 and < 65536 bytes
+   *
+   * For example:
+   * - 51 bytes   --> Buffer.from([51])            --> 0x33           (33 is 51 in hex)
+   * - 147 bytes  --> Buffer.from([0x81, 147])     --> 0x81 0x93      (93 is 147 in hex)
+   * - 3017 bytes --> Buffer.from([0x82, 11, 201]) --> 0x82 0x0b 0xc9 (bc9 is 3017 in hex)
    */
   let tlvLength: Buffer;
   const valueNumBytes = value.length;
