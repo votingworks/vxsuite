@@ -8,13 +8,13 @@ FORCE:
 install:
 	sudo apt-get -y update
 ifeq ($(OS),bionic)
-	sudo apt-get install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev
+	sudo apt-get install -y libsane build-essential libx11-dev libjpeg-dev libpng-dev libpcsclite1 libpcsclite-dev
 endif
 ifeq ($(OS),focal)
-	sudo apt install -y libsane build-essential libpixman-1-dev libcairo2-dev libpango1.0-dev libjpeg8-dev libgif-dev
+	sudo apt install -y libsane build-essential libpixman-1-dev libcairo2-dev libpango1.0-dev libjpeg8-dev libgif-dev libpcsclite1 libpcsclite-dev
 endif
 ifeq ($(OS),bullseye)
-	sudo apt install -y libsane libpng-dev libjpeg-dev libx11-dev libpixman-1-dev libcairo2-dev libpango1.0-dev libgif-dev 
+	sudo apt install -y libsane libpng-dev libjpeg-dev libx11-dev libpixman-1-dev libcairo2-dev libpango1.0-dev libgif-dev libpcsclite1 libpcsclite-dev
 endif
 
 build: FORCE

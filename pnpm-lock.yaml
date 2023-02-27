@@ -1864,6 +1864,7 @@ importers:
     specifiers:
       '@types/jest': ^27.0.3
       '@types/node-fetch': ^2.6.0
+      '@types/uuid': ^9.0.1
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
@@ -1883,12 +1884,15 @@ importers:
       jest: ^27.3.1
       jest-junit: ^14.0.1
       jest-watch-typeahead: ^0.6.4
+      js-sha256: ^0.9.0
       lint-staged: ^11.0.0
       node-fetch: ^2.6.0
+      pcsclite: ^1.0.1
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
+      uuid: ^9.0.0
       zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
@@ -1896,11 +1900,15 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       base64-js: 1.5.1
+      js-sha256: 0.9.0
       node-fetch: 2.6.7
+      pcsclite: 1.0.1
+      uuid: 9.0.0
       zod: 3.14.4
     devDependencies:
       '@types/jest': 27.4.1
       '@types/node-fetch': 2.6.2
+      '@types/uuid': 9.0.1
       '@typescript-eslint/eslint-plugin': 5.37.0_srb6gpj27cpytxa4hvxonfqyzi
       '@typescript-eslint/parser': 5.37.0_fnqnj4wr4adlkzkgntzwybsmii
       eslint: 8.26.0
@@ -10394,6 +10402,10 @@ packages:
 
   /@types/uuid/8.3.4:
     resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
+    dev: true
+
+  /@types/uuid/9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
     dev: true
 
   /@types/webpack-sources/2.1.0:
@@ -26434,6 +26446,15 @@ packages:
       ripemd160: 2.0.2
       safe-buffer: 5.2.1
       sha.js: 2.4.11
+
+  /pcsclite/1.0.1:
+    resolution: {integrity: sha512-KffeR9V+Q0ERHsOp2Ys4K81XEkRSFfn/G6Nbfieq2BPbP90KnMFFClKLgJ/hKmCddxUdpcu3OVVSY+tTy5FXRw==}
+    engines: {node: '>=4.8.0'}
+    requiresBuild: true
+    dependencies:
+      bindings: 1.5.0
+      nan: 2.16.0
+    dev: false
 
   /pdfjs-dist/2.3.200_webpack@4.44.2:
     resolution: {integrity: sha512-+8wBjU5h8LPZOIvR9X2uCrp/8xWQG1DRDKMLg5lzGN1qyIAZlYUxA0KQyy12Nw5jN7ozulC6v97PMaDcLgAcFg==}
