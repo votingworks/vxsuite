@@ -16,6 +16,7 @@ import { Readable } from 'stream';
 import {
   generateCastVoteRecordReportDirectoryName,
   generateElectionBasedSubfolderName,
+  jsonStream,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { basename, join, parse } from 'path';
@@ -206,31 +207,10 @@ function* getCastVoteRecordReportGenerator({
     throw new Error('report metadata should contain no cast vote records');
   }
 
-  // report metadata, with unclosed JSON to append cast vote records
-  yield JSON.stringify(castVoteRecordReportMetadata, undefined, 2).replace(
-    /\n\}$/,
-    ',\n  "CVR": ['
-  );
-
-  // we don't know how many cast vote records there are until they are
-  // generated, but we must identify the last element to avoid a trailing
-  // comma, which would create invalid JSON.
-  let previousCastVoteRecord: Optional<CVR.CVR>;
-  for (const castVoteRecord of castVoteRecordGenerator) {
-    // yield non-final elements with trailing comma
-    if (previousCastVoteRecord) {
-      yield `\n    ${JSON.stringify(previousCastVoteRecord)},`;
-    }
-    previousCastVoteRecord = castVoteRecord;
-  }
-
-  // yield final element without trailing comma
-  if (previousCastVoteRecord) {
-    yield `\n    ${JSON.stringify(previousCastVoteRecord)}\n  `;
-  }
-
-  // closing brackets to make JSON valid
-  yield ']\n}';
+  yield* jsonStream({
+    ...castVoteRecordReportMetadata,
+    CVR: castVoteRecordGenerator,
+  });
 }
 
 interface BuildCastVoteRecordReportMetadataParams
