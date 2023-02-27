@@ -770,7 +770,7 @@ export function PollWorkerScreen({
                   </strong>
                 </p>
                 <Text small italic>
-                  Note: Switching back to Testing Mode requires an{' '}
+                  Note: Switching back to Test Ballot Mode requires an{' '}
                   <NoWrap>Election Manager Card.</NoWrap>
                 </Text>
               </Prose>
