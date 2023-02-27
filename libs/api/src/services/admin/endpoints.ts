@@ -86,7 +86,7 @@ export const PostElectionRequestSchema = ElectionDefinitionSchema;
  * @url /admin/elections
  * @method POST
  */
-export type PostElectionResponse = ErrorsResponse | OkResponse<{ id: Id }>;
+export type PostElectionResponse = ErrorsResponse | OkResponse;
 
 /**
  * @url /admin/elections
@@ -94,10 +94,7 @@ export type PostElectionResponse = ErrorsResponse | OkResponse<{ id: Id }>;
  */
 export const PostElectionResponseSchema = z.union([
   ErrorsResponseSchema,
-  z.object({
-    status: z.literal('ok'),
-    id: IdSchema,
-  }),
+  OkResponseSchema,
 ]);
 
 /**
@@ -620,7 +617,6 @@ export const GetWriteInAdjudicationTableResponseSchema: z.ZodSchema<GetWriteInAd
  * @method GET
  */
 export interface GetWriteInAdjudicationTableUrlParams {
-  readonly electionId: Id;
   readonly contestId: ContestId;
 }
 
@@ -629,7 +625,6 @@ export interface GetWriteInAdjudicationTableUrlParams {
  */
 export const GetWriteInAdjudicationTableUrlParamsSchema: z.ZodSchema<GetWriteInAdjudicationTableUrlParams> =
   z.object({
-    electionId: IdSchema,
     contestId: ContestIdSchema,
   });
 

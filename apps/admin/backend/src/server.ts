@@ -51,7 +51,7 @@ function getMostRecentlyCreateElectionDefinition(
   return mostRecentlyCreatedElection?.electionDefinition;
 }
 
-function assertCurrentElectionId(workspace: Workspace): Id {
+function loadCurrentElectionIdOrThrow(workspace: Workspace): Id {
   const currentElectionId = workspace.store.getCurrentElectionId();
   return assertDefined(currentElectionId);
 }
@@ -119,7 +119,7 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
 
     markResultsOfficial() {
       store.setElectionResultsOfficial(
-        assertCurrentElectionId(workspace),
+        loadCurrentElectionIdOrThrow(workspace),
         true
       );
     },
@@ -162,7 +162,7 @@ export function buildApp({
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
   deprecatedApiRouter.use(compression());
 
-  deprecatedApiRouter.get<NoParams>(
+  deprecatedApiRouter.get<NoParams, Admin.GetElectionsResponse>(
     '/admin/elections',
     (_request, response) => {
       response.json(store.getElections());
@@ -193,26 +193,23 @@ export function buildApp({
     const electionId = store.addElection(electionDefinition.electionData);
 
     store.setCurrentElectionId(electionId);
-    response.json({ status: 'ok', id: electionId });
+    response.json({ status: 'ok' });
   });
 
-  // deletes the only current election
-  deprecatedApiRouter.delete<{ electionId: Id }>(
-    '/admin/elections',
-    (_request, response) => {
-      const currentElectionId = store.getCurrentElectionId();
-      if (currentElectionId) {
-        store.deleteElection(currentElectionId);
-        store.setCurrentElectionId();
-      }
-      response.json({ status: 'ok' });
+  // deletes the current election
+  deprecatedApiRouter.delete('/admin/elections', (_request, response) => {
+    const currentElectionId = store.getCurrentElectionId();
+    if (currentElectionId) {
+      store.deleteElection(currentElectionId);
+      store.setCurrentElectionId();
     }
-  );
+    response.json({ status: 'ok' });
+  });
 
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrFilesResponse>(
-    '/admin/elections/:electionId/cvr-files',
-    (request, response) => {
-      response.json(store.getCvrFiles(request.params.electionId));
+  deprecatedApiRouter.get<NoParams, Admin.GetCvrFilesResponse>(
+    '/admin/elections/cvr-files',
+    (_request, response) => {
+      response.json(store.getCvrFiles(loadCurrentElectionIdOrThrow(workspace)));
     }
   );
 
@@ -220,12 +217,12 @@ export function buildApp({
   // can be removed once we've moved tally computation to the server - it's
   // currently only used as a stopgap while we migrate all app state to the
   // server.
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrsResponse>(
-    '/admin/elections/:electionId/cvrs',
-    (request, response) => {
+  deprecatedApiRouter.get<NoParams, Admin.GetCvrsResponse>(
+    '/admin/elections/cvrs',
+    (_request, response) => {
       response.json(
         store
-          .getCastVoteRecordEntries(request.params.electionId)
+          .getCastVoteRecordEntries(loadCurrentElectionIdOrThrow(workspace))
           .map(
             (entry) =>
               safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
@@ -241,11 +238,11 @@ export function buildApp({
   );
 
   deprecatedApiRouter.post<
-    { electionId: Id },
+    NoParams,
     Admin.PostCvrFileResponse,
     Admin.PostCvrFileRequest
   >(
-    '/admin/elections/:electionId/cvr-files',
+    '/admin/elections/cvr-files',
     upload.fields([{ name: CVR_FILE_ATTACHMENT_NAME, maxCount: 1 }]),
     async (request, response) => {
       /* istanbul ignore next */
@@ -253,8 +250,6 @@ export function buildApp({
         ? request.files?.[CVR_FILE_ATTACHMENT_NAME]?.[0]
         : undefined;
       try {
-        const { electionId } = request.params;
-
         if (!file) {
           response.status(400).json({
             status: 'error',
@@ -306,7 +301,7 @@ export function buildApp({
         }
 
         const result = await store.addCastVoteRecordFile({
-          electionId,
+          electionId: loadCurrentElectionIdOrThrow(workspace),
           filePath: file.path,
           originalFilename: file.originalname,
           analyzeOnly,
@@ -343,23 +338,24 @@ export function buildApp({
   );
 
   deprecatedApiRouter.delete<
-    { electionId: Id },
+    NoParams,
     Admin.DeleteCvrFileResponse,
     Admin.DeleteCvrFileRequest
-  >('/admin/elections/:electionId/cvr-files', (request, response) => {
-    const { electionId } = request.params;
+  >('/admin/elections/cvr-files', (_request, response) => {
+    const electionId = loadCurrentElectionIdOrThrow(workspace);
     store.deleteCastVoteRecordFiles(electionId);
     store.setElectionResultsOfficial(electionId, false);
     response.json({ status: 'ok' });
   });
 
   deprecatedApiRouter.get<
-    { electionId: Id },
+    NoParams,
     Admin.GetCvrFileModeResponse,
     Admin.GetCvrFileModeRequest
-  >('/admin/elections/:electionId/cvr-file-mode', (request, response) => {
-    const { electionId } = request.params;
-    const cvrFileMode = store.getCurrentCvrFileModeForElection(electionId);
+  >('/admin/elections/cvr-file-mode', (_request, response) => {
+    const cvrFileMode = store.getCurrentCvrFileModeForElection(
+      loadCurrentElectionIdOrThrow(workspace)
+    );
 
     response.json({
       status: 'ok',
@@ -367,8 +363,8 @@ export function buildApp({
     });
   });
 
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
-    '/admin/elections/:electionId/write-ins',
+  deprecatedApiRouter.get<NoParams, Admin.GetWriteInsResponse>(
+    '/admin/elections/write-ins',
     (request, response) => {
       const parseQueryResult = safeParse(
         Admin.GetWriteInsQueryParamsSchema,
@@ -389,10 +385,9 @@ export function buildApp({
       }
 
       const { contestId, status, limit } = parseQueryResult.ok();
-      const { electionId } = request.params;
       response.json(
         store.getWriteInRecords({
-          electionId,
+          electionId: loadCurrentElectionIdOrThrow(workspace),
           contestId,
           status,
           limit,
@@ -430,87 +425,79 @@ export function buildApp({
   });
 
   deprecatedApiRouter.get<
-    { electionId: Id },
+    NoParams,
     Admin.GetWriteInAdjudicationsResponse,
     Admin.GetWriteInAdjudicationsRequest,
     Admin.GetWriteInAdjudicationsQueryParams
-  >(
-    '/admin/elections/:electionId/write-in-adjudications',
-    (request, response) => {
-      const parseQueryResult = safeParse(
-        Admin.GetWriteInAdjudicationsQueryParamsSchema,
-        request.query
-      );
+  >('/admin/elections/write-in-adjudications', (request, response) => {
+    const parseQueryResult = safeParse(
+      Admin.GetWriteInAdjudicationsQueryParamsSchema,
+      request.query
+    );
 
-      if (parseQueryResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseQueryResult.err().message,
-            },
-          ],
-        });
-        return;
-      }
-
-      const { electionId } = request.params;
-      const { contestId } = parseQueryResult.ok();
-
-      const writeInAdjudications = store.getWriteInAdjudicationRecords({
-        electionId,
-        contestId,
+    if (parseQueryResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'ValidationError',
+            message: parseQueryResult.err().message,
+          },
+        ],
       });
-
-      response.json(writeInAdjudications);
+      return;
     }
-  );
+
+    const { contestId } = parseQueryResult.ok();
+
+    const writeInAdjudications = store.getWriteInAdjudicationRecords({
+      electionId: loadCurrentElectionIdOrThrow(workspace),
+      contestId,
+    });
+
+    response.json(writeInAdjudications);
+  });
 
   deprecatedApiRouter.post<
-    { electionId: Id },
+    NoParams,
     Admin.PostWriteInAdjudicationResponse,
     Admin.PostWriteInAdjudicationRequest
-  >(
-    '/admin/elections/:electionId/write-in-adjudications',
-    (request, response) => {
-      const { electionId } = request.params;
-      const parseResult = safeParse(
-        Admin.PostWriteInAdjudicationRequestSchema,
-        request.body
-      );
+  >('/admin/elections/write-in-adjudications', (request, response) => {
+    const parseResult = safeParse(
+      Admin.PostWriteInAdjudicationRequestSchema,
+      request.body
+    );
 
-      if (parseResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseResult.err().message,
-            },
-          ],
-        });
-        return;
-      }
-
-      const {
-        contestId,
-        transcribedValue,
-        adjudicatedValue,
-        adjudicatedOptionId,
-      } = parseResult.ok();
-
-      const id = store.createWriteInAdjudication({
-        electionId,
-        contestId,
-        transcribedValue,
-        adjudicatedValue,
-        adjudicatedOptionId,
+    if (parseResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'ValidationError',
+            message: parseResult.err().message,
+          },
+        ],
       });
-
-      response.json({ status: 'ok', id });
+      return;
     }
-  );
+
+    const {
+      contestId,
+      transcribedValue,
+      adjudicatedValue,
+      adjudicatedOptionId,
+    } = parseResult.ok();
+
+    const id = store.createWriteInAdjudication({
+      electionId: loadCurrentElectionIdOrThrow(workspace),
+      contestId,
+      transcribedValue,
+      adjudicatedValue,
+      adjudicatedOptionId,
+    });
+
+    response.json({ status: 'ok', id });
+  });
 
   deprecatedApiRouter.put<
     { writeInAdjudicationId: Id },
@@ -557,12 +544,11 @@ export function buildApp({
   );
 
   deprecatedApiRouter.get<
-    { electionId: Id },
+    NoParams,
     Admin.GetWriteInSummaryResponse,
     Admin.GetWriteInSummaryRequest,
     Admin.GetWriteInSummaryQueryParams
-  >('/admin/elections/:electionId/write-in-summary', (request, response) => {
-    const { electionId } = request.params;
+  >('/admin/elections/write-in-summary', (request, response) => {
     const parseQueryResult = safeParse(
       Admin.GetWriteInSummaryQueryParamsSchema,
       request.query
@@ -584,7 +570,7 @@ export function buildApp({
     const { contestId, status } = parseQueryResult.ok();
     response.json(
       store.getWriteInAdjudicationSummary({
-        electionId,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
         contestId,
         status,
       })
@@ -596,9 +582,10 @@ export function buildApp({
     Admin.GetWriteInAdjudicationTableResponse,
     Admin.GetWriteInAdjudicationTableRequest
   >(
-    '/admin/elections/:electionId/contests/:contestId/write-in-adjudication-table',
+    '/admin/elections/contests/:contestId/write-in-adjudication-table',
     (request, response) => {
-      const { electionId, contestId } = request.params;
+      const { contestId } = request.params;
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
       const electionRecord = store.getElection(electionId);
 
       if (!electionRecord) {
@@ -766,25 +753,10 @@ export function buildApp({
   });
 
   deprecatedApiRouter.post<
-    { electionId: Id },
+    NoParams,
     Admin.PostPrintedBallotResponse,
     Admin.PostPrintedBallotRequest
-  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
-    const { electionId } = request.params;
-    const electionRecord = store.getElection(electionId);
-
-    if (!electionRecord) {
-      return response.status(404).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'not-found',
-            message: `No election found with id ${electionId}`,
-          },
-        ],
-      });
-    }
-
+  >('/admin/elections/printed-ballots', (request, response) => {
     const parseBodyResult = safeParse(
       Admin.PostPrintedBallotRequestSchema,
       request.body
@@ -802,31 +774,19 @@ export function buildApp({
       });
     }
 
-    const id = store.addPrintedBallot(electionId, parseBodyResult.ok());
+    const id = store.addPrintedBallot(
+      loadCurrentElectionIdOrThrow(workspace),
+      parseBodyResult.ok()
+    );
 
     response.json({ status: 'ok', id });
   });
 
   deprecatedApiRouter.get<
-    { electionId: Id },
+    NoParams,
     Admin.GetPrintedBallotsResponse,
     Admin.GetPrintedBallotsRequest
-  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
-    const { electionId } = request.params;
-    const electionRecord = store.getElection(electionId);
-
-    if (!electionRecord) {
-      return response.status(404).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'not-found',
-            message: `No election found with id ${electionId}`,
-          },
-        ],
-      });
-    }
-
+  >('/admin/elections/printed-ballots', (request, response) => {
     const parseQueryResult = safeParse(
       Admin.GetPrintedBallotsQueryParamsSchema,
       request.query
@@ -845,7 +805,7 @@ export function buildApp({
     }
 
     const printedBallots = store.getPrintedBallots(
-      electionId,
+      loadCurrentElectionIdOrThrow(workspace),
       parseQueryResult.ok()
     );
 

@@ -3,14 +3,18 @@ import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, typedAs } from '@votingworks/basics';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildApp } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { setElection } from '../test/server';
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
@@ -25,13 +29,11 @@ beforeEach(() => {
 
 test('write-in adjudication lifecycle', async () => {
   jest.setTimeout(20_000);
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   // upload the CVR file
   const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -51,9 +53,7 @@ test('write-in adjudication lifecycle', async () => {
 
   // view the adjudication table
   const getWriteInAdjudicationTableHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
+    .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
     .expect(200);
   const getWriteInAdjudicationTableResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -79,7 +79,7 @@ test('write-in adjudication lifecycle', async () => {
   for (;;) {
     const getWriteInsHttpResponse = await request(app)
       .get(
-        `/admin/elections/${electionId}/write-ins?status=pending&contestId=${contestId}&limit=1`
+        `/admin/elections/write-ins?status=pending&contestId=${contestId}&limit=1`
       )
       .expect(200);
     const getWriteInsResponse = unsafeParse(
@@ -120,9 +120,7 @@ test('write-in adjudication lifecycle', async () => {
 
   // view the adjudication table
   const getWriteInTableAfterTranscriptionHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
+    .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
     .expect(200);
   const getWriteInTableAfterTranscriptionResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -168,9 +166,7 @@ test('write-in adjudication lifecycle', async () => {
   const getWriteInAdjudicationsAfterTranscriptionHttpResponse = await request(
     app
   )
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
-    )
+    .get(`/admin/elections/write-in-adjudications?contestId=${contestId}`)
     .expect(200);
   const getWriteInAdjudicationsAfterTranscriptionResponse = unsafeParse(
     Admin.GetWriteInAdjudicationsResponseSchema,
@@ -183,7 +179,7 @@ test('write-in adjudication lifecycle', async () => {
 
   // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
   await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .post(`/admin/elections/write-in-adjudications`)
     .send(
       typedAs<Admin.PostWriteInAdjudicationRequest>({
         contestId,
@@ -196,9 +192,7 @@ test('write-in adjudication lifecycle', async () => {
   // view the adjudication table
   const getWriteInAdjudicationTableAfterAdjudicationHttpResponse =
     await request(app)
-      .get(
-        `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-      )
+      .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
       .expect(200);
   const getWriteInAdjudicationTableAfterAdjudicationResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -251,9 +245,7 @@ test('write-in adjudication lifecycle', async () => {
   const getWriteInAdjudicationsAfterAdjudicationHttpResponse = await request(
     app
   )
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
-    )
+    .get(`/admin/elections/write-in-adjudications?contestId=${contestId}`)
     .expect(200);
   const getWriteInAdjudicationsAfterAdjudicationResponse = unsafeParse(
     Admin.GetWriteInAdjudicationsResponseSchema,
@@ -288,9 +280,7 @@ test('write-in adjudication lifecycle', async () => {
 
   // view the adjudication table
   const getWriteInAdjudicationTableAfterUpdateHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
+    .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
     .expect(200);
   const getWriteInAdjudicationTableAfterUpdateResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -332,9 +322,7 @@ test('write-in adjudication lifecycle', async () => {
   const getWriteInAdjudicationTableAfterUpdateAgainHttpResponse = await request(
     app
   )
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
+    .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
     .expect(200);
   const getWriteInAdjudicationTableAfterUpdateAgainResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -368,9 +356,7 @@ test('write-in adjudication lifecycle', async () => {
 
   // view the adjudication table
   const getWriteInAdjudicationTableAfterDeleteHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
+    .get(`/admin/elections/contests/${contestId}/write-in-adjudication-table`)
     .expect(200);
   const getWriteInAdjudicationTableAfterDeleteResponse = unsafeParse(
     Admin.GetWriteInAdjudicationTableResponseSchema,
@@ -400,13 +386,11 @@ test('write-in adjudication lifecycle', async () => {
 });
 
 test('write-in summary filtered by contestId & status', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   // upload the CVR file
   const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -426,7 +410,7 @@ test('write-in summary filtered by contestId & status', async () => {
 
   const getWriteInSummaryPendingHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=pending`
+      `/admin/elections/write-in-summary?contestId=${contestId}&status=pending`
     )
     .expect(200);
   const getWriteInSummaryPendingResponse = unsafeParse(
@@ -437,7 +421,7 @@ test('write-in summary filtered by contestId & status', async () => {
 
   const getWriteInSummaryTranscribedHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=transcribed`
+      `/admin/elections/write-in-summary?contestId=${contestId}&status=transcribed`
     )
     .expect(200);
   const getWriteInSummaryTranscribedResponse = unsafeParse(
@@ -448,7 +432,7 @@ test('write-in summary filtered by contestId & status', async () => {
 
   const getWriteInSummaryAdjudicatedHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=adjudicated`
+      `/admin/elections/write-in-summary?contestId=${contestId}&status=adjudicated`
     )
     .expect(200);
   const getWriteInSummaryAdjudicatedResponse = unsafeParse(
@@ -458,33 +442,22 @@ test('write-in summary filtered by contestId & status', async () => {
   expect(getWriteInSummaryAdjudicatedResponse).toHaveLength(0);
 });
 
-test('write-in adjudication table with a bad electionId', async () => {
-  await request(app)
-    .get(
-      `/admin/elections/invalid/contests/contest-1/write-in-adjudication-table`
-    )
-    .expect(404);
-});
-
 test('write-in adjudication table with a bad contestId', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
     .get(
-      `/admin/elections/${electionId}/contests/invalid-contest-id/write-in-adjudication-table`
+      `/admin/elections/contests/invalid-contest-id/write-in-adjudication-table`
     )
     .expect(404);
 });
 
 test('create write-in adjudication for an unlisted candidate', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .post(`/admin/elections/write-in-adjudications`)
     .send(
       typedAs<Admin.PostWriteInAdjudicationRequest>({
         contestId: 'zoo-council-mammal',
@@ -513,12 +486,11 @@ test('create write-in adjudication for an unlisted candidate', async () => {
 });
 
 test('create write-in adjudication for an official candidate', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .post(`/admin/elections/write-in-adjudications`)
     .send(
       typedAs<Admin.PostWriteInAdjudicationRequest>({
         contestId: 'zoo-council-mammal',
@@ -543,12 +515,10 @@ test('create write-in adjudication for an official candidate', async () => {
 });
 
 test('create write-in adjudication with invalid request', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .post(`/admin/elections/write-in-adjudications`)
     .send({})
     .expect(400);
 });
@@ -572,11 +542,9 @@ test('update write-in adjudication with invalid request', async () => {
 });
 
 test('GET /admin/elections/:electionId/write-in-summary with bad query', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .get(`/admin/elections/${electionId}/write-in-summary?bad=query`)
+    .get(`/admin/elections/write-in-summary?bad=query`)
     .expect(400);
 });

@@ -1,11 +1,12 @@
 import { Admin } from '@votingworks/api';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { BallotId, CastVoteRecord, Id, unsafeParse } from '@votingworks/types';
+import { BallotId, CastVoteRecord, unsafeParse } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import { promises as fs } from 'fs';
@@ -20,6 +21,7 @@ import * as grout from '@votingworks/grout';
 import { Api, buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { PORT } from './globals';
+import { setElection } from '../test/server';
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
@@ -121,16 +123,17 @@ test('POST /admin/elections', async () => {
     .expect(200);
   expect(response.body).toEqual({
     status: 'ok',
-    id: expect.any(String),
   });
   expect(workspace.store.getCurrentElectionId()).toBeDefined();
 
   const getResponse = await request(app).get('/admin/elections').expect(200);
   expect(getResponse.body).toEqual([
     expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
-        id: response.body.id,
+      typedAs<Admin.ElectionRecord>({
         electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+        id: expect.anything(),
+        isOfficialResults: false,
+        createdAt: expect.anything(),
       })
     ),
   ]);
@@ -167,7 +170,7 @@ test('DELETE /admin/elections', async () => {
   expect(workspace.store.getCurrentElectionId()).toBeUndefined();
 });
 
-test('GET /admin/elections/:electionId/cvr-files happy path', async () => {
+test('GET /admin/elections/cvr-files happy path', async () => {
   const cvrFiles: Admin.CastVoteRecordFileRecord[] = [
     {
       id: 'cvr-file-2',
@@ -193,16 +196,14 @@ test('GET /admin/elections/:electionId/cvr-files happy path', async () => {
     },
   ];
 
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+
   jest
     .spyOn(workspace.store, 'getCvrFiles')
-    .mockImplementationOnce((electionId: Id) => {
-      expect(electionId).toEqual('test-election-2');
-
-      return cvrFiles;
-    });
+    .mockImplementationOnce(() => cvrFiles);
 
   const response = await request(app)
-    .get(`/admin/elections/test-election-2/cvr-files`)
+    .get(`/admin/elections/cvr-files`)
     .expect(200);
 
   const parsedResponse = unsafeParse(
@@ -213,17 +214,13 @@ test('GET /admin/elections/:electionId/cvr-files happy path', async () => {
   expect(parsedResponse).toEqual<Admin.GetCvrFilesResponse>(cvrFiles);
 });
 
-test('GET /admin/elections/:electionId/cvr-files empty response', async () => {
-  jest
-    .spyOn(workspace.store, 'getCvrFiles')
-    .mockImplementationOnce((electionId: Id) => {
-      expect(electionId).toEqual('test-election-1');
+test('GET /admin/elections/cvr-files empty response', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
-      return [];
-    });
+  jest.spyOn(workspace.store, 'getCvrFiles').mockImplementationOnce(() => []);
 
   const response = await request(app)
-    .get(`/admin/elections/test-election-1/cvr-files`)
+    .get(`/admin/elections/cvr-files`)
     .expect(200);
 
   const parsedResponse = unsafeParse(
@@ -234,15 +231,11 @@ test('GET /admin/elections/:electionId/cvr-files empty response', async () => {
   expect(parsedResponse).toEqual<Admin.GetCvrFilesResponse>([]);
 });
 
-test('GET /admin/elections/:electionId/cvrs happy path', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-
-  const electionId = workspace.store.addElection(
-    electionDefinition.electionData
-  );
+test('GET /admin/elections/cvrs happy path', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   const emptyResponse = await request(app)
-    .get(`/admin/elections/${electionId}/cvrs`)
+    .get(`/admin/elections/cvrs`)
     .expect(200);
   expect(emptyResponse.body).toEqual([]);
 
@@ -281,6 +274,8 @@ test('GET /admin/elections/:electionId/cvrs happy path', async () => {
     [cvr2, cvr3].map((c) => JSON.stringify(c)).join('\n')
   );
 
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+
   await workspace.store.addCastVoteRecordFile({
     electionId,
     filePath: fileWithCvrs1And2.name,
@@ -296,7 +291,7 @@ test('GET /admin/elections/:electionId/cvrs happy path', async () => {
   });
 
   const nonEmptyResponse = await request(app)
-    .get(`/admin/elections/${electionId}/cvrs`)
+    .get(`/admin/elections/cvrs`)
     .expect(200);
   expect(nonEmptyResponse.body).toEqual<Admin.GetCvrsResponse>([
     cvr1,
@@ -305,25 +300,23 @@ test('GET /admin/elections/:electionId/cvrs happy path', async () => {
   ]);
 });
 
-test('GET /admin/elections/:electionId/cvrs error response', async () => {
+test('GET /admin/elections/cvrs error response', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+
   jest
     .spyOn(workspace.store, 'getCastVoteRecordEntries')
     .mockImplementationOnce(() => {
       throw new Error('something went wrong');
     });
 
-  await request(app)
-    .get('/admin/elections/invalid-election-id/cvrs')
-    .expect(500);
+  await request(app).get('/admin/elections/cvrs').expect(500);
 });
 
-test('POST /admin/elections/:electionId/cvr-files', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   const httpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -338,6 +331,8 @@ test('POST /admin/elections/:electionId/cvr-files', async () => {
 
   assert(response.status === 'ok');
 
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+
   expect(workspace.store.getCvrFiles(electionId)).toEqual([
     expect.objectContaining<Partial<Admin.CastVoteRecordFileRecord>>({
       id: response.id,
@@ -351,13 +346,11 @@ test('POST /admin/elections/:electionId/cvr-files', async () => {
   );
 });
 
-test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files duplicate file', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   const httpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -385,7 +378,7 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
   );
 
   const httpResponse2 = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -413,13 +406,11 @@ test('POST /admin/elections/:electionId/cvr-files duplicate file', async () => {
   );
 });
 
-test('POST /admin/elections/:electionId/cvr-files?analyzeOnly=true', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files?analyzeOnly=true', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   const httpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files?analyzeOnly=true`)
+    .post(`/admin/elections/cvr-files?analyzeOnly=true`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -446,16 +437,15 @@ test('POST /admin/elections/:electionId/cvr-files?analyzeOnly=true', async () =>
     })
   );
 
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
-test('POST /admin/elections/:electionId/cvr-files bad query param', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files bad query param', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files?bad=query`)
+    .post(`/admin/elections/cvr-files?bad=query`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -465,24 +455,20 @@ test('POST /admin/elections/:electionId/cvr-files bad query param', async () => 
     .expect(400);
 });
 
-test('POST /admin/elections/:electionId/cvr-files without a file', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files without a file', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(400);
 });
 
-test('POST /admin/elections/:electionId/cvr-files without exportedTimestamp', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files without exportedTimestamp', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -491,15 +477,14 @@ test('POST /admin/elections/:electionId/cvr-files without exportedTimestamp', as
     .expect(400);
 });
 
-test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files with duplicate CVR entries', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 
   const partial1HttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asBuffer(),
@@ -531,7 +516,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
   );
 
   const partial2HttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.partial2CvrFile.asBuffer(),
@@ -564,7 +549,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
   );
 
   const standardHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -610,10 +595,9 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate CVR entries', a
   );
 });
 
-test('POST /admin/elections/:electionId/cvr-files with duplicate ballot IDs', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('POST /admin/elections/cvr-files with duplicate ballot IDs', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 
@@ -623,7 +607,7 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate ballot IDs', as
   const cvr1 = JSON.parse(cvrs[0] as string);
 
   const httpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       Buffer.concat([
@@ -652,13 +636,12 @@ test('POST /admin/elections/:electionId/cvr-files with duplicate ballot IDs', as
   );
 });
 
-test('DELETE /admin/elections/:electionId/cvr-files', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('DELETE /admin/elections/cvr-files', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asBuffer(),
@@ -667,20 +650,17 @@ test('DELETE /admin/elections/:electionId/cvr-files', async () => {
     .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
     .expect(200);
 
-  await request(app)
-    .delete(`/admin/elections/${electionId}/cvr-files`)
-    .expect(200);
+  await request(app).delete(`/admin/elections/cvr-files`).expect(200);
 
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
-test('GET /admin/elections/:electionId/write-ins', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('GET /admin/elections/write-ins', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -696,7 +676,7 @@ test('GET /admin/elections/:electionId/write-ins', async () => {
   assert(postCvrResponse.status === 'ok');
 
   const getWriteInsHttpResponse = await request(app)
-    .get(`/admin/elections/${electionId}/write-ins`)
+    .get(`/admin/elections/write-ins`)
     .expect(200);
   const getWriteInsResponse = unsafeParse(
     Admin.GetWriteInsResponseSchema,
@@ -708,9 +688,7 @@ test('GET /admin/elections/:electionId/write-ins', async () => {
   );
 
   const getWriteInsHttpResponse2 = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-ins?contestId=zoo-council-mammal`
-    )
+    .get(`/admin/elections/write-ins?contestId=zoo-council-mammal`)
     .expect(200);
   const getWriteInsResponse2 = unsafeParse(
     Admin.GetWriteInsResponseSchema,
@@ -725,7 +703,7 @@ test('GET /admin/elections/:electionId/write-ins', async () => {
   );
 
   const getWriteInsHttpResponse3 = await request(app)
-    .get(`/admin/elections/${electionId}/write-ins?limit=3`)
+    .get(`/admin/elections/write-ins?limit=3`)
     .expect(200);
   const getWriteInsResponse3 = unsafeParse(
     Admin.GetWriteInsResponseSchema,
@@ -735,23 +713,18 @@ test('GET /admin/elections/:electionId/write-ins', async () => {
   expect(getWriteInsResponse3).toHaveLength(3);
 });
 
-test('GET /admin/elections/:electionId/write-ins invalid query', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('GET /admin/elections/write-ins invalid query', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
-  await request(app)
-    .get(`/admin/elections/${electionId}/write-ins?bad=query`)
-    .expect(400);
+  await request(app).get(`/admin/elections/write-ins?bad=query`).expect(400);
 });
 
 test('PUT /admin/write-ins/:writeInId/transcription', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -773,7 +746,7 @@ test('PUT /admin/write-ins/:writeInId/transcription', async () => {
   assert(writeInRecord);
 
   const getWriteInsHttpResponse = await request(app)
-    .get(`/admin/elections/${electionId}/write-ins`)
+    .get(`/admin/elections/write-ins`)
     .expect(200);
   const getWriteInsResponse = unsafeParse(
     Admin.GetWriteInsResponseSchema,
@@ -794,7 +767,7 @@ test('PUT /admin/write-ins/:writeInId/transcription', async () => {
     .expect(200);
 
   const getWriteInsHttpResponse2 = await request(app)
-    .get(`/admin/elections/${electionId}/write-ins?status=transcribed`)
+    .get(`/admin/elections/write-ins?status=transcribed`)
     .expect(200);
   const getWriteInsResponse2 = unsafeParse(
     Admin.GetWriteInsResponseSchema,
@@ -807,12 +780,11 @@ test('PUT /admin/write-ins/:writeInId/transcription', async () => {
 });
 
 test('PUT /admin/write-ins/:writeInId/transcription missing value', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
+    .post(`/admin/elections/cvr-files`)
     .attach(
       'cvrFile',
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
@@ -839,13 +811,12 @@ test('PUT /admin/write-ins/:writeInId/transcription missing value', async () => 
     .expect(400);
 });
 
-test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('GET /admin/elections/write-in-adjudications', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
 
   const getWriteInAdjudicationsInitialHttpResponse = await request(app)
-    .get(`/admin/elections/${electionId}/write-in-adjudications`)
+    .get(`/admin/elections/write-in-adjudications`)
     .expect(200);
 
   const getWriteInAdjudicationsInitialResponse = unsafeParse(
@@ -865,7 +836,7 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
   });
 
   const getWriteInAdjudicationsHttpResponse = await request(app)
-    .get(`/admin/elections/${electionId}/write-in-adjudications`)
+    .get(`/admin/elections/write-in-adjudications`)
     .expect(200);
 
   const getWriteInAdjudicationsResponse = unsafeParse(
@@ -891,9 +862,7 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
   );
 
   const getWriteInAdjudicationsFilterMismatchHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=zoo-council-fish`
-    )
+    .get(`/admin/elections/write-in-adjudications?contestId=zoo-council-fish`)
     .expect(200);
 
   const getWriteInAdjudicationsFilterMismatchResponse = unsafeParse(
@@ -906,9 +875,7 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
   );
 
   const getWriteInAdjudicationsFilterMatchHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=zoo-council-mammal`
-    )
+    .get(`/admin/elections/write-in-adjudications?contestId=zoo-council-mammal`)
     .expect(200);
 
   const getWriteInAdjudicationsFilterMatchResponse = unsafeParse(
@@ -934,20 +901,18 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
   );
 });
 
-test('GET /admin/elections/:electionId/write-in-adjudications bad query', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('GET /admin/elections/write-in-adjudications bad query', async () => {
+  await setElection(app, electionMinimalExhaustiveSampleDefinition);
 
   await request(app)
-    .get(`/admin/elections/${electionId}/write-in-adjudications?bad=query`)
+    .get(`/admin/elections/write-in-adjudications?bad=query`)
     .expect(400);
 });
 
 test('auth', async () => {
   const logger = fakeLogger();
   workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+    electionMinimalExhaustiveSampleDefinition.electionData
   );
   workspace.store.addElection(
     electionFamousNames2021Fixtures.electionDefinition.electionData
@@ -1029,7 +994,7 @@ test('setElectionResultsOfficial', async () => {
   await request(app)
     .post('/admin/elections')
     .set('Content-Type', 'application/json')
-    .send(electionMinimalExhaustiveSampleFixtures.electionDefinition)
+    .send(electionMinimalExhaustiveSampleDefinition)
     .expect(200);
 
   let elections = await request(app).get('/admin/elections').expect(200);
