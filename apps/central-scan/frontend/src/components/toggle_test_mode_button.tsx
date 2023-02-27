@@ -64,7 +64,9 @@ export function ToggleTestModeButton({
               <p>
                 {isTogglingTestMode
                   ? 'Zeroing out scanned ballots and reloading…'
-                  : 'Toggling to Test Ballot Mode will zero out your scanned ballots. Are you sure?'}
+                  : `Toggling to ${
+                      isTestMode ? 'Official' : 'Test'
+                    } Ballot Mode will zero out your scanned ballots. Are you sure?`}
               </p>
             </Prose>
           }
