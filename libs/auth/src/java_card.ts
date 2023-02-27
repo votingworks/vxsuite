@@ -419,7 +419,9 @@ export class JavaCard implements Card {
 
   private async parseUserDataFromCert(cert: Buffer): Promise<Optional<User>> {
     const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
-    const certSubject = response.toString().replace('subject=', '').trimEnd();
+    const responseString = response.toString();
+    assert(responseString.startsWith('subject='));
+    const certSubject = responseString.replace('subject=', '').trimEnd();
     return this.parseUserDataFromCertSubject(certSubject);
   }
 
