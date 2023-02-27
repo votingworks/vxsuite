@@ -119,12 +119,9 @@ export function constructTlv(
   tagAsByteOrBuffer: Byte | Buffer,
   value: Buffer
 ): Buffer {
-  let tag: Buffer;
-  if (Buffer.isBuffer(tagAsByteOrBuffer)) {
-    tag = tagAsByteOrBuffer;
-  } else {
-    tag = Buffer.from([tagAsByteOrBuffer]);
-  }
+  const tag: Buffer = Buffer.isBuffer(tagAsByteOrBuffer)
+    ? tagAsByteOrBuffer
+    : Buffer.from([tagAsByteOrBuffer]);
 
   /**
    * The convention for TLV length is as follows:
