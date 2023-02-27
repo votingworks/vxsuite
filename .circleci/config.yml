@@ -819,7 +819,11 @@ jobs:
 
   test-services-converter-ms-sems:
     docker:
-      - image: circleci/python:3.9.2
+      #- image: circleci/python:3.9.2
+      - image: adammcmanus/cimg-debian11:latest
+        auth:
+          username: $TMP_AMCMANUS_USER
+          password: $TMP_AMCMANUS_PASSWORD
     steps:
       - checkout
       - run:
@@ -839,7 +843,11 @@ jobs:
 
   test-services-smartcards:
     docker:
-      - image: circleci/python:3.9.2
+      #- image: circleci/python:3.9.2
+      - image: adammcmanus/cimg-debian11:latest
+        auth:
+          username: $TMP_AMCMANUS_USER
+          password: $TMP_AMCMANUS_PASSWORD
     steps:
       - checkout
       - run:
