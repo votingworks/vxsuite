@@ -11,6 +11,7 @@ import * as plustekStateMachine from './scanners/plustek/state_machine';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { PrecinctScannerStateMachine } from './types';
 
 export type { Api } from './app';
 export * from './types';
