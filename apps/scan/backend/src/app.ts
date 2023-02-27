@@ -19,6 +19,7 @@ import * as fs from 'fs/promises';
 import {
   ExportDataError,
   exportCastVoteRecordReportToUsbDrive,
+  ExportCastVoteRecordReportToUsbDriveError,
 } from '@votingworks/backend';
 import path from 'path';
 import { existsSync } from 'fs';
@@ -253,7 +254,7 @@ function buildApi(
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<
-      Result<void, ExportDataError>
+      Result<void, ExportCastVoteRecordReportToUsbDriveError>
     > {
       if (CVR_EXPORT_FORMAT === 'cdf') {
         const electionDefinition = store.getElectionDefinition();
@@ -263,21 +264,15 @@ function buildApi(
         );
 
         const exportResult = await exportCastVoteRecordReportToUsbDrive({
-          election: electionDefinition.election,
-          electionHash: electionDefinition.electionHash,
+          electionDefinition,
           isTestMode: store.getTestMode(),
           ballotsCounted: store.getBallotsCounted(),
           batchInfo: store.batchStatus(),
-          resultSheetGenerator: store.forEachResultSheet(),
+          getResultSheetGenerator: store.forEachResultSheet.bind(store),
           ballotPageLayoutsLookup: store.getBallotPageLayoutsLookup(),
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
-          imageOptions: {
-            includeInlineBallotImages: true,
-            imagesDirectory: 'ballot-images', // not using this yet
-            includedImageFileUris: 'none',
-          },
         });
 
         if (exportResult.isOk()) {

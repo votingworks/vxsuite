@@ -486,6 +486,22 @@ export enum VoteVariation {
 export const VoteVariationSchema = z.nativeEnum(VoteVariation);
 
 /**
+ * Used in CVR::vxBallotType to indicate whether the ballot is an absentee or precinct ballot.
+ */
+export enum vxBallotType {
+  Precinct = 'precinct',
+
+  Absentee = 'absentee',
+
+  Provisional = 'provisional',
+}
+
+/**
+ * Schema for {@link vxBallotType}.
+ */
+export const vxBallotTypeSchema = z.nativeEnum(vxBallotType);
+
+/**
  * Annotation is used to record annotations made by one or more adjudicators.CVRSnapshot includes Annotation.
  */
 export interface Annotation {
@@ -674,6 +690,11 @@ export interface CVR {
    * The sequence number for this CVR. This represents the ordinal number that this CVR was processed by the tabulating device.
    */
   readonly UniqueId?: string;
+
+  /**
+   * Indicates whether the ballot is an absentee or precinct ballot.
+   */
+  readonly vxBallotType?: vxBallotType;
 }
 
 /**
@@ -695,6 +716,7 @@ export const CVRSchema: z.ZodSchema<CVR> = z.object({
   ElectionId: z.string(),
   PartyIds: z.optional(z.array(z.string())),
   UniqueId: z.optional(z.string()),
+  vxBallotType: z.optional(z.lazy(/* istanbul ignore next */ () => vxBallotTypeSchema)),
 });
 
 /**
@@ -1095,6 +1117,11 @@ export interface CastVoteRecordReport {
    * The version of the CVR specification being used (1.0).
    */
   readonly Version: CastVoteRecordVersion;
+
+  /**
+   * List of scanner batches with metadata.
+   */
+  readonly vxBatch?: readonly vxBatch[];
 }
 
 /**
@@ -1113,6 +1140,7 @@ export const CastVoteRecordReportSchema: z.ZodSchema<CastVoteRecordReport> = z.o
   ReportType: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ReportTypeSchema))),
   ReportingDevice: z.array(z.lazy(/* istanbul ignore next */ () => ReportingDeviceSchema)).min(1),
   Version: z.lazy(/* istanbul ignore next */ () => CastVoteRecordVersionSchema),
+  vxBatch: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => vxBatchSchema))),
 });
 
 /**
@@ -1794,5 +1822,25 @@ export const SelectionPositionSchema: z.ZodSchema<SelectionPosition> = z.object(
   Position: z.optional(integerSchema),
   Rank: z.optional(integerSchema),
   Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PositionStatusSchema))),
+});
+
+/**
+ * Entity containing metadata about a scanned batch. Cast vote records link to batches via CVR::BatchId.
+ */
+export interface vxBatch {
+  readonly '@id': string;
+
+  readonly '@type': 'CVR.vxBatch';
+
+  readonly BatchLabel: string;
+}
+
+/**
+ * Schema for {@link vxBatch}.
+ */
+export const vxBatchSchema: z.ZodSchema<vxBatch> = z.object({
+  '@id': z.string(),
+  '@type': z.literal('CVR.vxBatch'),
+  BatchLabel: z.string(),
 });
 

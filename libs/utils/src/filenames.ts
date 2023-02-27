@@ -114,9 +114,9 @@ export function generateFilenameForScanningResults(
 }
 
 /**
- * Generate the filename for the cast vote record report file.
+ * Generate the directory name for the cast vote record report.
  */
-export function generateCastVoteRecordReportFilename(
+export function generateCastVoteRecordReportDirectoryName(
   machineId: string,
   numBallotsScanned: number,
   isTestMode: boolean,
@@ -125,9 +125,11 @@ export function generateCastVoteRecordReportFilename(
   const machineString = `machine${SUBSECTION_SEPARATOR}${
     maybeParse(MachineId, machineId) ?? sanitizeString(machineId)
   }`;
-  const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`;
+  const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}${
+    numBallotsScanned === 1 ? 'ballot' : 'ballots'
+  }`;
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.json`;
+  const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}`;
   return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
 }
 

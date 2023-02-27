@@ -3,7 +3,7 @@ export * from './auth';
 export * from './hmpb';
 export * from './cast_vote_record';
 export * as EventLogging from './cdf/election-event-logging';
-export * as CVR from './cdf_cast_vote_records';
+export * as CVR from './cdf/cast-vote-records';
 export * from './converter_client';
 export * from './dom';
 export * from './election';

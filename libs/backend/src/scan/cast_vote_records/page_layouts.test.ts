@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { getBallotPageLayout, getContestsForBallotPage } from './page_layouts';
 
-const { electionHash, election } = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionMinimalExhaustiveSampleDefinition;
 
 /**
  * Ballot Page Layouts Mock
@@ -36,7 +36,7 @@ jest.mock('@votingworks/ballot-interpreter-nh', () => ({
 }));
 
 const ballotPageMetadata: BallotPageMetadata = {
-  electionHash,
+  electionHash: '0000000000', // fixed for resiliency to hash change'
   precinctId: 'precinct-1',
   ballotStyleId: '2F',
   locales: { primary: 'en-US' },

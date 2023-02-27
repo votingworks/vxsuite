@@ -23,18 +23,24 @@ import {
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
-  getCVRBallotType,
+  toCdfBallotType,
   getOptionPosition,
   hasWriteIns,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-const { election, electionHash } = electionDefinition;
+const { election } = electionDefinition;
 
-test('getCVRBallotType', () => {
-  expect(getCVRBallotType(BallotType.Absentee)).toEqual('absentee');
-  expect(getCVRBallotType(BallotType.Standard)).toEqual('standard');
-  expect(getCVRBallotType(BallotType.Provisional)).toEqual('provisional');
+test('toCdfBallotType', () => {
+  expect(toCdfBallotType(BallotType.Absentee)).toEqual(
+    CVR.vxBallotType.Absentee
+  );
+  expect(toCdfBallotType(BallotType.Standard)).toEqual(
+    CVR.vxBallotType.Precinct
+  );
+  expect(toCdfBallotType(BallotType.Provisional)).toEqual(
+    CVR.vxBallotType.Provisional
+  );
 });
 
 const mammalCouncilContest = find(
@@ -476,7 +482,6 @@ test('hasWriteIns', () => {
 jest.mock('./page_layouts', () => {
   return {
     ...jest.requireActual('./page_layouts'),
-    getBallotPageLayout: () => 'notLayout',
     getContestsForBallotPage: ({
       ballotPageMetadata,
     }: {
@@ -488,7 +493,7 @@ jest.mock('./page_layouts', () => {
   };
 });
 
-const electionId = electionHash;
+const electionId = '0000000000'; // fixed for resiliency to hash change
 const scannerId = 'SC-00-000';
 const batchId = 'batch-1';
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
@@ -514,7 +519,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     ElectionId: electionId,
     BatchId: batchId,
     UniqueId: castVoteRecordId,
-    vxBallotType: 'standard',
+    vxBallotType: CVR.vxBallotType.Precinct,
   });
 
   expect(castVoteRecord.CurrentSnapshotId).toEqual(
@@ -561,7 +566,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       ElectionId: electionId,
       BatchId: batchId,
       UniqueId: castVoteRecordId,
-      vxBallotType: 'standard',
+      vxBallotType: CVR.vxBallotType.Precinct,
       BallotSheetId: '1',
     });
 
@@ -635,7 +640,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
   });
 });
 
-test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
+test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
   const castVoteRecord = buildCastVoteRecord({
     election,
     electionId,
@@ -646,9 +651,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
     pages: [
       {
         interpretation: interpretedHmpbPage1,
-        inlineBallotImage: {
-          normalized: 'normalized',
-        },
+        imageFileUri: 'file:./ballot-images/front.jpg',
       },
       {
         interpretation: interpretedHmpbPage2,
@@ -662,20 +665,11 @@ test('buildCastVoteRecord - HMPB ballot with write-in images', () => {
     Array [
       Object {
         "@type": "CVR.ImageData",
-        "Image": Object {
-          "@type": "CVR.Image",
-          "Data": "normalized",
-        },
+        "Location": "file:./ballot-images/front.jpg",
       },
       Object {
         "@type": "CVR.ImageData",
       },
-    ]
-  `);
-  expect(castVoteRecord.vxLayouts).toMatchInlineSnapshot(`
-    Array [
-      "notLayout",
-      null,
     ]
   `);
 });

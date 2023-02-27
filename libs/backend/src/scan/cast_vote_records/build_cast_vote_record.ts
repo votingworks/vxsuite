@@ -9,16 +9,13 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
-  CastVoteRecordBallotType,
   Contests,
   CVR,
   Election,
   getBallotStyle,
   getContests,
-  InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
-  mapSheet,
   safeParseInt,
   SheetOf,
   VotesDict,
@@ -28,7 +25,6 @@ import {
 
 import {
   BallotPageLayoutsLookup,
-  getBallotPageLayout,
   getContestsForBallotPage,
 } from './page_layouts';
 
@@ -36,16 +32,14 @@ import {
  * Converts from the ballot type enumeration to a test representation used
  * in cast vote records.
  */
-export function getCVRBallotType(
-  ballotType: BallotType
-): CastVoteRecordBallotType {
+export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   switch (ballotType) {
     case BallotType.Absentee:
-      return 'absentee';
+      return CVR.vxBallotType.Absentee;
     case BallotType.Provisional:
-      return 'provisional';
+      return CVR.vxBallotType.Provisional;
     case BallotType.Standard:
-      return 'standard';
+      return CVR.vxBallotType.Precinct;
     // istanbul ignore next
     default:
       throwIllegalValue(ballotType);
@@ -260,7 +254,7 @@ function buildCVRCandidateContest({
                       : undefined,
                   // include image of write-in for hand-marked ballots per VVSG 2.0 1.1.5-D.3
                   WriteInImage:
-                    options.ballotMarkingMode === 'hand'
+                    options.ballotMarkingMode === 'hand' && options.imageFileUri
                       ? {
                           '@type': 'CVR.ImageData',
                           Location: options.imageFileUri,
@@ -429,8 +423,6 @@ type BuildCastVoteRecordParams = {
       definiteMarkThreshold: number;
       pages: SheetOf<{
         interpretation: InterpretedHmpbPage;
-        // TODO: Remove inlineBallotImage option, only use imageFileUri
-        inlineBallotImage?: InlineBallotImage;
         imageFileUri?: string;
       }>;
       ballotPageLayoutsLookup: BallotPageLayoutsLookup;
@@ -467,7 +459,7 @@ export function buildCastVoteRecord({
     ElectionId: electionId,
     BatchId: batchId, // VVSG 2.0 1.1.5-G.6
     UniqueId: castVoteRecordId,
-    vxBallotType: getCVRBallotType(ballotMetadata.ballotType),
+    vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
   } as const;
 
   // CVR for machine-marked ballot, only has "original" snapshot because the
@@ -512,9 +504,6 @@ export function buildCastVoteRecord({
       pages[1].interpretation.metadata.pageNumber
     ) / 2
   ).toString();
-
-  const hasInlineBallotImages =
-    pages[0].inlineBallotImage || pages[1].inlineBallotImage;
 
   const hasImageFileUris = pages[0].imageFileUri || pages[1].imageFileUri;
 
@@ -566,37 +555,17 @@ export function buildCastVoteRecord({
         election,
       }),
     ],
-    BallotImage:
-      hasInlineBallotImages || hasImageFileUris
-        ? pages.map((page) =>
-            page.inlineBallotImage
-              ? {
-                  '@type': 'CVR.ImageData',
-                  Image: {
-                    '@type': 'CVR.Image',
-                    Data: page.inlineBallotImage.normalized,
-                  },
-                }
-              : page.imageFileUri
-              ? {
-                  '@type': 'CVR.ImageData',
-                  Location: page.imageFileUri,
-                }
-              : {
-                  // empty object to represent a page with no image
-                  '@type': 'CVR.ImageData',
-                }
-          )
-        : undefined,
-    vxLayouts: hasInlineBallotImages
-      ? mapSheet(pages, (page) =>
-          page.inlineBallotImage
-            ? getBallotPageLayout({
-                ballotPageMetadata: page.interpretation.metadata,
-                ballotPageLayoutsLookup,
-                election,
-              })
-            : null
+    BallotImage: hasImageFileUris
+      ? pages.map((page) =>
+          page.imageFileUri
+            ? {
+                '@type': 'CVR.ImageData',
+                Location: page.imageFileUri,
+              }
+            : {
+                // empty object to represent a page with no included image
+                '@type': 'CVR.ImageData',
+              }
         )
       : undefined,
   };

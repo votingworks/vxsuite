@@ -83,29 +83,33 @@ export type SheetValidationError =
     };
 
 /**
- * Result of a successful validation including the type of ballot and the
- * relevant interpretations. The interpretations in the `hmpb` type are always
- * in consecutive, [front, back] order. The `wasReversed` property indicates
- * whether the sheet passed to the validator was original in reverse order or not.
+ * Validated sheet from the database in a standard format:
+ * - `type` indicates whether this is a hand- or machine-marked ballot
+ * - `interpretation` is the page interpretations ordered `[front, back]`
+ * for HMPB ballots. It is a single page interpretation for BMD ballots
+ * - `wasReversed` indicates whether the passed original sheet was in reverse
+ * order
  */
-export type ValidatedSheet =
+export type CanonicalizedSheet =
   | {
       type: 'bmd';
       interpretation: InterpretedBmdPage;
+      filenames: SheetOf<string>;
     }
   | {
       type: 'hmpb';
-      wasReversed: boolean;
       interpretation: SheetOf<InterpretedHmpbPage>;
+      filenames: SheetOf<string>;
     };
 
 /**
- * Validates sheet interpretations
+ * Validates and canonicalizes sheet interpretations. When successful, returns
+ * a {@link CanonicalizedSheet}. When validation fails, returns a {@link SheetValidationError}
  */
-export function validateSheetInterpretation([
-  front,
-  back,
-]: SheetOf<PageInterpretation>): Result<ValidatedSheet, SheetValidationError> {
+export function canonicalizeSheet(
+  [front, back]: SheetOf<PageInterpretation>,
+  [frontFilename, backFilename]: SheetOf<string>
+): Result<CanonicalizedSheet, SheetValidationError> {
   if (
     !VALID_PAGE_TYPES.includes(front.type) ||
     !VALID_PAGE_TYPES.includes(back.type)
@@ -124,6 +128,7 @@ export function validateSheetInterpretation([
     return ok({
       type: 'bmd',
       interpretation: front,
+      filenames: [frontFilename, backFilename],
     });
   }
 
@@ -135,6 +140,7 @@ export function validateSheetInterpretation([
     return ok({
       type: 'bmd',
       interpretation: back,
+      filenames: [backFilename, frontFilename],
     });
   }
 
@@ -195,8 +201,8 @@ export function validateSheetInterpretation([
   if (front.metadata.pageNumber + 1 === back.metadata.pageNumber) {
     return ok({
       type: 'hmpb',
-      wasReversed: false,
       interpretation: [front, back],
+      filenames: [frontFilename, backFilename],
     });
   }
 
@@ -204,8 +210,8 @@ export function validateSheetInterpretation([
   if (back.metadata.pageNumber + 1 === front.metadata.pageNumber) {
     return ok({
       type: 'hmpb',
-      wasReversed: true,
       interpretation: [back, front],
+      filenames: [backFilename, frontFilename],
     });
   }
 

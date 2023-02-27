@@ -131,7 +131,7 @@ function buildReportingDevices(
   }));
 }
 
-interface BuildCastVoteRecordReportParams {
+interface BuildCastVoteRecordReportMetadataParams {
   election: Election;
   electionId: string;
   generatingDeviceId: string;
@@ -146,7 +146,7 @@ interface BuildCastVoteRecordReportParams {
  * necessary to make sense of those CVRs. We generate this separately because
  * we want to write the CVRs to file separately, one-by-one.
  */
-export function buildCastVoteRecordReport({
+export function buildCastVoteRecordReportMetadata({
   election,
   electionId,
   generatingDeviceId,
@@ -154,7 +154,7 @@ export function buildCastVoteRecordReport({
   reportTypes,
   isTestMode,
   batchInfo,
-}: BuildCastVoteRecordReportParams): CVR.CastVoteRecordReport {
+}: BuildCastVoteRecordReportMetadataParams): CVR.CastVoteRecordReport {
   // TODO: pull from ballot definition once it exists. For now, the scope
   // is just the current state
   const electionScopeId = 'election-state';
@@ -206,7 +206,7 @@ export function buildCastVoteRecordReport({
         Name: `${election.state}`,
       },
     ],
-    Batch: batchInfo.map((batch) => ({
+    vxBatch: batchInfo.map((batch) => ({
       '@type': 'CVR.vxBatch',
       '@id': batch.id,
       BatchLabel: batch.label,

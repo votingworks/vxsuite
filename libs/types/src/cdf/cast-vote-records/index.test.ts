@@ -91,7 +91,6 @@ const castVoteRecordReport: CastVoteRecordReport = {
                   ],
                 },
               ],
-              // Required for VVSG 2.0, not currently supported by us
               Overvotes: 0,
               Undervotes: 0,
               WriteIns: 0,
@@ -99,8 +98,6 @@ const castVoteRecordReport: CastVoteRecordReport = {
           ],
         },
       ],
-      // Ballot-level fields that are required in VVSG 2.0
-      // that we don't currently support
       BallotSheetId: '1',
       BatchSequenceId: 1,
       ElectionId: '1',
@@ -118,10 +115,7 @@ test('schema in sync', () => {
     join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.xsd'),
     'utf-8'
   );
-  const json = readFileSync(
-    join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.json'),
-    'utf-8'
-  );
+  const json = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
   const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
   buildSchema(xsd, json, out).unsafeUnwrap();

@@ -135,14 +135,14 @@ Object {
           "Type": "original",
         },
       ],
-      "CreatingDeviceId": "SC-00-000",
+      "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-1-modified",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "0000000000",
       "PartyIds": Array [
         "1",
       ],
       "UniqueId": "ballot-1",
-      "vxBallotType": "standard",
+      "vxBallotType": "precinct",
     },
     Object {
       "@type": "CVR.CVR",
@@ -230,19 +230,19 @@ Object {
           "Type": "original",
         },
       ],
-      "CreatingDeviceId": "SC-00-000",
+      "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-2-original",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "0000000000",
       "PartyIds": Array [
         "1",
       ],
       "UniqueId": "ballot-2",
-      "vxBallotType": "standard",
+      "vxBallotType": "precinct",
     },
   ],
   "Election": Array [
     Object {
-      "@id": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "@id": "0000000000",
       "@type": "CVR.Election",
       "Candidate": Array [
         Object {
@@ -562,19 +562,20 @@ Object {
     },
   ],
   "ReportGeneratingDeviceIds": Array [
-    "SC-00-000",
+    "000",
   ],
   "ReportType": Array [
     "originating-device-export",
   ],
   "ReportingDevice": Array [
     Object {
-      "@id": "SC-00-000",
+      "@id": "000",
       "@type": "CVR.ReportingDevice",
       "Manufacturer": "VotingWorks",
-      "SerialNumber": "SC-00-000",
+      "SerialNumber": "000",
     },
   ],
   "Version": "1.0.0",
+  "vxBatch": Array [],
 }
 `;
