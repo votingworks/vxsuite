@@ -54,7 +54,7 @@ export function ScanErrorScreen({
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
-      case 'plustek_error':
+      case 'client_error':
         // These cases require restart, so we don't need to show an error
         // message, since that's handled below.
         return undefined;
@@ -196,7 +196,7 @@ export function UnexpectedPlustekErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="plustek_error"
+      error="client_error"
       scannedBallotCount={42}
     />
   );
