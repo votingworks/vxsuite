@@ -28,6 +28,26 @@ type AuthAction =
   | { type: 'check_pin'; checkPinResponse: CheckPinResponse }
   | { type: 'log_out' };
 
+function cardStatusToProgrammableCard(
+  cardStatus: CardStatus
+): DippedSmartCardAuthTypes.ProgrammableCard {
+  switch (cardStatus.status) {
+    case 'no_card': {
+      return { status: 'no_card' };
+    }
+    case 'card_error':
+    case 'unknown_error': {
+      return { status: 'error' };
+    }
+    case 'ready': {
+      return { status: 'ready', programmedUser: cardStatus.user };
+    }
+    default: {
+      throwIllegalValue(cardStatus, 'status');
+    }
+  }
+}
+
 /**
  * An implementation of the dipped smart card auth API
  *
@@ -117,8 +137,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           break;
         }
         /* istanbul ignore next: Compile-time check for completeness */
-        default:
+        default: {
           throwIllegalValue(input, 'userRole');
+        }
       }
     } catch (error) {
       return wrapException(error);
@@ -174,11 +195,15 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           switch (currentAuthStatus.status) {
             case 'logged_out': {
               switch (action.cardStatus.status) {
+                // TODO: Consider an alternative screen on the frontend for unknown errors
                 case 'no_card':
+                case 'unknown_error': {
                   return { status: 'logged_out', reason: 'machine_locked' };
+                }
 
-                case 'error':
+                case 'card_error': {
                   return { status: 'logged_out', reason: 'card_error' };
+                }
 
                 case 'ready': {
                   const { user } = action.cardStatus;
@@ -206,8 +231,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 }
 
                 /* istanbul ignore next: Compile-time check for completeness */
-                default:
+                default: {
                   return throwIllegalValue(action.cardStatus, 'status');
+                }
               }
             }
 
@@ -225,7 +251,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   return {
                     status: 'logged_in',
                     user,
-                    programmableCard: action.cardStatus,
+                    programmableCard: cardStatusToProgrammableCard(
+                      action.cardStatus
+                    ),
                   };
                 }
                 return { status: 'logged_in', user };
@@ -238,21 +266,18 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
               if (user.role === 'system_administrator') {
                 return {
                   ...currentAuthStatus,
-                  programmableCard:
-                    action.cardStatus.status === 'ready'
-                      ? {
-                          status: 'ready',
-                          programmedUser: action.cardStatus.user,
-                        }
-                      : action.cardStatus,
+                  programmableCard: cardStatusToProgrammableCard(
+                    action.cardStatus
+                  ),
                 };
               }
               return currentAuthStatus;
             }
 
             /* istanbul ignore next: Compile-time check for completeness */
-            default:
+            default: {
               throwIllegalValue(currentAuthStatus, 'status');
+            }
           }
         })();
 
@@ -271,12 +296,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
-      case 'log_out':
+      case 'log_out': {
         return { status: 'logged_out', reason: 'machine_locked' };
+      }
 
       /* istanbul ignore next: Compile-time check for completeness */
-      default:
+      default: {
         throwIllegalValue(action, 'type');
+      }
     }
   }
 

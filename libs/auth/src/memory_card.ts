@@ -135,7 +135,8 @@ export class MemoryCard implements Card {
   async getCardStatus(): Promise<CardStatus> {
     const cardSummary = await this.card.readSummary();
     return {
-      status: cardSummary.status,
+      status:
+        cardSummary.status === 'error' ? 'card_error' : cardSummary.status,
       user:
         cardSummary.status === 'ready'
           ? parseUserDataFromCardSummary(cardSummary).user

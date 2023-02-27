@@ -16,7 +16,12 @@ type BaseTransmit = (data: Buffer) => Promise<Buffer>;
 
 type PcscLite = ReturnType<typeof pcscLite>;
 
-type ReaderStatus = 'error' | 'no_card_reader' | 'no_card' | 'ready';
+type ReaderStatus =
+  | 'card_error'
+  | 'no_card_reader'
+  | 'no_card'
+  | 'ready'
+  | 'unknown_error';
 
 /**
  * A class for interfacing with a smart card reader, implemented using PCSC Lite
@@ -36,12 +41,12 @@ export class CardReader {
     this.readerStatus = 'no_card_reader';
 
     this.pcscLite.on('error', () => {
-      this.updateReaderStatus('error');
+      this.updateReaderStatus('unknown_error');
     });
 
     this.pcscLite.on('reader', (reader) => {
       reader.on('error', () => {
-        this.updateReaderStatus('error');
+        this.updateReaderStatus('unknown_error');
       });
 
       reader.on('status', (status) => {
@@ -55,7 +60,7 @@ export class CardReader {
             { share_mode: reader.SCARD_SHARE_EXCLUSIVE },
             (error, protocol) => {
               if (error) {
-                this.updateReaderStatus('error');
+                this.updateReaderStatus('card_error');
                 return;
               }
               const transmitPromisified = promisify(reader.transmit).bind(
