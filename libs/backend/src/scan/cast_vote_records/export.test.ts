@@ -343,9 +343,10 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
 
   const exportDataError: ExportDataError = {
     type: 'permission-denied',
-    message: 'unable to access image file',
+    message: 'unable to access filesystem',
   };
 
+  // mock cast vote record report export failing
   exportDataToUsbDriveMock.mockResolvedValueOnce(err(exportDataError));
 
   const exportResult = await exportCastVoteRecordReportToUsbDrive({
@@ -360,4 +361,22 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
 
   expect(exportResult.isErr()).toEqual(true);
   expect(exportResult.err()).toEqual(exportDataError);
+
+  // mock image export failing. possible but unlikely for this to happen since
+  // at this point report has already exported successfully
+  exportDataToUsbDriveMock.mockResolvedValueOnce(ok());
+  exportDataToUsbDriveMock.mockResolvedValueOnce(err(exportDataError));
+
+  const exportResult2 = await exportCastVoteRecordReportToUsbDrive({
+    electionDefinition,
+    definiteMarkThreshold,
+    ballotPageLayoutsLookup,
+    isTestMode: false,
+    batchInfo: [],
+    ballotsCounted: 1,
+    getResultSheetGenerator,
+  });
+
+  expect(exportResult2.isErr()).toEqual(true);
+  expect(exportResult2.err()).toEqual(exportDataError);
 });
