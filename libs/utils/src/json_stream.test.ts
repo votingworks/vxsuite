@@ -61,16 +61,19 @@ test('iterable', () => {
 });
 
 test('generates correct JSON', () => {
-  const serializable = fc.letrec((tie) => ({
-    any: fc.oneof(
+  const { serializable } = fc.letrec((tie) => ({
+    serializable: fc.oneof(
       fc.integer(),
       fc.string(),
       fc.boolean(),
       fc.constant(null),
-      fc.array(tie('any')),
-      fc.record({ key: fc.string(), value: tie('any') })
+      fc.array(tie('serializable')),
+      fc.record({
+        key: fc.string(),
+        value: fc.oneof(tie('serializable'), fc.constant(undefined)),
+      })
     ),
-  })).any;
+  }));
 
   fc.assert(
     fc.property(serializable, (input) => {
