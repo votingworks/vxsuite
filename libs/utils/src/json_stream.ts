@@ -14,7 +14,8 @@ function isIterable(value: unknown): value is Iterable<unknown> {
  * ```ts
  * function* generateLargeArray() {
  *   for (let i = 0; i < 1_000_000_000; i++) {
- *   yield i;
+ *     yield i;
+ *   }
  * }
  *
  * const stream = jsonStream({ foo: [1, 2, 3], bar: generateLargeArray() });
