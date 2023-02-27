@@ -11,8 +11,12 @@ type OpensslParam = string | Buffer;
  * the file's contents. Writes these Buffers to temporary files in the specified (or default)
  * working directory and deletes these files after completion of the openssl command.
  *
+ * The returned promise resolves if the shell command's exit status is 0 and rejects otherwise
+ * (openssl cert and signature verification commands return non-zero exit statuses when
+ * verification fails). The promise also rejects if cleanup of temporary files fails.
+ *
  * Sample usage:
- * openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer ]);
+ * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer ]);
  */
 export async function openssl(
   params: OpensslParam[],

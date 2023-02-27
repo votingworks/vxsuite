@@ -413,7 +413,7 @@ export class JavaCard implements Card {
       '-signature',
       challengeSignature,
       Buffer.from(challenge, 'utf-8'),
-    ]);
+    ]); // Throws if the signature verification fails
   }
 
   private async parseUserDataFromCert(cert: Buffer): Promise<Optional<User>> {
