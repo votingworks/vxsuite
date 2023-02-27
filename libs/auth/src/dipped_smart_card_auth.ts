@@ -43,16 +43,10 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private readonly card: Card;
   private readonly config: DippedSmartCardAuthConfig;
 
-  constructor({
-    card,
-    config,
-  }: {
-    card: Card;
-    config: DippedSmartCardAuthConfig;
-  }) {
+  constructor(input: { card: Card; config: DippedSmartCardAuthConfig }) {
     this.authStatus = DippedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
-    this.card = card;
-    this.config = config;
+    this.card = input.card;
+    this.config = input.config;
   }
 
   async getAuthStatus(

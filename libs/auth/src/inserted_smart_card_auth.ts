@@ -49,17 +49,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
 
-  constructor({
-    card,
-    config,
-  }: {
-    card: Card;
-    config: InsertedSmartCardAuthConfig;
-  }) {
+  constructor(input: { card: Card; config: InsertedSmartCardAuthConfig }) {
     this.authStatus = InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
-    this.card = card;
+    this.card = input.card;
     this.cardlessVoterUser = undefined;
-    this.config = config;
+    this.config = input.config;
   }
 
   async getAuthStatus(

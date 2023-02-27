@@ -46,7 +46,7 @@ export type CheckPinResponse =
   | CheckPinResponseError;
 
 /**
- * The API for a card
+ * The API for a smart card
  */
 export interface Card {
   getCardStatus(): Promise<CardStatus>;

@@ -123,14 +123,13 @@ function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
 }
 
 /**
- * An implementation of the card API that uses a memory card under the hood. Wraps around the
- * legacy card API
+ * An implementation of the card API that uses a memory card. Wraps around the legacy card API.
  */
 export class MemoryCard implements Card {
   private readonly card: Legacy.Card;
 
-  constructor({ baseUrl }: { baseUrl: string }) {
-    this.card = new Legacy.WebServiceCard({ baseUrl });
+  constructor(input: { baseUrl: string }) {
+    this.card = new Legacy.WebServiceCard({ baseUrl: input.baseUrl });
   }
 
   async getCardStatus(): Promise<CardStatus> {
