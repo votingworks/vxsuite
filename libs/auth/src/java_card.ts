@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Byte, Optional, User } from '@votingworks/types';
 
+import { z } from 'zod';
 import { CommandApdu, constructTlv, ResponseApduError, SELECT } from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
@@ -98,6 +99,23 @@ const VX_CUSTOM_CERT_FIELD = {
   /** The SHA-256 hash of the election definition  */
   ELECTION_HASH: `${VX_IANA_ENTERPRISE_OID}.4`,
 } as const;
+
+/**
+ * Parsed custom cert fields
+ */
+interface VxCustomCertFields {
+  component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
+  jurisdiction: string;
+  cardType?: 'sa' | 'em' | 'pw';
+  electionHash?: string;
+}
+
+const VxCustomCertFieldsSchema: z.ZodSchema<VxCustomCertFields> = z.object({
+  component: z.enum(['card', 'admin', 'central-scan', 'mark', 'scan']),
+  jurisdiction: z.string(),
+  cardType: z.optional(z.enum(['sa', 'em', 'pw'])),
+  electionHash: z.optional(z.string()),
+});
 
 /**
  * Converts a PIN to the padded 8-byte buffer that the VERIFY command expects
@@ -283,9 +301,15 @@ export class JavaCard implements Card {
       cardVxAdminCert,
     ]);
 
-    // Verify that the VxAdmin cert authority cert was signed by VotingWorks
+    // Verify that the VxAdmin cert authority cert is 1) a valid VxAdmin cert, 2) for the correct
+    // jurisdiction, and 3) signed by VotingWorks
     // TODO: Figure out how to sign the VxAdmin cert authority cert with the VotingWorks cert
     // authority cert
+    const vxAdminCertAuthorityCertDetails = await this.parseCert(
+      vxAdminCertAuthorityCert
+    );
+    assert(vxAdminCertAuthorityCertDetails.component === 'admin');
+    assert(vxAdminCertAuthorityCertDetails.jurisdiction === this.jurisdiction);
     await openssl([
       'verify',
       '-CAfile',
@@ -418,35 +442,11 @@ export class JavaCard implements Card {
   }
 
   private async parseUserDataFromCert(cert: Buffer): Promise<Optional<User>> {
-    const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
-    const responseString = response.toString();
-    assert(responseString.startsWith('subject='));
-    const certSubject = responseString.replace('subject=', '').trimEnd();
-    return this.parseUserDataFromCertSubject(certSubject);
-  }
-
-  private parseUserDataFromCertSubject(certSubject: string): Optional<User> {
-    const certFieldsList = certSubject
-      .split(',')
-      .map((field) => field.trimStart());
-    const certFields: { [fieldName: string]: string } = {};
-    for (const certField of certFieldsList) {
-      const [fieldName, fieldValue] = certField.split(' = ');
-      if (fieldName && fieldValue) {
-        certFields[fieldName] = fieldValue;
-      }
-    }
-
-    const component = certFields[VX_CUSTOM_CERT_FIELD.COMPONENT];
-    const jurisdiction = certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION];
-    const cardType = certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE];
-    const electionHash = certFields[VX_CUSTOM_CERT_FIELD.ELECTION_HASH];
+    const { component, jurisdiction, cardType, electionHash } =
+      await this.parseCert(cert);
     assert(component === 'card');
     assert(jurisdiction === this.jurisdiction);
-    assert(
-      cardType !== undefined &&
-        (cardType === 'sa' || cardType === 'em' || cardType === 'pw')
-    );
+    assert(cardType !== undefined);
 
     switch (cardType) {
       case 'sa': {
@@ -465,5 +465,32 @@ export class JavaCard implements Card {
         throwIllegalValue(cardType);
       }
     }
+  }
+
+  private async parseCert(cert: Buffer): Promise<VxCustomCertFields> {
+    const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
+
+    const responseString = response.toString();
+    assert(responseString.startsWith('subject='));
+    const certSubject = responseString.replace('subject=', '').trimEnd();
+    const certFieldsList = certSubject
+      .split(',')
+      .map((field) => field.trimStart());
+    const certFields: { [fieldName: string]: string } = {};
+    for (const certField of certFieldsList) {
+      const [fieldName, fieldValue] = certField.split(' = ');
+      if (fieldName && fieldValue) {
+        certFields[fieldName] = fieldValue;
+      }
+    }
+
+    const customCertFields = VxCustomCertFieldsSchema.parse({
+      component: certFields[VX_CUSTOM_CERT_FIELD.COMPONENT],
+      jurisdiction: certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION],
+      cardType: certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE],
+      electionHash: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_HASH],
+    });
+
+    return customCertFields;
   }
 }
