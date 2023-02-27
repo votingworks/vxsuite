@@ -760,13 +760,13 @@ export function PollWorkerScreen({
             content={
               <Prose textCenter id="modalaudiofocus">
                 <h1>
-                  Switch to Live Election Mode and reset the Ballots Printed
+                  Switch to Official Ballot Mode and reset the Ballots Printed
                   count?
                 </h1>
                 <p>
                   Today is election day and this machine is in{' '}
                   <strong>
-                    <NoWrap>Election Testing Mode.</NoWrap>
+                    <NoWrap>Test Ballot Mode.</NoWrap>
                   </strong>
                 </p>
                 <Text small italic>
@@ -778,7 +778,7 @@ export function PollWorkerScreen({
             actions={
               <React.Fragment>
                 <Button primary danger onPress={confirmEnableLiveMode}>
-                  Switch to Live Election Mode
+                  Switch to Official Ballot Mode
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>
               </React.Fragment>

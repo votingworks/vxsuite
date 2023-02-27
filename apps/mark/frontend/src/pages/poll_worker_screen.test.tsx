@@ -122,9 +122,9 @@ test('switching out of test mode on election day', () => {
   });
 
   screen.getByText(
-    'Switch to Live Election Mode and reset the Ballots Printed count?'
+    'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Switch to Live Election Mode'));
+  fireEvent.click(screen.getByText('Switch to Official Ballot Mode'));
   expect(enableLiveMode).toHaveBeenCalled();
 });
 
@@ -140,7 +140,7 @@ test('keeping test mode on election day', () => {
   renderScreen({ electionDefinition, enableLiveMode });
 
   screen.getByText(
-    'Switch to Live Election Mode and reset the Ballots Printed count?'
+    'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
   fireEvent.click(screen.getByText('Cancel'));
   expect(enableLiveMode).not.toHaveBeenCalled();
@@ -153,7 +153,7 @@ test('live mode on election day', () => {
   renderScreen({ isLiveMode: true });
   expect(
     screen.queryByText(
-      'Switch to Live Election Mode and reset the Ballots Printed count?'
+      'Switch to Official Ballot Mode and reset the Ballots Printed count?'
     )
   ).toBeNull();
 });

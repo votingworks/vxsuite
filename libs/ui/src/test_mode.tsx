@@ -31,7 +31,7 @@ const TestingModeContainer = styled.div`
 export function TestMode(): JSX.Element {
   return (
     <TestingModeContainer>
-      <div>Machine is in Testing Mode</div>
+      <div>Machine is in Test Ballot Mode</div>
     </TestingModeContainer>
   );
 }

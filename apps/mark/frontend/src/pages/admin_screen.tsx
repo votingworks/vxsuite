@@ -130,7 +130,7 @@ export function AdminScreen({
                   </React.Fragment>
                 )}
               </p>
-              <h2>Testing Mode</h2>
+              <h2>Test Ballot Mode</h2>
               <p>
                 <SegmentedButton>
                   <Button
@@ -138,14 +138,14 @@ export function AdminScreen({
                     primary={!isLiveMode}
                     disabled={!isLiveMode}
                   >
-                    Testing Mode
+                    Test Ballot Mode
                   </Button>
                   <Button
                     onPress={toggleLiveMode}
                     primary={isLiveMode}
                     disabled={isLiveMode}
                   >
-                    Live Election Mode
+                    Official Ballot Mode
                   </Button>
                 </SegmentedButton>
                 <br />
