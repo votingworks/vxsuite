@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
+import { v4 as uuid } from 'uuid';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Byte, Optional, User } from '@votingworks/types';
 
@@ -379,7 +380,7 @@ export class JavaCard implements Card {
     }
 
     // Have the private key in the specified slot sign a "challenge"
-    const challenge = new Date().toString();
+    const challenge = `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CommandApdu({
