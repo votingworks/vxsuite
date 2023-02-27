@@ -1,5 +1,3 @@
-import { integers, zipMin } from '@votingworks/basics';
-
 function isIterable(value: unknown): value is Iterable<unknown> {
   return (
     typeof value === 'object' && value !== null && Symbol.iterator in value
@@ -40,40 +38,39 @@ export function* jsonStream(input: unknown, indent = 0): Generator<string> {
     const nextIndent = indent + 1;
     const nextIndentString = ' '.repeat(nextIndent * 2);
     yield '[';
-    let isEmpty = true;
-    for (const [value, index] of zipMin(input, integers())) {
-      isEmpty = false;
-      if (index !== 0) {
+    let hasEntries = false;
+    for (const value of input) {
+      if (hasEntries) {
         yield ',';
+      } else {
+        hasEntries = true;
       }
       yield `\n${nextIndentString}`;
       yield* jsonStream(value, nextIndent);
     }
-    yield isEmpty ? ']' : `\n${indentString}]`;
+    yield !hasEntries ? ']' : `\n${indentString}]`;
   } else if (typeof input === 'object') {
     const indentString = ' '.repeat(indent * 2);
     const nextIndent = indent + 1;
     const nextIndentString = ' '.repeat(nextIndent * 2);
     yield '{';
-    let isEmpty = true;
-    for (const [[key, value], index] of zipMin(
-      Object.entries(input),
-      integers()
-    )) {
+    let hasEntries = false;
+    for (const [key, value] of Object.entries(input)) {
       if (value === undefined) {
         continue;
       }
 
-      isEmpty = false;
-      if (index !== 0) {
+      if (hasEntries) {
         yield ',';
+      } else {
+        hasEntries = true;
       }
       yield `\n${nextIndentString}`;
       yield* jsonStream(key, nextIndent);
       yield ': ';
       yield* jsonStream(value, nextIndent);
     }
-    yield isEmpty ? '}' : `\n${indentString}}`;
+    yield !hasEntries ? '}' : `\n${indentString}}`;
   } else {
     throw new Error(`unknown type ${typeof input}`);
   }

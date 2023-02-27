@@ -38,6 +38,7 @@ test('object', () => {
 
 test('undefined object properties', () => {
   expect(asString({ a: 1, b: undefined })).toEqual('{\n  "a": 1\n}');
+  expect(asString({ a: undefined, b: 1 })).toEqual('{\n  "b": 1\n}');
 });
 
 test('nested', () => {
