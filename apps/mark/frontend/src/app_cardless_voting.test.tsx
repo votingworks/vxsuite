@@ -84,9 +84,9 @@ test('Cardless Voting Flow', async () => {
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
-  fireEvent.click(screen.getByText('Live Election Mode'));
+  fireEvent.click(screen.getByText('Official Ballot Mode'));
   expect(
-    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
+    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
   ).toBeTruthy();
 
   // Remove card
@@ -392,9 +392,9 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
-  fireEvent.click(screen.getByText('Live Election Mode'));
+  fireEvent.click(screen.getByText('Official Ballot Mode'));
   expect(
-    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
+    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
   ).toBeTruthy();
 
   // Remove card
