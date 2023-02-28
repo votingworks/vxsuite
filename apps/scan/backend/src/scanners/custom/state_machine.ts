@@ -94,6 +94,7 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_READY_TO_EJECT' }
   | { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' }
   | { type: 'SCANNER_JAM' }
+  | { type: 'SCANNER_JAM_CLEARED' }
   | { type: 'SCANNER_DISCONNECTED' };
 
 type CommandEvent = { type: 'SCAN' } | { type: 'ACCEPT' } | { type: 'RETURN' };
@@ -111,6 +112,7 @@ export interface Delays {
   DELAY_RECONNECT: number;
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
+  DELAY_RETRY_SCANNING: number;
 }
 
 const defaultDelays: Delays = {
@@ -148,6 +150,9 @@ const defaultDelays: Delays = {
   // how long to wait before giving up on disconnecting the "nice" way and
   // just sending a kill signal.
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
+  // When retrying scanning after a failed attempt, brief pause to avoid any possible,
+  // race conditions if the paper has been removed
+  DELAY_RETRY_SCANNING: 500,
 };
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
@@ -179,9 +184,6 @@ function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
   // console.log('scannerStatusToEvent', scannerStatus);
-  if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
-    return { type: 'SCANNER_JAM' };
-  }
 
   const frontHasPaper =
     scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent &&
@@ -193,6 +195,13 @@ function scannerStatusToEvent(
     scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent &&
     scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent &&
     scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+
+  if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
+    if (!frontHasPaper && !backHasPaper) {
+      return { type: 'SCANNER_JAM_CLEARED' };
+    }
+    return { type: 'SCANNER_JAM' };
+  }
 
   if (!frontHasPaper && !backHasPaper) {
     return { type: 'SCANNER_NO_PAPER' };
@@ -265,6 +274,15 @@ function buildPaperStatusObserver(
       })
     );
   };
+}
+
+async function reset({ client }: Context): Promise<void> {
+  assert(client);
+  debug('Resetting hardware');
+  const result = await client.resetHardware();
+  if (result.isErr()) {
+    throw result.err();
+  }
 }
 
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
@@ -588,6 +606,7 @@ function buildMachine({
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper',
         SCANNER_JAM: 'jammed',
+        SCANNER_JAM_CLEARED: 'jam_cleared',
         // On unhandled commands, do nothing. This guards against any race
         // conditions where the frontend has an outdated scanner status and tries to
         // send a command.
@@ -648,6 +667,7 @@ function buildMachine({
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_JAM_CLEARED: 'jam_cleared',
             SCANNER_READY_TO_SCAN: {
               target: 'rejected',
               actions: assign({
@@ -705,7 +725,8 @@ function buildMachine({
                   {
                     cond: (_context, event) =>
                       event.data === ErrorCode.NoDocumentToBeScanned,
-                    target: 'retry_scanning',
+
+                    target: 'waiting_to_retry',
                     actions: assign((_context, event) => ({
                       error: event.data,
                     })),
@@ -736,9 +757,12 @@ function buildMachine({
               invoke: pollPaperStatus,
               on: {
                 SCANNER_READY_TO_EJECT: '#interpreting',
-                SCANNER_NO_PAPER: 'retry_scanning',
-                SCANNER_READY_TO_SCAN: 'retry_scanning',
+                SCANNER_NO_PAPER: 'waiting_to_retry',
+                SCANNER_READY_TO_SCAN: 'waiting_to_retry',
               },
+            },
+            waiting_to_retry: {
+              after: { DELAY_RETRY_SCANNING: 'retry_scanning' },
             },
             retry_scanning: {
               entry: assign({
@@ -889,8 +913,45 @@ function buildMachine({
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM: doNothing,
+            SCANNER_JAM_CLEARED: 'jam_cleared',
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_EJECT: doNothing,
+          },
+        },
+        jam_cleared: {
+          id: 'jam_cleared',
+          entry: [clearError, clearLastScan],
+          initial: 'resetting',
+          states: {
+            resetting: {
+              invoke: {
+                src: reset,
+                onDone: {
+                  target: 'disconnect_after_reset',
+                },
+              },
+            },
+            disconnect_after_reset: {
+              initial: 'waiting_to_retry_connecting',
+              states: {
+                waiting_to_retry_connecting: {
+                  after: { DELAY_RECONNECT: 'reconnecting' },
+                },
+                reconnecting: {
+                  invoke: {
+                    src: connectToCustom(createCustomClient),
+                    onDone: {
+                      target: '#checking_initial_paper_status',
+                      actions: assign({
+                        client: (_context, event) => event.data,
+                        error: undefined,
+                      }),
+                    },
+                    onError: 'waiting_to_retry_connecting',
+                  },
+                },
+              },
+            },
           },
         },
         both_sides_have_paper: {
@@ -1125,6 +1186,8 @@ export function createPrecinctScannerStateMachine({
           case state.matches('rejected'):
             return 'rejected';
           case state.matches('jammed'):
+            return 'jammed';
+          case state.matches('jam_cleared'):
             return 'jammed';
           case state.matches('both_sides_have_paper'):
             return 'both_sides_have_paper';
