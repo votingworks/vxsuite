@@ -312,6 +312,9 @@ export class JavaCard implements Card {
             STATUS_WORD.FILE_NOT_FOUND.SW2,
           ])
         ) {
+          // OpenFIPS201 treats an empty data object as a non-existent one, so when we clear an
+          // object by writing an empty buffer, subsequent retrievals return a file-not-found
+          // response instead of a success response with an empty buffer
           chunks.push(Buffer.from([]));
           continue;
         }
@@ -330,8 +333,10 @@ export class JavaCard implements Card {
 
     for (const [i, objectId] of GENERIC_STORAGE_SPACE.OBJECT_IDS.entries()) {
       const chunk = data.subarray(
-        // Okay if these are larger than data.length
+        // When this first number is larger than data.length, the chunk will be empty, and we'll
+        // clear the corresponding data object
         MAX_DATA_OBJECT_SIZE_BYTES * i,
+        // Okay if this is larger than data.length as .subarray() automatically caps
         MAX_DATA_OBJECT_SIZE_BYTES * i + MAX_DATA_OBJECT_SIZE_BYTES
       );
       await this.cardReader.transmit(

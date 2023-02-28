@@ -156,7 +156,7 @@ export class CardCommand {
           p2: this.p2,
           data: this.data.subarray(
             i * MAX_COMMAND_APDU_DATA_LENGTH,
-            // Okay if this is larger than this.data.length
+            // Okay if this is larger than this.data.length as .subarray() automatically caps
             i * MAX_COMMAND_APDU_DATA_LENGTH + MAX_COMMAND_APDU_DATA_LENGTH
           ),
         })
