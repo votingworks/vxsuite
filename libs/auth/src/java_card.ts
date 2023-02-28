@@ -1,10 +1,10 @@
 import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
+import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Byte, Optional, User } from '@votingworks/types';
 
-import { z } from 'zod';
 import { CommandApdu, constructTlv, ResponseApduError, SELECT } from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
