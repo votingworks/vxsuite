@@ -5,6 +5,7 @@ import { assert } from '@votingworks/basics';
 import { isByte } from '@votingworks/types';
 
 import {
+  CardCommand,
   CommandApdu,
   GET_RESPONSE,
   MAX_APDU_LENGTH,
@@ -90,12 +91,25 @@ export class CardReader {
   }
 
   /**
-   * Transmits a command APDU to a smart card. On success, returns response data. On error, throws.
+   * Transmits command APDUs to a smart card. On success, returns response data. On error, throws.
    * Specifically throws a ResponseApduError when a response APDU with a non-success status word is
    * received.
    */
-  async transmit(apdu: CommandApdu): Promise<Buffer> {
-    let { data, moreDataAvailable } = await this.transmitHelper(apdu);
+  async transmit(command: CardCommand): Promise<Buffer> {
+    const apdus = command.asCommandApdus();
+    let data: Buffer = Buffer.from([]);
+    let moreDataAvailable = false;
+
+    for (const [i, apdu] of apdus.entries()) {
+      if (i < apdus.length - 1) {
+        // APDUs before the last in a chain
+        await this.transmitHelper(apdu);
+      } else {
+        const response = await this.transmitHelper(apdu);
+        data = Buffer.concat([data, response.data]);
+        moreDataAvailable = response.moreDataAvailable;
+      }
+    }
 
     while (moreDataAvailable) {
       const response = await this.transmitHelper(

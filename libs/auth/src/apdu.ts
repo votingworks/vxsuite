@@ -109,6 +109,60 @@ export class CommandApdu {
 }
 
 /**
+ * A layer of abstraction on top of CommandApdu that supports sending larger amounts of data
+ * through multiple, chained APDUs.
+ *
+ * See CommandApdu for more context.
+ */
+export class CardCommand {
+  /** INS: Instruction */
+  private readonly ins: Byte;
+  /** P1: Param 1 */
+  private readonly p1: Byte;
+  /** P2: Param 2 */
+  private readonly p2: Byte;
+  /** Data */
+  private readonly data: Buffer;
+
+  constructor(input: { ins: Byte; p1: Byte; p2: Byte; data: Buffer }) {
+    this.ins = input.ins;
+    this.p1 = input.p1;
+    this.p2 = input.p2;
+    this.data = input.data;
+  }
+
+  /**
+   * The command as a command APDU or command APDU chain
+   */
+  asCommandApdus(): CommandApdu[] {
+    const apdus: CommandApdu[] = [];
+
+    const numApdus = Math.max(
+      Math.ceil(this.data.length / MAX_COMMAND_APDU_DATA_LENGTH),
+      1 // Always construct at least one APDU since a command APDU with no data is valid
+    );
+    for (let i = 0; i < numApdus; i += 1) {
+      const notLastApdu = i < numApdus - 1;
+      apdus.push(
+        new CommandApdu({
+          chained: notLastApdu,
+          ins: this.ins,
+          p1: this.p1,
+          p2: this.p2,
+          data: this.data.subarray(
+            i * MAX_COMMAND_APDU_DATA_LENGTH,
+            // Okay if this is larger than this.data.length
+            i * MAX_COMMAND_APDU_DATA_LENGTH + MAX_COMMAND_APDU_DATA_LENGTH
+          ),
+        })
+      );
+    }
+
+    return apdus;
+  }
+}
+
+/**
  * A TLV, or tag-length-value, is a byte array that consists of:
  * 1. A tag indicating what the value is
  * 2. A length indicating the size of the value in bytes
@@ -148,6 +202,32 @@ export function constructTlv(
   }
 
   return Buffer.concat([tag, tlvLength, value]);
+}
+
+/**
+ * The inverse of constructTlv, splits a TLV into its tag, length, and value
+ */
+export function parseTlv(
+  tagAsByteOrBuffer: Byte | Buffer,
+  tlv: Buffer
+): [Buffer, Buffer, Buffer] {
+  const tagLength = Buffer.isBuffer(tagAsByteOrBuffer)
+    ? tagAsByteOrBuffer.length
+    : 1;
+
+  let tlvLengthLength = 1; // Derpiest variable name, I know
+  const tlvLengthFirstByte = tlv.at(tagLength);
+  if (tlvLengthFirstByte === 0x81) {
+    tlvLengthLength = 2;
+  } else if (tlvLengthFirstByte === 0x82) {
+    tlvLengthLength = 3;
+  }
+
+  return [
+    tlv.subarray(0, tagLength), // Tag
+    tlv.subarray(tagLength, tagLength + tlvLengthLength), // Length
+    tlv.subarray(tagLength + tlvLengthLength), // Value
+  ];
 }
 
 /**
