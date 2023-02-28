@@ -280,9 +280,7 @@ async function reset({ client }: Context): Promise<void> {
   assert(client);
   debug('Resetting hardware');
   const result = await client.resetHardware();
-  if (result.isErr()) {
-    throw result.err();
-  }
+  result.unsafeUnwrap();
 }
 
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
