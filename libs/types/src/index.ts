@@ -8,6 +8,7 @@ export * as CVR from './cdf/cast-vote-records';
 export * from './converter_client';
 export * from './dom';
 export * from './election';
+export * from './election_utils';
 export * from './generic';
 export * from './geometry';
 export * from './image';

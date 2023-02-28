@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { BallotDefinitionSchema } from '.';
 import { mockWritable } from '../../../test/helpers/mock_writable';
-import { testCdfBallotDefinition } from './convert.test';
+import { testCdfBallotDefinition } from './fixtures';
 
 test('BallotDefinition', () => {
   BallotDefinitionSchema.parse(testCdfBallotDefinition);

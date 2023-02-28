@@ -17,6 +17,10 @@ export {
   election as electionSample,
 } from './data/electionSample.json';
 export {
+  electionDefinition as electionSampleCdfDefinition,
+  election as electionSampleCdf,
+} from './data/electionSampleCDF.json';
+export {
   electionDefinition as electionSample2Definition,
   election as electionSample2,
 } from './data/electionSample2/election.json';
