@@ -11,7 +11,7 @@ import {
   SheetOf,
   unsafeParse,
 } from '@votingworks/types';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, typedAs } from '@votingworks/basics';
 import { Readable } from 'stream';
 import {
   generateCastVoteRecordReportDirectoryName,
@@ -31,6 +31,14 @@ import { getUsbDrives } from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
 import { BallotPageLayoutsLookup, getBallotPageLayout } from './page_layouts';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
+
+type WithArraysAsIterables<T> = {
+  [P in keyof T]: T[P] extends ReadonlyArray<infer U>
+    ? Iterable<U>
+    : T[P] extends ReadonlyArray<infer U> | undefined
+    ? Optional<Iterable<U>>
+    : T[P];
+};
 
 /**
  * Properties of each sheet that are needed to generate a cast vote record
@@ -235,10 +243,12 @@ export function getCastVoteRecordReportStream({
   });
 
   return Readable.from(
-    jsonStream({
-      ...castVoteRecordReportMetadata,
-      CVR: castVoteRecordGenerator,
-    })
+    jsonStream(
+      typedAs<WithArraysAsIterables<CVR.CastVoteRecordReport>>({
+        ...castVoteRecordReportMetadata,
+        CVR: castVoteRecordGenerator,
+      })
+    )
   );
 }
 
