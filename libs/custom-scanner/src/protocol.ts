@@ -1020,16 +1020,25 @@ export async function resetHardware(
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
   debug('resetHardware jobId=%x', jobId);
-  const result = await sendRequestAndReadResponse(
-    channel,
-    HardwareResetRequest,
-    { jobId },
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
+  try {
+    const result = await sendRequestAndReadResponse(
+      channel,
+      HardwareResetRequest,
+      { jobId },
+      DEFAULT_MAX_READ_LENGTH,
+      'ack'
+    );
 
-  // drop the `jobId` from the response
-  return mapResult(result, () => undefined);
+    // drop the `jobId` from the response
+    return mapResult(result, () => undefined);
+  } catch (error) {
+    // we can ignore clearHalt exceptions here and assume the reset worked.
+    if (error instanceof Error && error.message.includes('clearHalt error')) {
+      debug('ignoring clearHalt error after reset');
+      return ok();
+    }
+    throw error;
+  }
 }
 
 /**

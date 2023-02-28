@@ -228,11 +228,16 @@ export class CustomA4Scanner implements CustomScanner {
   async move(movement: FormMovement): Promise<Result<void, ErrorCode>> {
     debug('moving %o', movement);
     const result = await this.publicApiMutex.withLock(() =>
-      this.withRetries(() =>
-        this.channelMutex.withLock((channel) =>
+      this.withRetries(async () => {
+        const createJobResult = await this.createJobInternal();
+        if (createJobResult.isErr()) {
+          return createJobResult;
+        }
+
+        return await this.channelMutex.withLock((channel) =>
           formMove(channel, this.currentJobId, movement)
-        )
-      )
+        );
+      })
     );
     debug('move result: %o', result);
     return result;
