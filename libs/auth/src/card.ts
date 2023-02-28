@@ -11,18 +11,14 @@ interface CardStatusReady {
   user?: User;
 }
 
-interface CardStatusNoCard {
-  status: 'no_card';
-}
-
-interface CardStatusError {
-  status: 'error';
+interface CardStatusNotReady {
+  status: 'card_error' | 'no_card' | 'unknown_error';
 }
 
 /**
  * The status of a card in a card reader
  */
-export type CardStatus = CardStatusReady | CardStatusNoCard | CardStatusError;
+export type CardStatus = CardStatusReady | CardStatusNotReady;
 
 interface CheckPinResponseCorrect {
   response: 'correct';
@@ -46,7 +42,7 @@ export type CheckPinResponse =
   | CheckPinResponseError;
 
 /**
- * The API for a card
+ * The API for a smart card
  */
 export interface Card {
   getCardStatus(): Promise<CardStatus>;

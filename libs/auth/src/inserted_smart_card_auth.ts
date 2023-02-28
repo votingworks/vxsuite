@@ -49,17 +49,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
 
-  constructor({
-    card,
-    config,
-  }: {
-    card: Card;
-    config: InsertedSmartCardAuthConfig;
-  }) {
+  constructor(input: { card: Card; config: InsertedSmartCardAuthConfig }) {
     this.authStatus = InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
-    this.card = card;
+    this.card = input.card;
     this.cardlessVoterUser = undefined;
-    this.config = config;
+    this.config = input.config;
   }
 
   async getAuthStatus(
@@ -213,11 +207,15 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       case 'check_card_reader': {
         const newAuthStatus = ((): InsertedSmartCardAuthTypes.AuthStatus => {
           switch (action.cardStatus.status) {
+            // TODO: Consider an alternative screen on the frontend for unknown errors
             case 'no_card':
+            case 'unknown_error': {
               return { status: 'logged_out', reason: 'no_card' };
+            }
 
-            case 'error':
+            case 'card_error': {
               return { status: 'logged_out', reason: 'card_error' };
+            }
 
             case 'ready': {
               const { user } = action.cardStatus;
@@ -257,8 +255,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             }
 
             /* istanbul ignore next: Compile-time check for completeness */
-            default:
+            default: {
               throwIllegalValue(action.cardStatus, 'status');
+            }
           }
         })();
 
@@ -282,8 +281,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       }
 
       /* istanbul ignore next: Compile-time check for completeness */
-      default:
+      default: {
         throwIllegalValue(action, 'type');
+      }
     }
   }
 
