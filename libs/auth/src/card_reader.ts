@@ -12,41 +12,41 @@ import {
   STATUS_WORD,
 } from './apdu';
 
-type BaseTransmit = (data: Buffer) => Promise<Buffer>;
-
 type PcscLite = ReturnType<typeof pcscLite>;
 
-type ReaderStatus =
-  | 'card_error'
-  | 'no_card_reader'
-  | 'no_card'
-  | 'ready'
-  | 'unknown_error';
+interface ReaderReady {
+  status: 'ready';
+  transmit: (data: Buffer) => Promise<Buffer>;
+}
+
+interface ReaderNotReady {
+  status: 'card_error' | 'no_card_reader' | 'no_card' | 'unknown_error';
+}
+
+type Reader = ReaderReady | ReaderNotReady;
+
+type OnReaderStatusChange = (readerStatus: Reader['status']) => void;
 
 /**
  * A class for interfacing with a smart card reader, implemented using PCSC Lite
  */
 export class CardReader {
-  private baseTransmit?: BaseTransmit;
-  private readonly onReaderStatusChange: (readerStatus: ReaderStatus) => void;
+  private readonly onReaderStatusChange: OnReaderStatusChange;
   private readonly pcscLite: PcscLite;
-  private readerStatus: ReaderStatus;
+  private reader: Reader;
 
-  constructor(input: {
-    onReaderStatusChange: (readerStatus: ReaderStatus) => void;
-  }) {
-    this.baseTransmit = undefined;
+  constructor(input: { onReaderStatusChange: OnReaderStatusChange }) {
     this.onReaderStatusChange = input.onReaderStatusChange;
     this.pcscLite = pcscLite();
-    this.readerStatus = 'no_card_reader';
+    this.reader = { status: 'no_card_reader' };
 
     this.pcscLite.on('error', () => {
-      this.updateReaderStatus('unknown_error');
+      this.updateReader({ status: 'unknown_error' });
     });
 
     this.pcscLite.on('reader', (reader) => {
       reader.on('error', () => {
-        this.updateReaderStatus('unknown_error');
+        this.updateReader({ status: 'unknown_error' });
       });
 
       reader.on('status', (status) => {
@@ -60,32 +60,33 @@ export class CardReader {
             { share_mode: reader.SCARD_SHARE_EXCLUSIVE },
             (error, protocol) => {
               if (error) {
-                this.updateReaderStatus('card_error');
+                this.updateReader({ status: 'card_error' });
                 return;
               }
               const transmitPromisified = promisify(reader.transmit).bind(
                 reader
               );
-              function transmit(data: Buffer) {
-                return transmitPromisified(data, MAX_APDU_LENGTH, protocol);
-              }
-              this.updateReaderStatus('ready', transmit);
+              this.updateReader({
+                status: 'ready',
+                transmit: (data: Buffer) =>
+                  transmitPromisified(data, MAX_APDU_LENGTH, protocol),
+              });
             }
           );
         } else {
-          this.updateReaderStatus('no_card');
+          this.updateReader({ status: 'no_card' });
           reader.disconnect(() => undefined);
         }
       });
 
       reader.on('end', () => {
-        this.updateReaderStatus('no_card_reader');
+        this.updateReader({ status: 'no_card_reader' });
       });
     });
   }
 
-  getReaderStatus(): ReaderStatus {
-    return this.readerStatus;
+  getReaderStatus(): Reader['status'] {
+    return this.reader.status;
   }
 
   /**
@@ -114,13 +115,13 @@ export class CardReader {
   private async transmitHelper(
     apdu: CommandApdu
   ): Promise<{ data: Buffer; moreDataAvailable: boolean }> {
-    if (!this.baseTransmit) {
-      throw new Error('Cannot transmit data to card');
+    if (this.reader.status !== 'ready') {
+      throw new Error('Reader not ready');
     }
 
     let response: Buffer;
     try {
-      response = await this.baseTransmit(apdu.asBuffer());
+      response = await this.reader.transmit(apdu.asBuffer());
     } catch {
       throw new Error('Failed to transmit data to card');
     }
@@ -138,16 +139,11 @@ export class CardReader {
     throw new ResponseApduError([sw1, sw2]);
   }
 
-  private updateReaderStatus(
-    readerStatus: ReaderStatus,
-    baseTransmit?: BaseTransmit
-  ): void {
-    assert(
-      (readerStatus === 'ready' && baseTransmit) ||
-        (readerStatus !== 'ready' && baseTransmit === undefined)
-    );
-    this.readerStatus = readerStatus;
-    this.baseTransmit = baseTransmit;
-    this.onReaderStatusChange(readerStatus);
+  private updateReader(reader: Reader): void {
+    const readerStatusChange = this.reader.status !== reader.status;
+    this.reader = reader;
+    if (readerStatusChange) {
+      this.onReaderStatusChange(reader.status);
+    }
   }
 }
