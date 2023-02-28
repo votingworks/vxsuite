@@ -88,7 +88,7 @@ export function* jsonStream<T>(
           hasEntries = true;
         }
         yield nextIndentString;
-        yield* jsonStreamInternal(entry as JsonStreamInput<unknown>, nextLevel);
+        yield* jsonStreamInternal(entry, nextLevel);
       }
       if (hasEntries) {
         yield indentString;
