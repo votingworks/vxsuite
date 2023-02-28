@@ -187,12 +187,7 @@ export class JavaCard implements Card {
           }
           case 'ready': {
             const user = await this.safeReadUser();
-            // Verify that the card is still in the card reader before updating the status since
-            // the async user-reading operation can take time and the card may have been removed
-            // since the operation started
-            if (this.cardReader.getReaderStatus() === 'ready') {
-              this.cardStatus = { status: 'ready', user };
-            }
+            this.cardStatus = { status: 'ready', user };
             return;
           }
           default: {
