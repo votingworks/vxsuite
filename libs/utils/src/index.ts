@@ -13,6 +13,7 @@ export * from './fetch_json';
 export * from './filenames';
 export * from './Hardware';
 export * from './hmpb';
+export * from './json_stream';
 export * from './make_async';
 export * from './perf';
 export * from './polls';

@@ -25,19 +25,17 @@ import {
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import {
-  calculateTallyForCastVoteRecords,
-  filterTallyContestsByParty,
-  getEmptyTally,
-} from '.';
-import {
   ALL_PARTY_FILTER,
   buildVoteFromCvr,
+  calculateTallyForCastVoteRecords,
   castVoteRecordHasWriteIns,
   castVoteRecordVotes,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
+  filterTallyContestsByParty,
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
+  getEmptyTally,
   getPartyIdForCvr,
   getSingleYesNoVote,
   NONPARTISAN_FILTER,
