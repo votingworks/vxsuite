@@ -76,6 +76,25 @@ test('iterable', () => {
   ).toEqual('[\n  1,\n  2,\n  3\n]');
 });
 
+test('fails with circular references', () => {
+  const obj: any = { a: 1 };
+  obj.b = obj;
+  expect(() => asString(obj)).toThrowError();
+
+  const arr: any[] = [];
+  arr.push(arr);
+  expect(() => asString(arr)).toThrowError();
+});
+
+test('fails with non-serializable objects', () => {
+  expect(() => asString({ a: 1, b: () => 2 })).toThrowError(
+    `cannot serialize type 'function'`
+  );
+  expect(() => asString([undefined])).toThrowError(
+    `cannot serialize type 'undefined'`
+  );
+});
+
 test('generates correct JSON', () => {
   fc.assert(
     fc.property(fc.jsonObject(), fc.boolean(), (input, compact) => {

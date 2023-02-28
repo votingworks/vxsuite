@@ -18,7 +18,6 @@ type WithArraysAsIterables<T> = {
  * Options for {@link jsonStream}.
  */
 export interface JsonStreamOptions {
-  indentLevel?: number;
   compact?: boolean;
 }
 
@@ -55,67 +54,80 @@ export type JsonStreamInput<T> =
  */
 export function* jsonStream<T>(
   input: JsonStreamInput<T>,
-  { compact = true, indentLevel = 0 }: JsonStreamOptions = {}
+  { compact = true }: JsonStreamOptions = {}
 ): Generator<string> {
-  if (input === null) {
-    yield 'null';
-  } else if (
-    typeof input === 'boolean' ||
-    typeof input === 'number' ||
-    typeof input === 'string'
-  ) {
-    yield JSON.stringify(input);
-  } else if (isIterable(input)) {
-    const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
-    const nextLevel = indentLevel + 1;
-    const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
-    yield '[';
-    let hasEntries = false;
-    for (const value of input) {
-      if (hasEntries) {
-        yield ',';
-      } else {
-        hasEntries = true;
-      }
-      yield nextIndentString;
-      yield* jsonStream(value as JsonStreamInput<unknown>, {
-        compact,
-        indentLevel: nextLevel,
-      });
-    }
-    if (hasEntries) {
-      yield indentString;
-    }
-    yield ']';
-  } else if (typeof input === 'object') {
-    const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
-    const nextLevel = indentLevel + 1;
-    const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
-    yield '{';
-    let hasEntries = false;
-    for (const [key, value] of Object.entries(input)) {
-      if (value === undefined) {
-        continue;
-      }
+  const visitedObjects = new WeakSet();
 
-      if (hasEntries) {
-        yield ',';
-      } else {
-        hasEntries = true;
+  function* jsonStreamInternal(
+    value: unknown,
+    indentLevel = 0
+  ): Generator<string> {
+    if (value === null) {
+      yield 'null';
+    } else if (
+      typeof value === 'boolean' ||
+      typeof value === 'number' ||
+      typeof value === 'string'
+    ) {
+      yield JSON.stringify(value);
+    } else if (isIterable(value)) {
+      if (visitedObjects.has(value)) {
+        throw new Error('circular reference');
       }
-      yield nextIndentString;
-      yield* jsonStream(key, { compact, indentLevel: nextLevel });
-      yield compact ? ':' : ': ';
-      yield* jsonStream(value as JsonStreamInput<unknown>, {
-        compact,
-        indentLevel: nextLevel,
-      });
+      visitedObjects.add(value);
+
+      const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
+      const nextLevel = indentLevel + 1;
+      const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
+      yield '[';
+      let hasEntries = false;
+      for (const entry of value) {
+        if (hasEntries) {
+          yield ',';
+        } else {
+          hasEntries = true;
+        }
+        yield nextIndentString;
+        yield* jsonStreamInternal(entry as JsonStreamInput<unknown>, nextLevel);
+      }
+      if (hasEntries) {
+        yield indentString;
+      }
+      yield ']';
+    } else if (typeof value === 'object') {
+      if (visitedObjects.has(value)) {
+        throw new Error('circular reference');
+      }
+      visitedObjects.add(value);
+
+      const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
+      const nextLevel = indentLevel + 1;
+      const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
+      yield '{';
+      let hasEntries = false;
+      for (const [key, val] of Object.entries(value)) {
+        if (val === undefined) {
+          continue;
+        }
+
+        if (hasEntries) {
+          yield ',';
+        } else {
+          hasEntries = true;
+        }
+        yield nextIndentString;
+        yield* jsonStreamInternal(key, nextLevel);
+        yield compact ? ':' : ': ';
+        yield* jsonStreamInternal(val, nextLevel);
+      }
+      if (hasEntries) {
+        yield indentString;
+      }
+      yield '}';
+    } else {
+      throw new Error(`cannot serialize type '${typeof value}'`);
     }
-    if (hasEntries) {
-      yield indentString;
-    }
-    yield '}';
-  } else {
-    throw new Error(`unknown type ${typeof input}`);
   }
+
+  yield* jsonStreamInternal(input);
 }
