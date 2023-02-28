@@ -154,7 +154,10 @@ export function buildCastVoteRecordReportMetadata({
   reportTypes,
   isTestMode,
   batchInfo,
-}: BuildCastVoteRecordReportMetadataParams): CVR.CastVoteRecordReport {
+}: BuildCastVoteRecordReportMetadataParams): Omit<
+  CVR.CastVoteRecordReport,
+  'CVR'
+> {
   // TODO: pull from ballot definition once it exists. For now, the scope
   // is just the current state
   const electionScopeId = 'election-state';

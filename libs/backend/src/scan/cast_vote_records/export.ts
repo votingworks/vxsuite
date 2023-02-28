@@ -234,10 +234,6 @@ export function getCastVoteRecordReportStream({
     batchInfo,
   });
 
-  if (castVoteRecordReportMetadata.CVR) {
-    throw new Error('report metadata should contain no cast vote records');
-  }
-
   return Readable.from(
     jsonStream({
       ...castVoteRecordReportMetadata,
