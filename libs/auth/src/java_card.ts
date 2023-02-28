@@ -11,6 +11,7 @@ import {
   parseTlv,
   ResponseApduError,
   SELECT,
+  STATUS_WORD,
 } from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
@@ -99,9 +100,16 @@ const VX_ADMIN_CERT_AUTHORITY_CERT = {
 } as const;
 
 /**
- * A rough upper bound on the size of a single data object
+ * An upper bound on the size of a single data object. Though a TLV value can be up to 65,535 bytes
+ * long (0xffff in hex), OpenFIPS201 caps total TLV length (including tag and length) at 32,767
+ * bytes (0x7fff in hex). This allows for a max data object size of:
+ *
+ * 32,767 bytes - 1 byte for the data tag - 3 bytes for the 0x82 0xXX 0xXX length = 32,763 bytes
+ *
+ * Confirmed that this really is the max through manual testing. Trying to store a data object of
+ * size MAX_DATA_OBJECT_SIZE_BYTES + 1 results in an invalid-data status word (0x6a 0x80).
  */
-const MAX_DATA_OBJECT_SIZE_BYTES = 30000;
+const MAX_DATA_OBJECT_SIZE_BYTES = 32763;
 
 /**
  * The card's generic storage space for non-auth data. We use multiple data objects under the hood
@@ -116,10 +124,14 @@ const GENERIC_STORAGE_SPACE = {
 } as const;
 
 /**
- * The total capacity of the card's generic storage space
+ * A rough upper bound on the capacity of the card's generic storage space. Though we use 144KB
+ * Java Cards, much of that space is consumed by the card OS, the OpenFIPS201 applet, and (to a
+ * far lesser degree) our auth keys and certs.
+ *
+ * Identified this limit through manual testing and intentionally left some breathing room (~10%).
+ * Hitting card capacity results in an OS-error status word (0x6f 0x00).
  */
-const GENERIC_STORAGE_SPACE_CAPACITY =
-  MAX_DATA_OBJECT_SIZE_BYTES * GENERIC_STORAGE_SPACE.OBJECT_IDS.length;
+const GENERIC_STORAGE_SPACE_CAPACITY_BYTES = 90000;
 
 /**
  * VotingWorks's IANA-assigned enterprise OID
@@ -169,12 +181,12 @@ function construct8BytePinBuffer(pin: string) {
 
 /**
  * The incorrect-PIN status word has the format 0x63 0xcX, where X is the number of remaining PIN
- * entry attempts before complete lockout.
+ * entry attempts before complete lockout (X being a hex digit).
  */
 function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
   const [sw1, sw2] = statusWord;
   // eslint-disable-next-line no-bitwise
-  return sw1 === 0x63 && sw2 >> 4 === 0x0c;
+  return sw1 === STATUS_WORD.VERIFY_FAIL.SW1 && sw2 >> 4 === 0x0c;
 }
 
 /**
@@ -188,15 +200,6 @@ function numRemainingAttemptsFromIncorrectPinStatusWord(
   // Extract the last 4 bits of SW2
   // eslint-disable-next-line no-bitwise
   return sw2 & 0x0f;
-}
-
-/**
- * The file-not-found status word, 0x6a 0x82, is returned when a requested data object doesn't
- * exist / is empty.
- */
-function isFileNotFoundStatusWord(statusWord: [Byte, Byte]): boolean {
-  const [sw1, sw2] = statusWord;
-  return sw1 === 0x6a && sw2 === 0x82;
 }
 
 /**
@@ -304,7 +307,10 @@ export class JavaCard implements Card {
       } catch (error) {
         if (
           error instanceof ResponseApduError &&
-          isFileNotFoundStatusWord(error.statusWord())
+          error.hasStatusWord([
+            STATUS_WORD.FILE_NOT_FOUND.SW1,
+            STATUS_WORD.FILE_NOT_FOUND.SW2,
+          ])
         ) {
           chunks.push(Buffer.from([]));
           continue;
@@ -318,7 +324,7 @@ export class JavaCard implements Card {
   }
 
   async writeData(data: Buffer): Promise<void> {
-    if (data.length > GENERIC_STORAGE_SPACE_CAPACITY) {
+    if (data.length > GENERIC_STORAGE_SPACE_CAPACITY_BYTES) {
       throw new Error('Not enough space on card');
     }
 

@@ -31,10 +31,15 @@ const CLA = {
  * - 0x61 0xXX is also equivalent to an HTTP 200 but indicates that XX more bytes of response data
  *   have yet to be retrieved via a GET RESPONSE command. Like command APDUs, response APDUs have a
  *   max length.
+ *
+ * See https://www.eftlab.com/knowledge-base/complete-list-of-apdu-responses for a list of all
+ * known status words.
  */
 export const STATUS_WORD = {
   SUCCESS: { SW1: 0x90, SW2: 0x00 },
   SUCCESS_MORE_DATA_AVAILABLE: { SW1: 0x61 },
+  FILE_NOT_FOUND: { SW1: 0x6a, SW2: 0x82 },
+  VERIFY_FAIL: { SW1: 0x63 },
 } as const;
 
 /**
@@ -124,11 +129,11 @@ export class CardCommand {
   /** Data */
   private readonly data: Buffer;
 
-  constructor(input: { ins: Byte; p1: Byte; p2: Byte; data: Buffer }) {
+  constructor(input: { ins: Byte; p1: Byte; p2: Byte; data?: Buffer }) {
     this.ins = input.ins;
     this.p1 = input.p1;
     this.p2 = input.p2;
-    this.data = input.data;
+    this.data = input.data ?? Buffer.from([]);
   }
 
   /**
@@ -249,5 +254,10 @@ export class ResponseApduError extends Error {
 
   statusWord(): [Byte, Byte] {
     return [this.sw1, this.sw2];
+  }
+
+  hasStatusWord(statusWord: [Byte, Byte]): boolean {
+    const [sw1, sw2] = statusWord;
+    return this.sw1 === sw1 && this.sw2 === sw2;
   }
 }
