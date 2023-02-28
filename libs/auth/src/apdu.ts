@@ -31,10 +31,15 @@ const CLA = {
  * - 0x61 0xXX is also equivalent to an HTTP 200 but indicates that XX more bytes of response data
  *   have yet to be retrieved via a GET RESPONSE command. Like command APDUs, response APDUs have a
  *   max length.
+ *
+ * See https://www.eftlab.com/knowledge-base/complete-list-of-apdu-responses for a list of all
+ * known status words.
  */
 export const STATUS_WORD = {
   SUCCESS: { SW1: 0x90, SW2: 0x00 },
   SUCCESS_MORE_DATA_AVAILABLE: { SW1: 0x61 },
+  FILE_NOT_FOUND: { SW1: 0x6a, SW2: 0x82 },
+  VERIFY_FAIL: { SW1: 0x63 },
 } as const;
 
 /**
@@ -109,6 +114,60 @@ export class CommandApdu {
 }
 
 /**
+ * A layer of abstraction on top of CommandApdu that supports sending larger amounts of data
+ * through multiple, chained APDUs.
+ *
+ * See CommandApdu for more context.
+ */
+export class CardCommand {
+  /** INS: Instruction */
+  private readonly ins: Byte;
+  /** P1: Param 1 */
+  private readonly p1: Byte;
+  /** P2: Param 2 */
+  private readonly p2: Byte;
+  /** Data */
+  private readonly data: Buffer;
+
+  constructor(input: { ins: Byte; p1: Byte; p2: Byte; data?: Buffer }) {
+    this.ins = input.ins;
+    this.p1 = input.p1;
+    this.p2 = input.p2;
+    this.data = input.data ?? Buffer.from([]);
+  }
+
+  /**
+   * The command as a command APDU or command APDU chain
+   */
+  asCommandApdus(): CommandApdu[] {
+    const apdus: CommandApdu[] = [];
+
+    const numApdus = Math.max(
+      Math.ceil(this.data.length / MAX_COMMAND_APDU_DATA_LENGTH),
+      1 // Always construct at least one APDU since a command APDU with no data is valid
+    );
+    for (let i = 0; i < numApdus; i += 1) {
+      const notLastApdu = i < numApdus - 1;
+      apdus.push(
+        new CommandApdu({
+          chained: notLastApdu,
+          ins: this.ins,
+          p1: this.p1,
+          p2: this.p2,
+          data: this.data.subarray(
+            i * MAX_COMMAND_APDU_DATA_LENGTH,
+            // Okay if this is larger than this.data.length as .subarray() automatically caps
+            i * MAX_COMMAND_APDU_DATA_LENGTH + MAX_COMMAND_APDU_DATA_LENGTH
+          ),
+        })
+      );
+    }
+
+    return apdus;
+  }
+}
+
+/**
  * A TLV, or tag-length-value, is a byte array that consists of:
  * 1. A tag indicating what the value is
  * 2. A length indicating the size of the value in bytes
@@ -151,6 +210,32 @@ export function constructTlv(
 }
 
 /**
+ * The inverse of constructTlv, splits a TLV into its tag, length, and value
+ */
+export function parseTlv(
+  tagAsByteOrBuffer: Byte | Buffer,
+  tlv: Buffer
+): [Buffer, Buffer, Buffer] {
+  const tagLength = Buffer.isBuffer(tagAsByteOrBuffer)
+    ? tagAsByteOrBuffer.length
+    : 1;
+
+  let tlvLengthLength = 1; // Derpiest variable name, I know
+  const tlvLengthFirstByte = tlv.at(tagLength);
+  if (tlvLengthFirstByte === 0x81) {
+    tlvLengthLength = 2;
+  } else if (tlvLengthFirstByte === 0x82) {
+    tlvLengthLength = 3;
+  }
+
+  return [
+    tlv.subarray(0, tagLength), // Tag
+    tlv.subarray(tagLength, tagLength + tlvLengthLength), // Length
+    tlv.subarray(tagLength + tlvLengthLength), // Value
+  ];
+}
+
+/**
  * A response APDU with a non-success status word
  */
 export class ResponseApduError extends Error {
@@ -169,5 +254,10 @@ export class ResponseApduError extends Error {
 
   statusWord(): [Byte, Byte] {
     return [this.sw1, this.sw2];
+  }
+
+  hasStatusWord(statusWord: [Byte, Byte]): boolean {
+    const [sw1, sw2] = statusWord;
+    return this.sw1 === sw1 && this.sw2 === sw2;
   }
 }

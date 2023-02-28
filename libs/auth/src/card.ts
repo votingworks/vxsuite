@@ -55,10 +55,9 @@ export interface Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void>;
+  unprogram(): Promise<void>;
 
   readData(): Promise<Buffer>;
   writeData(data: Buffer): Promise<void>;
   clearData(): Promise<void>;
-
-  unprogram(): Promise<void>;
 }

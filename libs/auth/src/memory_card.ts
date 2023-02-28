@@ -206,6 +206,14 @@ export class MemoryCard implements Card {
     }
   }
 
+  async unprogram(): Promise<void> {
+    await this.card.overrideWriteProtection();
+    await this.card.writeShortAndLongValues({
+      shortValue: '',
+      longValue: '',
+    });
+  }
+
   async readData(): Promise<Buffer> {
     const data = await this.card.readLongString();
     return data ? Buffer.from(data, 'utf-8') : Buffer.from([]);
@@ -217,13 +225,5 @@ export class MemoryCard implements Card {
 
   async clearData(): Promise<void> {
     await this.card.writeLongUint8Array(Buffer.from([]));
-  }
-
-  async unprogram(): Promise<void> {
-    await this.card.overrideWriteProtection();
-    await this.card.writeShortAndLongValues({
-      shortValue: '',
-      longValue: '',
-    });
   }
 }
