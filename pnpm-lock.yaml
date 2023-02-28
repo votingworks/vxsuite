@@ -2401,6 +2401,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       buffer: ^6.0.3
+      chalk: ^4.0.0
       debug: ^4.3.4
       esbuild: ^0.16.16
       esbuild-runner: ^2.2.2
@@ -2430,6 +2431,7 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       buffer: 6.0.3
+      chalk: 4.1.2
       debug: 4.3.4
       usb: 2.8.0
       xstate: 4.32.1

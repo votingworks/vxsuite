@@ -25,6 +25,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
+    "chalk": "^4.0.0",
     "debug": "^4.3.4",
     "usb": "^2.6.0",
     "xstate": "^4.32.1",

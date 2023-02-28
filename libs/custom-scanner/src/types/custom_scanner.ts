@@ -60,7 +60,8 @@ export interface CustomScanner {
   ): Promise<Result<SheetOf<ImageFromScanner>, ErrorCode>>;
 
   /**
-   * Resets the hardware.
+   * Resets the hardware. Note that you MUST establish a connection
+   * with a new instance of CustomScanner after calling this command.
    */
   resetHardware(): Promise<Result<void, ErrorCode>>;
 }
