@@ -5,7 +5,13 @@ import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Byte, Optional, User } from '@votingworks/types';
 
-import { CommandApdu, constructTlv, ResponseApduError, SELECT } from './apdu';
+import {
+  CardCommand,
+  constructTlv,
+  parseTlv,
+  ResponseApduError,
+  SELECT,
+} from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
 import { openssl } from './openssl';
@@ -39,6 +45,17 @@ const GET_DATA = {
   P1: 0x3f,
   P2: 0xff,
   TAG_LIST_TAG: 0x5c,
+} as const;
+
+/**
+ * The PUT DATA command is a PIV command that stores a data object.
+ */
+const PUT_DATA = {
+  INS: 0xdb,
+  P1: 0x3f,
+  P2: 0xff,
+  TAG_LIST_TAG: 0x5c,
+  DATA_TAG: 0x53,
 } as const;
 
 /**
@@ -80,6 +97,29 @@ const CARD_VX_ADMIN_CERT = {
 const VX_ADMIN_CERT_AUTHORITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf2),
 } as const;
+
+/**
+ * A rough upper bound on the size of a single data object
+ */
+const MAX_DATA_OBJECT_SIZE_BYTES = 30000;
+
+/**
+ * The card's generic storage space for non-auth data. We use multiple data objects under the hood
+ * to increase capacity.
+ */
+const GENERIC_STORAGE_SPACE = {
+  OBJECT_IDS: [
+    pivDataObjectId(0xf3),
+    pivDataObjectId(0xf4),
+    pivDataObjectId(0xf5),
+  ],
+} as const;
+
+/**
+ * The total capacity of the card's generic storage space
+ */
+const GENERIC_STORAGE_SPACE_CAPACITY =
+  MAX_DATA_OBJECT_SIZE_BYTES * GENERIC_STORAGE_SPACE.OBJECT_IDS.length;
 
 /**
  * VotingWorks's IANA-assigned enterprise OID
@@ -128,26 +168,35 @@ function construct8BytePinBuffer(pin: string) {
 }
 
 /**
- * An incorrect PIN response APDU's status word has the format 0x63 0xcX, where X is the number of
- * remaining PIN entry attempts before complete lockout.
+ * The incorrect-PIN status word has the format 0x63 0xcX, where X is the number of remaining PIN
+ * entry attempts before complete lockout.
  */
-function isIncorrectPinResponseApdu(statusWord: [Byte, Byte]): boolean {
+function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
   const [sw1, sw2] = statusWord;
   // eslint-disable-next-line no-bitwise
   return sw1 === 0x63 && sw2 >> 4 === 0x0c;
 }
 
 /**
- * See isIncorrectPinResponseApdu().
+ * See isIncorrectPinStatusWord().
  */
-function numRemainingAttemptsFromIncorrectPinResponseApdu(
+function numRemainingAttemptsFromIncorrectPinStatusWord(
   statusWord: [Byte, Byte]
 ): number {
-  assert(isIncorrectPinResponseApdu(statusWord));
+  assert(isIncorrectPinStatusWord(statusWord));
   const [, sw2] = statusWord;
   // Extract the last 4 bits of SW2
   // eslint-disable-next-line no-bitwise
   return sw2 & 0x0f;
+}
+
+/**
+ * The file-not-found status word, 0x6a 0x82, is returned when a requested data object doesn't
+ * exist / is empty.
+ */
+function isFileNotFoundStatusWord(statusWord: [Byte, Byte]): boolean {
+  const [sw1, sw2] = statusWord;
+  return sw1 === 0x6a && sw2 === 0x82;
 }
 
 /**
@@ -217,14 +266,13 @@ export class JavaCard implements Card {
     } catch (error) {
       if (
         error instanceof ResponseApduError &&
-        isIncorrectPinResponseApdu(error.statusWord())
+        isIncorrectPinStatusWord(error.statusWord())
       ) {
         return {
           response: 'incorrect',
-          numRemainingAttempts:
-            numRemainingAttemptsFromIncorrectPinResponseApdu(
-              error.statusWord()
-            ),
+          numRemainingAttempts: numRemainingAttemptsFromIncorrectPinStatusWord(
+            error.statusWord()
+          ),
         };
       }
       return { response: 'error' };
@@ -236,20 +284,66 @@ export class JavaCard implements Card {
     return Promise.resolve();
   }
 
-  readData(): Promise<Buffer> {
-    return Promise.resolve(Buffer.from([]));
+  unprogram(): Promise<void> {
+    return Promise.resolve();
   }
 
-  writeData(): Promise<void> {
-    return Promise.resolve();
+  async readData(): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
+      let response: Buffer;
+      try {
+        response = await this.cardReader.transmit(
+          new CardCommand({
+            ins: GET_DATA.INS,
+            p1: GET_DATA.P1,
+            p2: GET_DATA.P2,
+            data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
+          })
+        );
+      } catch (error) {
+        if (
+          error instanceof ResponseApduError &&
+          isFileNotFoundStatusWord(error.statusWord())
+        ) {
+          chunks.push(Buffer.from([]));
+          continue;
+        }
+        throw error;
+      }
+      const [, , chunk] = parseTlv(PUT_DATA.DATA_TAG, response);
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
+  }
+
+  async writeData(data: Buffer): Promise<void> {
+    if (data.length > GENERIC_STORAGE_SPACE_CAPACITY) {
+      throw new Error('Not enough space on card');
+    }
+
+    for (const [i, objectId] of GENERIC_STORAGE_SPACE.OBJECT_IDS.entries()) {
+      const chunk = data.subarray(
+        // Okay if these are larger than data.length
+        MAX_DATA_OBJECT_SIZE_BYTES * i,
+        MAX_DATA_OBJECT_SIZE_BYTES * i + MAX_DATA_OBJECT_SIZE_BYTES
+      );
+      await this.cardReader.transmit(
+        new CardCommand({
+          ins: PUT_DATA.INS,
+          p1: PUT_DATA.P1,
+          p2: PUT_DATA.P2,
+          data: Buffer.concat([
+            constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
+            constructTlv(PUT_DATA.DATA_TAG, chunk),
+          ]),
+        })
+      );
+    }
   }
 
   clearData(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  unprogram(): Promise<void> {
-    return Promise.resolve();
+    return this.writeData(Buffer.from([]));
   }
 
   /**
@@ -340,7 +434,7 @@ export class JavaCard implements Card {
 
   private async selectApplet(): Promise<void> {
     await this.cardReader.transmit(
-      new CommandApdu({
+      new CardCommand({
         ins: SELECT.INS,
         p1: SELECT.P1,
         p2: SELECT.P2,
@@ -354,7 +448,7 @@ export class JavaCard implements Card {
    */
   private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
     const getDataResult = await this.cardReader.transmit(
-      new CommandApdu({
+      new CardCommand({
         ins: GET_DATA.INS,
         p1: GET_DATA.P1,
         p2: GET_DATA.P2,
@@ -389,7 +483,7 @@ export class JavaCard implements Card {
     if (pin) {
       // Check the PIN
       await this.cardReader.transmit(
-        new CommandApdu({
+        new CardCommand({
           ins: VERIFY.INS,
           p1: VERIFY.P1_VERIFY,
           p2: VERIFY.P2_PIN,
@@ -402,7 +496,7 @@ export class JavaCard implements Card {
     const challenge = `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
     const generalAuthenticateResponse = await this.cardReader.transmit(
-      new CommandApdu({
+      new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,
         p1: GENERAL_AUTHENTICATE.P1_ECC256,
         p2: privateKeySlot,
