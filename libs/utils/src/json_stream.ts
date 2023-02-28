@@ -1,8 +1,36 @@
+import { Optional } from '@votingworks/types';
+
 function isIterable(value: unknown): value is Iterable<unknown> {
   return (
     typeof value === 'object' && value !== null && Symbol.iterator in value
   );
 }
+
+type WithArraysAsIterables<T> = {
+  [P in keyof T]: T[P] extends ReadonlyArray<infer U>
+    ? Iterable<U>
+    : T[P] extends Optional<ReadonlyArray<infer U>>
+    ? Optional<Iterable<U>>
+    : T[P];
+};
+
+/**
+ * Options for {@link jsonStream}.
+ */
+export interface JsonStreamOptions {
+  indentLevel?: number;
+  compact?: boolean;
+}
+
+/**
+ * A JSON-serializable value that can be streamed as a series of strings.
+ */
+export type JsonStreamInput<T> =
+  | WithArraysAsIterables<T>
+  | null
+  | string
+  | number
+  | boolean;
 
 /**
  * Stream a JSON-serializable value as a series of strings. In addition to the
@@ -25,7 +53,10 @@ function isIterable(value: unknown): value is Iterable<unknown> {
  * }
  * ```
  */
-export function* jsonStream(input: unknown, indent = 0): Generator<string> {
+export function* jsonStream<T>(
+  input: JsonStreamInput<T>,
+  { compact = true, indentLevel = 0 }: JsonStreamOptions = {}
+): Generator<string> {
   if (input === null) {
     yield 'null';
   } else if (
@@ -35,9 +66,9 @@ export function* jsonStream(input: unknown, indent = 0): Generator<string> {
   ) {
     yield JSON.stringify(input);
   } else if (isIterable(input)) {
-    const indentString = ' '.repeat(indent * 2);
-    const nextIndent = indent + 1;
-    const nextIndentString = ' '.repeat(nextIndent * 2);
+    const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
+    const nextLevel = indentLevel + 1;
+    const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
     yield '[';
     let hasEntries = false;
     for (const value of input) {
@@ -46,14 +77,20 @@ export function* jsonStream(input: unknown, indent = 0): Generator<string> {
       } else {
         hasEntries = true;
       }
-      yield `\n${nextIndentString}`;
-      yield* jsonStream(value, nextIndent);
+      yield nextIndentString;
+      yield* jsonStream(value as JsonStreamInput<unknown>, {
+        compact,
+        indentLevel: nextLevel,
+      });
     }
-    yield !hasEntries ? ']' : `\n${indentString}]`;
+    if (hasEntries) {
+      yield indentString;
+    }
+    yield ']';
   } else if (typeof input === 'object') {
-    const indentString = ' '.repeat(indent * 2);
-    const nextIndent = indent + 1;
-    const nextIndentString = ' '.repeat(nextIndent * 2);
+    const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
+    const nextLevel = indentLevel + 1;
+    const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
     yield '{';
     let hasEntries = false;
     for (const [key, value] of Object.entries(input)) {
@@ -66,12 +103,18 @@ export function* jsonStream(input: unknown, indent = 0): Generator<string> {
       } else {
         hasEntries = true;
       }
-      yield `\n${nextIndentString}`;
-      yield* jsonStream(key, nextIndent);
-      yield ': ';
-      yield* jsonStream(value, nextIndent);
+      yield nextIndentString;
+      yield* jsonStream(key, { compact, indentLevel: nextLevel });
+      yield compact ? ':' : ': ';
+      yield* jsonStream(value as JsonStreamInput<unknown>, {
+        compact,
+        indentLevel: nextLevel,
+      });
     }
-    yield !hasEntries ? '}' : `\n${indentString}}`;
+    if (hasEntries) {
+      yield indentString;
+    }
+    yield '}';
   } else {
     throw new Error(`unknown type ${typeof input}`);
   }
