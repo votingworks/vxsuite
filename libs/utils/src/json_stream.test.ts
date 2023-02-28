@@ -1,11 +1,8 @@
 import { integers } from '@votingworks/basics';
 import * as fc from 'fast-check';
-import { jsonStream, JsonStreamInput } from './json_stream';
+import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
 
-function asString<T>(
-  input: JsonStreamInput<T>,
-  options?: Parameters<typeof jsonStream>[1]
-) {
+function asString<T>(input: JsonStreamInput<T>, options?: JsonStreamOptions) {
   const output = [];
   for (const chunk of jsonStream<T>(input, options)) {
     output.push(chunk);
