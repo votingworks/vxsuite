@@ -192,27 +192,6 @@ function* getCastVoteRecordGenerator({
   }
 }
 
-/**
- * Combines the report metadata and a cast vote record generator string
- * generator which yields the entire contents of the report.
- */
-function* getCastVoteRecordReportGenerator({
-  castVoteRecordReportMetadata,
-  castVoteRecordGenerator,
-}: {
-  castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
-  castVoteRecordGenerator: Generator<CVR.CVR>;
-}): Generator<string> {
-  if (castVoteRecordReportMetadata.CVR) {
-    throw new Error('report metadata should contain no cast vote records');
-  }
-
-  yield* jsonStream({
-    ...castVoteRecordReportMetadata,
-    CVR: castVoteRecordGenerator,
-  });
-}
-
 interface BuildCastVoteRecordReportMetadataParams
   extends GetCastVoteRecordGeneratorParams {
   isTestMode: boolean;
@@ -255,10 +234,14 @@ export function getCastVoteRecordReportStream({
     batchInfo,
   });
 
+  if (castVoteRecordReportMetadata.CVR) {
+    throw new Error('report metadata should contain no cast vote records');
+  }
+
   return Readable.from(
-    getCastVoteRecordReportGenerator({
-      castVoteRecordReportMetadata,
-      castVoteRecordGenerator,
+    jsonStream({
+      ...castVoteRecordReportMetadata,
+      CVR: castVoteRecordGenerator,
     })
   );
 }
