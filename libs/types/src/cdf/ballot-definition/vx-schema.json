@@ -287,7 +287,7 @@
       "type": "string"
     },
     "BallotDefinition.BallotStyle": {
-      "required": ["@type", "GpUnitIds"],
+      "required": ["@type", "ExternalIdentifier", "GpUnitIds"],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -298,7 +298,8 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
           },
-          "minItems": 0,
+          "minItems": 1,
+          "maxItems": 1,
           "type": "array"
         },
         "GpUnitIds": {
