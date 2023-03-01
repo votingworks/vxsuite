@@ -386,12 +386,6 @@
           "enum": ["BallotDefinition.CandidateContest"],
           "type": "string"
         },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
         "BallotTitle": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
@@ -416,34 +410,7 @@
           "type": "string",
           "refTypes": ["BallotDefinition.ReportingUnit"]
         },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "HasRotation": {
-          "type": "boolean"
-        },
         "Name": {
-          "type": "string"
-        },
-        "NumberElected": {
-          "type": "integer"
-        },
-        "NumberRunoff": {
-          "type": "integer"
-        },
-        "OfficeIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Office"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "OtherVoteVariation": {
           "type": "string"
         },
         "PrimaryPartyIds": {
@@ -453,18 +420,6 @@
           },
           "minItems": 0,
           "type": "array"
-        },
-        "RanksAllowed": {
-          "type": "integer"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
         },
         "VotesAllowed": {
           "type": "integer"
