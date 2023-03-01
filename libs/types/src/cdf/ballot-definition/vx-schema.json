@@ -657,10 +657,6 @@
       "pattern": "([0-9]+/[1-9]+[0-9]*)|(\\.[0-9]+)",
       "type": "string"
     },
-    "BallotDefinition.GeoSpatialFormat": {
-      "enum": ["geo-json", "gml", "kml", "shp", "wkt"],
-      "type": "string"
-    },
     "BallotDefinition.Header": {
       "required": ["@id", "@type", "Name"],
       "additionalProperties": false,
@@ -1275,44 +1271,6 @@
     "BallotDefinition.ShortString": {
       "maxLength": 32,
       "type": "string"
-    },
-    "BallotDefinition.SpatialDimension": {
-      "required": ["@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.SpatialDimension"],
-          "type": "string"
-        },
-        "MapUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "SpatialExtent": {
-          "$ref": "#/definitions/BallotDefinition.SpatialExtent"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.SpatialExtent": {
-      "required": ["@type", "Coordinates", "Format"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.SpatialExtent"],
-          "type": "string"
-        },
-        "Coordinates": {
-          "type": "string"
-        },
-        "Format": {
-          "$ref": "#/definitions/BallotDefinition.GeoSpatialFormat"
-        }
-      },
-      "type": "object"
     },
     "BallotDefinition.Term": {
       "required": ["@type"],
