@@ -1,11 +1,15 @@
 import React from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
 
+import { ColorMode, SizeMode } from '@votingworks/types';
 import { AppBase } from '../app_base';
 
-function Wrapper(props: { children: React.ReactNode }): JSX.Element {
-  return <AppBase {...props} />;
-}
+type VxRenderOptions = RenderOptions & {
+  vxTheme?: {
+    colorMode?: ColorMode;
+    sizeMode?: SizeMode;
+  };
+};
 
 /**
  * React testing render function with UI theme support.
@@ -14,7 +18,14 @@ function Wrapper(props: { children: React.ReactNode }): JSX.Element {
  */
 export function renderWithThemes(
   ui: React.ReactElement,
-  options: RenderOptions = {}
+  options: VxRenderOptions = {}
 ): RenderResult {
-  return render(ui, { ...options, wrapper: Wrapper });
+  const { vxTheme = {}, ...passthroughOptions } = options;
+
+  return render(
+    <AppBase colorMode={vxTheme.colorMode} sizeMode={vxTheme.sizeMode}>
+      {ui}
+    </AppBase>,
+    { ...passthroughOptions }
+  );
 }
