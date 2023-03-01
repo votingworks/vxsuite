@@ -1427,7 +1427,7 @@
       "type": "object"
     },
     "BallotDefinition.ReportingUnit": {
-      "required": ["@id", "@type", "Type"],
+      "required": ["@id", "@type", "Name", "Type"],
       "additionalProperties": false,
       "properties": {
         "@id": {
