@@ -391,17 +391,7 @@
         },
         "ContestOption": {
           "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
+            "$ref": "#/definitions/BallotDefinition.CandidateOption"
           },
           "minItems": 1,
           "type": "array"
