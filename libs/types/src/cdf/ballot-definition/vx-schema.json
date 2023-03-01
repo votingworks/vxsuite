@@ -363,43 +363,6 @@
         },
         "BallotName": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "CampaignSlogan": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "FileDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "IsIncumbent": {
-          "type": "boolean"
-        },
-        "IsTopTicket": {
-          "type": "boolean"
-        },
-        "PartyId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Party"]
-        },
-        "PersonId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Person"]
-        },
-        "PreElectionStatus": {
-          "$ref": "#/definitions/BallotDefinition.CandidatePreElectionStatus"
-        },
-        "ReadName": {
-          "type": "string"
         }
       },
       "type": "object"
