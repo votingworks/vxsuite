@@ -1,4 +1,4 @@
-import { Card } from '../src';
+import { Card } from '../src/card';
 
 /**
  * Builds a mock card instance

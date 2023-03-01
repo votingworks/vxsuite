@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Byte, Optional, User } from '@votingworks/types';
 
@@ -15,81 +14,52 @@ import {
 } from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
-import { openssl } from './openssl';
+import { parseCert, parseUserDataFromCert } from './certs';
+import {
+  certDerToPem,
+  extractPublicKeyFromCert,
+  verifyFirstCertWasSignedBySecondCert,
+  verifySignature,
+} from './openssl';
+import {
+  construct8BytePinBuffer,
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
+  GENERAL_AUTHENTICATE,
+  GET_DATA,
+  isIncorrectPinStatusWord,
+  numRemainingAttemptsFromIncorrectPinStatusWord,
+  pivDataObjectId,
+  PUT_DATA,
+  VERIFY,
+} from './piv';
 
 /**
  * The OpenFIPS201 applet ID
  */
-const OPENFIPS201_AID = Buffer.from([
+const OPEN_FIPS_201_AID = Buffer.from([
   0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00,
 ]);
 
+/**
+ * Java Cards always have a PIN. To allow for "PIN-less" cards and "blank" cards, we use a default
+ * PIN.
+ */
 const DEFAULT_PIN = '000000';
-
-/**
- * The GENERAL AUTHENTICATE command is a PIV command that initiates an authentication protocol.
- */
-const GENERAL_AUTHENTICATE = {
-  INS: 0x87,
-  /** The P1 for a 256-bit ECC key pair */
-  P1_ECC256: 0x11,
-  DYNAMIC_AUTHENTICATION_TEMPLATE_TAG: 0x7c,
-  CHALLENGE_TAG: 0x81,
-  RESPONSE_TAG: 0x82,
-} as const;
-
-/**
- * The GET DATA command is a PIV command that retrieves a data object.
- */
-const GET_DATA = {
-  INS: 0xcb,
-  P1: 0x3f,
-  P2: 0xff,
-  TAG_LIST_TAG: 0x5c,
-} as const;
-
-/**
- * The PUT DATA command is a PIV command that stores a data object.
- */
-const PUT_DATA = {
-  INS: 0xdb,
-  P1: 0x3f,
-  P2: 0xff,
-  TAG_LIST_TAG: 0x5c,
-  DATA_TAG: 0x53,
-} as const;
-
-/**
- * The VERIFY command is a PIV command that performs various forms of user verification, including
- * PIN checks.
- */
-const VERIFY = {
-  INS: 0x20,
-  P1_VERIFY: 0x00,
-  P2_PIN: 0x80,
-} as const;
-
-/**
- * Data object IDs of the format 0x5f 0xc1 0xXX are a PIV convention.
- */
-function pivDataObjectId(uniqueByte: Byte) {
-  return Buffer.from([0x5f, 0xc1, uniqueByte]);
-}
 
 /**
  * The card's VotingWorks-issued cert
  */
 const CARD_VX_CERT = {
-  PRIVATE_KEY_SLOT: 0xf0,
   OBJECT_ID: pivDataObjectId(0xf0),
+  PRIVATE_KEY_SLOT: 0xf0,
 } as const;
 
 /**
  * The card's VxAdmin-issued cert
  */
 const CARD_VX_ADMIN_CERT = {
-  PRIVATE_KEY_SLOT: 0xf1,
   OBJECT_ID: pivDataObjectId(0xf1),
+  PRIVATE_KEY_SLOT: 0xf1,
 } as const;
 
 /**
@@ -112,18 +82,6 @@ const VX_ADMIN_CERT_AUTHORITY_CERT = {
 const MAX_DATA_OBJECT_SIZE_BYTES = 32763;
 
 /**
- * The card's generic storage space for non-auth data. We use multiple data objects under the hood
- * to increase capacity.
- */
-const GENERIC_STORAGE_SPACE = {
-  OBJECT_IDS: [
-    pivDataObjectId(0xf3),
-    pivDataObjectId(0xf4),
-    pivDataObjectId(0xf5),
-  ],
-} as const;
-
-/**
  * A rough upper bound on the capacity of the card's generic storage space. Though we use 144KB
  * Java Cards, much of that space is consumed by the card OS, the OpenFIPS201 applet, and (to a
  * far lesser degree) our auth keys and certs.
@@ -134,73 +92,16 @@ const GENERIC_STORAGE_SPACE = {
 const GENERIC_STORAGE_SPACE_CAPACITY_BYTES = 90000;
 
 /**
- * VotingWorks's IANA-assigned enterprise OID
+ * The card's generic storage space for non-auth data. We use multiple data objects under the hood
+ * to increase capacity.
  */
-const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
-
-/**
- * Instead of overloading existing X.509 cert fields, we're using our own custom cert fields.
- */
-const VX_CUSTOM_CERT_FIELD = {
-  /** One of: card, admin, central-scan, mark, scan (the latter four referring to machines) */
-  COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
-  /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. MS.Warren) */
-  JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
-  /** One of: sa, em, pw (system administrator, election manager, or poll worker) */
-  CARD_TYPE: `${VX_IANA_ENTERPRISE_OID}.3`,
-  /** The SHA-256 hash of the election definition  */
-  ELECTION_HASH: `${VX_IANA_ENTERPRISE_OID}.4`,
+const GENERIC_STORAGE_SPACE = {
+  OBJECT_IDS: [
+    pivDataObjectId(0xf3),
+    pivDataObjectId(0xf4),
+    pivDataObjectId(0xf5),
+  ],
 } as const;
-
-/**
- * Parsed custom cert fields
- */
-interface VxCustomCertFields {
-  component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
-  jurisdiction: string;
-  cardType?: 'sa' | 'em' | 'pw';
-  electionHash?: string;
-}
-
-const VxCustomCertFieldsSchema: z.ZodSchema<VxCustomCertFields> = z.object({
-  component: z.enum(['card', 'admin', 'central-scan', 'mark', 'scan']),
-  jurisdiction: z.string(),
-  cardType: z.optional(z.enum(['sa', 'em', 'pw'])),
-  electionHash: z.optional(z.string()),
-});
-
-/**
- * Converts a PIN to the padded 8-byte buffer that the VERIFY command expects
- */
-function construct8BytePinBuffer(pin: string) {
-  return Buffer.concat([
-    Buffer.from(pin, 'utf-8'),
-    Buffer.from([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), // Padding
-  ]).subarray(0, 8);
-}
-
-/**
- * The incorrect-PIN status word has the format 0x63 0xcX, where X is the number of remaining PIN
- * entry attempts before complete lockout (X being a hex digit).
- */
-function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
-  const [sw1, sw2] = statusWord;
-  // eslint-disable-next-line no-bitwise
-  return sw1 === STATUS_WORD.VERIFY_FAIL.SW1 && sw2 >> 4 === 0x0c;
-}
-
-/**
- * See isIncorrectPinStatusWord().
- */
-function numRemainingAttemptsFromIncorrectPinStatusWord(
-  statusWord: [Byte, Byte]
-): number {
-  assert(isIncorrectPinStatusWord(statusWord));
-  const [, sw2] = statusWord;
-  // Extract the last 4 bits of SW2
-  // eslint-disable-next-line no-bitwise
-  return sw2 & 0x0f;
-}
 
 /**
  * An implementation of the card API that uses a Java Card running our fork of the OpenFIPS201
@@ -255,6 +156,8 @@ export class JavaCard implements Card {
   }
 
   async checkPin(pin: string): Promise<CheckPinResponse> {
+    await this.selectApplet();
+
     const cardVxAdminCert = await this.retrieveCert(
       CARD_VX_ADMIN_CERT.OBJECT_ID
     );
@@ -292,18 +195,13 @@ export class JavaCard implements Card {
   }
 
   async readData(): Promise<Buffer> {
+    await this.selectApplet();
+
     const chunks: Buffer[] = [];
     for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
       let response: Buffer;
       try {
-        response = await this.cardReader.transmit(
-          new CardCommand({
-            ins: GET_DATA.INS,
-            p1: GET_DATA.P1,
-            p2: GET_DATA.P2,
-            data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
-          })
-        );
+        response = await this.getData(objectId);
       } catch (error) {
         if (
           error instanceof ResponseApduError &&
@@ -330,6 +228,7 @@ export class JavaCard implements Card {
     if (data.length > GENERIC_STORAGE_SPACE_CAPACITY_BYTES) {
       throw new Error('Not enough space on card');
     }
+    await this.selectApplet();
 
     for (const [i, objectId] of GENERIC_STORAGE_SPACE.OBJECT_IDS.entries()) {
       const chunk = data.subarray(
@@ -339,22 +238,19 @@ export class JavaCard implements Card {
         // Okay if this is larger than data.length as .subarray() automatically caps
         MAX_DATA_OBJECT_SIZE_BYTES * i + MAX_DATA_OBJECT_SIZE_BYTES
       );
-      await this.cardReader.transmit(
-        new CardCommand({
-          ins: PUT_DATA.INS,
-          p1: PUT_DATA.P1,
-          p2: PUT_DATA.P2,
-          data: Buffer.concat([
-            constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
-            constructTlv(PUT_DATA.DATA_TAG, chunk),
-          ]),
-        })
+      await this.putData(
+        objectId,
+        Buffer.concat([
+          constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
+          constructTlv(PUT_DATA.DATA_TAG, chunk),
+        ])
       );
     }
   }
 
-  clearData(): Promise<void> {
-    return this.writeData(Buffer.from([]));
+  async clearData(): Promise<void> {
+    await this.selectApplet();
+    await this.writeData(Buffer.from([]));
   }
 
   /**
@@ -380,12 +276,10 @@ export class JavaCard implements Card {
 
     // Verify that the card VotingWorks cert was signed by VotingWorks
     const cardVxCert = await this.retrieveCert(CARD_VX_CERT.OBJECT_ID);
-    await openssl([
-      'verify',
-      '-CAfile',
-      this.vxCertAuthorityCertPath,
+    await verifyFirstCertWasSignedBySecondCert(
       cardVxCert,
-    ]);
+      this.vxCertAuthorityCertPath
+    );
 
     // Verify that the card VxAdmin cert was signed by VxAdmin
     const cardVxAdminCert = await this.retrieveCert(
@@ -394,34 +288,33 @@ export class JavaCard implements Card {
     const vxAdminCertAuthorityCert = await this.retrieveCert(
       VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID
     );
-    await openssl([
-      'verify',
-      '-CAfile',
-      vxAdminCertAuthorityCert,
+    await verifyFirstCertWasSignedBySecondCert(
       cardVxAdminCert,
-    ]);
+      vxAdminCertAuthorityCert
+    );
 
     // Verify that the VxAdmin cert authority cert is 1) a valid VxAdmin cert, 2) for the correct
     // jurisdiction, and 3) signed by VotingWorks
     // TODO: Figure out how to sign the VxAdmin cert authority cert with the VotingWorks cert
     // authority cert
-    const vxAdminCertAuthorityCertDetails = await this.parseCert(
+    const vxAdminCertAuthorityCertDetails = await parseCert(
       vxAdminCertAuthorityCert
     );
     assert(vxAdminCertAuthorityCertDetails.component === 'admin');
     assert(vxAdminCertAuthorityCertDetails.jurisdiction === this.jurisdiction);
-    await openssl([
-      'verify',
-      '-CAfile',
-      this.vxCertAuthorityCertPath,
+    await verifyFirstCertWasSignedBySecondCert(
       vxAdminCertAuthorityCert,
-    ]);
+      this.vxCertAuthorityCertPath
+    );
 
     // Verify that the card has a private key that corresponds to the public key in the card
     // VotingWorks cert
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_SLOT, cardVxCert);
 
-    const user = await this.parseUserDataFromCert(cardVxAdminCert);
+    const user = await parseUserDataFromCert(
+      cardVxAdminCert,
+      this.jurisdiction
+    );
 
     /**
      * If the user doesn't have a PIN:
@@ -443,39 +336,27 @@ export class JavaCard implements Card {
     return user;
   }
 
+  /**
+   * Selects the OpenFIPS201 applet
+   */
   private async selectApplet(): Promise<void> {
     await this.cardReader.transmit(
       new CardCommand({
         ins: SELECT.INS,
         p1: SELECT.P1,
         p2: SELECT.P2,
-        data: OPENFIPS201_AID,
+        data: OPEN_FIPS_201_AID,
       })
     );
   }
 
   /**
-   * Retrieves the specified cert in PEM format
+   * Retrieves a cert in PEM format
    */
   private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
-    const getDataResult = await this.cardReader.transmit(
-      new CardCommand({
-        ins: GET_DATA.INS,
-        p1: GET_DATA.P1,
-        p2: GET_DATA.P2,
-        data: constructTlv(GET_DATA.TAG_LIST_TAG, certObjectId),
-      })
-    );
+    const getDataResult = await this.getData(certObjectId);
     const certInDerFormat = getDataResult.subarray(8, -5); // Trim metadata
-    const certInPemFormat = await openssl([
-      'x509',
-      '-inform',
-      'DER',
-      '-outform',
-      'PEM',
-      '-in',
-      certInDerFormat,
-    ]);
+    const certInPemFormat = await certDerToPem(certInDerFormat);
     return certInPemFormat;
   }
 
@@ -484,23 +365,15 @@ export class JavaCard implements Card {
    * provided cert by 1) having the private key sign a "challenge" and 2) using the public key to
    * verify the generated signature.
    *
-   * A PIN must be provided if operations with the specified private key are PIN-gated.
+   * A PIN must be provided if the specified private key is PIN-gated.
    */
   private async verifyCardPrivateKey(
     privateKeySlot: Byte,
     cert: Buffer,
     pin?: string
-  ) {
+  ): Promise<void> {
     if (pin) {
-      // Check the PIN
-      await this.cardReader.transmit(
-        new CardCommand({
-          ins: VERIFY.INS,
-          p1: VERIFY.P1_VERIFY,
-          p2: VERIFY.P2_PIN,
-          data: construct8BytePinBuffer(pin),
-        })
-      );
+      await this.checkPinInternal(pin);
     }
 
     // Have the private key in the specified slot sign a "challenge"
@@ -509,7 +382,7 @@ export class JavaCard implements Card {
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,
-        p1: GENERAL_AUTHENTICATE.P1_ECC256,
+        p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
         p2: privateKeySlot,
         data: constructTlv(
           GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
@@ -523,74 +396,52 @@ export class JavaCard implements Card {
     const challengeSignature = generalAuthenticateResponse.subarray(4); // Trim metadata
 
     // Use the public key in the provided cert to verify the generated signature
-    const certPublicKey = await openssl([
-      'x509',
-      '-noout',
-      '-pubkey',
-      '-in',
-      cert,
-    ]);
-    await openssl([
-      'dgst',
-      '-verify',
-      certPublicKey,
-      '-sha256',
-      '-signature',
+    const certPublicKey = await extractPublicKeyFromCert(cert);
+    await verifySignature({
+      publicKey: certPublicKey,
       challengeSignature,
-      Buffer.from(challenge, 'utf-8'),
-    ]); // Throws if the signature verification fails
-  }
-
-  private async parseUserDataFromCert(cert: Buffer): Promise<Optional<User>> {
-    const { component, jurisdiction, cardType, electionHash } =
-      await this.parseCert(cert);
-    assert(component === 'card');
-    assert(jurisdiction === this.jurisdiction);
-    assert(cardType !== undefined);
-
-    switch (cardType) {
-      case 'sa': {
-        return { role: 'system_administrator' };
-      }
-      case 'em': {
-        assert(electionHash !== undefined);
-        return { role: 'election_manager', electionHash };
-      }
-      case 'pw': {
-        assert(electionHash !== undefined);
-        return { role: 'poll_worker', electionHash };
-      }
-      /* istanbul ignore next: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(cardType);
-      }
-    }
-  }
-
-  private async parseCert(cert: Buffer): Promise<VxCustomCertFields> {
-    const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
-
-    const responseString = response.toString();
-    assert(responseString.startsWith('subject='));
-    const certSubject = responseString.replace('subject=', '').trimEnd();
-    const certFieldsList = certSubject
-      .split(',')
-      .map((field) => field.trimStart());
-    const certFields: { [fieldName: string]: string } = {};
-    for (const certField of certFieldsList) {
-      const [fieldName, fieldValue] = certField.split(' = ');
-      if (fieldName && fieldValue) {
-        certFields[fieldName] = fieldValue;
-      }
-    }
-
-    const customCertFields = VxCustomCertFieldsSchema.parse({
-      component: certFields[VX_CUSTOM_CERT_FIELD.COMPONENT],
-      jurisdiction: certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION],
-      cardType: certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE],
-      electionHash: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_HASH],
+      challenge: Buffer.from(challenge, 'utf-8'),
     });
+  }
 
-    return customCertFields;
+  /**
+   * The underlying call for checking a PIN. Throws a ResponseApduError with an incorrect-PIN
+   * status word if an incorrect PIN is entered. Named checkPinInternal to avoid a conflict with
+   * the public checkPin method.
+   */
+  private async checkPinInternal(pin: string): Promise<void> {
+    await this.cardReader.transmit(
+      new CardCommand({
+        ins: VERIFY.INS,
+        p1: VERIFY.P1_VERIFY,
+        p2: VERIFY.P2_PIN,
+        data: construct8BytePinBuffer(pin),
+      })
+    );
+  }
+
+  private getData(objectId: Buffer): Promise<Buffer> {
+    return this.cardReader.transmit(
+      new CardCommand({
+        ins: GET_DATA.INS,
+        p1: GET_DATA.P1,
+        p2: GET_DATA.P2,
+        data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
+      })
+    );
+  }
+
+  private async putData(objectId: Buffer, data: Buffer): Promise<void> {
+    await this.cardReader.transmit(
+      new CardCommand({
+        ins: PUT_DATA.INS,
+        p1: PUT_DATA.P1,
+        p2: PUT_DATA.P2,
+        data: Buffer.concat([
+          constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
+          constructTlv(PUT_DATA.DATA_TAG, data),
+        ]),
+      })
+    );
   }
 }

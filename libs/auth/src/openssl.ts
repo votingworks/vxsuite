@@ -63,7 +63,7 @@ export async function openssl(
         cleanupError = error;
       }
       if (code !== 0) {
-        reject(new Error(stderr.join('\n')));
+        reject(new Error(stderr.toString()));
       } else if (cleanupError) {
         reject(cleanupError);
       } else {
@@ -71,4 +71,103 @@ export async function openssl(
       }
     });
   });
+}
+
+/**
+ * An alias of OpensslParam for clarity
+ */
+type FilePathOrBuffer = OpensslParam;
+
+/**
+ * Converts a cert in DER format to PEM format
+ */
+export function certDerToPem(cert: FilePathOrBuffer): Promise<Buffer> {
+  return openssl(['x509', '-inform', 'DER', '-outform', 'PEM', '-in', cert]);
+}
+
+/**
+ * Converts a cert in PEM format to DER format
+ */
+export function certPemToDer(cert: FilePathOrBuffer): Promise<Buffer> {
+  return openssl(['x509', '-inform', 'PEM', '-outform', 'DER', '-in', cert]);
+}
+
+/**
+ * Converts an ECC public key in DER format to PEM format
+ */
+export function publicKeyDerToPem(
+  publicKey: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl([
+    'ec',
+    '-inform',
+    'DER',
+    '-outform',
+    'PEM',
+    '-pubin',
+    '-in',
+    publicKey,
+  ]);
+}
+
+/**
+ * Converts an ECC public key in PEM format to DER format
+ */
+export function publicKeyPemToDer(
+  publicKey: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl([
+    'ec',
+    '-inform',
+    'PEM',
+    '-outform',
+    'DER',
+    '-pubin',
+    '-in',
+    publicKey,
+  ]);
+}
+
+/**
+ * Extracts a public key (in PEM format) from a cert (also in PEM format)
+ */
+export function extractPublicKeyFromCert(
+  cert: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl(['x509', '-noout', '-pubkey', '-in', cert]);
+}
+
+/**
+ * Verifies that the first cert was signed by the second cert. Both certs should be in PEM format.
+ * Throws an error if signature verification fails.
+ */
+export function verifyFirstCertWasSignedBySecondCert(
+  cert1: FilePathOrBuffer,
+  cert2: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl(['verify', '-CAfile', cert2, cert1]);
+}
+
+/**
+ * Verifies a challenge signature against an original challenge using a public key (in PEM format).
+ * Throws an error if signature verification fails.
+ */
+export async function verifySignature({
+  challenge,
+  challengeSignature,
+  publicKey,
+}: {
+  challenge: FilePathOrBuffer;
+  challengeSignature: FilePathOrBuffer;
+  publicKey: FilePathOrBuffer;
+}): Promise<void> {
+  await openssl([
+    'dgst',
+    '-verify',
+    publicKey,
+    '-sha256',
+    '-signature',
+    challengeSignature,
+    challenge,
+  ]);
 }
