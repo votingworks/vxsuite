@@ -235,9 +235,6 @@
           "items": {
             "oneOf": [
               {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
               },
               {
@@ -975,7 +972,6 @@
         "ContestId": {
           "type": "string",
           "refTypes": [
-            "BallotDefinition.PartyContest",
             "BallotDefinition.BallotMeasureContest",
             "BallotDefinition.CandidateContest",
             "BallotDefinition.PartyPreferenceContest",
@@ -986,7 +982,6 @@
           "items": {
             "type": "string",
             "refTypes": [
-              "BallotDefinition.PartyOption",
               "BallotDefinition.BallotMeasureOption",
               "BallotDefinition.CandidateOption"
             ]
@@ -1061,107 +1056,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.PartyContest": {
-      "required": ["@id", "@type", "ElectionDistrictId", "Name"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.PartyContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "BallotTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ContestOption": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ElectionDistrictId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.ReportingUnit"]
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "HasRotation": {
-          "type": "boolean"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.PartyOption": {
-      "required": ["@id", "@type", "PartyIds"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.PartyOption"],
-          "type": "string"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "PartyIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Party"]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.PartyPreferenceContest": {
       "required": [
         "@id",
@@ -1209,7 +1103,6 @@
           "items": {
             "type": "string",
             "refTypes": [
-              "BallotDefinition.PartyContest",
               "BallotDefinition.BallotMeasureContest",
               "BallotDefinition.CandidateContest",
               "BallotDefinition.PartyPreferenceContest",
@@ -1402,7 +1295,6 @@
         "ContestOptionId": {
           "type": "string",
           "refTypes": [
-            "BallotDefinition.PartyOption",
             "BallotDefinition.BallotMeasureOption",
             "BallotDefinition.CandidateOption"
           ]
@@ -1486,9 +1378,6 @@
         "ContestOption": {
           "items": {
             "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
               },
