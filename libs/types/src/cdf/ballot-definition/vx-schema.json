@@ -139,9 +139,6 @@
           "minItems": 0,
           "type": "array"
         },
-        "TestType": {
-          "type": "string"
-        },
         "VendorApplicationId": {
           "type": "string"
         },
