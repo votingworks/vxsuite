@@ -98,10 +98,28 @@ CDF error: [
   },
   {
     "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "Election"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
     "expected": "string",
     "received": "undefined",
     "path": [
       "GeneratedDate"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "GpUnit"
     ],
     "message": "Required"
   },
@@ -120,6 +138,15 @@ CDF error: [
     "received": "undefined",
     "path": [
       "IssuerAbbreviation"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "Party"
     ],
     "message": "Required"
   },
@@ -250,5 +277,5 @@ VXF error: [
   }
 ]
 
-CDF error: Error]
+CDF error: Error: unable to find an element matching a predicate]
 `;

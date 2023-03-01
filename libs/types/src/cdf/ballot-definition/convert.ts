@@ -236,9 +236,8 @@ export function convertVxfElectionToCdfBallotDefinition(
 export function convertCdfBallotDefinitionToVxfElection(
   cdfBallotDefinition: Cdf.BallotDefinition
 ): Vxf.Election {
-  assert(cdfBallotDefinition.Election);
-  const election = assertDefined(cdfBallotDefinition.Election[0]);
-  const gpUnits = assertDefined(cdfBallotDefinition.GpUnit);
+  const election = cdfBallotDefinition.Election[0];
+  const gpUnits = cdfBallotDefinition.GpUnit;
 
   const state = find(
     gpUnits,
@@ -251,15 +250,15 @@ export function convertCdfBallotDefinitionToVxfElection(
 
   // Any GpUnit that is associated with contests is a "district" in VXF
   const districts = gpUnits.filter((gpUnit) =>
-    assertDefined(election.Contest).some(
+    election.Contest.some(
       (contest) => contest.ElectionDistrictId === gpUnit['@id']
     )
   );
 
   // Any GpUnit that is associated with a ballot style is a "precinct" in VXF
   const precincts = gpUnits.filter((gpUnit) =>
-    assertDefined(election.BallotStyle).some((ballotStyle) =>
-      assertDefined(ballotStyle.GpUnitIds).includes(gpUnit['@id'])
+    election.BallotStyle.some((ballotStyle) =>
+      ballotStyle.GpUnitIds.includes(gpUnit['@id'])
     )
   );
   // In well-formed CDF, these should all be of type "Precinct" or
@@ -278,27 +277,26 @@ export function convertCdfBallotDefinitionToVxfElection(
 
   return {
     title: englishText(election.Name),
-    state: englishText(assertDefined(state.Name)),
+    state: englishText(state.Name),
     county: {
       id: county['@id'],
-      name: englishText(assertDefined(county.Name)),
+      name: englishText(county.Name),
     },
     date: dateTimeString(new Date(election.StartDate)),
 
-    parties: assertDefined(cdfBallotDefinition.Party).map((party) => {
-      assert(party['@type'] === 'BallotDefinition.Party');
+    parties: cdfBallotDefinition.Party.map((party) => {
       return {
         id: party['@id'] as Vxf.PartyId,
         name: englishText(party.vxBallotLabel),
         fullName: englishText(party.Name),
-        abbrev: englishText(assertDefined(party.Abbreviation)),
+        abbrev: englishText(party.Abbreviation),
       };
     }),
 
-    contests: assertDefined(election.Contest).map((contest): Vxf.AnyContest => {
+    contests: election.Contest.map((contest): Vxf.AnyContest => {
       const contestBase = {
         id: contest['@id'],
-        title: englishText(assertDefined(contest.BallotTitle)),
+        title: englishText(contest.BallotTitle),
         districtId: contest.ElectionDistrictId as Vxf.DistrictId,
       } as const;
       switch (contest['@type']) {
@@ -310,33 +308,26 @@ export function convertCdfBallotDefinitionToVxfElection(
             ...contestBase,
             type: 'candidate',
             seats: contest.VotesAllowed,
-            allowWriteIns: assertDefined(contest.ContestOption).some(
-              (option) => {
-                assert(option['@type'] === 'BallotDefinition.CandidateOption');
-                return option.IsWriteIn;
-              }
+            allowWriteIns: contest.ContestOption.some(
+              (option) => option.IsWriteIn
             ),
-            candidates: assertDefined(contest.ContestOption)
-              .filter((option): option is Cdf.CandidateOption => {
-                assert(option['@type'] === 'BallotDefinition.CandidateOption');
-                return !option.IsWriteIn;
-              })
-              .map((option): Vxf.Candidate => {
-                const candidate = find(
-                  assertDefined(election.Candidate),
-                  (cand) =>
-                    cand['@id'] === assertDefined(option.CandidateIds)[0]
-                );
-                return {
-                  id: candidate['@id'],
-                  name: englishText(candidate.BallotName),
-                  // We use CandidateOption.EndorsementPartyIds rather than
-                  // Candidate.PartyId, since we want to support cases where a
-                  // candidate is endorsed by multiple parties, and we don't
-                  // care about the candidate's "home" party.
-                  partyIds: option.EndorsementPartyIds as Vxf.PartyId[],
-                };
-              }),
+            candidates: contest.ContestOption.filter(
+              (option) => !option.IsWriteIn
+            ).map((option): Vxf.Candidate => {
+              const candidate = find(
+                assertDefined(election.Candidate),
+                (cand) => cand['@id'] === assertDefined(option.CandidateIds)[0]
+              );
+              return {
+                id: candidate['@id'],
+                name: englishText(candidate.BallotName),
+                // We use CandidateOption.EndorsementPartyIds rather than
+                // Candidate.PartyId, since we want to support cases where a
+                // candidate is endorsed by multiple parties, and we don't
+                // care about the candidate's "home" party.
+                partyIds: option.EndorsementPartyIds as Vxf.PartyId[],
+              };
+            }),
             partyId: contest.PrimaryPartyIds
               ? (contest.PrimaryPartyIds[0] as Vxf.PartyId)
               : undefined,
@@ -346,19 +337,11 @@ export function convertCdfBallotDefinitionToVxfElection(
           // We use option order to determine the "yes" and "no" options.
           // There's no real semantic difference in the eyes of the voting
           // system.
-          const [yesOption, noOption] = assertDefined(contest.ContestOption);
-          assert(
-            yesOption &&
-              yesOption['@type'] === 'BallotDefinition.BallotMeasureOption'
-          );
-          assert(
-            noOption &&
-              noOption['@type'] === 'BallotDefinition.BallotMeasureOption'
-          );
+          const [yesOption, noOption] = contest.ContestOption;
           return {
             ...contestBase,
             type: 'yesno',
-            description: englishText(assertDefined(contest.FullText)),
+            description: englishText(contest.FullText),
             yesOption: {
               id: yesOption['@id'],
               label: englishText(yesOption.Selection),
@@ -378,55 +361,48 @@ export function convertCdfBallotDefinitionToVxfElection(
 
     districts: districts.map((district) => ({
       id: district['@id'] as Vxf.DistrictId,
-      name: englishText(assertDefined(district.Name)),
+      name: englishText(district.Name),
     })),
 
     precincts: precincts.map((precinct) => ({
       id: precinct['@id'],
-      name: englishText(assertDefined(precinct.Name)),
+      name: englishText(precinct.Name),
     })),
 
-    ballotStyles: assertDefined(election.BallotStyle).map(
-      (ballotStyle): Vxf.BallotStyle => {
-        // Ballot style GpUnitIds should all be precincts
-        assert(
-          ballotStyle.GpUnitIds.every((gpUnitId) =>
-            precincts.some((precinct) => precinct['@id'] === gpUnitId)
-          )
+    ballotStyles: election.BallotStyle.map((ballotStyle): Vxf.BallotStyle => {
+      // Ballot style GpUnitIds should all be precincts
+      assert(
+        ballotStyle.GpUnitIds.every((gpUnitId) =>
+          precincts.some((precinct) => precinct['@id'] === gpUnitId)
+        )
+      );
+      // To find the districts for a ballot style, we look at the associated
+      // precincts and find the districts that contain them
+      const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap((gpUnitId) => {
+        return districts.filter((district) =>
+          assertDefined(district.ComposingGpUnitIds).includes(gpUnitId)
         );
-        // To find the districts for a ballot style, we look at the associated
-        // precincts and find the districts that contain them
-        const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap(
-          (gpUnitId) => {
-            return districts.filter((district) =>
-              assertDefined(district.ComposingGpUnitIds).includes(gpUnitId)
-            );
-          }
-        );
-        const districtIds = unique(
-          ballotStyleDistricts.map(
-            (district) => district['@id'] as Vxf.DistrictId
-          )
-        );
+      });
+      const districtIds = unique(
+        ballotStyleDistricts.map(
+          (district) => district['@id'] as Vxf.DistrictId
+        )
+      );
 
-        if (ballotStyle.PartyIds) assert(ballotStyle.PartyIds.length <= 1);
+      if (ballotStyle.PartyIds) assert(ballotStyle.PartyIds.length <= 1);
 
-        // For now, we expect exactly one external identifier for each ballot
-        // style (see comment on BallotStyles in other conversion function for
-        // context).
-        assert(
-          ballotStyle.ExternalIdentifier &&
-            ballotStyle.ExternalIdentifier.length === 1
-        );
+      // For now, we expect exactly one external identifier for each ballot
+      // style (see comment on BallotStyles in other conversion function for
+      // context).
+      assert(ballotStyle.ExternalIdentifier.length === 1);
 
-        return {
-          id: ballotStyle.ExternalIdentifier[0].Value,
-          districts: districtIds,
-          precincts: assertDefined(ballotStyle.GpUnitIds),
-          partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
-        };
-      }
-    ),
+      return {
+        id: ballotStyle.ExternalIdentifier[0].Value,
+        districts: districtIds,
+        precincts: ballotStyle.GpUnitIds,
+        partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
+      };
+    }),
   };
 }
 

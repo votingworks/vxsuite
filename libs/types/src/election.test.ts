@@ -677,10 +677,13 @@ test('safeParseElection shows VXF and CDF parsing errors', () => {
   expect(error.message).toContain('CDF error:');
   expect(error).toMatchSnapshot();
 
-  // Try a malformed CDF ballot definition
+  // Try a malformed CDF ballot definition that will cause the convert function
+  // to throw an error (needed to cover the case that catches these errors)
   error = safeParseElection({
     ...testCdfBallotDefinition,
-    Election: [],
+    GpUnit: testCdfBallotDefinition.GpUnit.filter(
+      (unit) => unit.Type === 'state'
+    ),
   }).unsafeUnwrapErr();
   expect(error.message).toContain('Invalid election definition');
   expect(error.message).toContain('VXF error:');

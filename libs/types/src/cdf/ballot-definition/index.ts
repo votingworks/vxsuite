@@ -90,26 +90,6 @@ export type HtmlColorString = string;
  */
 export const HtmlColorStringSchema: z.ZodSchema<HtmlColorString> = z.string().regex(/[0-9a-f]{6}/);
 
-/**
- * For defining a 32-character annotation, used with character strings in AnnotatedString.
- */
-export type ShortString = string;
-
-/**
- * Schema for {@link ShortString}.
- */
-export const ShortStringSchema: z.ZodSchema<ShortString> = z.string();
-
-/**
- * Restricts time to require inclusion of time zone information and excludes fractional seconds. TimeWithZone is a subtype of time.
- */
-export type TimeWithZone = string;
-
-/**
- * Schema for {@link TimeWithZone}.
- */
-export const TimeWithZoneSchema: z.ZodSchema<TimeWithZone> = z.string().regex(/(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))/);
-
 export enum BallotDefinitionVersion {
   /**
    * For version 1.0.0 of this specification.
@@ -121,41 +101,6 @@ export enum BallotDefinitionVersion {
  * Schema for {@link BallotDefinitionVersion}.
  */
 export const BallotDefinitionVersionSchema = z.nativeEnum(BallotDefinitionVersion);
-
-/**
- * Enumeration for types of ballot measures in the BallotMeasureContest element.
- */
-export enum BallotMeasureType {
-  /**
-   * For a standard “yes” or “no” question on the ballot.
-   */
-  BallotMeasure = 'ballot-measure',
-
-  /**
-   * For an initiative.
-   */
-  Initiative = 'initiative',
-
-  /**
-   * Used when the type of ballot measure is not included in this enumeration.
-   */
-  Other = 'other',
-
-  /**
-   * For a recall.
-   */
-  Recall = 'recall',
-
-  /**
-   * For a referendum.
-   */
-  Referendum = 'referendum',
-}
-
-/**
- * Schema for {@link BallotMeasureType}.
- */
-export const BallotMeasureTypeSchema = z.nativeEnum(BallotMeasureType);
 
 /**
  * The side of a ballot sheet.
@@ -176,93 +121,6 @@ export enum BallotSideType {
  * Schema for {@link BallotSideType}.
  */
 export const BallotSideTypeSchema = z.nativeEnum(BallotSideType);
-
-/**
- * Enumeration for various pre-election statuses applicable to a candidate
- *       in the Candidate
- *       class.
- */
-export enum CandidatePreElectionStatus {
-  /**
-   * For candidates who have filed with the election authority but not necessarily qualified.
-   */
-  Filed = 'filed',
-
-  /**
-   * For candidates who are qualified by the election authority to be on the ballot for a contest.
-   */
-  Qualified = 'qualified',
-
-  /**
-   * For candidates who have withdrawn from the contest.
-   */
-  Withdrawn = 'withdrawn',
-}
-
-/**
- * Schema for {@link CandidatePreElectionStatus}.
- */
-export const CandidatePreElectionStatusSchema = z.nativeEnum(CandidatePreElectionStatus);
-
-/**
- * Enumeration for the day(s) in a schedule in the Schedule element.
- */
-export enum DayType {
-  /**
-   * Used for all days of the week.
-   */
-  All = 'all',
-
-  /**
-   * Used if day of week is Friday.
-   */
-  Friday = 'friday',
-
-  /**
-   * Used if day of week is Monday.
-   */
-  Monday = 'monday',
-
-  /**
-   * Used if day of week is Saturday.
-   */
-  Saturday = 'saturday',
-
-  /**
-   * Used if day of week is Sunday.
-   */
-  Sunday = 'sunday',
-
-  /**
-   * Used if day of week is Thursday.
-   */
-  Thursday = 'thursday',
-
-  /**
-   * Used if day of week is Tuesday.
-   */
-  Tuesday = 'tuesday',
-
-  /**
-   * Used if day of week is Wednesday.
-   */
-  Wednesday = 'wednesday',
-
-  /**
-   * Used for any day of the week except Saturday and Sunday.
-   */
-  Weekday = 'weekday',
-
-  /**
-   * Used for both Saturday and Sunday.
-   */
-  Weekend = 'weekend',
-}
-
-/**
- * Schema for {@link DayType}.
- */
-export const DayTypeSchema = z.nativeEnum(DayType);
 
 /**
  * Enumeration for the type of election in the BallotDefinition class.
@@ -308,41 +166,6 @@ export enum ElectionType {
  * Schema for {@link ElectionType}.
  */
 export const ElectionTypeSchema = z.nativeEnum(ElectionType);
-
-/**
- * Enumeration for geospatial vector data formats used in Geographic Information System (GIS) software, used in the SpatialExtent class.
- */
-export enum GeoSpatialFormat {
-  /**
-   * For GeoJSON open standard format.
-   */
-  GeoJson = 'geo-json',
-
-  /**
-   * For Geography Markup Language format.
-   */
-  Gml = 'gml',
-
-  /**
-   * For Keyhole Markup Language format.
-   */
-  Kml = 'kml',
-
-  /**
-   * For the shape file format associated with Esri.
-   */
-  Shp = 'shp',
-
-  /**
-   * For Well-known Text format.
-   */
-  Wkt = 'wkt',
-}
-
-/**
- * Schema for {@link GeoSpatialFormat}.
- */
-export const GeoSpatialFormatSchema = z.nativeEnum(GeoSpatialFormat);
 
 /**
  * Enumeration for election data-related codes in the ExternalIdentifier class .
@@ -415,26 +238,6 @@ export enum MeasurementUnitType {
 export const MeasurementUnitTypeSchema = z.nativeEnum(MeasurementUnitType);
 
 /**
- * Enumeration for the office term type in the Office class.
- */
-export enum OfficeTermType {
-  /**
-   * When the officeholder’s term began at the beginning of the full term of the office, e.g., 6 years for U.S. Senate.
-   */
-  FullTerm = 'full-term',
-
-  /**
-   * When the officeholder’s term began at some date after the beginning of the full term of the office, generally because the previous officeholder vacated the office before the fullterm expired.
-   */
-  UnexpiredTerm = 'unexpired-term',
-}
-
-/**
- * Schema for {@link OfficeTermType}.
- */
-export const OfficeTermTypeSchema = z.nativeEnum(OfficeTermType);
-
-/**
  * The orientation of a ballot sheet.
  */
 export enum OrientationType {
@@ -459,79 +262,9 @@ export const OrientationTypeSchema = z.nativeEnum(OrientationType);
  */
 export enum ReportingUnitType {
   /**
-   * Used for reporting batches of ballots that may cross precinct boundaries.
-   */
-  BallotBatch = 'ballot-batch',
-
-  /**
-   * Used for ballot style areas generally composed of precincts.
-   */
-  BallotStyleArea = 'ballot-style-area',
-
-  /**
-   * Used in CT, NJ, PA, other states, and New York City for boroughs. For AK and LA, see county.
-   */
-  Borough = 'borough',
-
-  /**
-   * Used for a city that reports results and/or for the district that encompasses it.
-   */
-  City = 'city',
-
-  /**
-   * Used for city council districts.
-   */
-  CityCouncil = 'city-council',
-
-  /**
-   * Used for one or more precincts that have been combined for the purposes of reporting. Used for “Ward” if “Ward” is used interchangeably with “CombinedPrecinct”.
-   */
-  CombinedPrecinct = 'combined-precinct',
-
-  /**
-   * Used for U.S. Congressional districts.
-   */
-  Congressional = 'congressional',
-
-  /**
-   * Used for a reporting unit of type country.
-   */
-  Country = 'country',
-
-  /**
    * Used for a county and/or for the district that encompasses it. In AK, used for counties that are called boroughs. In LA, used for parishes.
    */
   County = 'county',
-
-  /**
-   * Used for county council districts.
-   */
-  CountyCouncil = 'county-council',
-
-  /**
-   * Used for a dropbox for absentee ballots.
-   */
-  DropBox = 'drop-box',
-
-  /**
-   * Used for judicial districts.
-   */
-  Judicial = 'judicial',
-
-  /**
-   * Used as applicable for various units such as towns, townships, villages that report votes and/or for the district that encompasses it.
-   */
-  Municipality = 'municipality',
-
-  /**
-   * Used for other types of reporting units not included in this enumeration.
-   */
-  Other = 'other',
-
-  /**
-   * Used for a polling place.
-   */
-  PollingPlace = 'polling-place',
 
   /**
    * Used also for “Ward” or “District” when these terms are used interchangeably with “Precinct”.
@@ -539,69 +272,14 @@ export enum ReportingUnitType {
   Precinct = 'precinct',
 
   /**
-   * Used for a school district.
-   */
-  School = 'school',
-
-  /**
-   * Used for a special district.
-   */
-  Special = 'special',
-
-  /**
-   * Used for splits of precincts.
-   */
-  SplitPrecinct = 'split-precinct',
-
-  /**
    * Used for a state and/or for the district that encompasses it.
    */
   State = 'state',
 
   /**
-   * Used for a state house or assembly district.
+   * Used for other types of reporting units not included in this enumeration.
    */
-  StateHouse = 'state-house',
-
-  /**
-   * Used for a state senate district.
-   */
-  StateSenate = 'state-senate',
-
-  /**
-   * Used in some New England states as a type of municipality that reports votes and/or for the district that encompasses it.
-   */
-  Town = 'town',
-
-  /**
-   * Used in some mid-western states as a type of municipality that reports votes and/or for the district that encompasses it.
-   */
-  Township = 'township',
-
-  /**
-   * Used for a utility district.
-   */
-  Utility = 'utility',
-
-  /**
-   * Used as a type of municipality that reports votes and/or for the district that encompasses it.
-   */
-  Village = 'village',
-
-  /**
-   * Used for a vote center.
-   */
-  VoteCenter = 'vote-center',
-
-  /**
-   * Used for combinations or groupings of precincts or other units.
-   */
-  Ward = 'ward',
-
-  /**
-   * Used for a water district.
-   */
-  Water = 'water',
+  Other = 'other',
 }
 
 /**
@@ -644,290 +322,6 @@ export enum ShapeType {
 export const ShapeTypeSchema = z.nativeEnum(ShapeType);
 
 /**
- * Specifies how to consider indications made in the controlled contests of a straight party controlling contest.These specify the consequences direct selections made by the voter in controlled contests.
- */
-export enum StraightPartyRuleset {
-  /**
-   * For a ruleset that excludes any straight-party selections if there is a directly selected candidate in a contest.
-   */
-  Exclusive = 'exclusive',
-
-  /**
-   * For a ruleset allowing any additional candidates selected by the straight-party to be included with directly selected candidates if the total number of candidates does not exceed the number of selections allowed.
-   */
-  Inclusive = 'inclusive',
-
-  /**
-   * Used when the straight party rule type is not included in this enumeration.
-   */
-  Other = 'other',
-}
-
-/**
- * Schema for {@link StraightPartyRuleset}.
- */
-export const StraightPartyRulesetSchema = z.nativeEnum(StraightPartyRuleset);
-
-/**
- * Enumeration for contest decision algorithm or rules in the Contest element.
- */
-export enum VoteVariation {
-  /**
-   * When voter can select as many candidates as desired in a contest up to a maximum number.
-   */
-  Approval = 'approval',
-
-  /**
-   * For the Borda count voting.
-   */
-  Borda = 'borda',
-
-  /**
-   * When voter can allocate more than one vote to a given candidate.
-   */
-  Cumulative = 'cumulative',
-
-  /**
-   * For majority voting.
-   */
-  Majority = 'majority',
-
-  /**
-   * Includes vote for 1, i.e., 1-of-m.
-   */
-  NOfM = 'n-of-m',
-
-  /**
-   * Used when the vote variation type is not included in this enumeration.
-   */
-  Other = 'other',
-
-  /**
-   * For plurality voting.
-   */
-  Plurality = 'plurality',
-
-  /**
-   * For proportional voting.
-   */
-  Proportional = 'proportional',
-
-  /**
-   * For range voting.
-   */
-  Range = 'range',
-
-  /**
-   * For ranked choice voting.
-   */
-  Rcv = 'rcv',
-
-  /**
-   * For super majority voting.
-   */
-  SuperMajority = 'super-majority',
-}
-
-/**
- * Schema for {@link VoteVariation}.
- */
-export const VoteVariationSchema = z.nativeEnum(VoteVariation);
-
-/**
- * For a contest containing an option that conditionally activates other contests on the ballot.This element uses ControllingContest as a superclass. Therefore, it inherits the attributes of Contest as well as ControllingContest.
- */
-export interface ActivationContest {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.ActivationContest';
-
-  /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
-   * Title of the contest as it appears on the ballot.
-   */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * Link to a Candidate instance. For associating a candidate with the activation contest (e.g. a candidate subject to recall).
-   */
-  readonly CandidateId?: string;
-
-  /**
-   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
-   */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * A contest on a ballot whose state is dependent on the selections made in a separate controlling contest.
-   */
-  readonly ControlledContestIds: readonly string[];
-
-  /**
-   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId: string;
-
-  /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * Name of the contest, not necessarily as it appears on the ballot.
-   */
-  readonly Name: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * For a summary on the ballot of the activation contest, e.g. "Should John Smith be recalled?".
-   */
-  readonly SummaryText?: InternationalizedText;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link ActivationContest}.
- */
-export const ActivationContestSchema: z.ZodSchema<ActivationContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.ActivationContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  CandidateId: z.optional(z.string()),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  ControlledContestIds: z.array(z.string()).min(1),
-  ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HasRotation: z.optional(z.boolean()),
-  Name: z.string(),
-  OtherVoteVariation: z.optional(z.string()),
-  SequenceOrder: z.optional(integerSchema),
-  SummaryText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * For the contest selections in an ActivationContest. It inherits the attributes of ContestOption.
- */
-export interface ActivationOption {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.ActivationOption';
-
-  /**
-   * Boolean to indicate whether this selection, when chosen by the voter will cause controlled contests to activate.
-   */
-  readonly CausesActivation: boolean;
-
-  /**
-   * For associating an ID with the contest option.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * The text on the ballot associated with the selection.
-   */
-  readonly Selection: InternationalizedText;
-
-  /**
-   * Order in which the candidate is listed on the ballot for purposes of display. If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-}
-
-/**
- * Schema for {@link ActivationOption}.
- */
-export const ActivationOptionSchema: z.ZodSchema<ActivationOption> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.ActivationOption'),
-  CausesActivation: z.boolean(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Selection: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  SequenceOrder: z.optional(integerSchema),
-});
-
-/**
- * Used as a type for character strings; it adds a 32-character annotation to a character string. AnnotatedString is a subtype of string.
- */
-export interface AnnotatedString {
-  readonly '@type': 'BallotDefinition.AnnotatedString';
-
-  /**
-   * An annotation of up to 32 characters associated with a character string.
-   */
-  readonly Annotation?: ShortString;
-
-  readonly Content: string;
-}
-
-/**
- * Schema for {@link AnnotatedString}.
- */
-export const AnnotatedStringSchema: z.ZodSchema<AnnotatedString> = z.object({
-  '@type': z.literal('BallotDefinition.AnnotatedString'),
-  Annotation: z.optional(z.lazy(/* istanbul ignore next */ () => ShortStringSchema)),
-  Content: z.string(),
-});
-
-/**
- * Used as a type for character strings that represent Uniform Resource Identifiers (URI); it adds a 32-character annotation to a character string.
- */
-export interface AnnotatedUri {
-  readonly '@type': 'BallotDefinition.AnnotatedUri';
-
-  /**
-   * An annotation of up to 32 characters associated with a character string.
-   */
-  readonly Annotation?: ShortString;
-
-  readonly Content: Uri;
-}
-
-/**
- * Schema for {@link AnnotatedUri}.
- */
-export const AnnotatedUriSchema: z.ZodSchema<AnnotatedUri> = z.object({
-  '@type': z.literal('BallotDefinition.AnnotatedUri'),
-  Annotation: z.optional(z.lazy(/* istanbul ignore next */ () => ShortStringSchema)),
-  Content: UriSchema,
-});
-
-/**
  * For defining items pertaining to the issuer and version of the definition and when it was generated.
  * 
  * BallotDefinition references the major elements that are not necessarily specific to an election and that therefore can exist in a logical ballot definition: GpUnit, Office and OfficeGroup, Party, Person, and Election.
@@ -943,12 +337,7 @@ export interface BallotDefinition {
   /**
    * For associating elections with the definition.
    */
-  readonly Election?: readonly Election[];
-
-  /**
-   * For associating an ID with the definition.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
+  readonly Election: readonly Election[];
 
   /**
    * Identifies the date and time that the ballot definition was generated.
@@ -958,17 +347,12 @@ export interface BallotDefinition {
   /**
    * For associating geopolitical units with the definition.
    */
-  readonly GpUnit?: readonly ReportingUnit[];
+  readonly GpUnit: readonly ReportingUnit[];
 
   /**
    * For associating headers with parts of a ballot style.
    */
   readonly Header?: readonly Header[];
-
-  /**
-   * Used to indicate whether the definition is a test. Assumed to be “false” if not present.
-   */
-  readonly IsTest?: boolean;
 
   /**
    * Identification of the definition issuer.
@@ -981,29 +365,9 @@ export interface BallotDefinition {
   readonly IssuerAbbreviation: string;
 
   /**
-   * For including an arbitrary message with the definition.
-   */
-  readonly Notes?: string;
-
-  /**
-   * For associating offices with the definition.
-   */
-  readonly Office?: readonly Office[];
-
-  /**
-   * For associating a name for a grouping of offices with the definition.
-   */
-  readonly OfficeGroup?: readonly OfficeGroup[];
-
-  /**
    * For associating parties with the definition.
    */
-  readonly Party?: ReadonlyArray<Party | Coalition>;
-
-  /**
-   * For associating persons with the definition.
-   */
-  readonly Person?: readonly Person[];
+  readonly Party: readonly Party[];
 
   /**
    * The upper bound of the sequence; e.g., “1” if there is only 1 report, “2” if there are two reports in the sequence, etc.
@@ -1019,11 +383,6 @@ export interface BallotDefinition {
    * For associating parts of the ballot with geometric shapes.
    */
   readonly Shape?: readonly Shape[];
-
-  /**
-   * A description of the type of test, e.g., pre-election, logic and accuracy, etc.
-   */
-  readonly TestType?: string;
 
   /**
    * An identifier of the vendor application generating the ballot definition, e.g., X-EMS version 3.1.a.
@@ -1042,23 +401,16 @@ export interface BallotDefinition {
 export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   '@type': z.literal('BallotDefinition.BallotDefinition'),
   BallotFormat: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => BallotFormatSchema))),
-  Election: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema))),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  Election: z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema)).min(1),
   GeneratedDate: z.lazy(/* istanbul ignore next */ () => DateTimeWithZoneSchema),
-  GpUnit: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ReportingUnitSchema))),
+  GpUnit: z.array(z.lazy(/* istanbul ignore next */ () => ReportingUnitSchema)).min(1),
   Header: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HeaderSchema))),
-  IsTest: z.optional(z.boolean()),
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
-  Notes: z.optional(z.string()),
-  Office: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeSchema))),
-  OfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeGroupSchema))),
-  Party: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySchema), z.lazy(/* istanbul ignore next */ () => CoalitionSchema)]))),
-  Person: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PersonSchema))),
+  Party: z.array(z.lazy(/* istanbul ignore next */ () => PartySchema)),
   SequenceEnd: integerSchema,
   SequenceStart: integerSchema,
   Shape: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ShapeSchema))),
-  TestType: z.optional(z.string()),
   VendorApplicationId: z.string(),
   Version: z.lazy(/* istanbul ignore next */ () => BallotDefinitionVersionSchema),
 });
@@ -1153,34 +505,14 @@ export interface BallotMeasureContest {
   readonly '@type': 'BallotDefinition.BallotMeasureContest';
 
   /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
    * Title of the contest as it appears on the ballot.
    */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * For a statement on the ballot associated with a “no” vote.
-   */
-  readonly ConStatement?: InternationalizedText;
+  readonly BallotTitle: InternationalizedText;
 
   /**
    * For associating contest options for the contest, e.g., candidates,  ballot measure options.
    */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * For a statement on the ballot detailing the effect of abstaining from voting on the ballot measure.
-   */
-  readonly EffectOfAbstain?: InternationalizedText;
+  readonly ContestOption: readonly BallotMeasureOption[];
 
   /**
    * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
@@ -1188,74 +520,14 @@ export interface BallotMeasureContest {
   readonly ElectionDistrictId: string;
 
   /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
    * For full text on the ballot of the ballot measure.
    */
-  readonly FullText?: InternationalizedText;
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * For associating a URI with the ballot measure contest.
-   */
-  readonly InfoUri?: readonly AnnotatedUri[];
+  readonly FullText: InternationalizedText;
 
   /**
    * Name of the contest, not necessarily as it appears on the ballot.
    */
   readonly Name: string;
-
-  /**
-   * Used when BallotMeasureType is other.
-   */
-  readonly OtherType?: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * For a statement on the ballot of the number or percentage of votes needed to approve or pass the ballot measure.
-   */
-  readonly PassageThreshold?: InternationalizedText;
-
-  /**
-   * For a statement on the ballot associated with a “yes” vote.
-   */
-  readonly ProStatement?: InternationalizedText;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * For a summary on the ballot of the ballot measure.
-   */
-  readonly SummaryText?: InternationalizedText;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * For indicating the type of ballot measure.
-   */
-  readonly Type?: BallotMeasureType;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
 }
 
 /**
@@ -1264,27 +536,11 @@ export interface BallotMeasureContest {
 export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotMeasureContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ConStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  BallotTitle: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ContestOption: z.array(z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema)).min(2),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FullText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  HasRotation: z.optional(z.boolean()),
-  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
+  FullText: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   Name: z.string(),
-  OtherType: z.optional(z.string()),
-  OtherVoteVariation: z.optional(z.string()),
-  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ProStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  SequenceOrder: z.optional(integerSchema),
-  SummaryText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  TotalSubUnits: z.optional(integerSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => BallotMeasureTypeSchema)),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
 });
 
 /**
@@ -1296,19 +552,9 @@ export interface BallotMeasureOption {
   readonly '@type': 'BallotDefinition.BallotMeasureOption';
 
   /**
-   * For associating an ID with the contest option.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
    * Contains the text used to indicate a vote for or against the ballot measure, e.g., “yes”, “no”.
    */
   readonly Selection: InternationalizedText;
-
-  /**
-   * Order in which the candidate is listed on the ballot for purposes of display. If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
 }
 
 /**
@@ -1317,9 +563,7 @@ export interface BallotMeasureOption {
 export const BallotMeasureOptionSchema: z.ZodSchema<BallotMeasureOption> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotMeasureOption'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
   Selection: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  SequenceOrder: z.optional(integerSchema),
 });
 
 /**
@@ -1333,7 +577,7 @@ export interface BallotStyle {
   /**
    * For associating IDs with the ballot style.
    */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
+  readonly ExternalIdentifier: readonly ExternalIdentifier[];
 
   /**
    * Unique identifier for one or more GpUnit instances.  For associating specific election administrative areas (e.g. precincts or splits) with the ballot style.
@@ -1341,29 +585,9 @@ export interface BallotStyle {
   readonly GpUnitIds: readonly string[];
 
   /**
-   * URI for a sample ballot image.
-   */
-  readonly ImageUri?: readonly AnnotatedUri[];
-
-  /**
-   * For the written languages appearing on the ballot style.
-   */
-  readonly Language?: readonly string[];
-
-  /**
-   * For associating a ballot style with ballot content, such as contests or headers.
-   */
-  readonly OrderedContent?: ReadonlyArray<OrderedContest | OrderedHeader>;
-
-  /**
    * For associating one or more parties with the ballot style.
    */
   readonly PartyIds?: readonly string[];
-
-  /**
-   * Freeform text to further describe the purpose (e.g. federal-only ballot) of the ballot style.
-   */
-  readonly Purpose?: string;
 }
 
 /**
@@ -1371,13 +595,9 @@ export interface BallotStyle {
  */
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('BallotDefinition.BallotStyle'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
   GpUnitIds: z.array(z.string()).min(1),
-  ImageUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  Language: z.optional(z.array(z.string())),
-  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next */ () => OrderedHeaderSchema)]))),
   PartyIds: z.optional(z.array(z.string())),
-  Purpose: z.optional(z.string()),
 });
 
 /**
@@ -1457,56 +677,6 @@ export interface Candidate {
    * For the candidate’s name as listed on the ballot.
    */
   readonly BallotName: InternationalizedText;
-
-  /**
-   * The slogan or motto used by the candidate in their campaign.
-   */
-  readonly CampaignSlogan?: InternationalizedText;
-
-  /**
-   * For associating contact information for the candidate.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * For associating IDs with the candidate.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Date when the candidate filed for the contest.
-   */
-  readonly FileDate?: Date;
-
-  /**
-   * Boolean to indicate whether the candidate is the incumbent for the office associated with the contest. Assumed to be “false” if not present.
-   */
-  readonly IsIncumbent?: boolean;
-
-  /**
-   * Boolean to indicate whether the candidate is the top of a ticket that includes multiple candidates. Assumed to be “false” if not present.
-   */
-  readonly IsTopTicket?: boolean;
-
-  /**
-   * For associating a party with the candidate.
-   */
-  readonly PartyId?: string;
-
-  /**
-   * For associating more detailed information about the candidate.
-   */
-  readonly PersonId?: string;
-
-  /**
-   * Registration status of the candidate, e.g., filed, qualified, etc.
-   */
-  readonly PreElectionStatus?: CandidatePreElectionStatus;
-
-  /**
-   * The name spelled phonetically for reading by a screen reader.
-   */
-  readonly ReadName?: string;
 }
 
 /**
@@ -1516,16 +686,6 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Candidate'),
   BallotName: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  CampaignSlogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FileDate: z.optional(DateSchema),
-  IsIncumbent: z.optional(z.boolean()),
-  IsTopTicket: z.optional(z.boolean()),
-  PartyId: z.optional(z.string()),
-  PersonId: z.optional(z.string()),
-  PreElectionStatus: z.optional(z.lazy(/* istanbul ignore next */ () => CandidatePreElectionStatusSchema)),
-  ReadName: z.optional(z.string()),
 });
 
 /**
@@ -1541,24 +701,14 @@ export interface CandidateContest {
   readonly '@type': 'BallotDefinition.CandidateContest';
 
   /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
    * Title of the contest as it appears on the ballot.
    */
-  readonly BallotTitle?: InternationalizedText;
+  readonly BallotTitle: InternationalizedText;
 
   /**
    * For associating contest options for the contest, e.g., candidates,  ballot measure options.
    */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
+  readonly ContestOption: readonly CandidateOption[];
 
   /**
    * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
@@ -1566,64 +716,14 @@ export interface CandidateContest {
   readonly ElectionDistrictId: string;
 
   /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
    * Name of the contest, not necessarily as it appears on the ballot.
    */
   readonly Name: string;
 
   /**
-   * Number of candidates that are elected in the contest (“n” of n-of-m).
-   */
-  readonly NumberElected?: integer;
-
-  /**
-   * The number of candidates in a runoff contest.
-   */
-  readonly NumberRunoff?: integer;
-
-  /**
-   * For associating office descriptions.
-   */
-  readonly OfficeIds?: readonly string[];
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
    * For associating parties with the contest.
    */
   readonly PrimaryPartyIds?: readonly string[];
-
-  /**
-   * Maximum number of ranks per voter in this contest.
-   */
-  readonly RanksAllowed?: integer;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
 
   /**
    * Maximum number of votes per voter in this contest.
@@ -1637,23 +737,11 @@ export interface CandidateContest {
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.CandidateContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
+  BallotTitle: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ContestOption: z.array(z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)).min(1),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HasRotation: z.optional(z.boolean()),
   Name: z.string(),
-  NumberElected: z.optional(integerSchema),
-  NumberRunoff: z.optional(integerSchema),
-  OfficeIds: z.optional(z.array(z.string())),
-  OtherVoteVariation: z.optional(z.string()),
   PrimaryPartyIds: z.optional(z.array(z.string())),
-  RanksAllowed: z.optional(integerSchema),
-  SequenceOrder: z.optional(integerSchema),
-  TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
   VotesAllowed: integerSchema,
 });
 
@@ -1680,19 +768,9 @@ export interface CandidateOption {
   readonly EndorsementPartyIds?: readonly string[];
 
   /**
-   * For associating an ID with the contest option.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
    * Indicates whether the candidate is a write-in, e.g., true or false. Assumed to be false if not present.
    */
   readonly IsWriteIn?: boolean;
-
-  /**
-   * Order in which the candidate is listed on the ballot for purposes of display. If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
 }
 
 /**
@@ -1701,184 +779,9 @@ export interface CandidateOption {
 export const CandidateOptionSchema: z.ZodSchema<CandidateOption> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.CandidateOption'),
-  CandidateIds: z.optional(z.array(z.string())),
+  CandidateIds: z.optional(z.array(z.string()).min(1)),
   EndorsementPartyIds: z.optional(z.array(z.string())),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
   IsWriteIn: z.optional(z.boolean()),
-  SequenceOrder: z.optional(integerSchema),
-});
-
-/**
- * For defining a coalition, i.e., a collection of parties organized for the purpose of endorsing a candidate in a contest. It inherits the properties of Party.
- * 
- * Coalition instances themselves are composed of multiple Party references along with a reference to an associated Contests.
- * 
- * If there are no associated Contests, a general default is that the coalition endorses the associated parties.
- */
-export interface Coalition {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.Coalition';
-
-  /**
-   * Short name for the party, e.g., “DEM”.
-   */
-  readonly Abbreviation?: InternationalizedText;
-
-  /**
-   * For associating an HTML RGB color coding with the party.
-   */
-  readonly Color?: HtmlColorString;
-
-  /**
-   * For associating contact information regarding the party, e.g., party offices.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * For associating contests with the coalition.
-   */
-  readonly ContestIds?: readonly string[];
-
-  /**
-   * For associating IDs with the party.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * For indicating whether the party is recognized by the election authority; “false” is assumed if not present.
-   */
-  readonly IsRecognizedParty?: boolean;
-
-  /**
-   * Identification of a Party's leader.
-   */
-  readonly LeaderPersonIds?: readonly string[];
-
-  /**
-   * A URI to the party’s graphical logo.
-   */
-  readonly LogoUri?: readonly AnnotatedUri[];
-
-  /**
-   * Official full name of the party, e.g., “Republican”; can appear on the ballot.
-   */
-  readonly Name: InternationalizedText;
-
-  /**
-   * For associating parties with the coalition.
-   */
-  readonly PartyIds?: readonly string[];
-
-  /**
-   * The GpUnit(s) the party operates in or the top-most GpUnit.
-   */
-  readonly PartyScopeGpUnitIds?: readonly string[];
-
-  /**
-   * The slogan or motto used by a political party.
-   */
-  readonly Slogan?: InternationalizedText;
-}
-
-/**
- * Schema for {@link Coalition}.
- */
-export const CoalitionSchema: z.ZodSchema<Coalition> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.Coalition'),
-  Abbreviation: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Color: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ContestIds: z.optional(z.array(z.string())),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  IsRecognizedParty: z.optional(z.boolean()),
-  LeaderPersonIds: z.optional(z.array(z.string())),
-  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  PartyIds: z.optional(z.array(z.string())),
-  PartyScopeGpUnitIds: z.optional(z.array(z.string())),
-  Slogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-});
-
-/**
- * For defining contact information about objects such as persons, boards of authorities, organizations, etc. Election, ElectionAdministration, Person, GpUnit, and Office include ContactInformation.
- * 
- * To include an address for the contact, use multiple occurrences of AddressLine. It is expected that the generating application will list the name of the person/organization in the first occurrence of AddressLine, with subsequent ordered occurrences for street address, city, state, zip code, etc. Directions can be used to supply any additional address-related information that may appear in multiple languages.
- * 
- * ContactInformation includes LatLng so as to associate latitude/longitude with the contact address.
- * 
- * Email, Fax, and Phone are of type AnnotatedString, which permits up to a 32-character annotation to be associated with the data.
- */
-export interface ContactInformation {
-  readonly '@type': 'BallotDefinition.ContactInformation';
-
-  /**
-   * For associating an address with the contact.
-   */
-  readonly AddressLine?: readonly string[];
-
-  /**
-   * Directional information in addition to address information.
-   */
-  readonly Directions?: InternationalizedText;
-
-  /**
-   * Email address associated with the contact.
-   */
-  readonly Email?: readonly AnnotatedString[];
-
-  /**
-   * Fax number associated with the contact.
-   */
-  readonly Fax?: readonly AnnotatedString[];
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * For latitude and longitude information associated with the contact.
-   */
-  readonly LatLng?: LatLng;
-
-  /**
-   * Name associated with the contact.
-   */
-  readonly Name?: string;
-
-  /**
-   * Phone number associated with the contact.
-   */
-  readonly Phone?: readonly AnnotatedString[];
-
-  /**
-   * For associating a schedule with the contact.
-   */
-  readonly Schedule?: readonly Schedule[];
-
-  /**
-   * URI associated with the contact.
-   */
-  readonly Uri?: readonly AnnotatedUri[];
-}
-
-/**
- * Schema for {@link ContactInformation}.
- */
-export const ContactInformationSchema: z.ZodSchema<ContactInformation> = z.object({
-  '@type': z.literal('BallotDefinition.ContactInformation'),
-  AddressLine: z.optional(z.array(z.string())),
-  Directions: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Email: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
-  Fax: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
-  Label: z.optional(z.string()),
-  LatLng: z.optional(z.lazy(/* istanbul ignore next */ () => LatLngSchema)),
-  Name: z.optional(z.string()),
-  Phone: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
-  Schedule: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ScheduleSchema))),
-  Uri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
 });
 
 /**
@@ -1894,7 +797,7 @@ export interface Election {
   /**
    * For defining ballot styles associated with the election.
    */
-  readonly BallotStyle?: readonly BallotStyle[];
+  readonly BallotStyle: readonly BallotStyle[];
 
   /**
    * For defining candidates associated with the election.
@@ -1902,14 +805,9 @@ export interface Election {
   readonly Candidate?: readonly Candidate[];
 
   /**
-   * For associating various contact information with the election.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
    * For defining contests associated with the election.
    */
-  readonly Contest?: ReadonlyArray<PartyContest | BallotMeasureContest | CandidateContest | PartyPreferenceContest | StraightPartyContest | ActivationContest | RetentionContest>;
+  readonly Contest: ReadonlyArray<BallotMeasureContest | CandidateContest>;
 
   /**
    * Unique identifier for a GpUnit element. For associating the election with a reporting unit that represents the geographical scope of the election, e.g., a state, a county, etc.
@@ -1922,19 +820,9 @@ export interface Election {
   readonly EndDate: Date;
 
   /**
-   * For associating IDs with the election.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
    * For including a name for the election; the name could be the same name as appears on the ballot.
    */
   readonly Name: InternationalizedText;
-
-  /**
-   * Used when Type is other.
-   */
-  readonly OtherType?: string;
 
   /**
    * Calendar start date of the election, e.g., “2018-11-04”.
@@ -1952,51 +840,14 @@ export interface Election {
  */
 export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('BallotDefinition.Election'),
-  BallotStyle: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => BallotStyleSchema))),
+  BallotStyle: z.array(z.lazy(/* istanbul ignore next */ () => BallotStyleSchema)).min(1),
   Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CandidateSchema))),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  Contest: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next */ () => PartyPreferenceContestSchema), z.lazy(/* istanbul ignore next */ () => StraightPartyContestSchema), z.lazy(/* istanbul ignore next */ () => ActivationContestSchema), z.lazy(/* istanbul ignore next */ () => RetentionContestSchema)]))),
+  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
   Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  OtherType: z.optional(z.string()),
   StartDate: DateSchema,
   Type: z.lazy(/* istanbul ignore next */ () => ElectionTypeSchema),
-});
-
-/**
- * Used to provide various information about an election authority. ReportingUnit includes ElectionAdministration.
- * 
- * ElectionAdministration includes ContactInformation for the election authority and, using ElectionOfficialPerson references one or more Person instances defined for individuals/organizations associated with the election authority.
- */
-export interface ElectionAdministration {
-  readonly '@type': 'BallotDefinition.ElectionAdministration';
-
-  /**
-   * For including various contact information.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * Unique identifier for one or more Person instances defined for the election authority.
-   */
-  readonly ElectionOfficialPersonIds?: readonly string[];
-
-  /**
-   * Name of the election authority.
-   */
-  readonly Name?: string;
-}
-
-/**
- * Schema for {@link ElectionAdministration}.
- */
-export const ElectionAdministrationSchema: z.ZodSchema<ElectionAdministration> = z.object({
-  '@type': z.literal('BallotDefinition.ElectionAdministration'),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ElectionOfficialPersonIds: z.optional(z.array(z.string())),
-  Name: z.optional(z.string()),
 });
 
 /**
@@ -2131,44 +982,6 @@ export const HeaderSchema: z.ZodSchema<Header> = z.object({
 });
 
 /**
- * Hours is used to specify a specific day and hours on that day, including the time zone.  Multiple occurrences of Hours can be used if the schedule includes a range of days and hours.
- */
-export interface Hours {
-  readonly '@type': 'BallotDefinition.Hours';
-
-  /**
-   * Day of the week.
-   */
-  readonly Day?: DayType;
-
-  /**
-   * End time of the schedule.
-   */
-  readonly EndTime: TimeWithZone;
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * Start time of the schedule.
-   */
-  readonly StartTime: TimeWithZone;
-}
-
-/**
- * Schema for {@link Hours}.
- */
-export const HoursSchema: z.ZodSchema<Hours> = z.object({
-  '@type': z.literal('BallotDefinition.Hours'),
-  Day: z.optional(z.lazy(/* istanbul ignore next */ () => DayTypeSchema)),
-  EndTime: z.lazy(/* istanbul ignore next */ () => TimeWithZoneSchema),
-  Label: z.optional(z.string()),
-  StartTime: z.lazy(/* istanbul ignore next */ () => TimeWithZoneSchema),
-});
-
-/**
  * For strings that can contain multi-national text, for use with text as shown on a ballot containing multi-national text. The label attribute can be used to assign an identifier to the text as desired.
  * 
  * Text uses the xsd:language type such that its language attribute must be set to a value that identifies the language.
@@ -2235,157 +1048,6 @@ export const LanguageStringSchema: z.ZodSchema<LanguageString> = z.object({
   '@type': z.literal('BallotDefinition.LanguageString'),
   Content: z.string(),
   Language: z.string(),
-});
-
-/**
- * Associates latitude/longitude with a contact address.
- */
-export interface LatLng {
-  readonly '@type': 'BallotDefinition.LatLng';
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * Latitude of the contact location.
-   */
-  readonly Latitude: number;
-
-  /**
-   * Longitude of the contact location.
-   */
-  readonly Longitude: number;
-
-  /**
-   * System used to perform the lookup from location name to lat/lng, e.g., the name of a geocoding service.
-   */
-  readonly Source?: string;
-}
-
-/**
- * Schema for {@link LatLng}.
- */
-export const LatLngSchema: z.ZodSchema<LatLng> = z.object({
-  '@type': z.literal('BallotDefinition.LatLng'),
-  Label: z.optional(z.string()),
-  Latitude: z.number(),
-  Longitude: z.number(),
-  Source: z.optional(z.string()),
-});
-
-/**
- * For defining an office and information associated with a contest and/or a district. BallotDefinition includes Office. CandidateContest and RetentionContest reference Office.
- * 
- * Office includes Term for defining details about the term of an office such as start/end dates and the type of term. OfficeGroup is included from BallotDefinition to assign a name to a grouping of office definitions.
- * 
- * Office includes an optional ElectionDistrict reference to a GpUnit for the purpose of identifying the geographical scope of the office. For example, for an office for a state senate seat, ElectionDistrict would include a reference to the GpUnit defined for the district associated with that office.
- */
-export interface Office {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.Office';
-
-  /**
-   * For associating various contact information with the office.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * A description of the office, possibly as shown on the ballot to the voter.
-   */
-  readonly Description?: InternationalizedText;
-
-  /**
-   * Link to a GpUnit instance. For associating the office with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId?: string;
-
-  /**
-   * For associating IDs with the office.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Date and time when a candidate must have filed for the contest for the office.
-   */
-  readonly FilingDeadline?: Date;
-
-  /**
-   * Boolean to indicate whether the office is partisan, e.g., true or false.  If not present, assumption is true.
-   */
-  readonly IsPartisan?: boolean;
-
-  /**
-   * Name of the office; can appear on the ballot.
-   */
-  readonly Name: InternationalizedText;
-
-  /**
-   * Links to one or more Person instances defined for the office holder.
-   */
-  readonly OfficeHolderPersonIds?: readonly string[];
-
-  /**
-   * For including office term-related information.
-   */
-  readonly Term?: Term;
-}
-
-/**
- * Schema for {@link Office}.
- */
-export const OfficeSchema: z.ZodSchema<Office> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.Office'),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  Description: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ElectionDistrictId: z.optional(z.string()),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FilingDeadline: z.optional(DateSchema),
-  IsPartisan: z.optional(z.boolean()),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  OfficeHolderPersonIds: z.optional(z.array(z.string())),
-  Term: z.optional(z.lazy(/* istanbul ignore next */ () => TermSchema)),
-});
-
-/**
- * Used to assign a name to a grouping of office definitions. It includes references to Office instances and a name to identify the grouping of references, e.g., "Judicial" or "Statewide", etc. SubOfficeGroup can be used to create a nested hierarchy of groupings. BallotDefinition includes OfficeGroup.
- */
-export interface OfficeGroup {
-  readonly '@type': 'BallotDefinition.OfficeGroup';
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * Name of the office grouping.
-   */
-  readonly Name: string;
-
-  /**
-   * Link to one or more Office instances.
-   */
-  readonly OfficeIds?: readonly string[];
-
-  /**
-   * For defining a nested hierarchy of Office instance groupings.
-   */
-  readonly SubOfficeGroup?: readonly OfficeGroup[];
-}
-
-/**
- * Schema for {@link OfficeGroup}.
- */
-export const OfficeGroupSchema: z.ZodSchema<OfficeGroup> = z.object({
-  '@type': z.literal('BallotDefinition.OfficeGroup'),
-  Label: z.optional(z.string()),
-  Name: z.string(),
-  OfficeIds: z.optional(z.array(z.string())),
-  SubOfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeGroupSchema))),
 });
 
 /**
@@ -2535,52 +1197,12 @@ export interface Party {
   /**
    * Short name for the party, e.g., “DEM”.
    */
-  readonly Abbreviation?: InternationalizedText;
-
-  /**
-   * For associating an HTML RGB color coding with the party.
-   */
-  readonly Color?: HtmlColorString;
-
-  /**
-   * For associating contact information regarding the party, e.g., party offices.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * For associating IDs with the party.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * For indicating whether the party is recognized by the election authority; “false” is assumed if not present.
-   */
-  readonly IsRecognizedParty?: boolean;
-
-  /**
-   * Identification of a Party's leader.
-   */
-  readonly LeaderPersonIds?: readonly string[];
-
-  /**
-   * A URI to the party’s graphical logo.
-   */
-  readonly LogoUri?: readonly AnnotatedUri[];
+  readonly Abbreviation: InternationalizedText;
 
   /**
    * Official full name of the party, e.g., “Republican”; can appear on the ballot.
    */
   readonly Name: InternationalizedText;
-
-  /**
-   * The GpUnit(s) the party operates in or the top-most GpUnit.
-   */
-  readonly PartyScopeGpUnitIds?: readonly string[];
-
-  /**
-   * The slogan or motto used by a political party.
-   */
-  readonly Slogan?: InternationalizedText;
 
   /**
    * The label to describe candidates from this party on a ballot.
@@ -2594,368 +1216,9 @@ export interface Party {
 export const PartySchema: z.ZodSchema<Party> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Party'),
-  Abbreviation: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Color: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  IsRecognizedParty: z.optional(z.boolean()),
-  LeaderPersonIds: z.optional(z.array(z.string())),
-  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
+  Abbreviation: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  PartyScopeGpUnitIds: z.optional(z.array(z.string())),
-  Slogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
   vxBallotLabel: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-});
-
-/**
- * Use PartyContest for a contest that where voters choose a party on the ballot. When a selection in this contest causes other indirect selections, StraightPartyContest should be used instead.
- * 
- * It inherits the attributes of Contest.
- */
-export interface PartyContest {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.PartyContest';
-
-  /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
-   * Title of the contest as it appears on the ballot.
-   */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
-   */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId: string;
-
-  /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * Name of the contest, not necessarily as it appears on the ballot.
-   */
-  readonly Name: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link PartyContest}.
- */
-export const PartyContestSchema: z.ZodSchema<PartyContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.PartyContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HasRotation: z.optional(z.boolean()),
-  Name: z.string(),
-  OtherVoteVariation: z.optional(z.string()),
-  SequenceOrder: z.optional(integerSchema),
-  TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * For a contest selection involving a party such as for a party list selection or straight party selection on the ballot. It inherits the attributes of ContestOption.
- */
-export interface PartyOption {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.PartyOption';
-
-  /**
-   * For associating an ID with the contest option.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Link to one or more Party instances. For associating one or more parties with the party selection.
-   */
-  readonly PartyIds: readonly string[];
-
-  /**
-   * Order in which the candidate is listed on the ballot for purposes of display. If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-}
-
-/**
- * Schema for {@link PartyOption}.
- */
-export const PartyOptionSchema: z.ZodSchema<PartyOption> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.PartyOption'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  PartyIds: z.array(z.string()).min(1),
-  SequenceOrder: z.optional(integerSchema),
-});
-
-/**
- * For a controlling contest that may appear on an open primary ballot and allows the voter to select which political party's primary they wish to vote. A valid selection in this contest protects the voter from voiding the partisan selection of the ballot by making selections in more than one party's contest.This element uses ControllingContest as a superclass. Therefore, it inherits the attributes of Contest as well as ControllingContest.
- */
-export interface PartyPreferenceContest {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.PartyPreferenceContest';
-
-  /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
-   * Title of the contest as it appears on the ballot.
-   */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
-   */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * A contest on a ballot whose state is dependent on the selections made in a separate controlling contest.
-   */
-  readonly ControlledContestIds: readonly string[];
-
-  /**
-   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId: string;
-
-  /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * Name of the contest, not necessarily as it appears on the ballot.
-   */
-  readonly Name: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link PartyPreferenceContest}.
- */
-export const PartyPreferenceContestSchema: z.ZodSchema<PartyPreferenceContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.PartyPreferenceContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  ControlledContestIds: z.array(z.string()).min(1),
-  ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HasRotation: z.optional(z.boolean()),
-  Name: z.string(),
-  OtherVoteVariation: z.optional(z.string()),
-  SequenceOrder: z.optional(integerSchema),
-  TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * For tracking the number of registered voters per party per geopolitical unit, i.e., for reporting on the number of registered voters of a particular party in a district or other type of reporting unit. Referenced by GpUnit.
- */
-export interface PartyRegistration {
-  readonly '@type': 'BallotDefinition.PartyRegistration';
-
-  /**
-   * A count for tracking the number of registered voters.
-   */
-  readonly Count: integer;
-
-  /**
-   * Link to a Party instance. For associating a political party.
-   */
-  readonly PartyId: string;
-}
-
-/**
- * Schema for {@link PartyRegistration}.
- */
-export const PartyRegistrationSchema: z.ZodSchema<PartyRegistration> = z.object({
-  '@type': z.literal('BallotDefinition.PartyRegistration'),
-  Count: integerSchema,
-  PartyId: z.string(),
-});
-
-/**
- * For defining information about a person; the person may be a candidate, election official, authority for a reporting unit, etc. BallotDefinition includes Person. Candidate, ElectionAdministration and
- * GpUnit references Person. Person optionally references ContactInformation for associating contact information.
- * 
- * Multiple occurrences of the MiddleName attribute can be used as needed, e.g., for names such as "John Andrew Winston Smith".
- */
-export interface Person {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.Person';
-
-  /**
-   * For associating contact information with the person.
-   */
-  readonly ContactInformation?: readonly ContactInformation[];
-
-  /**
-   * Person’s date of birth.
-   */
-  readonly DateOfBirth?: Date;
-
-  /**
-   * For associating IDs with the person.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Person’s first (given) name.
-   */
-  readonly FirstName?: string;
-
-  /**
-   * Person’s full name.
-   */
-  readonly FullName?: InternationalizedText;
-
-  /**
-   * Person’s gender.
-   */
-  readonly Gender?: string;
-
-  /**
-   * Person’s last (family) name.
-   */
-  readonly LastName?: string;
-
-  /**
-   * Person’s middle name.
-   */
-  readonly MiddleName?: readonly string[];
-
-  /**
-   * Nickname associated with the person.
-   */
-  readonly Nickname?: string;
-
-  /**
-   * Links to a Party instance. For associating a political party with the person.
-   */
-  readonly PartyId?: string;
-
-  /**
-   * A prefix associated with the person, e.g., Mr.
-   */
-  readonly Prefix?: string;
-
-  /**
-   * Person’s profession.
-   */
-  readonly Profession?: InternationalizedText;
-
-  /**
-   * A suffix associated with the person, e.g., Jr.
-   */
-  readonly Suffix?: string;
-
-  /**
-   * A title associated with the person.
-   */
-  readonly Title?: InternationalizedText;
-}
-
-/**
- * Schema for {@link Person}.
- */
-export const PersonSchema: z.ZodSchema<Person> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.Person'),
-  ContactInformation: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema))),
-  DateOfBirth: z.optional(DateSchema),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FirstName: z.optional(z.string()),
-  FullName: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Gender: z.optional(z.string()),
-  LastName: z.optional(z.string()),
-  MiddleName: z.optional(z.array(z.string())),
-  Nickname: z.optional(z.string()),
-  PartyId: z.optional(z.string()),
-  Prefix: z.optional(z.string()),
-  Profession: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Suffix: z.optional(z.string()),
-  Title: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
 });
 
 /**
@@ -3045,79 +1308,19 @@ export interface ReportingUnit {
   readonly '@type': 'BallotDefinition.ReportingUnit';
 
   /**
-   * A link to one or more Person instances describing an authority responsible for the reporting unit.
-   */
-  readonly AuthorityIds?: readonly string[];
-
-  /**
    * Unique identifier for one or more GpUnit instances.  For creating a reference to another GpUnit that is contained with the parent GpUnit.
    */
   readonly ComposingGpUnitIds?: readonly string[];
 
   /**
-   * For associating contact information with the reporting unit.
-   */
-  readonly ContactInformation?: ContactInformation;
-
-  /**
-   * For use when the reporting unit serves as the authority in the election.
-   */
-  readonly ElectionAdministration?: ElectionAdministration;
-
-  /**
-   * For associating an ID with the GpUnit, e.g., a district’s or county’s code.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the reporting unit is a district; assumed to be “false” if not present.
-   */
-  readonly IsDistricted?: boolean;
-
-  /**
-   * Boolean to indicate whether the reporting unit handles only mail-in or absentee ballot elections, assumed to be “false” if not present.
-   */
-  readonly IsMailOnly?: boolean;
-
-  /**
    * Name of the geopolitical unit.
    */
-  readonly Name?: InternationalizedText;
-
-  /**
-   * A number associated with the reporting unit; for compatibility with VIP.
-   */
-  readonly Number?: string;
-
-  /**
-   * For use when ReportingUnitType value is other.
-   */
-  readonly OtherType?: string;
-
-  /**
-   * For associating a count of registered voters per party with the geopolitical unit.
-   */
-  readonly PartyRegistration?: readonly PartyRegistration[];
-
-  /**
-   * For describing the reporting unit’s spatial extent (a polygon that shows the related area).
-   */
-  readonly SpatialDimension?: SpatialDimension;
-
-  /**
-   * Total number of associated subunits such as precincts.
-   */
-  readonly TotalSubUnits?: integer;
+  readonly Name: InternationalizedText;
 
   /**
    * Enumerated type of reporting unit, e.g., state, county, district, precinct, etc.
    */
   readonly Type: ReportingUnitType;
-
-  /**
-   * Number of registered voters residing within the boundaries of the geopolitical unit.
-   */
-  readonly VotersRegistered?: integer;
 }
 
 /**
@@ -3126,235 +1329,9 @@ export interface ReportingUnit {
 export const ReportingUnitSchema: z.ZodSchema<ReportingUnit> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.ReportingUnit'),
-  AuthorityIds: z.optional(z.array(z.string())),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ElectionAdministration: z.optional(z.lazy(/* istanbul ignore next */ () => ElectionAdministrationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  IsDistricted: z.optional(z.boolean()),
-  IsMailOnly: z.optional(z.boolean()),
-  Name: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Number: z.optional(z.string()),
-  OtherType: z.optional(z.string()),
-  PartyRegistration: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PartyRegistrationSchema))),
-  SpatialDimension: z.optional(z.lazy(/* istanbul ignore next */ () => SpatialDimensionSchema)),
-  TotalSubUnits: z.optional(integerSchema),
+  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   Type: z.lazy(/* istanbul ignore next */ () => ReportingUnitTypeSchema),
-  VotersRegistered: z.optional(integerSchema),
-});
-
-/**
- * For judicial retention or other types of retention contests. Retention contests can be treated essentially as ballot measure contests, however this element differs from
- * BallotMeasureContest in that it can include a reference to a candidate or the associated office.
- * 
- * This element uses BallotMeasureContest as a superclass. Therefore, it inherits the attributes of Contest as well as BallotMeasureContest.
- */
-export interface RetentionContest {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.RetentionContest';
-
-  /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
-   * Title of the contest as it appears on the ballot.
-   */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * Link to a Candidate instance. For associating a candidate with the retention contest.
-   */
-  readonly CandidateId: string;
-
-  /**
-   * For a statement on the ballot associated with a “no” vote.
-   */
-  readonly ConStatement?: InternationalizedText;
-
-  /**
-   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
-   */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * For a statement on the ballot detailing the effect of abstaining from voting on the ballot measure.
-   */
-  readonly EffectOfAbstain?: InternationalizedText;
-
-  /**
-   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId: string;
-
-  /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * For full text on the ballot of the ballot measure.
-   */
-  readonly FullText?: InternationalizedText;
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * For associating a URI with the ballot measure contest.
-   */
-  readonly InfoUri?: readonly AnnotatedUri[];
-
-  /**
-   * Name of the contest, not necessarily as it appears on the ballot.
-   */
-  readonly Name: string;
-
-  /**
-   * Link to an Office instance. For associating an office description with the retention contest.
-   */
-  readonly OfficeId?: string;
-
-  /**
-   * Used when BallotMeasureType is other.
-   */
-  readonly OtherType?: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * For a statement on the ballot of the number or percentage of votes needed to approve or pass the ballot measure.
-   */
-  readonly PassageThreshold?: InternationalizedText;
-
-  /**
-   * For a statement on the ballot associated with a “yes” vote.
-   */
-  readonly ProStatement?: InternationalizedText;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * For a summary on the ballot of the ballot measure.
-   */
-  readonly SummaryText?: InternationalizedText;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * For indicating the type of ballot measure.
-   */
-  readonly Type?: BallotMeasureType;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link RetentionContest}.
- */
-export const RetentionContestSchema: z.ZodSchema<RetentionContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.RetentionContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  CandidateId: z.string(),
-  ConStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FullText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  HasRotation: z.optional(z.boolean()),
-  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  Name: z.string(),
-  OfficeId: z.optional(z.string()),
-  OtherType: z.optional(z.string()),
-  OtherVoteVariation: z.optional(z.string()),
-  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ProStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  SequenceOrder: z.optional(integerSchema),
-  SummaryText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  TotalSubUnits: z.optional(integerSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => BallotMeasureTypeSchema)),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * For defining a schedule associated with a particular election office or location. ContactInformation includes Schedule.
- */
-export interface Schedule {
-  readonly '@type': 'BallotDefinition.Schedule';
-
-  /**
-   * For the ending date of the schedule.
-   */
-  readonly EndDate?: Date;
-
-  /**
-   * For specifying a range of hours for a schedule.
-   */
-  readonly Hours?: readonly Hours[];
-
-  /**
-   * If an appointment is only by appointment; assumed to be “no” if not present.
-   */
-  readonly IsOnlyByAppointment?: boolean;
-
-  /**
-   * If an appointment can by appointment presumably as desired; assumed to be “no” if not present.
-   */
-  readonly IsOrByAppointment?: boolean;
-
-  /**
-   * If an appointment may be subject to change; assumed to be “no” if not present.
-   */
-  readonly IsSubjectToChange?: boolean;
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * For the starting date of the schedule.
-   */
-  readonly StartDate?: Date;
-}
-
-/**
- * Schema for {@link Schedule}.
- */
-export const ScheduleSchema: z.ZodSchema<Schedule> = z.object({
-  '@type': z.literal('BallotDefinition.Schedule'),
-  EndDate: z.optional(DateSchema),
-  Hours: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HoursSchema))),
-  IsOnlyByAppointment: z.optional(z.boolean()),
-  IsOrByAppointment: z.optional(z.boolean()),
-  IsSubjectToChange: z.optional(z.boolean()),
-  Label: z.optional(z.string()),
-  StartDate: z.optional(DateSchema),
 });
 
 /**
@@ -3398,204 +1375,6 @@ export const ShapeSchema: z.ZodSchema<Shape> = z.object({
   ShapeType: z.lazy(/* istanbul ignore next */ () => ShapeTypeSchema),
   StrokeColor: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
   StrokeWidth: z.optional(z.number()),
-});
-
-/**
- * For defining the spatial layout of a GpUnit, e.g., a map or a spatial extent (a polygon that shows the related area) for various purposes, including to visualize election results, to understand the composition of districts, or to determine whether GpUnit instances are properly related. GpUnit includes SpatialDimension.
- */
-export interface SpatialDimension {
-  readonly '@type': 'BallotDefinition.SpatialDimension';
-
-  /**
-   * Typically a URI to a map of the GpUnit.
-   */
-  readonly MapUri?: readonly AnnotatedUri[];
-
-  /**
-   * For associating a GpUnit
-   *       element&#8217;s spatial extent information.
-   */
-  readonly SpatialExtent?: SpatialExtent;
-}
-
-/**
- * Schema for {@link SpatialDimension}.
- */
-export const SpatialDimensionSchema: z.ZodSchema<SpatialDimension> = z.object({
-  '@type': z.literal('BallotDefinition.SpatialDimension'),
-  MapUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  SpatialExtent: z.optional(z.lazy(/* istanbul ignore next */ () => SpatialExtentSchema)),
-});
-
-/**
- * SpatialDimension includes SpatialExtent for defining a GpUnit instance's spatial extent data and the format used for the spatial extent.
- */
-export interface SpatialExtent {
-  readonly '@type': 'BallotDefinition.SpatialExtent';
-
-  /**
-   * The data coordinates constituting the spatial extent.
-   */
-  readonly Coordinates: string;
-
-  /**
-   * Enumerated type for the format used, e.g., gml, kml, wkt, etc.
-   */
-  readonly Format: GeoSpatialFormat;
-}
-
-/**
- * Schema for {@link SpatialExtent}.
- */
-export const SpatialExtentSchema: z.ZodSchema<SpatialExtent> = z.object({
-  '@type': z.literal('BallotDefinition.SpatialExtent'),
-  Coordinates: z.string(),
-  Format: z.lazy(/* istanbul ignore next */ () => GeoSpatialFormatSchema),
-});
-
-/**
- * For a contest that involves choosing a party, typically for a straight party selection on the ballot.This element uses ControllingContest as a superclass. Therefore, it inherits the attributes of Contest as well as ControllingContest.
- */
-export interface StraightPartyContest {
-  readonly '@id': string;
-
-  readonly '@type': 'BallotDefinition.StraightPartyContest';
-
-  /**
-   * Abbreviation for the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Subtitle of the contest as it appears on the ballot.
-   */
-  readonly BallotSubTitle?: InternationalizedText;
-
-  /**
-   * Title of the contest as it appears on the ballot.
-   */
-  readonly BallotTitle?: InternationalizedText;
-
-  /**
-   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
-   */
-  readonly ContestOption?: ReadonlyArray<PartyOption | ActivationOption | BallotMeasureOption | CandidateOption>;
-
-  /**
-   * A contest on a ballot whose state is dependent on the selections made in a separate controlling contest.
-   */
-  readonly ControlledContestIds: readonly string[];
-
-  /**
-   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
-   */
-  readonly ElectionDistrictId: string;
-
-  /**
-   * For associating an ID with the contest.
-   */
-  readonly ExternalIdentifier?: readonly ExternalIdentifier[];
-
-  /**
-   * Boolean to indicate whether the selections in the contest are rotated. Assumed to be “no” if not present.
-   */
-  readonly HasRotation?: boolean;
-
-  /**
-   * Name of the contest, not necessarily as it appears on the ballot.
-   */
-  readonly Name: string;
-
-  /**
-   * For use when StraightPartyRuleset value is other.
-   */
-  readonly OtherStraightPartyRuleset?: string;
-
-  /**
-   * For use when VoteVariation is other.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * Ordering for listing the contest for purposes of display.  If not present, no order is assumed.
-   */
-  readonly SequenceOrder?: integer;
-
-  /**
-   * The ruleset specifying how to consider indications made in the controlled contests.
-   */
-  readonly StraightPartyRuleset: StraightPartyRuleset;
-
-  /**
-   * Total number of subunits, e.g., precincts that have this contest on the ballot.
-   */
-  readonly TotalSubUnits?: integer;
-
-  /**
-   * Vote variation associated with the contest, e.g., n-of-m.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link StraightPartyContest}.
- */
-export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.StraightPartyContest'),
-  Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestOption: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyOptionSchema), z.lazy(/* istanbul ignore next */ () => ActivationOptionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureOptionSchema), z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)]))),
-  ControlledContestIds: z.array(z.string()).min(1),
-  ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  HasRotation: z.optional(z.boolean()),
-  Name: z.string(),
-  OtherStraightPartyRuleset: z.optional(z.string()),
-  OtherVoteVariation: z.optional(z.string()),
-  SequenceOrder: z.optional(integerSchema),
-  StraightPartyRuleset: z.lazy(/* istanbul ignore next */ () => StraightPartyRulesetSchema),
-  TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * For describing information about an office term. Term is included by Office.
- */
-export interface Term {
-  readonly '@type': 'BallotDefinition.Term';
-
-  /**
-   * End date for the current term of the office.
-   */
-  readonly EndDate?: Date;
-
-  /**
-   * For use as needed and compatibility with the VIP schema.
-   */
-  readonly Label?: string;
-
-  /**
-   * Start date for the current term of the office.
-   */
-  readonly StartDate?: Date;
-
-  /**
-   * Enumerated type of term, e.g., full-term, unexpired-term, etc.
-   */
-  readonly Type?: OfficeTermType;
-}
-
-/**
- * Schema for {@link Term}.
- */
-export const TermSchema: z.ZodSchema<Term> = z.object({
-  '@type': z.literal('BallotDefinition.Term'),
-  EndDate: z.optional(DateSchema),
-  Label: z.optional(z.string()),
-  StartDate: z.optional(DateSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => OfficeTermTypeSchema)),
 });
 
 /**
