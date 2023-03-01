@@ -22,10 +22,15 @@ export function renderWithThemes(
 ): RenderResult {
   const { vxTheme = {}, ...passthroughOptions } = options;
 
-  return render(
-    <AppBase colorMode={vxTheme.colorMode} sizeMode={vxTheme.sizeMode}>
-      {ui}
-    </AppBase>,
-    { ...passthroughOptions }
-  );
+  function wrapper(props: { children: React.ReactNode }): JSX.Element {
+    return (
+      <AppBase
+        colorMode={vxTheme.colorMode}
+        sizeMode={vxTheme.sizeMode}
+        {...props}
+      />
+    );
+  }
+
+  return render(ui, { ...passthroughOptions, wrapper });
 }
