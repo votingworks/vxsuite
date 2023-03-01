@@ -2,41 +2,6 @@
   "$ref": "#/definitions/BallotDefinition.BallotDefinition",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "BallotDefinition.AnnotatedString": {
-      "required": ["@type", "Content"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.AnnotatedString"],
-          "type": "string"
-        },
-        "Annotation": {
-          "$ref": "#/definitions/BallotDefinition.ShortString"
-        },
-        "Content": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.AnnotatedUri": {
-      "required": ["@type", "Content"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.AnnotatedUri"],
-          "type": "string"
-        },
-        "Annotation": {
-          "$ref": "#/definitions/BallotDefinition.ShortString"
-        },
-        "Content": {
-          "type": "string",
-          "format": "uri"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.BallotDefinition": {
       "required": [
         "@type",
@@ -101,13 +66,6 @@
                 "$ref": "#/definitions/BallotDefinition.Party"
               }
             ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Person": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.Person"
           },
           "minItems": 0,
           "type": "array"
@@ -420,90 +378,10 @@
       },
       "type": "object"
     },
-    "BallotDefinition.ContactInformation": {
-      "required": ["@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.ContactInformation"],
-          "type": "string"
-        },
-        "AddressLine": {
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Directions": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "Email": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Fax": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "LatLng": {
-          "$ref": "#/definitions/BallotDefinition.LatLng"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "Phone": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedString"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Schedule": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.Schedule"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Uri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.DateTimeWithZone": {
       "pattern": "[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
       "type": "string",
       "format": "date-time"
-    },
-    "BallotDefinition.DayType": {
-      "enum": [
-        "all",
-        "friday",
-        "monday",
-        "saturday",
-        "sunday",
-        "thursday",
-        "tuesday",
-        "wednesday",
-        "weekday",
-        "weekend"
-      ],
-      "type": "string"
     },
     "BallotDefinition.Election": {
       "required": [
@@ -670,29 +548,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.Hours": {
-      "required": ["@type", "EndTime", "StartTime"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.Hours"],
-          "type": "string"
-        },
-        "Day": {
-          "$ref": "#/definitions/BallotDefinition.DayType"
-        },
-        "EndTime": {
-          "$ref": "#/definitions/BallotDefinition.TimeWithZone"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "StartTime": {
-          "$ref": "#/definitions/BallotDefinition.TimeWithZone"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.HtmlColorString": {
       "pattern": "[0-9a-f]{6}",
       "type": "string"
@@ -741,29 +596,6 @@
           "type": "string"
         },
         "Language": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.LatLng": {
-      "required": ["@type", "Latitude", "Longitude"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.LatLng"],
-          "type": "string"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "Latitude": {
-          "type": "number"
-        },
-        "Longitude": {
-          "type": "number"
-        },
-        "Source": {
           "type": "string"
         }
       },
@@ -908,76 +740,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.Person": {
-      "required": ["@id", "@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.Person"],
-          "type": "string"
-        },
-        "ContactInformation": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ContactInformation"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "DateOfBirth": {
-          "type": "string",
-          "format": "date"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "FirstName": {
-          "type": "string"
-        },
-        "FullName": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "Gender": {
-          "type": "string"
-        },
-        "LastName": {
-          "type": "string"
-        },
-        "MiddleName": {
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Nickname": {
-          "type": "string"
-        },
-        "PartyId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Party"]
-        },
-        "Prefix": {
-          "type": "string"
-        },
-        "Profession": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "Suffix": {
-          "type": "string"
-        },
-        "Title": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.PhysicalContest": {
       "required": ["@type", "BallotFormatId"],
       "additionalProperties": false,
@@ -1094,44 +856,6 @@
       "enum": ["county", "precinct", "state", "other"],
       "type": "string"
     },
-    "BallotDefinition.Schedule": {
-      "required": ["@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.Schedule"],
-          "type": "string"
-        },
-        "EndDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "Hours": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.Hours"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "IsOnlyByAppointment": {
-          "type": "boolean"
-        },
-        "IsOrByAppointment": {
-          "type": "boolean"
-        },
-        "IsSubjectToChange": {
-          "type": "boolean"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "StartDate": {
-          "type": "string",
-          "format": "date"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.SelectionCaptureMethod": {
       "enum": ["mcdf", "omr"],
       "type": "string"
@@ -1165,15 +889,6 @@
     "BallotDefinition.ShapeType": {
       "enum": ["ellipse", "rectangle"],
       "type": "string"
-    },
-    "BallotDefinition.ShortString": {
-      "maxLength": 32,
-      "type": "string"
-    },
-    "BallotDefinition.TimeWithZone": {
-      "pattern": "(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
-      "type": "string",
-      "format": "time"
     },
     "BallotDefinition.WriteInPosition": {
       "required": ["@type", "H", "Side", "W", "X", "Y"],
