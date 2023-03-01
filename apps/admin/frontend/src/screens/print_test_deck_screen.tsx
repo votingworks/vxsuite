@@ -17,8 +17,10 @@ import {
   Modal,
   Prose,
   HorizontalRule,
+  precinctNameFromId,
   printElement,
   printElementWhenReady,
+  printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -41,6 +43,8 @@ import {
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
 import { PrintButton } from '../components/print_button';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -130,7 +134,9 @@ function getHandMarkedPaperBallotsWithOnReadyCallback({
   });
 
   return ballots.map((ballot, i) => {
-    function HandMarkedPaperBallotWithCallback(onReady: VoidFunction) {
+    function HandMarkedPaperBallotWithCallback(
+      onReady: VoidFunction
+    ): JSX.Element {
       return (
         <HandMarkedPaperBallot
           ballotStyleId={ballot.ballotStyleId}
@@ -241,6 +247,9 @@ export function PrintTestDeckScreen(): JSX.Element {
   const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [precinctToSaveToPdf, setPrecinctToSaveToPdf] =
+    useState<PrecinctId>('all');
 
   const pageTitle = 'Precinct L&A Packages';
 
@@ -398,6 +407,89 @@ export function PrintTestDeckScreen(): JSX.Element {
     ]
   );
 
+  const onClickSaveLogicAndAccuracyPackageToPdf = useCallback(
+    (precinctId: PrecinctId) => {
+      setPrecinctToSaveToPdf(precinctId);
+      setIsSaveModalOpen(true);
+    },
+    []
+  );
+
+  const renderLogicAndAccuracyPackageToPdfForSinglePrecinct = useCallback(
+    (
+      precinctId: PrecinctId,
+      handMarkedPaperBallotCallbacks: ElementWithCallback[],
+      onRendered: () => void
+    ): JSX.Element => {
+      return (
+        <React.Fragment key={precinctId}>
+          {PrecinctTallyReport({ election, precinctId })}
+          {getBmdPaperBallots({ electionDefinition, precinctId })}
+          <React.Fragment>
+            {handMarkedPaperBallotCallbacks.map(
+              (handMarkedPaperBallotWithCallback) =>
+                handMarkedPaperBallotWithCallback(onRendered)
+            )}
+          </React.Fragment>
+        </React.Fragment>
+      );
+    },
+    [election, electionDefinition]
+  );
+
+  // printLogicAndAccuracyPackageToPdf prints the L&A package for all precincts to PDF format.
+  // It returns a Promise<Uint8Array> to be consumed by SaveFileToUsb
+  const printLogicAndAccuracyPackageToPdf =
+    useCallback(async (): Promise<Uint8Array> => {
+      const precinctIds = generatePrecinctIds(precinctToSaveToPdf);
+
+      // If printing all precincts, render them all in a single call to printElementToPdfWhenReady.
+      // Uint8Arrays can't easily be combined later without causing PDF rendering issues.
+
+      // Prepare to render all hand-marked paper ballots across all precincts
+      let numBallots = 0;
+      const handMarkedPaperBallotsCallbacks = precinctIds.map((precinctId) => {
+        const handMarkedPaperBallotsWithCallback =
+          getHandMarkedPaperBallotsWithOnReadyCallback({
+            election,
+            electionHash,
+            precinctId,
+          });
+        numBallots += handMarkedPaperBallotsWithCallback.length;
+        return handMarkedPaperBallotsWithCallback;
+      });
+
+      return printElementToPdfWhenReady((onAllRendered) => {
+        // Printing will wait until all ballots in all precincts have rendered
+        let numRendered = 0;
+        function onRendered() {
+          numRendered += 1;
+          if (numRendered === numBallots) {
+            onAllRendered();
+          }
+        }
+
+        return (
+          <React.Fragment>
+            {precinctIds.map((precinctId, i) => {
+              const callbacksForPrecinct = handMarkedPaperBallotsCallbacks[i];
+              return renderLogicAndAccuracyPackageToPdfForSinglePrecinct(
+                precinctId,
+                callbacksForPrecinct,
+                onRendered
+              );
+            })}
+          </React.Fragment>
+        );
+      });
+    }, [
+      precinctToSaveToPdf,
+      election,
+      electionHash,
+      generatePrecinctIds,
+      renderLogicAndAccuracyPackageToPdfForSinglePrecinct,
+    ]);
+
   const printNonLetterComponentsOfLogicAndAccuracyPackage = useCallback(
     async (initialPrintIndex: PrintIndex) => {
       const { precinctIds } = initialPrintIndex;
@@ -454,37 +546,73 @@ export function PrintTestDeckScreen(): JSX.Element {
             <li>One overvoted hand-marked test ballot.</li>
           </ol>
           <HorizontalRule />
-        </Prose>
-        <p>
-          <PrintButton
-            print={() => printLetterComponentsOfLogicAndAccuracyPackage('all')}
-            useDefaultProgressModal={false}
-            fullWidth
-          >
-            <strong>Print Packages for All Precincts</strong>
-          </PrintButton>
-        </p>
-        <ButtonList>
-          {[...election.precincts]
-            .sort((a, b) =>
-              a.name.localeCompare(b.name, undefined, {
-                ignorePunctuation: true,
-              })
-            )
-            .map((p) => (
-              <PrintButton
-                key={p.id}
-                print={() =>
-                  printLetterComponentsOfLogicAndAccuracyPackage(p.id)
-                }
-                useDefaultProgressModal={false}
+          <ButtonList>
+            <PrintButton
+              print={() =>
+                printLetterComponentsOfLogicAndAccuracyPackage('all')
+              }
+              useDefaultProgressModal={false}
+              fullWidth
+            >
+              <strong>Print Packages for All Precincts</strong>
+            </PrintButton>
+            {window.kiosk && (
+              <Button
+                onPress={() => onClickSaveLogicAndAccuracyPackageToPdf('all')}
                 fullWidth
               >
-                {p.name}
-              </PrintButton>
-            ))}
-        </ButtonList>
+                Save Packages for All Precincts as PDF
+              </Button>
+            )}
+          </ButtonList>
+          <HorizontalRule />
+          <ButtonList>
+            {[...election.precincts]
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, {
+                  ignorePunctuation: true,
+                })
+              )
+              .map((p) => (
+                <React.Fragment key={p.id}>
+                  <PrintButton
+                    print={() =>
+                      printLetterComponentsOfLogicAndAccuracyPackage(p.id)
+                    }
+                    useDefaultProgressModal={false}
+                    fullWidth
+                  >
+                    Print {p.name}
+                  </PrintButton>
+                  {window.kiosk && (
+                    <Button
+                      onPress={() =>
+                        onClickSaveLogicAndAccuracyPackageToPdf(p.id)
+                      }
+                      fullWidth
+                    >
+                      Save {p.name} to PDF
+                    </Button>
+                  )}
+                </React.Fragment>
+              ))}
+          </ButtonList>
+        </Prose>
       </NavigationScreen>
+      {isSaveModalOpen && (
+        <SaveFileToUsb
+          onClose={() => setIsSaveModalOpen(false)}
+          generateFileContent={() => printLogicAndAccuracyPackageToPdf()}
+          defaultFilename={generateDefaultReportFilename(
+            'test-deck-logic-and-accuracy-report',
+            election,
+            precinctToSaveToPdf === 'all'
+              ? 'all-precincts'
+              : precinctNameFromId(election, precinctToSaveToPdf)
+          )}
+          fileType={FileType.TestDeckTallyReport}
+        />
+      )}
     </React.Fragment>
   );
 }
