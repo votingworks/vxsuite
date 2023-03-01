@@ -1052,49 +1052,7 @@
         "Abbreviation": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
-        "Color": {
-          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
-        },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "IsRecognizedParty": {
-          "type": "boolean"
-        },
-        "LeaderPersonIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Person"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "LogoUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Name": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "PartyScopeGpUnitIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.ReportingUnit"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Slogan": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
         "vxBallotLabel": {
