@@ -118,7 +118,7 @@ export async function parseUserDataFromCert(
 /**
  * Constructs a VotingWorks card cert subject that can be passed to an openssl command
  */
-export function constructCertSubject(
+export function constructCardCertSubject(
   user: SystemAdministratorUser | ElectionManagerUser | PollWorkerUser,
   jurisdiction: string
 ): string {

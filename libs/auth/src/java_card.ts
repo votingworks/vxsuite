@@ -23,7 +23,7 @@ import {
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
 import {
-  constructCertSubject,
+  constructCardCertSubject,
   parseCert,
   parseUserDataFromCert,
 } from './certs';
@@ -246,7 +246,7 @@ export class JavaCard implements Card {
       pin
     );
     const cardVxAdminCert = await createCertBySigningPublicKey({
-      certSubject: constructCertSubject(input.user, this.jurisdiction),
+      certSubject: constructCardCertSubject(input.user, this.jurisdiction),
       opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
