@@ -113,9 +113,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.Party"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.Coalition"
               }
             ]
           },
@@ -412,7 +409,7 @@
         "PartyIds": {
           "items": {
             "type": "string",
-            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+            "refTypes": ["BallotDefinition.Party"]
           },
           "minItems": 0,
           "type": "array"
@@ -491,7 +488,7 @@
         },
         "PartyId": {
           "type": "string",
-          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          "refTypes": ["BallotDefinition.Party"]
         },
         "PersonId": {
           "type": "string",
@@ -586,7 +583,7 @@
         "PrimaryPartyIds": {
           "items": {
             "type": "string",
-            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+            "refTypes": ["BallotDefinition.Party"]
           },
           "minItems": 0,
           "type": "array"
@@ -631,7 +628,7 @@
         "EndorsementPartyIds": {
           "items": {
             "type": "string",
-            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+            "refTypes": ["BallotDefinition.Party"]
           },
           "minItems": 0,
           "type": "array"
@@ -655,91 +652,6 @@
     "BallotDefinition.CandidatePreElectionStatus": {
       "enum": ["filed", "qualified", "withdrawn"],
       "type": "string"
-    },
-    "BallotDefinition.Coalition": {
-      "required": ["@id", "@type", "Name"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.Coalition"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "Color": {
-          "$ref": "#/definitions/BallotDefinition.HtmlColorString"
-        },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "ContestIds": {
-          "items": {
-            "type": "string",
-            "refTypes": [
-              "BallotDefinition.PartyContest",
-              "BallotDefinition.BallotMeasureContest",
-              "BallotDefinition.CandidateContest",
-              "BallotDefinition.PartyPreferenceContest",
-              "BallotDefinition.StraightPartyContest",
-              "BallotDefinition.RetentionContest"
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "IsRecognizedParty": {
-          "type": "boolean"
-        },
-        "LeaderPersonIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Person"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "LogoUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Name": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "PartyIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "PartyScopeGpUnitIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.ReportingUnit"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Slogan": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        }
-      },
-      "type": "object"
     },
     "BallotDefinition.ContactInformation": {
       "required": ["@type"],
@@ -1506,7 +1418,7 @@
         "PartyIds": {
           "items": {
             "type": "string",
-            "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+            "refTypes": ["BallotDefinition.Party"]
           },
           "minItems": 1,
           "type": "array"
@@ -1620,7 +1532,7 @@
         },
         "PartyId": {
           "type": "string",
-          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          "refTypes": ["BallotDefinition.Party"]
         }
       },
       "type": "object"
@@ -1678,7 +1590,7 @@
         },
         "PartyId": {
           "type": "string",
-          "refTypes": ["BallotDefinition.Party", "BallotDefinition.Coalition"]
+          "refTypes": ["BallotDefinition.Party"]
         },
         "Prefix": {
           "type": "string"
