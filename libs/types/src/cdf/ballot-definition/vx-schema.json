@@ -10,6 +10,7 @@
         "GpUnit",
         "Issuer",
         "IssuerAbbreviation",
+        "Party",
         "SequenceEnd",
         "SequenceStart",
         "VendorApplicationId",
