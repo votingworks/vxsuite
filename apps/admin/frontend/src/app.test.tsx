@@ -1037,7 +1037,7 @@ test('changing election resets cvr and manual data files', async () => {
 
   fireEvent.click(await screen.findByText('Tally'));
   await screen.findByText('No CVR files loaded.');
-  await screen.findByText('Currently tallying live ballots.');
+  await screen.findByText('Currently tallying official ballots.');
   // We're waiting on a query for isOfficialResults. It has a default value,
   // so there is no change on the page to wait for before test ends.
   // TODO: Remove after upgrade to React 18, which does not warn in this case.

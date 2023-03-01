@@ -69,7 +69,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     screen.getByLabelText('Precinct'),
     screen.getByText('Center Springfield')
   );
-  userEvent.click(screen.getByText('Live Election Mode'));
+  userEvent.click(screen.getByText('Official Ballot Mode'));
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed');

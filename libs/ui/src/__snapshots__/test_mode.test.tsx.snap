@@ -23,7 +23,7 @@ exports[`renders TestMode 1`] = `
     class="c0"
   >
     <div>
-      Machine is in Testing Mode
+      Machine is in Test Ballot Mode
     </div>
   </div>
 </div>

@@ -411,22 +411,26 @@ export function AppRoot({
     try {
       setTogglingTestMode(true);
       await logger.log(LogEventId.TogglingTestMode, userRole, {
-        message: `Toggling to ${isTestMode ? 'Live' : 'Test'} Mode...`,
+        message: `Toggling to ${
+          isTestMode ? 'Official' : 'Test'
+        } Ballot Mode...`,
       });
       await config.setTestMode(!isTestMode);
       await refreshConfig();
       await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'success',
-        message: `Successfully toggled to ${isTestMode ? 'Live' : 'Test'} Mode`,
+        message: `Successfully toggled to ${
+          isTestMode ? 'Official' : 'Test'
+        } Ballot Mode`,
       });
       history.replace('/');
     } catch (error) {
       assert(error instanceof Error);
       await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'failure',
-        message: `Error toggling to ${isTestMode ? 'Live' : 'Test'} Mode: ${
-          error.message
-        }`,
+        message: `Error toggling to ${
+          isTestMode ? 'Official' : 'Test'
+        } Ballot Mode: ${error.message}`,
         result: 'Mode not changed, user shown error.',
       });
     } finally {

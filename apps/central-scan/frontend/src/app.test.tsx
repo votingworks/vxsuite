@@ -128,7 +128,7 @@ test('renders without crashing', async () => {
   await waitFor(() => fetchMock.called());
 });
 
-test('shows a "Test mode" button if the app is in Live Mode', async () => {
+test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -152,10 +152,10 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 
   fireEvent.click(result.getByText('Admin'));
 
-  result.getByText('Toggle to Test Mode');
+  result.getByText('Toggle to Test Ballot Mode');
 });
 
-test('shows a "Live mode" button if the app is in Test Mode', async () => {
+test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -183,7 +183,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 
   fireEvent.click(result.getByText('Admin'));
 
-  result.getByText('Toggle to Live Mode');
+  result.getByText('Toggle to Official Ballot Mode');
 });
 
 test('clicking Scan Batch will scan a batch', async () => {

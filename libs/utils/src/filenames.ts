@@ -134,6 +134,9 @@ export function generateCastVoteRecordReportDirectoryName(
 }
 
 /* Extract information about a CVR file from the filename */
+// Expected filename format with human-readable separators is:
+// [TEST__]machine_{machineId}__{numberOfBallots}_ballots__YYYY-MM-DD_HH-mm-ss.jsonl
+// This format is current as of 2023-02-22 and may be out of date if separator constants have changed
 export function parseCvrFileInfoFromFilename(
   filename: string
 ): CvrFileData | undefined {

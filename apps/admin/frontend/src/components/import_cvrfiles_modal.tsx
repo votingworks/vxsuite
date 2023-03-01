@@ -355,7 +355,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           {!fileModeLocked && (
             <td>
               <LabelText>
-                {isTestModeResults ? <TestMode>Test</TestMode> : 'Live'}
+                {isTestModeResults ? <TestMode>Test</TestMode> : 'Official'}
               </LabelText>
             </td>
           )}
@@ -381,9 +381,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // Set the header and instructional text for the modal
     const headerModeText =
       fileMode === 'test' ? (
-        <TestMode>Test Mode</TestMode>
+        <TestMode>Test Ballot Mode</TestMode>
       ) : fileMode === 'live' ? (
-        'Live Mode'
+        'Official Ballot Mode'
       ) : (
         ''
       );

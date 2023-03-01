@@ -313,7 +313,7 @@ export function BallotEjectScreen({
                 <span style={{ fontSize: '2em' }}>
                   {isInvalidTestModeSheet
                     ? isTestMode
-                      ? 'Live Ballot'
+                      ? 'Official Ballot'
                       : 'Test Ballot'
                     : isInvalidElectionHashSheet
                     ? 'Wrong Election'
@@ -369,7 +369,7 @@ export function BallotEjectScreen({
                 </React.Fragment>
               ) : isInvalidTestModeSheet ? (
                 isTestMode ? (
-                  <p>Remove the LIVE ballot before continuing.</p>
+                  <p>Remove the OFFICIAL ballot before continuing.</p>
                 ) : (
                   <p>Remove the TEST ballot before continuing.</p>
                 )

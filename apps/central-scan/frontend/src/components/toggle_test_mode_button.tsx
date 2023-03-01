@@ -44,8 +44,8 @@ export function ToggleTestModeButton({
         {isTogglingTestMode
           ? 'Toggling…'
           : isTestMode
-          ? 'Toggle to Live Mode'
-          : 'Toggle to Test Mode'}
+          ? 'Toggle to Official Ballot Mode'
+          : 'Toggle to Test Ballot Mode'}
       </Button>
       {isConfirming && (
         <Modal
@@ -55,16 +55,18 @@ export function ToggleTestModeButton({
               <h1>
                 {isTogglingTestMode
                   ? isTestMode
-                    ? 'Toggling to Live Mode'
-                    : 'Toggling to Test Mode'
+                    ? 'Toggling to Official Ballot Mode'
+                    : 'Toggling to Test Ballot Mode'
                   : isTestMode
-                  ? 'Toggle to Live Mode'
-                  : 'Toggle to Test Mode'}
+                  ? 'Toggle to Official Ballot Mode'
+                  : 'Toggle to Test Ballot Mode'}
               </h1>
               <p>
                 {isTogglingTestMode
                   ? 'Zeroing out scanned ballots and reloading…'
-                  : 'Toggling test mode will zero out your scanned ballots. Are you sure?'}
+                  : `Toggling to ${
+                      isTestMode ? 'Official' : 'Test'
+                    } Ballot Mode will zero out your scanned ballots. Are you sure?`}
               </p>
             </Prose>
           }
@@ -77,7 +79,9 @@ export function ToggleTestModeButton({
                   primary
                   onPress={toggleTestMode}
                 >
-                  {isTestMode ? 'Toggle to Live Mode' : 'Toggle to Test Mode'}
+                  {isTestMode
+                    ? 'Toggle to Official Ballot Mode'
+                    : 'Toggle to Test Ballot Mode'}
                 </Button>
                 <Button onPress={toggleIsConfirming}>Cancel</Button>
               </React.Fragment>

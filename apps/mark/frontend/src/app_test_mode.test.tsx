@@ -46,15 +46,15 @@ it('Prompts to change from test mode to live mode on election day', async () => 
     />
   );
 
-  await screen.findByText('Machine is in Testing Mode');
+  await screen.findByText('Machine is in Test Ballot Mode');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText(
-    'Switch to Live Election Mode and reset the Ballots Printed count?'
+    'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
   userEvent.click(
-    screen.getByRole('button', { name: 'Switch to Live Election Mode' })
+    screen.getByRole('button', { name: 'Switch to Official Ballot Mode' })
   );
   await waitFor(() =>
-    expect(screen.queryByText('Machine is in Testing Mode')).toBeNull()
+    expect(screen.queryByText('Machine is in Test Ballot Mode')).toBeNull()
   );
 });

@@ -200,9 +200,9 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: true };
   apiMock.expectGetConfig(config);
-  userEvent.click(await screen.findByText('Live Election Mode'));
+  userEvent.click(await screen.findByText('Official Ballot Mode'));
   await waitFor(() =>
-    expect(screen.getByText('Live Election Mode')).toBeDisabled()
+    expect(screen.getByText('Official Ballot Mode')).toBeDisabled()
   );
 
   // Change precinct as Election Manager

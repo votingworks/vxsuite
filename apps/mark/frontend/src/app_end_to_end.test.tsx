@@ -141,9 +141,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
-  userEvent.click(screen.getByText('Live Election Mode'));
+  userEvent.click(screen.getByText('Official Ballot Mode'));
   expect(
-    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
+    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
   ).toBeTruthy();
 
   // Remove card
