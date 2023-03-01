@@ -30,7 +30,7 @@ import {
 import {
   certDerToPem,
   certPemToDer,
-  createCertBySigningPublicKey,
+  createCert,
   extractPublicKeyFromCert,
   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
   publicKeyDerToPem,
@@ -66,7 +66,7 @@ const DEFAULT_PIN = '000000';
 
 /**
  * The PIN unblocking key or PUK. Typically a sensitive value but not for us given our modification
- * to OpenFIPS201 to invalidate the card on PIN reset.
+ * to OpenFIPS201 to clear all PIN-gated keys on PIN reset, which invalidates the card.
  */
 const PUK = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
@@ -245,7 +245,7 @@ export class JavaCard implements Card {
       CARD_VX_ADMIN_CERT.PRIVATE_KEY_SLOT,
       pin
     );
-    const cardVxAdminCert = await createCertBySigningPublicKey({
+    const cardVxAdminCert = await createCert({
       certSubject: constructCardCertSubject(input.user, this.jurisdiction),
       opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,

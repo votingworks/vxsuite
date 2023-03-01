@@ -184,7 +184,7 @@ export async function verifySignature({
  * Creates a cert by signing a public key with a signing cert authority cert and private key. All
  * key and cert inputs should be in PEM format. The outputted cert will also be in PEM format.
  */
-export async function createCertBySigningPublicKey({
+export async function createCert({
   certSubject,
   opensslConfig,
   publicKeyToSign,
