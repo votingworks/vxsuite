@@ -1,9 +1,10 @@
-import { fireEvent, render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
 
 test('shows a button to toggle to live mode when in test mode', () => {
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure={false}
       isTestMode
@@ -12,11 +13,11 @@ test('shows a button to toggle to live mode when in test mode', () => {
     />
   );
 
-  getByText('Toggle to Official Ballot Mode');
+  screen.getByText('Toggle to Official Ballot Mode');
 });
 
 test('shows a button to toggle to test mode when in live mode', () => {
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode={false}
@@ -25,11 +26,11 @@ test('shows a button to toggle to test mode when in live mode', () => {
     />
   );
 
-  getByText('Toggle to Test Ballot Mode');
+  screen.getByText('Toggle to Test Ballot Mode');
 });
 
 test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure={false}
       isTestMode={false}
@@ -39,12 +40,12 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
   );
 
   expect(
-    (getByText('Toggle to Test Ballot Mode') as HTMLButtonElement).disabled
+    screen.getByText('Toggle to Test Ballot Mode').hasAttribute('disabled')
   ).toEqual(true);
 });
 
 test('shows a disabled button with "Toggling" when toggling', () => {
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -53,12 +54,12 @@ test('shows a disabled button with "Toggling" when toggling', () => {
     />
   );
 
-  expect((getByText('Toggling…') as HTMLButtonElement).disabled).toEqual(true);
+  expect(screen.getByText('Toggling…').hasAttribute('disabled')).toEqual(true);
 });
 
 test('calls the callback on confirmation', () => {
   const toggleTestMode = jest.fn();
-  const { getByText, getAllByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -68,20 +69,22 @@ test('calls the callback on confirmation', () => {
   );
 
   // Click the button.
-  fireEvent.click(getByText('Toggle to Official Ballot Mode'));
+  userEvent.click(screen.getByText('Toggle to Official Ballot Mode'));
 
   // Then click the confirmation button inside the modal.
-  const [confirmButton] = getAllByText('Toggle to Official Ballot Mode').filter(
-    (element) => element instanceof HTMLButtonElement && !element.disabled
-  );
+  const [confirmButton] = screen
+    .getAllByText('Toggle to Official Ballot Mode')
+    .filter(
+      (element) => element instanceof HTMLButtonElement && !element.disabled
+    );
   expect(toggleTestMode).not.toHaveBeenCalled();
-  fireEvent.click(confirmButton);
+  userEvent.click(confirmButton);
   expect(toggleTestMode).toHaveBeenCalled();
 });
 
 test('toggle modal shows "official ballot mode" when toggling away from test ballot mode', () => {
   const toggleTestMode = jest.fn();
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -91,16 +94,16 @@ test('toggle modal shows "official ballot mode" when toggling away from test bal
   );
 
   // Click the button.
-  fireEvent.click(getByText('Toggle to Official Ballot Mode'));
+  userEvent.click(screen.getByText('Toggle to Official Ballot Mode'));
 
-  getByText(
+  screen.getByText(
     'Toggling to Official Ballot Mode will zero out your scanned ballots. Are you sure?'
   );
 });
 
 test('toggle modal shows "test ballot mode" when toggling away from official ballot mode', () => {
   const toggleTestMode = jest.fn();
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode={false}
@@ -110,16 +113,16 @@ test('toggle modal shows "test ballot mode" when toggling away from official bal
   );
 
   // Click the button.
-  fireEvent.click(getByText('Toggle to Test Ballot Mode'));
+  userEvent.click(screen.getByText('Toggle to Test Ballot Mode'));
 
-  getByText(
+  screen.getByText(
     'Toggling to Test Ballot Mode will zero out your scanned ballots. Are you sure?'
   );
 });
 
 test('shows a modal when toggling to official ballot mode is in progress', () => {
   const toggleTestMode = jest.fn();
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -128,13 +131,13 @@ test('shows a modal when toggling to official ballot mode is in progress', () =>
     />
   );
 
-  getByText('Toggling to Official Ballot Mode');
-  getByText('Zeroing out scanned ballots and reloading…');
+  screen.getByText('Toggling to Official Ballot Mode');
+  screen.getByText('Zeroing out scanned ballots and reloading…');
 });
 
 test('shows a modal when toggling to test ballot mode is in progress', () => {
   const toggleTestMode = jest.fn();
-  const { getByText } = render(
+  render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode={false}
@@ -143,6 +146,6 @@ test('shows a modal when toggling to test ballot mode is in progress', () => {
     />
   );
 
-  getByText('Toggling to Test Ballot Mode');
-  getByText('Zeroing out scanned ballots and reloading…');
+  screen.getByText('Toggling to Test Ballot Mode');
+  screen.getByText('Zeroing out scanned ballots and reloading…');
 });
