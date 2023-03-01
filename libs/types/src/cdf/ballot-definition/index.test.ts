@@ -35,7 +35,7 @@ test('generated types are in sync with schema', () => {
   expect(generatedTypes).toEqual(expectedTypes);
 });
 
-test('VX schema is a valid JSON schema', () => {
+test('VX and NIST schemas are valid JSON schemas', () => {
   validateSchema(nistSchema);
   validateSchema(vxSchema);
   expect(findUnusedDefinitions(nistSchema)).toEqual([]);

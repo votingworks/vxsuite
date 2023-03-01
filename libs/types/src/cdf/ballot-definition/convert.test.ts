@@ -75,8 +75,14 @@ function normalizeVxf(vxfElection: Election) {
       contest.type === 'yesno'
         ? {
             ...contest,
-            yesOption: contest.yesOption || { label: 'Yes', id: 'option-yes' },
-            noOption: contest.noOption || { label: 'No', id: 'option-no' },
+            yesOption: contest.yesOption || {
+              label: 'Yes',
+              id: `${contest.id}-option-yes`,
+            },
+            noOption: contest.noOption || {
+              label: 'No',
+              id: `${contest.id}-option-no`,
+            },
           }
         : contest
     ),

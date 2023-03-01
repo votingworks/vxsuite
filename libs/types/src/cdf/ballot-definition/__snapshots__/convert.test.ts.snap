@@ -54,7 +54,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
           },
           "ContestOption": [
             {
-              "@id": "option-C",
+              "@id": "CC-option-C",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "C",
@@ -82,7 +82,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
           },
           "ContestOption": [
             {
-              "@id": "option-yes",
+              "@id": "YNC-option-yes",
               "@type": "BallotDefinition.BallotMeasureOption",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
@@ -96,7 +96,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
               },
             },
             {
-              "@id": "option-no",
+              "@id": "YNC-option-no",
               "@type": "BallotDefinition.BallotMeasureOption",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
@@ -499,7 +499,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           },
           "ContestOption": [
             {
-              "@id": "option-horse",
+              "@id": "best-animal-mammal-option-horse",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "horse",
@@ -509,7 +509,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-otter",
+              "@id": "best-animal-mammal-option-otter",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "otter",
@@ -519,7 +519,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-fox",
+              "@id": "best-animal-mammal-option-fox",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "fox",
@@ -551,7 +551,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           },
           "ContestOption": [
             {
-              "@id": "option-seahorse",
+              "@id": "best-animal-fish-option-seahorse",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "seahorse",
@@ -561,7 +561,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-salmon",
+              "@id": "best-animal-fish-option-salmon",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "salmon",
@@ -593,7 +593,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           },
           "ContestOption": [
             {
-              "@id": "option-zebra",
+              "@id": "zoo-council-mammal-option-zebra",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "zebra",
@@ -603,7 +603,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-lion",
+              "@id": "zoo-council-mammal-option-lion",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "lion",
@@ -613,7 +613,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-kangaroo",
+              "@id": "zoo-council-mammal-option-kangaroo",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "kangaroo",
@@ -623,7 +623,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-elephant",
+              "@id": "zoo-council-mammal-option-elephant",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "elephant",
@@ -633,17 +633,17 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-write-in-1",
+              "@id": "zoo-council-mammal-option-write-in-1",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-2",
+              "@id": "zoo-council-mammal-option-write-in-2",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-3",
+              "@id": "zoo-council-mammal-option-write-in-3",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
@@ -670,7 +670,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           },
           "ContestOption": [
             {
-              "@id": "option-manta-ray",
+              "@id": "aquarium-council-fish-option-manta-ray",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "manta-ray",
@@ -680,7 +680,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-pufferfish",
+              "@id": "aquarium-council-fish-option-pufferfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "pufferfish",
@@ -690,7 +690,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-rockfish",
+              "@id": "aquarium-council-fish-option-rockfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "rockfish",
@@ -700,7 +700,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-triggerfish",
+              "@id": "aquarium-council-fish-option-triggerfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "triggerfish",
@@ -710,12 +710,12 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
               ],
             },
             {
-              "@id": "option-write-in-1",
+              "@id": "aquarium-council-fish-option-write-in-1",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-2",
+              "@id": "aquarium-council-fish-option-write-in-2",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
@@ -1209,7 +1209,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
           },
           "ContestOption": [
             {
-              "@id": "option-horse",
+              "@id": "best-animal-mammal-option-horse",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "horse",
@@ -1219,7 +1219,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-otter",
+              "@id": "best-animal-mammal-option-otter",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "otter",
@@ -1229,7 +1229,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-fox",
+              "@id": "best-animal-mammal-option-fox",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "fox",
@@ -1261,7 +1261,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
           },
           "ContestOption": [
             {
-              "@id": "option-seahorse",
+              "@id": "best-animal-fish-option-seahorse",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "seahorse",
@@ -1271,7 +1271,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-salmon",
+              "@id": "best-animal-fish-option-salmon",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "salmon",
@@ -1303,7 +1303,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
           },
           "ContestOption": [
             {
-              "@id": "option-zebra",
+              "@id": "zoo-council-mammal-option-zebra",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "zebra",
@@ -1313,7 +1313,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-lion",
+              "@id": "zoo-council-mammal-option-lion",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "lion",
@@ -1323,7 +1323,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-kangaroo",
+              "@id": "zoo-council-mammal-option-kangaroo",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "kangaroo",
@@ -1333,7 +1333,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-elephant",
+              "@id": "zoo-council-mammal-option-elephant",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "elephant",
@@ -1343,17 +1343,17 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-write-in-1",
+              "@id": "zoo-council-mammal-option-write-in-1",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-2",
+              "@id": "zoo-council-mammal-option-write-in-2",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-3",
+              "@id": "zoo-council-mammal-option-write-in-3",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
@@ -1380,7 +1380,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
           },
           "ContestOption": [
             {
-              "@id": "option-manta-ray",
+              "@id": "aquarium-council-fish-option-manta-ray",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "manta-ray",
@@ -1390,7 +1390,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-pufferfish",
+              "@id": "aquarium-council-fish-option-pufferfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "pufferfish",
@@ -1400,7 +1400,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-rockfish",
+              "@id": "aquarium-council-fish-option-rockfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "rockfish",
@@ -1410,7 +1410,7 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-triggerfish",
+              "@id": "aquarium-council-fish-option-triggerfish",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "triggerfish",
@@ -1420,12 +1420,12 @@ exports[`round trip conversion for election fixture: Example Primary Election 1`
               ],
             },
             {
-              "@id": "option-write-in-1",
+              "@id": "aquarium-council-fish-option-write-in-1",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
             {
-              "@id": "option-write-in-2",
+              "@id": "aquarium-council-fish-option-write-in-2",
               "@type": "BallotDefinition.CandidateOption",
               "IsWriteIn": true,
             },
@@ -1819,7 +1819,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           },
           "ContestOption": [
             {
-              "@id": "option-C",
+              "@id": "CCD-option-C",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "C",
@@ -1849,7 +1849,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           },
           "ContestOption": [
             {
-              "@id": "option-C",
+              "@id": "CCR-option-C",
               "@type": "BallotDefinition.CandidateOption",
               "CandidateIds": [
                 "C",
@@ -1879,7 +1879,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           },
           "ContestOption": [
             {
-              "@id": "option-yes",
+              "@id": "YNC-option-yes",
               "@type": "BallotDefinition.BallotMeasureOption",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
@@ -1893,7 +1893,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
               },
             },
             {
-              "@id": "option-no",
+              "@id": "YNC-option-no",
               "@type": "BallotDefinition.BallotMeasureOption",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",

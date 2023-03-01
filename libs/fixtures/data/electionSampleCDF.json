@@ -692,20 +692,6 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
-          "@id": "rangel",
-          "BallotName": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Davitra Rangel"
-              }
-            ]
-          }
-        },
-        {
-          "@type": "BallotDefinition.Candidate",
           "@id": "argent",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
@@ -986,20 +972,6 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
-          "@id": "davis",
-          "BallotName": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Donald Davis"
-              }
-            ]
-          }
-        },
-        {
-          "@type": "BallotDefinition.Candidate",
           "@id": "smith",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
@@ -1033,37 +1005,37 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-barchi-hallaren",
+              "@id": "president-option-barchi-hallaren",
               "CandidateIds": ["barchi-hallaren"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-cramer-vuocolo",
+              "@id": "president-option-cramer-vuocolo",
               "CandidateIds": ["cramer-vuocolo"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-court-blumhardt",
+              "@id": "president-option-court-blumhardt",
               "CandidateIds": ["court-blumhardt"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-boone-lian",
+              "@id": "president-option-boone-lian",
               "CandidateIds": ["boone-lian"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-hildebrand-garritty",
+              "@id": "president-option-hildebrand-garritty",
               "CandidateIds": ["hildebrand-garritty"],
               "EndorsementPartyIds": ["4"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-patterson-lariviere",
+              "@id": "president-option-patterson-lariviere",
               "CandidateIds": ["patterson-lariviere"],
               "EndorsementPartyIds": ["5"]
             }
@@ -1088,43 +1060,43 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-weiford",
+              "@id": "senator-option-weiford",
               "CandidateIds": ["weiford"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-garriss",
+              "@id": "senator-option-garriss",
               "CandidateIds": ["garriss"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-wentworthfarthington",
+              "@id": "senator-option-wentworthfarthington",
               "CandidateIds": ["wentworthfarthington"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-hewetson",
+              "@id": "senator-option-hewetson",
               "CandidateIds": ["hewetson"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-martinez",
+              "@id": "senator-option-martinez",
               "CandidateIds": ["martinez"],
               "EndorsementPartyIds": ["4"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-brown",
+              "@id": "senator-option-brown",
               "CandidateIds": ["brown"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-pound",
+              "@id": "senator-option-pound",
               "CandidateIds": ["pound"],
               "EndorsementPartyIds": ["6"]
             }
@@ -1149,31 +1121,31 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-plunkard",
+              "@id": "representative-district-6-option-plunkard",
               "CandidateIds": ["plunkard"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-reeder",
+              "@id": "representative-district-6-option-reeder",
               "CandidateIds": ["reeder"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-schott",
+              "@id": "representative-district-6-option-schott",
               "CandidateIds": ["schott"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-tawney",
+              "@id": "representative-district-6-option-tawney",
               "CandidateIds": ["tawney"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-forrest",
+              "@id": "representative-district-6-option-forrest",
               "CandidateIds": ["forrest"],
               "EndorsementPartyIds": ["4"]
             }
@@ -1198,97 +1170,97 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-franz",
+              "@id": "governor-option-franz",
               "CandidateIds": ["franz"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-harris",
+              "@id": "governor-option-harris",
               "CandidateIds": ["harris"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-bargmann",
+              "@id": "governor-option-bargmann",
               "CandidateIds": ["bargmann"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-abcock",
+              "@id": "governor-option-abcock",
               "CandidateIds": ["abcock"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-steelloy",
+              "@id": "governor-option-steelloy",
               "CandidateIds": ["steelloy"],
               "EndorsementPartyIds": ["4"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-sharp",
+              "@id": "governor-option-sharp",
               "CandidateIds": ["sharp"],
               "EndorsementPartyIds": ["5"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-wallace",
+              "@id": "governor-option-wallace",
               "CandidateIds": ["wallace"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-williams",
+              "@id": "governor-option-williams",
               "CandidateIds": ["williams"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-sharp-althea",
+              "@id": "governor-option-sharp-althea",
               "CandidateIds": ["sharp-althea"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-alpern",
+              "@id": "governor-option-alpern",
               "CandidateIds": ["alpern"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-windbeck",
+              "@id": "governor-option-windbeck",
               "CandidateIds": ["windbeck"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-greher",
+              "@id": "governor-option-greher",
               "CandidateIds": ["greher"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-alexander",
+              "@id": "governor-option-alexander",
               "CandidateIds": ["alexander"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-mitchell",
+              "@id": "governor-option-mitchell",
               "CandidateIds": ["mitchell"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-lee",
+              "@id": "governor-option-lee",
               "CandidateIds": ["lee"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-ash",
+              "@id": "governor-option-ash",
               "CandidateIds": ["ash"],
               "EndorsementPartyIds": ["6"]
             }
@@ -1313,55 +1285,55 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-norberg",
+              "@id": "lieutenant-governor-option-norberg",
               "CandidateIds": ["norberg"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-parks",
+              "@id": "lieutenant-governor-option-parks",
               "CandidateIds": ["parks"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-garcia",
+              "@id": "lieutenant-governor-option-garcia",
               "CandidateIds": ["garcia"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-qualey",
+              "@id": "lieutenant-governor-option-qualey",
               "CandidateIds": ["qualey"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-hovis",
+              "@id": "lieutenant-governor-option-hovis",
               "CandidateIds": ["hovis"],
               "EndorsementPartyIds": ["4"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-zirkle",
+              "@id": "lieutenant-governor-option-zirkle",
               "CandidateIds": ["zirkle"],
               "EndorsementPartyIds": ["5"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-davis",
+              "@id": "lieutenant-governor-option-davis",
               "CandidateIds": ["davis"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-freeman",
+              "@id": "lieutenant-governor-option-freeman",
               "CandidateIds": ["freeman"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-swan",
+              "@id": "lieutenant-governor-option-swan",
               "CandidateIds": ["swan"],
               "EndorsementPartyIds": ["6"]
             }
@@ -1386,13 +1358,13 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-shamsi",
+              "@id": "secretary-of-state-option-shamsi",
               "CandidateIds": ["shamsi"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-talarico",
+              "@id": "secretary-of-state-option-talarico",
               "CandidateIds": ["talarico"],
               "EndorsementPartyIds": ["1"]
             }
@@ -1417,7 +1389,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-shiplett",
+              "@id": "state-senator-district-31-option-shiplett",
               "CandidateIds": ["shiplett"],
               "EndorsementPartyIds": ["3"]
             }
@@ -1442,19 +1414,19 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-solis",
+              "@id": "state-assembly-district-54-option-solis",
               "CandidateIds": ["solis"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-keller",
+              "@id": "state-assembly-district-54-option-keller",
               "CandidateIds": ["keller"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-rangel",
+              "@id": "state-assembly-district-54-option-rangel",
               "CandidateIds": ["rangel"],
               "EndorsementPartyIds": ["2"]
             }
@@ -1479,88 +1451,88 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-argent",
+              "@id": "county-commissioners-option-argent",
               "CandidateIds": ["argent"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-witherspoonsmithson",
+              "@id": "county-commissioners-option-witherspoonsmithson",
               "CandidateIds": ["witherspoonsmithson"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-bainbridge",
+              "@id": "county-commissioners-option-bainbridge",
               "CandidateIds": ["bainbridge"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-hennessey",
+              "@id": "county-commissioners-option-hennessey",
               "CandidateIds": ["hennessey"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-savoy",
+              "@id": "county-commissioners-option-savoy",
               "CandidateIds": ["savoy"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-tawa",
+              "@id": "county-commissioners-option-tawa",
               "CandidateIds": ["tawa"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-tawa-mary",
+              "@id": "county-commissioners-option-tawa-mary",
               "CandidateIds": ["tawa-mary"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-rangel",
+              "@id": "county-commissioners-option-rangel",
               "CandidateIds": ["rangel"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-altman",
+              "@id": "county-commissioners-option-altman",
               "CandidateIds": ["altman"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-moore",
+              "@id": "county-commissioners-option-moore",
               "CandidateIds": ["moore"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-schreiner",
+              "@id": "county-commissioners-option-schreiner",
               "CandidateIds": ["schreiner"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-1",
+              "@id": "county-commissioners-option-write-in-1",
               "IsWriteIn": true
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-2",
+              "@id": "county-commissioners-option-write-in-2",
               "IsWriteIn": true
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-3",
+              "@id": "county-commissioners-option-write-in-3",
               "IsWriteIn": true
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-4",
+              "@id": "county-commissioners-option-write-in-4",
               "IsWriteIn": true
             }
           ]
@@ -1584,13 +1556,13 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-ramachandrani",
+              "@id": "county-registrar-of-wills-option-ramachandrani",
               "CandidateIds": ["ramachandrani"],
               "EndorsementPartyIds": ["6"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-1",
+              "@id": "county-registrar-of-wills-option-write-in-1",
               "IsWriteIn": true
             }
           ]
@@ -1598,7 +1570,7 @@
         {
           "@type": "BallotDefinition.CandidateContest",
           "@id": "primary-constitution-head-of-party",
-          "ElectionDistrictId": "7",
+          "ElectionDistrictId": "district-7",
           "Name": "Head of Constitution Party",
           "BallotTitle": {
             "@type": "BallotDefinition.InternationalizedText",
@@ -1614,13 +1586,13 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-alice",
+              "@id": "primary-constitution-head-of-party-option-alice",
               "CandidateIds": ["alice"],
               "EndorsementPartyIds": ["3"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-bob",
+              "@id": "primary-constitution-head-of-party-option-bob",
               "CandidateIds": ["bob"]
             }
           ],
@@ -1645,19 +1617,19 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-white",
+              "@id": "city-mayor-option-white",
               "CandidateIds": ["white"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-seldon",
+              "@id": "city-mayor-option-seldon",
               "CandidateIds": ["seldon"],
               "EndorsementPartyIds": ["2"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-1",
+              "@id": "city-mayor-option-write-in-1",
               "IsWriteIn": true
             }
           ]
@@ -1681,53 +1653,53 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-eagle",
+              "@id": "city-council-option-eagle",
               "CandidateIds": ["eagle"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-rupp",
+              "@id": "city-council-option-rupp",
               "CandidateIds": ["rupp"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-shry",
+              "@id": "city-council-option-shry",
               "CandidateIds": ["shry"],
               "EndorsementPartyIds": ["0"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-barker",
+              "@id": "city-council-option-barker",
               "CandidateIds": ["barker"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-davis",
+              "@id": "city-council-option-davis",
               "CandidateIds": ["davis"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-smith",
+              "@id": "city-council-option-smith",
               "CandidateIds": ["smith"],
               "EndorsementPartyIds": ["1"]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-1",
+              "@id": "city-council-option-write-in-1",
               "IsWriteIn": true
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-2",
+              "@id": "city-council-option-write-in-2",
               "IsWriteIn": true
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-3",
+              "@id": "city-council-option-write-in-3",
               "IsWriteIn": true
             }
           ]
@@ -1760,7 +1732,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "judicial-robert-demergue-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1774,7 +1746,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "judicial-robert-demergue-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1816,7 +1788,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "judicial-elmer-hull-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1830,7 +1802,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "judicial-elmer-hull-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1872,7 +1844,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "question-a-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1886,7 +1858,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "question-a-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1928,7 +1900,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "question-b-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1942,7 +1914,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "question-b-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1984,7 +1956,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "question-c-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -1998,7 +1970,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "question-c-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2040,7 +2012,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "proposition-1-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2054,7 +2026,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "proposition-1-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2096,7 +2068,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "measure-101-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2110,7 +2082,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "measure-101-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2152,7 +2124,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-yes",
+              "@id": "102-option-yes",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2166,7 +2138,7 @@
             },
             {
               "@type": "BallotDefinition.BallotMeasureOption",
-              "@id": "option-no",
+              "@id": "102-option-no",
               "Selection": {
                 "@type": "BallotDefinition.InternationalizedText",
                 "Text": [
@@ -2199,7 +2171,7 @@
           "ContestOption": [
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "option-write-in-1",
+              "@id": "measure-666-option-write-in-1",
               "IsWriteIn": true
             }
           ],
@@ -2583,7 +2555,12 @@
         ]
       },
       "Type": "county",
-      "ComposingGpUnitIds": ["district-1", "district-2", "district-3", "7"]
+      "ComposingGpUnitIds": [
+        "district-1",
+        "district-2",
+        "district-3",
+        "district-7"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2635,7 +2612,7 @@
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
-      "@id": "7",
+      "@id": "district-7",
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -2695,7 +2672,7 @@
       "Type": "precinct"
     }
   ],
-  "GeneratedDate": "2023-02-23T22:37:05Z",
+  "GeneratedDate": "2023-03-01T23:03:13Z",
   "Issuer": "VotingWorks",
   "IssuerAbbreviation": "VX",
   "VendorApplicationId": "VxSuite",

@@ -92,7 +92,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ...contest.candidates.map(
                     (candidate): Cdf.CandidateOption => ({
                       '@type': 'BallotDefinition.CandidateOption',
-                      '@id': `option-${candidate.id}`,
+                      '@id': `${contest.id}-option-${candidate.id}`,
                       CandidateIds: [candidate.id],
                       EndorsementPartyIds: candidate.partyIds,
                     })
@@ -102,7 +102,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                     ? take(contest.seats, naturals()).map(
                         (writeInIndex): Cdf.CandidateOption => ({
                           '@type': 'BallotDefinition.CandidateOption',
-                          '@id': `option-write-in-${writeInIndex}`,
+                          '@id': `${contest.id}-option-write-in-${writeInIndex}`,
                           IsWriteIn: true,
                         })
                       )
@@ -124,12 +124,12 @@ export function convertVxfElectionToCdfBallotDefinition(
                 ContestOption: [
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.yesOption?.id ?? 'option-yes',
+                    '@id': contest.yesOption?.id ?? `${contest.id}-option-yes`,
                     Selection: text(contest.yesOption?.label ?? 'Yes'),
                   },
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.noOption?.id ?? 'option-no',
+                    '@id': contest.noOption?.id ?? `${contest.id}-option-no`,
                     Selection: text(contest.noOption?.label ?? 'No'),
                   },
                 ],
