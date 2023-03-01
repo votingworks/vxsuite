@@ -272,18 +272,8 @@
           "enum": ["BallotDefinition.BallotMeasureOption"],
           "type": "string"
         },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Selection": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "SequenceOrder": {
-          "type": "integer"
         }
       },
       "type": "object"
