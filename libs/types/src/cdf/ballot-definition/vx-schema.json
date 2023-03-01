@@ -94,20 +94,6 @@
         "IssuerAbbreviation": {
           "type": "string"
         },
-        "Office": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.Office"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "OfficeGroup": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.OfficeGroup"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Party": {
           "items": {
             "oneOf": [
@@ -787,94 +773,6 @@
       "enum": ["in", "mm", "pc", "pt"],
       "type": "string"
     },
-    "BallotDefinition.Office": {
-      "required": ["@id", "@type", "Name"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.Office"],
-          "type": "string"
-        },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "Description": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ElectionDistrictId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.ReportingUnit"]
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "FilingDeadline": {
-          "type": "string",
-          "format": "date"
-        },
-        "IsPartisan": {
-          "type": "boolean"
-        },
-        "Name": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "OfficeHolderPersonIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Person"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Term": {
-          "$ref": "#/definitions/BallotDefinition.Term"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.OfficeGroup": {
-      "required": ["@type", "Name"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.OfficeGroup"],
-          "type": "string"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OfficeIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Office"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "SubOfficeGroup": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.OfficeGroup"
-          },
-          "minItems": 0,
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.OfficeTermType": {
-      "enum": ["full-term", "unexpired-term"],
-      "type": "string"
-    },
     "BallotDefinition.OptionPosition": {
       "required": ["@type", "H", "NumberVotes", "Side", "W", "X", "Y"],
       "additionalProperties": false,
@@ -1271,31 +1169,6 @@
     "BallotDefinition.ShortString": {
       "maxLength": 32,
       "type": "string"
-    },
-    "BallotDefinition.Term": {
-      "required": ["@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.Term"],
-          "type": "string"
-        },
-        "EndDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "Label": {
-          "type": "string"
-        },
-        "StartDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "Type": {
-          "$ref": "#/definitions/BallotDefinition.OfficeTermType"
-        }
-      },
-      "type": "object"
     },
     "BallotDefinition.TimeWithZone": {
       "pattern": "(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
