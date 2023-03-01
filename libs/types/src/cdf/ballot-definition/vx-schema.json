@@ -444,19 +444,6 @@
           },
           "minItems": 0,
           "type": "array"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "IsWriteIn": {
-          "type": "boolean"
-        },
-        "SequenceOrder": {
-          "type": "integer"
         }
       },
       "type": "object"
