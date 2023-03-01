@@ -408,6 +408,14 @@ async function accept({ client }: Context) {
   return acceptResult.unsafeUnwrap();
 }
 
+async function stopAccept({ client }: Context) {
+  assert(client);
+  debug('Stopping Accept');
+  const stopResult = await client.move(FormMovement.LOAD_PAPER);
+  debug('Stop Accept result: %o', stopResult);
+  return stopResult.unsafeUnwrap();
+}
+
 async function reject({ client }: Context) {
   assert(client);
   debug('Rejecting');
@@ -527,11 +535,15 @@ function buildMachine({
           // If there's a paper in front, that means the ballot in back did get
           // dropped but somebody quickly inserted a new ballot in front, so we
           // should count the first ballot as accepted.
-          SCANNER_READY_TO_SCAN: '#accepted',
+          SCANNER_READY_TO_SCAN: 'stop_accept',
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
           SCANNER_READY_TO_EJECT: doNothing,
+          // Sometimes the accept command will complete successfully even though
+          // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
+          // a bit to see if it gets dropped.
+          SCANNER_BOTH_SIDES_HAVE_PAPER: 'stop_accept',
         },
         // If the paper eventually didn't get dropped, reject it.
         after: {
@@ -541,6 +553,16 @@ function buildMachine({
               error: new PrecinctScannerError('paper_in_back_after_accept'),
             }),
           },
+        },
+      },
+      // This occurs when paper is seen while the ballot is being accepted.
+      stop_accept: {
+        invoke: {
+          // Stop the accept action by triggering the load paper command.
+          src: stopAccept,
+          // The first ballot will get deposited as the second ballot is loaded slightly from the load paper command.
+          // Mark the first ballot as accepted and then the state of where the second ballot is will be appropriately handled.
+          onDone: '#accepted',
         },
       },
     },
@@ -565,7 +587,7 @@ function buildMachine({
             // wait for the scanner to tell us that the ballot has been ejected
             // before we can move on.
             onDone: 'checking_completed',
-            onError: '#jammed',
+            onError: '#jam',
           },
         },
         checking_completed: {
@@ -588,7 +610,7 @@ function buildMachine({
             // state.
             SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
           },
-          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#jammed' },
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#jam' },
         },
       },
     };
@@ -602,8 +624,8 @@ function buildMachine({
       context: { workspace },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
-        SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper',
-        SCANNER_JAM: 'jammed',
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper_while_scanning',
+        SCANNER_JAM: 'internal_jam',
         SCANNER_JAM_CLEARED: 'jam_cleared',
         // On unhandled commands, do nothing. This guards against any race
         // conditions where the frontend has an outdated scanner status and tries to
@@ -666,6 +688,14 @@ function buildMachine({
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM_CLEARED: 'jam_cleared',
+            SCANNER_BOTH_SIDES_HAVE_PAPER: {
+              target: 'rejecting',
+              actions: assign({
+                error: new PrecinctScannerError(
+                  'paper_in_both_sides_after_reconnect'
+                ),
+              }),
+            },
             SCANNER_READY_TO_SCAN: {
               target: 'rejected',
               actions: assign({
@@ -684,6 +714,22 @@ function buildMachine({
             },
           },
         },
+        checking_paper_status_after_scan: {
+          entry: [clearLastScan, clearError],
+          id: 'checking_paper_status_after_scan',
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_BOTH_SIDES_HAVE_PAPER: {
+              target: 'returning_to_rescan',
+            },
+            SCANNER_READY_TO_EJECT: {
+              target: 'returning_to_rescan',
+            },
+            // We can automatically start scanning the next ballot
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+          },
+        },
         no_paper: {
           id: 'no_paper',
           entry: [clearError, clearLastScan],
@@ -691,6 +737,7 @@ function buildMachine({
           on: {
             SCANNER_NO_PAPER: doNothing,
             SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_BOTH_SIDES_HAVE_PAPER: 'jam',
           },
         },
         ready_to_scan: {
@@ -860,17 +907,21 @@ function buildMachine({
           on: { SCANNER_NO_PAPER: doNothing },
           states: {
             scanning_paused: {
-              on: { SCANNER_READY_TO_SCAN: doNothing },
-              after: {
-                DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'ready_for_next_ballot',
+              on: {
+                SCANNER_READY_TO_SCAN: doNothing,
+                SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
+                SCANNER_JAM: doNothing,
+                SCANNER_READY_TO_EJECT: doNothing,
               },
-            },
-            ready_for_next_ballot: {
-              on: { SCANNER_READY_TO_SCAN: '#ready_to_scan' },
+              after: {
+                DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT:
+                  '#checking_paper_status_after_scan',
+              },
             },
           },
           after: {
-            DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper',
+            DELAY_ACCEPTED_RESET_TO_NO_PAPER:
+              '#checking_paper_status_after_scan',
           },
         },
         needs_review: {
@@ -883,6 +934,10 @@ function buildMachine({
           },
         },
         accepting_after_review: acceptingState,
+        returning_to_rescan: {
+          id: 'returning_to_rescan',
+          ...rejectingState('#no_paper'),
+        },
         returning: { ...rejectingState('#returned') },
         returned: {
           id: 'returned',
@@ -905,8 +960,10 @@ function buildMachine({
             SCANNER_NO_PAPER: 'no_paper',
           },
         },
-        jammed: {
-          id: 'jammed',
+        // There is a jam that the custom scanner itself has notified us of. We have
+        // to reset the hardware in order to clear the jam when done.
+        internal_jam: {
+          id: 'internal_jam',
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
@@ -914,6 +971,34 @@ function buildMachine({
             SCANNER_JAM_CLEARED: 'jam_cleared',
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_EJECT: doNothing,
+          },
+        },
+        // When we get into a state that we want to treat like a jam
+        // but the custom scanner is not giving the isPaperJam status.
+        jam: {
+          id: 'jam',
+          entry: [clearError, clearLastScan],
+          states: {
+            reject_paper: {
+              invoke: {
+                src: reject,
+                onDone: {
+                  target: 'checking_complete',
+                },
+              },
+            },
+            checking_complete: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_NO_PAPER: '#no_paper',
+                SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
+                SCANNER_JAM: doNothing,
+                SCANNER_READY_TO_SCAN: '#ready_to_scan',
+              },
+              after: {
+                DELAY_RETRY_SCANNING: '#internal_jam',
+              },
+            },
           },
         },
         jam_cleared: {
@@ -952,7 +1037,7 @@ function buildMachine({
             },
           },
         },
-        both_sides_have_paper: {
+        both_sides_have_paper_while_scanning: {
           entry: clearError,
           invoke: pollPaperStatus,
           on: {
@@ -986,7 +1071,7 @@ function buildMachine({
         // starting over.
         error: {
           id: 'error',
-          initial: 'disconnecting',
+          initial: 'cooling_off',
           states: {
             // First, try disconnecting the "nice" way
             disconnecting: {
@@ -1022,6 +1107,11 @@ function buildMachine({
                   }),
                 },
                 onError: '#unrecoverable_error',
+              },
+            },
+            unrecoverable: {
+              after: {
+                DELAY_RECONNECT_ON_UNEXPECTED_ERROR: '#unrecoverable_error',
               },
             },
           },
@@ -1155,6 +1245,8 @@ export function createPrecinctScannerStateMachine({
             return 'connecting';
           case state.matches('checking_initial_paper_status'):
             return 'connecting';
+          case state.matches('checking_paper_status_after_scan'):
+            return 'accepted';
           case state.matches('disconnected'):
             return 'disconnected';
           case state.matches('no_paper'):
@@ -1177,17 +1269,21 @@ export function createPrecinctScannerStateMachine({
             return 'accepting_after_review';
           case state.matches('returning'):
             return 'returning';
+          case state.matches('returning_to_rescan'):
+            return 'scanning';
           case state.matches('returned'):
             return 'returned';
           case state.matches('rejecting'):
             return 'rejecting';
           case state.matches('rejected'):
             return 'rejected';
-          case state.matches('jammed'):
+          case state.matches('internal_jam'):
             return 'jammed';
           case state.matches('jam_cleared'):
             return 'jammed';
-          case state.matches('both_sides_have_paper'):
+          case state.matches('jam'):
+            return 'jammed';
+          case state.matches('both_sides_have_paper_while_scanning'):
             return 'both_sides_have_paper';
           case state.matches('error'):
             return 'recovering_from_error';
