@@ -974,7 +974,6 @@
           "refTypes": [
             "BallotDefinition.BallotMeasureContest",
             "BallotDefinition.CandidateContest",
-            "BallotDefinition.PartyPreferenceContest",
             "BallotDefinition.RetentionContest"
           ]
         },
@@ -1052,94 +1051,6 @@
         "vxBallotLabel": {
           "description": "The label to describe candidates from this party on a ballot.",
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.PartyPreferenceContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ControlledContestIds",
-        "ElectionDistrictId",
-        "Name"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.PartyPreferenceContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "BallotTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ContestOption": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ControlledContestIds": {
-          "items": {
-            "type": "string",
-            "refTypes": [
-              "BallotDefinition.BallotMeasureContest",
-              "BallotDefinition.CandidateContest",
-              "BallotDefinition.PartyPreferenceContest",
-              "BallotDefinition.RetentionContest"
-            ]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "ElectionDistrictId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.ReportingUnit"]
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "HasRotation": {
-          "type": "boolean"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
         }
       },
       "type": "object"
