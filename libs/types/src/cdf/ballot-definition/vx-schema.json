@@ -309,34 +309,6 @@
           "minItems": 1,
           "type": "array"
         },
-        "ImageUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Language": {
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "OrderedContent": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.OrderedContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.OrderedHeader"
-              }
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "PartyIds": {
           "items": {
             "type": "string",
@@ -344,9 +316,6 @@
           },
           "minItems": 0,
           "type": "array"
-        },
-        "Purpose": {
-          "type": "string"
         }
       },
       "type": "object"
