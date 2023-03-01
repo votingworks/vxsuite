@@ -1344,22 +1344,6 @@
       "type": "string",
       "format": "time"
     },
-    "BallotDefinition.VoteVariation": {
-      "enum": [
-        "approval",
-        "borda",
-        "cumulative",
-        "majority",
-        "n-of-m",
-        "other",
-        "plurality",
-        "proportional",
-        "range",
-        "rcv",
-        "super-majority"
-      ],
-      "type": "string"
-    },
     "BallotDefinition.WriteInPosition": {
       "required": ["@type", "H", "Side", "W", "X", "Y"],
       "additionalProperties": false,
