@@ -1437,14 +1437,6 @@
           "enum": ["BallotDefinition.ReportingUnit"],
           "type": "string"
         },
-        "AuthorityIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Person"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "ComposingGpUnitIds": {
           "items": {
             "type": "string",
@@ -1453,52 +1445,11 @@
           "minItems": 0,
           "type": "array"
         },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "ElectionAdministration": {
-          "$ref": "#/definitions/BallotDefinition.ElectionAdministration"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "IsDistricted": {
-          "type": "boolean"
-        },
-        "IsMailOnly": {
-          "type": "boolean"
-        },
         "Name": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
-        "Number": {
-          "type": "string"
-        },
-        "OtherType": {
-          "type": "string"
-        },
-        "PartyRegistration": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.PartyRegistration"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "SpatialDimension": {
-          "$ref": "#/definitions/BallotDefinition.SpatialDimension"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
         "Type": {
           "$ref": "#/definitions/BallotDefinition.ReportingUnitType"
-        },
-        "VotersRegistered": {
-          "type": "integer"
         }
       },
       "type": "object"
