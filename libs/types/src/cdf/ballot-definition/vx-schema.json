@@ -572,22 +572,10 @@
           "items": {
             "oneOf": [
               {
-                "$ref": "#/definitions/BallotDefinition.PartyContest"
-              },
-              {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureContest"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.CandidateContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyPreferenceContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.StraightPartyContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.RetentionContest"
               }
             ]
           },
