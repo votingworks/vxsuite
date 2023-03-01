@@ -162,7 +162,15 @@
       "type": "object"
     },
     "BallotDefinition.BallotMeasureContest": {
-      "required": ["@id", "@type", "ElectionDistrictId", "Name"],
+      "required": [
+        "@id",
+        "@type",
+        "BallotTitle",
+        "ContestOption",
+        "ElectionDistrictId",
+        "FullText",
+        "Name"
+      ],
       "additionalProperties": false,
       "properties": {
         "@id": {
@@ -179,7 +187,8 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
           },
-          "minItems": 0,
+          "minItems": 2,
+          "maxItems": 2,
           "type": "array"
         },
         "ElectionDistrictId": {
