@@ -2,36 +2,6 @@
   "$ref": "#/definitions/BallotDefinition.BallotDefinition",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "BallotDefinition.ActivationOption": {
-      "required": ["@id", "@type", "CausesActivation", "Selection"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.ActivationOption"],
-          "type": "string"
-        },
-        "CausesActivation": {
-          "type": "boolean"
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Selection": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.AnnotatedString": {
       "required": ["@type", "Content"],
       "additionalProperties": false,
@@ -291,9 +261,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
@@ -580,9 +547,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
@@ -1346,7 +1310,6 @@
             "type": "string",
             "refTypes": [
               "BallotDefinition.PartyOption",
-              "BallotDefinition.ActivationOption",
               "BallotDefinition.BallotMeasureOption",
               "BallotDefinition.CandidateOption"
             ]
@@ -1490,9 +1453,6 @@
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
               },
               {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
-              },
-              {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
               },
               {
@@ -1598,9 +1558,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
@@ -1812,7 +1769,6 @@
           "type": "string",
           "refTypes": [
             "BallotDefinition.PartyOption",
-            "BallotDefinition.ActivationOption",
             "BallotDefinition.BallotMeasureOption",
             "BallotDefinition.CandidateOption"
           ]
@@ -1977,9 +1933,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
@@ -2202,9 +2155,6 @@
             "oneOf": [
               {
                 "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
