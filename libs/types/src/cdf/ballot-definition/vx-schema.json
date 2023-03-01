@@ -228,16 +228,7 @@
           "enum": ["BallotDefinition.BallotMeasureContest"],
           "type": "string"
         },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
         "BallotTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ConStatement": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
         "ContestOption": {
@@ -257,62 +248,15 @@
           "minItems": 0,
           "type": "array"
         },
-        "EffectOfAbstain": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
         "ElectionDistrictId": {
           "type": "string",
           "refTypes": ["BallotDefinition.ReportingUnit"]
         },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "FullText": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
-        "HasRotation": {
-          "type": "boolean"
-        },
-        "InfoUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Name": {
           "type": "string"
-        },
-        "OtherType": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "PassageThreshold": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ProStatement": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "SummaryText": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "Type": {
-          "$ref": "#/definitions/BallotDefinition.BallotMeasureType"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
         }
       },
       "type": "object"
