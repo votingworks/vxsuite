@@ -1,3 +1,4 @@
+import { ok } from '@votingworks/basics';
 import {
   election,
   electionMinimalExhaustive,
@@ -8,6 +9,7 @@ import { Election } from '../../election';
 import {
   convertCdfBallotDefinitionToVxfElection,
   convertVxfElectionToCdfBallotDefinition,
+  safeParseCdfBallotDefinition,
 } from './convert';
 import { mockNow, testCdfBallotDefinition, testVxfElection } from './fixtures';
 
@@ -98,3 +100,39 @@ for (const vxf of elections) {
     );
   });
 }
+
+test('safeParseCdfBallotDefinition', () => {
+  // Try a malformed CDF ballot definition that will cause the convert function
+  // to throw an error (needed to cover the case that catches these errors)
+  expect(
+    safeParseCdfBallotDefinition({
+      ...testCdfBallotDefinition,
+      GpUnit: testCdfBallotDefinition.GpUnit.filter(
+        (unit) => unit.Type === 'state'
+      ),
+    })
+  ).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: unable to find an element matching a predicate],
+    }
+  `);
+
+  // Duplicate ids should be rejected
+  expect(
+    safeParseCdfBallotDefinition({
+      ...testCdfBallotDefinition,
+      GpUnit: testCdfBallotDefinition.GpUnit.map((unit) => ({
+        ...unit,
+        '@id': 'same-id',
+      })),
+    })
+  ).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: Ballot definition contains duplicate @ids: same-id],
+    }
+  `);
+
+  expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
+    ok(testVxfElection)
+  );
+});

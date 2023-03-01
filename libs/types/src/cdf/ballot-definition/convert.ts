@@ -1,6 +1,8 @@
 import {
   assert,
   assertDefined,
+  duplicates,
+  err,
   find,
   naturals,
   ok,
@@ -406,13 +408,47 @@ export function convertCdfBallotDefinitionToVxfElection(
   };
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}
+
+function findDuplicateIds(ballotDefinition: Cdf.BallotDefinition): string[] {
+  function findIds(value: unknown): string[] {
+    if (isPlainObject(value)) {
+      const id = value['@id'] as string;
+      return (id ? [id] : []).concat(Object.values(value).flatMap(findIds));
+    }
+    if (isArray(value)) {
+      return value.flatMap(findIds);
+    }
+    return [];
+  }
+  const allIds = findIds(ballotDefinition);
+  return duplicates(allIds);
+}
+
 export function safeParseCdfBallotDefinition(
   value: unknown
 ): Result<Vxf.Election, Error> {
   const parseResult = safeParse(Cdf.BallotDefinitionSchema, value);
   if (parseResult.isErr()) return parseResult;
+  const ballotDefinition = parseResult.ok();
+
+  const duplicateIds = findDuplicateIds(ballotDefinition);
+  if (duplicateIds.length > 0) {
+    return err(
+      new Error(
+        `Ballot definition contains duplicate @ids: ${duplicateIds.join(', ')}`
+      )
+    );
+  }
+
   try {
-    return ok(convertCdfBallotDefinitionToVxfElection(parseResult.ok()));
+    return ok(convertCdfBallotDefinitionToVxfElection(ballotDefinition));
   } catch (error) {
     return wrapException(error);
   }
