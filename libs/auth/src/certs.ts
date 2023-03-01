@@ -1,7 +1,12 @@
 import { Buffer } from 'buffer';
 import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { User } from '@votingworks/types';
+import {
+  ElectionManagerUser,
+  PollWorkerUser,
+  SystemAdministratorUser,
+  User,
+} from '@votingworks/types';
 
 import { openssl } from './openssl';
 
@@ -108,4 +113,52 @@ export async function parseUserDataFromCert(
       throwIllegalValue(cardType);
     }
   }
+}
+
+/**
+ * Constructs a VotingWorks card cert subject that can be passed to an openssl command
+ */
+export function constructCertSubject(
+  user: SystemAdministratorUser | ElectionManagerUser | PollWorkerUser,
+  jurisdiction: string
+): string {
+  const component: CustomCertFields['component'] = 'card';
+
+  let cardType: CustomCertFields['cardType'];
+  let electionHash: string | undefined;
+  switch (user.role) {
+    case 'system_administrator': {
+      cardType = 'sa';
+      break;
+    }
+    case 'election_manager': {
+      cardType = 'em';
+      electionHash = user.electionHash;
+      break;
+    }
+    case 'poll_worker': {
+      cardType = 'pw';
+      electionHash = user.electionHash;
+      break;
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(user, 'role');
+    }
+  }
+
+  const entries = [
+    'C=US',
+    'ST=CA',
+    'O=VotingWorks',
+    `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
+    `${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${jurisdiction}`,
+    `${VX_CUSTOM_CERT_FIELD.CARD_TYPE}=${cardType}`,
+  ];
+  if (electionHash) {
+    entries.push(`${VX_CUSTOM_CERT_FIELD.ELECTION_HASH}=${electionHash}`);
+  }
+  const certSubject = `/${entries.join('/')}/`;
+
+  return certSubject;
 }

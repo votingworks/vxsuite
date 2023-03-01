@@ -23,6 +23,17 @@ export const GENERAL_AUTHENTICATE = {
 } as const;
 
 /**
+ * The GENERATE ASYMMETRIC KEY PAIR command is a PIV command that generates an asymmetric key pair.
+ * The public key is exported, and the private key never leaves the card.
+ */
+export const GENERATE_ASYMMETRIC_KEY_PAIR = {
+  INS: 0x47,
+  P1: 0x00,
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG: 0xac,
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG: 0x80,
+} as const;
+
+/**
  * The GET DATA command is a PIV command that retrieves a data object.
  */
 export const GET_DATA = {
@@ -41,6 +52,20 @@ export const PUT_DATA = {
   P2: 0xff,
   TAG_LIST_TAG: 0x5c,
   DATA_TAG: 0x53,
+  CERT_TAG: 0x70,
+  CERT_INFO_TAG: 0x71,
+  CERT_INFO_UNCOMPRESSED: 0x00,
+  ERROR_DETECTION_CODE_TAG: 0xfe,
+} as const;
+
+/**
+ * The RESET RETRY COUNTER command is a PIV command that changes the card PIN given the PUK (PIN
+ * unblocking key) and resets the remaining PIN entry attempts count to its initial value.
+ */
+export const RESET_RETRY_COUNTER = {
+  INS: 0x2c,
+  P1: 0x00,
+  P2: 0x80,
 } as const;
 
 /**
