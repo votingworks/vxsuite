@@ -268,10 +268,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.BallotMeasureType": {
-      "enum": ["ballot-measure", "initiative", "other", "recall", "referendum"],
-      "type": "string"
-    },
     "BallotDefinition.BallotSideType": {
       "enum": ["back", "front"],
       "type": "string"
