@@ -593,31 +593,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.ElectionAdministration": {
-      "required": ["@type"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.ElectionAdministration"],
-          "type": "string"
-        },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
-        "ElectionOfficialPersonIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["BallotDefinition.Person"]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Name": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.ElectionType": {
       "enum": [
         "general",
@@ -1044,24 +1019,6 @@
         "vxBallotLabel": {
           "description": "The label to describe candidates from this party on a ballot.",
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.PartyRegistration": {
-      "required": ["@type", "Count", "PartyId"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.PartyRegistration"],
-          "type": "string"
-        },
-        "Count": {
-          "type": "integer"
-        },
-        "PartyId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Party"]
         }
       },
       "type": "object"
