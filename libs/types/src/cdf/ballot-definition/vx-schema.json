@@ -1039,7 +1039,7 @@
       "type": "string"
     },
     "BallotDefinition.Party": {
-      "required": ["@id", "@type", "Name", "vxBallotLabel"],
+      "required": ["@id", "@type", "Abbreviation", "Name", "vxBallotLabel"],
       "additionalProperties": false,
       "properties": {
         "@id": {
