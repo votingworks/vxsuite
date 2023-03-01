@@ -540,6 +540,8 @@
     "BallotDefinition.Election": {
       "required": [
         "@type",
+        "BallotStyle",
+        "Contest",
         "ElectionScopeId",
         "EndDate",
         "Name",
@@ -556,7 +558,7 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.BallotStyle"
           },
-          "minItems": 0,
+          "minItems": 1,
           "type": "array"
         },
         "Candidate": {
@@ -592,7 +594,7 @@
               }
             ]
           },
-          "minItems": 0,
+          "minItems": 1,
           "type": "array"
         },
         "ElectionScopeId": {
