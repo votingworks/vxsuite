@@ -1,8 +1,14 @@
 import React from 'react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { DateTime } from 'luxon';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import { fakeTts } from '../../test/helpers/fake_tts';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import {

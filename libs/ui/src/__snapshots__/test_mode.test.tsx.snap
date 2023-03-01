@@ -18,6 +18,18 @@ exports[`renders TestMode 1`] = `
   font-weight: 900;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <div
     class="c0"

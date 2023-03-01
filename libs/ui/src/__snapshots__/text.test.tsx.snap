@@ -5,6 +5,18 @@ exports[`renders Text as paragraph tag 1`] = `
 
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <p
   class=""
 >
@@ -27,6 +39,18 @@ exports[`renders Text vote icon 1`] = `
   font-size: 90%;
   font-weight: 800;
   content: '✓';
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
 }
 
 @media print {
@@ -56,6 +80,18 @@ exports[`renders Text warning icon 1`] = `
   font-size: 90%;
   font-weight: 800;
   content: '!';
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
 }
 
 @media print {

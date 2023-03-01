@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, screen, within } from '@testing-library/react';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 
 import {
   electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
+import { fireEvent, screen, within } from '../../test/react_testing_library';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { YesNoContest } from './yes_no_contest';
 

@@ -1,11 +1,14 @@
 import React from 'react';
-import { render, getByText as domGetByText } from '@testing-library/react';
 
 import { Tally, VotingMethod } from '@votingworks/types';
 import {
   electionSampleDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
+import {
+  render,
+  getByText as domGetByText,
+} from '../test/react_testing_library';
 
 import { TallyReportSummary } from './tally_report_summary';
 

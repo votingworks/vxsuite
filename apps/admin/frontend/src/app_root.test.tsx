@@ -1,8 +1,8 @@
-import { screen } from '@testing-library/react';
 import { MemoryHardware, NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
+import { screen } from '../test/react_testing_library';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { renderRootElement } from '../test/render_in_app_context';
 import { AppRoot } from './app_root';

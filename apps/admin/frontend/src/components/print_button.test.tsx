@@ -1,8 +1,13 @@
 import React from 'react';
-import { waitFor, screen, within, render } from '@testing-library/react';
 import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';
+import {
+  waitFor,
+  screen,
+  within,
+  render,
+} from '../../test/react_testing_library';
 import { PrintButton } from './print_button';
 import { renderInAppContext } from '../../test/render_in_app_context';
 

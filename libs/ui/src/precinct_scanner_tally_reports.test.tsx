@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -12,6 +11,7 @@ import {
   getSubTalliesByPartyAndPrecinct,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { render, screen } from '../test/react_testing_library';
 import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
 
 test('polls closed: tally reports for each party in primary, single precinct', () => {

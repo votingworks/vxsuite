@@ -1,8 +1,8 @@
-import { configure } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import jestFetchMock from 'jest-fetch-mock';
 import 'jest-styled-components';
 import { TextDecoder, TextEncoder } from 'util';
+import { configure } from '../test/react_testing_library';
 
 configure({ asyncUtilTimeout: 5_000 });
 

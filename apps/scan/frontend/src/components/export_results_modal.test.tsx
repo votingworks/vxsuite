@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { fireEvent, render, waitFor } from '@testing-library/react';
-
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/basics';
+import { fireEvent, render, waitFor } from '../../test/react_testing_library';
 import {
   ExportResultsModal,
   ExportResultsModalProps,

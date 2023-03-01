@@ -1,14 +1,14 @@
 import React from 'react';
 
+import { electionSample } from '@votingworks/fixtures';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
 import {
   render,
   fireEvent,
   getByText as domGetByText,
   waitFor,
-} from '@testing-library/react';
-import { electionSample } from '@votingworks/fixtures';
-import { Router } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
+} from '../../test/react_testing_library';
 
 import { SetMarkThresholdsModal } from './set_mark_thresholds_modal';
 

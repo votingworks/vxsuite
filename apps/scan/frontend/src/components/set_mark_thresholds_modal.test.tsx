@@ -1,7 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import { electionSample } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import {
   SetMarkThresholdsModal,
   SetMarkThresholdsModalProps,

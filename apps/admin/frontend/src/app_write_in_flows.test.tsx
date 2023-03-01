@@ -1,5 +1,4 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleDefinition,
@@ -13,6 +12,7 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
+import { screen, within } from '../test/react_testing_library';
 import { renderRootElement } from '../test/render_in_app_context';
 import { authenticateAsElectionManager } from '../test/util/authenticate';
 import { App } from './app';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
+import { render, screen } from '../../test/react_testing_library';
 import { ScanButton } from './scan_button';
 
 test('is enabled by default when scanner attached', async () => {

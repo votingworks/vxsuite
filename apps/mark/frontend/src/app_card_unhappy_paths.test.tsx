@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { err } from '@votingworks/basics';
+import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';

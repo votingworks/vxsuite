@@ -71,11 +71,13 @@ function PrecinctTallyReport({
 interface BmdPaperBallotsProps {
   electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
+  generateBallotId: () => string;
 }
 
 function getBmdPaperBallots({
   electionDefinition,
   precinctId,
+  generateBallotId,
 }: BmdPaperBallotsProps): JSX.Element[] {
   const { election } = electionDefinition;
   const ballots = generateTestDeckBallots({ election, precinctId });
@@ -84,6 +86,7 @@ function getBmdPaperBallots({
     <BmdPaperBallot
       ballotStyleId={ballot.ballotStyleId}
       electionDefinition={electionDefinition}
+      generateBallotId={generateBallotId}
       isLiveMode={false}
       key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
       precinctId={ballot.precinctId}
@@ -231,7 +234,8 @@ function PrintingModal({
 
 export function PrintTestDeckScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const { electionDefinition, auth, logger } = useContext(AppContext);
+  const { electionDefinition, auth, logger, generateBallotId } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
@@ -279,6 +283,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       const bmdPaperBallots = getBmdPaperBallots({
         electionDefinition,
         precinctId,
+        generateBallotId,
       });
       await printElement(<React.Fragment>{bmdPaperBallots}</React.Fragment>, {
         sides: 'one-sided',
@@ -292,7 +297,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         sleep(bmdPaperBallots.length * ONE_SIDED_PAGE_PRINT_TIME_MS)
       );
     },
-    [electionDefinition, logger, makeCancelable, userRole]
+    [electionDefinition, logger, makeCancelable, userRole, generateBallotId]
   );
 
   const printHandMarkedPaperBallots = useCallback(

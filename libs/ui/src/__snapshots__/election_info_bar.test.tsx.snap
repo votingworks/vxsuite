@@ -206,6 +206,18 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
 
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <div
     class="c0"

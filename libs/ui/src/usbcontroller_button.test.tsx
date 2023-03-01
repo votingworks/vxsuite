@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render } from '../test/react_testing_library';
 
 import { UsbControllerButton } from './usbcontroller_button';
 

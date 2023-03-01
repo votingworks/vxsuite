@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 

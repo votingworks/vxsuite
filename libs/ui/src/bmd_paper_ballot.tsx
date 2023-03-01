@@ -195,6 +195,7 @@ function YesNoContestResult({
 interface Props {
   ballotStyleId: BallotStyleId;
   electionDefinition: ElectionDefinition;
+  generateBallotId?: () => string;
   isLiveMode: boolean;
   precinctId: PrecinctId;
   votes: VotesDict;
@@ -207,12 +208,13 @@ interface Props {
 export function BmdPaperBallot({
   ballotStyleId,
   electionDefinition,
+  generateBallotId = randomBallotId,
   isLiveMode,
   precinctId,
   votes,
   onRendered,
 }: Props): JSX.Element {
-  const ballotId = randomBallotId();
+  const ballotId = generateBallotId();
   const {
     election,
     election: { county, date, seal, sealUrl, state, title },

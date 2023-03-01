@@ -22,6 +22,18 @@ exports[`renders ProgressBar with defaults 1`] = `
   transition: width 1500ms ease-out;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <span
   class="c0"
 />

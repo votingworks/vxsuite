@@ -6,7 +6,6 @@ import {
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
-import { fireEvent, screen, within } from '@testing-library/react';
 
 import {
   ContestOptionTally,
@@ -18,6 +17,7 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { fireEvent, screen, within } from '../../test/react_testing_library';
 import { ManualDataImportIndexScreen } from './manual_data_import_index_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ResultsFileType } from '../config/types';

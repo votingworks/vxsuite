@@ -1,9 +1,9 @@
 import React from 'react';
 import { Router, StaticRouter } from 'react-router-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 
 import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 import { LinkButton } from './link_button';
 
 test('navigates to page', () => {

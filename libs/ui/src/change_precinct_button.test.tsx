@@ -1,5 +1,4 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -7,6 +6,12 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '../test/react_testing_library';
 import {
   ALL_PRECINCTS_OPTION_VALUE,
   ChangePrecinctButton,

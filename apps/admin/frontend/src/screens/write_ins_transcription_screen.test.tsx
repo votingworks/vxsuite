@@ -1,9 +1,9 @@
-import { screen } from '@testing-library/react';
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';

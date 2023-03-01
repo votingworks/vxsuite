@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '../../test/react_testing_library';
 
 import * as GLOBALS from '../config/globals';
 import { UserSettings } from '../config/types';

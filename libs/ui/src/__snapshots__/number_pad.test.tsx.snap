@@ -48,6 +48,18 @@ exports[`snapshot 1`] = `
   width: 26%;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
   tabindex="0"

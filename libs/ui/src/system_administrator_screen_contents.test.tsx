@@ -2,8 +2,8 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
-import { render, screen } from '@testing-library/react';
 import { isVxDev } from '@votingworks/utils';
+import { render, screen } from '../test/react_testing_library';
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
 

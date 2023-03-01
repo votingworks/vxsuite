@@ -1,11 +1,4 @@
 import {
-  RenderResult,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
-import {
   advanceTimersAndPromises,
   expectPrint,
   getZeroCompressedTally,
@@ -36,6 +29,13 @@ import {
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
+import {
+  RenderResult,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from '../test/react_testing_library';
 import {
   setElectionInStorage,
   setStateInStorage,

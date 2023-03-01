@@ -1,4 +1,3 @@
-import { render, screen, waitFor } from '@testing-library/react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import userEvent from '@testing-library/user-event';
 import { LogEventId, Logger, fakeLogger } from '@votingworks/logging';
@@ -8,6 +7,7 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import React from 'react';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import { UsbControllerButton } from '../usbcontroller_button';
 import {
   MIN_TIME_TO_UNMOUNT_USB,

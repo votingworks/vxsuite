@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   asElectionDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { render, screen, waitFor } from '../test/react_testing_library';
 
 import {
   setElectionInStorage,

@@ -1,8 +1,8 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
 
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
 
 beforeEach(() => {

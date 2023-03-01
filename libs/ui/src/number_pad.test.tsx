@@ -1,6 +1,6 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { fireEvent, render } from '../test/react_testing_library';
 
 import { NumberPad } from './number_pad';
 

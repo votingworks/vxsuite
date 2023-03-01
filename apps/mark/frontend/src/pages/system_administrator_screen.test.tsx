@@ -1,6 +1,6 @@
 import React from 'react';
 import { fakeLogger } from '@votingworks/logging';
-import { screen } from '@testing-library/react';
+import { screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 import { SystemAdministratorScreen } from './system_administrator_screen';

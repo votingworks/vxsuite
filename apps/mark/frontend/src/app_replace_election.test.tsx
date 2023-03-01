@@ -1,12 +1,12 @@
 import React from 'react';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { fireEvent, screen } from '@testing-library/react';
 import {
   electionSample2Definition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { fireEvent, screen } from '../test/react_testing_library';
 import {
   setElectionInStorage,
   setStateInStorage,

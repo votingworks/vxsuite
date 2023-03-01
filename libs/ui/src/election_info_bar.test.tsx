@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import {
   electionSampleDefinition,
   primaryElectionSampleDefinition,
@@ -9,6 +8,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { getDisplayElectionHash } from '@votingworks/types';
+import { render, screen, within } from '../test/react_testing_library';
 import { ElectionInfoBar } from './election_info_bar';
 
 jest.mock('@votingworks/types', () => {

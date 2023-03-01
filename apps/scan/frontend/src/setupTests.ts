@@ -2,12 +2,12 @@ import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { configure } from '@testing-library/react';
 import {
   expectTestToEndWithAllPrintsAsserted,
   fakePrintElement,
   fakePrintElementWhenReady,
 } from '@votingworks/test-utils';
+import { configure } from '../test/react_testing_library';
 
 configure({ asyncUtilTimeout: 5_000 });
 

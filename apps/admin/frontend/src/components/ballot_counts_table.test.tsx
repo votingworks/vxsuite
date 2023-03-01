@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { getByText as domGetByText } from '@testing-library/react';
-
 import {
   electionWithMsEitherNeither,
   multiPartyPrimaryElectionDefinition,
@@ -19,6 +17,7 @@ import {
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
+import { getByText as domGetByText } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';

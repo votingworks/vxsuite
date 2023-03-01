@@ -40,6 +40,7 @@ export * from './qrcode';
 export * from './react_query';
 export * from './reboot_from_usb_button';
 export * from './reboot_to_bios_button';
+export * from './themes/render_with_themes';
 export * from './screen';
 export * from './select';
 export * from './setup_card_reader_page';

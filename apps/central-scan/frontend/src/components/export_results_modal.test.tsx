@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { fireEvent, waitFor } from '@testing-library/react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
@@ -9,6 +8,7 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { typedAs } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
+import { fireEvent, waitFor } from '../../test/react_testing_library';
 import { ExportResultsModal } from './export_results_modal';
 import {
   renderInAppContext,

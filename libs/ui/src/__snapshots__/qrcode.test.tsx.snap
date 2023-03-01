@@ -7,6 +7,18 @@ exports[`renders QRCode 1`] = `
   height: auto;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   class="c0"
 >

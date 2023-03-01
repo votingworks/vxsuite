@@ -335,6 +335,18 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 }
 
 @media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
   .c13 {
     color: black;
   }

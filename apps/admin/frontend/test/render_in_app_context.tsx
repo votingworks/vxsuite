@@ -1,7 +1,6 @@
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import { render as testRender, RenderResult } from '@testing-library/react';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
@@ -18,6 +17,7 @@ import {
   MemoryStorage,
   Storage,
   getEmptyFullElectionTally,
+  randomBallotId,
 } from '@votingworks/utils';
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
@@ -27,6 +27,7 @@ import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
+import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -59,6 +60,7 @@ interface RenderInAppContextParams {
   resetFiles?: () => Promise<void>;
   usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
+  generateBallotId?: () => string;
   isTabulationRunning?: boolean;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
   updateExternalTally?: (
@@ -121,6 +123,7 @@ export function renderInAppContext(
     resetFiles = jest.fn(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
+    generateBallotId = randomBallotId,
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
     updateExternalTally = jest.fn(),
@@ -165,6 +168,7 @@ export function renderInAppContext(
         resetFiles,
         usbDrive,
         fullElectionTally,
+        generateBallotId,
         isTabulationRunning,
         setIsTabulationRunning,
         updateExternalTally,

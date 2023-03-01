@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
 import {
   fakeKiosk,
   fakeUsbDrive,
@@ -14,6 +13,7 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DippedSmartCardAuth } from '@votingworks/types';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 

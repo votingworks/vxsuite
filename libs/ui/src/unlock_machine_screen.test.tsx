@@ -1,8 +1,8 @@
-import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fakeSystemAdministratorUser } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import React from 'react';
+import { render, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {

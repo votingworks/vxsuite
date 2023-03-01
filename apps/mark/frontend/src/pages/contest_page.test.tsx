@@ -1,7 +1,7 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
 import { Route } from 'react-router-dom';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';

@@ -1,10 +1,16 @@
 import React from 'react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,

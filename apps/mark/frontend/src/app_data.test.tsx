@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen } from '../test/react_testing_library';
 
 import { electionStorageKey } from './app_root';
 

@@ -1,4 +1,3 @@
-import { screen } from '@testing-library/react';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import {
@@ -6,6 +5,7 @@ import {
   electionSampleNoSealDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
+import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
 import { StartPage } from './start_page';

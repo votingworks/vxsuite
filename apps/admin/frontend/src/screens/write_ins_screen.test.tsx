@@ -1,8 +1,8 @@
-import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import React from 'react';
+import { act, screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 import { WriteInsScreen } from './write_ins_screen';

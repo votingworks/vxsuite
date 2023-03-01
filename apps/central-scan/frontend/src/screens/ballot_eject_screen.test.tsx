@@ -1,4 +1,3 @@
-import { screen, waitFor } from '@testing-library/react';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AdjudicationReason, BallotType } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
@@ -7,6 +6,7 @@ import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
+import { screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
 

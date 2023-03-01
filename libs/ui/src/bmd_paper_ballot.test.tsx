@@ -14,11 +14,16 @@ import {
   electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import { mockOf } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import { BmdPaperBallot } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../test/react_testing_library';
 import { ErrorBoundary } from './error_boundary';
 
 test('renders error when there is an error', async () => {

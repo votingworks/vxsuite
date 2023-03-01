@@ -1,7 +1,7 @@
-import { act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
+import { act } from '../../test/react_testing_library';
 import { useCancelablePromise } from './use_cancelable_promise';
 
 beforeEach(() => {

@@ -1,5 +1,5 @@
-import { waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
+import { waitFor } from '../../../test/react_testing_library';
 import { KioskTextToSpeech } from './kiosk_text_to_speech';
 
 beforeEach(() => {

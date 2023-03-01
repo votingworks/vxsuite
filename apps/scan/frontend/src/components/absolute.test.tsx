@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '../../test/react_testing_library';
 import { Absolute } from './absolute';
 
 test('Renders Absolute top right', () => {
