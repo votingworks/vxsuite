@@ -418,7 +418,7 @@
       "type": "object"
     },
     "BallotDefinition.CandidateOption": {
-      "required": ["@id", "@type"],
+      "required": ["@id", "@type", "CandidateIds"],
       "additionalProperties": false,
       "properties": {
         "@id": {
@@ -433,7 +433,8 @@
             "type": "string",
             "refTypes": ["BallotDefinition.Candidate"]
           },
-          "minItems": 0,
+          "minItems": 1,
+          "maxItems": 1,
           "type": "array"
         },
         "EndorsementPartyIds": {
