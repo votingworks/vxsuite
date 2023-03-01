@@ -2,107 +2,6 @@
   "$ref": "#/definitions/BallotDefinition.BallotDefinition",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "BallotDefinition.ActivationContest": {
-      "required": [
-        "@id",
-        "@type",
-        "ControlledContestIds",
-        "ElectionDistrictId",
-        "Name"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.ActivationContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "BallotTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "CandidateId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Candidate"]
-        },
-        "ContestOption": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.PartyOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ControlledContestIds": {
-          "items": {
-            "type": "string",
-            "refTypes": [
-              "BallotDefinition.PartyContest",
-              "BallotDefinition.BallotMeasureContest",
-              "BallotDefinition.CandidateContest",
-              "BallotDefinition.PartyPreferenceContest",
-              "BallotDefinition.StraightPartyContest",
-              "BallotDefinition.ActivationContest",
-              "BallotDefinition.RetentionContest"
-            ]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "ElectionDistrictId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.ReportingUnit"]
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "HasRotation": {
-          "type": "boolean"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "SummaryText": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
-        }
-      },
-      "type": "object"
-    },
     "BallotDefinition.ActivationOption": {
       "required": ["@id", "@type", "CausesActivation", "Selection"],
       "additionalProperties": false,
@@ -832,7 +731,6 @@
               "BallotDefinition.CandidateContest",
               "BallotDefinition.PartyPreferenceContest",
               "BallotDefinition.StraightPartyContest",
-              "BallotDefinition.ActivationContest",
               "BallotDefinition.RetentionContest"
             ]
           },
@@ -1023,9 +921,6 @@
               },
               {
                 "$ref": "#/definitions/BallotDefinition.StraightPartyContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.ActivationContest"
               },
               {
                 "$ref": "#/definitions/BallotDefinition.RetentionContest"
@@ -1443,7 +1338,6 @@
             "BallotDefinition.CandidateContest",
             "BallotDefinition.PartyPreferenceContest",
             "BallotDefinition.StraightPartyContest",
-            "BallotDefinition.ActivationContest",
             "BallotDefinition.RetentionContest"
           ]
         },
@@ -1728,7 +1622,6 @@
               "BallotDefinition.CandidateContest",
               "BallotDefinition.PartyPreferenceContest",
               "BallotDefinition.StraightPartyContest",
-              "BallotDefinition.ActivationContest",
               "BallotDefinition.RetentionContest"
             ]
           },
@@ -2333,7 +2226,6 @@
               "BallotDefinition.CandidateContest",
               "BallotDefinition.PartyPreferenceContest",
               "BallotDefinition.StraightPartyContest",
-              "BallotDefinition.ActivationContest",
               "BallotDefinition.RetentionContest"
             ]
           },
