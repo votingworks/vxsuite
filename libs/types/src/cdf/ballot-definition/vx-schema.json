@@ -1455,37 +1455,7 @@
       "type": "object"
     },
     "BallotDefinition.ReportingUnitType": {
-      "enum": [
-        "ballot-batch",
-        "ballot-style-area",
-        "borough",
-        "city",
-        "city-council",
-        "combined-precinct",
-        "congressional",
-        "country",
-        "county",
-        "county-council",
-        "drop-box",
-        "judicial",
-        "municipality",
-        "other",
-        "polling-place",
-        "precinct",
-        "school",
-        "special",
-        "split-precinct",
-        "state",
-        "state-house",
-        "state-senate",
-        "town",
-        "township",
-        "utility",
-        "village",
-        "vote-center",
-        "ward",
-        "water"
-      ],
+      "enum": ["county", "precinct", "state", "other"],
       "type": "string"
     },
     "BallotDefinition.RetentionContest": {
