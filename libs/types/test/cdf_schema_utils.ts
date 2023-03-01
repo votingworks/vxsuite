@@ -11,6 +11,8 @@ import Ajv, { AnySchema } from 'ajv';
 
 // CDF schemas are just a collection of definitions - there's no top-level schema
 export interface CdfRootJsonSchema {
+  // eslint-disable-next-line vx/gts-identifiers
+  $ref?: string;
   definitions: Record<string, CdfDefinitionJsonSchema>;
 }
 
@@ -43,6 +45,34 @@ export function validateSchema(schema: AnySchema): void {
     },
   });
   ajv.compile(schema);
+}
+
+/**
+ * Returns any definitions in the schema that are not used by any other definition.
+ */
+export function findUnusedDefinitions(rootSchema: CdfRootJsonSchema): string[] {
+  function findUsedDefinitions(schema: CdfDefinitionJsonSchema): string[] {
+    if ('oneOf' in schema) {
+      return schema.oneOf.flatMap(findUsedDefinitions);
+    }
+    if ('$ref' in schema) {
+      return [schema.$ref];
+    }
+    if (schema.type === 'array') {
+      return findUsedDefinitions(schema.items);
+    }
+    if (schema.type === 'object') {
+      return Object.values(schema.properties).flatMap(findUsedDefinitions);
+    }
+    return [];
+  }
+  const usedDefinitions = new Set([
+    ...Object.values(rootSchema.definitions).flatMap(findUsedDefinitions),
+    rootSchema.$ref,
+  ]);
+  return Object.keys(rootSchema.definitions).filter(
+    (definition) => !usedDefinitions.has(`#/definitions/${definition}`)
+  );
 }
 
 /**

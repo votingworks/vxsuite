@@ -6,6 +6,7 @@ import { BallotDefinitionSchema } from '.';
 import { mockWritable } from '../../../test/helpers/mock_writable';
 import { testCdfBallotDefinition } from './fixtures';
 import {
+  findUnusedDefinitions,
   isSubsetCdfSchema,
   validateSchema,
 } from '../../../test/cdf_schema_utils';
@@ -37,6 +38,8 @@ test('generated types are in sync with schema', () => {
 test('VX schema is a valid JSON schema', () => {
   validateSchema(nistSchema);
   validateSchema(vxSchema);
+  expect(findUnusedDefinitions(nistSchema)).toEqual([]);
+  expect(findUnusedDefinitions(vxSchema)).toEqual([]);
 });
 
 test('VX schema accepts a subset of NIST schema', () => {

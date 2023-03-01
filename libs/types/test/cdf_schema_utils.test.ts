@@ -1,5 +1,9 @@
 import { err, ok } from '@votingworks/basics';
-import { isSubsetCdfSchema, validateSchema } from './cdf_schema_utils';
+import {
+  findUnusedDefinitions,
+  isSubsetCdfSchema,
+  validateSchema,
+} from './cdf_schema_utils';
 
 test('validateSchema', () => {
   validateSchema({ definitions: { A: { type: 'string' } } });
@@ -12,6 +16,61 @@ test('validateSchema', () => {
       },
     })
   ).toThrow();
+});
+
+test('findUnusedDefinitions', () => {
+  expect(
+    findUnusedDefinitions({
+      definitions: {
+        A: { type: 'string' },
+      },
+    })
+  ).toEqual(['A']);
+  expect(
+    findUnusedDefinitions({
+      // eslint-disable-next-line vx/gts-identifiers
+      $ref: '#/definitions/B',
+      definitions: {
+        A: { type: 'string' },
+        // eslint-disable-next-line vx/gts-identifiers
+        B: { $ref: '#/definitions/A' },
+      },
+    })
+  ).toEqual([]);
+  expect(
+    findUnusedDefinitions({
+      // eslint-disable-next-line vx/gts-identifiers
+      $ref: '#/definitions/B',
+      definitions: {
+        A: { type: 'string' },
+        B: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              p1: {
+                // eslint-disable-next-line vx/gts-identifiers
+                $ref: '#/definitions/A',
+              },
+            },
+          },
+        },
+      },
+    })
+  ).toEqual([]);
+  expect(
+    findUnusedDefinitions({
+      // eslint-disable-next-line vx/gts-identifiers
+      $ref: '#/definitions/D',
+      definitions: {
+        A: { type: 'string' },
+        B: { type: 'number' },
+        C: { type: 'boolean' },
+        // eslint-disable-next-line vx/gts-identifiers
+        D: { $ref: '#/definitions/A' },
+      },
+    })
+  ).toEqual(['B', 'C']);
 });
 
 test('isSubsetCdfSchema', () => {
