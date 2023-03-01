@@ -68,13 +68,6 @@
           "minItems": 0,
           "type": "array"
         },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "GeneratedDate": {
           "$ref": "#/definitions/BallotDefinition.DateTimeWithZone"
         },
@@ -92,16 +85,10 @@
           "minItems": 0,
           "type": "array"
         },
-        "IsTest": {
-          "type": "boolean"
-        },
         "Issuer": {
           "type": "string"
         },
         "IssuerAbbreviation": {
-          "type": "string"
-        },
-        "Notes": {
           "type": "string"
         },
         "Office": {
