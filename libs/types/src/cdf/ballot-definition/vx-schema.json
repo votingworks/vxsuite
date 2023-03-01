@@ -568,9 +568,6 @@
           "minItems": 0,
           "type": "array"
         },
-        "ContactInformation": {
-          "$ref": "#/definitions/BallotDefinition.ContactInformation"
-        },
         "Contest": {
           "items": {
             "oneOf": [
@@ -605,18 +602,8 @@
           "type": "string",
           "format": "date"
         },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Name": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "OtherType": {
-          "type": "string"
         },
         "StartDate": {
           "type": "string",
