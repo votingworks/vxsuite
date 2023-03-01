@@ -434,10 +434,6 @@
       },
       "type": "object"
     },
-    "BallotDefinition.CandidatePreElectionStatus": {
-      "enum": ["filed", "qualified", "withdrawn"],
-      "type": "string"
-    },
     "BallotDefinition.ContactInformation": {
       "required": ["@type"],
       "additionalProperties": false,
