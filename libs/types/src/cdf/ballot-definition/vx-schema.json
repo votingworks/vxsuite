@@ -233,14 +233,7 @@
         },
         "ContestOption": {
           "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
+            "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
           },
           "minItems": 0,
           "type": "array"
