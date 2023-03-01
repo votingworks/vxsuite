@@ -1,8 +1,16 @@
 import { Buffer } from 'buffer';
+import * as fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Byte, Optional, User } from '@votingworks/types';
+import {
+  Byte,
+  ElectionManagerUser,
+  Optional,
+  PollWorkerUser,
+  SystemAdministratorUser,
+  User,
+} from '@votingworks/types';
 
 import {
   CardCommand,
@@ -14,10 +22,18 @@ import {
 } from './apdu';
 import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
-import { parseCert, parseUserDataFromCert } from './certs';
+import {
+  constructCertSubject,
+  parseCert,
+  parseUserDataFromCert,
+} from './certs';
 import {
   certDerToPem,
+  certPemToDer,
+  createCertBySigningPublicKey,
   extractPublicKeyFromCert,
+  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+  publicKeyDerToPem,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './openssl';
@@ -25,11 +41,13 @@ import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
+  GENERATE_ASYMMETRIC_KEY_PAIR,
   GET_DATA,
   isIncorrectPinStatusWord,
   numRemainingAttemptsFromIncorrectPinStatusWord,
   pivDataObjectId,
   PUT_DATA,
+  RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
 
@@ -45,6 +63,12 @@ const OPEN_FIPS_201_AID = Buffer.from([
  * PIN.
  */
 const DEFAULT_PIN = '000000';
+
+/**
+ * The PIN unblocking key or PUK. Typically a sensitive value but not for us given our modification
+ * to OpenFIPS201 to invalidate the card on PIN reset.
+ */
+const PUK = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
 /**
  * The card's VotingWorks-issued cert
@@ -104,6 +128,16 @@ const GENERIC_STORAGE_SPACE = {
 } as const;
 
 /**
+ * Additional constructor inputs that only VxAdmin needs to provide, for card programming
+ */
+interface VxAdminParams {
+  vxAdminCertAuthorityCertPath: string;
+  vxAdminOpensslConfigPath: string;
+  vxAdminPrivateKeyPassword: string;
+  vxAdminPrivateKeyPath: string;
+}
+
+/**
  * An implementation of the card API that uses a Java Card running our fork of the OpenFIPS201
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
@@ -112,14 +146,17 @@ export class JavaCard implements Card {
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus;
   private readonly jurisdiction: string;
+  private readonly vxAdminParams?: VxAdminParams;
   private readonly vxCertAuthorityCertPath: string;
 
   constructor(input: {
     jurisdiction: string;
+    vxAdminParams?: VxAdminParams;
     vxCertAuthorityCertPath: string;
   }) {
     this.cardStatus = { status: 'no_card' };
     this.jurisdiction = input.jurisdiction;
+    this.vxAdminParams = input.vxAdminParams;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
@@ -186,12 +223,57 @@ export class JavaCard implements Card {
     return { response: 'correct' };
   }
 
-  program(): Promise<void> {
-    return Promise.resolve();
+  async program(
+    input:
+      | { user: SystemAdministratorUser; pin: string }
+      | { user: ElectionManagerUser; pin: string; electionData: string }
+      | { user: PollWorkerUser }
+  ): Promise<void> {
+    assert(this.vxAdminParams !== undefined);
+    const {
+      vxAdminCertAuthorityCertPath,
+      vxAdminOpensslConfigPath,
+      vxAdminPrivateKeyPassword,
+      vxAdminPrivateKeyPath,
+    } = this.vxAdminParams;
+    const pin = 'pin' in input ? input.pin : DEFAULT_PIN;
+    await this.selectApplet();
+
+    await this.resetPinAndInvalidateCard(pin);
+
+    const publicKey = await this.generateAsymmetricKeyPair(
+      CARD_VX_ADMIN_CERT.PRIVATE_KEY_SLOT,
+      pin
+    );
+    const cardVxAdminCert = await createCertBySigningPublicKey({
+      certSubject: constructCertSubject(input.user, this.jurisdiction),
+      opensslConfig: vxAdminOpensslConfigPath,
+      publicKeyToSign: publicKey,
+      signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
+      signingPrivateKey: vxAdminPrivateKeyPath,
+      signingPrivateKeyPassword: vxAdminPrivateKeyPassword,
+    });
+    await this.storeCert(CARD_VX_ADMIN_CERT.OBJECT_ID, cardVxAdminCert);
+
+    const vxAdminCertAuthorityCert = await fs.readFile(
+      vxAdminCertAuthorityCertPath
+    );
+    await this.storeCert(
+      VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
+      vxAdminCertAuthorityCert
+    );
+
+    if ('electionData' in input) {
+      await this.writeData(Buffer.from(input.electionData, 'utf-8'));
+    }
   }
 
-  unprogram(): Promise<void> {
-    return Promise.resolve();
+  async unprogram(): Promise<void> {
+    await this.selectApplet();
+    await this.resetPinAndInvalidateCard(DEFAULT_PIN);
+    await this.clearCert(CARD_VX_ADMIN_CERT.OBJECT_ID);
+    await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
+    await this.clearData();
   }
 
   async readData(): Promise<Buffer> {
@@ -361,6 +443,32 @@ export class JavaCard implements Card {
   }
 
   /**
+   * Stores a cert. The cert should be in PEM format, but it will be stored in DER format as per
+   * PIV standards and Java conventions.
+   */
+  private async storeCert(
+    certObjectId: Buffer,
+    certInPemFormat: Buffer
+  ): Promise<void> {
+    const certInDerFormat = await certPemToDer(certInPemFormat);
+    await this.putData(
+      certObjectId,
+      Buffer.concat([
+        constructTlv(PUT_DATA.CERT_TAG, certInDerFormat),
+        constructTlv(
+          PUT_DATA.CERT_INFO_TAG,
+          Buffer.from([PUT_DATA.CERT_INFO_UNCOMPRESSED])
+        ),
+        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+      ])
+    );
+  }
+
+  private async clearCert(certObjectId: Buffer): Promise<void> {
+    await this.putData(certObjectId, Buffer.from([]));
+  }
+
+  /**
    * Verifies that the card private key in the specified slot corresponds to the public key in the
    * provided cert by 1) having the private key sign a "challenge" and 2) using the public key to
    * verify the generated signature.
@@ -405,6 +513,42 @@ export class JavaCard implements Card {
   }
 
   /**
+   * Generates an asymmetric key pair on the card. The public key is exported, and the private key
+   * never leaves the card. The returned public key will be in PEM format.
+   *
+   * A PIN must be provided if the specified private key slot is PIN-gated.
+   */
+  private async generateAsymmetricKeyPair(
+    privateKeySlot: Byte,
+    pin?: string
+  ): Promise<Buffer> {
+    if (pin) {
+      await this.checkPinInternal(pin);
+    }
+
+    const generateKeyPairResponse = await this.cardReader.transmit(
+      new CardCommand({
+        ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
+        p1: GENERATE_ASYMMETRIC_KEY_PAIR.P1,
+        p2: privateKeySlot,
+        data: constructTlv(
+          GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
+          constructTlv(
+            GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG,
+            Buffer.from([CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256])
+          )
+        ),
+      })
+    );
+    const publicKeyInDerFormat = Buffer.concat([
+      PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+      generateKeyPairResponse.subarray(5), // Trim metadata
+    ]);
+    const publicKeyInPemFormat = await publicKeyDerToPem(publicKeyInDerFormat);
+    return publicKeyInPemFormat;
+  }
+
+  /**
    * The underlying call for checking a PIN. Throws a ResponseApduError with an incorrect-PIN
    * status word if an incorrect PIN is entered. Named checkPinInternal to avoid a conflict with
    * the public checkPin method.
@@ -416,6 +560,26 @@ export class JavaCard implements Card {
         p1: VERIFY.P1_VERIFY,
         p2: VERIFY.P2_PIN,
         data: construct8BytePinBuffer(pin),
+      })
+    );
+  }
+
+  /**
+   * Resets the card PIN using the PUK and, given our modification to OpenFIPS201, clears all
+   * PIN-gated keys.
+   *
+   * Because the private key associated with the card VxAdmin cert is PIN-gated, this action clears
+   * that key. Subsequent auth attempts will fail when we try to verify that the card has a private
+   * key that corresponds to the public key in the card VxAdmin cert, and the card will need to be
+   * reprogrammed.
+   */
+  private async resetPinAndInvalidateCard(pin: string): Promise<void> {
+    await this.cardReader.transmit(
+      new CardCommand({
+        ins: RESET_RETRY_COUNTER.INS,
+        p1: RESET_RETRY_COUNTER.P1,
+        p2: RESET_RETRY_COUNTER.P2,
+        data: Buffer.concat([PUK, construct8BytePinBuffer(pin)]),
       })
     );
   }
