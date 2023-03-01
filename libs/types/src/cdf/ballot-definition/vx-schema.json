@@ -941,8 +941,7 @@
           "type": "string",
           "refTypes": [
             "BallotDefinition.BallotMeasureContest",
-            "BallotDefinition.CandidateContest",
-            "BallotDefinition.RetentionContest"
+            "BallotDefinition.CandidateContest"
           ]
         },
         "OrderedContestOptionIds": {
@@ -1208,111 +1207,6 @@
     "BallotDefinition.ReportingUnitType": {
       "enum": ["county", "precinct", "state", "other"],
       "type": "string"
-    },
-    "BallotDefinition.RetentionContest": {
-      "required": ["@id", "@type", "CandidateId", "ElectionDistrictId", "Name"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["BallotDefinition.RetentionContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "BallotSubTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "BallotTitle": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "CandidateId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Candidate"]
-        },
-        "ConStatement": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ContestOption": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.BallotMeasureOption"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.CandidateOption"
-              }
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "EffectOfAbstain": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ElectionDistrictId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.ReportingUnit"]
-        },
-        "ExternalIdentifier": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "FullText": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "HasRotation": {
-          "type": "boolean"
-        },
-        "InfoUri": {
-          "items": {
-            "$ref": "#/definitions/BallotDefinition.AnnotatedUri"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OfficeId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Office"]
-        },
-        "OtherType": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "PassageThreshold": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "ProStatement": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "SequenceOrder": {
-          "type": "integer"
-        },
-        "SummaryText": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "TotalSubUnits": {
-          "type": "integer"
-        },
-        "Type": {
-          "$ref": "#/definitions/BallotDefinition.BallotMeasureType"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/BallotDefinition.VoteVariation"
-        }
-      },
-      "type": "object"
     },
     "BallotDefinition.Schedule": {
       "required": ["@type"],
