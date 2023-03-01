@@ -40,8 +40,9 @@
     "BallotDefinition.BallotDefinition": {
       "required": [
         "@type",
-        "GeneratedDate",
         "Election",
+        "GeneratedDate",
+        "GpUnit",
         "Issuer",
         "IssuerAbbreviation",
         "SequenceEnd",
@@ -77,7 +78,7 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.ReportingUnit"
           },
-          "minItems": 0,
+          "minItems": 1,
           "type": "array"
         },
         "Header": {
