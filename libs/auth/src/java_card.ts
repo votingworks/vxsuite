@@ -128,9 +128,9 @@ const GENERIC_STORAGE_SPACE = {
 } as const;
 
 /**
- * Additional constructor inputs that only VxAdmin needs to provide, for card programming
+ * Additional constructor inputs that only VxAdmin needs to provide for card programming
  */
-interface VxAdminParams {
+interface CardProgrammingParams {
   vxAdminCertAuthorityCertPath: string;
   vxAdminOpensslConfigPath: string;
   vxAdminPrivateKeyPassword: string;
@@ -143,20 +143,20 @@ interface VxAdminParams {
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
  */
 export class JavaCard implements Card {
+  private readonly cardProgrammingParams?: CardProgrammingParams;
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus;
   private readonly jurisdiction: string;
-  private readonly vxAdminParams?: VxAdminParams;
   private readonly vxCertAuthorityCertPath: string;
 
   constructor(input: {
+    cardProgrammingParams?: CardProgrammingParams;
     jurisdiction: string;
-    vxAdminParams?: VxAdminParams;
     vxCertAuthorityCertPath: string;
   }) {
+    this.cardProgrammingParams = input.cardProgrammingParams;
     this.cardStatus = { status: 'no_card' };
     this.jurisdiction = input.jurisdiction;
-    this.vxAdminParams = input.vxAdminParams;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
@@ -229,13 +229,13 @@ export class JavaCard implements Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void> {
-    assert(this.vxAdminParams !== undefined);
+    assert(this.cardProgrammingParams !== undefined);
     const {
       vxAdminCertAuthorityCertPath,
       vxAdminOpensslConfigPath,
       vxAdminPrivateKeyPassword,
       vxAdminPrivateKeyPath,
-    } = this.vxAdminParams;
+    } = this.cardProgrammingParams;
     const pin = 'pin' in input ? input.pin : DEFAULT_PIN;
     await this.selectApplet();
 
