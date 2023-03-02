@@ -17,22 +17,22 @@ test('interpret marked', async () => {
     .unsafeUnwrap()
     .map(({ interpretation }) => interpretation);
   expect(stripElectionHash(pageInterpretations)).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "adjudicationInfo": Object {
-          "enabledReasonInfos": Array [],
-          "enabledReasons": Array [],
-          "ignoredReasonInfos": Array [
-            Object {
+    [
+      {
+        "adjudicationInfo": {
+          "enabledReasonInfos": [],
+          "enabledReasons": [],
+          "ignoredReasonInfos": [
+            {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
                 "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
                 "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
@@ -40,104 +40,104 @@ test('interpret marked', async () => {
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "Governor-061a401b",
               "optionId": "Darryl-W-Perry-2f07c455",
               "optionIndex": 2,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "Governor-061a401b",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Chris-Sununu-130124f7",
                 "Dan-Feltes-3fadf798",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 3,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Justin-O-Donnell-ec71760c",
               "optionIndex": 2,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "United-States-Senator-d3f1c75b",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Corky-Messner-b6eb216d",
                 "Jeanne-Shaheen-6e19622d",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 3,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "Representative-in-Congress-24683b44",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Steven-Negron-5d482d72",
                 "Andrew-Olding-bed33f08",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 2,
                 3,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "Executive-Councilor-bb22557f",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Dave-Wheeler-de2242ee",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 2,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "State-Senator-391381f8",
               "optionId": "Sharon-M-Carson-0316308e",
               "optionIndex": 0,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "State-Senator-391381f8",
               "optionId": "Nancy-Hendricks-d330559d",
               "optionIndex": 1,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Kimberly-Rice-faaed16a",
               "optionIndex": 6,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Brett-Gagnon-7a8c9838",
               "optionIndex": 11,
               "type": "MarginalMark",
             },
-            Object {
+            {
               "contestId": "State-Representatives-7d3a8821",
               "expected": 11,
-              "optionIds": Array [
+              "optionIds": [
                 "Russell-Ober-e433afea",
                 "Andrew-Prout-1cd243e0",
                 "Andrew-Renzullo-b0428370",
@@ -164,7 +164,7 @@ test('interpret marked', async () => {
                 "write-in-9",
                 "write-in-10",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 3,
                 4,
                 5,
@@ -196,50 +196,50 @@ test('interpret marked', async () => {
           ],
           "requiresAdjudication": false,
         },
-        "layout": Object {
-          "contests": Array [
-            Object {
-              "bounds": Object {
+        "layout": {
+          "contests": [
+            {
+              "bounds": {
                 "height": 112,
                 "width": 1349,
                 "x": 332,
                 "y": 524,
               },
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 332,
                   "y": 524,
                 },
-                Object {
+                {
                   "x": 1680,
                   "y": 524,
                 },
-                Object {
+                {
                   "x": 1680,
                   "y": 635,
                 },
-                Object {
+                {
                   "x": 332,
                   "y": 635,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 332,
                     "y": 525,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
                       "y": 567,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
@@ -247,21 +247,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 671,
                     "y": 525,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 567,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -269,21 +269,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 379,
                     "x": 1010,
                     "y": 524,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
                       "y": 566,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
@@ -291,21 +291,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 330,
                     "x": 1351,
                     "y": 524,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 566,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -315,48 +315,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 111,
                 "width": 1348,
                 "x": 332,
                 "y": 720,
               },
               "contestId": "Governor-061a401b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 332,
                   "y": 720,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 720,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 830,
                 },
-                Object {
+                {
                   "x": 332,
                   "y": 830,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 332,
                     "y": 721,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
                       "y": 762,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
@@ -364,21 +364,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 671,
                     "y": 720,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 762,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -386,21 +386,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 379,
                     "x": 1010,
                     "y": 720,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
                       "y": 762,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
@@ -408,21 +408,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1350,
                     "y": 720,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 762,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -432,48 +432,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 112,
                 "width": 1348,
                 "x": 332,
                 "y": 866,
               },
               "contestId": "United-States-Senator-d3f1c75b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 332,
                   "y": 866,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 866,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 977,
                 },
-                Object {
+                {
                   "x": 332,
                   "y": 977,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 332,
                     "y": 866,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
                       "y": 909,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
@@ -481,21 +481,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 670,
                     "y": 866,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 909,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -503,21 +503,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 380,
                     "x": 1009,
                     "y": 866,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
                       "y": 909,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
@@ -525,21 +525,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1350,
                     "y": 866,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 909,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -549,48 +549,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 111,
                 "width": 1348,
                 "x": 332,
                 "y": 1013,
               },
               "contestId": "Representative-in-Congress-24683b44",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 332,
                   "y": 1013,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1013,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1123,
                 },
-                Object {
+                {
                   "x": 332,
                   "y": 1123,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 332,
                     "y": 1013,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1055,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -598,21 +598,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 670,
                     "y": 1014,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1055,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -620,21 +620,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 379,
                     "x": 1009,
                     "y": 1014,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1299,
                       "y": 1055,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1299,
@@ -642,21 +642,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1350,
                     "y": 1014,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 1055,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -666,48 +666,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 112,
                 "width": 1349,
                 "x": 331,
                 "y": 1159,
               },
               "contestId": "Executive-Councilor-bb22557f",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 331,
                   "y": 1159,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1159,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1270,
                 },
-                Object {
+                {
                   "x": 331,
                   "y": 1270,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 331,
                     "y": 1159,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1201,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -715,21 +715,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 670,
                     "y": 1159,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1201,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -737,21 +737,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1350,
                     "y": 1160,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 1202,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -761,48 +761,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 112,
                 "width": 1349,
                 "x": 331,
                 "y": 1306,
               },
               "contestId": "State-Senator-391381f8",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 331,
                   "y": 1306,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1306,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1417,
                 },
-                Object {
+                {
                   "x": 331,
                   "y": 1417,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 331,
                     "y": 1306,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1348,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -810,21 +810,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 670,
                     "y": 1306,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1348,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -832,21 +832,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1350,
                     "y": 1307,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 1349,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -856,48 +856,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 1130,
                 "width": 1351,
                 "x": 329,
                 "y": 1452,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 329,
                   "y": 1452,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 1452,
                 },
-                Object {
+                {
                   "x": 1679,
                   "y": 2581,
                 },
-                Object {
+                {
                   "x": 329,
                   "y": 2581,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 331,
                     "y": 1501,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1543,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -905,21 +905,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 331,
                     "y": 1599,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1640,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -927,21 +927,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 331,
                     "y": 1696,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1738,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -949,21 +949,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 330,
                     "y": 1793,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1836,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -971,21 +971,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 330,
                     "y": 1890,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 1933,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -993,21 +993,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 330,
                     "y": 1989,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
                       "y": 2030,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 620,
@@ -1015,21 +1015,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 330,
                     "y": 2086,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
                       "y": 2127,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
@@ -1037,21 +1037,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 330,
                     "y": 2182,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
                       "y": 2224,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
@@ -1059,21 +1059,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 330,
                     "y": 2280,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
                       "y": 2321,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
@@ -1081,21 +1081,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 330,
                     "y": 2376,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
                       "y": 2418,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
@@ -1103,21 +1103,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 109,
                     "width": 378,
                     "x": 329,
                     "y": 2473,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
                       "y": 2514,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 619,
@@ -1125,21 +1125,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 670,
                     "y": 1452,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1494,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -1147,21 +1147,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 670,
                     "y": 1550,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1592,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -1169,21 +1169,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 669,
                     "y": 1648,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1690,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -1191,21 +1191,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 669,
                     "y": 1745,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1787,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -1213,21 +1213,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 669,
                     "y": 1843,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
                       "y": 1884,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 959,
@@ -1235,21 +1235,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 669,
                     "y": 1941,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 1983,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1257,21 +1257,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 669,
                     "y": 2038,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 2080,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1279,21 +1279,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 669,
                     "y": 2135,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 2177,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1301,21 +1301,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 669,
                     "y": 2232,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 2274,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1323,21 +1323,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 669,
                     "y": 2329,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 2371,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1345,21 +1345,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 668,
                     "y": 2426,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
                       "y": 2467,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 958,
@@ -1367,21 +1367,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1350,
                     "y": 1453,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 1495,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -1389,21 +1389,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1349,
                     "y": 1551,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
                       "y": 1593,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1592,
@@ -1411,21 +1411,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1349,
                     "y": 1649,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 1691,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1433,21 +1433,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1349,
                     "y": 1747,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 1789,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1455,21 +1455,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1349,
                     "y": 1845,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 1886,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1477,21 +1477,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1349,
                     "y": 1943,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 1985,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1499,21 +1499,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1349,
                     "y": 2041,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 2082,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1521,21 +1521,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1349,
                     "y": 2138,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 2179,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1543,21 +1543,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1349,
                     "y": 2235,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 2277,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1565,21 +1565,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 330,
                     "x": 1349,
                     "y": 2332,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 2374,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1587,21 +1587,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1348,
                     "y": 2428,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
                       "y": 2470,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1591,
@@ -1612,30 +1612,30 @@ test('interpret marked', async () => {
               ],
             },
           ],
-          "metadata": Object {
+          "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
             "electionHash": Anything,
             "isTestMode": false,
-            "locales": Object {
+            "locales": {
               "primary": "unknown",
             },
             "pageNumber": 1,
             "precinctId": "town-id-12101-precinct-id-",
           },
-          "pageSize": Object {
+          "pageSize": {
             "height": 2800,
             "width": 1696,
           },
         },
-        "markInfo": Object {
-          "ballotSize": Object {
+        "markInfo": {
+          "ballotSize": {
             "height": 2800,
             "width": 1696,
           },
-          "marks": Array [
-            Object {
-              "bounds": Object {
+          "marks": [
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 592,
@@ -1648,12 +1648,12 @@ test('interpret marked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
               "score": 0.3153846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 592,
@@ -1663,7 +1663,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 567,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 592,
@@ -1676,8 +1676,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 661,
                 "maxY": 787,
@@ -1690,12 +1690,12 @@ test('interpret marked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Chris-Sununu-130124f7",
               "score": 0.1,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 661,
                   "maxY": 787,
@@ -1705,7 +1705,7 @@ test('interpret marked', async () => {
                   "x": 622,
                   "y": 762,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 661,
                   "maxY": 787,
@@ -1718,8 +1718,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 934,
@@ -1732,12 +1732,12 @@ test('interpret marked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Corky-Messner-b6eb216d",
               "score": 0.24807692307692308,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 934,
@@ -1747,7 +1747,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 909,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 934,
@@ -1760,8 +1760,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 662,
                 "maxY": 1080,
@@ -1774,12 +1774,12 @@ test('interpret marked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Steven-Negron-5d482d72",
               "score": 0.2173076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 3,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 662,
                   "maxY": 1080,
@@ -1789,7 +1789,7 @@ test('interpret marked', async () => {
                   "x": 623,
                   "y": 1055,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 662,
                   "maxY": 1080,
@@ -1802,8 +1802,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 662,
                 "maxY": 1226,
@@ -1816,12 +1816,12 @@ test('interpret marked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "Dave-Wheeler-de2242ee",
               "score": 0.5375,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 3,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 662,
                   "maxY": 1226,
@@ -1831,7 +1831,7 @@ test('interpret marked', async () => {
                   "x": 623,
                   "y": 1201,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 662,
                   "maxY": 1226,
@@ -1844,8 +1844,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 1374,
@@ -1858,12 +1858,12 @@ test('interpret marked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "Sharon-M-Carson-0316308e",
               "score": 0.07019230769230769,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1374,
@@ -1873,7 +1873,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 1349,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1374,
@@ -1886,8 +1886,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 1568,
@@ -1900,12 +1900,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Tony-Lekas-a06f7364",
               "score": 0.04230769230769231,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1568,
@@ -1915,7 +1915,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 1543,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1568,
@@ -1928,8 +1928,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 1666,
@@ -1942,12 +1942,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Hershel-Nunez-6862315f",
               "score": 0.047115384615384615,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1666,
@@ -1957,7 +1957,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 1641,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1666,
@@ -1970,8 +1970,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 660,
                 "maxY": 1764,
@@ -1984,12 +1984,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Lynne-Ober-f704df17",
               "score": 0.03461538461538462,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1764,
@@ -1999,7 +1999,7 @@ test('interpret marked', async () => {
                   "x": 621,
                   "y": 1739,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 660,
                   "maxY": 1764,
@@ -2012,8 +2012,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 659,
                 "maxY": 1861,
@@ -2026,12 +2026,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Russell-Ober-e433afea",
               "score": 0.17692307692307693,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 1861,
@@ -2041,7 +2041,7 @@ test('interpret marked', async () => {
                   "x": 620,
                   "y": 1836,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 1861,
@@ -2054,8 +2054,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 659,
                 "maxY": 1958,
@@ -2068,12 +2068,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Andrew-Prout-1cd243e0",
               "score": 0.16634615384615384,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 1958,
@@ -2083,7 +2083,7 @@ test('interpret marked', async () => {
                   "x": 620,
                   "y": 1933,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 1958,
@@ -2096,8 +2096,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 659,
                 "maxY": 2056,
@@ -2110,12 +2110,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Andrew-Renzullo-b0428370",
               "score": 0.1548076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 2056,
@@ -2125,7 +2125,7 @@ test('interpret marked', async () => {
                   "x": 620,
                   "y": 2031,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 2056,
@@ -2138,8 +2138,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 658,
                 "maxY": 2153,
@@ -2152,12 +2152,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Kimberly-Rice-faaed16a",
               "score": 0.05384615384615385,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 658,
                   "maxY": 2153,
@@ -2167,7 +2167,7 @@ test('interpret marked', async () => {
                   "x": 619,
                   "y": 2128,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 658,
                   "maxY": 2153,
@@ -2180,8 +2180,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 659,
                 "maxY": 2250,
@@ -2194,12 +2194,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Denise-Smith-0a6359c3",
               "score": 0.025,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 2250,
@@ -2209,7 +2209,7 @@ test('interpret marked', async () => {
                   "x": 620,
                   "y": 2225,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 659,
                   "maxY": 2250,
@@ -2222,8 +2222,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 658,
                 "maxY": 2346,
@@ -2236,12 +2236,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Jordan-Ulery-28553627",
               "score": 0.08653846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 658,
                   "maxY": 2346,
@@ -2251,7 +2251,7 @@ test('interpret marked', async () => {
                   "x": 619,
                   "y": 2321,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 658,
                   "maxY": 2346,
@@ -2264,8 +2264,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 657,
                 "maxY": 2444,
@@ -2278,12 +2278,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Bob-Greene-c006a3bd",
               "score": 0.04423076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 2444,
@@ -2293,7 +2293,7 @@ test('interpret marked', async () => {
                   "x": 618,
                   "y": 2419,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 2444,
@@ -2306,8 +2306,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 657,
                 "maxY": 2540,
@@ -2320,12 +2320,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Alicia-Lekas-271048d8",
               "score": 0.09615384615384616,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 2540,
@@ -2335,7 +2335,7 @@ test('interpret marked', async () => {
                   "x": 618,
                   "y": 2515,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 2540,
@@ -2348,8 +2348,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 592,
@@ -2362,12 +2362,12 @@ test('interpret marked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
               "score": 0.08076923076923077,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 592,
@@ -2377,7 +2377,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 567,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 592,
@@ -2390,8 +2390,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1000,
                 "maxY": 787,
@@ -2404,12 +2404,12 @@ test('interpret marked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Dan-Feltes-3fadf798",
               "score": 0.10288461538461538,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1000,
                   "maxY": 787,
@@ -2419,7 +2419,7 @@ test('interpret marked', async () => {
                   "x": 961,
                   "y": 762,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1000,
                   "maxY": 787,
@@ -2432,8 +2432,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 934,
@@ -2446,12 +2446,12 @@ test('interpret marked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Jeanne-Shaheen-6e19622d",
               "score": 0.09326923076923077,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 934,
@@ -2461,7 +2461,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 909,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 934,
@@ -2474,8 +2474,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1081,
@@ -2488,12 +2488,12 @@ test('interpret marked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Ann-McLane-Kuster-67fdf060",
               "score": 0.04807692307692308,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1081,
@@ -2503,7 +2503,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1056,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1081,
@@ -2516,8 +2516,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1227,
@@ -2530,12 +2530,12 @@ test('interpret marked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "Debora-B-Pignatelli-8c4cc1d3",
               "score": 0.04807692307692308,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1227,
@@ -2545,7 +2545,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1202,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1227,
@@ -2558,8 +2558,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1374,
@@ -2572,12 +2572,12 @@ test('interpret marked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "Nancy-Hendricks-d330559d",
               "score": 0.07788461538461539,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1374,
@@ -2587,7 +2587,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1349,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1374,
@@ -2600,8 +2600,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1520,
@@ -2614,12 +2614,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Brett-Gagnon-7a8c9838",
               "score": 0.057692307692307696,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1520,
@@ -2629,7 +2629,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1495,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1520,
@@ -2642,8 +2642,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1618,
@@ -2656,12 +2656,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "David-Hennessey-f1343f4f",
               "score": 0.035576923076923075,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1618,
@@ -2671,7 +2671,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1593,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1618,
@@ -2684,8 +2684,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1000,
                 "maxY": 1715,
@@ -2698,12 +2698,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Beatriz-Jauregui-11b83653",
               "score": 0.27884615384615385,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 3,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1000,
                   "maxY": 1715,
@@ -2713,7 +2713,7 @@ test('interpret marked', async () => {
                   "x": 961,
                   "y": 1690,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1000,
                   "maxY": 1715,
@@ -2726,8 +2726,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 998,
                 "maxY": 1812,
@@ -2740,12 +2740,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Steven-Katsos-077584b8",
               "score": 0.4125,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 998,
                   "maxY": 1812,
@@ -2755,7 +2755,7 @@ test('interpret marked', async () => {
                   "x": 959,
                   "y": 1787,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 998,
                   "maxY": 1812,
@@ -2768,8 +2768,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 1910,
@@ -2782,12 +2782,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Harold-Lynde-a54df7d7",
               "score": 0.25576923076923075,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1910,
@@ -2797,7 +2797,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 1885,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 1910,
@@ -2810,8 +2810,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 997,
                 "maxY": 2009,
@@ -2824,12 +2824,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Lana-Paliy-595b276a",
               "score": 0.35096153846153844,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2009,
@@ -2839,7 +2839,7 @@ test('interpret marked', async () => {
                   "x": 958,
                   "y": 1984,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2009,
@@ -2852,8 +2852,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 997,
                 "maxY": 2106,
@@ -2866,12 +2866,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Robert-S-Sherman-f10f4a3f",
               "score": 0.22692307692307692,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2106,
@@ -2881,7 +2881,7 @@ test('interpret marked', async () => {
                   "x": 958,
                   "y": 2081,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2106,
@@ -2894,8 +2894,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 996,
                 "maxY": 2203,
@@ -2908,12 +2908,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Alejandro-Urrutia-1b574b86",
               "score": 0.35865384615384616,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 2203,
@@ -2923,7 +2923,7 @@ test('interpret marked', async () => {
                   "x": 957,
                   "y": 2178,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 2203,
@@ -2936,8 +2936,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 2300,
@@ -2950,12 +2950,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Timothy-Wyatt-0105b8de",
               "score": 0.30673076923076925,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 2300,
@@ -2965,7 +2965,7 @@ test('interpret marked', async () => {
                   "x": 960,
                   "y": 2275,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 2300,
@@ -2978,8 +2978,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 996,
                 "maxY": 2396,
@@ -2992,12 +2992,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Barbara-A-Blue-14608463",
               "score": 0.2875,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 2396,
@@ -3007,7 +3007,7 @@ test('interpret marked', async () => {
                   "x": 957,
                   "y": 2371,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 2396,
@@ -3020,8 +3020,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 997,
                 "maxY": 2493,
@@ -3034,12 +3034,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Nancy-S-Brucker-4471faf7",
               "score": 0.3192307692307692,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2493,
@@ -3049,7 +3049,7 @@ test('interpret marked', async () => {
                   "x": 958,
                   "y": 2468,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 997,
                   "maxY": 2493,
@@ -3062,8 +3062,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1340,
                 "maxY": 591,
@@ -3076,12 +3076,12 @@ test('interpret marked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
               "score": 0.10865384615384616,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1340,
                   "maxY": 591,
@@ -3091,7 +3091,7 @@ test('interpret marked', async () => {
                   "x": 1301,
                   "y": 566,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1340,
                   "maxY": 591,
@@ -3104,8 +3104,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1339,
                 "maxY": 788,
@@ -3118,12 +3118,12 @@ test('interpret marked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Darryl-W-Perry-2f07c455",
               "score": 0.0798076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 788,
@@ -3133,7 +3133,7 @@ test('interpret marked', async () => {
                   "x": 1300,
                   "y": 763,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 788,
@@ -3146,8 +3146,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1340,
                 "maxY": 935,
@@ -3160,12 +3160,12 @@ test('interpret marked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Justin-O-Donnell-ec71760c",
               "score": 0.07884615384615384,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1340,
                   "maxY": 935,
@@ -3175,7 +3175,7 @@ test('interpret marked', async () => {
                   "x": 1301,
                   "y": 910,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1340,
                   "maxY": 935,
@@ -3188,8 +3188,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1339,
                 "maxY": 1081,
@@ -3202,12 +3202,12 @@ test('interpret marked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Andrew-Olding-bed33f08",
               "score": 0.2548076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 1081,
@@ -3217,7 +3217,7 @@ test('interpret marked', async () => {
                   "x": 1300,
                   "y": 1056,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 1081,
@@ -3230,8 +3230,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 591,
@@ -3244,12 +3244,12 @@ test('interpret marked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "write-in-0",
               "score": 0.5336538461538461,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 591,
@@ -3259,7 +3259,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 566,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 591,
@@ -3272,8 +3272,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1632,
                 "maxY": 787,
@@ -3286,12 +3286,12 @@ test('interpret marked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "write-in-0",
               "score": 0.1375,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1632,
                   "maxY": 787,
@@ -3301,7 +3301,7 @@ test('interpret marked', async () => {
                   "x": 1593,
                   "y": 762,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1632,
                   "maxY": 787,
@@ -3314,8 +3314,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1632,
                 "maxY": 934,
@@ -3328,12 +3328,12 @@ test('interpret marked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "write-in-0",
               "score": 0.2423076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1632,
                   "maxY": 934,
@@ -3343,7 +3343,7 @@ test('interpret marked', async () => {
                   "x": 1593,
                   "y": 909,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1632,
                   "maxY": 934,
@@ -3356,8 +3356,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1080,
@@ -3370,12 +3370,12 @@ test('interpret marked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "write-in-0",
               "score": 0.12211538461538461,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1080,
@@ -3385,7 +3385,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1055,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1080,
@@ -3398,8 +3398,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1227,
@@ -3412,12 +3412,12 @@ test('interpret marked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "write-in-0",
               "score": 0.08942307692307692,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1227,
@@ -3427,7 +3427,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1202,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1227,
@@ -3440,8 +3440,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1375,
@@ -3454,12 +3454,12 @@ test('interpret marked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "write-in-0",
               "score": 0.12403846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1375,
@@ -3469,7 +3469,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1350,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1375,
@@ -3482,8 +3482,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1520,
@@ -3496,12 +3496,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-10",
               "score": 0.15865384615384615,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1520,
@@ -3511,7 +3511,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1495,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1520,
@@ -3524,8 +3524,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1630,
                 "maxY": 1618,
@@ -3538,12 +3538,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-9",
               "score": 0.2403846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 1618,
@@ -3553,7 +3553,7 @@ test('interpret marked', async () => {
                   "x": 1591,
                   "y": 1593,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 1618,
@@ -3566,8 +3566,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1630,
                 "maxY": 1716,
@@ -3580,12 +3580,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-8",
               "score": 0.26346153846153847,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 1716,
@@ -3595,7 +3595,7 @@ test('interpret marked', async () => {
                   "x": 1591,
                   "y": 1691,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 1716,
@@ -3608,8 +3608,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1814,
@@ -3622,12 +3622,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-7",
               "score": 0.17307692307692307,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1814,
@@ -3637,7 +3637,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1789,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1814,
@@ -3650,8 +3650,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 1912,
@@ -3664,12 +3664,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-6",
               "score": 0.24903846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1912,
@@ -3679,7 +3679,7 @@ test('interpret marked', async () => {
                   "x": 1592,
                   "y": 1887,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 1912,
@@ -3692,8 +3692,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1630,
                 "maxY": 2010,
@@ -3706,12 +3706,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-5",
               "score": 0.08365384615384615,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 2010,
@@ -3721,7 +3721,7 @@ test('interpret marked', async () => {
                   "x": 1591,
                   "y": 1985,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 2010,
@@ -3734,8 +3734,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1629,
                 "maxY": 2108,
@@ -3748,12 +3748,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-4",
               "score": 0.2951923076923077,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1629,
                   "maxY": 2108,
@@ -3763,7 +3763,7 @@ test('interpret marked', async () => {
                   "x": 1590,
                   "y": 2083,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1629,
                   "maxY": 2108,
@@ -3776,8 +3776,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1629,
                 "maxY": 2204,
@@ -3790,12 +3790,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-3",
               "score": 0.27692307692307694,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1629,
                   "maxY": 2204,
@@ -3805,7 +3805,7 @@ test('interpret marked', async () => {
                   "x": 1590,
                   "y": 2179,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1629,
                   "maxY": 2204,
@@ -3818,8 +3818,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1628,
                 "maxY": 2302,
@@ -3832,12 +3832,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-2",
               "score": 0.19903846153846153,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 2302,
@@ -3847,7 +3847,7 @@ test('interpret marked', async () => {
                   "x": 1589,
                   "y": 2277,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 2302,
@@ -3860,8 +3860,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1630,
                 "maxY": 2400,
@@ -3874,12 +3874,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-1",
               "score": 0.2548076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 2400,
@@ -3889,7 +3889,7 @@ test('interpret marked', async () => {
                   "x": 1591,
                   "y": 2375,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1630,
                   "maxY": 2400,
@@ -3902,8 +3902,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1628,
                 "maxY": 2496,
@@ -3916,12 +3916,12 @@ test('interpret marked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-0",
               "score": 0.2673076923076923,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 2496,
@@ -3931,7 +3931,7 @@ test('interpret marked', async () => {
                   "x": 1589,
                   "y": 2471,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 2496,
@@ -3946,281 +3946,281 @@ test('interpret marked', async () => {
             },
           ],
         },
-        "metadata": Object {
+        "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
           "electionHash": Anything,
           "isTestMode": false,
-          "locales": Object {
+          "locales": {
             "primary": "unknown",
           },
           "pageNumber": 1,
           "precinctId": "town-id-12101-precinct-id-",
         },
         "type": "InterpretedHmpbPage",
-        "votes": Object {
-          "Executive-Councilor-bb22557f": Array [
-            Object {
+        "votes": {
+          "Executive-Councilor-bb22557f": [
+            {
               "id": "Dave-Wheeler-de2242ee",
               "name": "Dave Wheeler",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "Governor-061a401b": Array [
-            Object {
+          "Governor-061a401b": [
+            {
               "id": "Chris-Sununu-130124f7",
               "name": "Chris Sununu",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Dan-Feltes-3fadf798",
               "name": "Dan Feltes",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "President-and-Vice-President-of-the-United-States-18d1a55a": Array [
-            Object {
+          "President-and-Vice-President-of-the-United-States-18d1a55a": [
+            {
               "id": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
               "name": "Donald J. Trump  and Michael R. Pence",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
               "name": "Joseph R. Biden  and Kamala D. Harris",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
               "name": "Jo Jorgensen  and Jeremy Cohen",
-              "partyIds": Array [
+              "partyIds": [
                 "OC-3a386d2b",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "Representative-in-Congress-24683b44": Array [
-            Object {
+          "Representative-in-Congress-24683b44": [
+            {
               "id": "Steven-Negron-5d482d72",
               "name": "Steven Negron",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Andrew-Olding-bed33f08",
               "name": "Andrew Olding",
-              "partyIds": Array [
+              "partyIds": [
                 "OC-3a386d2b",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "State-Representatives-7d3a8821": Array [
-            Object {
+          "State-Representatives-7d3a8821": [
+            {
               "id": "Russell-Ober-e433afea",
               "name": "Russell Ober",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Andrew-Prout-1cd243e0",
               "name": "Andrew Prout",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Andrew-Renzullo-b0428370",
               "name": "Andrew Renzullo",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Jordan-Ulery-28553627",
               "name": "Jordan Ulery",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Alicia-Lekas-271048d8",
               "name": "Alicia Lekas",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Beatriz-Jauregui-11b83653",
               "name": "Beatriz Jauregui",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Steven-Katsos-077584b8",
               "name": "Steven Katsos",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Harold-Lynde-a54df7d7",
               "name": "Harold Lynde",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Lana-Paliy-595b276a",
               "name": "Lana Paliy",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Robert-S-Sherman-f10f4a3f",
               "name": "Robert S. Sherman",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Alejandro-Urrutia-1b574b86",
               "name": "Alejandro Urrutia",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Timothy-Wyatt-0105b8de",
               "name": "Timothy Wyatt",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Barbara-A-Blue-14608463",
               "name": "Barbara A. Blue",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Nancy-S-Brucker-4471faf7",
               "name": "Nancy S. Brucker",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-10",
               "isWriteIn": true,
               "name": "Write-In #11",
             },
-            Object {
+            {
               "id": "write-in-9",
               "isWriteIn": true,
               "name": "Write-In #10",
             },
-            Object {
+            {
               "id": "write-in-8",
               "isWriteIn": true,
               "name": "Write-In #9",
             },
-            Object {
+            {
               "id": "write-in-7",
               "isWriteIn": true,
               "name": "Write-In #8",
             },
-            Object {
+            {
               "id": "write-in-6",
               "isWriteIn": true,
               "name": "Write-In #7",
             },
-            Object {
+            {
               "id": "write-in-5",
               "isWriteIn": true,
               "name": "Write-In #6",
             },
-            Object {
+            {
               "id": "write-in-4",
               "isWriteIn": true,
               "name": "Write-In #5",
             },
-            Object {
+            {
               "id": "write-in-3",
               "isWriteIn": true,
               "name": "Write-In #4",
             },
-            Object {
+            {
               "id": "write-in-2",
               "isWriteIn": true,
               "name": "Write-In #3",
             },
-            Object {
+            {
               "id": "write-in-1",
               "isWriteIn": true,
               "name": "Write-In #2",
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "State-Senator-391381f8": Array [
-            Object {
+          "State-Senator-391381f8": [
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "United-States-Senator-d3f1c75b": Array [
-            Object {
+          "United-States-Senator-d3f1c75b": [
+            {
               "id": "Corky-Messner-b6eb216d",
               "name": "Corky Messner",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Jeanne-Shaheen-6e19622d",
               "name": "Jeanne Shaheen",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
@@ -4228,36 +4228,36 @@ test('interpret marked', async () => {
           ],
         },
       },
-      Object {
-        "adjudicationInfo": Object {
-          "enabledReasonInfos": Array [],
-          "enabledReasons": Array [],
-          "ignoredReasonInfos": Array [
-            Object {
+      {
+        "adjudicationInfo": {
+          "enabledReasonInfos": [],
+          "enabledReasons": [],
+          "ignoredReasonInfos": [
+            {
               "contestId": "Sheriff-4243fe0b",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Christopher-Connelly-970b2364",
                 "Bill-Barry-0e677ca6",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "County-Attorney-133f910f",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "John-J-Coughlin-0e7bf93c",
                 "Michael-Conlon-1a61fa16",
                 "Nicholas-Sarwark-c8f115e2",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
@@ -4265,16 +4265,16 @@ test('interpret marked', async () => {
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "County-Treasurer-87d25a31",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "David-G-Fredette-687f01ae",
                 "William-Bryk-eaf936ec",
                 "Richard-Manzo-c5fcc876",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
@@ -4282,45 +4282,45 @@ test('interpret marked', async () => {
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "Register-of-Deeds-a1278df2",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Jack-Flanagan-78e24cab",
                 "Mary-Ann-Crowell-e1ff59b9",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "Register-of-Probate-a4117da8",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Elizabeth-Ann-Moreau-aec07bb4",
                 "Elizabeth-Ropp-4035eed1",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
               ],
               "type": "Overvote",
             },
-            Object {
+            {
               "contestId": "County-Commissioner-d6feed25",
               "expected": 1,
-              "optionIds": Array [
+              "optionIds": [
                 "Michael-Soucy-b23f7c2d",
                 "Daniel-C-Hansberry-8c0291ec",
                 "write-in-0",
               ],
-              "optionIndexes": Array [
+              "optionIndexes": [
                 0,
                 1,
                 2,
@@ -4330,50 +4330,50 @@ test('interpret marked', async () => {
           ],
           "requiresAdjudication": false,
         },
-        "layout": Object {
-          "contests": Array [
-            Object {
-              "bounds": Object {
+        "layout": {
+          "contests": [
+            {
+              "bounds": {
                 "height": 113,
                 "width": 1346,
                 "x": 315,
                 "y": 272,
               },
               "contestId": "Sheriff-4243fe0b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 315,
                   "y": 272,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 272,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 384,
                 },
-                Object {
+                {
                   "x": 315,
                   "y": 384,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 315,
                     "y": 272,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
                       "y": 315,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
@@ -4381,21 +4381,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 654,
                     "y": 273,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
                       "y": 316,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
@@ -4403,21 +4403,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 329,
                     "x": 1332,
                     "y": 275,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1572,
                       "y": 317,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1572,
@@ -4427,48 +4427,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 113,
                 "width": 1346,
                 "x": 315,
                 "y": 419,
               },
               "contestId": "County-Attorney-133f910f",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 315,
                   "y": 419,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 419,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 531,
                 },
-                Object {
+                {
                   "x": 315,
                   "y": 531,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 315,
                     "y": 419,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
                       "y": 461,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
@@ -4476,21 +4476,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 654,
                     "y": 420,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
                       "y": 462,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
@@ -4498,21 +4498,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 993,
                     "y": 420,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1283,
                       "y": 463,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1283,
@@ -4520,21 +4520,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 329,
                     "x": 1332,
                     "y": 421,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 463,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -4544,48 +4544,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 111,
                 "width": 1346,
                 "x": 315,
                 "y": 565,
               },
               "contestId": "County-Treasurer-87d25a31",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 315,
                   "y": 565,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 565,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 675,
                 },
-                Object {
+                {
                   "x": 315,
                   "y": 675,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 315,
                     "y": 565,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
                       "y": 607,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
@@ -4593,21 +4593,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 109,
                     "width": 378,
                     "x": 654,
                     "y": 566,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
                       "y": 607,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
@@ -4615,21 +4615,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 993,
                     "y": 566,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1283,
                       "y": 608,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1283,
@@ -4637,21 +4637,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 109,
                     "width": 329,
                     "x": 1332,
                     "y": 567,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 608,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -4661,48 +4661,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 113,
                 "width": 1345,
                 "x": 316,
                 "y": 710,
               },
               "contestId": "Register-of-Deeds-a1278df2",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 316,
                   "y": 710,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 710,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 822,
                 },
-                Object {
+                {
                   "x": 316,
                   "y": 822,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 316,
                     "y": 710,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
                       "y": 753,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
@@ -4710,21 +4710,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 655,
                     "y": 711,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
                       "y": 753,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
@@ -4732,21 +4732,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 329,
                     "x": 1332,
                     "y": 712,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 754,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -4756,48 +4756,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 111,
                 "width": 1345,
                 "x": 316,
                 "y": 857,
               },
               "contestId": "Register-of-Probate-a4117da8",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 316,
                   "y": 857,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 857,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 967,
                 },
-                Object {
+                {
                   "x": 316,
                   "y": 967,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 316,
                     "y": 857,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 606,
                       "y": 900,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 606,
@@ -4805,21 +4805,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 655,
                     "y": 858,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
                       "y": 900,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 944,
@@ -4827,21 +4827,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 328,
                     "x": 1333,
                     "y": 858,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 900,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -4851,48 +4851,48 @@ test('interpret marked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 111,
                 "width": 1345,
                 "x": 316,
                 "y": 1004,
               },
               "contestId": "County-Commissioner-d6feed25",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 316,
                   "y": 1004,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 1004,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 1114,
                 },
-                Object {
+                {
                   "x": 316,
                   "y": 1114,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 316,
                     "y": 1004,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 606,
                       "y": 1046,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 606,
@@ -4900,21 +4900,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 655,
                     "y": 1004,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 945,
                       "y": 1046,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 945,
@@ -4922,21 +4922,21 @@ test('interpret marked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 328,
                     "x": 1333,
                     "y": 1004,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 1045,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -4947,30 +4947,30 @@ test('interpret marked', async () => {
               ],
             },
           ],
-          "metadata": Object {
+          "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
             "electionHash": Anything,
             "isTestMode": false,
-            "locales": Object {
+            "locales": {
               "primary": "unknown",
             },
             "pageNumber": 2,
             "precinctId": "town-id-12101-precinct-id-",
           },
-          "pageSize": Object {
+          "pageSize": {
             "height": 2800,
             "width": 1696,
           },
         },
-        "markInfo": Object {
-          "ballotSize": Object {
+        "markInfo": {
+          "ballotSize": {
             "height": 2800,
             "width": 1696,
           },
-          "marks": Array [
-            Object {
-              "bounds": Object {
+          "marks": [
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 643,
                 "maxY": 339,
@@ -4983,12 +4983,12 @@ test('interpret marked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "Christopher-Connelly-970b2364",
               "score": 0.22596153846153846,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 339,
@@ -4998,7 +4998,7 @@ test('interpret marked', async () => {
                   "x": 604,
                   "y": 314,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 339,
@@ -5011,8 +5011,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 644,
                 "maxY": 485,
@@ -5025,12 +5025,12 @@ test('interpret marked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "John-J-Coughlin-0e7bf93c",
               "score": 0.2144230769230769,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 644,
                   "maxY": 485,
@@ -5040,7 +5040,7 @@ test('interpret marked', async () => {
                   "x": 605,
                   "y": 460,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 644,
                   "maxY": 485,
@@ -5053,8 +5053,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 641,
                 "maxY": 632,
@@ -5067,12 +5067,12 @@ test('interpret marked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "David-G-Fredette-687f01ae",
               "score": 0.22596153846153846,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -3,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 641,
                   "maxY": 632,
@@ -5082,7 +5082,7 @@ test('interpret marked', async () => {
                   "x": 602,
                   "y": 607,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 641,
                   "maxY": 632,
@@ -5095,8 +5095,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 642,
                 "maxY": 778,
@@ -5109,12 +5109,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "Jack-Flanagan-78e24cab",
               "score": 0.3326923076923077,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 642,
                   "maxY": 778,
@@ -5124,7 +5124,7 @@ test('interpret marked', async () => {
                   "x": 603,
                   "y": 753,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 642,
                   "maxY": 778,
@@ -5137,8 +5137,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 643,
                 "maxY": 924,
@@ -5151,12 +5151,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "Elizabeth-Ann-Moreau-aec07bb4",
               "score": 0.1125,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 924,
@@ -5166,7 +5166,7 @@ test('interpret marked', async () => {
                   "x": 604,
                   "y": 899,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 924,
@@ -5179,8 +5179,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 643,
                 "maxY": 1070,
@@ -5193,12 +5193,12 @@ test('interpret marked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "Michael-Soucy-b23f7c2d",
               "score": 0.12403846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 1070,
@@ -5208,7 +5208,7 @@ test('interpret marked', async () => {
                   "x": 604,
                   "y": 1045,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 643,
                   "maxY": 1070,
@@ -5221,8 +5221,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 980,
                 "maxY": 340,
@@ -5235,12 +5235,12 @@ test('interpret marked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "Bill-Barry-0e677ca6",
               "score": 0.19903846153846153,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 340,
@@ -5250,7 +5250,7 @@ test('interpret marked', async () => {
                   "x": 941,
                   "y": 315,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 340,
@@ -5263,8 +5263,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 982,
                 "maxY": 485,
@@ -5277,12 +5277,12 @@ test('interpret marked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "Michael-Conlon-1a61fa16",
               "score": 0.3375,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 982,
                   "maxY": 485,
@@ -5292,7 +5292,7 @@ test('interpret marked', async () => {
                   "x": 943,
                   "y": 460,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 982,
                   "maxY": 485,
@@ -5305,8 +5305,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 981,
                 "maxY": 632,
@@ -5319,12 +5319,12 @@ test('interpret marked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "William-Bryk-eaf936ec",
               "score": 0.2,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 632,
@@ -5334,7 +5334,7 @@ test('interpret marked', async () => {
                   "x": 942,
                   "y": 607,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 632,
@@ -5347,8 +5347,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 980,
                 "maxY": 778,
@@ -5361,12 +5361,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "Mary-Ann-Crowell-e1ff59b9",
               "score": 0.26153846153846155,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -3,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 778,
@@ -5376,7 +5376,7 @@ test('interpret marked', async () => {
                   "x": 941,
                   "y": 753,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 778,
@@ -5389,8 +5389,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 981,
                 "maxY": 925,
@@ -5403,12 +5403,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "Elizabeth-Ropp-4035eed1",
               "score": 0.4307692307692308,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 925,
@@ -5418,7 +5418,7 @@ test('interpret marked', async () => {
                   "x": 942,
                   "y": 900,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 925,
@@ -5431,8 +5431,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 979,
                 "maxY": 1070,
@@ -5445,12 +5445,12 @@ test('interpret marked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "Daniel-C-Hansberry-8c0291ec",
               "score": 0.25384615384615383,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -4,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 979,
                   "maxY": 1070,
@@ -5460,7 +5460,7 @@ test('interpret marked', async () => {
                   "x": 940,
                   "y": 1045,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 979,
                   "maxY": 1070,
@@ -5473,8 +5473,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1320,
                 "maxY": 487,
@@ -5487,12 +5487,12 @@ test('interpret marked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "Nicholas-Sarwark-c8f115e2",
               "score": 0.1375,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1320,
                   "maxY": 487,
@@ -5502,7 +5502,7 @@ test('interpret marked', async () => {
                   "x": 1281,
                   "y": 462,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1320,
                   "maxY": 487,
@@ -5515,8 +5515,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1318,
                 "maxY": 632,
@@ -5529,12 +5529,12 @@ test('interpret marked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "Richard-Manzo-c5fcc876",
               "score": 0.34134615384615385,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -3,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1318,
                   "maxY": 632,
@@ -5544,7 +5544,7 @@ test('interpret marked', async () => {
                   "x": 1279,
                   "y": 607,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1318,
                   "maxY": 632,
@@ -5557,8 +5557,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1610,
                 "maxY": 342,
@@ -5571,12 +5571,12 @@ test('interpret marked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "write-in-0",
               "score": 0.14807692307692308,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1610,
                   "maxY": 342,
@@ -5586,7 +5586,7 @@ test('interpret marked', async () => {
                   "x": 1571,
                   "y": 317,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1610,
                   "maxY": 342,
@@ -5599,8 +5599,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1611,
                 "maxY": 487,
@@ -5613,12 +5613,12 @@ test('interpret marked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "write-in-0",
               "score": 0.3230769230769231,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 487,
@@ -5628,7 +5628,7 @@ test('interpret marked', async () => {
                   "x": 1572,
                   "y": 462,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 487,
@@ -5641,8 +5641,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1609,
                 "maxY": 633,
@@ -5655,12 +5655,12 @@ test('interpret marked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "write-in-0",
               "score": 0.22596153846153846,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1609,
                   "maxY": 633,
@@ -5670,7 +5670,7 @@ test('interpret marked', async () => {
                   "x": 1570,
                   "y": 608,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1609,
                   "maxY": 633,
@@ -5683,8 +5683,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1611,
                 "maxY": 780,
@@ -5697,12 +5697,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "write-in-0",
               "score": 0.3105769230769231,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 780,
@@ -5712,7 +5712,7 @@ test('interpret marked', async () => {
                   "x": 1572,
                   "y": 755,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 780,
@@ -5725,8 +5725,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1611,
                 "maxY": 924,
@@ -5739,12 +5739,12 @@ test('interpret marked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "write-in-0",
               "score": 0.37403846153846154,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 924,
@@ -5754,7 +5754,7 @@ test('interpret marked', async () => {
                   "x": 1572,
                   "y": 899,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 924,
@@ -5767,8 +5767,8 @@ test('interpret marked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1609,
                 "maxY": 1070,
@@ -5781,12 +5781,12 @@ test('interpret marked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "write-in-0",
               "score": 0.3855769230769231,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -3,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1609,
                   "maxY": 1070,
@@ -5796,7 +5796,7 @@ test('interpret marked', async () => {
                   "x": 1570,
                   "y": 1045,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1609,
                   "maxY": 1070,
@@ -5811,154 +5811,154 @@ test('interpret marked', async () => {
             },
           ],
         },
-        "metadata": Object {
+        "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
           "electionHash": Anything,
           "isTestMode": false,
-          "locales": Object {
+          "locales": {
             "primary": "unknown",
           },
           "pageNumber": 2,
           "precinctId": "town-id-12101-precinct-id-",
         },
         "type": "InterpretedHmpbPage",
-        "votes": Object {
-          "County-Attorney-133f910f": Array [
-            Object {
+        "votes": {
+          "County-Attorney-133f910f": [
+            {
               "id": "John-J-Coughlin-0e7bf93c",
               "name": "John J. Coughlin",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Michael-Conlon-1a61fa16",
               "name": "Michael Conlon",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Nicholas-Sarwark-c8f115e2",
               "name": "Nicholas Sarwark",
-              "partyIds": Array [
+              "partyIds": [
                 "OC-3a386d2b",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "County-Commissioner-d6feed25": Array [
-            Object {
+          "County-Commissioner-d6feed25": [
+            {
               "id": "Michael-Soucy-b23f7c2d",
               "name": "Michael Soucy",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Daniel-C-Hansberry-8c0291ec",
               "name": "Daniel C. Hansberry",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "County-Treasurer-87d25a31": Array [
-            Object {
+          "County-Treasurer-87d25a31": [
+            {
               "id": "David-G-Fredette-687f01ae",
               "name": "David G. Fredette",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "William-Bryk-eaf936ec",
               "name": "William Bryk",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "Richard-Manzo-c5fcc876",
               "name": "Richard Manzo",
-              "partyIds": Array [
+              "partyIds": [
                 "OC-3a386d2b",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "Register-of-Deeds-a1278df2": Array [
-            Object {
+          "Register-of-Deeds-a1278df2": [
+            {
               "id": "Jack-Flanagan-78e24cab",
               "name": "Jack Flanagan",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Mary-Ann-Crowell-e1ff59b9",
               "name": "Mary Ann Crowell",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "Register-of-Probate-a4117da8": Array [
-            Object {
+          "Register-of-Probate-a4117da8": [
+            {
               "id": "Elizabeth-Ann-Moreau-aec07bb4",
               "name": "Elizabeth Ann Moreau",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Elizabeth-Ropp-4035eed1",
               "name": "Elizabeth Ropp",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
-          "Sheriff-4243fe0b": Array [
-            Object {
+          "Sheriff-4243fe0b": [
+            {
               "id": "Christopher-Connelly-970b2364",
               "name": "Christopher Connelly",
-              "partyIds": Array [
+              "partyIds": [
                 "Republican-f0167ce7",
               ],
             },
-            Object {
+            {
               "id": "Bill-Barry-0e677ca6",
               "name": "Bill Barry",
-              "partyIds": Array [
+              "partyIds": [
                 "Democratic-aea20adb",
               ],
             },
-            Object {
+            {
               "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
@@ -5984,111 +5984,111 @@ test('interpret unmarked', async () => {
   expect(
     interpretResult.unsafeUnwrap().map(({ interpretation }) => interpretation)
   ).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "adjudicationInfo": Object {
-          "enabledReasonInfos": Array [],
-          "enabledReasons": Array [],
-          "ignoredReasonInfos": Array [
-            Object {
+    [
+      {
+        "adjudicationInfo": {
+          "enabledReasonInfos": [],
+          "enabledReasons": [],
+          "ignoredReasonInfos": [
+            {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "Governor-061a401b",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "United-States-Senator-d3f1c75b",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "Representative-in-Congress-24683b44",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "Executive-Councilor-bb22557f",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "State-Senator-391381f8",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "State-Representatives-7d3a8821",
               "expected": 11,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "type": "BlankBallot",
             },
           ],
           "requiresAdjudication": false,
         },
-        "layout": Object {
-          "contests": Array [
-            Object {
-              "bounds": Object {
+        "layout": {
+          "contests": [
+            {
+              "bounds": {
                 "height": 134,
                 "width": 1348,
                 "x": 340,
                 "y": 517,
               },
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 340,
                   "y": 517,
                 },
-                Object {
+                {
                   "x": 1687,
                   "y": 517,
                 },
-                Object {
+                {
                   "x": 1687,
                   "y": 650,
                 },
-                Object {
+                {
                   "x": 340,
                   "y": 650,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 340,
                     "y": 517,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 629,
                       "y": 559,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 629,
@@ -6096,21 +6096,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 113,
                     "width": 377,
                     "x": 679,
                     "y": 524,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 968,
                       "y": 567,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 968,
@@ -6118,21 +6118,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 114,
                     "width": 379,
                     "x": 1017,
                     "y": 531,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1308,
                       "y": 574,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1308,
@@ -6140,21 +6140,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 114,
                     "width": 330,
                     "x": 1358,
                     "y": 537,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1600,
                       "y": 581,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1600,
@@ -6164,48 +6164,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 132,
                 "width": 1348,
                 "x": 336,
                 "y": 712,
               },
               "contestId": "Governor-061a401b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 336,
                   "y": 712,
                 },
-                Object {
+                {
                   "x": 1683,
                   "y": 712,
                 },
-                Object {
+                {
                   "x": 1683,
                   "y": 843,
                 },
-                Object {
+                {
                   "x": 336,
                   "y": 843,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 336,
                     "y": 712,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 625,
                       "y": 754,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 625,
@@ -6213,21 +6213,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 376,
                     "x": 675,
                     "y": 720,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 964,
                       "y": 762,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 964,
@@ -6235,21 +6235,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 379,
                     "x": 1013,
                     "y": 727,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1304,
                       "y": 769,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1304,
@@ -6257,21 +6257,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1353,
                     "y": 733,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1596,
                       "y": 776,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1596,
@@ -6281,48 +6281,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 134,
                 "width": 1349,
                 "x": 332,
                 "y": 858,
               },
               "contestId": "United-States-Senator-d3f1c75b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 332,
                   "y": 858,
                 },
-                Object {
+                {
                   "x": 1680,
                   "y": 858,
                 },
-                Object {
+                {
                   "x": 1680,
                   "y": 991,
                 },
-                Object {
+                {
                   "x": 332,
                   "y": 991,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 332,
                     "y": 858,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
                       "y": 900,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 621,
@@ -6330,21 +6330,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 671,
                     "y": 866,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 960,
                       "y": 908,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 960,
@@ -6352,21 +6352,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 113,
                     "width": 378,
                     "x": 1010,
                     "y": 873,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
                       "y": 915,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1300,
@@ -6374,21 +6374,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 113,
                     "width": 331,
                     "x": 1350,
                     "y": 879,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1593,
                       "y": 922,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1593,
@@ -6398,48 +6398,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 132,
                 "width": 1348,
                 "x": 329,
                 "y": 1005,
               },
               "contestId": "Representative-in-Congress-24683b44",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 329,
                   "y": 1005,
                 },
-                Object {
+                {
                   "x": 1676,
                   "y": 1005,
                 },
-                Object {
+                {
                   "x": 1676,
                   "y": 1136,
                 },
-                Object {
+                {
                   "x": 329,
                   "y": 1136,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 329,
                     "y": 1005,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 618,
                       "y": 1047,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 618,
@@ -6447,21 +6447,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 668,
                     "y": 1012,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 957,
                       "y": 1054,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 957,
@@ -6469,21 +6469,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 379,
                     "x": 1006,
                     "y": 1020,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1297,
                       "y": 1062,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1297,
@@ -6491,21 +6491,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 330,
                     "x": 1347,
                     "y": 1026,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1589,
                       "y": 1069,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1589,
@@ -6515,48 +6515,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 134,
                 "width": 1349,
                 "x": 325,
                 "y": 1151,
               },
               "contestId": "Executive-Councilor-bb22557f",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 325,
                   "y": 1151,
                 },
-                Object {
+                {
                   "x": 1673,
                   "y": 1151,
                 },
-                Object {
+                {
                   "x": 1673,
                   "y": 1284,
                 },
-                Object {
+                {
                   "x": 325,
                   "y": 1284,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 325,
                     "y": 1151,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 615,
                       "y": 1193,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 615,
@@ -6564,21 +6564,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 664,
                     "y": 1158,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 954,
                       "y": 1201,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 954,
@@ -6586,21 +6586,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 113,
                     "width": 331,
                     "x": 1343,
                     "y": 1172,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1586,
                       "y": 1216,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1586,
@@ -6610,48 +6610,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 133,
                 "width": 1349,
                 "x": 322,
                 "y": 1298,
               },
               "contestId": "State-Senator-391381f8",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 322,
                   "y": 1298,
                 },
-                Object {
+                {
                   "x": 1670,
                   "y": 1298,
                 },
-                Object {
+                {
                   "x": 1670,
                   "y": 1430,
                 },
-                Object {
+                {
                   "x": 322,
                   "y": 1430,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 322,
                     "y": 1298,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 611,
                       "y": 1339,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 611,
@@ -6659,21 +6659,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 661,
                     "y": 1305,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 950,
                       "y": 1347,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 950,
@@ -6681,21 +6681,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 331,
                     "x": 1340,
                     "y": 1319,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1583,
                       "y": 1362,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1583,
@@ -6705,48 +6705,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 1123,
                 "width": 1373,
                 "x": 295,
                 "y": 1451,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 295,
                   "y": 1451,
                 },
-                Object {
+                {
                   "x": 1667,
                   "y": 1451,
                 },
-                Object {
+                {
                   "x": 1667,
                   "y": 2573,
                 },
-                Object {
+                {
                   "x": 295,
                   "y": 2573,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 317,
                     "y": 1492,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 607,
                       "y": 1534,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 607,
@@ -6754,21 +6754,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 315,
                     "y": 1589,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 604,
                       "y": 1632,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 604,
@@ -6776,21 +6776,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 313,
                     "y": 1687,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 602,
                       "y": 1729,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 602,
@@ -6798,21 +6798,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 311,
                     "y": 1785,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 600,
                       "y": 1826,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 600,
@@ -6820,21 +6820,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 308,
                     "y": 1882,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 598,
                       "y": 1924,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 598,
@@ -6842,21 +6842,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 306,
                     "y": 1980,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 596,
                       "y": 2021,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 596,
@@ -6864,21 +6864,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 304,
                     "y": 2077,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 593,
                       "y": 2119,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 593,
@@ -6886,21 +6886,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 301,
                     "y": 2174,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 591,
                       "y": 2215,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 591,
@@ -6908,21 +6908,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 299,
                     "y": 2270,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 589,
                       "y": 2313,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 589,
@@ -6930,21 +6930,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 297,
                     "y": 2367,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 587,
                       "y": 2409,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 587,
@@ -6952,21 +6952,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 295,
                     "y": 2464,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 584,
                       "y": 2505,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 584,
@@ -6974,21 +6974,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 658,
                     "y": 1451,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 947,
                       "y": 1493,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 947,
@@ -6996,21 +6996,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 655,
                     "y": 1549,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 945,
                       "y": 1591,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 945,
@@ -7018,21 +7018,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 653,
                     "y": 1647,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 942,
                       "y": 1689,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 942,
@@ -7040,21 +7040,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 651,
                     "y": 1744,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 940,
                       "y": 1786,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 940,
@@ -7062,21 +7062,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 648,
                     "y": 1841,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 938,
                       "y": 1884,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 938,
@@ -7084,21 +7084,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 646,
                     "y": 1939,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 936,
                       "y": 1981,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 936,
@@ -7106,21 +7106,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 377,
                     "x": 644,
                     "y": 2036,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 933,
                       "y": 2078,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 933,
@@ -7128,21 +7128,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 642,
                     "y": 2134,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 931,
                       "y": 2176,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 931,
@@ -7150,21 +7150,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 639,
                     "y": 2230,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 929,
                       "y": 2272,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 929,
@@ -7172,21 +7172,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 637,
                     "y": 2328,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 927,
                       "y": 2369,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 927,
@@ -7194,21 +7194,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 635,
                     "y": 2424,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 924,
                       "y": 2466,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 924,
@@ -7216,21 +7216,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 331,
                     "x": 1337,
                     "y": 1465,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1579,
                       "y": 1508,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1579,
@@ -7238,21 +7238,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 113,
                     "width": 332,
                     "x": 1334,
                     "y": 1563,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1577,
                       "y": 1606,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1577,
@@ -7260,21 +7260,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1332,
                     "y": 1662,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1575,
                       "y": 1704,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1575,
@@ -7282,21 +7282,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 331,
                     "x": 1330,
                     "y": 1759,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 1802,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -7304,21 +7304,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 331,
                     "x": 1328,
                     "y": 1857,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1571,
                       "y": 1900,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1571,
@@ -7326,21 +7326,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1326,
                     "y": 1955,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1568,
                       "y": 1997,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1568,
@@ -7348,21 +7348,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 332,
                     "x": 1323,
                     "y": 2052,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1566,
                       "y": 2094,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1566,
@@ -7370,21 +7370,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 332,
                     "x": 1321,
                     "y": 2150,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1564,
                       "y": 2192,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1564,
@@ -7392,21 +7392,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 331,
                     "x": 1319,
                     "y": 2246,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1562,
                       "y": 2289,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1562,
@@ -7414,21 +7414,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 331,
                     "x": 1317,
                     "y": 2344,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1560,
                       "y": 2386,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1560,
@@ -7436,21 +7436,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 331,
                     "x": 1315,
                     "y": 2440,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1557,
                       "y": 2483,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1557,
@@ -7461,30 +7461,30 @@ test('interpret unmarked', async () => {
               ],
             },
           ],
-          "metadata": Object {
+          "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
             "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
             "isTestMode": false,
-            "locales": Object {
+            "locales": {
               "primary": "unknown",
             },
             "pageNumber": 1,
             "precinctId": "town-id-12101-precinct-id-",
           },
-          "pageSize": Object {
+          "pageSize": {
             "height": 2800,
             "width": 1696,
           },
         },
-        "markInfo": Object {
-          "ballotSize": Object {
+        "markInfo": {
+          "ballotSize": {
             "height": 2800,
             "width": 1696,
           },
-          "marks": Array [
-            Object {
-              "bounds": Object {
+          "marks": [
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 668,
                 "maxY": 585,
@@ -7497,12 +7497,12 @@ test('interpret unmarked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 668,
                   "maxY": 585,
@@ -7512,7 +7512,7 @@ test('interpret unmarked', async () => {
                   "x": 629,
                   "y": 560,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 668,
                   "maxY": 585,
@@ -7525,8 +7525,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 664,
                 "maxY": 780,
@@ -7539,12 +7539,12 @@ test('interpret unmarked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Chris-Sununu-130124f7",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 664,
                   "maxY": 780,
@@ -7554,7 +7554,7 @@ test('interpret unmarked', async () => {
                   "x": 625,
                   "y": 755,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 664,
                   "maxY": 780,
@@ -7567,8 +7567,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 661,
                 "maxY": 927,
@@ -7581,12 +7581,12 @@ test('interpret unmarked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Corky-Messner-b6eb216d",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 661,
                   "maxY": 927,
@@ -7596,7 +7596,7 @@ test('interpret unmarked', async () => {
                   "x": 622,
                   "y": 902,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 661,
                   "maxY": 927,
@@ -7609,8 +7609,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 657,
                 "maxY": 1073,
@@ -7623,12 +7623,12 @@ test('interpret unmarked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Steven-Negron-5d482d72",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 1073,
@@ -7638,7 +7638,7 @@ test('interpret unmarked', async () => {
                   "x": 618,
                   "y": 1048,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 657,
                   "maxY": 1073,
@@ -7651,8 +7651,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 654,
                 "maxY": 1219,
@@ -7665,12 +7665,12 @@ test('interpret unmarked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "Dave-Wheeler-de2242ee",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 654,
                   "maxY": 1219,
@@ -7680,7 +7680,7 @@ test('interpret unmarked', async () => {
                   "x": 615,
                   "y": 1194,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 654,
                   "maxY": 1219,
@@ -7693,8 +7693,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 651,
                 "maxY": 1366,
@@ -7707,12 +7707,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "Sharon-M-Carson-0316308e",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 651,
                   "maxY": 1366,
@@ -7722,7 +7722,7 @@ test('interpret unmarked', async () => {
                   "x": 612,
                   "y": 1341,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 651,
                   "maxY": 1366,
@@ -7735,8 +7735,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 646,
                 "maxY": 1560,
@@ -7749,12 +7749,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Tony-Lekas-a06f7364",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 646,
                   "maxY": 1560,
@@ -7764,7 +7764,7 @@ test('interpret unmarked', async () => {
                   "x": 607,
                   "y": 1535,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 646,
                   "maxY": 1560,
@@ -7777,8 +7777,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 644,
                 "maxY": 1658,
@@ -7791,12 +7791,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Hershel-Nunez-6862315f",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 644,
                   "maxY": 1658,
@@ -7806,7 +7806,7 @@ test('interpret unmarked', async () => {
                   "x": 605,
                   "y": 1633,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 644,
                   "maxY": 1658,
@@ -7819,8 +7819,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 641,
                 "maxY": 1755,
@@ -7833,12 +7833,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Lynne-Ober-f704df17",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 641,
                   "maxY": 1755,
@@ -7848,7 +7848,7 @@ test('interpret unmarked', async () => {
                   "x": 602,
                   "y": 1730,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 641,
                   "maxY": 1755,
@@ -7861,8 +7861,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 639,
                 "maxY": 1853,
@@ -7875,12 +7875,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Russell-Ober-e433afea",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 639,
                   "maxY": 1853,
@@ -7890,7 +7890,7 @@ test('interpret unmarked', async () => {
                   "x": 600,
                   "y": 1828,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 639,
                   "maxY": 1853,
@@ -7903,8 +7903,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 637,
                 "maxY": 1951,
@@ -7917,12 +7917,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Andrew-Prout-1cd243e0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 637,
                   "maxY": 1951,
@@ -7932,7 +7932,7 @@ test('interpret unmarked', async () => {
                   "x": 598,
                   "y": 1926,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 637,
                   "maxY": 1951,
@@ -7945,8 +7945,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 634,
                 "maxY": 2048,
@@ -7959,12 +7959,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Andrew-Renzullo-b0428370",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 634,
                   "maxY": 2048,
@@ -7974,7 +7974,7 @@ test('interpret unmarked', async () => {
                   "x": 595,
                   "y": 2023,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 634,
                   "maxY": 2048,
@@ -7987,8 +7987,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 632,
                 "maxY": 2145,
@@ -8001,12 +8001,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Kimberly-Rice-faaed16a",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 632,
                   "maxY": 2145,
@@ -8016,7 +8016,7 @@ test('interpret unmarked', async () => {
                   "x": 593,
                   "y": 2120,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 632,
                   "maxY": 2145,
@@ -8029,8 +8029,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 629,
                 "maxY": 2242,
@@ -8043,12 +8043,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Denise-Smith-0a6359c3",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 629,
                   "maxY": 2242,
@@ -8058,7 +8058,7 @@ test('interpret unmarked', async () => {
                   "x": 590,
                   "y": 2217,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 629,
                   "maxY": 2242,
@@ -8071,8 +8071,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 627,
                 "maxY": 2339,
@@ -8085,12 +8085,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Jordan-Ulery-28553627",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 627,
                   "maxY": 2339,
@@ -8100,7 +8100,7 @@ test('interpret unmarked', async () => {
                   "x": 588,
                   "y": 2314,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 627,
                   "maxY": 2339,
@@ -8113,8 +8113,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 624,
                 "maxY": 2435,
@@ -8127,12 +8127,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Bob-Greene-c006a3bd",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 624,
                   "maxY": 2435,
@@ -8142,7 +8142,7 @@ test('interpret unmarked', async () => {
                   "x": 585,
                   "y": 2410,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 624,
                   "maxY": 2435,
@@ -8155,8 +8155,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 622,
                 "maxY": 2532,
@@ -8169,12 +8169,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Alicia-Lekas-271048d8",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 3,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 622,
                   "maxY": 2532,
@@ -8184,7 +8184,7 @@ test('interpret unmarked', async () => {
                   "x": 583,
                   "y": 2507,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 622,
                   "maxY": 2532,
@@ -8197,8 +8197,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1007,
                 "maxY": 593,
@@ -8211,12 +8211,12 @@ test('interpret unmarked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1007,
                   "maxY": 593,
@@ -8226,7 +8226,7 @@ test('interpret unmarked', async () => {
                   "x": 968,
                   "y": 568,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1007,
                   "maxY": 593,
@@ -8239,8 +8239,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1002,
                 "maxY": 788,
@@ -8253,12 +8253,12 @@ test('interpret unmarked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Dan-Feltes-3fadf798",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1002,
                   "maxY": 788,
@@ -8268,7 +8268,7 @@ test('interpret unmarked', async () => {
                   "x": 963,
                   "y": 763,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1002,
                   "maxY": 788,
@@ -8281,8 +8281,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 999,
                 "maxY": 934,
@@ -8295,12 +8295,12 @@ test('interpret unmarked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Jeanne-Shaheen-6e19622d",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 934,
@@ -8310,7 +8310,7 @@ test('interpret unmarked', async () => {
                   "x": 960,
                   "y": 909,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 999,
                   "maxY": 934,
@@ -8323,8 +8323,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 996,
                 "maxY": 1080,
@@ -8337,12 +8337,12 @@ test('interpret unmarked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Ann-McLane-Kuster-67fdf060",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 1080,
@@ -8352,7 +8352,7 @@ test('interpret unmarked', async () => {
                   "x": 957,
                   "y": 1055,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 996,
                   "maxY": 1080,
@@ -8365,8 +8365,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 993,
                 "maxY": 1227,
@@ -8379,12 +8379,12 @@ test('interpret unmarked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "Debora-B-Pignatelli-8c4cc1d3",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 993,
                   "maxY": 1227,
@@ -8394,7 +8394,7 @@ test('interpret unmarked', async () => {
                   "x": 954,
                   "y": 1202,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 993,
                   "maxY": 1227,
@@ -8407,8 +8407,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 989,
                 "maxY": 1373,
@@ -8421,12 +8421,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "Nancy-Hendricks-d330559d",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 989,
                   "maxY": 1373,
@@ -8436,7 +8436,7 @@ test('interpret unmarked', async () => {
                   "x": 950,
                   "y": 1348,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 989,
                   "maxY": 1373,
@@ -8449,8 +8449,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 986,
                 "maxY": 1520,
@@ -8463,12 +8463,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Brett-Gagnon-7a8c9838",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 3,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 986,
                   "maxY": 1520,
@@ -8478,7 +8478,7 @@ test('interpret unmarked', async () => {
                   "x": 947,
                   "y": 1495,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 986,
                   "maxY": 1520,
@@ -8491,8 +8491,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 983,
                 "maxY": 1617,
@@ -8505,12 +8505,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "David-Hennessey-f1343f4f",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 983,
                   "maxY": 1617,
@@ -8520,7 +8520,7 @@ test('interpret unmarked', async () => {
                   "x": 944,
                   "y": 1592,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 983,
                   "maxY": 1617,
@@ -8533,8 +8533,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 981,
                 "maxY": 1715,
@@ -8547,12 +8547,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Beatriz-Jauregui-11b83653",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 1715,
@@ -8562,7 +8562,7 @@ test('interpret unmarked', async () => {
                   "x": 942,
                   "y": 1690,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 981,
                   "maxY": 1715,
@@ -8575,8 +8575,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 979,
                 "maxY": 1812,
@@ -8589,12 +8589,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Steven-Katsos-077584b8",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 979,
                   "maxY": 1812,
@@ -8604,7 +8604,7 @@ test('interpret unmarked', async () => {
                   "x": 940,
                   "y": 1787,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 979,
                   "maxY": 1812,
@@ -8617,8 +8617,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 977,
                 "maxY": 1910,
@@ -8631,12 +8631,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Harold-Lynde-a54df7d7",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 977,
                   "maxY": 1910,
@@ -8646,7 +8646,7 @@ test('interpret unmarked', async () => {
                   "x": 938,
                   "y": 1885,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 977,
                   "maxY": 1910,
@@ -8659,8 +8659,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 974,
                 "maxY": 2008,
@@ -8673,12 +8673,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Lana-Paliy-595b276a",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 974,
                   "maxY": 2008,
@@ -8688,7 +8688,7 @@ test('interpret unmarked', async () => {
                   "x": 935,
                   "y": 1983,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 974,
                   "maxY": 2008,
@@ -8701,8 +8701,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 972,
                 "maxY": 2105,
@@ -8715,12 +8715,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Robert-S-Sherman-f10f4a3f",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 972,
                   "maxY": 2105,
@@ -8730,7 +8730,7 @@ test('interpret unmarked', async () => {
                   "x": 933,
                   "y": 2080,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 972,
                   "maxY": 2105,
@@ -8743,8 +8743,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 969,
                 "maxY": 2202,
@@ -8757,12 +8757,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Alejandro-Urrutia-1b574b86",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 969,
                   "maxY": 2202,
@@ -8772,7 +8772,7 @@ test('interpret unmarked', async () => {
                   "x": 930,
                   "y": 2177,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 969,
                   "maxY": 2202,
@@ -8785,8 +8785,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 967,
                 "maxY": 2299,
@@ -8799,12 +8799,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Timothy-Wyatt-0105b8de",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 967,
                   "maxY": 2299,
@@ -8814,7 +8814,7 @@ test('interpret unmarked', async () => {
                   "x": 928,
                   "y": 2274,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 967,
                   "maxY": 2299,
@@ -8827,8 +8827,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 964,
                 "maxY": 2396,
@@ -8841,12 +8841,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Barbara-A-Blue-14608463",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 964,
                   "maxY": 2396,
@@ -8856,7 +8856,7 @@ test('interpret unmarked', async () => {
                   "x": 925,
                   "y": 2371,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 964,
                   "maxY": 2396,
@@ -8869,8 +8869,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 962,
                 "maxY": 2492,
@@ -8883,12 +8883,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Nancy-S-Brucker-4471faf7",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 962,
                   "maxY": 2492,
@@ -8898,7 +8898,7 @@ test('interpret unmarked', async () => {
                   "x": 923,
                   "y": 2467,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 962,
                   "maxY": 2492,
@@ -8911,8 +8911,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1346,
                 "maxY": 600,
@@ -8925,12 +8925,12 @@ test('interpret unmarked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1346,
                   "maxY": 600,
@@ -8940,7 +8940,7 @@ test('interpret unmarked', async () => {
                   "x": 1307,
                   "y": 575,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1346,
                   "maxY": 600,
@@ -8953,8 +8953,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1342,
                 "maxY": 795,
@@ -8967,12 +8967,12 @@ test('interpret unmarked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "Darryl-W-Perry-2f07c455",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1342,
                   "maxY": 795,
@@ -8982,7 +8982,7 @@ test('interpret unmarked', async () => {
                   "x": 1303,
                   "y": 770,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1342,
                   "maxY": 795,
@@ -8995,8 +8995,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1339,
                 "maxY": 942,
@@ -9009,12 +9009,12 @@ test('interpret unmarked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "Justin-O-Donnell-ec71760c",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 942,
@@ -9024,7 +9024,7 @@ test('interpret unmarked', async () => {
                   "x": 1300,
                   "y": 917,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1339,
                   "maxY": 942,
@@ -9037,8 +9037,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1336,
                 "maxY": 1088,
@@ -9051,12 +9051,12 @@ test('interpret unmarked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "Andrew-Olding-bed33f08",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1336,
                   "maxY": 1088,
@@ -9066,7 +9066,7 @@ test('interpret unmarked', async () => {
                   "x": 1297,
                   "y": 1063,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1336,
                   "maxY": 1088,
@@ -9079,8 +9079,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1639,
                 "maxY": 606,
@@ -9093,12 +9093,12 @@ test('interpret unmarked', async () => {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1639,
                   "maxY": 606,
@@ -9108,7 +9108,7 @@ test('interpret unmarked', async () => {
                   "x": 1600,
                   "y": 581,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1639,
                   "maxY": 606,
@@ -9121,8 +9121,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1635,
                 "maxY": 801,
@@ -9135,12 +9135,12 @@ test('interpret unmarked', async () => {
               "contestId": "Governor-061a401b",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1635,
                   "maxY": 801,
@@ -9150,7 +9150,7 @@ test('interpret unmarked', async () => {
                   "x": 1596,
                   "y": 776,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1635,
                   "maxY": 801,
@@ -9163,8 +9163,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1631,
                 "maxY": 948,
@@ -9177,12 +9177,12 @@ test('interpret unmarked', async () => {
               "contestId": "United-States-Senator-d3f1c75b",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 948,
@@ -9192,7 +9192,7 @@ test('interpret unmarked', async () => {
                   "x": 1592,
                   "y": 923,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1631,
                   "maxY": 948,
@@ -9205,8 +9205,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1628,
                 "maxY": 1094,
@@ -9219,12 +9219,12 @@ test('interpret unmarked', async () => {
               "contestId": "Representative-in-Congress-24683b44",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 1094,
@@ -9234,7 +9234,7 @@ test('interpret unmarked', async () => {
                   "x": 1589,
                   "y": 1069,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1628,
                   "maxY": 1094,
@@ -9247,8 +9247,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1625,
                 "maxY": 1241,
@@ -9261,12 +9261,12 @@ test('interpret unmarked', async () => {
               "contestId": "Executive-Councilor-bb22557f",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1625,
                   "maxY": 1241,
@@ -9276,7 +9276,7 @@ test('interpret unmarked', async () => {
                   "x": 1586,
                   "y": 1216,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1625,
                   "maxY": 1241,
@@ -9289,8 +9289,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1622,
                 "maxY": 1388,
@@ -9303,12 +9303,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Senator-391381f8",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1622,
                   "maxY": 1388,
@@ -9318,7 +9318,7 @@ test('interpret unmarked', async () => {
                   "x": 1583,
                   "y": 1363,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1622,
                   "maxY": 1388,
@@ -9331,8 +9331,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1618,
                 "maxY": 1534,
@@ -9345,12 +9345,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-10",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1618,
                   "maxY": 1534,
@@ -9360,7 +9360,7 @@ test('interpret unmarked', async () => {
                   "x": 1579,
                   "y": 1509,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1618,
                   "maxY": 1534,
@@ -9373,8 +9373,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1616,
                 "maxY": 1632,
@@ -9387,12 +9387,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-9",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1616,
                   "maxY": 1632,
@@ -9402,7 +9402,7 @@ test('interpret unmarked', async () => {
                   "x": 1577,
                   "y": 1607,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1616,
                   "maxY": 1632,
@@ -9415,8 +9415,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1614,
                 "maxY": 1730,
@@ -9429,12 +9429,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-8",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1614,
                   "maxY": 1730,
@@ -9444,7 +9444,7 @@ test('interpret unmarked', async () => {
                   "x": 1575,
                   "y": 1705,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1614,
                   "maxY": 1730,
@@ -9457,8 +9457,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1611,
                 "maxY": 1827,
@@ -9471,12 +9471,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-7",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": 0,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 1827,
@@ -9486,7 +9486,7 @@ test('interpret unmarked', async () => {
                   "x": 1572,
                   "y": 1802,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1611,
                   "maxY": 1827,
@@ -9499,8 +9499,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1608,
                 "maxY": 1926,
@@ -9513,12 +9513,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-6",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1608,
                   "maxY": 1926,
@@ -9528,7 +9528,7 @@ test('interpret unmarked', async () => {
                   "x": 1569,
                   "y": 1901,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1608,
                   "maxY": 1926,
@@ -9541,8 +9541,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1606,
                 "maxY": 2023,
@@ -9555,12 +9555,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-5",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1606,
                   "maxY": 2023,
@@ -9570,7 +9570,7 @@ test('interpret unmarked', async () => {
                   "x": 1567,
                   "y": 1998,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1606,
                   "maxY": 2023,
@@ -9583,8 +9583,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1603,
                 "maxY": 2120,
@@ -9597,12 +9597,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-4",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 2,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1603,
                   "maxY": 2120,
@@ -9612,7 +9612,7 @@ test('interpret unmarked', async () => {
                   "x": 1564,
                   "y": 2095,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1603,
                   "maxY": 2120,
@@ -9625,8 +9625,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1601,
                 "maxY": 2217,
@@ -9639,12 +9639,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-3",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1601,
                   "maxY": 2217,
@@ -9654,7 +9654,7 @@ test('interpret unmarked', async () => {
                   "x": 1562,
                   "y": 2192,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1601,
                   "maxY": 2217,
@@ -9667,8 +9667,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1599,
                 "maxY": 2314,
@@ -9681,12 +9681,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-2",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1599,
                   "maxY": 2314,
@@ -9696,7 +9696,7 @@ test('interpret unmarked', async () => {
                   "x": 1560,
                   "y": 2289,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1599,
                   "maxY": 2314,
@@ -9709,8 +9709,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1596,
                 "maxY": 2411,
@@ -9723,12 +9723,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-1",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1596,
                   "maxY": 2411,
@@ -9738,7 +9738,7 @@ test('interpret unmarked', async () => {
                   "x": 1557,
                   "y": 2386,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1596,
                   "maxY": 2411,
@@ -9751,8 +9751,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1594,
                 "maxY": 2508,
@@ -9765,12 +9765,12 @@ test('interpret unmarked', async () => {
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1594,
                   "maxY": 2508,
@@ -9780,7 +9780,7 @@ test('interpret unmarked', async () => {
                   "x": 1555,
                   "y": 2483,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1594,
                   "maxY": 2508,
@@ -9795,117 +9795,117 @@ test('interpret unmarked', async () => {
             },
           ],
         },
-        "metadata": Object {
+        "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
           "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
           "isTestMode": false,
-          "locales": Object {
+          "locales": {
             "primary": "unknown",
           },
           "pageNumber": 1,
           "precinctId": "town-id-12101-precinct-id-",
         },
         "type": "InterpretedHmpbPage",
-        "votes": Object {},
+        "votes": {},
       },
-      Object {
-        "adjudicationInfo": Object {
-          "enabledReasonInfos": Array [],
-          "enabledReasons": Array [],
-          "ignoredReasonInfos": Array [
-            Object {
+      {
+        "adjudicationInfo": {
+          "enabledReasonInfos": [],
+          "enabledReasons": [],
+          "ignoredReasonInfos": [
+            {
               "contestId": "Sheriff-4243fe0b",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "County-Attorney-133f910f",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "County-Treasurer-87d25a31",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "Register-of-Deeds-a1278df2",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "Register-of-Probate-a4117da8",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "contestId": "County-Commissioner-d6feed25",
               "expected": 1,
-              "optionIds": Array [],
-              "optionIndexes": Array [],
+              "optionIds": [],
+              "optionIndexes": [],
               "type": "Undervote",
             },
-            Object {
+            {
               "type": "BlankBallot",
             },
           ],
           "requiresAdjudication": false,
         },
-        "layout": Object {
-          "contests": Array [
-            Object {
-              "bounds": Object {
+        "layout": {
+          "contests": [
+            {
+              "bounds": {
                 "height": 131,
                 "width": 1345,
                 "x": 302,
                 "y": 255,
               },
               "contestId": "Sheriff-4243fe0b",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 302,
                   "y": 255,
                 },
-                Object {
+                {
                   "x": 1646,
                   "y": 255,
                 },
-                Object {
+                {
                   "x": 1646,
                   "y": 385,
                 },
-                Object {
+                {
                   "x": 302,
                   "y": 385,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 302,
                     "y": 275,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 591,
                       "y": 317,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 591,
@@ -9913,21 +9913,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 641,
                     "y": 268,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 929,
                       "y": 310,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 929,
@@ -9935,21 +9935,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 328,
                     "x": 1319,
                     "y": 255,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1559,
                       "y": 297,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1559,
@@ -9959,48 +9959,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 131,
                 "width": 1346,
                 "x": 305,
                 "y": 401,
               },
               "contestId": "County-Attorney-133f910f",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 305,
                   "y": 401,
                 },
-                Object {
+                {
                   "x": 1650,
                   "y": 401,
                 },
-                Object {
+                {
                   "x": 1650,
                   "y": 531,
                 },
-                Object {
+                {
                   "x": 305,
                   "y": 531,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 305,
                     "y": 422,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 595,
                       "y": 464,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 595,
@@ -10008,21 +10008,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 644,
                     "y": 414,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 933,
                       "y": 457,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 933,
@@ -10030,21 +10030,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 983,
                     "y": 407,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1273,
                       "y": 449,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1273,
@@ -10052,21 +10052,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 329,
                     "x": 1322,
                     "y": 401,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1563,
                       "y": 443,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1563,
@@ -10076,48 +10076,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 131,
                 "width": 1345,
                 "x": 309,
                 "y": 547,
               },
               "contestId": "County-Treasurer-87d25a31",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 309,
                   "y": 547,
                 },
-                Object {
+                {
                   "x": 1653,
                   "y": 547,
                 },
-                Object {
+                {
                   "x": 1653,
                   "y": 677,
                 },
-                Object {
+                {
                   "x": 309,
                   "y": 677,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 309,
                     "y": 567,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 598,
                       "y": 609,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 598,
@@ -10125,21 +10125,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 648,
                     "y": 560,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 936,
                       "y": 602,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 936,
@@ -10147,21 +10147,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 378,
                     "x": 986,
                     "y": 553,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1276,
                       "y": 594,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1276,
@@ -10169,21 +10169,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 329,
                     "x": 1325,
                     "y": 547,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1566,
                       "y": 588,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1566,
@@ -10193,48 +10193,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 131,
                 "width": 1345,
                 "x": 312,
                 "y": 693,
               },
               "contestId": "Register-of-Deeds-a1278df2",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 312,
                   "y": 693,
                 },
-                Object {
+                {
                   "x": 1656,
                   "y": 693,
                 },
-                Object {
+                {
                   "x": 1656,
                   "y": 823,
                 },
-                Object {
+                {
                   "x": 312,
                   "y": 823,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 378,
                     "x": 312,
                     "y": 714,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 602,
                       "y": 756,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 602,
@@ -10242,21 +10242,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 651,
                     "y": 706,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 940,
                       "y": 748,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 940,
@@ -10264,21 +10264,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 328,
                     "x": 1329,
                     "y": 693,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1569,
                       "y": 734,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1569,
@@ -10288,48 +10288,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 132,
                 "width": 1345,
                 "x": 316,
                 "y": 838,
               },
               "contestId": "Register-of-Probate-a4117da8",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 316,
                   "y": 838,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 838,
                 },
-                Object {
+                {
                   "x": 1660,
                   "y": 969,
                 },
-                Object {
+                {
                   "x": 316,
                   "y": 969,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 316,
                     "y": 859,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
                       "y": 902,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 605,
@@ -10337,21 +10337,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 110,
                     "width": 377,
                     "x": 655,
                     "y": 852,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 943,
                       "y": 894,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 943,
@@ -10359,21 +10359,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 329,
                     "x": 1332,
                     "y": 838,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
                       "y": 880,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1573,
@@ -10383,48 +10383,48 @@ test('interpret unmarked', async () => {
                 },
               ],
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 133,
                 "width": 1345,
                 "x": 319,
                 "y": 984,
               },
               "contestId": "County-Commissioner-d6feed25",
-              "corners": Array [
-                Object {
+              "corners": [
+                {
                   "x": 319,
                   "y": 984,
                 },
-                Object {
+                {
                   "x": 1663,
                   "y": 984,
                 },
-                Object {
+                {
                   "x": 1663,
                   "y": 1116,
                 },
-                Object {
+                {
                   "x": 319,
                   "y": 1116,
                 },
               ],
-              "options": Array [
-                Object {
-                  "bounds": Object {
+              "options": [
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 378,
                     "x": 319,
                     "y": 1005,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 609,
                       "y": 1048,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 609,
@@ -10432,21 +10432,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 111,
                     "width": 377,
                     "x": 658,
                     "y": 998,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 947,
                       "y": 1040,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 947,
@@ -10454,21 +10454,21 @@ test('interpret unmarked', async () => {
                     },
                   },
                 },
-                Object {
-                  "bounds": Object {
+                {
+                  "bounds": {
                     "height": 112,
                     "width": 329,
                     "x": 1335,
                     "y": 984,
                   },
-                  "target": Object {
-                    "bounds": Object {
+                  "target": {
+                    "bounds": {
                       "height": 26,
                       "width": 40,
                       "x": 1576,
                       "y": 1026,
                     },
-                    "inner": Object {
+                    "inner": {
                       "height": 26,
                       "width": 40,
                       "x": 1576,
@@ -10479,30 +10479,30 @@ test('interpret unmarked', async () => {
               ],
             },
           ],
-          "metadata": Object {
+          "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
             "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
             "isTestMode": false,
-            "locales": Object {
+            "locales": {
               "primary": "unknown",
             },
             "pageNumber": 2,
             "precinctId": "town-id-12101-precinct-id-",
           },
-          "pageSize": Object {
+          "pageSize": {
             "height": 2800,
             "width": 1696,
           },
         },
-        "markInfo": Object {
-          "ballotSize": Object {
+        "markInfo": {
+          "ballotSize": {
             "height": 2800,
             "width": 1696,
           },
-          "marks": Array [
-            Object {
-              "bounds": Object {
+          "marks": [
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 629,
                 "maxY": 341,
@@ -10515,12 +10515,12 @@ test('interpret unmarked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "Christopher-Connelly-970b2364",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 629,
                   "maxY": 341,
@@ -10530,7 +10530,7 @@ test('interpret unmarked', async () => {
                   "x": 590,
                   "y": 316,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 629,
                   "maxY": 341,
@@ -10543,8 +10543,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 632,
                 "maxY": 488,
@@ -10557,12 +10557,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "John-J-Coughlin-0e7bf93c",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 632,
                   "maxY": 488,
@@ -10572,7 +10572,7 @@ test('interpret unmarked', async () => {
                   "x": 593,
                   "y": 463,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 632,
                   "maxY": 488,
@@ -10585,8 +10585,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 635,
                 "maxY": 633,
@@ -10599,12 +10599,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "David-G-Fredette-687f01ae",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 635,
                   "maxY": 633,
@@ -10614,7 +10614,7 @@ test('interpret unmarked', async () => {
                   "x": 596,
                   "y": 608,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 635,
                   "maxY": 633,
@@ -10627,8 +10627,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 639,
                 "maxY": 780,
@@ -10641,12 +10641,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "Jack-Flanagan-78e24cab",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 639,
                   "maxY": 780,
@@ -10656,7 +10656,7 @@ test('interpret unmarked', async () => {
                   "x": 600,
                   "y": 755,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 639,
                   "maxY": 780,
@@ -10669,8 +10669,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 642,
                 "maxY": 925,
@@ -10683,12 +10683,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "Elizabeth-Ann-Moreau-aec07bb4",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 642,
                   "maxY": 925,
@@ -10698,7 +10698,7 @@ test('interpret unmarked', async () => {
                   "x": 603,
                   "y": 900,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 642,
                   "maxY": 925,
@@ -10711,8 +10711,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 645,
                 "maxY": 1071,
@@ -10725,12 +10725,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "Michael-Soucy-b23f7c2d",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 645,
                   "maxY": 1071,
@@ -10740,7 +10740,7 @@ test('interpret unmarked', async () => {
                   "x": 606,
                   "y": 1046,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 645,
                   "maxY": 1071,
@@ -10753,8 +10753,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 967,
                 "maxY": 334,
@@ -10767,12 +10767,12 @@ test('interpret unmarked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "Bill-Barry-0e677ca6",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 967,
                   "maxY": 334,
@@ -10782,7 +10782,7 @@ test('interpret unmarked', async () => {
                   "x": 928,
                   "y": 309,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 967,
                   "maxY": 334,
@@ -10795,8 +10795,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 970,
                 "maxY": 480,
@@ -10809,12 +10809,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "Michael-Conlon-1a61fa16",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 970,
                   "maxY": 480,
@@ -10824,7 +10824,7 @@ test('interpret unmarked', async () => {
                   "x": 931,
                   "y": 455,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 970,
                   "maxY": 480,
@@ -10837,8 +10837,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 973,
                 "maxY": 626,
@@ -10851,12 +10851,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "William-Bryk-eaf936ec",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 973,
                   "maxY": 626,
@@ -10866,7 +10866,7 @@ test('interpret unmarked', async () => {
                   "x": 934,
                   "y": 601,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 973,
                   "maxY": 626,
@@ -10879,8 +10879,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 977,
                 "maxY": 772,
@@ -10893,12 +10893,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "Mary-Ann-Crowell-e1ff59b9",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 977,
                   "maxY": 772,
@@ -10908,7 +10908,7 @@ test('interpret unmarked', async () => {
                   "x": 938,
                   "y": 747,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 977,
                   "maxY": 772,
@@ -10921,8 +10921,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 980,
                 "maxY": 918,
@@ -10935,12 +10935,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "Elizabeth-Ropp-4035eed1",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 918,
@@ -10950,7 +10950,7 @@ test('interpret unmarked', async () => {
                   "x": 941,
                   "y": 893,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 980,
                   "maxY": 918,
@@ -10963,8 +10963,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 983,
                 "maxY": 1064,
@@ -10977,12 +10977,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "Daniel-C-Hansberry-8c0291ec",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 983,
                   "maxY": 1064,
@@ -10992,7 +10992,7 @@ test('interpret unmarked', async () => {
                   "x": 944,
                   "y": 1039,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 983,
                   "maxY": 1064,
@@ -11005,8 +11005,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1309,
                 "maxY": 474,
@@ -11019,12 +11019,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "Nicholas-Sarwark-c8f115e2",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1309,
                   "maxY": 474,
@@ -11034,7 +11034,7 @@ test('interpret unmarked', async () => {
                   "x": 1270,
                   "y": 449,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1309,
                   "maxY": 474,
@@ -11047,8 +11047,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1312,
                 "maxY": 619,
@@ -11061,12 +11061,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "Richard-Manzo-c5fcc876",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1312,
                   "maxY": 619,
@@ -11076,7 +11076,7 @@ test('interpret unmarked', async () => {
                   "x": 1273,
                   "y": 594,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1312,
                   "maxY": 619,
@@ -11089,8 +11089,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1597,
                 "maxY": 321,
@@ -11103,12 +11103,12 @@ test('interpret unmarked', async () => {
               "contestId": "Sheriff-4243fe0b",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": -1,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1597,
                   "maxY": 321,
@@ -11118,7 +11118,7 @@ test('interpret unmarked', async () => {
                   "x": 1558,
                   "y": 296,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1597,
                   "maxY": 321,
@@ -11131,8 +11131,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1600,
                 "maxY": 468,
@@ -11145,12 +11145,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Attorney-133f910f",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1600,
                   "maxY": 468,
@@ -11160,7 +11160,7 @@ test('interpret unmarked', async () => {
                   "x": 1561,
                   "y": 443,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1600,
                   "maxY": 468,
@@ -11173,8 +11173,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1603,
                 "maxY": 613,
@@ -11187,12 +11187,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Treasurer-87d25a31",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1603,
                   "maxY": 613,
@@ -11202,7 +11202,7 @@ test('interpret unmarked', async () => {
                   "x": 1564,
                   "y": 588,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1603,
                   "maxY": 613,
@@ -11215,8 +11215,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1607,
                 "maxY": 759,
@@ -11229,12 +11229,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Deeds-a1278df2",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1607,
                   "maxY": 759,
@@ -11244,7 +11244,7 @@ test('interpret unmarked', async () => {
                   "x": 1568,
                   "y": 734,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1607,
                   "maxY": 759,
@@ -11257,8 +11257,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1610,
                 "maxY": 905,
@@ -11271,12 +11271,12 @@ test('interpret unmarked', async () => {
               "contestId": "Register-of-Probate-a4117da8",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -1,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1610,
                   "maxY": 905,
@@ -11286,7 +11286,7 @@ test('interpret unmarked', async () => {
                   "x": 1571,
                   "y": 880,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1610,
                   "maxY": 905,
@@ -11299,8 +11299,8 @@ test('interpret unmarked', async () => {
               },
               "type": "candidate",
             },
-            Object {
-              "bounds": Object {
+            {
+              "bounds": {
                 "height": 26,
                 "maxX": 1613,
                 "maxY": 1051,
@@ -11313,12 +11313,12 @@ test('interpret unmarked', async () => {
               "contestId": "County-Commissioner-d6feed25",
               "optionId": "write-in-0",
               "score": 0,
-              "scoredOffset": Object {
+              "scoredOffset": {
                 "x": -2,
                 "y": 0,
               },
-              "target": Object {
-                "bounds": Object {
+              "target": {
+                "bounds": {
                   "height": 26,
                   "maxX": 1613,
                   "maxY": 1051,
@@ -11328,7 +11328,7 @@ test('interpret unmarked', async () => {
                   "x": 1574,
                   "y": 1026,
                 },
-                "inner": Object {
+                "inner": {
                   "height": 26,
                   "maxX": 1613,
                   "maxY": 1051,
@@ -11343,19 +11343,19 @@ test('interpret unmarked', async () => {
             },
           ],
         },
-        "metadata": Object {
+        "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
           "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
           "isTestMode": false,
-          "locales": Object {
+          "locales": {
             "primary": "unknown",
           },
           "pageNumber": 2,
           "precinctId": "town-id-12101-precinct-id-",
         },
         "type": "InterpretedHmpbPage",
-        "votes": Object {},
+        "votes": {},
       },
     ]
   `);
@@ -11378,136 +11378,136 @@ test('interpret marked 300dpi', async () => {
     interpretation[0].interpretation.type === 'InterpretedHmpbPage' &&
       interpretation[0].interpretation.votes
   ).toMatchInlineSnapshot(`
-    Object {
-      "Executive-Councilor-bb22557f": Array [
-        Object {
+    {
+      "Executive-Councilor-bb22557f": [
+        {
           "id": "Debora-B-Pignatelli-8c4cc1d3",
           "name": "Debora B. Pignatelli",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "Governor-061a401b": Array [
-        Object {
+      "Governor-061a401b": [
+        {
           "id": "Dan-Feltes-3fadf798",
           "name": "Dan Feltes",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "President-and-Vice-President-of-the-United-States-18d1a55a": Array [
-        Object {
+      "President-and-Vice-President-of-the-United-States-18d1a55a": [
+        {
           "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
           "name": "Joseph R. Biden  and Kamala D. Harris",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "Representative-in-Congress-24683b44": Array [
-        Object {
+      "Representative-in-Congress-24683b44": [
+        {
           "id": "Ann-McLane-Kuster-67fdf060",
           "name": "Ann McLane Kuster",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "State-Representatives-7d3a8821": Array [
-        Object {
+      "State-Representatives-7d3a8821": [
+        {
           "id": "Brett-Gagnon-7a8c9838",
           "name": "Brett Gagnon",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "David-Hennessey-f1343f4f",
           "name": "David Hennessey",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Beatriz-Jauregui-11b83653",
           "name": "Beatriz Jauregui",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Steven-Katsos-077584b8",
           "name": "Steven Katsos",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Harold-Lynde-a54df7d7",
           "name": "Harold Lynde",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Lana-Paliy-595b276a",
           "name": "Lana Paliy",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Robert-S-Sherman-f10f4a3f",
           "name": "Robert S. Sherman",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Alejandro-Urrutia-1b574b86",
           "name": "Alejandro Urrutia",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Timothy-Wyatt-0105b8de",
           "name": "Timothy Wyatt",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Barbara-A-Blue-14608463",
           "name": "Barbara A. Blue",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
-        Object {
+        {
           "id": "Nancy-S-Brucker-4471faf7",
           "name": "Nancy S. Brucker",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "State-Senator-391381f8": Array [
-        Object {
+      "State-Senator-391381f8": [
+        {
           "id": "Nancy-Hendricks-d330559d",
           "name": "Nancy Hendricks",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },
       ],
-      "United-States-Senator-d3f1c75b": Array [
-        Object {
+      "United-States-Senator-d3f1c75b": [
+        {
           "id": "Jeanne-Shaheen-6e19622d",
           "name": "Jeanne Shaheen",
-          "partyIds": Array [
+          "partyIds": [
             "Democratic-aea20adb",
           ],
         },

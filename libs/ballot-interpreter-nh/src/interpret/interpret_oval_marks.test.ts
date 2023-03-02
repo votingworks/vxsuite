@@ -64,8 +64,8 @@ test('interpretOvalMarks unmarked sheet', async () => {
 
   // If the lowest score changes, it should be by going down.
   expect(markWithLowestScore).toMatchInlineSnapshot(`
-    Object {
-      "bounds": Object {
+    {
+      "bounds": {
         "height": 26,
         "maxX": 668,
         "maxY": 585,
@@ -75,7 +75,7 @@ test('interpretOvalMarks unmarked sheet', async () => {
         "x": 629,
         "y": 560,
       },
-      "gridPosition": Object {
+      "gridPosition": {
         "column": 12,
         "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
         "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
@@ -84,7 +84,7 @@ test('interpretOvalMarks unmarked sheet', async () => {
         "type": "option",
       },
       "score": 0,
-      "scoredOffset": Object {
+      "scoredOffset": {
         "x": 0,
         "y": 1,
       },
@@ -93,8 +93,8 @@ test('interpretOvalMarks unmarked sheet', async () => {
 
   // If the highest score changes, it should be by going down.
   expect(markWithHighestScore).toMatchInlineSnapshot(`
-    Object {
-      "bounds": Object {
+    {
+      "bounds": {
         "height": 26,
         "maxX": 668,
         "maxY": 585,
@@ -104,7 +104,7 @@ test('interpretOvalMarks unmarked sheet', async () => {
         "x": 629,
         "y": 560,
       },
-      "gridPosition": Object {
+      "gridPosition": {
         "column": 12,
         "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
         "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
@@ -113,7 +113,7 @@ test('interpretOvalMarks unmarked sheet', async () => {
         "type": "option",
       },
       "score": 0,
-      "scoredOffset": Object {
+      "scoredOffset": {
         "x": 0,
         "y": 1,
       },
@@ -171,8 +171,8 @@ test('interpretOvalMarks marked front', async () => {
 
   // If the lowest score changes, it should be by going up.
   expect(markWithLowestScore).toMatchInlineSnapshot(`
-    Object {
-      "bounds": Object {
+    {
+      "bounds": {
         "height": 26,
         "maxX": 659,
         "maxY": 2250,
@@ -182,7 +182,7 @@ test('interpretOvalMarks marked front', async () => {
         "x": 620,
         "y": 2225,
       },
-      "gridPosition": Object {
+      "gridPosition": {
         "column": 12,
         "contestId": "State-Representatives-7d3a8821",
         "optionId": "Denise-Smith-0a6359c3",
@@ -191,7 +191,7 @@ test('interpretOvalMarks marked front', async () => {
         "type": "option",
       },
       "score": 0.025,
-      "scoredOffset": Object {
+      "scoredOffset": {
         "x": 1,
         "y": 2,
       },
@@ -200,8 +200,8 @@ test('interpretOvalMarks marked front', async () => {
 
   // If the highest score changes, it should be by going up.
   expect(markWithHighestScore).toMatchInlineSnapshot(`
-    Object {
-      "bounds": Object {
+    {
+      "bounds": {
         "height": 26,
         "maxX": 662,
         "maxY": 1226,
@@ -211,7 +211,7 @@ test('interpretOvalMarks marked front', async () => {
         "x": 623,
         "y": 1201,
       },
-      "gridPosition": Object {
+      "gridPosition": {
         "column": 12,
         "contestId": "Executive-Councilor-bb22557f",
         "optionId": "Dave-Wheeler-de2242ee",
@@ -220,7 +220,7 @@ test('interpretOvalMarks marked front', async () => {
         "type": "option",
       },
       "score": 0.5375,
-      "scoredOffset": Object {
+      "scoredOffset": {
         "x": 3,
         "y": 1,
       },
@@ -279,8 +279,8 @@ test('interpretOvalMarks marked rotated front', async () => {
           'Donald-J-Trump-and-Michael-R-Pence-3e3f31a7'
     )
   ).toMatchInlineSnapshot(`
-    Object {
-      "bounds": Object {
+    {
+      "bounds": {
         "height": 26,
         "maxX": 640,
         "maxY": 578,
@@ -290,7 +290,7 @@ test('interpretOvalMarks marked rotated front', async () => {
         "x": 601,
         "y": 553,
       },
-      "gridPosition": Object {
+      "gridPosition": {
         "column": 12,
         "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
         "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
@@ -299,7 +299,7 @@ test('interpretOvalMarks marked rotated front', async () => {
         "type": "option",
       },
       "score": 0.30865384615384617,
-      "scoredOffset": Object {
+      "scoredOffset": {
         "x": 0,
         "y": 3,
       },
