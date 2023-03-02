@@ -127,14 +127,18 @@ test('safeParseCdfBallotDefinition', () => {
   expect(
     safeParseCdfBallotDefinition({
       ...testCdfBallotDefinition,
-      GpUnit: testCdfBallotDefinition.GpUnit.map((unit) => ({
+      GpUnit: testCdfBallotDefinition.GpUnit.map((unit, i) => ({
         ...unit,
-        '@id': 'same-id',
+        '@id': `same-id-${i}`,
+      })),
+      Party: testCdfBallotDefinition.Party.map((party, i) => ({
+        ...party,
+        '@id': `same-id-${i}`,
       })),
     })
   ).toMatchInlineSnapshot(`
     Err {
-      "error": [Error: Ballot definition contains duplicate @ids: same-id],
+      "error": [Error: Ballot definition contains duplicate @ids: same-id-0, same-id-1],
     }
   `);
 

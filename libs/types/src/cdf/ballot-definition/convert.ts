@@ -416,6 +416,10 @@ function isArray(value: unknown): value is unknown[] {
   return Array.isArray(value);
 }
 
+/**
+ * The '@id' fields in a CDF ballot definition are required to be globally
+ * unique across the entire ballot definition.
+ */
 function findDuplicateIds(ballotDefinition: Cdf.BallotDefinition): string[] {
   function findIds(value: unknown): string[] {
     if (isPlainObject(value)) {
