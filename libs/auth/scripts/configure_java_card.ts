@@ -253,6 +253,8 @@ function runAppletConfigurationCommands() {
   );
   for (const apduString of apduStrings) console.log(`> ${apduString}`);
   const output = runCommand(
+    // -d --> Output command and response APDUs
+    // -c <applet-id> + --mode enc + -s <apdu> --> Use a GlobalPlatform Secure Channel
     globalPlatformCommand([
       '-d',
       '-c',
