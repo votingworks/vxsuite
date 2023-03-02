@@ -30,6 +30,15 @@ const VX_CUSTOM_CERT_FIELD = {
 } as const;
 
 /**
+ * Standard X.509 cert fields, common across all VotingWorks certs
+ */
+const STANDARD_CERT_FIELDS = [
+  'C=US', // Country
+  'ST=CA', // State
+  'O=VotingWorks', // Organization
+] as const;
+
+/**
  * Parsed custom cert fields
  */
 interface CustomCertFields {
@@ -148,9 +157,7 @@ export function constructCardCertSubject(
   }
 
   const entries = [
-    'C=US',
-    'ST=CA',
-    'O=VotingWorks',
+    ...STANDARD_CERT_FIELDS,
     `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
     `${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${jurisdiction}`,
     `${VX_CUSTOM_CERT_FIELD.CARD_TYPE}=${cardType}`,
@@ -160,5 +167,21 @@ export function constructCardCertSubject(
   }
   const certSubject = `/${entries.join('/')}/`;
 
+  return certSubject;
+}
+
+/**
+ * Constructs a VotingWorks card cert subject without jurisdiction and card type, that can be
+ * passed to an openssl command. This trimmed down cert subject is used in the card's
+ * VotingWorks-issued cert. The card's VxAdmin-issued cert, on the other hand, requires
+ * jurisdiction and card type.
+ */
+export function constructCardCertSubjectWithoutJurisdictionAndCardType(): string {
+  const component: CustomCertFields['component'] = 'card';
+  const entries = [
+    ...STANDARD_CERT_FIELDS,
+    `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
+  ];
+  const certSubject = `/${entries.join('/')}/`;
   return certSubject;
 }

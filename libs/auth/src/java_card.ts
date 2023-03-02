@@ -24,6 +24,7 @@ import { Card, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
 import {
   constructCardCertSubject,
+  constructCardCertSubjectWithoutJurisdictionAndCardType,
   parseCert,
   parseUserDataFromCert,
 } from './certs';
@@ -54,42 +55,48 @@ import {
 /**
  * The OpenFIPS201 applet ID
  */
-const OPEN_FIPS_201_AID = Buffer.from([
-  0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00,
-]);
+export const OPEN_FIPS_201_AID = 'a000000308000010000100';
 
 /**
  * Java Cards always have a PIN. To allow for "PIN-less" cards and "blank" cards, we use a default
  * PIN.
  */
-const DEFAULT_PIN = '000000';
+export const DEFAULT_PIN = '000000';
 
 /**
  * The PIN unblocking key or PUK. Typically a sensitive value but not for us given our modification
  * to OpenFIPS201 to clear all PIN-gated keys on PIN reset, which invalidates the card.
  */
-const PUK = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+export const PUK = Buffer.from([
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+]);
+
+/**
+ * The max number of invalid PIN attempts before the card is completely locked and needs to be
+ * reprogrammed. 15 is the max value supported by OpenFIPS201.
+ */
+export const MAX_INVALID_PIN_ATTEMPTS = 15;
 
 /**
  * The card's VotingWorks-issued cert
  */
-const CARD_VX_CERT = {
+export const CARD_VX_CERT = {
   OBJECT_ID: pivDataObjectId(0xf0),
-  PRIVATE_KEY_SLOT: 0xf0,
+  PRIVATE_KEY_ID: 0xf0,
 } as const;
 
 /**
  * The card's VxAdmin-issued cert
  */
-const CARD_VX_ADMIN_CERT = {
+export const CARD_VX_ADMIN_CERT = {
   OBJECT_ID: pivDataObjectId(0xf1),
-  PRIVATE_KEY_SLOT: 0xf1,
+  PRIVATE_KEY_ID: 0xf1,
 } as const;
 
 /**
  * The cert authority cert of the VxAdmin that programmed the card
  */
-const VX_ADMIN_CERT_AUTHORITY_CERT = {
+export const VX_ADMIN_CERT_AUTHORITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf2),
 } as const;
 
@@ -119,7 +126,7 @@ const GENERIC_STORAGE_SPACE_CAPACITY_BYTES = 90000;
  * The card's generic storage space for non-auth data. We use multiple data objects under the hood
  * to increase capacity.
  */
-const GENERIC_STORAGE_SPACE = {
+export const GENERIC_STORAGE_SPACE = {
   OBJECT_IDS: [
     pivDataObjectId(0xf3),
     pivDataObjectId(0xf4),
@@ -202,7 +209,7 @@ export class JavaCard implements Card {
       // Verify that the card has a private key that corresponds to the public key in the card
       // VxAdmin cert
       await this.verifyCardPrivateKey(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_SLOT,
+        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
         cardVxAdminCert,
         pin
       );
@@ -242,7 +249,7 @@ export class JavaCard implements Card {
     await this.resetPinAndInvalidateCard(pin);
 
     const publicKey = await this.generateAsymmetricKeyPair(
-      CARD_VX_ADMIN_CERT.PRIVATE_KEY_SLOT,
+      CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
       pin
     );
     const cardVxAdminCert = await createCert({
@@ -391,7 +398,7 @@ export class JavaCard implements Card {
 
     // Verify that the card has a private key that corresponds to the public key in the card
     // VotingWorks cert
-    await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_SLOT, cardVxCert);
+    await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
     const user = await parseUserDataFromCert(
       cardVxAdminCert,
@@ -409,7 +416,7 @@ export class JavaCard implements Card {
      */
     if (user?.role === 'poll_worker') {
       await this.verifyCardPrivateKey(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_SLOT,
+        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
         cardVxAdminCert,
         DEFAULT_PIN
       );
@@ -427,7 +434,7 @@ export class JavaCard implements Card {
         ins: SELECT.INS,
         p1: SELECT.P1,
         p2: SELECT.P2,
-        data: OPEN_FIPS_201_AID,
+        data: Buffer.from(OPEN_FIPS_201_AID, 'hex'),
       })
     );
   }
@@ -469,14 +476,14 @@ export class JavaCard implements Card {
   }
 
   /**
-   * Verifies that the card private key in the specified slot corresponds to the public key in the
-   * provided cert by 1) having the private key sign a "challenge" and 2) using the public key to
-   * verify the generated signature.
+   * Verifies that the specified card private key corresponds to the public key in the provided
+   * cert by 1) having the private key sign a "challenge" and 2) using the public key to verify the
+   * generated signature.
    *
-   * A PIN must be provided if the specified private key is PIN-gated.
+   * A PIN must be provided if the private key is PIN-gated.
    */
   private async verifyCardPrivateKey(
-    privateKeySlot: Byte,
+    privateKeyId: Byte,
     cert: Buffer,
     pin?: string
   ): Promise<void> {
@@ -484,14 +491,14 @@ export class JavaCard implements Card {
       await this.checkPinInternal(pin);
     }
 
-    // Have the private key in the specified slot sign a "challenge"
+    // Have the private key sign a "challenge"
     const challenge = `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,
         p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
-        p2: privateKeySlot,
+        p2: privateKeyId,
         data: constructTlv(
           GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
           Buffer.concat([
@@ -503,7 +510,7 @@ export class JavaCard implements Card {
     );
     const challengeSignature = generalAuthenticateResponse.subarray(4); // Trim metadata
 
-    // Use the public key in the provided cert to verify the generated signature
+    // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);
     await verifySignature({
       publicKey: certPublicKey,
@@ -516,10 +523,10 @@ export class JavaCard implements Card {
    * Generates an asymmetric key pair on the card. The public key is exported, and the private key
    * never leaves the card. The returned public key will be in PEM format.
    *
-   * A PIN must be provided if the specified private key slot is PIN-gated.
+   * A PIN must be provided if the specified private key is PIN-gated.
    */
   private async generateAsymmetricKeyPair(
-    privateKeySlot: Byte,
+    privateKeyId: Byte,
     pin?: string
   ): Promise<Buffer> {
     if (pin) {
@@ -530,7 +537,7 @@ export class JavaCard implements Card {
       new CardCommand({
         ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
         p1: GENERATE_ASYMMETRIC_KEY_PAIR.P1,
-        p2: privateKeySlot,
+        p2: privateKeyId,
         data: constructTlv(
           GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
           constructTlv(
@@ -607,5 +614,30 @@ export class JavaCard implements Card {
         ]),
       })
     );
+  }
+
+  /**
+   * Creates and stores the card's VotingWorks-issued cert. Only to be used by the initial card
+   * configuration script.
+   */
+  async createAndStoreCardVxCert(input: {
+    vxOpensslConfigPath: string;
+    vxPrivateKeyPassword: string;
+    vxPrivateKeyPath: string;
+  }): Promise<void> {
+    await this.selectApplet();
+
+    const publicKey = await this.generateAsymmetricKeyPair(
+      CARD_VX_CERT.PRIVATE_KEY_ID
+    );
+    const cardVxCert = await createCert({
+      certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
+      opensslConfig: input.vxOpensslConfigPath,
+      publicKeyToSign: publicKey,
+      signingCertAuthorityCert: this.vxCertAuthorityCertPath,
+      signingPrivateKey: input.vxPrivateKeyPath,
+      signingPrivateKeyPassword: input.vxPrivateKeyPassword,
+    });
+    await this.storeCert(CARD_VX_CERT.OBJECT_ID, cardVxCert);
   }
 }
