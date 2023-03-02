@@ -59,11 +59,11 @@ export const testVxfElection: Election = {
       title: 'Proposition 1',
       description: 'Should we do this thing?',
       yesOption: {
-        id: 'option-yes',
+        id: 'contest-2-option-yes',
         label: 'Yes',
       },
       noOption: {
-        id: 'option-no',
+        id: 'contest-2-option-no',
         label: 'No',
       },
     },
@@ -212,19 +212,19 @@ export const testCdfBallotDefinition: BallotDefinition = {
           ContestOption: [
             {
               '@type': 'BallotDefinition.CandidateOption',
-              '@id': 'option-candidate-1',
+              '@id': 'contest-1-option-candidate-1',
               CandidateIds: ['candidate-1'],
               EndorsementPartyIds: ['party-1'],
             },
             {
               '@type': 'BallotDefinition.CandidateOption',
-              '@id': 'option-candidate-2',
+              '@id': 'contest-1-option-candidate-2',
               CandidateIds: ['candidate-2'],
               EndorsementPartyIds: ['party-2'],
             },
             {
               '@type': 'BallotDefinition.CandidateOption',
-              '@id': 'option-write-in-1',
+              '@id': 'contest-1-option-write-in-1',
               IsWriteIn: true,
             },
           ],
@@ -257,7 +257,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
           ContestOption: [
             {
               '@type': 'BallotDefinition.BallotMeasureOption',
-              '@id': 'option-yes',
+              '@id': 'contest-2-option-yes',
               Selection: {
                 '@type': 'BallotDefinition.InternationalizedText',
                 Text: [
@@ -271,7 +271,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
             },
             {
               '@type': 'BallotDefinition.BallotMeasureOption',
-              '@id': 'option-no',
+              '@id': 'contest-2-option-no',
               Selection: {
                 '@type': 'BallotDefinition.InternationalizedText',
                 Text: [
@@ -304,7 +304,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
           ContestOption: [
             {
               '@type': 'BallotDefinition.CandidateOption',
-              '@id': 'option-candidate-3',
+              '@id': 'contest-3-option-candidate-3',
               CandidateIds: ['candidate-3'],
             },
           ],

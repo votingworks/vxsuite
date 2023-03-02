@@ -98,10 +98,28 @@ CDF error: [
   },
   {
     "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "Election"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
     "expected": "string",
     "received": "undefined",
     "path": [
       "GeneratedDate"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "GpUnit"
     ],
     "message": "Required"
   },
@@ -120,6 +138,15 @@ CDF error: [
     "received": "undefined",
     "path": [
       "IssuerAbbreviation"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
+      "Party"
     ],
     "message": "Required"
   },
@@ -161,94 +188,4 @@ CDF error: [
     "message": "Invalid enum value. Expected '1.0.0'"
   }
 ]]
-`;
-
-exports[`safeParseElection shows VXF and CDF parsing errors 2`] = `
-[Error: Invalid election definition
-
-VXF error: [
-  {
-    "code": "invalid_type",
-    "expected": "array",
-    "received": "undefined",
-    "path": [
-      "ballotStyles"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "array",
-    "received": "undefined",
-    "path": [
-      "contests"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "object",
-    "received": "undefined",
-    "path": [
-      "county"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "string",
-    "received": "undefined",
-    "path": [
-      "date"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "array",
-    "received": "undefined",
-    "path": [
-      "districts"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "array",
-    "received": "undefined",
-    "path": [
-      "parties"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "array",
-    "received": "undefined",
-    "path": [
-      "precincts"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "string",
-    "received": "undefined",
-    "path": [
-      "state"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
-    "expected": "string",
-    "received": "undefined",
-    "path": [
-      "title"
-    ],
-    "message": "Required"
-  }
-]
-
-CDF error: Error]
 `;

@@ -1,3 +1,4 @@
+import { ok } from '@votingworks/basics';
 import {
   election,
   electionMinimalExhaustive,
@@ -8,6 +9,7 @@ import { Election } from '../../election';
 import {
   convertCdfBallotDefinitionToVxfElection,
   convertVxfElectionToCdfBallotDefinition,
+  safeParseCdfBallotDefinition,
 } from './convert';
 import { mockNow, testCdfBallotDefinition, testVxfElection } from './fixtures';
 
@@ -73,8 +75,14 @@ function normalizeVxf(vxfElection: Election) {
       contest.type === 'yesno'
         ? {
             ...contest,
-            yesOption: contest.yesOption || { label: 'Yes', id: 'option-yes' },
-            noOption: contest.noOption || { label: 'No', id: 'option-no' },
+            yesOption: contest.yesOption || {
+              label: 'Yes',
+              id: `${contest.id}-option-yes`,
+            },
+            noOption: contest.noOption || {
+              label: 'No',
+              id: `${contest.id}-option-no`,
+            },
           }
         : contest
     ),
@@ -98,3 +106,43 @@ for (const vxf of elections) {
     );
   });
 }
+
+test('safeParseCdfBallotDefinition', () => {
+  // Try a malformed CDF ballot definition that will cause the convert function
+  // to throw an error (needed to cover the case that catches these errors)
+  expect(
+    safeParseCdfBallotDefinition({
+      ...testCdfBallotDefinition,
+      GpUnit: testCdfBallotDefinition.GpUnit.filter(
+        (unit) => unit.Type === 'state'
+      ),
+    })
+  ).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: unable to find an element matching a predicate],
+    }
+  `);
+
+  // Duplicate ids should be rejected
+  expect(
+    safeParseCdfBallotDefinition({
+      ...testCdfBallotDefinition,
+      GpUnit: testCdfBallotDefinition.GpUnit.map((unit, i) => ({
+        ...unit,
+        '@id': `same-id-${i}`,
+      })),
+      Party: testCdfBallotDefinition.Party.map((party, i) => ({
+        ...party,
+        '@id': `same-id-${i}`,
+      })),
+    })
+  ).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: Ballot definition contains duplicate @ids: same-id-0, same-id-1],
+    }
+  `);
+
+  expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
+    ok(testVxfElection)
+  );
+});
