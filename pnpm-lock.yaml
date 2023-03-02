@@ -3651,7 +3651,7 @@ importers:
         version: 4.1.2
       debug:
         specifier: ^4.3.4
-        version: 4.3.4(supports-color@8.1.1)
+        version: 4.3.4
       usb:
         specifier: ^2.6.0
         version: 2.8.3
@@ -3719,6 +3719,9 @@ importers:
       jest-junit:
         specifier: ^15.0.0
         version: 15.0.0
+      jest-mock-extended:
+        specifier: ^3.0.4
+        version: 3.0.4(jest@29.4.3)(typescript@4.6.3)
       jest-watch-typeahead:
         specifier: 0.6.4
         version: 0.6.4(jest@29.4.3)
@@ -3730,7 +3733,7 @@ importers:
         version: 2.8.3
       ts-jest:
         specifier: ^29.0.5
-        version: 29.0.5(@babel/core@7.12.3)(@jest/types@29.5.0)(esbuild@0.17.11)(jest@29.5.0)(typescript@4.6.3)
+        version: 29.0.5(@babel/core@7.20.12)(esbuild@0.16.17)(jest@29.4.3)(typescript@4.6.3)
       typescript:
         specifier: 4.6.3
         version: 4.6.3
@@ -8729,7 +8732,7 @@ packages:
     engines: {node: '>=10.10.0'}
     dependencies:
       '@humanwhocodes/object-schema': 1.2.1
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -12846,7 +12849,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.49.0
       '@typescript-eslint/type-utils': 5.49.0(eslint@8.33.0)(typescript@4.6.3)
       '@typescript-eslint/utils': 5.49.0(eslint@8.33.0)(typescript@4.6.3)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.33.0
       ignore: 5.2.0
       natural-compare-lite: 1.4.0
@@ -12981,7 +12984,7 @@ packages:
       '@typescript-eslint/scope-manager': 5.49.0
       '@typescript-eslint/types': 5.49.0
       '@typescript-eslint/typescript-estree': 5.49.0(typescript@4.6.3)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.33.0
       typescript: 4.6.3
     transitivePeerDependencies:
@@ -13115,7 +13118,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.49.0(typescript@4.6.3)
       '@typescript-eslint/utils': 5.49.0(eslint@8.33.0)(typescript@4.6.3)
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       eslint: 8.33.0
       tsutils: 3.21.0(typescript@4.6.3)
       typescript: 4.6.3
@@ -19205,7 +19208,7 @@ packages:
         optional: true
     dependencies:
       '@typescript-eslint/parser': 5.49.0(eslint@8.33.0)(typescript@4.6.3)
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       eslint: 8.33.0
       eslint-import-resolver-node: 0.3.7
     transitivePeerDependencies:
@@ -19418,7 +19421,7 @@ packages:
       array-includes: 3.1.6
       array.prototype.flat: 1.3.1
       array.prototype.flatmap: 1.3.1
-      debug: 3.2.7(supports-color@8.1.1)
+      debug: 3.2.7
       doctrine: 2.1.0
       eslint: 8.33.0
       eslint-import-resolver-node: 0.3.7
@@ -20262,7 +20265,7 @@ packages:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.3.4
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.1.1
@@ -24729,6 +24732,17 @@ packages:
       slash: 3.0.0
       stack-utils: 2.0.5
 
+  /jest-mock-extended@3.0.4(jest@29.4.3)(typescript@4.6.3):
+    resolution: {integrity: sha512-2ynEZ7IEJNrhrgshklDMhrOdnmW4Nt+PhkyRqZxRgpwMo7JjmFWMzyp0+eSyk+H9KK1QjXI5xTZIw6x7cVDcRg==}
+    peerDependencies:
+      jest: ^24.0.0 || ^25.0.0 || ^26.0.0 || ^27.0.0 || ^28.0.0 || ^29.0.0
+      typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
+    dependencies:
+      jest: 29.4.3(@types/node@18.11.18)
+      ts-essentials: 7.0.3(typescript@4.6.3)
+      typescript: 4.6.3
+    dev: true
+
   /jest-mock@25.5.0:
     resolution: {integrity: sha512-eXWuTV8mKzp/ovHc5+3USJMYsTBhyQ+5A1Mak35dey/RG8GlM4YWVylZuGgVXinaW6tpvk/RSecmF37FKUlpXA==}
     engines: {node: '>= 8.3'}
@@ -25646,7 +25660,7 @@ packages:
       '@babel/generator': 7.20.14
       '@babel/plugin-syntax-jsx': 7.18.6(@babel/core@7.20.12)
       '@babel/plugin-syntax-typescript': 7.18.6(@babel/core@7.20.12)
-      '@babel/traverse': 7.20.13(supports-color@5.5.0)
+      '@babel/traverse': 7.20.13
       '@babel/types': 7.20.7
       '@jest/expect-utils': 29.4.3
       '@jest/transform': 29.4.3
@@ -32734,6 +32748,14 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
+  /ts-essentials@7.0.3(typescript@4.6.3):
+    resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
+    peerDependencies:
+      typescript: '>=3.7.0'
+    dependencies:
+      typescript: 4.6.3
+    dev: true
+
   /ts-jest@26.5.6(jest@26.6.0)(typescript@4.6.3):
     resolution: {integrity: sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==}
     engines: {node: '>= 10'}
@@ -33157,6 +33179,41 @@ packages:
       esbuild: 0.17.11
       fast-json-stable-stringify: 2.1.0
       jest: 29.5.0(@types/node@18.14.6)
+      jest-util: 29.4.3
+      json5: 2.2.3
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.3.7
+      typescript: 4.6.3
+      yargs-parser: 21.1.1
+    dev: true
+
+  /ts-jest@29.0.5(@babel/core@7.20.12)(esbuild@0.16.17)(jest@29.4.3)(typescript@4.6.3):
+    resolution: {integrity: sha512-PL3UciSgIpQ7f6XjVOmbi96vmDHUqAyqDr8YxzopDqX3kfgYtX1cuNeBjP+L9sFXi6nzsGGA6R3fP3DDDJyrxA==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@jest/types': ^29.0.0
+      babel-jest: ^29.0.0
+      esbuild: '*'
+      jest: ^29.0.0
+      typescript: '>=4.3'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@jest/types':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    dependencies:
+      '@babel/core': 7.20.12
+      bs-logger: 0.2.6
+      esbuild: 0.16.17
+      fast-json-stable-stringify: 2.1.0
+      jest: 29.4.3(@types/node@18.11.18)
       jest-util: 29.4.3
       json5: 2.2.3
       lodash.memoize: 4.1.2
