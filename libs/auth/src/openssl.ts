@@ -4,6 +4,14 @@ import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 
+/**
+ * The static header for a public key in DER format
+ */
+export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.from([
+  0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
+  0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00,
+]);
+
 type OpensslParam = string | Buffer;
 
 /**
@@ -63,7 +71,7 @@ export async function openssl(
         cleanupError = error;
       }
       if (code !== 0) {
-        reject(new Error(stderr.join('\n')));
+        reject(new Error(stderr.toString()));
       } else if (cleanupError) {
         reject(cleanupError);
       } else {
@@ -71,4 +79,152 @@ export async function openssl(
       }
     });
   });
+}
+
+/**
+ * An alias of OpensslParam for clarity
+ */
+type FilePathOrBuffer = OpensslParam;
+
+/**
+ * Converts a cert in DER format to PEM format
+ */
+export function certDerToPem(cert: FilePathOrBuffer): Promise<Buffer> {
+  return openssl(['x509', '-inform', 'DER', '-outform', 'PEM', '-in', cert]);
+}
+
+/**
+ * Converts a cert in PEM format to DER format
+ */
+export function certPemToDer(cert: FilePathOrBuffer): Promise<Buffer> {
+  return openssl(['x509', '-inform', 'PEM', '-outform', 'DER', '-in', cert]);
+}
+
+/**
+ * Converts an ECC public key in DER format to PEM format
+ */
+export function publicKeyDerToPem(
+  publicKey: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl([
+    'ec',
+    '-inform',
+    'DER',
+    '-outform',
+    'PEM',
+    '-pubin',
+    '-in',
+    publicKey,
+  ]);
+}
+
+/**
+ * Converts an ECC public key in PEM format to DER format
+ */
+export function publicKeyPemToDer(
+  publicKey: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl([
+    'ec',
+    '-inform',
+    'PEM',
+    '-outform',
+    'DER',
+    '-pubin',
+    '-in',
+    publicKey,
+  ]);
+}
+
+/**
+ * Extracts a public key (in PEM format) from a cert (also in PEM format)
+ */
+export function extractPublicKeyFromCert(
+  cert: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl(['x509', '-noout', '-pubkey', '-in', cert]);
+}
+
+/**
+ * Verifies that the first cert was signed by the second cert. Both certs should be in PEM format.
+ * Throws an error if signature verification fails.
+ */
+export function verifyFirstCertWasSignedBySecondCert(
+  cert1: FilePathOrBuffer,
+  cert2: FilePathOrBuffer
+): Promise<Buffer> {
+  return openssl(['verify', '-CAfile', cert2, cert1]);
+}
+
+/**
+ * Verifies a challenge signature against an original challenge using a public key (in PEM format).
+ * Throws an error if signature verification fails.
+ */
+export async function verifySignature({
+  challenge,
+  challengeSignature,
+  publicKey,
+}: {
+  challenge: FilePathOrBuffer;
+  challengeSignature: FilePathOrBuffer;
+  publicKey: FilePathOrBuffer;
+}): Promise<void> {
+  await openssl([
+    'dgst',
+    '-verify',
+    publicKey,
+    '-sha256',
+    '-signature',
+    challengeSignature,
+    challenge,
+  ]);
+}
+
+/**
+ * Creates a cert by signing a public key with a signing cert authority cert and private key. All
+ * key and cert inputs should be in PEM format. The outputted cert will also be in PEM format.
+ */
+export async function createCert({
+  certSubject,
+  opensslConfig,
+  publicKeyToSign,
+  signingCertAuthorityCert,
+  signingPrivateKey,
+  signingPrivateKeyPassword,
+}: {
+  certSubject: string;
+  opensslConfig: FilePathOrBuffer;
+  publicKeyToSign: FilePathOrBuffer;
+  signingCertAuthorityCert: FilePathOrBuffer;
+  signingPrivateKey: FilePathOrBuffer;
+  signingPrivateKeyPassword: string;
+}): Promise<Buffer> {
+  const certSigningRequest = await openssl([
+    'req',
+    '-new',
+    '-config',
+    opensslConfig,
+    '-key',
+    signingPrivateKey,
+    '-passin',
+    `pass:${signingPrivateKeyPassword}`,
+    '-subj',
+    certSubject,
+  ]);
+  const cert = await openssl([
+    'x509',
+    '-req',
+    '-CA',
+    signingCertAuthorityCert,
+    '-CAkey',
+    signingPrivateKey,
+    '-passin',
+    `pass:${signingPrivateKeyPassword}`,
+    '-CAcreateserial',
+    '-in',
+    certSigningRequest,
+    '-force_pubkey',
+    publicKeyToSign,
+  ]);
+  return cert;
 }

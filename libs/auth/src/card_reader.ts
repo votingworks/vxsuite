@@ -86,10 +86,6 @@ export class CardReader {
     });
   }
 
-  getReaderStatus(): Reader['status'] {
-    return this.reader.status;
-  }
-
   /**
    * Transmits command APDUs to a smart card. On success, returns response data. On error, throws.
    * Specifically throws a ResponseApduError when a response APDU with a non-success status word is
