@@ -424,7 +424,11 @@ export function PrintTestDeckScreen(): JSX.Element {
       return (
         <React.Fragment key={precinctId}>
           {PrecinctTallyReport({ election, precinctId })}
-          {getBmdPaperBallots({ electionDefinition, precinctId })}
+          {getBmdPaperBallots({
+            electionDefinition,
+            precinctId,
+            generateBallotId,
+          })}
           <React.Fragment>
             {handMarkedPaperBallotCallbacks.map(
               (handMarkedPaperBallotWithCallback) =>
@@ -434,7 +438,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         </React.Fragment>
       );
     },
-    [election, electionDefinition]
+    [election, electionDefinition, generateBallotId]
   );
 
   // printLogicAndAccuracyPackageToPdf prints the L&A package for all precincts to PDF format.
