@@ -1,8 +1,4 @@
-import {
-  loadImage,
-  toImageData,
-  imageDebugger,
-} from '@votingworks/image-utils';
+import { imageDebugger, loadGrayImage } from '@votingworks/image-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
@@ -149,8 +145,8 @@ export async function main(
     options;
 
   const definitionContent = await fs.readFile(definitionPath, 'utf8');
-  const frontBallotImage = toImageData(await loadImage(frontBallotPath));
-  const backBallotImage = toImageData(await loadImage(backBallotPath));
+  const frontBallotImage = await loadGrayImage(frontBallotPath);
+  const backBallotImage = await loadGrayImage(backBallotPath);
 
   const cardDefinition: NewHampshireBallotCardDefinition = {
     definition: parseXml(definitionContent),

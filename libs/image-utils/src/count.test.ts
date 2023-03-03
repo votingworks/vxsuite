@@ -1,62 +1,43 @@
-import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
-import { countPixels, ratio } from './count';
-import { PIXEL_BLACK, PIXEL_WHITE } from './diff';
+import { PIXEL_BLACK, PIXEL_WHITE } from './constants';
+import { wrapImageData } from './image_data';
 
-const imageData4x4: Readonly<ImageData> = createImageData(
-  Uint8ClampedArray.of(
-    // y=0
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    // y=1
-    PIXEL_WHITE,
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    // y=2
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    // y=3
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_BLACK
-  ),
-  4,
-  4
-);
-
-test('ratio', () => {
-  // 4 black pixels, 12 white pixels
-  expect(ratio(imageData4x4)).toEqual(4 / 16);
-  expect(ratio(imageData4x4, { color: PIXEL_WHITE })).toEqual(12 / 16);
-
-  // 2 black pixels, 2 white pixels
-  const topCornerBounds: Rect = { x: 0, y: 0, width: 2, height: 2 };
-  expect(ratio(imageData4x4, { bounds: topCornerBounds })).toEqual(2 / 4);
-  expect(
-    ratio(imageData4x4, {
-      bounds: topCornerBounds,
-      color: PIXEL_WHITE,
-    })
-  ).toEqual(2 / 4);
-});
+const imageData4x4 = wrapImageData(
+  createImageData(
+    Uint8ClampedArray.of(
+      // y=0
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      // y=1
+      PIXEL_WHITE,
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      // y=2
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      // y=3
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_BLACK
+    ),
+    4,
+    4
+  )
+).toGray();
 
 test('counting pixels', () => {
-  expect(countPixels(imageData4x4)).toEqual(
-    countPixels(imageData4x4, { color: PIXEL_BLACK })
-  );
-
-  expect(countPixels(imageData4x4, { color: PIXEL_WHITE })).toEqual(
-    imageData4x4.data.length - countPixels(imageData4x4, { color: PIXEL_BLACK })
+  expect(imageData4x4.count({ color: PIXEL_BLACK })).toEqual(
+    imageData4x4.length - imageData4x4.count({ color: PIXEL_WHITE })
   );
 
   expect(
-    countPixels(imageData4x4, {
+    imageData4x4.count({
       color: PIXEL_BLACK,
       bounds: { x: 1, y: 1, width: 1, height: 1 },
     })

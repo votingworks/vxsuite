@@ -1,110 +1,99 @@
 import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
-import { arbitraryImageData } from '../test/arbitraries';
-import { makeGrayscaleImageData } from '../test/utils';
-import { crop } from './crop';
-import { diff, PIXEL_BLACK, PIXEL_WHITE } from './diff';
+import { arbitraryGrayImage } from '../test/arbitraries';
+import {
+  describeBinaryImage,
+  makeBinaryGrayImage,
+  makeGrayscaleImageData,
+} from '../test/utils';
+import { PIXEL_BLACK, PIXEL_WHITE } from './constants';
+import { wrapImageData } from './image_data';
+import { GrayImage } from './types';
 
-const imageData4x4: Readonly<ImageData> = createImageData(
-  Uint8ClampedArray.of(
-    // y=0
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    // y=1
-    PIXEL_WHITE,
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    // y=2
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_BLACK,
-    PIXEL_WHITE,
-    // y=3
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_WHITE,
-    PIXEL_BLACK
-  ),
-  4,
-  4
-);
+const imageData4x4 = wrapImageData(
+  createImageData(
+    Uint8ClampedArray.of(
+      // y=0
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      // y=1
+      PIXEL_WHITE,
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      // y=2
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_BLACK,
+      PIXEL_WHITE,
+      // y=3
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_WHITE,
+      PIXEL_BLACK
+    ),
+    4,
+    4
+  )
+).toGray();
 
-function assertImagesEqual(actual: ImageData, expected: ImageData): void {
+function assertImagesEqual(actual: GrayImage, expected: GrayImage): void {
   expect({ width: actual.width, height: actual.height }).toEqual({
     width: expected.width,
     height: expected.height,
   });
-  expect([...actual.data]).toEqual([...expected.data]);
+  expect([...actual.asImageData().data]).toEqual([
+    ...expected.asImageData().data,
+  ]);
 }
 
 test('images have no diff with themselves', () => {
   assertImagesEqual(
-    diff(imageData4x4, imageData4x4),
-    createImageData(
-      new Uint8ClampedArray(imageData4x4.data.length).fill(PIXEL_WHITE),
-      imageData4x4.width,
-      imageData4x4.height
-    )
+    imageData4x4.diff(imageData4x4),
+    wrapImageData(
+      createImageData(
+        new Uint8ClampedArray(imageData4x4.length).fill(PIXEL_WHITE),
+        imageData4x4.width,
+        imageData4x4.height
+      )
+    ).toGray()
   );
 });
 
 test('images have black pixels where compare is black and base is not', () => {
-  const base = createImageData(
-    Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_WHITE),
-    2,
-    1
-  );
-  const compare = createImageData(
-    Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK),
-    2,
-    1
-  );
+  const a = makeBinaryGrayImage('.#');
+  const b = makeBinaryGrayImage('..');
 
-  expect([...diff(base, compare).data]).toEqual([PIXEL_WHITE, PIXEL_BLACK]);
+  expect(describeBinaryImage(a.diff(b))).toEqual('..');
+  expect(describeBinaryImage(b.diff(a))).toEqual('.#');
 });
 
 test('bounds may specify a subset of the images to compare', () => {
-  const base = createImageData(
-    Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_WHITE),
-    2,
-    1
-  );
-  const compare = createImageData(
-    Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK),
-    2,
-    1
-  );
+  const base = makeBinaryGrayImage('..');
+  const compare = makeBinaryGrayImage('.#');
 
-  expect([
-    ...diff(
-      base,
-      compare,
-      { x: 1, y: 0, width: 1, height: 1 },
-      { x: 0, y: 0, width: 1, height: 1 }
-    ).data,
-  ]).toEqual([PIXEL_BLACK]);
+  expect(
+    base
+      .diff(
+        compare,
+        { x: 0, y: 0, width: 1, height: 1 },
+        { x: 1, y: 0, width: 1, height: 1 }
+      )
+      .asImageData()
+  ).toEqual(makeBinaryGrayImage('#').asImageData());
 });
 
 test('all black against all black', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData({
-        channels: fc.constantFrom(1, 4),
+      arbitraryGrayImage({
         pixels: fc.constant(PIXEL_BLACK),
       }),
-      (imageData) => {
-        assertImagesEqual(
-          diff(imageData, imageData),
-          createImageData(
-            new Uint8ClampedArray(imageData.data.length).fill(PIXEL_WHITE),
-            imageData.width,
-            imageData.height
-          )
-        );
+      (image) => {
+        assertImagesEqual(image.diff(image), image.copy().fill(PIXEL_WHITE));
       }
     )
   );
@@ -113,22 +102,11 @@ test('all black against all black', () => {
 test('diff against white background', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData({
-        channels: fc.constantFrom(1, 4),
+      arbitraryGrayImage({
         pixels: fc.constantFrom(PIXEL_BLACK, PIXEL_WHITE),
       }),
-      (imageData) => {
-        assertImagesEqual(
-          diff(
-            createImageData(
-              new Uint8ClampedArray(imageData.data.length).fill(PIXEL_WHITE),
-              imageData.width,
-              imageData.height
-            ),
-            imageData
-          ),
-          imageData
-        );
+      (image) => {
+        assertImagesEqual(image.copy().fill(PIXEL_WHITE).diff(image), image);
       }
     )
   );
@@ -137,12 +115,10 @@ test('diff against white background', () => {
 test('comparing part of an image to all of another', () => {
   fc.assert(
     fc.property(
-      fc.constantFrom(1, 4).chain((channels) =>
-        fc.record({
-          base: arbitraryImageData({ channels }),
-          compare: arbitraryImageData({ channels }),
-        })
-      ),
+      fc.record({
+        base: arbitraryGrayImage(),
+        compare: arbitraryGrayImage(),
+      }),
       ({ base, compare }) => {
         const bounds: Rect = {
           x: 0,
@@ -150,11 +126,10 @@ test('comparing part of an image to all of another', () => {
           width: Math.min(base.width, compare.width),
           height: Math.min(base.height, compare.height),
         };
-        const diffImage = diff(base, compare, bounds, bounds);
-        const diffImageByCropping = diff(
-          crop(base, bounds),
-          crop(compare, bounds)
-        );
+        const diffImage = base.diff(compare, bounds, bounds);
+        const diffImageByCropping = base
+          .crop(bounds)
+          .diff(compare.crop(bounds));
         assertImagesEqual(diffImage, diffImageByCropping);
       }
     )
@@ -162,63 +137,37 @@ test('comparing part of an image to all of another', () => {
 });
 
 test('grayscale compare image to itself', () => {
-  const imageData = makeGrayscaleImageData(
+  const image = makeGrayscaleImageData(
     `
       0123
       4567
       89ab
       cdef
-    `,
-    1
+    `
   );
   assertImagesEqual(
-    diff(imageData, imageData),
-    createImageData(
-      new Uint8ClampedArray(imageData.data.length).fill(PIXEL_WHITE),
-      imageData.width,
-      imageData.height
-    )
-  );
-});
-
-test('images with different channel counts', () => {
-  const oneChannelImage = fc.sample(
-    arbitraryImageData({ channels: 1, width: 1, height: 1 }),
-    1
-  )[0]!;
-  const fourChannelImage = fc.sample(
-    arbitraryImageData({ channels: 4, width: 1, height: 1 }),
-    1
-  )[0]!;
-
-  expect(() => diff(oneChannelImage, fourChannelImage)).toThrowError(
-    `base and compare must have the same number of channels, got 1 and 4`
+    image.diff(image),
+    wrapImageData(
+      createImageData(
+        new Uint8ClampedArray(image.length).fill(PIXEL_WHITE),
+        image.width,
+        image.height
+      )
+    ).toGray()
   );
 });
 
 test('images with different dimensions', () => {
   const oneByOneImage = fc.sample(
-    arbitraryImageData({ channels: 1, width: 1, height: 1 }),
+    arbitraryGrayImage({ width: 1, height: 1 }),
     1
   )[0]!;
   const twoByTwoImage = fc.sample(
-    arbitraryImageData({ channels: 1, width: 2, height: 2 }),
+    arbitraryGrayImage({ width: 2, height: 2 }),
     1
   )[0]!;
 
-  expect(() => diff(oneByOneImage, twoByTwoImage)).toThrowError(
+  expect(() => oneByOneImage.diff(twoByTwoImage)).toThrowError(
     `baseBounds and compareBounds must have the same size, got 1x1 and 2x2`
-  );
-});
-
-test('image with 3 channels', () => {
-  const image = createImageData(
-    Uint8ClampedArray.of(PIXEL_BLACK, PIXEL_BLACK, PIXEL_BLACK),
-    1,
-    1
-  );
-
-  expect(() => diff(image, image)).toThrowError(
-    `unsupported number of channels: 3`
   );
 });

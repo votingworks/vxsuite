@@ -1,9 +1,5 @@
 import fc from 'fast-check';
-import {
-  GRAY_CHANNEL_COUNT,
-  RGBA_CHANNEL_COUNT,
-  RGB_CHANNEL_COUNT,
-} from '../src';
+import { GRAY_CHANNEL_COUNT, RGBA_CHANNEL_COUNT } from '../src';
 import { assertInteger } from '../src/numeric';
 import {
   arbitraryChannelCount,
@@ -15,9 +11,7 @@ test('arbitraryChannelCount', () => {
   fc.assert(
     fc.property(arbitraryChannelCount(), (channels) => {
       expect(
-        channels === GRAY_CHANNEL_COUNT ||
-          channels === RGB_CHANNEL_COUNT ||
-          channels === RGBA_CHANNEL_COUNT
+        channels === GRAY_CHANNEL_COUNT || channels === RGBA_CHANNEL_COUNT
       ).toEqual(true);
     })
   );
@@ -70,16 +64,6 @@ test('arbitraryImageData can constrain height', () => {
         expect(imageData.height).toBeLessThanOrEqual(10);
       }
     )
-  );
-});
-
-test('arbitraryImageData can constrain channels', () => {
-  fc.assert(
-    fc.property(arbitraryImageData({ channels: 6 }), (imageData) => {
-      expect(
-        imageData.data.length / imageData.width / imageData.height
-      ).toEqual(6);
-    })
   );
 });
 

@@ -1,10 +1,5 @@
-import {
-  getImageChannelCount,
-  otsu,
-  Debugger,
-  noDebug,
-} from '@votingworks/image-utils';
 import { assert, integers, map, zip, zipMin } from '@votingworks/basics';
+import { AnyImage, Debugger, noDebug, otsu } from '@votingworks/image-utils';
 import {
   Bit,
   CompleteTimingMarks,
@@ -471,7 +466,7 @@ export function interpolateMissingRects(
  * i.e. count(dark pixels) / count(all pixels).
  */
 function computeFillRatio(
-  imageData: ImageData,
+  imageData: AnyImage,
   rect: Rect,
   { threshold }: { threshold: number }
 ): number {
@@ -480,13 +475,13 @@ function computeFillRatio(
   const minY = Math.round(rect.minY);
   const maxX = Math.round(rect.maxX);
   const maxY = Math.round(rect.maxY);
-  const channels = getImageChannelCount(imageData);
+  const { step } = imageData;
   let count = 0;
 
   for (let y = minY; y <= maxY; y += 1) {
     for (let x = minX; x <= maxX; x += 1) {
-      const i = (y * width + x) * channels;
-      const lum = imageData.data[i] as number;
+      const i = (y * width + x) * step;
+      const lum = imageData.raw(i);
       if (lum < threshold) {
         count += 1;
       }
@@ -501,15 +496,11 @@ function computeFillRatio(
  * dark pixels they contain as a percentage of the total area of the rectangle.
  */
 function removeMissingRects(
-  imageData: ImageData,
+  imageData: AnyImage,
   rects: readonly Rect[],
-  {
-    minFillRatio = 0.2,
-    threshold = otsu(imageData.data, getImageChannelCount(imageData)),
-    debug = noDebug(),
-  } = {}
+  { minFillRatio = 0.2, threshold = otsu(imageData), debug = noDebug() } = {}
 ): Rect[] {
-  debug.imageData(0, 0, imageData);
+  debug.image(0, 0, imageData);
   const result: Rect[] = [];
 
   for (const rect of rects) {
@@ -538,7 +529,7 @@ function removeMissingRects(
  * but can also be used to infer the timing marks for the other border edges.
  */
 export function interpolateMissingTimingMarks(
-  imageData: ImageData,
+  imageData: AnyImage,
   timingMarks: PartialTimingMarks,
   { debug = noDebug() }: { debug?: Debugger } = {}
 ): CompleteTimingMarks {
@@ -557,8 +548,7 @@ export function interpolateMissingTimingMarks(
     'cannot infer missing timing marks without corners'
   );
 
-  const channels = getImageChannelCount(imageData);
-  const threshold = otsu(imageData.data, channels);
+  const threshold = otsu(imageData);
 
   const expectedVerticalTimingMarkSeparationDistance = median(
     left

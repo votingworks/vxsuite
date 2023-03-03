@@ -1,54 +1,43 @@
 import fc from 'fast-check';
-import { arbitraryImageData } from '../test/arbitraries';
-import {
-  assertBinaryImageDatasEqual,
-  makeBinaryImageData,
-} from '../test/utils';
-import { binarize } from './binarize';
+import { arbitraryGrayImage } from '../test/arbitraries';
+import { assertBinaryImagesEqual, makeBinaryGrayImage } from '../test/utils';
 
 test('grayscale input, binarized output', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData({ channels: 1 }),
+      arbitraryGrayImage(),
       fc.integer({ min: 0, max: 255 }),
       (image, threshold) => {
-        const binarized = binarize(image, threshold);
+        const binarized = image.binarize(threshold);
         expect(binarized.width).toEqual(image.width);
         expect(binarized.height).toEqual(image.height);
-        expect(binarized.data.length).toEqual(image.data.length);
-        for (let i = 0; i < image.data.length; i += 1) {
-          expect(binarized.data[i]).toEqual(
-            image.data[i]! > threshold ? 255 : 0
-          );
+        expect(binarized.length).toEqual(image.length);
+        for (let i = 0; i < image.length; i += 1) {
+          expect(binarized.raw(i)).toEqual(image.raw(i) > threshold ? 255 : 0);
         }
       }
     )
   );
 });
 
-test.each([1, 4] as const)(
-  'already-binarized image with %s channels',
-  (channelCount) => {
-    const allBackground = makeBinaryImageData(
+test('already-binarized image', () => {
+  const allBackground = makeBinaryGrayImage(
+    `
+        ......
+        ......
+        ......
       `
-        ......
-        ......
-        ......
-      `,
-      channelCount
-    );
+  );
 
-    assertBinaryImageDatasEqual(binarize(allBackground), allBackground);
+  assertBinaryImagesEqual(allBackground.binarize(), allBackground);
 
-    const allForeground = makeBinaryImageData(
+  const allForeground = makeBinaryGrayImage(
+    `
+        ######
+        ######
+        ######
       `
-        ######
-        ######
-        ######
-      `,
-      channelCount
-    );
+  );
 
-    assertBinaryImageDatasEqual(binarize(allForeground), allForeground);
-  }
-);
+  assertBinaryImagesEqual(allForeground.binarize(), allForeground);
+});

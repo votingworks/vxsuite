@@ -3,22 +3,21 @@ import { assert } from '@votingworks/basics';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
 import {
+  AnyImage,
+  GrayImage,
   GRAY_CHANNEL_COUNT,
   int,
+  RgbaImage,
   RGBA_CHANNEL_COUNT,
-  RGB_CHANNEL_COUNT,
+  wrapImageData,
 } from '../src';
 import { assertInteger } from '../src/numeric';
 
 /**
  * Returns an arbitrary image channel count.
  */
-export function arbitraryChannelCount(): fc.Arbitrary<int> {
-  return fc.constantFrom(
-    GRAY_CHANNEL_COUNT,
-    RGB_CHANNEL_COUNT,
-    RGBA_CHANNEL_COUNT
-  );
+export function arbitraryChannelCount(): fc.Arbitrary<1 | 4> {
+  return fc.constantFrom(GRAY_CHANNEL_COUNT, RGBA_CHANNEL_COUNT);
 }
 
 /**
@@ -27,7 +26,7 @@ export function arbitraryChannelCount(): fc.Arbitrary<int> {
 export interface ArbitraryImageDataOptions {
   readonly width?: int | fc.Arbitrary<int>;
   readonly height?: int | fc.Arbitrary<int>;
-  readonly channels?: int | fc.Arbitrary<int>;
+  readonly channels?: 1 | 4 | fc.Arbitrary<1 | 4>;
   readonly pixels?: fc.Arbitrary<int>;
 }
 
@@ -87,6 +86,40 @@ export function arbitraryImageData({
       });
     })
     .map(({ data, width, height }) => createImageData(data, width, height));
+}
+
+/**
+ * Generates an arbitrary grayscale image based on the given parameters.
+ */
+export function arbitraryImage(
+  options: ArbitraryImageDataOptions & {
+    readonly channels: typeof GRAY_CHANNEL_COUNT;
+  }
+): fc.Arbitrary<GrayImage>;
+
+/**
+ * Generates an arbitrary RGBA image based on the given parameters.
+ */
+export function arbitraryImage(
+  options: ArbitraryImageDataOptions & {
+    readonly channels: typeof RGBA_CHANNEL_COUNT;
+  }
+): fc.Arbitrary<RgbaImage>;
+
+/**
+ * Generates an arbitrary image based on the given parameters.
+ */
+export function arbitraryImage(
+  options?: ArbitraryImageDataOptions
+): fc.Arbitrary<AnyImage>;
+
+/**
+ * Generates an arbitrary image based on the given parameters.
+ */
+export function arbitraryImage(
+  options: ArbitraryImageDataOptions = {}
+): fc.Arbitrary<AnyImage> {
+  return arbitraryImageData(options).map(wrapImageData);
 }
 
 /**
@@ -152,4 +185,28 @@ export function arbitraryImageDataRgba(
   options: Omit<ArbitraryImageDataOptions, 'channels'> = {}
 ): fc.Arbitrary<ImageData> {
   return arbitraryImageData({ ...options, channels: RGBA_CHANNEL_COUNT });
+}
+
+/**
+ * Builds an arbitrary `GrayImage`.
+ */
+export function arbitraryGrayImage(
+  options: Omit<ArbitraryImageDataOptions, 'channels'> = {}
+): fc.Arbitrary<GrayImage> {
+  return arbitraryImage({
+    ...options,
+    channels: GRAY_CHANNEL_COUNT,
+  });
+}
+
+/**
+ * Builds an arbitrary `GrayImage`.
+ */
+export function arbitraryRgbaImage(
+  options: Omit<ArbitraryImageDataOptions, 'channels'> = {}
+): fc.Arbitrary<RgbaImage> {
+  return arbitraryImage({
+    ...options,
+    channels: RGBA_CHANNEL_COUNT,
+  });
 }

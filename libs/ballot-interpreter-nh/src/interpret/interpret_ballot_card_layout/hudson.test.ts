@@ -1,6 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
-import { ImageData } from 'canvas';
 import { readFixtureImage } from '../../../test/fixtures';
 import { testImageDebugger } from '../../../test/utils';
 import { ScannedBallotCardGeometry8pt5x14 } from '../../accuvote';
@@ -28,12 +27,12 @@ test.each([
   ],
 ])('%s', async (name, frontImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x14;
-  const frontImageData = readFixtureImage(await frontImagePromise, geometry);
-  const { imageData, ...frontLayout } = interpretBallotCardLayout(
-    frontImageData,
-    { geometry, debug: testImageDebugger(frontImageData) }
-  );
-  expect(imageData instanceof ImageData).toEqual(true);
+  const frontImage = readFixtureImage(await frontImagePromise, geometry);
+  const { image, ...frontLayout } = interpretBallotCardLayout(frontImage, {
+    geometry,
+    debug: testImageDebugger(frontImage),
+  });
+  expect(image.isGray()).toEqual(true);
   expect(frontLayout).toEqual(
     expect.objectContaining(
       typedAs<Partial<InterpretBallotCardLayoutResult>>({
@@ -76,11 +75,11 @@ test.each([
 ])('%s', async (name, backImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x14;
   const backImageData = readFixtureImage(await backImagePromise, geometry);
-  const { imageData, ...backLayout } = interpretBallotCardLayout(
-    backImageData,
-    { geometry, debug: testImageDebugger(backImageData) }
-  );
-  expect(imageData instanceof ImageData).toEqual(true);
+  const { image, ...backLayout } = interpretBallotCardLayout(backImageData, {
+    geometry,
+    debug: testImageDebugger(backImageData),
+  });
+  expect(image.isGray()).toEqual(true);
   expect(backLayout).toEqual(
     expect.objectContaining(
       typedAs<Partial<InterpretBallotCardLayoutResult>>({

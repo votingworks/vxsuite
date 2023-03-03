@@ -17,7 +17,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import { u8, usize } from './types';
+import { GrayImage, RgbaImage, u8, usize } from './types';
 
 const UINT8_MAX = (1 << 8) - 1;
 
@@ -27,15 +27,15 @@ const UINT8_MAX = (1 << 8) - 1;
  * @see https://en.wikipedia.org/wiki/Otsu%27s_method
  */
 export function otsu(
-  data: Uint8Array | Uint8ClampedArray,
-  step: usize = 1
+  image: GrayImage | RgbaImage,
+  step: usize = image.channels
 ): u8 {
-  const numPixels = data.length / step;
+  const numPixels = image.length;
 
   // Calculate histogram
   const histogram = new Int32Array(UINT8_MAX + 1);
   for (let ptr = 0, length = numPixels; length; length -= 1, ptr += step) {
-    histogram[data[ptr] as u8] += 1;
+    histogram[image.raw(ptr)] += 1;
   }
 
   // Calculate weighted sum of histogram values

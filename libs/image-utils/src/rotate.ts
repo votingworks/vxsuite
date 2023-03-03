@@ -1,4 +1,4 @@
-import { getImageChannelCount } from './image_data';
+import { AnyImage } from './types';
 
 /**
  * Rotate an image 180 degrees in place.
@@ -7,19 +7,18 @@ import { getImageChannelCount } from './image_data';
  * because of the cost of creating an `Image` from the `ImageData`, drawing it
  * to a temporary canvas, and then copying the pixels back to the `ImageData`.
  */
-export function rotate180(imageData: ImageData): void {
-  const { data } = imageData;
-  const channels = getImageChannelCount(imageData);
+export function rotate180(imageData: AnyImage): void {
+  const { length, step } = imageData;
 
   for (
-    let head = 0, tail = data.length - channels;
+    let head = 0, tail = length - step;
     head < tail;
-    head += channels, tail -= channels
+    head += step, tail -= step
   ) {
-    for (let i = 0; i < channels; i += 1) {
-      const temp = data[head + i] as number;
-      data[head + i] = data[tail + i] as number;
-      data[tail + i] = temp;
+    for (let i = 0; i < step; i += 1) {
+      const temp = imageData.raw(head + i);
+      imageData.setRaw(head + i, imageData.raw(tail + i));
+      imageData.setRaw(tail + i, temp);
     }
   }
 }

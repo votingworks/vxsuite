@@ -1,4 +1,4 @@
-import { Debugger, noDebug } from '@votingworks/image-utils';
+import { Debugger, GrayImage, noDebug } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotPaperSize,
@@ -289,12 +289,12 @@ export interface NewHampshireBallotCardDefinition {
   /**
    * An image of the ballot card's front as rendered from a PDF.
    */
-  readonly front: ImageData;
+  readonly front: GrayImage;
 
   /**
    * An image of the ballot card's back as rendered from a PDF.
    */
-  readonly back: ImageData;
+  readonly back: GrayImage;
 }
 
 /**
@@ -902,7 +902,7 @@ export function convertElectionDefinition(
   {
     ovalTemplate,
     debug: imdebug = noDebug(),
-  }: { ovalTemplate: ImageData; debug?: Debugger }
+  }: { ovalTemplate: GrayImage; debug?: Debugger }
 ): ConvertResult {
   const convertHeaderResult = convertElectionDefinitionHeader(
     cardDefinition.definition
@@ -954,7 +954,7 @@ export function convertElectionDefinition(
   const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
 
   const frontLayout = imdebug.capture('front', () => {
-    imdebug.imageData(0, 0, cardDefinition.front);
+    imdebug.image(0, 0, cardDefinition.front);
     return interpretBallotCardLayout(cardDefinition.front, {
       geometry: expectedCardGeometry,
       debug: imdebug,
@@ -971,7 +971,7 @@ export function convertElectionDefinition(
   }
 
   const backLayout = imdebug.capture('back', () => {
-    imdebug.imageData(0, 0, cardDefinition.back);
+    imdebug.image(0, 0, cardDefinition.back);
     return interpretBallotCardLayout(cardDefinition.back, {
       geometry: expectedCardGeometry,
       debug: imdebug,

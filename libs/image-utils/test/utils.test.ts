@@ -1,44 +1,44 @@
 import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import * as fc from 'fast-check';
-import { crop } from '../src';
-import { arbitraryImageData } from './arbitraries';
+import { wrapImageData } from '../src';
+import { arbitraryImage } from './arbitraries';
 import {
-  assertBinaryImageDatasEqual,
-  describeBinaryImageData,
-  makeBinaryImageData,
-  makeGrayscaleImageData,
+  assertBinaryImagesEqual,
+  describeBinaryImage,
+  makeBinaryGrayImage,
 } from './utils';
 
-test('describeBinaryImageData & makeBinaryImageData', () => {
+test('describeBinaryImage & makeBinaryGrayImage', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData({ channels: 1, pixels: fc.constantFrom(0, 255) }),
+      arbitraryImage({ channels: 1, pixels: fc.constantFrom(0, 255) }),
       (image) => {
-        const description = describeBinaryImageData(image);
-        const reconstructed = makeBinaryImageData(description);
-        assertBinaryImageDatasEqual(image, reconstructed);
+        const description = describeBinaryImage(image);
+        const reconstructed = makeBinaryGrayImage(description);
+        assertBinaryImagesEqual(image, reconstructed);
       }
     )
   );
 });
 
 test('junk image descriptions', () => {
-  expect(() => makeBinaryImageData('')).toThrow();
-  expect(() => makeBinaryImageData(' ')).toThrow();
-  expect(() => makeGrayscaleImageData('')).toThrow();
+  expect(() => makeBinaryGrayImage('')).toThrow();
+  expect(() => makeBinaryGrayImage(' ')).toThrow();
 });
 
 test('invalid binary images', () => {
   expect(() =>
-    describeBinaryImageData(createImageData(Uint8ClampedArray.of(127), 1, 1))
+    describeBinaryImage(
+      wrapImageData(createImageData(Uint8ClampedArray.of(127), 1, 1)).toGray()
+    )
   ).toThrow('Invalid pixel 127 at (0, 0)');
 });
 
-test('describeBinaryImageData & makeBinaryImageData with cropping', () => {
+test('describeBinaryImage & makeBinaryGrayImage with cropping', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData({
+      arbitraryImage({
         channels: 1,
         pixels: fc.constantFrom(0, 255),
       }).chain((image) =>
@@ -50,18 +50,18 @@ test('describeBinaryImageData & makeBinaryImageData with cropping', () => {
       ),
       ({ image, x, y }) => {
         const bounds: Rect = { x, y, width: 1, height: 1 };
-        const description = describeBinaryImageData(image, bounds);
-        const reconstructed = makeBinaryImageData(description);
-        assertBinaryImageDatasEqual(crop(image, bounds), reconstructed);
+        const description = describeBinaryImage(image, bounds);
+        const reconstructed = makeBinaryGrayImage(description);
+        assertBinaryImagesEqual(image.crop(bounds), reconstructed);
       }
     )
   );
 });
 
-test('makeBinaryImageData fails with an invalid description', () => {
-  expect(() => makeBinaryImageData('invalid')).toThrowError();
+test('makeBinaryGrayImage fails with an invalid description', () => {
+  expect(() => makeBinaryGrayImage('invalid')).toThrowError();
 });
 
-test('makeBinaryImageData fails with mismatching widths', () => {
-  expect(() => makeBinaryImageData('##\n###')).toThrowError();
+test('makeBinaryGrayImage fails with mismatching widths', () => {
+  expect(() => makeBinaryGrayImage('##\n###')).toThrowError();
 });

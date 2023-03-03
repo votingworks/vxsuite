@@ -4,168 +4,110 @@ import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
 import {
+  arbitraryImage,
   arbitraryImageData,
-  arbitraryImageDataRgba,
+  arbitraryRgbaImage,
 } from '../test/arbitraries';
+import { makeBinaryGrayImage } from '../test/utils';
 import {
   getImageChannelCount,
   GRAY_CHANNEL_COUNT,
-  isGrayscale,
-  isRgba,
   loadImage,
-  loadImageData,
   RGBA_CHANNEL_COUNT,
-  RGB_CHANNEL_COUNT,
-  toDataUrl,
-  toGrayscale,
-  toImageData,
-  toRgba,
-  writeImageData,
+  wrapImageData,
+  writeImage,
 } from './image_data';
 
 test('channels', () => {
-  const rgbaImage = createImageData(1, 1);
-  const rgbImage = createImageData(Uint8ClampedArray.of(0, 0, 0), 1, 1);
-  const grayImage = createImageData(Uint8ClampedArray.of(0), 1, 1);
-
-  expect(getImageChannelCount(rgbaImage)).toEqual(RGBA_CHANNEL_COUNT);
-  expect(getImageChannelCount(grayImage)).toEqual(GRAY_CHANNEL_COUNT);
-  expect(getImageChannelCount(rgbImage)).toEqual(RGB_CHANNEL_COUNT);
-
-  expect(isRgba(rgbaImage)).toEqual(true);
-  expect(isRgba(grayImage)).toEqual(false);
-  expect(isRgba(rgbImage)).toEqual(false);
-});
-
-test('getImageChannelCount always returns an integer', () => {
-  fc.assert(
-    fc.property(
-      fc.integer({ min: 1, max: 10 }).chain((channels) =>
-        fc.record({
-          channels: fc.constant(channels),
-          imageData: arbitraryImageData({ channels }),
-        })
-      ),
-      ({ channels, imageData }) => {
-        expect(getImageChannelCount(imageData)).toEqual(channels);
-        expect(isGrayscale(imageData)).toEqual(channels === GRAY_CHANNEL_COUNT);
-        expect(isRgba(imageData)).toEqual(channels === RGBA_CHANNEL_COUNT);
-      }
-    )
+  const rgbaImage = wrapImageData(createImageData(1, 1));
+  const grayImage = wrapImageData(
+    createImageData(Uint8ClampedArray.of(0), 1, 1)
   );
+
+  expect(rgbaImage.channels).toEqual(RGBA_CHANNEL_COUNT);
+  expect(grayImage.channels).toEqual(GRAY_CHANNEL_COUNT);
+
+  expect(rgbaImage.isRgba()).toEqual(true);
+  expect(grayImage.isRgba()).toEqual(false);
+
+  expect(rgbaImage.isGray()).toEqual(false);
+  expect(grayImage.isGray()).toEqual(true);
 });
 
-test('loadImage/writeImageData', async () => {
+test('loadImage/writeImage', async () => {
   await expect(
-    writeImageData('/path/does/not/exist.png', createImageData(1, 1))
+    writeImage('/path/does/not/exist.png', makeBinaryGrayImage('.'))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
   await expect(
-    writeImageData('/path/does/not/exist.jpeg', createImageData(1, 1))
+    writeImage('/path/does/not/exist.jpeg', makeBinaryGrayImage('.'))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
   await fc.assert(
     fc.asyncProperty(
-      arbitraryImageDataRgba(),
+      arbitraryRgbaImage(),
       fc.constantFrom('png', 'jpeg', 'jpg'),
-      async (imageData, format) => {
+      async (image, format) => {
         const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
-        await writeImageData(filePath, imageData);
-        const loadedImageData = toImageData(await loadImage(filePath));
+        await writeImage(filePath, image);
+        const loadedImage = await loadImage(filePath);
         expect({
-          width: loadedImageData.width,
-          height: loadedImageData.height,
-          dataLength: loadedImageData.data.length,
+          width: loadedImage.width,
+          height: loadedImage.height,
+          dataLength: loadedImage.length,
         }).toEqual({
-          width: imageData.width,
-          height: imageData.height,
-          dataLength: imageData.data.length,
+          width: image.width,
+          height: image.height,
+          dataLength: image.length,
         });
       }
     )
   );
 });
 
-test('loadImageData with invalid PGM format', async () => {
+test('loadImage with invalid PGM format', async () => {
   const filePath = fileSync({
     template: `tmp-XXXXXX.pgm`,
   }).name;
   await writeFile(filePath, `P5\n0\n255\n`);
-  await expect(loadImageData(filePath)).rejects.toThrow(
+  await expect(loadImage(filePath)).rejects.toThrow(
     new Error(`Invalid PGM image: ${filePath}`)
   );
 });
 
-test('loadImage/loadImageData with PGM format', async () => {
+test('loadImage with PGM format', async () => {
   await fc.assert(
-    fc.asyncProperty(arbitraryImageData({ channels: 1 }), async (imageData) => {
-      const filePath = fileSync({
-        template: `tmp-XXXXXX.pgm`,
-      }).name;
-      const pgmData = Buffer.concat([
-        Buffer.from('P5\n'),
-        Buffer.from(`${imageData.width} ${imageData.height}\n`),
-        Buffer.from('255\n'),
-        Buffer.from(imageData.data),
-      ]);
-
-      await writeFile(filePath, pgmData);
-
-      const loadedImageFromFile = await loadImage(filePath);
-      const loadedImageDataFromFile = await loadImageData(filePath);
-      expect({
-        width: loadedImageDataFromFile.width,
-        height: loadedImageDataFromFile.height,
-      }).toEqual({
-        width: imageData.width,
-        height: imageData.height,
-      });
-      expect({
-        width: loadedImageFromFile.width,
-        height: loadedImageFromFile.height,
-      }).toEqual({
-        width: imageData.width,
-        height: imageData.height,
-      });
-
-      const pgmDataUrl = toDataUrl(imageData, 'image/x-portable-graymap');
+    fc.asyncProperty(arbitraryImage({ channels: 1 }), async (image) => {
+      const pgmDataUrl = image.asDataUrl('image/x-portable-graymap');
       const loadedImageFromDataUrl = await loadImage(pgmDataUrl);
-      const loadedImageDataFromDataUrl = await loadImageData(pgmDataUrl);
-      expect({
-        width: loadedImageDataFromDataUrl.width,
-        height: loadedImageDataFromDataUrl.height,
-      }).toEqual({
-        width: imageData.width,
-        height: imageData.height,
-      });
       expect({
         width: loadedImageFromDataUrl.width,
         height: loadedImageFromDataUrl.height,
       }).toEqual({
-        width: imageData.width,
-        height: imageData.height,
+        width: image.width,
+        height: image.height,
       });
     })
   );
 });
 
-test('loadImageData', async () => {
+test('loadImage', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryImageDataRgba(),
+      arbitraryRgbaImage(),
       fc.constantFrom('png', 'jpeg', 'jpg'),
-      async (imageData, format) => {
+      async (image, format) => {
         const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
-        await writeImageData(filePath, imageData);
-        const loadedImageData = await loadImageData(filePath);
+        await writeImage(filePath, image);
+        const loadedImage = await loadImage(filePath);
         expect({
-          width: loadedImageData.width,
-          height: loadedImageData.height,
-          dataLength: loadedImageData.data.length,
+          width: loadedImage.width,
+          height: loadedImage.height,
+          dataLength: loadedImage.length,
         }).toEqual({
-          width: imageData.width,
-          height: imageData.height,
-          dataLength: imageData.data.length,
+          width: image.width,
+          height: image.height,
+          dataLength: image.length,
         });
       }
     )
@@ -174,65 +116,43 @@ test('loadImageData', async () => {
 
 test('toRgba', () => {
   fc.assert(
-    fc.property(
-      fc.integer({ min: 1, max: 10 }).chain((channels) =>
-        fc.record({
-          channels: fc.constant(channels),
-          imageData: arbitraryImageData({ channels }),
-        })
-      ),
-      ({ channels, imageData }) => {
-        if (channels === RGBA_CHANNEL_COUNT) {
-          expect(toRgba(imageData).unsafeUnwrap()).toEqual(imageData);
-        } else if (channels === GRAY_CHANNEL_COUNT) {
-          expect(toRgba(imageData).unsafeUnwrap().data).toHaveLength(
-            imageData.width * imageData.height * RGBA_CHANNEL_COUNT
-          );
-        } else {
-          toRgba(imageData).unsafeUnwrapErr();
-        }
+    fc.property(arbitraryImage(), (image) => {
+      if (image.channels === RGBA_CHANNEL_COUNT) {
+        expect(image.toRgba().asImageData()).toEqual(image.asImageData());
+      } else if (image.channels === GRAY_CHANNEL_COUNT) {
+        expect(image.toRgba()).toHaveLength(image.width * image.height);
       }
-    )
+    })
   );
 });
 
-test('toGrayscale', () => {
+test('toGray', () => {
   fc.assert(
-    fc.property(
-      fc.integer({ min: 1, max: 10 }).chain((channels) =>
-        fc.record({
-          channels: fc.constant(channels),
-          imageData: arbitraryImageData({ channels }),
-        })
-      ),
-      ({ channels, imageData }) => {
-        if (channels === GRAY_CHANNEL_COUNT) {
-          expect(toGrayscale(imageData).unsafeUnwrap()).toEqual(imageData);
-        } else if (channels === RGBA_CHANNEL_COUNT) {
-          expect(toGrayscale(imageData).unsafeUnwrap().data).toHaveLength(
-            imageData.width * imageData.height * GRAY_CHANNEL_COUNT
-          );
-        } else {
-          toGrayscale(imageData).unsafeUnwrapErr();
-        }
+    fc.property(arbitraryImage(), (image) => {
+      if (image.channels === GRAY_CHANNEL_COUNT) {
+        expect(image.toGray().asImageData()).toEqual(image.asImageData());
+      } else if (image.channels === RGBA_CHANNEL_COUNT) {
+        expect(image.toGray()).toHaveLength(
+          image.width * image.height * GRAY_CHANNEL_COUNT
+        );
       }
-    )
+    })
   );
 });
 
 test('toDataUrl image/png', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryImageData({ width: 5, height: 5, channels: 4 }),
-      async (imageData) => {
-        const dataUrl = toDataUrl(imageData, 'image/png');
+      arbitraryImage({ width: 5, height: 5, channels: 4 }),
+      async (image) => {
+        const dataUrl = image.asDataUrl('image/png');
         expect(dataUrl).toMatch(/^data:image\/png;base64,/);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(dataUrl)
+        const { width: decodedWidth, height: decodedHeight } = await loadImage(
+          dataUrl
         );
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
-          width: imageData.width,
-          height: imageData.height,
+          width: image.width,
+          height: image.height,
         });
       }
     )
@@ -242,16 +162,16 @@ test('toDataUrl image/png', async () => {
 test('toDataUrl image/jpeg', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryImageData({ width: 5, height: 5, channels: 4 }),
-      async (imageData) => {
-        const dataUrl = toDataUrl(imageData, 'image/jpeg');
+      arbitraryImage({ width: 5, height: 5, channels: 4 }),
+      async (image) => {
+        const dataUrl = image.asDataUrl('image/jpeg');
         expect(dataUrl).toMatch(/^data:image\/jpeg;base64,/);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(dataUrl)
+        const { width: decodedWidth, height: decodedHeight } = await loadImage(
+          dataUrl
         );
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
-          width: imageData.width,
-          height: imageData.height,
+          width: image.width,
+          height: image.height,
         });
       }
     )
@@ -261,26 +181,18 @@ test('toDataUrl image/jpeg', async () => {
 test('toDataUrl image/x-portable-graymap', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryImageData({ width: 5, height: 5, channels: 1 }),
-      async (imageData) => {
-        const dataUrl = toDataUrl(imageData, 'image/x-portable-graymap');
+      arbitraryImage({ width: 5, height: 5, channels: 1 }),
+      async (image) => {
+        const dataUrl = image.asDataUrl('image/x-portable-graymap');
         expect(dataUrl).toMatch(/^data:image\/x-portable-graymap;base64,/);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(dataUrl)
+        const { width: decodedWidth, height: decodedHeight } = await loadImage(
+          dataUrl
         );
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
-          width: imageData.width,
-          height: imageData.height,
+          width: image.width,
+          height: image.height,
         });
       }
     )
-  );
-});
-
-test('toDataUrl image/x-portable-graymap with more than one channel', () => {
-  const imageData = createImageData(5, 5);
-  expect(getImageChannelCount(imageData)).toEqual(4);
-  expect(() => toDataUrl(imageData, 'image/x-portable-graymap')).toThrow(
-    'image/x-portable-graymap only supports one channel'
   );
 });

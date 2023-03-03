@@ -1,5 +1,5 @@
-import { Result, ok, err, groupBy, find } from '@votingworks/basics';
-import { writeImageData } from '@votingworks/image-utils';
+import { err, find, groupBy, ok, Result } from '@votingworks/basics';
+import { writeImage } from '@votingworks/image-utils';
 import {
   MarkThresholds,
   safeParseElectionDefinition,
@@ -289,7 +289,7 @@ export async function main(
 
     if (options.writeNormalizedImages && normalizedImage) {
       const pathParts = parsePath(ballotPath);
-      await writeImageData(
+      await writeImage(
         `${pathParts.dir}/${pathParts.base.slice(
           0,
           -pathParts.ext.length

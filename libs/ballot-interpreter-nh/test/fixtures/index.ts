@@ -1,4 +1,8 @@
-import { toImageData } from '@votingworks/image-utils';
+import {
+  GrayImage,
+  toImageData,
+  wrapImageData,
+} from '@votingworks/image-utils';
 import { BallotPaperSize } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
@@ -303,11 +307,13 @@ export function readFixtureDefinition(xml: string): Element {
 export function readFixtureImage(
   image: Image,
   geometry: BallotCardGeometry
-): ImageData {
-  return toImageData(image, {
-    maxWidth: geometry.canvasSize.width,
-    maxHeight: geometry.canvasSize.height,
-  });
+): GrayImage {
+  return wrapImageData(
+    toImageData(image, {
+      maxWidth: geometry.canvasSize.width,
+      maxHeight: geometry.canvasSize.height,
+    })
+  ).toGray();
 }
 
 /**

@@ -1,5 +1,5 @@
 import { Result, err } from '@votingworks/basics';
-import { Debugger, noDebug } from '@votingworks/image-utils';
+import { Debugger, GrayImage, noDebug } from '@votingworks/image-utils';
 import { BallotPaperSize, safeParse } from '@votingworks/types';
 import { matchTemplate } from './images';
 import { computeTimingMarkGrid } from './timing_marks';
@@ -231,8 +231,8 @@ const DefaultTemplateOvalMatchScoreThreshold = 0.95;
  * Finds template ovals by looking at the timing mark grid intersection points.
  */
 export function findTemplateOvals(
-  imageData: ImageData,
-  ovalTemplate: ImageData,
+  image: GrayImage,
+  ovalTemplate: GrayImage,
   timingMarks: CompleteTimingMarks,
   {
     debug = noDebug(),
@@ -246,7 +246,7 @@ export function findTemplateOvals(
     matchErrorPixels?: number;
   }
 ): TemplateOval[] {
-  debug.imageData(0, 0, imageData);
+  debug.image(0, 0, image);
 
   const grid = computeTimingMarkGrid(timingMarks);
   const candidates: TemplateOval[] = [];
@@ -278,7 +278,7 @@ export function findTemplateOvals(
           y += 1
         ) {
           const score = matchTemplate(
-            imageData,
+            image,
             ovalTemplate,
             loc(x, y),
             matchThreshold

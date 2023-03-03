@@ -9,7 +9,7 @@ import makeDebug, {
 } from 'debug';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { toRgba } from './image_data';
+import { AnyImage, GrayImage, RgbaImage } from './types';
 
 const log = makeDebug('image-utils:debug-images');
 
@@ -47,7 +47,7 @@ export interface Debugger {
   /**
    * Renders an image from a URL to the specified area.
    */
-  imageData(x: number, y: number, imageData: ImageData): Debugger;
+  image(x: number, y: number, image: AnyImage): Debugger;
 
   /**
    * Renders a rectangle to the specified area.
@@ -175,9 +175,8 @@ export function canvasDebugger(
       return this;
     },
 
-    imageData(x: number, y: number, imageData: ImageData) {
-      const rgbaImageData = toRgba(imageData).unsafeUnwrap();
-      context.putImageData(rgbaImageData, x, y);
+    image(x: number, y: number, image: AnyImage) {
+      context.putImageData(image.toRgba().asImageData(), x, y);
       return this;
     },
 
@@ -205,7 +204,7 @@ export function noDebug(): Debugger {
     },
     group: returnThis,
     groupEnd: returnThis,
-    imageData: returnThis,
+    image: returnThis,
     line: returnThis,
     rect: returnThis,
     pixel: returnThis,
@@ -239,7 +238,7 @@ export function imageDebugger(
  */
 export function imageDebugger(
   basePath: string,
-  baseImageOrSize: ImageData | Size,
+  baseImageOrSize: AnyImage | Size,
   enabled = isDebugEnabled('image-utils:debug-images')
 ): Debugger {
   if (!enabled) {
@@ -262,8 +261,8 @@ export function imageDebugger(
     },
   });
 
-  if ((baseImageOrSize as ImageData).data) {
-    debug.imageData(0, 0, baseImageOrSize as ImageData);
+  if ((baseImageOrSize as AnyImage).asImageData) {
+    debug.image(0, 0, baseImageOrSize as AnyImage);
   }
 
   return debug;

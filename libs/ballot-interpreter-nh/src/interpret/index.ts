@@ -1,9 +1,9 @@
 import makeDebug from 'debug';
 
 import {
+  GrayImage,
   imageDebugger,
-  loadImage,
-  toImageData,
+  loadGrayImage,
 } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -46,7 +46,7 @@ export const DefaultMarkThresholds: MarkThresholds = {
  */
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
-  normalizedImage?: ImageData;
+  normalizedImage?: GrayImage;
 }
 
 /**
@@ -76,11 +76,21 @@ export async function interpret(
 
   const geometry = getScannedBallotCardGeometry(paperSize);
   let [frontPage, backPage] = sheet;
-  let [frontImageData, backImageData] = await mapSheet(sheet, async (page) =>
-    toImageData(await loadImage(page), {
-      maxWidth: geometry.canvasSize.width,
-      maxHeight: geometry.canvasSize.height,
-    })
+  let [frontImageData, backImageData] = await mapSheet(
+    sheet,
+    async (page) =>
+      await loadGrayImage(page, {
+        maxWidth: geometry.canvasSize.width,
+        maxHeight: geometry.canvasSize.height,
+      })
+    // loadImageDataWithMat(page, {
+    //   maxWidth: geometry.canvasSize.width,
+    //   maxHeight: geometry.canvasSize.height,
+    // })
+    // toImageData(await loadImage(page), {
+    //   maxWidth: geometry.canvasSize.width,
+    //   maxHeight: geometry.canvasSize.height,
+    // })
   );
 
   timer.checkpoint('loadedImages');
@@ -271,11 +281,11 @@ export async function interpret(
 
   const frontPageInterpretationResult: InterpretFileResult = {
     interpretation: frontInterpretation,
-    normalizedImage: frontLayout.imageData,
+    normalizedImage: frontLayout.image,
   };
   const backPageInterpretationResult: InterpretFileResult = {
     interpretation: backInterpretation,
-    normalizedImage: backLayout.imageData,
+    normalizedImage: backLayout.image,
   };
 
   timer.end();

@@ -1,6 +1,6 @@
 import {
   Debugger,
-  getImageChannelCount,
+  GrayImage,
   noDebug,
   otsu,
   rotate180,
@@ -70,7 +70,7 @@ const NINETY_DEGREES = degreesToRadians(90);
  * marks on a ballot card.
  */
 function verticalTimingMarkGapScan(
-  imageData: ImageData,
+  image: GrayImage,
   {
     threshold,
     geometry,
@@ -85,8 +85,7 @@ function verticalTimingMarkGapScan(
     debug?: Debugger;
   }
 ): Rect[] {
-  const { data, width } = imageData;
-  const channels = getImageChannelCount(imageData);
+  const { width } = image;
 
   const markSize = geometry.timingMarkSize;
   const gapSize: Size = {
@@ -97,14 +96,14 @@ function verticalTimingMarkGapScan(
   const halfTimingMarkPeriod = Math.round(timingMarkPeriod / 2);
   const halfTimingMarkHeight = Math.round(markSize.height / 2);
   const threeHalvesTimingMarkHeight = Math.round((markSize.height * 3) / 2);
-  const offsetStep = width * channels;
+  const offsetStep = width;
 
   let gapStart = -1;
   type Range = [min: number, max: number];
   const timingMarkGapRangesByX: Array<Range[]> = [];
 
   for (let x = rect.minX; x <= rect.maxX; x += 1) {
-    const xOffset = x * channels;
+    const xOffset = x;
     const timingMarkGapRanges: Range[] = [];
 
     for (
@@ -122,9 +121,9 @@ function verticalTimingMarkGapScan(
         offsetMid += offsetStep,
         offsetHi += offsetStep
     ) {
-      const loLum = data[offsetLo] as number;
-      const midLum = data[offsetMid] as number;
-      const hiLum = data[offsetHi] as number;
+      const loLum = image.raw(offsetLo);
+      const midLum = image.raw(offsetMid);
+      const hiLum = image.raw(offsetHi);
 
       const loForeground = loLum < threshold;
       const midForeground = midLum < threshold;
@@ -227,7 +226,7 @@ function verticalTimingMarkGapScan(
  * marks on a ballot card.
  */
 function horizontalTimingMarkGapScan(
-  imageData: ImageData,
+  image: GrayImage,
   {
     threshold,
     geometry,
@@ -242,8 +241,7 @@ function horizontalTimingMarkGapScan(
     debug?: Debugger;
   }
 ): Rect[] {
-  const { data, width } = imageData;
-  const channels = getImageChannelCount(imageData);
+  const { channels, width } = image;
 
   const markSize = geometry.timingMarkSize;
   const gapSize: Size = {
@@ -279,9 +277,9 @@ function horizontalTimingMarkGapScan(
         offsetMid += offsetStep,
         offsetHi += offsetStep
     ) {
-      const loLum = data[offsetLo] as number;
-      const midLum = data[offsetMid] as number;
-      const hiLum = data[offsetHi] as number;
+      const loLum = image.raw(offsetLo);
+      const midLum = image.raw(offsetMid);
+      const hiLum = image.raw(offsetHi);
 
       const loForeground = loLum < threshold;
       const midForeground = midLum < threshold;
@@ -451,7 +449,7 @@ interface InterpretFrontBallotCardLayoutResult {
   readonly completeTimingMarks: CompleteTimingMarks;
   readonly geometry: BallotCardGeometry;
   readonly grid: PossibleOptionBubblesGrid;
-  readonly imageData: ImageData;
+  readonly image: GrayImage;
   readonly metadata: FrontMarksMetadata;
   readonly orientation: BallotCardOrientation;
   readonly partialTimingMarks: PartialTimingMarks;
@@ -465,7 +463,7 @@ interface InterpretBackBallotCardLayoutResult {
   readonly completeTimingMarks: CompleteTimingMarks;
   readonly geometry: BallotCardGeometry;
   readonly grid: PossibleOptionBubblesGrid;
-  readonly imageData: ImageData;
+  readonly image: GrayImage;
   readonly metadata: BackMarksMetadata;
   readonly orientation: BallotCardOrientation;
   readonly partialTimingMarks: PartialTimingMarks;
@@ -485,13 +483,12 @@ export type InterpretBallotCardLayoutResult =
  * timing mark.
  */
 function findTimingMarkContainingPoint(
-  imageData: ImageData,
+  image: GrayImage,
   point: Point,
   geometry: BallotCardGeometry
 ): Rect | undefined {
-  const { data, width, height } = imageData;
-  const channels = getImageChannelCount(imageData);
-  const threshold = otsu(data, channels);
+  const { width, height } = image;
+  const threshold = otsu(image);
 
   const maxWidth = Math.ceil(geometry.timingMarkSize.width);
   const maxHeight = Math.ceil(geometry.timingMarkSize.height);
@@ -505,12 +502,12 @@ function findTimingMarkContainingPoint(
   while (minX >= 0 && maxX < width && maxX - minX + 1 <= maxWidth) {
     let hasExpanded = false;
 
-    if ((data[(y * width + minX) * channels] as number) < threshold) {
+    if (image.at(minX, y) < threshold) {
       minX -= 1;
       hasExpanded = true;
     }
 
-    if ((data[(y * width + maxX) * channels] as number) < threshold) {
+    if (image.at(maxX, y) < threshold) {
       maxX += 1;
       hasExpanded = true;
     }
@@ -523,12 +520,12 @@ function findTimingMarkContainingPoint(
   while (minY >= 0 && maxY < height && maxY - minY + 1 <= maxHeight) {
     let hasExpanded = false;
 
-    if ((data[(minY * width + x) * channels] as number) < threshold) {
+    if (image.at(x, minY) < threshold) {
       minY -= 1;
       hasExpanded = true;
     }
 
-    if ((data[(maxY * width + x) * channels] as number) < threshold) {
+    if (image.at(x, maxY) < threshold) {
       maxY += 1;
       hasExpanded = true;
     }
@@ -549,12 +546,12 @@ function findTimingMarkContainingPoint(
 /**
  * Finds the bottom timing marks on a ballot card.
  *
- * @param imageData the image data of the ballot card
+ * @param image the image data of the ballot card
  * @param segment a line segment from the center of the bottom left timing mark to the center of the bottom right timing mark
  * @param geometry the geometry of the ballot card
  */
 function findBottomTimingMarksAlongSegment(
-  imageData: ImageData,
+  image: GrayImage,
   segment: Segment,
   geometry: BallotCardGeometry
 ): Rect[] {
@@ -568,7 +565,7 @@ function findBottomTimingMarksAlongSegment(
       distancePerTimingMark * i
     );
     const timingMark = findTimingMarkContainingPoint(
-      imageData,
+      image,
       segmentToTimingMark.to,
       geometry
     );
@@ -585,16 +582,15 @@ function findBottomTimingMarksAlongSegment(
  * Finds timing marks and extracts ballot card metadata.
  */
 export function interpretBallotCardLayout(
-  imageData: ImageData,
+  image: GrayImage,
   {
     geometry,
     debug = noDebug(),
   }: { geometry: BallotCardGeometry; debug?: Debugger }
 ): InterpretBallotCardLayoutResult {
-  const { width, height } = imageData;
-  const channels = getImageChannelCount(imageData);
+  const { width, height } = image;
   const inset = getSearchInset(geometry);
-  const threshold = otsu(imageData.data, channels);
+  const threshold = otsu(image);
 
   /* istanbul ignore next */
   if (debug.isEnabled()) {
@@ -625,14 +621,14 @@ export function interpretBallotCardLayout(
   /// even though one of them is likely to be incorrect using this method.
 
   let leftSideTimingMarkGaps = debug.capture('left side', () =>
-    verticalTimingMarkGapScan(imageData, {
+    verticalTimingMarkGapScan(image, {
       geometry,
       threshold,
       rect: makeRect({
         minX: 0,
         minY: 0,
         maxX: inset.left,
-        maxY: height,
+        maxY: height - 1,
       }),
       debug,
     })
@@ -647,14 +643,14 @@ export function interpretBallotCardLayout(
   assert(leftSideBestFitLine);
 
   let rightSideTimingMarkGaps = debug.capture('right side', () =>
-    verticalTimingMarkGapScan(imageData, {
+    verticalTimingMarkGapScan(image, {
       geometry,
       threshold,
       rect: makeRect({
-        minX: imageData.width - inset.right,
+        minX: width - inset.right,
         minY: 0,
-        maxX: imageData.width - 1,
-        maxY: height,
+        maxX: width - 1,
+        maxY: height - 1,
       }),
       debug,
     })
@@ -703,7 +699,7 @@ export function interpretBallotCardLayout(
   );
 
   let topSideTimingMarkGaps = debug.capture('top side', () =>
-    horizontalTimingMarkGapScan(imageData, {
+    horizontalTimingMarkGapScan(image, {
       geometry,
       threshold,
       rect: makeRect({
@@ -725,7 +721,7 @@ export function interpretBallotCardLayout(
   assert(topSideBestFitLine);
 
   let bottomSideTimingMarkGaps = debug.capture('bottom side', () =>
-    horizontalTimingMarkGapScan(imageData, {
+    horizontalTimingMarkGapScan(image, {
       geometry,
       threshold,
       rect: makeRect({
@@ -753,15 +749,15 @@ export function interpretBallotCardLayout(
   /// bottom edge.
 
   function rotatePoint(point: Point): Point {
-    return loc(imageData.width - 1 - point.x, imageData.height - 1 - point.y);
+    return loc(image.width - 1 - point.x, image.height - 1 - point.y);
   }
 
   function rotateRect(rect: Rect): Rect {
     return makeRect({
-      minX: imageData.width - 1 - rect.maxX,
-      minY: imageData.height - 1 - rect.maxY,
-      maxX: imageData.width - 1 - rect.minX,
-      maxY: imageData.height - 1 - rect.minY,
+      minX: image.width - 1 - rect.maxX,
+      minY: image.height - 1 - rect.maxY,
+      maxX: image.width - 1 - rect.minX,
+      maxY: image.height - 1 - rect.minY,
     });
   }
 
@@ -806,8 +802,8 @@ export function interpretBallotCardLayout(
       rightSideTimingMarkGaps.map(rotateRect),
     ];
 
-    rotate180(imageData);
-    debug.imageData(0, 0, imageData);
+    rotate180(image);
+    debug.image(0, 0, image);
   }
 
   const intersectionOfTopAndLeftLines = intersectionOfLineSegments(
@@ -932,7 +928,7 @@ export function interpretBallotCardLayout(
     : rectContainsPoint(leftMostTopTimingMark, intersectionOfTopAndLeftLines)
     ? leftMostTopTimingMark
     : findTimingMarkContainingPoint(
-        imageData,
+        image,
         intersectionOfTopAndLeftLines,
         geometry
       );
@@ -960,7 +956,7 @@ export function interpretBallotCardLayout(
     : rectContainsPoint(rightMostTopTimingMark, intersectionOfTopAndRightLines)
     ? rightMostTopTimingMark
     : findTimingMarkContainingPoint(
-        imageData,
+        image,
         intersectionOfTopAndRightLines,
         geometry
       );
@@ -988,7 +984,7 @@ export function interpretBallotCardLayout(
   );
 
   const bottomSideTimingMarks = findBottomTimingMarksAlongSegment(
-    imageData,
+    image,
     {
       from: centerOfRect(bottomLeftTimingMark),
       to: centerOfRect(bottomRightTimingMark),
@@ -1012,7 +1008,7 @@ export function interpretBallotCardLayout(
   });
 
   const completeTimingMarks = interpolateMissingTimingMarks(
-    imageData,
+    image,
     partialTimingMarks,
     { debug }
   );
@@ -1048,7 +1044,7 @@ export function interpretBallotCardLayout(
         completeTimingMarks,
         geometry,
         grid,
-        imageData,
+        image,
         metadata,
         orientation,
         partialTimingMarks,
@@ -1058,7 +1054,7 @@ export function interpretBallotCardLayout(
         completeTimingMarks,
         geometry,
         grid,
-        imageData,
+        image,
         metadata,
         orientation,
         partialTimingMarks,

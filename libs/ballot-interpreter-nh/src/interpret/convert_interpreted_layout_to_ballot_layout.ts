@@ -67,8 +67,8 @@ export function convertInterpretedLayoutToBallotLayout({
   debug?: Debugger;
 }): Result<BallotPageLayout, Error> {
   const pageSize: Size = {
-    width: interpretedLayout.imageData.width,
-    height: interpretedLayout.imageData.height,
+    width: interpretedLayout.image.width,
+    height: interpretedLayout.image.height,
   };
   const contestLayouts: BallotPageContestLayout[] = [];
   const { geometry } = interpretedLayout;

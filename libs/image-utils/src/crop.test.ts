@@ -1,17 +1,19 @@
 import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import fc from 'fast-check';
-import { arbitraryImageData, arbitraryRect } from '../test/arbitraries';
-import { crop } from './crop';
-import { int } from './types';
+import { arbitraryImage, arbitraryRect } from '../test/arbitraries';
+import { B, F, makeBinaryGrayImage } from '../test/utils';
+import { wrapImageData } from './image_data';
+import { AnyImage, int } from './types';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
  */
-function cropReferenceImplementation(
-  { data: src, width: srcWidth, height: srcHeight }: ImageData,
+function cropReferenceImplementation<I extends AnyImage>(
+  image: I,
   bounds: Rect
-): ImageData {
+): I {
+  const { data: src, width: srcWidth, height: srcHeight } = image.asImageData();
   const channels = src.length / (srcWidth * srcHeight);
   const dst = new Uint8ClampedArray(bounds.width * bounds.height * channels);
   const {
@@ -35,59 +37,55 @@ function cropReferenceImplementation(
     }
   }
 
-  return createImageData(dst, dstWidth, dstHeight);
+  return wrapImageData(createImageData(dst, dstWidth, dstHeight)) as I;
 }
 
 test('crop center (gray)', () => {
-  const imageData = createImageData(
-    Uint8ClampedArray.of(0, 0, 0, 0, 1, 0, 0, 0, 0),
-    3,
-    3
-  );
+  const image = makeBinaryGrayImage(`
+    ###
+    #.#
+    ###
+  `);
 
-  const { data, width, height } = crop(imageData, {
-    x: 1,
-    y: 1,
-    width: 1,
-    height: 1,
-  });
-  expect([...data]).toEqual([1]);
+  const { data, width, height } = image
+    .crop({ x: 1, y: 1, width: 1, height: 1 })
+    .asImageData();
+  expect([...data]).toEqual([B]);
   expect({ width, height }).toEqual({ width: 1, height: 1 });
 });
 
 test('crop center (rgba)', () => {
-  const imageData = createImageData(
-    Uint8ClampedArray.of(0, 0, 0, 255, 1, 0, 0, 255),
-    2,
-    1
-  );
+  const imageData = makeBinaryGrayImage(`
+    ###
+    #.#
+    ###
+  `).toRgba();
 
-  const { data, width, height } = crop(imageData, {
-    x: 1,
-    y: 0,
-    width: 1,
-    height: 1,
-  });
-  expect([...data]).toEqual([1, 0, 0, 255]);
+  const { data, width, height } = imageData
+    .crop({ x: 1, y: 0, width: 1, height: 1 })
+    .asImageData();
+  expect([...data]).toEqual([F, 0, 0, 255]);
   expect({ width, height }).toEqual({ width: 1, height: 1 });
 });
 
 test('crop random', () => {
   fc.assert(
     fc.property(
-      arbitraryImageData().chain((imageData) =>
+      arbitraryImage().chain((image) =>
         fc.record({
-          imageData: fc.constant(imageData),
+          image: fc.constant(image),
           bounds: arbitraryRect({
-            maxX: imageData.width - 1,
-            maxY: imageData.height - 1,
+            maxX: image.width - 1,
+            maxY: image.height - 1,
           }),
         })
       ),
-      ({ imageData, bounds }) => {
-        const cropped = crop(imageData, bounds);
+      ({ image, bounds }) => {
+        const cropped = image.crop(bounds);
         const { width, height } = cropped;
-        expect(cropped).toEqual(cropReferenceImplementation(imageData, bounds));
+        expect(cropped.asImageData()).toEqual(
+          cropReferenceImplementation(image, bounds).asImageData()
+        );
         expect({ width, height }).toEqual({
           width: bounds.width,
           height: bounds.height,

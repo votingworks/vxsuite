@@ -1,18 +1,13 @@
+import { assert } from '@votingworks/basics';
 import {
-  binarize,
-  crop,
-  diff,
-  getImageChannelCount,
+  AnyImage,
   otsu,
-  outline,
+  writeImage,
   PIXEL_BLACK,
   PIXEL_WHITE,
-  ratio,
-  writeImageData,
 } from '@votingworks/image-utils';
 import { GridLayout, GridPosition } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
 import makeDebug, { Debugger } from 'debug';
 import { BallotCardGeometry, InterpretedOvalMark, Point } from '../types';
 import { loc, makeRect, vec } from '../utils';
@@ -32,17 +27,13 @@ function makeGridPositionDebug(gridPosition: GridPosition): Debugger {
   return makeDebug(label);
 }
 
-function writeDebugImage(
-  debug: Debugger,
-  imageData: ImageData,
-  name: string
-): void {
+function writeDebugImage(debug: Debugger, image: AnyImage, name: string): void {
   if (debug.enabled) {
     const filePath = `./debug-${debug.namespace.slice(
       DEBUG_NAMESPACE_PREFIX.length + 1
     )}-${name}.png`;
     debug(`%s`, filePath);
-    void writeImageData(filePath, imageData);
+    void writeImage(filePath, image);
   }
 }
 
@@ -50,15 +41,17 @@ function writeDebugImage(
  * Score oval mark at a given location.
  */
 export function scoreOvalMark(
-  imageData: ImageData,
-  ovalTemplate: ImageData,
+  imageData: AnyImage,
+  ovalTemplate: AnyImage,
   ovalTopLeftPoint: Point,
   geometry: BallotCardGeometry,
   threshold: number,
   debug: Debugger
 ): Omit<InterpretedOvalMark, 'gridPosition'> {
   const maximumOffset = 7;
-  const outlinedOvalTemplate = outline(binarize(ovalTemplate, threshold));
+  const outlinedOvalTemplate = ovalTemplate
+    .binarize(threshold)
+    .outline({ color: PIXEL_BLACK });
   let maximumMatchScore = 0;
   let bestMatchRect = makeRect({
     minX: ovalTopLeftPoint.x,
@@ -88,15 +81,12 @@ export function scoreOvalMark(
         maxX: x + geometry.ovalSize.width - 1,
         maxY: y + geometry.ovalSize.height - 1,
       });
-      const cropped = crop(imageData, ovalRect);
-      const croppedAndBinarized = binarize(cropped, threshold);
-      const matchDiff = diff(croppedAndBinarized, outlinedOvalTemplate);
+      const cropped = imageData.crop(ovalRect);
+      const croppedAndBinarized = cropped.binarize(threshold);
+      const matchDiff = croppedAndBinarized.diff(outlinedOvalTemplate);
       // determine whether this offset lines up well with the template
-      const matchScore = ratio(
-        matchDiff,
-        // brighter image means a better match with the template
-        { color: PIXEL_WHITE }
-      );
+      const matchScore =
+        matchDiff.count({ color: PIXEL_WHITE }) / matchDiff.length;
 
       writeDebugImage(debug, cropped, `offset=(${xOffset},${yOffset})-cropped`);
       writeDebugImage(
@@ -113,12 +103,10 @@ export function scoreOvalMark(
       );
 
       if (debug.enabled) {
-        const fillDiff = diff(outlinedOvalTemplate, croppedAndBinarized);
-        const fillScore = ratio(
-          fillDiff,
-          // darker image means more of the bubble is filled in
-          { color: PIXEL_BLACK }
-        );
+        const fillDiff = outlinedOvalTemplate.diff(croppedAndBinarized);
+        // darker image means more of the bubble is filled in
+        const fillScore =
+          fillDiff.count({ color: PIXEL_BLACK }) / fillDiff.length;
         writeDebugImage(
           debug,
           fillDiff,
@@ -134,12 +122,10 @@ export function scoreOvalMark(
         bestMatchRect = ovalRect;
 
         // compute the new fill score based on how much of the oval is filled in
-        const fillDiff = diff(outlinedOvalTemplate, croppedAndBinarized);
-        const fillScore = ratio(
-          fillDiff,
-          // darker image means more of the bubble is filled in
-          { color: PIXEL_BLACK }
-        );
+        const fillDiff = outlinedOvalTemplate.diff(croppedAndBinarized);
+        // darker image means more of the bubble is filled in
+        const fillScore =
+          fillDiff.count({ color: PIXEL_BLACK }) / fillDiff.length;
         bestMatchFillScore = fillScore;
         bestMatchOffset = vec(xOffset, yOffset);
       }
@@ -164,13 +150,13 @@ export function interpretPageOvalMarks({
   gridLayout,
 }: {
   geometry: BallotCardGeometry;
-  ovalTemplate: ImageData;
-  imageData: ImageData;
+  ovalTemplate: AnyImage;
+  imageData: AnyImage;
   layout: InterpretBallotCardLayoutResult;
   gridLayout: GridLayout;
 }): InterpretedOvalMark[] {
   const { grid } = layout;
-  const threshold = otsu(imageData.data, getImageChannelCount(imageData));
+  const threshold = otsu(imageData);
 
   if (
     ovalTemplate.width !== geometry.ovalSize.width ||
@@ -222,7 +208,7 @@ export function interpretPageOvalMarks({
 /**
  * Interprets a ballot sheet scan's oval marks.
  */
-export function interpretOvalMarks({
+export function interpretOvalMarks<I extends AnyImage>({
   geometry,
   ovalTemplate,
   frontImageData,
@@ -232,20 +218,13 @@ export function interpretOvalMarks({
   gridLayout,
 }: {
   geometry: BallotCardGeometry;
-  ovalTemplate: ImageData;
-  frontImageData: ImageData;
-  backImageData: ImageData;
+  ovalTemplate: AnyImage;
+  frontImageData: I;
+  backImageData: I;
   frontLayout: InterpretBallotCardLayoutResult;
   backLayout: InterpretBallotCardLayoutResult;
   gridLayout: GridLayout;
 }): InterpretedOvalMark[] {
-  const frontImageChannels = getImageChannelCount(frontImageData);
-  const backImageChannels = getImageChannelCount(backImageData);
-  assert(
-    frontImageChannels === backImageChannels,
-    `frontImageChannels ${frontImageChannels} !== backImageChannels ${backImageChannels}`
-  );
-
   const frontMarks = interpretPageOvalMarks({
     geometry,
     ovalTemplate,

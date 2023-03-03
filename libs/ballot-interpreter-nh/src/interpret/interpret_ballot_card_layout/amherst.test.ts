@@ -1,6 +1,5 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
-import { ImageData } from 'canvas';
 import { readFixtureImage } from '../../../test/fixtures';
 import { testImageDebugger } from '../../../test/utils';
 import { ScannedBallotCardGeometry8pt5x11 } from '../../accuvote';
@@ -45,14 +44,11 @@ test.each([
 ])('%s', async (name, frontImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const frontImageData = readFixtureImage(await frontImagePromise, geometry);
-  const { imageData, ...frontLayout } = interpretBallotCardLayout(
-    frontImageData,
-    {
-      geometry,
-      debug: testImageDebugger(frontImageData),
-    }
-  );
-  expect(imageData instanceof ImageData).toEqual(true);
+  const { image, ...frontLayout } = interpretBallotCardLayout(frontImageData, {
+    geometry,
+    debug: testImageDebugger(frontImageData),
+  });
+  expect(image.isGray()).toEqual(true);
   expect(frontLayout.completeTimingMarks.left).toHaveLength(
     geometry.gridSize.height
   );
@@ -123,14 +119,11 @@ test.each([
 ])('%s', async (name, backImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const backImageData = readFixtureImage(await backImagePromise, geometry);
-  const { imageData, ...backLayout } = interpretBallotCardLayout(
-    backImageData,
-    {
-      geometry,
-      debug: testImageDebugger(backImageData),
-    }
-  );
-  expect(imageData instanceof ImageData).toEqual(true);
+  const { image, ...backLayout } = interpretBallotCardLayout(backImageData, {
+    geometry,
+    debug: testImageDebugger(backImageData),
+  });
+  expect(image.isGray()).toEqual(true);
   expect(backLayout.completeTimingMarks.left).toHaveLength(
     geometry.gridSize.height
   );

@@ -64,12 +64,12 @@ test('generateBallotPageLayouts', async () => {
 
   for (const contest of frontLayout.contests) {
     testImageDebugger(contest.bounds)
-      .imageData(-contest.bounds.x, -contest.bounds.y, frontImageData)
+      .image(-contest.bounds.x, -contest.bounds.y, frontImageData)
       .write();
 
     for (const option of contest.options) {
       testImageDebugger(option.bounds)
-        .imageData(-option.bounds.x, -option.bounds.y, frontImageData)
+        .image(-option.bounds.x, -option.bounds.y, frontImageData)
         .write();
     }
   }

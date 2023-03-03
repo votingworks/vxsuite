@@ -10,16 +10,52 @@ import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 jest.mock('../../convert');
 jest.mock('../../images', (): typeof import('../../images') => ({
   matchTemplate: jest.fn(),
-  matchTemplateImage: jest.fn(),
   scoreTemplateMatch: jest.fn(),
 }));
 jest.mock(
   '@votingworks/image-utils',
-  (): Partial<typeof import('@votingworks/image-utils')> => ({
-    imageDebugger: jest.fn(),
-    loadImage: jest.fn(),
-    toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
-  })
+  (): Partial<typeof import('@votingworks/image-utils')> => {
+    const notImplementedMock = jest.fn().mockImplementation(() => {
+      throw new Error('not implemented');
+    });
+
+    const grayImageMock: jest.Mocked<
+      import('@votingworks/image-utils').GrayImage
+    > = {
+      width: 1,
+      height: 1,
+      channels: 1,
+      length: 1,
+      step: 1,
+      isRgba: jest.fn().mockReturnValue(false),
+      isGray: jest.fn().mockReturnValue(true),
+      at: notImplementedMock,
+      asDataUrl: notImplementedMock,
+      asImageData: notImplementedMock,
+      binarize: notImplementedMock,
+      copy: notImplementedMock,
+      count: notImplementedMock,
+      crop: notImplementedMock,
+      diff: notImplementedMock,
+      fill: notImplementedMock,
+      outline: notImplementedMock,
+      raw: notImplementedMock,
+      rotate180: notImplementedMock,
+      row: notImplementedMock,
+      setAt: notImplementedMock,
+      setRaw: notImplementedMock,
+      toGray: jest.fn().mockImplementation(() => grayImageMock),
+      toRgba: notImplementedMock,
+    };
+
+    return {
+      imageDebugger: jest.fn(),
+      loadImage: jest.fn().mockReturnValue(grayImageMock),
+      loadGrayImage: jest.fn().mockReturnValue(grayImageMock),
+      toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
+      wrapImageData: jest.fn().mockReturnValue(grayImageMock),
+    };
+  }
 );
 
 test('--help', async () => {
