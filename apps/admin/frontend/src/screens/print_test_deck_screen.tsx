@@ -610,7 +610,7 @@ export function PrintTestDeckScreen(): JSX.Element {
               ? 'all-precincts'
               : precinctNameFromId(election, precinctToSaveToPdf)
           )}
-          fileType={FileType.TestDeckTallyReport}
+          fileType={FileType.LogicAndAccuracyPackage}
         />
       )}
     </React.Fragment>

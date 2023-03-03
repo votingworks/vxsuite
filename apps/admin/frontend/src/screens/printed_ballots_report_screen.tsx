@@ -265,7 +265,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
             'printed-ballots-report',
             election
           )}
-          fileType={FileType.TestDeckTallyReport}
+          fileType={FileType.PrintedBallotsReport}
         />
       )}
     </React.Fragment>
