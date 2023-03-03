@@ -270,3 +270,12 @@ export type Byte =
 export function isByte(n: number): n is Byte {
   return [...Array.from({ length: 256 }).keys()].includes(n);
 }
+
+/**
+ * - asHexString(0x00) --> '00'
+ * - asHexString(0x01) --> '01'
+ * - asHexString(0x3f) --> '3f'
+ */
+export function asHexString(byte: Byte): string {
+  return `0${byte.toString(16)}`.slice(-2);
+}

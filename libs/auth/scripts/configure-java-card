@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+require('./configure_java_card').main();

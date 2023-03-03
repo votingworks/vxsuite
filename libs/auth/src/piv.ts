@@ -13,7 +13,7 @@ export const CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = {
 } as const;
 
 /**
- * The GENERAL AUTHENTICATE command is a PIV command that initiates an authentication protocol.
+ * GENERAL AUTHENTICATE is a PIV command that initiates an authentication protocol.
  */
 export const GENERAL_AUTHENTICATE = {
   INS: 0x87,
@@ -23,8 +23,8 @@ export const GENERAL_AUTHENTICATE = {
 } as const;
 
 /**
- * The GENERATE ASYMMETRIC KEY PAIR command is a PIV command that generates an asymmetric key pair.
- * The public key is exported, and the private key never leaves the card.
+ * GENERATE ASYMMETRIC KEY PAIR is a PIV command that generates an asymmetric key pair. The public
+ * key is exported, and the private key never leaves the card.
  */
 export const GENERATE_ASYMMETRIC_KEY_PAIR = {
   INS: 0x47,
@@ -34,7 +34,7 @@ export const GENERATE_ASYMMETRIC_KEY_PAIR = {
 } as const;
 
 /**
- * The GET DATA command is a PIV command that retrieves a data object.
+ * GET DATA is a PIV command that retrieves a data object.
  */
 export const GET_DATA = {
   INS: 0xcb,
@@ -44,7 +44,7 @@ export const GET_DATA = {
 } as const;
 
 /**
- * The PUT DATA command is a PIV command that stores a data object.
+ * PUT DATA is a PIV command that stores a data object.
  */
 export const PUT_DATA = {
   INS: 0xdb,
@@ -59,8 +59,8 @@ export const PUT_DATA = {
 } as const;
 
 /**
- * The RESET RETRY COUNTER command is a PIV command that changes the card PIN given the PUK (PIN
- * unblocking key) and resets the remaining PIN entry attempts count to its initial value.
+ * RESET RETRY COUNTER is a PIV command that changes the card PIN given the PUK (PIN unblocking
+ * key) and resets the remaining PIN entry attempts count to its initial value.
  */
 export const RESET_RETRY_COUNTER = {
   INS: 0x2c,
@@ -69,8 +69,7 @@ export const RESET_RETRY_COUNTER = {
 } as const;
 
 /**
- * The VERIFY command is a PIV command that performs various forms of user verification, including
- * PIN checks.
+ * VERIFY is a PIV command that performs various forms of user verification, including PIN checks.
  */
 export const VERIFY = {
   INS: 0x20,

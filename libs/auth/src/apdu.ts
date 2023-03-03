@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Buffer } from 'buffer';
-import { Byte, isByte } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
+import { asHexString, Byte, isByte } from '@votingworks/types';
 
 /**
  * The max length of an APDU
@@ -17,10 +17,15 @@ const MAX_COMMAND_APDU_DATA_LENGTH = MAX_APDU_LENGTH - 5;
 /**
  * Because APDUs have a max length, commands involving larger amounts of data have to be sent as
  * multiple, chained APDUs. The APDU CLA indicates whether more data has yet to be provided.
+ *
+ * The CLA also indicates whether the APDU is being sent over a GlobalPlatform Secure Channel,
+ * typically used for initial card configuration.
  */
 const CLA = {
   STANDARD: 0x00,
   CHAINED: 0x10,
+  SECURE: 0x0c,
+  SECURE_CHAINED: 0x1c,
 } as const;
 
 /**
@@ -60,6 +65,11 @@ export const GET_RESPONSE = {
   P2: 0x00,
 } as const;
 
+function splitEvery2Characters(s: string): string[] {
+  assert(s.length % 2 === 0);
+  return s.match(/.{2}/g) || [];
+}
+
 /**
  * An APDU, or application protocol data unit, is the communication unit between a smart card
  * reader and a smart card. The smart card reader issues command APDUs to the smart card, and the
@@ -82,13 +92,13 @@ export class CommandApdu {
   private readonly data: Buffer;
 
   constructor(input: {
-    chained?: boolean;
+    cla?: { chained?: boolean; secure?: boolean };
     ins: Byte;
     p1: Byte;
     p2: Byte;
     data?: Buffer;
   }) {
-    const cla = input.chained ? CLA.CHAINED : CLA.STANDARD;
+    const cla = this.determineCla(input.cla);
     const data = input.data ?? Buffer.from([]);
 
     if (data.length > MAX_COMMAND_APDU_DATA_LENGTH) {
@@ -110,6 +120,21 @@ export class CommandApdu {
       Buffer.from([this.cla, this.ins, this.p1, this.p2, this.lc]),
       this.data,
     ]);
+  }
+
+  asHexString(separator?: string): string {
+    const buffer = this.asBuffer();
+    const hexString = buffer.toString('hex');
+    return separator
+      ? splitEvery2Characters(hexString).join(separator)
+      : hexString;
+  }
+
+  private determineCla(input: { chained?: boolean; secure?: boolean } = {}) {
+    if (input.secure) {
+      return input.chained ? CLA.SECURE_CHAINED : CLA.SECURE;
+    }
+    return input.chained ? CLA.CHAINED : CLA.STANDARD;
   }
 }
 
@@ -150,7 +175,7 @@ export class CardCommand {
       const notLastApdu = i < numApdus - 1;
       apdus.push(
         new CommandApdu({
-          chained: notLastApdu,
+          cla: { chained: notLastApdu },
           ins: this.ins,
           p1: this.p1,
           p2: this.p2,
@@ -246,7 +271,7 @@ export class ResponseApduError extends Error {
     const [sw1, sw2] = statusWord;
     super(
       'Received response APDU with non-success status: ' +
-        `${sw1.toString(16)} ${sw2.toString(16)}`
+        `${asHexString(sw1)} ${asHexString(sw2)}`
     );
     this.sw1 = sw1;
     this.sw2 = sw2;

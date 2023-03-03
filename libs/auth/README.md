@@ -36,3 +36,16 @@ methods depend not only on code but the status of the card in the card reader.
 Someone could trigger an action in a valid state but then remove their card
 right after, switching to an invalid state. We wouldn't want this to trigger the
 frontend error boundary, which throwing errors on the backend typically does.
+
+## Initial Java Card Configuration Script
+
+This library also contains an initial Java Card configuration script to be run
+at the Bakery.
+
+```
+# Install script dependencies
+make install-script-dependencies
+
+# With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
+./scripts/configure-java-card
+```
