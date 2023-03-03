@@ -90,12 +90,14 @@ function combinePageInterpretationsForSheet(
     let reasons: AdjudicationReasonInfo[];
     // If both sides are blank, the ballot is blank
     if (
-      frontReasons.some(
+      (frontReasons.some(
         (reason) => reason.type === AdjudicationReason.BlankBallot
-      ) &&
-      backReasons.some(
+      ) ||
+        front.interpretation.markInfo.marks.length === 0) &&
+      (backReasons.some(
         (reason) => reason.type === AdjudicationReason.BlankBallot
-      )
+      ) ||
+        back.interpretation.markInfo.marks.length === 0)
     ) {
       reasons = [{ type: AdjudicationReason.BlankBallot }];
     }
