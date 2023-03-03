@@ -81,7 +81,7 @@ function errorContains(error: unknown, message: string): boolean {
   return error instanceof Error && error.message.includes(message);
 }
 
-function sectionLog(symbol: string, message: string) {
+function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
   console.log(`${symbol} ${message}`);
   console.log('-'.repeat(3 + message.length));
@@ -100,7 +100,7 @@ function globalPlatformCommand(command: string[]): string[] {
   return ['java', '-jar', GLOBAL_PLATFORM_PATH, ...command];
 }
 
-function checkForScriptDependencies() {
+function checkForScriptDependencies(): void {
   try {
     runCommand(['ls', GLOBAL_PLATFORM_PATH]);
   } catch {
@@ -110,7 +110,7 @@ function checkForScriptDependencies() {
   }
 }
 
-function installApplet() {
+function installApplet(): void {
   sectionLog('🧹', 'Uninstalling applet if already installed...');
   try {
     runCommand(globalPlatformCommand(['--uninstall', APPLET_PATH]));
@@ -186,7 +186,7 @@ function configureDataObjectSlotCommandApdu(objectId: Buffer): CommandApdu {
   });
 }
 
-function runAppletConfigurationCommands() {
+function runAppletConfigurationCommands(): void {
   sectionLog('🔧', 'Running applet configuration commands...');
 
   const apdus = [
@@ -308,7 +308,7 @@ async function createAndStoreCardVxCert(): Promise<void> {
 /**
  * An initial Java Card configuration script to be run at the Bakery
  */
-async function main() {
+export async function main(): Promise<void> {
   try {
     checkForScriptDependencies();
     installApplet();
@@ -321,5 +321,3 @@ async function main() {
   sectionLog('✅', 'Done!');
   process.exit(0);
 }
-
-void main();

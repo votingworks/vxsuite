@@ -47,5 +47,5 @@ at the Bakery.
 make install-script-dependencies
 
 # With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
-pnpm configure-java-card
+./scripts/configure-java-card
 ```
