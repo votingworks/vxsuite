@@ -1,4 +1,5 @@
 import React from 'react';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
@@ -53,12 +54,27 @@ afterAll(() => {
 test('Saving L&A package for one precinct', () => {
   const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger: mockLogger,
     usbDrive,
   });
 
-  userEvent.click(screen.getByText('Save District 5 to PDF'));
+  userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
   screen.getByText('Save Logic & Accuracy Package');
+  screen.getByText('Save');
+});
+
+test('Saving L&A package for all precincts', () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<PrintTestDeckScreen />, {
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    logger: mockLogger,
+    usbDrive,
+  });
+
+  userEvent.click(screen.getByText('Save Packages for All Precincts as PDF'));
+  screen.getByText('Save Logic & Accuracy Package');
+  screen.getByText('Save');
 });
 
 test('Printing L&A package for one precinct', async () => {
