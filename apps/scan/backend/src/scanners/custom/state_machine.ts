@@ -196,6 +196,10 @@ function scannerStatusToEvent(
     scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent &&
     scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
 
+  if (scannerStatus.isScannerCoverOpen) {
+    return { type: 'SCANNER_DISCONNECTED' };
+  }
+
   if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
     if (!frontHasPaper && !backHasPaper) {
       return { type: 'SCANNER_JAM_CLEARED' };
@@ -661,6 +665,7 @@ function buildMachine({
           },
         },
         disconnected: {
+          id: 'disconnected',
           entry: clearLastScan,
           initial: 'waiting_to_retry_connecting',
           states: {
@@ -1071,7 +1076,7 @@ function buildMachine({
         // starting over.
         error: {
           id: 'error',
-          initial: 'cooling_off',
+          initial: 'disconnecting',
           states: {
             // First, try disconnecting the "nice" way
             disconnecting: {
@@ -1087,7 +1092,7 @@ function buildMachine({
               invoke: {
                 src: killCustomClient,
                 onDone: 'cooling_off',
-                onError: '#unrecoverable_error',
+                onError: 'unexpected_error',
               },
             },
             // Now that we've disconnected, wait a bit to give the scanner time
@@ -1106,17 +1111,17 @@ function buildMachine({
                     error: undefined,
                   }),
                 },
-                onError: '#unrecoverable_error',
+                onError: 'unexpected_error',
               },
             },
-            unrecoverable: {
+            // When an unexpected error occurs the scanner has likely disconnected, reset to that state.
+            unexpected_error: {
               after: {
-                DELAY_RECONNECT_ON_UNEXPECTED_ERROR: '#unrecoverable_error',
+                DELAY_RECONNECT_ON_UNEXPECTED_ERROR: '#disconnected',
               },
             },
           },
         },
-        unrecoverable_error: { id: 'unrecoverable_error' },
       },
     },
     { delays: { ...delays } }
@@ -1241,6 +1246,8 @@ export function createPrecinctScannerStateMachine({
         // We use state.matches as recommended by the XState docs. This allows
         // us to add new substates to a state without breaking this switch.
         switch (true) {
+          case state.matches('error'):
+            return 'recovering_from_error';
           case state.matches('connecting'):
             return 'connecting';
           case state.matches('checking_initial_paper_status'):
@@ -1285,10 +1292,6 @@ export function createPrecinctScannerStateMachine({
             return 'jammed';
           case state.matches('both_sides_have_paper_while_scanning'):
             return 'both_sides_have_paper';
-          case state.matches('error'):
-            return 'recovering_from_error';
-          case state.matches('unrecoverable_error'):
-            return 'unrecoverable_error';
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }
@@ -1320,7 +1323,6 @@ export function createPrecinctScannerStateMachine({
         'rejecting',
         'rejected',
         'recovering_from_error',
-        'unrecoverable_error',
       ].includes(scannerState);
       const errorDetails =
         error && stateNeedsErrorDetails ? errorToString(error) : undefined;
