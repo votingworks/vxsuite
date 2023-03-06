@@ -7,6 +7,11 @@ import {
   wrapException,
 } from '@votingworks/basics';
 import {
+  LogDispositionStandardTypes,
+  LogEventId,
+  Logger,
+} from '@votingworks/logging';
+import {
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
   User,
 } from '@votingworks/types';
@@ -49,11 +54,99 @@ function cardStatusToProgrammableCard(
 }
 
 /**
+ * Given a previous auth status and a new auth status following an auth status transition, infers
+ * and logs the relevant auth event, if any
+ */
+async function logAuthEventIfNecessary(
+  previousAuthStatus: DippedSmartCardAuthTypes.AuthStatus,
+  newAuthStatus: DippedSmartCardAuthTypes.AuthStatus,
+  logger: Logger
+) {
+  switch (previousAuthStatus.status) {
+    case 'logged_out': {
+      if (
+        previousAuthStatus.reason === 'machine_locked' &&
+        newAuthStatus.status === 'logged_out' &&
+        newAuthStatus.reason !== 'machine_locked'
+      ) {
+        await logger.log(
+          LogEventId.AuthLogin,
+          newAuthStatus.cardUserRole ?? 'unknown',
+          {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: `User failed login: ${newAuthStatus.reason}.`,
+            reason: newAuthStatus.reason,
+          }
+        );
+      }
+      return;
+    }
+
+    case 'checking_pin': {
+      if (newAuthStatus.status === 'logged_out') {
+        await logger.log(
+          LogEventId.AuthPinEntry,
+          previousAuthStatus.user.role,
+          {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: 'User canceled PIN entry.',
+          }
+        );
+      } else if (newAuthStatus.status === 'remove_card') {
+        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User entered correct PIN.',
+        });
+      } else if (newAuthStatus.status === 'checking_pin') {
+        if (
+          newAuthStatus.wrongPinEnteredAt &&
+          newAuthStatus.wrongPinEnteredAt !==
+            previousAuthStatus.wrongPinEnteredAt
+        ) {
+          await logger.log(
+            LogEventId.AuthPinEntry,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Failure,
+              message: 'User entered incorrect PIN.',
+            }
+          );
+        }
+      }
+      return;
+    }
+
+    case 'remove_card': {
+      if (newAuthStatus.status === 'logged_in') {
+        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged in.',
+        });
+      }
+      return;
+    }
+
+    case 'logged_in': {
+      if (newAuthStatus.status === 'logged_out') {
+        await logger.log(LogEventId.AuthLogout, previousAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged out.',
+        });
+      }
+      return;
+    }
+
+    /* istanbul ignore next: Compile-time check for completeness */
+    default:
+      throwIllegalValue(previousAuthStatus, 'status');
+  }
+}
+
+/**
  * An implementation of the dipped smart card auth API
  *
  * TODO:
  * - Locking to avoid concurrent card writes
- * - Logging
  * - Tests
  *
  * See the libs/auth README for notes on error handling
@@ -62,11 +155,17 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private authStatus: DippedSmartCardAuthTypes.AuthStatus;
   private readonly card: Card;
   private readonly config: DippedSmartCardAuthConfig;
+  private readonly logger: Logger;
 
-  constructor(input: { card: Card; config: DippedSmartCardAuthConfig }) {
+  constructor(input: {
+    card: Card;
+    config: DippedSmartCardAuthConfig;
+    logger: Logger;
+  }) {
     this.authStatus = DippedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = input.card;
     this.config = input.config;
+    this.logger = input.logger;
   }
 
   async getAuthStatus(
@@ -82,18 +181,79 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     const checkPinResponse = await this.card.checkPin(input.pin);
-    this.updateAuthStatus(machineState, {
+    await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
     });
   }
 
   async logOut(machineState: DippedSmartCardAuthMachineState): Promise<void> {
-    this.updateAuthStatus(machineState, { type: 'log_out' });
-    return Promise.resolve();
+    await this.updateAuthStatus(machineState, { type: 'log_out' });
   }
 
   async programCard(
+    machineState: DippedSmartCardAuthMachineState,
+    input:
+      | { userRole: 'system_administrator' }
+      | { userRole: 'election_manager'; electionData: string }
+      | { userRole: 'poll_worker' }
+  ): Promise<Result<{ pin?: string }, Error>> {
+    await this.logger.log(
+      LogEventId.SmartCardProgramInit,
+      'system_administrator',
+      {
+        message: `Programming ${input.userRole} smart card...`,
+        programmedUserRole: input.userRole,
+      }
+    );
+    const result = await this.programCardBase(machineState, input);
+    await this.logger.log(
+      LogEventId.SmartCardProgramComplete,
+      'system_administrator',
+      {
+        disposition: result.isOk() ? 'success' : 'failure',
+        message: result.isOk()
+          ? `Successfully programmed ${input.userRole} smart card.`
+          : `Error programming ${input.userRole} smart card.`,
+        programmedUserRole: input.userRole,
+      }
+    );
+    return result;
+  }
+
+  async unprogramCard(
+    machineState: DippedSmartCardAuthMachineState
+  ): Promise<Result<void, Error>> {
+    const programmedUserRole =
+      ('programmableCard' in this.authStatus &&
+        'programmedUser' in this.authStatus.programmableCard &&
+        this.authStatus.programmableCard?.programmedUser?.role) ??
+      'unprogrammed';
+    await this.logger.log(
+      LogEventId.SmartCardUnprogramInit,
+      'system_administrator',
+      {
+        message: `Unprogramming ${programmedUserRole} smart card...`,
+        programmedUserRole,
+      }
+    );
+    const result = await this.unprogramCardBase(machineState);
+    await this.logger.log(
+      LogEventId.SmartCardUnprogramComplete,
+      'system_administrator',
+      {
+        disposition: result.isOk() ? 'success' : 'failure',
+        message: result.isOk()
+          ? `Successfully unprogrammed ${programmedUserRole} smart card.`
+          : `Error unprogramming ${programmedUserRole} smart card.`,
+        [result.isOk() ? 'previousProgrammedUserRole' : 'programmedUserRole']:
+          programmedUserRole,
+      }
+    );
+    return result;
+  }
+
+  private async programCardBase(
     machineState: DippedSmartCardAuthMachineState,
     input:
       | { userRole: 'system_administrator' }
@@ -147,7 +307,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     return ok({ pin });
   }
 
-  async unprogramCard(
+  private async unprogramCardBase(
     machineState: DippedSmartCardAuthMachineState
   ): Promise<Result<void, Error>> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
@@ -170,17 +330,23 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState
   ): Promise<void> {
     const cardStatus = await this.card.getCardStatus();
-    this.updateAuthStatus(machineState, {
+    await this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
       cardStatus,
     });
   }
 
-  private updateAuthStatus(
+  private async updateAuthStatus(
     machineState: DippedSmartCardAuthMachineState,
     action: AuthAction
-  ): void {
+  ): Promise<void> {
+    const previousAuthStatus = this.authStatus;
     this.authStatus = this.determineNewAuthStatus(machineState, action);
+    await logAuthEventIfNecessary(
+      previousAuthStatus,
+      this.authStatus,
+      this.logger
+    );
   }
 
   private determineNewAuthStatus(
