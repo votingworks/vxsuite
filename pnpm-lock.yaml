@@ -1869,6 +1869,7 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
       '@votingworks/logging': workspace:*
+      '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       base64-js: ^1.3.1
@@ -1912,6 +1913,7 @@ importers:
       '@types/uuid': 9.0.1
       '@typescript-eslint/eslint-plugin': 5.37.0_srb6gpj27cpytxa4hvxonfqyzi
       '@typescript-eslint/parser': 5.37.0_fnqnj4wr4adlkzkgntzwybsmii
+      '@votingworks/test-utils': link:../test-utils
       esbuild-runner: 2.2.1_esbuild@0.17.6
       eslint: 8.26.0
       eslint-config-prettier: 8.5.0_eslint@8.26.0
