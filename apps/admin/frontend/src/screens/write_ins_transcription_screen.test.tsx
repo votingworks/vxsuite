@@ -1,26 +1,16 @@
 import React from 'react';
-import fetchMock from 'fetch-mock';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
-import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
 const contest = electionDefinition.election.contests[0] as CandidateContest;
 const onClose = jest.fn();
 const saveTranscribedValue = jest.fn();
 
-beforeEach(() => {
-  fetchMock.mock();
-});
-
 test('clicking a previously-saved value', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
-
   renderInAppContext(
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
@@ -41,7 +31,7 @@ test('clicking a previously-saved value', async () => {
       onClose={onClose}
       saveTranscribedValue={saveTranscribedValue}
     />,
-    { backend, electionDefinition }
+    { electionDefinition }
   );
 
   // Click a previously-saved transcription

@@ -1,4 +1,3 @@
-import React from 'react';
 import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
@@ -11,8 +10,10 @@ import {
   electionSampleCdfDefinition,
   electionSampleDefinition,
   electionSample,
+  electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleFixtures,
+  electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { MemoryHardware } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import {
   advancePromises,
@@ -21,7 +22,6 @@ import {
   expectPrintToMatchSnapshot,
   fakeElectionManagerUser,
   fakeKiosk,
-  fakePrinter,
   fakePrinterInfo,
   fakeUsbDrive,
   hasTextAcrossElements,
@@ -31,50 +31,36 @@ import {
   getDisplayElectionHash,
   VotingMethod,
 } from '@votingworks/types';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { LogEventId } from '@votingworks/logging';
+import { Admin } from '@votingworks/api';
 import {
   fireEvent,
   screen,
   waitFor,
   getByTestId as domGetByTestId,
   getByText as domGetByText,
-  getAllByRole as domGetAllByRole,
   act,
   within,
   waitForElementToBeRemoved,
 } from '../test/react_testing_library';
 
-import { App } from './app';
-import {
-  eitherNeitherElectionDefinition,
-  renderRootElement,
-} from '../test/render_in_app_context';
+import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
-import {
-  authenticateAsElectionManager,
-  authenticateAsSystemAdministrator,
-  logOut,
-} from '../test/util/authenticate';
-import { ElectionManagerStoreMemoryBackend } from './lib/backends';
-import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
 import { buildApp } from '../test/helpers/build_app';
 import {
   createMockApiClient,
   MockApiClient,
   setAuthStatus,
-} from '../test/helpers/api';
+} from '../test/helpers/api_mock';
+import {
+  mockCastVoteRecordFileRecord,
+  mockPrintedBallotRecord,
+} from '../test/api_mock_data';
+import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
-const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
-
-const EITHER_NEITHER_CVR_TEST_DATA =
-  electionWithMsEitherNeitherFixtures.cvrTestData;
-const EITHER_NEITHER_CVR_TEST_FILE = new File(
-  [EITHER_NEITHER_CVR_TEST_DATA],
-  'cvrs.txt'
-);
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
@@ -85,10 +71,6 @@ jest.mock('@votingworks/ballot-encoder', () => {
     encodeBallot: () => new Uint8Array(),
   };
 });
-
-function mockRandomBallotId() {
-  return 'Asdf1234Asdf12';
-}
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 let mockApiClient: MockApiClient;
@@ -144,26 +126,24 @@ afterEach(() => {
 });
 
 test('configuring with a demo election definition', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  const logger = fakeLogger();
-  const { getByText, queryAllByText, getByTestId } = renderRootElement(
-    <App hardware={hardware} />,
-    { apiClient: mockApiClient, backend, logger }
-  );
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+
+  const { getByText, queryAllByText, getByTestId } = renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
   await screen.findByText('Load Demo Election Definition');
-  fireEvent.click(getByText('Load Demo Election Definition'));
+
+  // expecting configure and resulting refetch
+  apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  fireEvent.click(screen.getByText('Load Demo Election Definition'));
 
   await screen.findByText('Election Definition');
 
   await screen.findByText('Ballots');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ElectionConfigured,
-    'system_administrator',
-    expect.anything()
-  );
-
   fireEvent.click(await screen.findByText('Ballots'));
   await waitFor(() => {
     fireEvent.click(screen.getAllByText('View Ballot')[0]);
@@ -185,15 +165,13 @@ test('configuring with a demo election definition', async () => {
   expect(getByTestId('json-input').hasAttribute('disabled')).toEqual(true);
 
   // remove the election
+  apiMock.expectUnconfigure();
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
   await screen.findByText('Configure VxAdmin');
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.ElectionUnconfigured),
-    'system_administrator',
-    expect.anything()
-  );
 
   // You can view the Logs screen and save log files when there is no election.
   fireEvent.click(screen.getByText('Logs'));
@@ -204,20 +182,18 @@ test('configuring with a demo election definition', async () => {
   // You can not save as CDF when there is no election.
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
-  fireEvent.click(screen.getByText('Definition'));
+  userEvent.click(screen.getByText('Definition'));
   await screen.findByText('Load Demo Election Definition');
 });
 
 test('configuring with a VXF election definition from a file', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  const logger = fakeLogger();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-    logger,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
   const electionDefinitionFile = new File(
@@ -236,15 +212,13 @@ test('configuring with a VXF election definition from a file', async () => {
 });
 
 test('configuring with a CDF election definition from a file', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  const logger = fakeLogger();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-    logger,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
   const electionDefinitionFile = new File(
@@ -263,17 +237,11 @@ test('configuring with a CDF election definition from a file', async () => {
 });
 
 test('authentication works', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  const logger = fakeLogger();
-
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-    logger,
-  });
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp, hardware } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
 
   await screen.findByText('VxAdmin is Locked');
 
@@ -284,21 +252,21 @@ test('authentication works', async () => {
   await screen.findByText('VxAdmin is Locked');
 
   // Insert an election manager card and enter the wrong PIN.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
   await screen.findByText('Enter the card PIN to unlock.');
-  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
+  apiMock.expectCheckPin('111111');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
@@ -308,30 +276,23 @@ test('authentication works', async () => {
   await screen.findByText('Invalid PIN. Please try again.');
 
   // Remove card and insert an invalid card, e.g. a pollworker card.
-  setAuthStatus(mockApiClient, {
-    status: 'logged_out',
-    reason: 'machine_locked',
-  });
-  await screen.findByText('VxAdmin is Locked');
+  await apiMock.logOut();
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'user_role_not_allowed',
   });
   await screen.findByText('Invalid Card');
-  setAuthStatus(mockApiClient, {
-    status: 'logged_out',
-    reason: 'machine_locked',
-  });
+  await apiMock.logOut();
 
   // Insert election manager card and enter correct PIN.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
   await screen.findByText('Enter the card PIN to unlock.');
-  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
+  apiMock.expectCheckPin('123456');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
   fireEvent.click(screen.getByText('3'));
@@ -340,7 +301,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'remove_card',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
@@ -349,7 +310,7 @@ test('authentication works', async () => {
   await screen.findByText('Remove card to continue.');
 
   // Machine is unlocked when card removed
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
@@ -359,44 +320,28 @@ test('authentication works', async () => {
   await screen.findByText('Ballots');
 
   // Lock the machine
-  mockApiClient.logOut.expectCallWith().resolves();
+  apiMock.expectLogOut();
   fireEvent.click(screen.getByText('Lock Machine'));
-  setAuthStatus(mockApiClient, {
-    status: 'logged_out',
-    reason: 'machine_locked',
-  });
-  await screen.findByText('VxAdmin is Locked');
+  await apiMock.logOut();
 });
 
 test('L&A (logic and accuracy) flow', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp, logger } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
   });
-  const logger = fakeLogger();
-  renderRootElement(
-    <App
-      hardware={hardware}
-      printer={printer}
-      generateBallotId={mockRandomBallotId}
-    />,
-    {
-      apiClient: mockApiClient,
-      backend,
-      logger,
-    }
-  );
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+
+  renderApp();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
 
   userEvent.click(screen.getByText('L&A'));
 
   // Test printing L&A package
-  userEvent.click(screen.getByText('List Precinct L&A Packages'));
-  userEvent.click(screen.getByText('District 5'));
+  userEvent.click(await screen.findByText('List Precinct L&A Packages'));
+  userEvent.click(await screen.findByText('District 5'));
 
   // L&A package: Tally report
   await screen.findByText('Printing L&A Package for District 5', {
@@ -482,61 +427,25 @@ test('L&A (logic and accuracy) flow', async () => {
   );
 });
 
-test('L&A features are available after test results are loaded', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-    castVoteRecordFiles: await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_TEST_FILE,
-      eitherNeitherElectionDefinition.election
-    ),
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+test('printing ballots', async () => {
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const mockPrintedBallot: Admin.PrintedBallot = {
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    locales: { primary: 'en-US', secondary: undefined },
+    numCopies: 1,
+    ballotType: 'absentee',
+    ballotMode: Admin.BallotMode.Official,
+  };
 
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
-
-  // Confirm that test results are loaded
-  userEvent.click(screen.getByText('Tally'));
-  await screen.findByText('Currently tallying test ballots.', { exact: false });
-  expect(screen.getByTestId('total-cvr-count').textContent).toEqual('100');
-
-  // Confirm that L&A materials are available
-  userEvent.click(screen.getByText('L&A'));
-  screen.getByText('List Precinct L&A Packages');
-  screen.getByText('Print Full Test Deck Tally Report');
-});
-
-test('printing ballots and printed ballots report', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-
-  const printer = fakePrinter();
-
-  const hardware = MemoryHardware.buildStandard();
+  const { apiMock, renderApp, hardware, logger } = buildApp(mockApiClient);
   hardware.setPrinterConnected(false);
-  const logger = fakeLogger();
-  const { getByText, getAllByText } = renderRootElement(
-    <App printer={printer} hardware={hardware} />,
-    { apiClient: mockApiClient, backend, logger }
-  );
-  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
-
-  fireEvent.click(getByText('Reports'));
-  await screen.findAllByText('0 ballots');
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '0 ballots have been printed.'
-  );
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+  });
+  const { getByText, getAllByText } = renderApp();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
@@ -544,6 +453,7 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(getByText('Absentee'));
   fireEvent.click(getByText('Test'));
   fireEvent.click(getByText('Official'));
+  apiMock.expectAddPrintedBallot(mockPrintedBallot);
   fireEvent.click(getByText('Print 1', { exact: false }));
 
   // PrintButton flow where printer is not connected
@@ -574,92 +484,49 @@ test('printing ballots and printed ballots report', async () => {
     expect.anything()
   );
   await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
+  apiMock.expectAddPrintedBallot(mockPrintedBallot);
   fireEvent.click(getByText('Print 1', { exact: false }));
   await screen.findByText('Printing');
   await expectPrint();
   await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
   fireEvent.click(getByText('Precinct'));
+  apiMock.expectAddPrintedBallot({
+    ...mockPrintedBallot,
+    ballotType: Admin.PrintableBallotType.Precinct,
+  });
+
   fireEvent.click(getByText('Print 1', { exact: false }));
   await screen.findByText('Printing');
   await expectPrint();
   await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-
-  fireEvent.click(getByText('Reports'));
-  await screen.findByText('3 ballots', { exact: false });
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '3 ballots have been printed.'
-  );
-  fireEvent.click(getByText('Printed Ballots Report'));
-  getByText(/2 absentee ballots/);
-  getByText(/1 precinct ballot/);
-  const tableRow = screen.getByTestId('row-6538-4'); // Row in the printed ballot report for the Bywy ballots printed earlier
-  expect(
-    domGetAllByRole(tableRow, 'cell', { hidden: true })!.map(
-      (column) => column.textContent
-    )
-  ).toStrictEqual(['Bywy', '4', '2', '1', '3']);
-  fireEvent.click(getByText('Print Report'));
-
-  await waitFor(() => getByText('Printing'));
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Printed Ballots Report');
-    expect(printOptions).toMatchObject({ sides: 'one-sided' });
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.PrintedBallotReportPrinted,
-    expect.any(String),
-    expect.anything()
-  );
 });
 
 test('tabulating CVRs', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-    castVoteRecordFiles: await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_FILE,
-      eitherNeitherElectionDefinition.election
-    ),
-  });
-
-  const hardware = MemoryHardware.buildStandard();
-  const printer = fakePrinter();
-  const logger = fakeLogger();
-  const { getByText, getAllByText, getByTestId, queryByText } =
-    renderRootElement(
-      <App
-        hardware={hardware}
-        printer={printer}
-        converter="ms-sems"
-        generateBallotId={mockRandomBallotId}
-      />,
-      {
-        apiClient: mockApiClient,
-        backend,
-        logger,
-      }
-    );
-  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp, logger } = buildApp(mockApiClient, 'ms-sems');
+  apiMock.expectGetCastVoteRecords(
+    await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: true,
+  });
+  apiMock.expectGetOfficialPrintedBallots([]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  const { getByText, getAllByText, getByTestId } = renderApp();
+
+  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Reports'));
   expect(getByTestId('total-ballot-count').textContent).toEqual('100');
 
-  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
+  fireEvent.click(getByText('Official Full Election Tally Report'));
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TallyReportPreviewed,
     expect.any(String),
     expect.anything()
   );
-
-  const markOfficialButton = getByText('Mark Tally Results as Official');
-  await waitFor(() => expect(markOfficialButton).toBeEnabled());
-  fireEvent.click(markOfficialButton);
-  getByText('Mark Unofficial Tally Results as Official Tally Results?');
-  const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
   // Report title should be rendered 2 times - app and preview
   await waitFor(() => {
@@ -680,7 +547,7 @@ test('tabulating CVRs', async () => {
   getByText('Batch Name');
   fireEvent.click(getByText('Save Batch Results as CSV'));
   jest.advanceTimersByTime(2000);
-  getByText('Save Batch Results');
+  await screen.findByText('Save Batch Results');
   await screen.findByText(
     'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
@@ -733,11 +600,9 @@ test('tabulating CVRs', async () => {
   // Save SEMS file
   fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
   fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } });
-
   fetchMock.getOnce('/convert/tallies/output?name=name', {
     body: 'test-content',
   });
-
   fetchMock.post('/convert/reset', { body: { status: 'ok' } });
   fireEvent.click(getByText('Reports'));
   await waitFor(() => getByText('Save SEMS Results'));
@@ -770,73 +635,35 @@ test('tabulating CVRs', async () => {
   expect(fetchMock.called('/convert/reset')).toEqual(true);
 
   fireEvent.click(getByText('Close'));
-
-  // Confirm that L&A Materials are unavailable after live CVRs have been loaded
-  fireEvent.click(getByText('L&A'));
-  getByText(
-    'L&A testing documents are not available after official election CVRs have been loaded.',
-    { exact: false }
-  );
-  expect(queryByText('List Precinct L&A Packages')).not.toBeInTheDocument();
-  expect(
-    queryByText('Print Full Test Deck Tally Report')
-  ).not.toBeInTheDocument();
-
-  // Clear results
-  fireEvent.click(getByText('Tally'));
-
-  const clearTalliesButton = await screen.findByText(
-    'Clear All Tallies and Results'
-  );
-  expect(clearTalliesButton).toBeEnabled();
-  fireEvent.click(clearTalliesButton);
-  fireEvent.click(getByText('Remove All Data'));
-  await waitFor(() => expect(getByText('No CVR files loaded.')));
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.RemovedTallyFile,
-    expect.any(String),
-    expect.anything()
-  );
-
-  fireEvent.click(getByText('Reports'));
-  await waitFor(() => {
-    expect(getByTestId('total-ballot-count').textContent).toEqual('0');
-  });
-  fireEvent.click(
-    await screen.findByText('Unofficial Full Election Tally Report')
-  );
-
-  const reportPreview2 = getByTestId('report-preview');
-  expect(within(reportPreview2).getAllByText('0').length).toEqual(40);
-  // useQuery's in AppRoot are refetching data, and there's no change to wait on.
-  // TODO: Remove after upgrade to React 18, which does not warn in this case.
-  await advanceTimersAndPromises();
 });
 
 test('tabulating CVRs with manual data', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
-
-  const hardware = MemoryHardware.buildStandard();
-
-  const { getByText, getByTestId, getAllByText, queryAllByText } =
-    renderRootElement(<App hardware={hardware} />, {
-      apiClient: mockApiClient,
-      backend,
-    });
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
+  const electionDefinition = electionWithMsEitherNeitherDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords(
+    await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: false,
+  });
+  apiMock.expectGetCastVoteRecordFiles([
+    { ...mockCastVoteRecordFileRecord, numCvrsImported: 100 },
+  ]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetOfficialPrintedBallots([]);
+
+  const { getByText, getByTestId, getAllByText, queryAllByText } = renderApp();
+
+  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Tally'));
-  await advanceTimersAndPromises(5); // Allow async queries to resolve first.
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('100');
 
   fireEvent.click(getByText('Add Manually Entered Results'));
   getByText('Manually Entered Precinct Results');
+
   fireEvent.click(getByText('Edit Precinct Results for District 5'));
   await screen.findByText('Save Precinct Results for District 5');
   fireEvent.change(getByTestId('775020876-undervotes-input'), {
@@ -932,7 +759,6 @@ test('tabulating CVRs with manual data', async () => {
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('200');
   });
-
   fireEvent.click(getByText('Back to Tally'));
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
   const fileTable2 = getByTestId('loaded-file-table');
@@ -984,14 +810,22 @@ test('tabulating CVRs with manual data', async () => {
   });
 });
 
-test('changing election resets cvr and manual data files', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
+test('reports screen shows appropriate summary data about ballot counts and printed ballots', async () => {
+  const { electionDefinition, cvrData } =
+    electionMinimalExhaustiveSampleFixtures;
+  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords(
+    await fileDataToCastVoteRecords(cvrData, electionDefinition)
+  );
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetOfficialPrintedBallots([
+    mockPrintedBallotRecord,
+    mockPrintedBallotRecord,
+  ]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
-    { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
+    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     ExternalTallySourceType.Manual,
@@ -1003,65 +837,87 @@ test('changing election resets cvr and manual data files', async () => {
     manualTally
   );
 
-  const hardware = MemoryHardware.buildStandard();
+  renderApp();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
 
-  const { getByText, getByTestId } = renderRootElement(
-    <App hardware={hardware} />,
-    { apiClient: mockApiClient, backend }
-  );
+  userEvent.click(screen.getByText('Reports'));
 
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
-
-  fireEvent.click(getByText('Reports'));
-  await screen.findByText('0 ballots');
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '0 ballots have been printed.'
-  );
+  // total ballot count combination of manual and cast vote record data
   await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
+    expect(screen.getAllByTestId('total-ballot-count')[0].textContent).toEqual(
+      '3,100'
+    )
   );
 
-  await logOut(mockApiClient);
-  await authenticateAsSystemAdministrator(mockApiClient);
+  // printed ballot count matches what is passed by API
+  await screen.findAllByText('2 ballots');
+  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
+    '2 ballots have been printed.'
+  );
+});
 
+test('removing election resets cvr and manual data files', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+
+  const manualTally = convertTalliesByPrecinctToFullExternalTally(
+    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
+    eitherNeitherElectionDefinition.election,
+    VotingMethod.Absentee,
+    ExternalTallySourceType.Manual,
+    'Manually Added Data',
+    new Date()
+  );
+  await backend.updateFullElectionExternalTally(
+    manualTally.source,
+    manualTally
+  );
+
+  const { getByText } = renderApp();
+
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+
+  await apiMock.logOut();
+  await apiMock.authenticateAsSystemAdministrator();
+
+  // check manual tally present before unconfigure
+  const externalTalliesBefore = await backend.loadFullElectionExternalTallies();
+  expect(externalTalliesBefore?.size).toEqual(1);
+
+  apiMock.expectUnconfigure();
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCastVoteRecords([]);
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
-  const loadDemoElectionButton = await screen.findByText(
-    'Load Demo Election Definition'
-  );
-  userEvent.click(loadDemoElectionButton);
 
-  await backend.configure(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
+  // we expect the unconfigure mutation to remove cast vote record files on backend
 
-  await logOut(mockApiClient);
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
-
-  fireEvent.click(await screen.findByText('Tally'));
-  await screen.findByText('No CVR files loaded.');
-  await screen.findByText('Currently tallying official ballots.');
-  // We're waiting on a query for isOfficialResults. It has a default value,
-  // so there is no change on the page to wait for before test ends.
-  // TODO: Remove after upgrade to React 18, which does not warn in this case.
-  await advanceTimersAndPromises();
+  // check manual data removed
+  await waitFor(async () => {
+    const externalTalliesAfter =
+      await backend.loadFullElectionExternalTallies();
+    expect(externalTalliesAfter?.size).toEqual(0);
+  });
 });
 
-test('clearing all files after marking as official clears CVR and manual file', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
+test('clearing results', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: true,
   });
-  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
+  apiMock.expectGetCastVoteRecordFiles([
+    { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
+  ]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
-    { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
+    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     ExternalTallySourceType.Manual,
@@ -1073,36 +929,12 @@ test('clearing all files after marking as official clears CVR and manual file', 
     manualTally
   );
 
-  const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, queryByText } = renderRootElement(
-    <App hardware={hardware} converter="ms-sems" />,
-    { apiClient: mockApiClient, backend }
-  );
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
+  const { getByText, queryByText } = renderApp();
+  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  fireEvent.click(getByText('Reports'));
-  await screen.findByText('0 ballots');
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '0 ballots have been printed.'
-  );
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
-  );
-
-  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-  const markOfficialButton = getByText('Mark Tally Results as Official');
-  await waitFor(() => expect(markOfficialButton).toBeEnabled());
-  fireEvent.click(markOfficialButton);
-  const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
-
-  fireEvent.click(getByText('Reports'));
-  await waitFor(() => {
-    getByText('Official Full Election Tally Report');
-  });
+  // check manual tally present before removing all files
+  const externalTalliesBefore = await backend.loadFullElectionExternalTallies();
+  expect(externalTalliesBefore?.size).toEqual(1);
 
   fireEvent.click(getByText('Tally'));
   expect(
@@ -1114,6 +946,11 @@ test('clearing all files after marking as official clears CVR and manual file', 
   ).toBeDisabled();
   expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
 
+  apiMock.expectClearCastVoteRecordFiles();
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
     'Do you want to remove the 1 loaded CVR file and the manually entered data?'
@@ -1135,62 +972,56 @@ test('clearing all files after marking as official clears CVR and manual file', 
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
   getByText('No CVR files loaded.');
+
+  const externalTalliesAfter = await backend.loadFullElectionExternalTallies();
+  expect(externalTalliesAfter?.size).toEqual(0);
 });
 
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
 
-  const hardware = MemoryHardware.buildStandard();
-  const { getByText, queryByText } = renderRootElement(
-    <App hardware={hardware} />,
-    { apiClient: mockApiClient, backend }
-  );
-
-  await authenticateAsSystemAdministrator(mockApiClient);
-  fireEvent.click(getByText('Ballots'));
+  await apiMock.authenticateAsSystemAdministrator();
+  fireEvent.click(screen.getByText('Ballots'));
   await screen.findByText(
     'VxAdmin does not produce ballots for this election.'
   );
-  expect(queryByText('Save Ballot Package')).toBeNull();
+  expect(screen.queryByText('Save Ballot Package')).toBeNull();
 
-  await logOut(mockApiClient);
-  await authenticateAsElectionManager(mockApiClient, electionDefinition);
+  await apiMock.logOut();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText(
     'VxAdmin does not produce ballots for this election.'
   );
-  getByText('Save Ballot Package');
+  screen.getByText('Save Ballot Package');
 });
 
 test('election manager UI has expected nav', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetOfficialPrintedBallots([]);
+  renderApp();
+  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
+
   userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
-  // We're waiting on a query for the file mode (live vs. test).
-  // It has a default value, so there is no change on the page when loaded.
-  // TODO: Remove after upgrade to React 18, which does not warn in this case
-  await advanceTimersAndPromises();
+
   userEvent.click(screen.getByText('Tally'));
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',
   });
+
   userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
@@ -1201,15 +1032,12 @@ test('election manager UI has expected nav', async () => {
 });
 
 test('system administrator UI has expected nav', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
@@ -1225,13 +1053,12 @@ test('system administrator UI has expected nav', async () => {
 });
 
 test('system administrator UI has expected nav when no election', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -1247,6 +1074,9 @@ test('system administrator UI has expected nav when no election', async () => {
   // Create an election definition and verify that previously hidden tabs appear
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(
     screen.getByRole('button', { name: 'Load Demo Election Definition' })
   );
@@ -1259,6 +1089,9 @@ test('system administrator UI has expected nav when no election', async () => {
   screen.getByText('Smartcards');
 
   // Remove the election definition and verify that those same tabs disappear
+  apiMock.expectUnconfigure();
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -1274,15 +1107,13 @@ test('system administrator UI has expected nav when no election', async () => {
 });
 
 test('system administrator Smartcards screen navigation', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
 
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
@@ -1295,17 +1126,15 @@ test('system administrator Smartcards screen navigation', async () => {
 });
 
 test('election manager cannot auth onto unconfigured machine', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  renderApp();
 
   await screen.findByText('VxAdmin is Locked');
   screen.getByText('Insert System Administrator card to unlock.');
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_not_configured',
   });
@@ -1317,20 +1146,17 @@ test('election manager cannot auth onto unconfigured machine', async () => {
 });
 
 test('election manager cannot auth onto machine with different election hash', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
 
   await screen.findByText('VxAdmin is Locked');
   await screen.findByText(
     'Insert System Administrator or Election Manager card to unlock.'
   );
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'election_manager_wrong_election',
   });
@@ -1343,16 +1169,13 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  const electionDefinition = eitherNeitherElectionDefinition;
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
 
-  await authenticateAsSystemAdministrator(mockApiClient);
+  await apiMock.authenticateAsSystemAdministrator();
 
   const numPrecinctBallots = 13;
 
@@ -1406,11 +1229,8 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByRole('button', { name: 'Save Ballot as PDF' });
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
-  await logOut(mockApiClient);
-  await authenticateAsElectionManager(
-    mockApiClient,
-    eitherNeitherElectionDefinition
-  );
+  await apiMock.logOut();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
 
   userEvent.click(screen.getByText('Ballots'));
   viewBallotButtons = await screen.findAllByText('View Ballot');
@@ -1436,11 +1256,18 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
 test('primary election with nonpartisan contests', async () => {
   const { electionDefinition, cvrData } =
     electionPrimaryNonpartisanContestsFixtures;
-  const { renderApp, backend, apiClient } = buildApp(electionDefinition);
-  mockApiClient = apiClient;
-  await backend.addCastVoteRecordFile(new File([cvrData], 'cvrs.txt'));
+  const { renderApp, apiMock } = buildApp(mockApiClient);
+
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords(
+    await fileDataToCastVoteRecords(cvrData, electionDefinition)
+  );
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetOfficialPrintedBallots([]);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
+
   renderApp();
-  await authenticateAsElectionManager(mockApiClient, electionDefinition);
+  await apiMock.authenticateAsElectionManager(electionDefinition);
 
   // Check "Ballots" page has correct contests count.
   // TODO: Confirm ballot contents. Not possible currently because we don't
@@ -1453,7 +1280,7 @@ test('primary election with nonpartisan contests', async () => {
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
   userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
   await expectPrint((printedElement) => {
     printedElement.getByText(
       'Test Deck Mammal Party Example Primary Election Tally Report'
@@ -1506,16 +1333,12 @@ test('usb formatting flows', async () => {
     await advanceTimersAndPromises(1);
   });
 
-  const hardware = MemoryHardware.build({
-    connectCardReader: true,
-  });
-  const logger = fakeLogger();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    logger,
-  });
+  const { apiMock, renderApp } = buildApp(mockApiClient);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  renderApp();
 
-  await authenticateAsSystemAdministrator(mockApiClient);
+  await apiMock.authenticateAsSystemAdministrator();
 
   // navigate to modal
   userEvent.click(screen.getByText('Settings'));

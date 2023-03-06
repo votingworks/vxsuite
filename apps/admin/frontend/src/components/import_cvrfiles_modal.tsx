@@ -4,7 +4,14 @@ import { basename, join } from 'path';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
-import { Modal, ModalWidth, Table, TD, Prose } from '@votingworks/ui';
+import {
+  Modal,
+  ModalWidth,
+  Table,
+  TD,
+  Prose,
+  ElectronFile,
+} from '@votingworks/ui';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
@@ -128,7 +135,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     assert(window.kiosk);
     const input = event.currentTarget;
     const files = Array.from(input.files || []);
-    const file = files[0] as File & { path: string };
+    const file = files[0] as ElectronFile;
 
     if (!file) {
       onClose();
@@ -195,15 +202,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDrive.status]);
 
-  if (
-    !castVoteRecordFilesQuery.isSuccess ||
-    !castVoteRecordFileModeQuery.isSuccess
-  ) {
-    return null;
-  }
-
-  const fileMode = castVoteRecordFileModeQuery.data;
-
   if (currentState.state === 'error') {
     return (
       <Modal
@@ -266,6 +264,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   }
 
   if (
+    !castVoteRecordFilesQuery.isSuccess ||
+    !castVoteRecordFileModeQuery.isSuccess ||
     currentState.state === 'loading' ||
     usbDrive.status === 'ejecting' ||
     usbDrive.status === 'mounting'
@@ -317,6 +317,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       />
     );
   }
+
+  const fileMode = castVoteRecordFileModeQuery.data;
 
   if (usbDrive.status === 'mounted') {
     // Determine if we are already locked to a filemode based on previously loaded CVRs

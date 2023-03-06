@@ -9,34 +9,21 @@ import { AppContext } from '../contexts/app_context';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 import { getCastVoteRecordFileMode } from '../api';
 
-export function LogicAndAccuracyScreen(): JSX.Element | null {
+export function LogicAndAccuracyScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
-  const isLiveMode =
-    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Official;
-
-  if (
-    electionDefinition &&
-    !canViewAndPrintBallots(electionDefinition.election)
-  ) {
-    return (
-      <NavigationScreen>
-        <Prose>
-          <h1>L&A Testing Documents</h1>
+  return (
+    <NavigationScreen>
+      <Prose>
+        <h1>L&A Testing Documents</h1>
+        {electionDefinition &&
+        !canViewAndPrintBallots(electionDefinition.election) ? (
           <p>
             VxAdmin does not produce ballots or L&A documents for this election.
           </p>
-        </Prose>
-      </NavigationScreen>
-    );
-  }
-
-  return (
-    <NavigationScreen>
-      <Prose maxWidth={false}>
-        <h1>L&A Testing Documents</h1>
-        {isLiveMode ? (
+        ) : !castVoteRecordFileModeQuery.isSuccess ? null : castVoteRecordFileModeQuery.data ===
+          Admin.CvrFileMode.Official ? (
           <p>
             L&A testing documents are not available after official election CVRs
             have been loaded.

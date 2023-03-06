@@ -42,7 +42,7 @@ import {
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
 import { ApiClient, ApiClientContext } from '../src/api';
-import { createMockApiClient } from './helpers/api';
+import { createMockApiClient } from './helpers/api_mock';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -87,7 +87,13 @@ export function renderRootElement(
     apiClient = createMockApiClient(),
     // TODO: Determine why tests fail when using createQueryClient and, by extension,
     // QUERY_CLIENT_DEFAULT_OPTIONS
-    queryClient = new QueryClient(),
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Infinity,
+        },
+      },
+    }),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;

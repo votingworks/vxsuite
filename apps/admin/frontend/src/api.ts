@@ -223,16 +223,20 @@ export const getPrintedBallots = {
 
 // Grouped Invalidations
 
-async function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
-  await queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey());
-  await queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey());
-  await queryClient.invalidateQueries(getCastVoteRecords.queryKey());
+function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
+    queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
+    queryClient.invalidateQueries(getCastVoteRecords.queryKey()),
+  ]);
 }
 
-async function invalidateWriteInQueries(queryClient: QueryClient) {
-  await queryClient.invalidateQueries(getWriteIns.queryKey());
-  await queryClient.invalidateQueries(getWriteInSummary.queryKey());
-  await queryClient.invalidateQueries(getWriteInAdjudicationTable.queryKey());
+function invalidateWriteInQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries(getWriteIns.queryKey()),
+    queryClient.invalidateQueries(getWriteInSummary.queryKey()),
+    queryClient.invalidateQueries(getWriteInAdjudicationTable.queryKey()),
+  ]);
 }
 
 // Mutations
@@ -283,12 +287,12 @@ export const clearCastVoteRecordFiles = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.clearCastVoteRecordFiles, {
       async onSuccess() {
-        await invalidateCastVoteRecordQueries(queryClient);
-        await invalidateWriteInQueries(queryClient);
-        await queryClient.invalidateQueries(getWriteInImage.queryKey());
-        await queryClient.invalidateQueries(
-          getCurrentElectionMetadata.queryKey()
-        );
+        return Promise.all([
+          invalidateCastVoteRecordQueries(queryClient),
+          invalidateWriteInQueries(queryClient),
+          queryClient.invalidateQueries(getWriteInImage.queryKey()),
+          queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
+        ]);
       },
     });
   },

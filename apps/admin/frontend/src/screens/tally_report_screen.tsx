@@ -40,7 +40,7 @@ import { ElectionManagerTallyReport } from '../components/election_manager_tally
 import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
 import {
-  getCastVoteRecordFiles,
+  getCastVoteRecordFileMode,
   getWriteInSummary,
   markResultsOfficial,
 } from '../api';
@@ -74,7 +74,7 @@ export function TallyReportScreen(): JSX.Element {
   const screenAdjudicatedOfficialCandidateWriteInCounts =
     getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
 
-  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
   const location = useLocation();
 
@@ -263,8 +263,9 @@ export function TallyReportScreen(): JSX.Element {
             <p>
               <Button
                 disabled={
-                  !castVoteRecordFilesQuery.isSuccess ||
-                  castVoteRecordFilesQuery.data.length === 0 ||
+                  !castVoteRecordFileModeQuery.isSuccess ||
+                  castVoteRecordFileModeQuery.data ===
+                    Admin.CvrFileMode.Unlocked ||
                   isOfficialResults
                 }
                 onPress={openMarkOfficialModal}
