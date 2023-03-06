@@ -9,6 +9,11 @@ import {
   wrapException,
 } from '@votingworks/basics';
 import {
+  LogDispositionStandardTypes,
+  LogEventId,
+  Logger,
+} from '@votingworks/logging';
+import {
   BallotStyleId,
   CardlessVoterUser,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
@@ -34,11 +39,98 @@ type AuthAction =
   | { type: 'check_pin'; checkPinResponse: CheckPinResponse };
 
 /**
+ * Given a previous auth status and a new auth status following an auth status transition, infers
+ * and logs the relevant auth event, if any
+ */
+async function logAuthEvent(
+  previousAuthStatus: InsertedSmartCardAuthTypes.AuthStatus,
+  newAuthStatus: InsertedSmartCardAuthTypes.AuthStatus,
+  logger: Logger
+) {
+  switch (previousAuthStatus.status) {
+    case 'logged_out': {
+      if (newAuthStatus.status === 'logged_in') {
+        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged in.',
+        });
+      } else if (
+        previousAuthStatus.reason === 'no_card' &&
+        newAuthStatus.status === 'logged_out' &&
+        newAuthStatus.reason !== 'no_card'
+      ) {
+        await logger.log(
+          LogEventId.AuthLogin,
+          newAuthStatus.cardUserRole ?? 'unknown',
+          {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: `User failed login: ${newAuthStatus.reason}.`,
+            reason: newAuthStatus.reason,
+          }
+        );
+      }
+      return;
+    }
+
+    case 'checking_pin': {
+      if (newAuthStatus.status === 'logged_out') {
+        await logger.log(
+          LogEventId.AuthPinEntry,
+          previousAuthStatus.user.role,
+          {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: 'User canceled PIN entry.',
+          }
+        );
+      } else if (newAuthStatus.status === 'logged_in') {
+        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User entered correct PIN.',
+        });
+        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged in.',
+        });
+      } else if (newAuthStatus.status === 'checking_pin') {
+        if (
+          newAuthStatus.wrongPinEnteredAt &&
+          previousAuthStatus.wrongPinEnteredAt !==
+            newAuthStatus.wrongPinEnteredAt
+        ) {
+          await logger.log(
+            LogEventId.AuthPinEntry,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Failure,
+              message: 'User entered incorrect PIN.',
+            }
+          );
+        }
+      }
+      return;
+    }
+
+    case 'logged_in': {
+      if (newAuthStatus.status === 'logged_out') {
+        await logger.log(LogEventId.AuthLogout, previousAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged out.',
+        });
+      }
+      return;
+    }
+
+    /* istanbul ignore next: Compile-time check for completeness */
+    default:
+      throwIllegalValue(previousAuthStatus, 'status');
+  }
+}
+
+/**
  * An implementation of the dipped smart card auth API
  *
  * TODO:
  * - Locking to avoid concurrent card writes
- * - Logging
  * - Tests
  *
  * See the libs/auth README for notes on error handling
@@ -48,12 +140,18 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private readonly card: Card;
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
+  private readonly logger: Logger;
 
-  constructor(input: { card: Card; config: InsertedSmartCardAuthConfig }) {
+  constructor(input: {
+    card: Card;
+    config: InsertedSmartCardAuthConfig;
+    logger: Logger;
+  }) {
     this.authStatus = InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = input.card;
     this.cardlessVoterUser = undefined;
     this.config = input.config;
+    this.logger = input.logger;
   }
 
   async getAuthStatus(
@@ -94,7 +192,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     const checkPinResponse = await this.card.checkPin(input.pin);
-    this.updateAuthStatus(machineState, {
+    await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
     });
@@ -105,7 +203,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
   ): Promise<void> {
     assert(this.config.allowedUserRoles.includes('cardless_voter'));
-
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     if (
       this.authStatus.status !== 'logged_in' ||
@@ -115,13 +212,22 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     }
 
     this.cardlessVoterUser = { ...input, role: 'cardless_voter' };
+
+    await this.logger.log(LogEventId.AuthLogin, 'cardless_voter', {
+      disposition: LogDispositionStandardTypes.Success,
+      message: 'Cardless voter session started.',
+    });
   }
 
   async endCardlessVoterSession(): Promise<void> {
     assert(this.config.allowedUserRoles.includes('cardless_voter'));
 
     this.cardlessVoterUser = undefined;
-    return Promise.resolve();
+
+    await this.logger.log(LogEventId.AuthLogout, 'cardless_voter', {
+      disposition: LogDispositionStandardTypes.Success,
+      message: 'Cardless voter session ended.',
+    });
   }
 
   async readCardData<T>(
@@ -184,17 +290,19 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<void> {
     const cardStatus = await this.card.getCardStatus();
-    this.updateAuthStatus(machineState, {
+    await this.updateAuthStatus(machineState, {
       type: 'check_card_reader',
       cardStatus,
     });
   }
 
-  private updateAuthStatus(
+  private async updateAuthStatus(
     machineState: InsertedSmartCardAuthMachineState,
     action: AuthAction
-  ): void {
+  ): Promise<void> {
+    const previousAuthStatus = this.authStatus;
     this.authStatus = this.determineNewAuthStatus(machineState, action);
+    await logAuthEvent(previousAuthStatus, this.authStatus, this.logger);
   }
 
   private determineNewAuthStatus(

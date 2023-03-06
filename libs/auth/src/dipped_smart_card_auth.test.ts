@@ -1,3 +1,5 @@
+import { fakeLogger } from '@votingworks/logging';
+
 import { buildMockCard } from '../test/utils';
 import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 
@@ -7,7 +9,11 @@ beforeEach(() => {
 
 test('DippedSmartCardAuth returns auth status', async () => {
   const card = buildMockCard();
-  const auth = new DippedSmartCardAuth({ card, config: {} });
+  const auth = new DippedSmartCardAuth({
+    card,
+    config: {},
+    logger: fakeLogger(),
+  });
   expect(await auth.getAuthStatus({ electionHash: undefined })).toEqual({
     status: 'logged_out',
     reason: 'machine_locked',

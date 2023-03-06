@@ -37,6 +37,7 @@ export function start({
         'poll_worker',
       ],
     },
+    logger,
   });
   const usb: Usb = { getUsbDrives };
   const app = buildApp(

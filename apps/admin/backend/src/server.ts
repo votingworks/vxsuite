@@ -926,6 +926,7 @@ export async function start({
         config: {
           allowElectionManagersToAccessUnconfiguredMachines: false,
         },
+        logger,
       }),
       workspace: resolvedWorkspace,
     });

@@ -20,10 +20,10 @@ export enum LogEventId {
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
-  // Authentication related logs
+  // Auth logs
   AuthPinEntry = 'auth-pin-entry',
-  AuthLogout = 'auth-logout',
   AuthLogin = 'auth-login',
+  AuthLogout = 'auth-logout',
   // USB related logs
   UsbDriveDetected = 'usb-drive-detected',
   UsbDriveRemoved = 'usb-drive-removed',
@@ -50,13 +50,10 @@ export enum LogEventId {
   SaveBallotPackageComplete = 'save-ballot-package-complete',
   BallotPrinted = 'ballot-printed',
   PrintedBallotReportPrinted = 'printed-ballot-report-printed',
-  SmartcardProgramInit = 'smartcard-program-init',
-  SmartcardProgramComplete = 'smartcard-program-complete',
-  SmartcardUnprogramInit = 'smartcard-unprogram-init',
-  SmartcardUnprogramComplete = 'smartcard-unprogram-complete',
-  // TODO(https://github.com/votingworks/vxsuite/issues/2085):
-  // Remove SmartcardProgrammedOverrideWriteProtection when removing legacy smartcards screen
-  SmartcardProgrammedOverrideWriteProtection = 'smartcard-programmed-override-write-protection',
+  SmartCardProgramInit = 'smart-card-program-init',
+  SmartCardProgramComplete = 'smart-card-program-complete',
+  SmartCardUnprogramInit = 'smart-card-unprogram-init',
+  SmartCardUnprogramComplete = 'smart-card-unprogram-complete',
   CvrLoaded = 'cvr-loaded',
   CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
   RecomputingTally = 'recompute-tally-init',
@@ -349,40 +346,33 @@ const FileSaved: LogDetails = {
     'File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.',
 };
 
-const SmartcardProgramInit: LogDetails = {
-  eventId: LogEventId.SmartcardProgramInit,
+const SmartCardProgramInit: LogDetails = {
+  eventId: LogEventId.SmartCardProgramInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smartcard is being programmed for a specific user role. The user role is indicated by the programmedUserRole key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const SmartcardProgramComplete: LogDetails = {
-  eventId: LogEventId.SmartcardProgramComplete,
+const SmartCardProgramComplete: LogDetails = {
+  eventId: LogEventId.SmartCardProgramComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smartcard has been programmed for a specific user role. The user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'A smart card has been programmed. The new smart card user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const SmartcardUnprogramInit: LogDetails = {
-  eventId: LogEventId.SmartcardUnprogramInit,
+const SmartCardUnprogramInit: LogDetails = {
+  eventId: LogEventId.SmartCardUnprogramInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smartcard is being unprogrammed. The current smartcard user role is indicated by the programmedUserRole key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const SmartcardUnprogramComplete: LogDetails = {
-  eventId: LogEventId.SmartcardUnprogramComplete,
+const SmartCardUnprogramComplete: LogDetails = {
+  eventId: LogEventId.SmartCardUnprogramComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smartcard has been unprogrammed. The previous (or current in the case of failure) smartcard user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-const SmartcardProgrammedOverrideWriteProtection: LogDetails = {
-  eventId: LogEventId.SmartcardProgrammedOverrideWriteProtection,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'A smart card has been unprogrammed. The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 const CvrLoaded: LogDetails = {
   eventId: LogEventId.CvrLoaded,
@@ -931,16 +921,14 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrintedBallotReportPrinted;
     case LogEventId.FileSaved:
       return FileSaved;
-    case LogEventId.SmartcardProgramInit:
-      return SmartcardProgramInit;
-    case LogEventId.SmartcardProgramComplete:
-      return SmartcardProgramComplete;
-    case LogEventId.SmartcardUnprogramInit:
-      return SmartcardUnprogramInit;
-    case LogEventId.SmartcardUnprogramComplete:
-      return SmartcardUnprogramComplete;
-    case LogEventId.SmartcardProgrammedOverrideWriteProtection:
-      return SmartcardProgrammedOverrideWriteProtection;
+    case LogEventId.SmartCardProgramInit:
+      return SmartCardProgramInit;
+    case LogEventId.SmartCardProgramComplete:
+      return SmartCardProgramComplete;
+    case LogEventId.SmartCardUnprogramInit:
+      return SmartCardUnprogramInit;
+    case LogEventId.SmartCardUnprogramComplete:
+      return SmartCardUnprogramComplete;
     case LogEventId.CvrFilesReadFromUsb:
       return CvrFilesReadFromUsb;
     case LogEventId.CvrLoaded:
