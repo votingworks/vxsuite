@@ -926,7 +926,6 @@ commands:
       - run:
           name: Setup Dependencies
           command: |
-            sudo apt install libx11-dev libpng-dev libjpeg-dev libpcsclite1 libpcsclite-dev
             pnpm install --frozen-lockfile
       - save_cache:
           key:
