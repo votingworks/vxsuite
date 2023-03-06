@@ -46,13 +46,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A user attempted to enter a PIN to log in.  
 **Machines:** All
-### auth-logout
-**Type:** [user-action](#user-action)  
-**Description:** A user logged out.  
-**Machines:** All
 ### auth-login
 **Type:** [user-action](#user-action)  
 **Description:** A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.  
+**Machines:** All
+### auth-logout
+**Type:** [user-action](#user-action)  
+**Description:** A user logged out.  
 **Machines:** All
 ### usb-drive-detected
 **Type:** [application-status](#application-status)  
@@ -138,26 +138,22 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Report of all printed ballots was printed. Success or failure indicated by the disposition.  
 **Machines:** vx-admin-frontend
-### smartcard-program-init
+### smart-card-program-init
 **Type:** [user-action](#user-action)  
-**Description:** A smartcard is being programmed for a specific user role. The user role is indicated by the programmedUserRole key.  
-**Machines:** vx-admin-frontend
-### smartcard-program-complete
+**Description:** A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.  
+**Machines:** vx-admin-service
+### smart-card-program-complete
 **Type:** [user-action](#user-action)  
-**Description:** A smartcard has been programmed for a specific user role. The user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.  
-**Machines:** vx-admin-frontend
-### smartcard-unprogram-init
+**Description:** A smart card has been programmed. The new smart card user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.  
+**Machines:** vx-admin-service
+### smart-card-unprogram-init
 **Type:** [user-action](#user-action)  
-**Description:** A smartcard is being unprogrammed. The current smartcard user role is indicated by the programmedUserRole key.  
-**Machines:** vx-admin-frontend
-### smartcard-unprogram-complete
+**Description:** A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key.  
+**Machines:** vx-admin-service
+### smart-card-unprogram-complete
 **Type:** [user-action](#user-action)  
-**Description:** A smartcard has been unprogrammed. The previous (or current in the case of failure) smartcard user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.  
-**Machines:** vx-admin-frontend
-### smartcard-programmed-override-write-protection
-**Type:** [user-action](#user-action)  
-**Description:** Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.  
-**Machines:** vx-admin-frontend
+**Description:** A smart card has been unprogrammed. The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.  
+**Machines:** vx-admin-service
 ### cvr-loaded
 **Type:** [user-action](#user-action)  
 **Description:** User loaded CVR to the machine. Success or failure indicated by disposition.  
