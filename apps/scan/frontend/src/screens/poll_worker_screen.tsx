@@ -484,7 +484,11 @@ export function PollWorkerScreen({
               : 'Do you want to resume voting?'}
           </p>
           <p>
-            <Button primary onPress={() => transitionPolls(pollsTransition)}>
+            <Button
+              variant="primary"
+              onPress={transitionPolls}
+              value={pollsTransition}
+            >
               {pollsTransition === 'open_polls'
                 ? 'Yes, Open the Polls'
                 : 'Yes, Resume Voting'}
@@ -502,7 +506,7 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <p>Do you want to close the polls?</p>
           <p>
-            <Button primary onPress={closePolls}>
+            <Button variant="primary" onPress={closePolls}>
               Yes, Close the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
@@ -598,7 +602,7 @@ export function PollWorkerScreen({
           <React.Fragment>
             <p>The polls have not been opened.</p>
             <p>
-              <Button primary large onPress={openPolls}>
+              <Button variant="primary" large onPress={openPolls}>
                 Open Polls
               </Button>
             </p>
@@ -609,7 +613,7 @@ export function PollWorkerScreen({
           <React.Fragment>
             <p>The polls are currently open.</p>
             <p>
-              <Button primary large onPress={closePolls}>
+              <Button variant="primary" large onPress={closePolls}>
                 Close Polls
               </Button>
             </p>
@@ -625,7 +629,7 @@ export function PollWorkerScreen({
           <React.Fragment>
             <p>Voting is currently paused.</p>
             <p>
-              <Button primary large onPress={resumeVoting}>
+              <Button variant="primary" large onPress={resumeVoting}>
                 Resume Voting
               </Button>
             </p>

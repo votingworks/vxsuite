@@ -84,11 +84,11 @@ afterEach(() => {
 });
 
 test('Button renders properly when not clicked', () => {
-  const { queryByText, queryByTestId } = renderInAppContext(
+  const { getButton, queryByTestId } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />
   );
 
-  expect(queryByText('Save Ballot Package')).toHaveProperty('type', 'button');
+  getButton('Save Ballot Package');
   expect(queryByTestId('modal')).toBeNull();
 });
 
@@ -168,18 +168,16 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
-    const { unmount, queryAllByTestId, getByText } = renderInAppContext(
-      <ExportElectionBallotPackageModalButton />,
-      {
+    const { unmount, queryAllByTestId, getByText, getButton } =
+      renderInAppContext(<ExportElectionBallotPackageModalButton />, {
         usbDrive: mockUsbDrive(usbStatus),
-      }
-    );
-    fireEvent.click(getByText('Save Ballot Package'));
+      });
+    fireEvent.click(getButton('Save Ballot Package'));
     await waitFor(() => getByText('Loading'));
 
     expect(queryAllByTestId('modal')).toHaveLength(1);
 
-    expect(getByText('Cancel')).toBeDisabled();
+    expect(getButton('Cancel')).toBeDisabled();
     unmount();
   }
 });

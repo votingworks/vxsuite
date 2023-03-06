@@ -65,7 +65,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
       actions={
         <React.Fragment>
           <Button
-            primary
+            variant="primary"
             onPress={() => {
               setConfirmed(true);
               onConfirm();
@@ -123,7 +123,10 @@ function OvervoteWarningScreen({
           {toSentence(contestNames)}.
         </Text>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => returnBallotMutation.mutate()}>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
             Return Ballot
           </Button>
           {allowCastingOvervotes && (
@@ -218,11 +221,14 @@ function UndervoteWarningScreen({
           </p>
         )}
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => returnBallotMutation.mutate()}>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
             Return Ballot
           </Button>{' '}
           or{' '}
-          <Button primary onPress={() => setConfirmTabulate(true)}>
+          <Button variant="primary" onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
@@ -281,7 +287,10 @@ function BlankBallotWarningScreen(): JSX.Element {
         <h1>Review Your Ballot</h1>
         <p>No votes were found when scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => returnBallotMutation.mutate()}>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
             Return Ballot
           </Button>{' '}
           or{' '}
@@ -322,7 +331,10 @@ function OtherReasonWarningScreen(): JSX.Element {
         <h1>Scanning Failed</h1>
         <p>There was a problem scanning this ballot.</p>
         <ResponsiveButtonParagraph>
-          <Button primary onPress={() => returnBallotMutation.mutate()}>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
             Return Ballot
           </Button>{' '}
           or{' '}

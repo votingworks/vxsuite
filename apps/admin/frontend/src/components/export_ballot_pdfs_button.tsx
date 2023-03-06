@@ -30,7 +30,6 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
 import { DownloadableArchive } from '../utils/downloadable_archive';
@@ -220,15 +219,15 @@ export function ExportBallotPdfsButton(): JSX.Element {
               </p>
             </Prose>
           );
-          actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
+          actions = <Button onPress={closeModal}>Cancel</Button>;
           break;
         case 'ejecting':
         case 'mounting':
           mainContent = <Loading />;
           actions = (
-            <LinkButton onPress={closeModal} disabled>
+            <Button onPress={closeModal} disabled>
               Cancel
-            </LinkButton>
+            </Button>
           );
           break;
         case 'mounted': {
@@ -264,10 +263,10 @@ export function ExportBallotPdfsButton(): JSX.Element {
           );
           actions = (
             <React.Fragment>
-              <Button primary onPress={() => saveFileCallback(false)}>
+              <Button variant="primary" onPress={() => saveFileCallback(false)}>
                 Save
               </Button>
-              <LinkButton onPress={closeModal}>Cancel</LinkButton>
+              <Button onPress={closeModal}>Cancel</Button>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>
             </React.Fragment>
           );
@@ -317,11 +316,11 @@ export function ExportBallotPdfsButton(): JSX.Element {
               usbDriveEject={() => usbDrive.eject(userRole)}
               usbDriveStatus={usbDrive.status}
             />
-            <LinkButton onPress={closeModal}>Close</LinkButton>
+            <Button onPress={closeModal}>Close</Button>
           </React.Fragment>
         );
       } else {
-        actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
+        actions = <Button onPress={closeModal}>Close</Button>;
       }
       break;
     }
@@ -333,7 +332,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
           <p>An error occurred: {modalError && modalError.message}.</p>
         </Prose>
       );
-      actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
+      actions = <Button onPress={closeModal}>Close</Button>;
       break;
     }
 
@@ -343,9 +342,9 @@ export function ExportBallotPdfsButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <LinkButton small onPress={() => setIsModalOpen(true)}>
+      <Button small onPress={() => setIsModalOpen(true)}>
         Save PDFs
-      </LinkButton>
+      </Button>
       {isModalOpen && (
         <Modal
           content={mainContent}

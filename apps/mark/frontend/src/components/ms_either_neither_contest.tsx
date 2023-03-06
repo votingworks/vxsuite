@@ -11,11 +11,7 @@ import styled from 'styled-components';
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
 
-import {
-  EventTargetFunction,
-  ScrollDirections,
-  UpdateVoteFunction,
-} from '../config/types';
+import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import {
   getContestDistrictName,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
@@ -85,9 +81,8 @@ export function MsEitherNeitherContest({
   const showTopShadow = true;
   const showBottomShadow = true;
 
-  const handleUpdateEitherNeither: EventTargetFunction = (event) => {
+  function handleUpdateEitherNeither(targetVote: string) {
     const currentVote = eitherNeitherContestVote?.[0];
-    const targetVote = (event.currentTarget as HTMLElement).dataset['choice'];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
@@ -98,10 +93,9 @@ export function MsEitherNeitherContest({
         : undefined
     );
     updateVote(contest.eitherNeitherContestId, newVote as YesNoVote);
-  };
-  const handleUpdatePickOne: EventTargetFunction = (event) => {
+  }
+  function handleUpdatePickOne(targetVote: string) {
     const currentVote = pickOneContestVote?.[0];
-    const targetVote = (event.currentTarget as HTMLElement).dataset['choice'];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
@@ -112,7 +106,7 @@ export function MsEitherNeitherContest({
         : undefined
     );
     updateVote(contest.pickOneContestId, newVote as YesNoVote);
-  };
+  }
 
   const updateContestChoicesScrollStates = useCallback(() => {
     const target = scrollContainer.current;
@@ -138,33 +132,30 @@ export function MsEitherNeitherContest({
     setIsScrollAtTop(target.scrollTop === 0);
   }, [userSettings.textSize]);
 
-  const scrollContestChoices: EventTargetFunction =
-    /* istanbul ignore next: Tested by Cypress */ (event) => {
-      const direction = (event.target as HTMLElement).dataset[
-        'direction'
-      ] as ScrollDirections;
-      const sc = scrollContainer.current;
-      assert(sc);
-      const currentScrollTop = sc.scrollTop;
-      const { offsetHeight, scrollHeight } = sc;
-      const idealScrollDistance = Math.round(offsetHeight * 0.75);
-      const maxScrollableDownDistance =
-        scrollHeight - offsetHeight - currentScrollTop;
-      const maxScrollTop =
-        direction === 'down'
-          ? currentScrollTop + maxScrollableDownDistance
-          : currentScrollTop;
-      const idealScrollTop =
-        direction === 'down'
-          ? currentScrollTop + idealScrollDistance
-          : currentScrollTop - idealScrollDistance;
-      const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-      sc.scrollTo({
-        behavior: 'smooth',
-        left: 0,
-        top,
-      });
-    };
+  /* istanbul ignore next: Tested by Cypress */
+  function scrollContestChoices(direction: ScrollDirections) {
+    const sc = scrollContainer.current;
+    assert(sc);
+    const currentScrollTop = sc.scrollTop;
+    const { offsetHeight, scrollHeight } = sc;
+    const idealScrollDistance = Math.round(offsetHeight * 0.75);
+    const maxScrollableDownDistance =
+      scrollHeight - offsetHeight - currentScrollTop;
+    const maxScrollTop =
+      direction === 'down'
+        ? currentScrollTop + maxScrollableDownDistance
+        : currentScrollTop;
+    const idealScrollTop =
+      direction === 'down'
+        ? currentScrollTop + idealScrollDistance
+        : currentScrollTop - idealScrollDistance;
+    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
+    sc.scrollTo({
+      behavior: 'smooth',
+      left: 0,
+      top,
+    });
+  }
 
   useEffect(() => {
     updateContestChoicesScrollStates();
@@ -269,9 +260,9 @@ export function MsEitherNeitherContest({
             <Button
               className="scroll-up"
               large
-              primary
+              variant="primary"
               aria-hidden
-              data-direction="up"
+              value="up"
               disabled={isScrollAtTop}
               onPress={scrollContestChoices}
             >
@@ -280,9 +271,9 @@ export function MsEitherNeitherContest({
             <Button
               className="scroll-down"
               large
-              primary
+              variant="primary"
               aria-hidden
-              data-direction="down"
+              value="down"
               disabled={isScrollAtBottom}
               onPress={scrollContestChoices}
             >

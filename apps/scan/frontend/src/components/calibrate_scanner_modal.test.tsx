@@ -54,11 +54,9 @@ test('shows instructions', () => {
 test('waiting for paper', async () => {
   const onCancel = jest.fn();
   apiMock.expectCheckCalibrationSupported(true);
-  renderModal({ onCancel });
+  const { findButton } = renderModal({ onCancel });
 
-  expect(
-    (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
-  ).toEqual(true);
+  expect(await findButton('Waiting for Paper')).toBeDisabled();
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();
@@ -67,14 +65,12 @@ test('waiting for paper', async () => {
 test('scanner not available', async () => {
   const onCancel = jest.fn();
   apiMock.expectCheckCalibrationSupported(true);
-  renderModal({
+  const { findButton } = renderModal({
     scannerStatus: { ...fakeScannerStatus, state: 'jammed' },
     onCancel,
   });
 
-  expect(
-    (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
-  ).toEqual(true);
+  expect(await findButton('Cannot Calibrate')).toBeDisabled();
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();

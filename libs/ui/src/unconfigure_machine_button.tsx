@@ -56,7 +56,10 @@ export function UnconfigureMachineButton({
   return (
     <React.Fragment>
       <Button
-        danger
+        // TODO: Make this either regular or primary, since clicking it doesn't
+        // actually cause a destructive action. It just opens a modal which
+        // shows the actual destructive action button.
+        variant="danger"
         onPress={openConfirmationModal}
         disabled={!isMachineConfigured}
       >
@@ -80,7 +83,7 @@ export function UnconfigureMachineButton({
           actions={
             !isUnconfiguringMachine && (
               <React.Fragment>
-                <Button onPress={unconfigureMachineAndDelay} danger>
+                <Button onPress={unconfigureMachineAndDelay} variant="danger">
                   Yes, Delete Election Data
                 </Button>
                 <Button onPress={closeConfirmationModal}>Cancel</Button>

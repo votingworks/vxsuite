@@ -383,7 +383,7 @@ test('failed save to custom location', async () => {
 });
 
 test('button row renders both buttons', () => {
-  render(
+  const { getButton } = render(
     <ExportLogsButtonRow
       usbDriveStatus="mounted"
       logger={fakeLogger()}
@@ -392,8 +392,8 @@ test('button row renders both buttons', () => {
     />
   );
 
-  expect(screen.getByText('Save Log File')).toBeEnabled();
+  expect(getButton('Save Log File')).toBeEnabled();
 
   // without an election definition, CDF button should be disabled
-  expect(screen.getByText('Save CDF Log File')).toBeDisabled();
+  expect(getButton('Save CDF Log File')).toBeDisabled();
 });

@@ -3,7 +3,9 @@ import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import {
+  Button,
   ExportLogsButtonRow,
+  LinkButton,
   Loading,
   Main,
   Modal,
@@ -13,8 +15,6 @@ import {
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
-import { Button } from '../components/button';
-import { LinkButton } from '../components/link_button';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
@@ -158,7 +158,7 @@ export function AdminActionsScreen({
             </p>
             <p>
               <Button
-                danger
+                variant="danger"
                 disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
                 onPress={toggleIsConfirmingZero}
               >
@@ -168,7 +168,7 @@ export function AdminActionsScreen({
 
             <p>
               <Button
-                danger
+                variant="danger"
                 disabled={!canUnconfigure && !isTestMode}
                 onPress={toggleIsConfirmingUnconfigure}
               >
@@ -211,7 +211,7 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button onPress={toggleIsConfirmingZero}>Cancel</Button>
-              <Button danger onPress={deleteBallotData}>
+              <Button variant="danger" onPress={deleteBallotData}>
                 Yes, Delete Ballot Data
               </Button>
             </React.Fragment>
@@ -234,7 +234,7 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button
-                danger
+                variant="danger"
                 onPress={() => {
                   toggleIsConfirmingUnconfigure();
                   setIsDoubleConfirmingUnconfigure(true);
@@ -260,7 +260,7 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button
-                danger
+                variant="danger"
                 onPress={() => {
                   toggleIsDoubleConfirmingUnconfigure();
                   setIsFactoryResetting(true);

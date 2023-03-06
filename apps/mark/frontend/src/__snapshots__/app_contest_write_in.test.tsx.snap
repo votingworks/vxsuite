@@ -188,7 +188,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-fKVsgm gRfIaj"
+    class="sc-cxpRKc kkdBBo"
   >
     <div
       class="c1"
@@ -213,7 +213,7 @@ exports[`Single Seat Contest with Write In 1`] = `
       </div>
     </div>
     <main
-      class="sc-bBHwJV hlTQmY"
+      class="sc-llYToB hxndVL"
     >
       <div
         class="c2"
@@ -260,48 +260,60 @@ exports[`Single Seat Contest with Write In 1`] = `
             class="c6"
           >
             <div
+              aria-multiselectable="true"
               class="c7"
+              role="listbox"
             >
               <button
                 aria-label=" Rhadka Ramachandrani, Independent."
+                aria-selected="false"
                 class="c8"
                 data-choice="ramachandrani"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Rhadka Ramachandrani
-                    </strong>
-                    <br />
-                    Independent
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Rhadka Ramachandrani
+                      </strong>
+                      <br />
+                      Independent
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
+                aria-selected="false"
                 class="c8"
                 data-choice="write-in"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    aria-label="add write-in candidate."
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <em>
-                      add write-in candidate
-                    </em>
-                  </p>
-                </div>
+                    <p
+                      aria-label="add write-in candidate."
+                    >
+                      <em>
+                        add write-in candidate
+                      </em>
+                    </p>
+                  </div>
+                </span>
               </button>
             </div>
           </div>
@@ -313,36 +325,46 @@ exports[`Single Seat Contest with Write In 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         id="next"
-        role="option"
         type="button"
       >
         <span
-          class="c10"
+          class="sc-hBURRC gusydx"
         >
-          Next
+          <span
+            class="c10"
+          >
+            Next
+          </span>
         </span>
       </button>
       <button
         aria-label="previous contest"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         id="previous"
-        role="option"
         type="button"
       >
         <span
-          class="c11"
+          class="sc-hBURRC gusydx"
         >
-          Back
+          <span
+            class="c11"
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         type="button"
       >
-        Settings
+        <span
+          class="sc-hBURRC gusydx"
+        >
+          Settings
+        </span>
       </button>
     </nav>
   </div>

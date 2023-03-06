@@ -31,34 +31,20 @@ test('navigates back', () => {
   expect(history.location.pathname).toEqual('/');
 });
 
-test('renders LinkButton with onClick prop', () => {
-  const text = 'Push Me';
-  const onClickHandler = jest.fn();
-  render(
-    <StaticRouter context={{}}>
-      <LinkButton to="/" onPress={onClickHandler}>
-        {text}
-      </LinkButton>
-    </StaticRouter>
-  );
-  const button = screen.getByText(text);
-  fireEvent.click(button);
-  expect(onClickHandler).toHaveBeenCalled();
-  expect(button).toMatchSnapshot();
-});
-
 test('renders LinkButton with onClick and disabled props', () => {
   const text = 'Push Me';
-  const onClickHandler = jest.fn();
+  const history = createMemoryHistory();
+  history.push('/somewhere');
   render(
     <StaticRouter context={{}}>
-      <LinkButton to="/" onClick={onClickHandler} disabled>
+      <LinkButton to="/" disabled>
         {text}
       </LinkButton>
     </StaticRouter>
   );
+
+  expect(history.location.pathname).toEqual('/somewhere');
   const button = screen.getByText(text);
   fireEvent.click(button);
-  expect(onClickHandler).not.toHaveBeenCalled();
-  expect(button).toMatchSnapshot();
+  expect(history.location.pathname).toEqual('/somewhere');
 });

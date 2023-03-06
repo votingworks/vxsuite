@@ -69,7 +69,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
               actions={
                 <React.Fragment>
                   <Button
-                    primary
+                    variant="primary"
                     onPress={() => setState({ stage: 'confirm' })}
                   >
                     Format USB
@@ -100,7 +100,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={format}>
+              <Button variant="primary" onPress={format}>
                 Format USB
               </Button>
               <Button onPress={onClose}>Close</Button>

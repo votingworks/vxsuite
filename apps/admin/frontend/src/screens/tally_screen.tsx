@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Admin } from '@votingworks/api';
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
-import { Button, Prose, Table, TD, Text } from '@votingworks/ui';
+import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { ResultsFileType } from '../config/types';
 
@@ -13,7 +13,6 @@ import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
-import { LinkButton } from '../components/link_button';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
@@ -103,7 +102,7 @@ export function TallyScreen(): JSX.Element {
           <Text>{fileModeText}</Text>
           {isOfficialResults && (
             <Button
-              danger
+              variant="danger"
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
             >
@@ -113,7 +112,7 @@ export function TallyScreen(): JSX.Element {
 
           <p>
             <Button
-              primary
+              variant="primary"
               disabled={isOfficialResults}
               onPress={() => setIsImportCvrModalOpen(true)}
             >

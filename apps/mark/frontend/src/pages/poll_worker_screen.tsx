@@ -287,12 +287,12 @@ function ScannerReportModal({
         </Prose>
       );
       modalActions = willUpdatePollsToMatchScanner ? (
-        <Button primary onPress={printReportsAndUpdatePolls}>
+        <Button variant="primary" onPress={printReportsAndUpdatePolls}>
           {getPollsTransitionAction(scannerReportData.pollsTransition)} and
           Print Report
         </Button>
       ) : (
-        <Button primary onPress={printReportsAndUpdatePolls}>
+        <Button variant="primary" onPress={printReportsAndUpdatePolls}>
           Print Report
         </Button>
       );
@@ -323,7 +323,7 @@ function ScannerReportModal({
       );
       modalActions = (
         <React.Fragment>
-          <Button primary onPress={onClose}>
+          <Button variant="primary" onPress={onClose}>
             Continue
           </Button>
           <Button onPress={printAdditionalReport}>
@@ -424,7 +424,7 @@ function UpdatePollsDirectlyButton({
           actions={
             <UpdatePollsDirectlyActionsSpan>
               <Button onPress={confirmUpdate}>{action} on VxMark Now</Button>
-              <Button primary onPress={closeModal}>
+              <Button variant="primary" onPress={closeModal}>
                 Cancel
               </Button>
             </UpdatePollsDirectlyActionsSpan>
@@ -567,7 +567,7 @@ export function PollWorkerScreen({
               Remove card to allow voter to continue voting, or reset ballot.
             </p>
             <p>
-              <Button danger onPress={resetCardlessVoterSession}>
+              <Button variant="danger" onPress={resetCardlessVoterSession}>
                 Reset Ballot
               </Button>
             </p>
@@ -666,8 +666,10 @@ export function PollWorkerScreen({
                             onPress={() =>
                               setSelectedCardlessVoterPrecinctId(precinct.id)
                             }
-                            primary={
+                            variant={
                               selectedCardlessVoterPrecinctId === precinct.id
+                                ? 'primary'
+                                : 'regular'
                             }
                           >
                             {precinct.name}
@@ -716,7 +718,7 @@ export function PollWorkerScreen({
                   <React.Fragment>
                     <p>
                       <Button
-                        primary
+                        variant="primary"
                         onPress={() => setIsHidingSelectBallotStyle(false)}
                       >
                         Back to Ballot Style Selection
@@ -777,7 +779,7 @@ export function PollWorkerScreen({
             }
             actions={
               <React.Fragment>
-                <Button primary danger onPress={confirmEnableLiveMode}>
+                <Button variant="danger" onPress={confirmEnableLiveMode}>
                   Switch to Official Ballot Mode
                 </Button>
                 <Button onPress={cancelEnableLiveMode}>Cancel</Button>

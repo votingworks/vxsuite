@@ -41,7 +41,11 @@ function PrinterNotConnectedModal({
       }
       actions={
         <React.Fragment>
-          <Button primary onPress={onContinue} disabled={isNotConnected}>
+          <Button
+            variant="primary"
+            onPress={onContinue}
+            disabled={isNotConnected}
+          >
             Continue
           </Button>
           <Button onPress={onClose}>Close</Button>

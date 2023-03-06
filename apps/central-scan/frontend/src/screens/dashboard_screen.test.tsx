@@ -116,7 +116,7 @@ test('allows deleting a batch', async () => {
     ],
     adjudication: noneLeftAdjudicationStatus,
   };
-  render(
+  const { getAllButtons } = render(
     <Router history={createMemoryHistory()}>
       <DashboardScreen
         deleteBatch={deleteBatch}
@@ -127,10 +127,7 @@ test('allows deleting a batch', async () => {
   );
 
   expect(deleteBatch).not.toHaveBeenCalled();
-  const [deleteBatch1Button, deleteBatch2Button] = screen.getAllByText(
-    'Delete',
-    { selector: 'button' }
-  );
+  const [deleteBatch1Button, deleteBatch2Button] = getAllButtons('Delete');
 
   let deleteBatch1Resolve!: VoidFunction;
   let deleteBatch2Reject!: (error: unknown) => void;

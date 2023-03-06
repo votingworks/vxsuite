@@ -5,17 +5,16 @@ import { Button, ButtonProps } from '@votingworks/ui';
 
 import * as GLOBALS from '../config/globals';
 
-interface Props
-  extends ButtonProps,
-    React.PropsWithoutRef<JSX.IntrinsicElements['button']> {
-  choice: string;
-  isSelected: boolean;
-}
+type Props<T extends string> = Omit<ButtonProps<T>, 'value'> &
+  React.PropsWithoutRef<JSX.IntrinsicElements['button']> & {
+    choice: T;
+    isSelected: boolean;
+  };
 
 const StyledChoiceButton = styled('button').attrs(({ type = 'button' }) => ({
   role: 'option',
   type,
-}))<Props>`
+}))<Props<string>>`
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
@@ -52,13 +51,22 @@ const StyledChoiceButton = styled('button').attrs(({ type = 'button' }) => ({
   }
 `;
 
-export function ChoiceButton({ choice, ...rest }: Props): JSX.Element {
+export function ChoiceButton<T extends string>({
+  choice,
+  ...rest
+}: Props<T>): JSX.Element {
   return (
     <Button
       {...rest}
       component={StyledChoiceButton}
+      value={choice}
+      // TODO: Update tests that depend on this to use
+      // getByRole('option', { selected: true }) instead:
       data-choice={choice}
+      // TODO: Update tests that depend on this to use to use
+      // getByRole('option', { selected: true }) instead:
       data-selected={rest.isSelected}
+      aria-selected={rest.isSelected}
     />
   );
 }

@@ -28,7 +28,6 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
-import { LinkButton } from './link_button';
 
 import {
   ballotModeToReadableString,
@@ -202,7 +201,7 @@ export function PrintAllBallotsButton(): JSX.Element {
           </p>
         </Prose>
       );
-      actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
+      actions = <Button onPress={closeModal}>Cancel</Button>;
       break;
 
     case 'options':
@@ -238,11 +237,12 @@ export function PrintAllBallotsButton(): JSX.Element {
       actions = (
         <React.Fragment>
           <Button
-            primary
             onPress={printBallots}
-            warning={
+            variant={
               isElectionManagerAuth(auth) &&
               ballotMode !== Admin.BallotMode.Official
+                ? 'warning'
+                : 'primary'
             }
           >
             <PrintBallotButtonText
@@ -252,7 +252,7 @@ export function PrintAllBallotsButton(): JSX.Element {
               election={election}
             />
           </Button>
-          <LinkButton onPress={closeModal}>Cancel</LinkButton>
+          <Button onPress={closeModal}>Cancel</Button>
         </React.Fragment>
       );
       break;
@@ -290,9 +290,9 @@ export function PrintAllBallotsButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <LinkButton small onPress={() => setIsModalOpen(true)}>
+      <Button small onPress={() => setIsModalOpen(true)}>
         Print All
-      </LinkButton>
+      </Button>
       {isModalOpen && (
         <Modal
           content={mainContent}

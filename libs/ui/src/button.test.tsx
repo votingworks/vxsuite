@@ -1,7 +1,10 @@
 import React from 'react';
-import userEvent from '@testing-library/user-event';
+import parseCssColor from 'parse-css-color';
+import { Color, ColorMode, SizeMode } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { Button, DecoyButton } from './button';
+import { ALL_BUTTON_VARIANTS, Button, DecoyButton } from './button';
+import { makeTheme } from './themes/make_theme';
 
 function createTouchStartEventProperties(x: number, y: number) {
   return { touches: [{ clientX: x, clientY: y }] };
@@ -11,82 +14,227 @@ function createTouchEndEventProperties(x: number, y: number) {
   return { changedTouches: [{ clientX: x, clientY: y }] };
 }
 
+function remToPx(rem: string): number {
+  if (!rem) {
+    return 0;
+  }
+
+  return (
+    Number.parseFloat(rem) *
+    Number.parseFloat(
+      window.getComputedStyle(document.documentElement).fontSize
+    )
+  );
+}
+
 describe('renders Button', () => {
-  test('with defaults', () => {
-    render(<Button onPress={jest.fn()}>default</Button>);
-    const button = screen.getByText('default');
-    expect(button).toHaveStyleRule('background', 'rgb(211,211,211)');
-    expect(button).toHaveStyleRule('cursor', 'pointer');
-    expect(button).toHaveStyleRule('padding', '0.75em 1em');
-    expect(button).toHaveStyleRule('text-align', 'center');
-    expect(button).toHaveStyleRule('color', 'black');
-    expect(button).toHaveStyleRule('color', 'black');
+  test('for all available variants', () => {
+    for (const variant of ALL_BUTTON_VARIANTS) {
+      const onPress = jest.fn();
+
+      const { getButton } = render(
+        <Button onPress={onPress} variant={variant}>
+          {variant} button
+        </Button>
+      );
+
+      expect(onPress).not.toHaveBeenCalled();
+
+      fireEvent.click(getButton(`${variant} button`));
+
+      expect(onPress).toHaveBeenCalled();
+    }
   });
 
-  test('with options: primary noFocus', () => {
-    render(
-      <Button onPress={jest.fn()} primary noFocus>
-        Primary
-      </Button>
-    );
-    const button = screen.getByText('Primary');
-    expect(button).toHaveStyleRule('background', 'rgb(71,167,75)');
-    expect(button).toHaveStyleRule('color', '#FFFFFF');
-    expect(button).not.toHaveStyleRule('outline');
+  test('varies size based on theme', () => {
+    const onPress = jest.fn();
+
+    function getButtonFontSizePx(sizeMode: SizeMode) {
+      const { getButton } = render(
+        <Button onPress={onPress}>{sizeMode} button</Button>,
+        {
+          vxTheme: { colorMode: 'contrastMedium', sizeMode },
+        }
+      );
+
+      const button = getButton(`${sizeMode} button`);
+      return remToPx(window.getComputedStyle(button).fontSize);
+    }
+
+    const smallButtonFontSizePx = getButtonFontSizePx('s');
+    const mediumButtonFontSizePx = getButtonFontSizePx('m');
+    const largeButtonFontSizePx = getButtonFontSizePx('l');
+    const xLargeButtonFontSizePx = getButtonFontSizePx('xl');
+
+    expect(mediumButtonFontSizePx).toBeGreaterThan(smallButtonFontSizePx);
+    expect(largeButtonFontSizePx).toBeGreaterThan(mediumButtonFontSizePx);
+    expect(xLargeButtonFontSizePx).toBeGreaterThan(largeButtonFontSizePx);
   });
 
-  test('with options: primaryBlue', () => {
-    render(
-      <Button onPress={jest.fn()} primaryBlue>
-        PrimaryBlue
-      </Button>
-    );
-    const button = screen.getByText('PrimaryBlue');
-    expect(button).toHaveStyleRule('background', 'rgb(34,152,222)');
-    expect(button).toHaveStyleRule('color', '#FFFFFF');
+  test('varies color based on theme', () => {
+    const onPress = jest.fn();
+
+    function verifyPrimaryButtonColor(colorMode: ColorMode) {
+      const expectedTheme = makeTheme({ colorMode, sizeMode: 's' });
+
+      const { getButton } = render(
+        <Button onPress={onPress} variant="primary">
+          {colorMode} button
+        </Button>,
+        {
+          vxTheme: { colorMode, sizeMode: 's' },
+        }
+      );
+
+      const button = getButton(`${colorMode} button`);
+      const buttonColor = window.getComputedStyle(button).backgroundColor;
+
+      expect(parseCssColor(buttonColor)).toEqual(
+        parseCssColor(expectedTheme.colors.accentPrimary)
+      );
+    }
+
+    verifyPrimaryButtonColor('contrastLow');
+    verifyPrimaryButtonColor('contrastMedium');
+    verifyPrimaryButtonColor('contrastHighDark');
+    verifyPrimaryButtonColor('contrastHighLight');
+    verifyPrimaryButtonColor('legacy');
   });
 
-  test('with options: full-width disabled submit', () => {
-    render(
-      <Button onPress={jest.fn()} type="submit" disabled fullWidth>
-        Disabled Button
+  test('propagates click/tap events with specified event value', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const onPress = jest.fn((_value: [string, string]) => undefined);
+    const { getButton } = render(
+      <Button onPress={onPress} value={['foo', 'bar']}>
+        Click me
       </Button>
     );
-    const button = screen.getByText('Disabled Button');
+
+    fireEvent.click(getButton('Click me'));
+
+    expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
+  });
+
+  test('legacy fullWidth button', () => {
+    const { getButton } = render(
+      <Button onPress={jest.fn()} fullWidth>
+        Full Width Button
+      </Button>,
+      {
+        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
+      }
+    );
+    const button = getButton('Full Width Button');
     expect(button).toHaveStyleRule('width', '100%');
-    expect(button).toBeDisabled();
   });
 
   test('with options: big danger', () => {
-    render(
-      <Button onPress={jest.fn()} large danger>
+    const { getButton } = render(
+      <Button onPress={jest.fn()} large variant="danger">
         I’m a big button!
-      </Button>
+      </Button>,
+      {
+        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
+      }
     );
-    const button = screen.getByText('I’m a big button!');
+    const button = getButton('I’m a big button!');
     expect(button).toHaveStyleRule('padding', '1em 1.75em');
     expect(button).toHaveStyleRule('font-size', '1.25em');
-    expect(button).toHaveStyleRule('background', 'red');
-    expect(button).toHaveStyleRule('color', '#FFFFFF');
+    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_DANGER);
+    expect(button).toHaveStyleRule('color', Color.WHITE);
+  });
+
+  test('disabled button', () => {
+    const onPress = jest.fn();
+
+    const { getButton } = render(
+      <div>
+        <Button onPress={onPress} variant="danger">
+          Enabled Button
+        </Button>
+        <Button onPress={onPress} variant="danger" disabled>
+          Disabled Button
+        </Button>
+      </div>,
+      { vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' } }
+    );
+
+    const enabledButton = getButton('Enabled Button');
+    const disabledButton = getButton('Disabled Button');
+
+    // Ignores click/tap events:
+    fireEvent.click(disabledButton);
+    fireEvent.touchStart(
+      disabledButton,
+      createTouchStartEventProperties(100, 100)
+    );
+    fireEvent.touchEnd(disabledButton, createTouchEndEventProperties(100, 100));
+    expect(onPress).not.toHaveBeenCalled();
+
+    const enabledButtonColor =
+      window.getComputedStyle(enabledButton).backgroundColor;
+    const disabledButtonColor =
+      window.getComputedStyle(disabledButton).backgroundColor;
+    expect(parseCssColor(disabledButtonColor)).not.toEqual(
+      parseCssColor(enabledButtonColor)
+    );
+  });
+
+  test('focus()/blur() API', () => {
+    const buttonRef = React.createRef<Button>();
+
+    const { getButton } = render(
+      <Button onPress={jest.fn()} ref={buttonRef}>
+        Focus on me
+      </Button>
+    );
+
+    const buttonElement = getButton('Focus on me');
+    expect(buttonElement).not.toHaveFocus();
+
+    assert(buttonRef.current);
+    buttonRef.current.focus();
+    expect(buttonElement).toHaveFocus();
+
+    buttonRef.current.blur();
+    expect(buttonElement).not.toHaveFocus();
+  });
+
+  test('autoFocus option', () => {
+    const onPress = jest.fn();
+
+    const { getButton } = render(
+      <div>
+        <Button onPress={onPress}>Cancel</Button>
+        <Button onPress={onPress} variant="primary" autoFocus>
+          Confirm
+        </Button>
+      </div>
+    );
+
+    expect(getButton('Confirm')).toHaveFocus();
   });
 
   test('as DecoyButton with options: small warning', () => {
     render(
-      <DecoyButton small warning>
+      <DecoyButton small variant="warning">
         DecoyButton
-      </DecoyButton>
+      </DecoyButton>,
+      {
+        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
+      }
     );
     const button = screen.getByText('DecoyButton');
-    expect(button).toHaveStyleRule('background', 'darkorange');
+    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_WARNING);
     expect(button).toHaveStyleRule('padding', '0.35em 0.5em');
   });
 
   test('and tests clicks and touches', () => {
     const onPress = jest.fn();
-    const { getByText } = render(
+    const { getButton } = render(
       <Button onPress={onPress}>Test Button</Button>
     );
-    const button = getByText('Test Button');
+    const button = getButton('Test Button');
 
     fireEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(1);
@@ -110,23 +258,4 @@ describe('renders Button', () => {
     fireEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(3);
   });
-});
-
-test('disabling works for both touch events and click events', () => {
-  const onPress = jest.fn();
-  render(
-    <Button onPress={onPress} disabled>
-      Disabled Button
-    </Button>
-  );
-  const button = screen.getByText('Disabled Button');
-
-  // Click is disabled
-  userEvent.click(button);
-  expect(onPress).toHaveBeenCalledTimes(0);
-
-  // Touch is disabled
-  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100));
-  fireEvent.touchEnd(button, createTouchEndEventProperties(100, 100));
-  expect(onPress).toHaveBeenCalledTimes(0);
 });

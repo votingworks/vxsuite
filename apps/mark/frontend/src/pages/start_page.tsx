@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose, Button } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
@@ -92,16 +92,16 @@ export function StartPage(): JSX.Element {
 
   const startVotingButton = (
     <Wobble as="p">
-      <LinkButton
+      <Button
         large
-        primary
+        variant="primary"
         fullWidth={isLandscape}
         onPress={onStart}
         id="next"
         aria-label="Press the right button to advance to the first contest."
       >
         Start Voting
-      </LinkButton>
+      </Button>
     </Wobble>
   );
 

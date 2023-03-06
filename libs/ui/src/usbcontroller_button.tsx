@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button } from './button';
+import { Button, ButtonVariant } from './button';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 
 /* istanbul ignore next */
@@ -29,9 +29,11 @@ export function UsbControllerButton({
   primary = false,
   small = true,
 }: Props): JSX.Element | null {
+  const variant: ButtonVariant = primary ? 'primary' : 'regular';
+
   if (usbDriveStatus === 'mounted') {
     return (
-      <Button small={small} primary={primary} onPress={usbDriveEject}>
+      <Button small={small} variant={variant} onPress={usbDriveEject}>
         Eject USB
       </Button>
     );

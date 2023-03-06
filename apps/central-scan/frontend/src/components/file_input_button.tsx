@@ -1,12 +1,7 @@
 import { PromiseOr } from '@votingworks/types';
+import { ButtonInterface as ButtonProps, LabelButton } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
-
-import {
-  LabelButton,
-  buttonFocusStyle,
-  ButtonInterface as ButtonProps,
-} from './button';
 
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
@@ -20,7 +15,7 @@ export const HiddenFileInput = styled.input`
   height: 0.1px;
   overflow: hidden;
   &:focus + label {
-    ${buttonFocusStyle}/* stylelint-disable-line value-keyword-case */
+    outline: none;
   }
   &:hover + label,
   &:active + label {

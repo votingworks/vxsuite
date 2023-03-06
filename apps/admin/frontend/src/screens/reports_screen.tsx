@@ -7,7 +7,12 @@ import {
   format,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { Button, Prose, useCancelablePromise } from '@votingworks/ui';
+import {
+  Button,
+  Prose,
+  useCancelablePromise,
+  LinkButton,
+} from '@votingworks/ui';
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
@@ -19,7 +24,6 @@ import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_clien
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
-import { LinkButton } from '../components/link_button';
 import { BallotCountsTable } from '../components/ballot_counts_table';
 import { getPartiesWithPrimaryElections } from '../utils/election';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';

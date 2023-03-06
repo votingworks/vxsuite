@@ -167,7 +167,7 @@ export function ElectionManagerScreen({
           <Button
             disabled={supportsCalibrationQuery.data === false}
             onPress={() => setIsCalibratingScanner(true)}
-            title={
+            nonAccessibleTitle={
               !supportsCalibrationQuery.data
                 ? 'This scanner does not support calibration.'
                 : undefined
@@ -190,10 +190,11 @@ export function ElectionManagerScreen({
         <p>
           <Button
             disabled={!scannerStatus.canUnconfigure}
-            danger
+            variant="danger"
             small
             onPress={() => setConfirmUnconfigure(true)}
           >
+            {/* TODO: Remove this icon when we start defaulting to the new VVSG themes: */}
             <span role="img" aria-label="Warning">
               ⚠️
             </span>{' '}
@@ -229,7 +230,7 @@ export function ElectionManagerScreen({
           actions={
             <React.Fragment>
               <Button
-                primary
+                variant="primary"
                 onPress={() => {
                   setIsShowingToggleTestModeWarningModal(false);
                   setIsExportingBackup(true);
@@ -265,7 +266,7 @@ export function ElectionManagerScreen({
           actions={
             !isUnconfiguring && (
               <React.Fragment>
-                <Button danger onPress={handleUnconfigure}>
+                <Button variant="danger" onPress={handleUnconfigure}>
                   Yes, Delete All
                 </Button>
                 <Button onPress={() => setConfirmUnconfigure(false)}>

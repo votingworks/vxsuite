@@ -255,11 +255,7 @@ export function PickDateTimeModal({
       }
       actions={
         <React.Fragment>
-          <Button
-            disabled={disabled}
-            primary={!disabled}
-            onPress={saveDateAndZone}
-          >
+          <Button disabled={disabled} variant="done" onPress={saveDateAndZone}>
             {saveLabel}
           </Button>
           <Button disabled={disabled} onPress={onCancel}>

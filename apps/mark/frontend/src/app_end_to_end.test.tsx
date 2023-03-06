@@ -57,7 +57,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
-  render(
+  const { getButton } = render(
     <App
       hardware={hardware}
       storage={storage}
@@ -142,9 +142,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   userEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(
-    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
-  ).toBeTruthy();
+  expect(getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

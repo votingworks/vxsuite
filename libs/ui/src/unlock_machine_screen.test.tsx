@@ -12,39 +12,39 @@ const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
 
 test('Unlock machine screen submits pin', async () => {
   const checkPin = jest.fn();
-  const { getByText } = render(
+  const { getButton, getByText } = render(
     <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
   );
   getByText('- - - - - -');
 
-  userEvent.click(getByText('0'));
+  userEvent.click(getButton('0'));
   getByText('• - - - - -');
 
-  userEvent.click(getByText('✖'));
+  userEvent.click(getButton('clear'));
   getByText('- - - - - -');
 
-  userEvent.click(getByText('0'));
+  userEvent.click(getButton('0'));
   getByText('• - - - - -');
 
-  userEvent.click(getByText('1'));
+  userEvent.click(getButton('1'));
   getByText('• • - - - -');
 
-  userEvent.click(getByText('2'));
+  userEvent.click(getButton('2'));
   getByText('• • • - - -');
 
-  userEvent.click(getByText('3'));
+  userEvent.click(getButton('3'));
   getByText('• • • • - -');
 
-  userEvent.click(getByText('4'));
+  userEvent.click(getButton('4'));
   getByText('• • • • • -');
 
-  userEvent.click(getByText('⌫'));
+  userEvent.click(getButton('backspace'));
   getByText('• • • • - -');
 
-  userEvent.click(getByText('4'));
+  userEvent.click(getButton('4'));
   getByText('• • • • • -');
 
-  userEvent.click(getByText('5'));
+  userEvent.click(getButton('5'));
 
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
   getByText('- - - - - -');

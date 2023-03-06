@@ -37,7 +37,6 @@ import { pdfToImages } from '../utils/pdf_to_images';
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
@@ -214,9 +213,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     case 'Init': {
       mainContent = <Loading />;
       actions = (
-        <LinkButton onPress={closeModal} disabled>
+        <Button onPress={closeModal} disabled>
           Cancel
-        </LinkButton>
+        </Button>
       );
       break;
     }
@@ -226,7 +225,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'absent':
         case 'ejected':
         case 'bad_format':
-          actions = <LinkButton onPress={closeModal}>Cancel</LinkButton>;
+          actions = <Button onPress={closeModal}>Cancel</Button>;
           mainContent = (
             <Prose>
               <h1>No USB Drive Detected</h1>
@@ -247,18 +246,18 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'mounting':
           mainContent = <Loading />;
           actions = (
-            <LinkButton onPress={closeModal} disabled>
+            <Button onPress={closeModal} disabled>
               Cancel
-            </LinkButton>
+            </Button>
           );
           break;
         case 'mounted': {
           actions = (
             <React.Fragment>
-              <Button primary onPress={() => saveFileCallback(false)}>
+              <Button variant="primary" onPress={() => saveFileCallback(false)}>
                 Save
               </Button>
-              <LinkButton onPress={closeModal}>Cancel</LinkButton>
+              <Button onPress={closeModal}>Cancel</Button>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>
             </React.Fragment>
           );
@@ -283,9 +282,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
     case 'RenderBallot': {
       actions = (
-        <LinkButton onPress={closeModal} disabled>
+        <Button onPress={closeModal} disabled>
           Cancel
-        </LinkButton>
+        </Button>
       );
       const { ballotStyleId, precinctId, contestIds, locales } =
         state.currentBallotConfig;
@@ -326,9 +325,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
     case 'ArchiveEnd': {
       actions = (
-        <LinkButton onPress={closeModal} disabled>
+        <Button onPress={closeModal} disabled>
           Cancel
-        </LinkButton>
+        </Button>
       );
       mainContent = (
         <Prose>
@@ -352,11 +351,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               usbDriveEject={() => usbDrive.eject(userRole)}
               usbDriveStatus={usbDrive.status}
             />
-            <LinkButton onPress={closeModal}>Close</LinkButton>
+            <Button onPress={closeModal}>Close</Button>
           </React.Fragment>
         );
       } else {
-        actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
+        actions = <Button onPress={closeModal}>Close</Button>;
       }
       mainContent = (
         <Prose>
@@ -371,7 +370,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
 
     case 'Failed': {
-      actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
+      actions = <Button onPress={closeModal}>Close</Button>;
       mainContent = (
         <Prose>
           <h1>Failed to Save Ballot Package</h1>
@@ -388,9 +387,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <LinkButton small onPress={() => setIsModalOpen(true)}>
+      <Button small onPress={() => setIsModalOpen(true)}>
         Save Ballot Package
-      </LinkButton>
+      </Button>
       {isModalOpen && (
         <Modal
           content={mainContent}

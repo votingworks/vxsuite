@@ -1,8 +1,16 @@
 import React from 'react';
 
-import { Button, ButtonProps } from '@votingworks/ui';
+import { Button } from '@votingworks/ui';
 
-export function SettingsButton({ large, onPress }: ButtonProps): JSX.Element {
+interface SettingsButtonProps {
+  large?: boolean;
+  onPress: () => void;
+}
+
+export function SettingsButton({
+  large,
+  onPress,
+}: SettingsButtonProps): JSX.Element {
   return (
     <Button large={large} onPress={onPress} aria-label="Change Settings">
       Settings

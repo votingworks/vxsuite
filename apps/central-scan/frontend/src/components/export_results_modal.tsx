@@ -1,15 +1,13 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { Modal, UsbControllerButton } from '@votingworks/ui';
+import { Button, Modal, UsbControllerButton } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { Button } from './button';
 import { Prose } from './prose';
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { exportCastVoteRecords } from '../api/config';
 
@@ -84,7 +82,7 @@ export function ExportResultsModal({
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -127,7 +125,7 @@ export function ExportResultsModal({
               usbDriveStatus={usbDriveStatus}
               usbDriveEject={() => usbDriveEject(userRole)}
             />
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />
@@ -160,7 +158,7 @@ export function ExportResultsModal({
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'ejecting':
@@ -169,7 +167,7 @@ export function ExportResultsModal({
         <Modal
           content={<Loading />}
           onOverlayClick={onClose}
-          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'mounted':
@@ -185,10 +183,10 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportResults()}>
+              <Button variant="primary" onPress={exportResults}>
                 Save
               </Button>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
         />

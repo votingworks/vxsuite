@@ -1,5 +1,10 @@
 import React from 'react';
-import { fireEvent, render } from '../test/react_testing_library';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  RenderOptions,
+} from '../test/react_testing_library';
 
 import { UsbControllerButton } from './usbcontroller_button';
 
@@ -21,6 +26,33 @@ test('shows No USB if usb absent', () => {
   expect(container.firstChild).toHaveTextContent('No USB');
   fireEvent.click(getByText('No USB'));
   expect(eject).not.toHaveBeenCalled();
+});
+
+test('renders as primary button variant', () => {
+  const renderOptions: RenderOptions = {
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' },
+  };
+
+  const nonPrimaryResult = render(
+    <UsbControllerButton usbDriveStatus="mounted" usbDriveEject={jest.fn()} />,
+    renderOptions
+  );
+  const nonPrimaryButton = nonPrimaryResult.getButton('Eject USB');
+  const nonPrimaryStyles = window.getComputedStyle(nonPrimaryButton);
+
+  cleanup();
+
+  const primaryResult = render(
+    <UsbControllerButton
+      usbDriveStatus="mounted"
+      usbDriveEject={jest.fn()}
+      primary
+    />,
+    renderOptions
+  );
+
+  const primaryButton = primaryResult.getButton('Eject USB');
+  expect(window.getComputedStyle(primaryButton)).not.toEqual(nonPrimaryStyles);
 });
 
 test('shows eject if mounted', () => {

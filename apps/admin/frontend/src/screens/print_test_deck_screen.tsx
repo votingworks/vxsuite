@@ -196,7 +196,7 @@ function PrintingModal({
           </Prose>
         }
         actions={
-          <Button onPress={() => advancePrinting(printIndex)} primary>
+          <Button onPress={() => advancePrinting(printIndex)} variant="primary">
             {getBallotLayoutPageSizeReadableString(election, {
               capitalize: true,
             })}{' '}

@@ -1,14 +1,46 @@
 import React from 'react';
-import { render, RenderOptions, RenderResult } from '@testing-library/react';
+import {
+  queries,
+  render,
+  RenderOptions,
+  RenderResult,
+} from '@testing-library/react';
 
 import { ColorMode, SizeMode } from '@votingworks/types';
 import { AppBase } from '../app_base';
 
-type VxRenderOptions = RenderOptions & {
+export type VxRenderOptions = RenderOptions & {
   vxTheme?: {
     colorMode?: ColorMode;
     sizeMode?: SizeMode;
   };
+};
+
+export interface ButtonQueryOptions {
+  useSparinglyIncludeHidden?: boolean;
+}
+
+export interface OptionQueryOptions {
+  expectSelected?: boolean;
+}
+
+export type VxRenderResult = RenderResult & {
+  getAllButtons(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.AllByRole>;
+  getButton(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.GetByRole>;
+  findAllButtons(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.FindAllByRole>;
+  findButton(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.FindByRole>;
 };
 
 /**
@@ -19,7 +51,7 @@ type VxRenderOptions = RenderOptions & {
 export function renderWithThemes(
   ui: React.ReactElement,
   options: VxRenderOptions = {}
-): RenderResult {
+): VxRenderResult {
   const { vxTheme = {}, ...passthroughOptions } = options;
 
   function wrapper(props: { children: React.ReactNode }): JSX.Element {
@@ -32,5 +64,33 @@ export function renderWithThemes(
     );
   }
 
-  return render(ui, { ...passthroughOptions, wrapper });
+  const result = render(ui, { ...passthroughOptions, wrapper });
+
+  return {
+    ...result,
+    getAllButtons(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
+      return result.getAllByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+    getButton(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
+      return result.getByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+    findAllButtons(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
+      return result.findAllByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+    findButton(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
+      return result.findByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+  };
 }

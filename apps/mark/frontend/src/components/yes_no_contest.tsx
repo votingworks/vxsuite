@@ -25,11 +25,7 @@ import {
 
 import { getSingleYesNoVote } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import {
-  EventTargetFunction,
-  ScrollDirections,
-  UpdateVoteFunction,
-} from '../config/types';
+import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -112,27 +108,21 @@ export function YesNoContest({
     };
   }, [voteLength, updateContestChoicesScrollStates]);
 
-  const handleUpdateSelection: EventTargetFunction = (event) => {
-    const newVote = (event.currentTarget as HTMLInputElement).dataset[
-      'choice'
-    ] as YesOrNo;
+  function handleUpdateSelection(newVote: YesOrNo) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
     } else {
       updateVote(contest.id, [newVote] as YesNoVote);
     }
-  };
+  }
 
   function handleChangeVoteAlert(newValue: YesOrNo) {
     setOvervoteSelection(newValue);
   }
 
   /* istanbul ignore next: Tested by Cypress */
-  const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset[
-      'direction'
-    ] as ScrollDirections;
+  function scrollContestChoices(direction: ScrollDirections) {
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;
@@ -151,7 +141,7 @@ export function YesNoContest({
         : currentScrollTop - idealScrollDistance;
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
-  };
+  }
 
   function closeOvervoteAlert() {
     setOvervoteSelection(undefined);
@@ -198,9 +188,9 @@ export function YesNoContest({
                 <Button
                   className="scroll-up"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="up"
+                  value="up"
                   disabled={isScrollAtTop}
                   onPress={scrollContestChoices}
                 >
@@ -209,9 +199,9 @@ export function YesNoContest({
                 <Button
                   className="scroll-down"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="down"
+                  value="down"
                   disabled={isScrollAtBottom}
                   onPress={scrollContestChoices}
                 >
@@ -285,7 +275,7 @@ export function YesNoContest({
             </Prose>
           }
           actions={
-            <Button primary autoFocus onPress={closeOvervoteAlert}>
+            <Button variant="primary" autoFocus onPress={closeOvervoteAlert}>
               Okay
             </Button>
           }

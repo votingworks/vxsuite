@@ -16,11 +16,7 @@ import {
 
 import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
 import { readFileAsync } from '../lib/read_file_async';
-import {
-  EventTargetFunction,
-  InputEventFunction,
-  TextareaEventFunction,
-} from '../config/types';
+import { InputEventFunction, TextareaEventFunction } from '../config/types';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
@@ -146,7 +142,7 @@ function ToggleField({
   falseLabel?: string;
   value: boolean;
   optional?: boolean;
-  onChange: EventTargetFunction;
+  onChange: (field: { name: string; value: boolean }) => void;
   disabled?: boolean;
 }) {
   return (
@@ -166,8 +162,7 @@ function ToggleField({
           <Button
             small
             disabled={value}
-            name={name}
-            value="true"
+            value={{ name, value: true }}
             onPress={onChange}
           >
             {trueLabel}
@@ -175,8 +170,7 @@ function ToggleField({
           <Button
             small
             disabled={!value}
-            name={name}
-            value="false"
+            value={{ name, value: false }}
             onPress={onChange}
           >
             {falseLabel}
@@ -229,13 +223,13 @@ export function DefinitionContestsScreen({
     });
   };
 
-  const saveToggleField: EventTargetFunction = async (event) => {
-    const { name, value } = event.currentTarget as HTMLButtonElement;
+  async function saveToggleField(field: { name: string; value: boolean }) {
+    const { name, value } = field;
     await saveContest({
       ...contest,
-      [name]: value === 'true',
+      [name]: value,
     });
-  };
+  }
 
   const saveCandidateTextField: InputEventFunction = async (event) => {
     const { name, value: targetValue } = event.currentTarget;

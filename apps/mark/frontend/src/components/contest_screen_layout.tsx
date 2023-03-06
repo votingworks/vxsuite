@@ -123,7 +123,10 @@ export const ScrollableContentWrapper = styled.div<Scrollable>`
 export const ContestDescription = styled.div`
   padding: 0 10px;
 `;
-export const ChoicesGrid = styled.div`
+export const ChoicesGrid = styled.div.attrs({
+  'aria-multiselectable': true,
+  role: 'listbox',
+})`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 20px;

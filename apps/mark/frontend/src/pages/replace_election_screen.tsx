@@ -140,7 +140,7 @@ export function ReplaceElectionScreen({
             Removing the current election will replace all data on this machine.
           </p>
           <p>
-            <Button danger small onPress={unconfigure}>
+            <Button variant="danger" small onPress={unconfigure}>
               Remove the Current Election and All Data
             </Button>
           </p>

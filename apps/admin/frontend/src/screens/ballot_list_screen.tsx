@@ -10,6 +10,7 @@ import {
   Prose,
   Table,
   TD,
+  LinkButton,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -18,7 +19,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
-import { LinkButton } from '../components/link_button';
 import {
   getBallotStylesData,
   getSuperBallotStyleData,

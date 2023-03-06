@@ -49,12 +49,17 @@ exports[`renders ChoiceButton 1`] = `
 }
 
 <button
+  aria-selected="false"
   class="c0"
   data-choice="foo"
   data-selected="false"
   role="option"
   type="button"
 >
-  foo
+  <span
+    class="sc-hBURRC gusydx"
+  >
+    foo
+  </span>
 </button>
 `;

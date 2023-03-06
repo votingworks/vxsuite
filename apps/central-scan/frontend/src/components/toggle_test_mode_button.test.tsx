@@ -30,7 +30,7 @@ test('shows a button to toggle to test mode when in live mode', () => {
 });
 
 test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
-  render(
+  const { getButton } = render(
     <ToggleTestModeButton
       canUnconfigure={false}
       isTestMode={false}
@@ -39,13 +39,11 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
     />
   );
 
-  expect(
-    screen.getByText('Toggle to Test Ballot Mode').hasAttribute('disabled')
-  ).toEqual(true);
+  expect(getButton('Toggle to Test Ballot Mode')).toBeDisabled();
 });
 
 test('shows a disabled button with "Toggling" when toggling', () => {
-  render(
+  const { getButton } = render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -54,12 +52,14 @@ test('shows a disabled button with "Toggling" when toggling', () => {
     />
   );
 
-  expect(screen.getByText('Toggling…').hasAttribute('disabled')).toEqual(true);
+  expect(
+    getButton('Toggling…', { useSparinglyIncludeHidden: true })
+  ).toBeDisabled();
 });
 
 test('calls the callback on confirmation', () => {
   const toggleTestMode = jest.fn();
-  render(
+  const { getButton } = render(
     <ToggleTestModeButton
       canUnconfigure
       isTestMode
@@ -69,14 +69,10 @@ test('calls the callback on confirmation', () => {
   );
 
   // Click the button.
-  userEvent.click(screen.getByText('Toggle to Official Ballot Mode'));
+  userEvent.click(getButton('Toggle to Official Ballot Mode'));
 
   // Then click the confirmation button inside the modal.
-  const [confirmButton] = screen
-    .getAllByText('Toggle to Official Ballot Mode')
-    .filter(
-      (element) => element instanceof HTMLButtonElement && !element.disabled
-    );
+  const confirmButton = getButton('Toggle to Official Ballot Mode');
   expect(toggleTestMode).not.toHaveBeenCalled();
   userEvent.click(confirmButton);
   expect(toggleTestMode).toHaveBeenCalled();

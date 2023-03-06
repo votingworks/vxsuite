@@ -8,8 +8,10 @@ import { assert } from '@votingworks/basics';
 
 export class ExpectPrintError extends Error {}
 
+export type PrintRenderResult = RenderResult;
+
 export type InspectPrintFunction = (
-  renderResult: RenderResult,
+  renderResult: PrintRenderResult,
   printOptions?: PrintOptions
 ) => void;
 
@@ -117,8 +119,12 @@ function inspectPrintedElement(inspect: InspectPrintFunction): void {
   const renderResult = render(lastPrintedElement, {
     baseElement: getPrintRoot(),
   });
-  inspect(renderResult, lastPrintOptions);
-  renderResult.unmount();
+
+  try {
+    inspect(renderResult, lastPrintOptions);
+  } finally {
+    renderResult.unmount();
+  }
 }
 
 /**
@@ -142,8 +148,11 @@ async function inspectPrintedWhenReadyElement(
   });
   await onRenderedPromise;
 
-  inspect(renderResult, lastPrintOptions);
-  renderResult.unmount();
+  try {
+    inspect(renderResult, lastPrintOptions);
+  } finally {
+    renderResult.unmount();
+  }
 }
 
 /**
