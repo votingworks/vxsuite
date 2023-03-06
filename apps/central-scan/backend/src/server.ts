@@ -88,6 +88,7 @@ export async function start({
         config: {
           allowElectionManagersToAccessUnconfiguredMachines: true,
         },
+        logger,
       }),
       exporter: resolvedExporter,
       importer: resolvedImporter,

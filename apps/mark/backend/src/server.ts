@@ -28,6 +28,7 @@ export function start({
       ],
       allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
     },
+    logger,
   });
   const app = buildApp(auth);
 
