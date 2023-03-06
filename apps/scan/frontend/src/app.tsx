@@ -4,8 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, Text } from '@votingworks/ui';
-import { ColorMode } from '@votingworks/types';
+import { ErrorBoundary, Text } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {
   ApiClient,
@@ -15,6 +14,7 @@ import {
 } from './api';
 import { TimesCircle } from './components/graphics';
 import { CenteredLargeProse } from './components/layout';
+import { ScanAppBase } from './scan_app_base';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -29,37 +29,27 @@ export function App({
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
 }: AppProps): JSX.Element {
-  // Copied from old App.css
-  const baseFontSizePx = 28;
-
-  // TODO: Default to high contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
-
   return (
-    <BrowserRouter>
-      <ErrorBoundary
-        errorMessage={
-          <React.Fragment>
-            <TimesCircle />
-            <CenteredLargeProse>
-              <h1>Something went wrong</h1>
-              <Text>Ask a poll worker to restart the scanner.</Text>
-            </CenteredLargeProse>
-          </React.Fragment>
-        }
-      >
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <AppBase
-              colorMode={colorMode}
-              isTouchscreen
-              legacyBaseFontSizePx={baseFontSizePx}
-            >
+    <ScanAppBase>
+      <BrowserRouter>
+        <ErrorBoundary
+          errorMessage={
+            <React.Fragment>
+              <TimesCircle />
+              <CenteredLargeProse>
+                <h1>Something went wrong</h1>
+                <Text>Ask a poll worker to restart the scanner.</Text>
+              </CenteredLargeProse>
+            </React.Fragment>
+          }
+        >
+          <ApiClientContext.Provider value={apiClient}>
+            <QueryClientProvider client={queryClient}>
               <AppRoot hardware={hardware} logger={logger} />
-            </AppBase>
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </ErrorBoundary>
-    </BrowserRouter>
+            </QueryClientProvider>
+          </ApiClientContext.Provider>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </ScanAppBase>
   );
 }

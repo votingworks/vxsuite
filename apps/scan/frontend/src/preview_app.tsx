@@ -27,35 +27,38 @@ import * as SetupScannerScreen from './screens/setup_scanner_screen';
 import * as UnconfiguredElectionScreen from './screens/unconfigured_election_screen';
 import * as UnconfiguredPrecinctScreen from './screens/unconfigured_precinct_screen';
 import * as ReplaceBallotBagScreen from './components/replace_ballot_bag_screen';
+import { ScanAppBase } from './scan_app_base';
 
 export function PreviewApp(): JSX.Element {
   return (
-    <PreviewDashboard
-      electionDefinitions={[
-        electionSampleDefinition,
-        primaryElectionSampleDefinition,
-        electionWithMsEitherNeitherDefinition,
-      ]}
-      modules={[
-        CardErrorScreen,
-        ElectionManagerScreen,
-        InsertBallotScreen,
-        InvalidCardScreen,
-        LoadingConfigurationScreen,
-        PollsNotOpenScreen,
-        PollWorkerScreen,
-        ScanErrorScreen,
-        ScanProcessingScreen,
-        ScanSuccessScreen,
-        ScanWarningScreen,
-        ScanReturnedBallotScreen,
-        ScanJamScreen,
-        ScanBusyScreen,
-        SetupScannerScreen,
-        UnconfiguredElectionScreen,
-        UnconfiguredPrecinctScreen,
-        ReplaceBallotBagScreen,
-      ]}
-    />
+    <ScanAppBase>
+      <PreviewDashboard
+        electionDefinitions={[
+          electionSampleDefinition,
+          primaryElectionSampleDefinition,
+          electionWithMsEitherNeitherDefinition,
+        ]}
+        modules={[
+          CardErrorScreen,
+          ElectionManagerScreen,
+          InsertBallotScreen,
+          InvalidCardScreen,
+          LoadingConfigurationScreen,
+          PollsNotOpenScreen,
+          PollWorkerScreen,
+          ScanErrorScreen,
+          ScanProcessingScreen,
+          ScanSuccessScreen,
+          ScanWarningScreen,
+          ScanReturnedBallotScreen,
+          ScanJamScreen,
+          ScanBusyScreen,
+          SetupScannerScreen,
+          UnconfiguredElectionScreen,
+          UnconfiguredPrecinctScreen,
+          ReplaceBallotBagScreen,
+        ]}
+      />
+    </ScanAppBase>
   );
 }
