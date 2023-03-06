@@ -1,6 +1,16 @@
 import { Card } from '../src/card';
 
 /**
+ * Generates a numeric array of the specified length, where all values are the specified value
+ */
+export function numericArray(input: {
+  length: number;
+  value?: number;
+}): number[] {
+  return Array.from<number>({ length: input.length }).fill(input.value ?? 0);
+}
+
+/**
  * Builds a mock card instance
  */
 export function buildMockCard(): Card {
