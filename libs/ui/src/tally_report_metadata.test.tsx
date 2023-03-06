@@ -25,6 +25,6 @@ test('Renders report metadata', () => {
   getByText(/Choctaw County/);
   getByText(/State of Mississippi/);
   getByText(
-    /This report was created on Tuesday, November 3, 2020, 10:22:00 PM UTC/
+    /This report was created on Tuesday, November 3, 2020 at 10:22:00 PM UTC/
   );
 });
