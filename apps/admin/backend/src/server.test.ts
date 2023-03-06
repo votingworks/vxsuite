@@ -3,6 +3,7 @@ import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleFixtures,
+  electionSampleCdfDefinition,
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { promises as fs } from 'fs';
@@ -175,6 +176,38 @@ test('managing the current election', async () => {
     isOfficialResults: false,
     electionDefinition,
   });
+});
+
+test('configuring with a CDF election', async () => {
+  const { apiClient, auth, logger } = await buildTestEnvironment();
+
+  mockSystemAdministratorAuth(auth);
+
+  const { electionData, electionHash } = electionSampleCdfDefinition;
+
+  // configure with well-formed election data
+  const configureResult = await apiClient.configure({
+    electionData,
+  });
+  assert(configureResult.isOk());
+  configureResult.ok();
+  expect(logger.log).toHaveBeenNthCalledWith(
+    2,
+    LogEventId.ElectionConfigured,
+    'system_administrator',
+    {
+      disposition: 'success',
+      newElectionHash: electionHash,
+    }
+  );
+
+  const currentElectionMetadata = await apiClient.getCurrentElectionMetadata();
+  expect(currentElectionMetadata?.electionDefinition.electionData).toEqual(
+    electionData
+  );
+  expect(currentElectionMetadata?.electionDefinition.electionHash).toEqual(
+    electionHash
+  );
 });
 
 test('cast vote records - happy path election flow', async () => {

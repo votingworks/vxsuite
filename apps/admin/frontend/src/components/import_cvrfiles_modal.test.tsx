@@ -261,7 +261,7 @@ describe('when USB is properly mounted', () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId('modal-title')).toHaveTextContent(
-        'Load Test Mode CVR Files'
+        'Load Test Ballot Mode CVR Files'
       );
     });
 

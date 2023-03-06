@@ -6,17 +6,12 @@ import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionPrimaryNonpartisanContestsFixtures,
-  electionSampleCdf,
-  electionSampleCdfDefinition,
-  electionSampleDefinition,
-  electionSample,
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import {
-  advancePromises,
   advanceTimersAndPromises,
   expectPrint,
   expectPrintToMatchSnapshot,
@@ -26,11 +21,7 @@ import {
   fakeUsbDrive,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import {
-  ExternalTallySourceType,
-  getDisplayElectionHash,
-  VotingMethod,
-} from '@votingworks/types';
+import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { Admin } from '@votingworks/api';
 import {
@@ -184,56 +175,6 @@ test('configuring with a demo election definition', async () => {
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByText('Load Demo Election Definition');
-});
-
-test('configuring with a VXF election definition from a file', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata(null);
-
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-
-  const electionDefinitionFile = new File(
-    [electionSampleDefinition.electionData],
-    'election-sample.json'
-  );
-  userEvent.upload(
-    screen.getByText('Select Existing Election Definition File'),
-    electionDefinitionFile
-  );
-  await screen.findByText('Loading');
-  await advancePromises();
-  await screen.findByRole('heading', { name: 'Election Definition' });
-  screen.getAllByText(electionSample.title);
-  screen.getByText(getDisplayElectionHash(electionSampleDefinition));
-});
-
-test('configuring with a CDF election definition from a file', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata(null);
-
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-
-  const electionDefinitionFile = new File(
-    [electionSampleCdfDefinition.electionData],
-    'election-sample-cdf.json'
-  );
-  userEvent.upload(
-    screen.getByText('Select Existing Election Definition File'),
-    electionDefinitionFile
-  );
-  await screen.findByText('Loading');
-  await advancePromises();
-  await screen.findByRole('heading', { name: 'Election Definition' });
-  screen.getAllByText(electionSampleCdf.title);
-  screen.getByText(getDisplayElectionHash(electionSampleCdfDefinition));
 });
 
 test('authentication works', async () => {
