@@ -351,6 +351,7 @@ test('batch cleanup works correctly', async () => {
   const batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].id).toEqual(firstBatchId);
+  expect(batches[0].batchNumber).toEqual(1);
   expect(batches[0].label).toEqual('Batch 1');
 
   const thirdBatchId = store.addBatch();
@@ -363,10 +364,12 @@ test('batch cleanup works correctly', async () => {
   ).toEqual([
     expect.objectContaining({
       id: firstBatchId,
+      batchNumber: 1,
       label: 'Batch 1',
     }),
     expect.objectContaining({
       id: thirdBatchId,
+      batchNumber: 3,
       label: 'Batch 3',
     }),
   ]);
