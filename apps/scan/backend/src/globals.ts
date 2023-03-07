@@ -44,6 +44,12 @@ export const SCAN_ALLOWED_EXPORT_PATTERNS =
 
 export const CVR_EXPORT_FORMAT = process.env.CVR_EXPORT_FORMAT ?? 'vxf';
 
+/**
+ * Determines whether to the use next generation NH ballot interpreter.
+ */
+export const USE_NH_NEXT =
+  process.env.USE_NH_NEXT === '1' || process.env.USE_NH_NEXT === 'true';
+
 const ScannerModelSchema = z.union([z.literal('custom'), z.literal('plustek')]);
 
 /**
