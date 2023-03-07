@@ -337,8 +337,10 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   // when none already exist at initial page load
   useEffect(() => {
     if (talliesByPrecinct) return;
-    if (!writeInSummaryQuery.data) return;
-    if (!writeInSummaryQuery.isFetchedAfterMount) return;
+    if (!writeInSummaryQuery.isSuccess) return;
+    // if we're refetching there may be more write-in candidates to include
+    // in the tally - wait for the refetch to complete
+    if (writeInSummaryQuery.isFetching) return;
 
     const summaries = writeInSummaryQuery.data;
     const adjudications = summaries
