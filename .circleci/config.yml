@@ -397,6 +397,33 @@ jobs:
       - store_test_results:
           path: libs/ballot-interpreter-nh/reports/
 
+  test-libs-ballot-interpreter-nh-next:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Install Rust
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-nh-next/reports/
+
   test-libs-ballot-interpreter-vx:
     executor: nodejs
     resource_class: xlarge

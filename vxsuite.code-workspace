@@ -141,6 +141,10 @@
       "path": "libs/utils"
     },
     {
+      "name": "libs/ballot-interpreter-nh-next",
+      "path": "libs/ballot-interpreter-nh-next"
+    },
+    {
       "name": "services/converter-ms-sems",
       "path": "services/converter-ms-sems"
     },
