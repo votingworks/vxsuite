@@ -2493,6 +2493,7 @@ importers:
       is-ci-cli: ^2.2.0
       jest: ^29.3.1
       jest-junit: ^15.0.0
+      jest-mock-extended: ^3.0.3
       jest-watch-typeahead: 0.6.4
       preact: ^10.11.3
       prettier: ^2.8.2
@@ -2534,6 +2535,7 @@ importers:
       is-ci-cli: 2.2.0
       jest: 29.4.2_@types+node@18.11.18
       jest-junit: 15.0.0
+      jest-mock-extended: 3.0.3_565y2ku72pzciiripk5vpts6am
       jest-watch-typeahead: 0.6.4_jest@29.4.2
       preact: 10.12.1
       prettier: 2.8.3
@@ -23763,6 +23765,17 @@ packages:
       slash: 3.0.0
       stack-utils: 2.0.5
 
+  /jest-mock-extended/3.0.3_565y2ku72pzciiripk5vpts6am:
+    resolution: {integrity: sha512-yqpzvwFr2JWFArj4sPco4hPSanYH3erFgdkv7ahP8EMiAbVH+Rgjc8/cpAHJVG7+sZnQgl0AuTkxofD7eLJN+g==}
+    peerDependencies:
+      jest: ^24.0.0 || ^25.0.0 || ^26.0.0 || ^27.0.0 || ^28.0.0 || ^29.0.0
+      typescript: ^3.0.0 || ^4.0.0
+    dependencies:
+      jest: 29.4.2_@types+node@18.11.18
+      ts-essentials: 7.0.3_typescript@4.6.3
+      typescript: 4.6.3
+    dev: true
+
   /jest-mock/25.5.0:
     resolution: {integrity: sha512-eXWuTV8mKzp/ovHc5+3USJMYsTBhyQ+5A1Mak35dey/RG8GlM4YWVylZuGgVXinaW6tpvk/RSecmF37FKUlpXA==}
     engines: {node: '>= 8.3'}
@@ -31931,6 +31944,14 @@ packages:
   /ts-essentials/2.0.12:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
+
+  /ts-essentials/7.0.3_typescript@4.6.3:
+    resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
+    peerDependencies:
+      typescript: '>=3.7.0'
+    dependencies:
+      typescript: 4.6.3
+    dev: true
 
   /ts-jest/26.5.6_rwkkzd5lxwnv7vf4yl4asmvzly:
     resolution: {integrity: sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==}

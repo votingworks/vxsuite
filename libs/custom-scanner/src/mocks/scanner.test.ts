@@ -282,43 +282,6 @@ test('reject & hold', async () => {
   expectReadyToScan(await mock.getStatus());
 });
 
-test('paper held at both sides', async () => {
-  const mock = new MockCustomScanner({
-    toggleHoldDuration: 100,
-    passthroughDuration: 100,
-  });
-  expect(await mock.scan()).toEqual(err(ErrorCode.ScannerOffline));
-  expect(await mock.connect()).toEqual(ok());
-
-  expect(await mock.scan()).toEqual(err(ErrorCode.NoDocumentToBeScanned));
-  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
-  const scanResult = mock.scan();
-  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
-  expect(await scanResult).toEqual(err(ErrorCode.ScannerError));
-  expectBothSidesHavePaper(await mock.getStatus());
-  expect(await mock.scan()).toEqual(err(ErrorCode.ScanImpeded));
-  expect(await mock.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(
-    err(ErrorCode.ScanImpeded)
-  );
-  expect(await mock.move(FormMovement.RETRACT_PAPER_BACKWARD)).toEqual(
-    err(ErrorCode.ScanImpeded)
-  );
-  expect(await mock.simulateRemoveSheetFromBack()).toEqual(ok());
-
-  // Removing the front sheet fixes it
-  expect(await mock.scan()).toEqual(ok(files));
-  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
-  expectBothSidesHavePaper(await mock.getStatus());
-  expect(await mock.simulateRemoveSheet()).toEqual(ok());
-  expectReadyToAccept(await mock.getStatus());
-
-  // TODO: Inserting a second sheet during accept
-  // const acceptResult = mock.move(FormMovement.EJECT_PAPER_FORWARD);
-  // expect(await mock.simulateLoadSheet(files)).toEqual(ok());
-  // expectJamError(await acceptResult);
-  // expectReadyToScan(await mock.getStatus());
-});
-
 test('paper jam', async () => {
   const mock = new MockCustomScanner({
     toggleHoldDuration: 0,
@@ -387,6 +350,20 @@ test('scanning errors', async () => {
   expect(await mock.simulateRemoveSheet()).toEqual(ok());
   expectNoPaper(await mock.getStatus());
   expect(await mock.simulateLoadSheet(files)).toEqual(ok());
+});
+
+test('remove sheet from back', async () => {
+  const mock = new MockCustomScanner({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  });
+  expect(await mock.connect()).toEqual(ok());
+
+  expect(await mock.simulateLoadSheet(files)).toEqual(ok());
+  expectReadyToScan(await mock.getStatus());
+  expect(await mock.scan()).toEqual(ok(files));
+
+  expect(await mock.simulateRemoveSheetFromBack()).toEqual(ok());
 });
 
 test('close', async () => {

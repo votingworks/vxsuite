@@ -176,3 +176,77 @@ export const ballotImages = {
       await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
     ]),
 } as const;
+
+export async function createSimpleCustomScannerApp({
+  delays = {},
+  preconfiguredWorkspace,
+  logger = fakeLogger(),
+}: {
+  delays?: Partial<Delays>;
+  preconfiguredWorkspace?: Workspace;
+  logger?: Logger;
+} = {}): Promise<{
+  apiClient: grout.Client<Api>;
+  app: Application;
+  mockAuth: InsertedSmartCardAuthApi;
+  mockScanner: jest.Mocked<CustomScanner>;
+  workspace: Workspace;
+  mockUsb: MockUsb;
+  logger: Logger;
+  interpreter: PrecinctScannerInterpreter;
+}> {
+  const mockAuth = buildMockInsertedSmartCardAuth();
+  const workspace =
+    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
+  const mockScanner = mocks.fakeCustomScanner();
+  const deferredConnect = deferred<void>();
+  async function createCustomClient(): Promise<
+    Result<CustomScanner, ErrorCode>
+  > {
+    const connectResult = await mockScanner.connect();
+    if (connectResult.isErr()) {
+      return connectResult;
+    }
+    await deferredConnect.promise;
+    return ok(mockScanner);
+  }
+  const interpreter = createInterpreter();
+  const precinctScannerMachine = createPrecinctScannerStateMachine({
+    createCustomClient,
+    workspace,
+    interpreter,
+    logger,
+    delays: {
+      DELAY_RECONNECT: 100,
+      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
+      DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
+      ...delays,
+    },
+  });
+  const mockUsb = createMockUsb();
+
+  const { app, apiClient } = await createApp({
+    interpreter,
+    logger,
+    mockAuth,
+    mockUsb,
+    precinctScannerMachine,
+    preconfiguredWorkspace: workspace,
+  });
+
+  await expectStatus(apiClient, { state: 'connecting' });
+  deferredConnect.resolve();
+  await waitForStatus(apiClient, { state: 'no_paper' });
+
+  return {
+    apiClient,
+    app,
+    mockAuth,
+    mockScanner,
+    workspace,
+    mockUsb,
+    logger,
+    interpreter,
+  };
+}

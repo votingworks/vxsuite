@@ -1,6 +1,6 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { makeProtocolListeners } from '../../test/helpers';
+import { mock } from 'jest-mock-extended';
 import {
   ErrorResponseMessage,
   ReleaseVersionRequest,
@@ -11,7 +11,7 @@ import { ProtocolListeners, usbChannelWithMockProtocol } from './protocol';
 
 test('usbChannelWithMockProtocol calls onUnhandledRequest for anything not specifically handled', async () => {
   const { onReleaseVersionRequest, onUnhandledRequest } =
-    makeProtocolListeners();
+    mock<ProtocolListeners>();
   const usbChannel = usbChannelWithMockProtocol({
     onReleaseVersionRequest,
     onUnhandledRequest,

@@ -174,8 +174,6 @@ async function closeCustomClient({ client }: Context) {
 function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
-  // console.log('scannerStatusToEvent', scannerStatus);
-
   const frontHasPaper =
     scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent &&
     scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent &&
@@ -210,18 +208,11 @@ function scannerStatusToEvent(
     return { type: 'SCANNER_READY_TO_EJECT' };
   }
 
-  if (frontHasPaper && backHasPaper) {
-    return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
-  }
-
-  throw new PrecinctScannerError(
-    'unexpected_paper_status',
-    `Unexpected paper status: ${scannerStatus}`
-  );
+  // If we get here frontHasPaper and backHasPaper are true
+  return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
 }
 
 function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
-  // console.log('scannerStatusErrorToEvent', error, ErrorCode[error]);
   switch (error) {
     case ErrorCode.PaperJam:
     case ErrorCode.PaperHeldBack:
@@ -258,7 +249,6 @@ function buildPaperStatusObserver(
         const mapped = status.isOk()
           ? scannerStatusToEvent(status.ok())
           : scannerStatusErrorToEvent(status.err());
-        // console.log({ status, mapped });
         debugPaperStatus('Mapped paper status: %o', mapped);
         return mapped;
       }),
@@ -384,22 +374,6 @@ async function accept({ client }: Context) {
   debug('Accepting');
   const acceptResult = await client.move(FormMovement.EJECT_PAPER_FORWARD);
   debug('Accept result: %o', acceptResult);
-  // if (acceptResult.isOk()) {
-  //   const waitResult = await waitForStatus(
-  //     client,
-  //     (status) => {
-  //       console.log(
-  //         'accept polling status',
-  //         status,
-  //         scannerStatusToEvent(status).type
-  //       );
-  //       return scannerStatusToEvent(status).type === 'SCANNER_NO_PAPER';
-  //     },
-  //     { timeout: defaultDelays.DELAY_ACCEPTING_TIMEOUT }
-  //   );
-  //   debug('Wait result: %o', waitResult);
-  //   waitResult.unsafeUnwrap();
-  // }
   return acceptResult.unsafeUnwrap();
 }
 
@@ -416,15 +390,6 @@ async function reject({ client }: Context) {
   debug('Rejecting');
   const rejectResult = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
   debug('Reject result: %o', rejectResult);
-  // if (rejectResult.isOk()) {
-  //   const waitResult = await waitForStatus(
-  //     client,
-  //     (status) => scannerStatusToEvent(status).type === 'SCANNER_READY_TO_SCAN',
-  //     { timeout: defaultDelays.DELAY_WAIT_FOR_HOLD_AFTER_REJECT }
-  //   );
-  //   debug('Wait result: %o', waitResult);
-  //   waitResult.unsafeUnwrap();
-  // }
   return rejectResult.unsafeUnwrap();
 }
 
@@ -584,7 +549,7 @@ function buildMachine({
             // wait for the scanner to tell us that the ballot has been ejected
             // before we can move on.
             onDone: 'checking_completed',
-            onError: '#jam',
+            onError: '#error',
           },
         },
         checking_completed: {
@@ -636,7 +601,6 @@ function buildMachine({
           target: 'error',
           actions: assign({
             error: (_context, event) =>
-              // console.error('unexpected event', event),
               new PrecinctScannerError(
                 'unexpected_event',
                 `Unexpected event: ${event.type}`
@@ -936,7 +900,7 @@ function buildMachine({
           id: 'returning_to_rescan',
           ...rejectingState('#no_paper'),
         },
-        returning: { ...rejectingState('#returned') },
+        returning: { id: 'returning', ...rejectingState('#returned') },
         returned: {
           id: 'returned',
           invoke: pollPaperStatus,
@@ -1127,7 +1091,6 @@ function setupLogging(
 ) {
   machineService
     .onEvent(async (event) => {
-      // console.log('onEvent', event);
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       await logger.log(
@@ -1182,7 +1145,6 @@ function setupLogging(
     })
     .onTransition(async (state) => {
       if (!state.changed) return;
-      // console.log('onTransition', state.value);
       await logger.log(
         LogEventId.ScannerStateChanged,
         'system',
@@ -1269,7 +1231,7 @@ export function createPrecinctScannerStateMachine({
           case state.matches('returning'):
             return 'returning';
           case state.matches('returning_to_rescan'):
-            return 'scanning';
+            return 'returning_to_rescan';
           case state.matches('returned'):
             return 'returned';
           case state.matches('rejecting'):
@@ -1306,6 +1268,7 @@ export function createPrecinctScannerStateMachine({
               type: interpretation.type,
               reasons: interpretation.reasons,
             };
+          /* istanbul ignore next - compile time check */
           default:
             throwIllegalValue(interpretation, 'type');
         }

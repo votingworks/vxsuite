@@ -3,8 +3,8 @@ import { SheetOf } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { randomBytes } from 'crypto';
 import fc from 'fast-check';
+import { mock } from 'jest-mock-extended';
 import { arbitraryStatusInternalMessage } from '../test/arbitraries';
-import { makeProtocolListeners } from '../test/helpers';
 import { CustomA4Scanner } from './custom_a4_scanner';
 import {
   ProtocolListeners,
@@ -103,7 +103,7 @@ test('getStatus error', async () => {
 
 test('scan creates new job if needed', async () => {
   const { onSetScanParametersRequestData, onJobCreateRequest } =
-    makeProtocolListeners();
+    mock<ProtocolListeners>();
 
   onSetScanParametersRequestData
     .mockReturnValueOnce(err(ResponseErrorCode.INVALID_JOB_ID))
@@ -334,7 +334,7 @@ test('scan fails if the motor is off and no scan is in progress for too long', a
 });
 
 test('scan fails if the status check fails 3 times (experimental)', async () => {
-  const { onStatusInternalRequest } = makeProtocolListeners();
+  const { onStatusInternalRequest } = mock<ProtocolListeners>();
 
   onStatusInternalRequest.mockReturnValue(
     err(ResponseErrorCode.INVALID_COMMAND)
@@ -736,7 +736,11 @@ test('scan success (sides A & B)', async () => {
 });
 
 test('move motor', async () => {
+  const { onJobCreateRequest } = mock<ProtocolListeners>();
+
+  onJobCreateRequest.mockReturnValueOnce(ok({ jobId: 0x01 }));
   const scanner = await scannerWithListeners({
+    onJobCreateRequest,
     onFormMovementRequest({ movement }) {
       expect(movement).toEqual(FormMovement.EJECT_PAPER_FORWARD);
       return ok({ jobId: 0x01 });
@@ -746,14 +750,36 @@ test('move motor', async () => {
   expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(ok());
 });
 
-test('move motor retries once on job error', async () => {
-  const { onFormMovementRequest } = makeProtocolListeners();
+test('move motor errors if it can not create job', async () => {
+  const { onJobCreateRequest } = mock<ProtocolListeners>();
 
+  onJobCreateRequest.mockReturnValueOnce(
+    err(ResponseErrorCode.INVALID_COMMAND)
+  );
+  const scanner = await scannerWithListeners({
+    onJobCreateRequest,
+    onFormMovementRequest({ movement }) {
+      expect(movement).toEqual(FormMovement.EJECT_PAPER_FORWARD);
+      return ok({ jobId: 0x01 });
+    },
+  });
+
+  expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(
+    err(ErrorCode.NoDeviceAnswer)
+  );
+});
+
+test('move motor retries once on job error', async () => {
+  const { onFormMovementRequest, onJobCreateRequest } =
+    mock<ProtocolListeners>();
+
+  onJobCreateRequest.mockReturnValue(ok({ jobId: 0x01 }));
   onFormMovementRequest
     .mockReturnValueOnce(err(ResponseErrorCode.INVALID_JOB_ID))
     .mockReturnValueOnce(ok({ jobId: 0x01 }));
 
   const scanner = await scannerWithListeners({
+    onJobCreateRequest,
     onFormMovementRequest,
   });
 
@@ -761,13 +787,16 @@ test('move motor retries once on job error', async () => {
 });
 
 test('move motor never retries on non-job errors', async () => {
-  const { onFormMovementRequest } = makeProtocolListeners();
+  const { onFormMovementRequest, onJobCreateRequest } =
+    mock<ProtocolListeners>();
 
+  onJobCreateRequest.mockReturnValueOnce(ok({ jobId: 0x01 }));
   onFormMovementRequest.mockReturnValueOnce(
     err(ResponseErrorCode.FORMAT_ERROR)
   );
 
   const scanner = await scannerWithListeners({
+    onJobCreateRequest,
     onFormMovementRequest,
   });
 
@@ -787,9 +816,13 @@ test('resetHardware', async () => {
 });
 
 test('scanner commands wait for each other', async () => {
+  const { onJobCreateRequest } = mock<ProtocolListeners>();
+
+  onJobCreateRequest.mockReturnValue(ok({ jobId: 0x01 }));
   const events: string[] = [];
 
   const scanner = await scannerWithListeners({
+    onJobCreateRequest,
     onFormMovementRequest({ movement }) {
       events.push(`move request: ${FormMovement[movement]}`);
       return ok({ jobId: 0x01 });

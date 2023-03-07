@@ -2,6 +2,7 @@ import { err, ok, typedAs } from '@votingworks/basics';
 import { CoderError, message, Uint8, uint8 } from '@votingworks/message-coder';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
+import { mock } from 'jest-mock-extended';
 import {
   arbitraryAckResponseMessage,
   arbitraryErrorCode,
@@ -22,8 +23,11 @@ import {
   arbitraryStatusInternalRequest,
   arbitraryStopScanRequest,
 } from '../test/arbitraries';
-import { makeDuplexChannelListeners } from '../test/helpers';
-import { createDuplexChannelMock, mockCoder } from './mocks';
+import {
+  createDuplexChannelMock,
+  DuplexChannelListeners,
+  mockCoder,
+} from './mocks';
 import {
   AckResponseMessage,
   checkAnswer,
@@ -202,7 +206,7 @@ test('checkAnswer', () => {
 });
 
 test('sendRequest (experiment)', async () => {
-  const { onWrite } = makeDuplexChannelListeners();
+  const { onWrite } = mock<DuplexChannelListeners>();
   onWrite.mockResolvedValueOnce(ok());
 
   const channel = createDuplexChannelMock({
@@ -219,7 +223,7 @@ test('sendRequest (experiment)', async () => {
 });
 
 test('write with encoder error', async () => {
-  const { onWrite } = makeDuplexChannelListeners();
+  const { onWrite } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({
     onWrite,
   });
@@ -251,7 +255,7 @@ test('write with encoder error', async () => {
 });
 
 test('request write error', async () => {
-  const { onWrite } = makeDuplexChannelListeners();
+  const { onWrite } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({
     onWrite,
   });
@@ -271,7 +275,7 @@ test('request write error', async () => {
 });
 
 test('request error response', async () => {
-  const { onRead } = makeDuplexChannelListeners();
+  const { onRead } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({ onRead });
   expect(await channel.connect()).toEqual(ok());
 
@@ -289,7 +293,7 @@ test('request error response', async () => {
 });
 
 test('request read gibberish', async () => {
-  const { onRead } = makeDuplexChannelListeners();
+  const { onRead } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({ onRead });
   expect(await channel.connect()).toEqual(ok());
 
@@ -307,7 +311,7 @@ test('request read gibberish', async () => {
 });
 
 test('request encode error', async () => {
-  const channel = createDuplexChannelMock(makeDuplexChannelListeners());
+  const channel = createDuplexChannelMock(mock<DuplexChannelListeners>());
   expect(await channel.connect()).toEqual(ok());
 
   expect(
@@ -327,7 +331,7 @@ test('getReleaseVersion', async () => {
       arbitraryReleaseType(),
       fc.string(),
       async (releaseType, version) => {
-        const { onWrite, onRead } = makeDuplexChannelListeners();
+        const { onWrite, onRead } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onWrite, onRead });
         expect(await channel.connect()).toEqual(ok());
 
@@ -356,7 +360,7 @@ test('getReleaseVersion', async () => {
 });
 
 test('getReleaseVersion with error', async () => {
-  const { onRead } = makeDuplexChannelListeners();
+  const { onRead } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({ onRead });
   expect(await channel.connect()).toEqual(ok());
 
@@ -373,7 +377,7 @@ test('getStatusInternal', async () => {
       arbitraryStatusInternalRequest(),
       arbitraryStatusInternalMessage(),
       async (req, res) => {
-        const { onWrite, onRead } = makeDuplexChannelListeners();
+        const { onWrite, onRead } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onWrite, onRead });
         expect(await channel.connect()).toEqual(ok());
 
@@ -399,7 +403,7 @@ test('createJob', async () => {
       arbitraryJobCreateRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onWrite, onRead } = makeDuplexChannelListeners();
+        const { onWrite, onRead } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onWrite, onRead });
         expect(await channel.connect()).toEqual(ok());
 
@@ -425,7 +429,7 @@ test('endJob', async () => {
       arbitraryJobEndRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -451,7 +455,7 @@ test('formMove', async () => {
       arbitraryFormMovementRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -478,7 +482,7 @@ test('setScanParameters', async () => {
       arbitrarySetScanParametersRequestData(),
       arbitraryAckResponseMessage(),
       async (req, parameters, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -513,7 +517,7 @@ test('setScanParameters with error res', async () => {
       arbitrarySetScanParametersRequestData(),
       arbitraryErrorResponseMessage(),
       async (req, parameters, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -548,7 +552,7 @@ test('setScanParameters with write error (1/2)', async () => {
       arbitrarySetScanParametersRequestData(),
       arbitraryErrorCode(),
       async (req, parameters, errorCode) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -575,7 +579,7 @@ test('setScanParameters with write error (2/2)', async () => {
       arbitrarySetScanParametersRequestData(),
       arbitraryErrorCode(),
       async (req, parameters, errorCode) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -610,7 +614,7 @@ test('setScanParameters read error', async () => {
       arbitrarySetScanParametersRequestData(),
       arbitraryErrorCode(),
       async (req, parameters, errorCode) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -643,7 +647,7 @@ test('setScanParameters read gibberish', async () => {
       arbitrarySetScanParametersRequestData(),
       fc.uint8Array(),
       async (req, parameters, gibberish) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -675,7 +679,7 @@ test('startScan', async () => {
       arbitraryStartScanRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -701,7 +705,7 @@ test('stopScan', async () => {
       arbitraryStopScanRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -727,7 +731,7 @@ test('resetHardware', async () => {
       arbitraryHardwareResetRequest(),
       arbitraryAckResponseMessage(),
       async (req, res) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -742,6 +746,15 @@ test('resetHardware', async () => {
           HardwareResetRequest.encode(req).assertOk('should encode')
         );
         expect(onRead).toHaveBeenCalledTimes(1);
+
+        // resetHardware should work when there is a clear halt error thrown
+        onRead.mockRejectedValueOnce(Error('clearHalt error'));
+        expect(await resetHardware(channel, req.jobId)).toEqual(ok());
+
+        onRead.mockRejectedValueOnce(Error('a different error'));
+        await expect(resetHardware(channel, req.jobId)).rejects.toThrow(
+          Error('a different error')
+        );
       }
     )
   );
@@ -763,7 +776,7 @@ test('getImageData', async () => {
           })
         ),
       async ({ req, data }) => {
-        const { onRead, onWrite } = makeDuplexChannelListeners();
+        const { onRead, onWrite } = mock<DuplexChannelListeners>();
         const channel = createDuplexChannelMock({ onRead, onWrite });
         expect(await channel.connect()).toEqual(ok());
 
@@ -786,7 +799,7 @@ test('getImageData', async () => {
 });
 
 test('getImageData reads multiple chunks', async () => {
-  const { onRead, onWrite } = makeDuplexChannelListeners();
+  const { onRead, onWrite } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({
     onRead,
     onWrite,
@@ -821,7 +834,7 @@ test('getImageData write error', async () => {
 });
 
 test('getImageData read error', async () => {
-  const { onRead } = makeDuplexChannelListeners();
+  const { onRead } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({ onRead });
   expect(await channel.connect()).toEqual(ok());
 
@@ -833,7 +846,7 @@ test('getImageData read error', async () => {
 });
 
 test('getImageData error response', async () => {
-  const { onRead } = makeDuplexChannelListeners();
+  const { onRead } = mock<DuplexChannelListeners>();
   const channel = createDuplexChannelMock({ onRead });
   expect(await channel.connect()).toEqual(ok());
 

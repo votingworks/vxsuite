@@ -16,6 +16,7 @@ export {
   SensorStatus,
   type ImageFromScanner,
   type ScannerStatus,
+  type ScannerA4Status,
   type ScanParameters,
 } from './types';
 export * from './types/custom_scanner';

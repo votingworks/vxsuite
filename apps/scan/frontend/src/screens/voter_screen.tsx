@@ -94,6 +94,7 @@ export function VoterScreen({
     case 'scanning':
     case 'ready_to_accept':
     case 'accepting':
+    case 'returning_to_rescan':
       return <ScanProcessingScreen />;
     case 'accepted':
       return (

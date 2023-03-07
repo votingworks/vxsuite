@@ -1,3 +1,4 @@
+/* istanbul ignore file - mock file */
 import {
   assert,
   err,
@@ -35,6 +36,7 @@ interface Context {
   sheetFiles?: SheetOf<ImageFromScanner>;
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
+  loadSheetOnNextOperation: boolean;
   scanError?: 'error_feeding';
 }
 
@@ -56,6 +58,8 @@ type Event =
       error: 'error_feeding';
     }
   | { type: 'JAM_ON_NEXT_OPERATION' }
+  | { type: 'LOAD_SHEET_ON_NEXT_OPERATION' }
+  | { type: 'CHECK_LOAD_SHEET_FLAG' }
   | { type: 'CHECK_JAM_FLAG' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,16 +75,23 @@ const mockCustomMachine = createMachine<Context, Event>({
   id: 'CustomA4Scanner',
   initial: 'disconnected',
   strict: true,
-  context: { jamOnNextOperation: false },
+  context: { jamOnNextOperation: false, loadSheetOnNextOperation: false },
   on: {
     DISCONNECT: 'disconnected',
     POWER_OFF: 'powered_off',
     JAM_ON_NEXT_OPERATION: {
       actions: assign({ jamOnNextOperation: true }),
     },
+    LOAD_SHEET_ON_NEXT_OPERATION: {
+      actions: assign({ loadSheetOnNextOperation: true }),
+    },
     CHECK_JAM_FLAG: {
       target: 'jam',
       cond: (context) => context.jamOnNextOperation,
+    },
+    CHECK_LOAD_SHEET_FLAG: {
+      target: 'both_sides_have_paper',
+      cond: (context) => context.loadSheetOnNextOperation,
     },
   },
   states: {
@@ -108,7 +119,11 @@ const mockCustomMachine = createMachine<Context, Event>({
       },
     },
     scanning: {
-      entry: [assign({ scanError: undefined }), send('CHECK_JAM_FLAG')],
+      entry: [
+        assign({ scanError: undefined }),
+        send('CHECK_JAM_FLAG'),
+        send('CHECK_LOAD_SHEET_FLAG'),
+      ],
       after: { SCANNING_DELAY: 'ready_to_eject' },
       on: {
         SCAN_ERROR: [
@@ -135,23 +150,30 @@ const mockCustomMachine = createMachine<Context, Event>({
             target: 'accepting',
           },
         ],
-        REJECT: 'rejecting',
+        REJECT: 'rejecting_hold',
         LOAD_SHEET: 'both_sides_have_paper',
         REMOVE_SHEET_FROM_BACK: 'no_paper',
       },
     },
     accepting: {
-      entry: send('CHECK_JAM_FLAG'),
+      entry: [send('CHECK_JAM_FLAG'), send('CHECK_LOAD_SHEET_FLAG')],
       after: { ACCEPTING_DELAY: 'no_paper' },
       // Weird case: If you put in a second paper while accepting, it will accept the
       // first paper and return ready_to_scan paper status (but fail the accept
       // command with a jam error)
-      on: { LOAD_SHEET: 'ready_to_scan' },
+      on: { LOAD_SHEET: 'both_sides_have_paper' },
     },
     rejecting: {
-      entry: send('CHECK_JAM_FLAG'),
+      entry: [send('CHECK_JAM_FLAG'), send('CHECK_LOAD_SHEET_FLAG')],
       after: {
         REJECTING_DELAY: 'no_paper_before_hold',
+      },
+      on: { LOAD_SHEET: 'both_sides_have_paper' },
+    },
+    rejecting_hold: {
+      entry: [send('CHECK_JAM_FLAG'), send('CHECK_LOAD_SHEET_FLAG')],
+      after: {
+        REJECTING_DELAY: 'ready_to_scan',
       },
       on: { LOAD_SHEET: 'both_sides_have_paper' },
     },
@@ -159,6 +181,7 @@ const mockCustomMachine = createMachine<Context, Event>({
       after: { HOLD_DELAY: 'ready_to_scan' },
     },
     both_sides_have_paper: {
+      entry: assign({ loadSheetOnNextOperation: false }),
       on: {
         REMOVE_SHEET: 'ready_to_eject',
         REMOVE_SHEET_FROM_BACK: 'ready_to_scan',
@@ -215,7 +238,7 @@ function oneOf<T>(...array: T[]): T {
 }
 
 /**
- * Provides a mock `ScannerClient` that acts like the plustek VTM 300.
+ * Provides a mock `ScannerClient` that acts like the custom a4 scanner.
  */
 export class MockCustomScanner implements CustomScanner {
   private machine;
@@ -372,6 +395,13 @@ export class MockCustomScanner implements CustomScanner {
   }
 
   /**
+   * Simulate both sides having paper
+   */
+  simulateLoadSheetOnNextOperation(): void {
+    this.machine.send({ type: 'LOAD_SHEET_ON_NEXT_OPERATION' });
+  }
+
+  /**
    * Run during a scan operation to simulate an error pulling the paper into the scanner.
    */
   simulateScanError(error: 'error_feeding'): void {
@@ -447,6 +477,7 @@ export class MockCustomScanner implements CustomScanner {
         };
         return ok(status);
       }
+      case 'rejecting_hold':
       case 'ready_to_eject': {
         debug('ready to eject');
         const status: StatusInternalMessage = {
@@ -550,6 +581,7 @@ export class MockCustomScanner implements CustomScanner {
         debug('cannot scan, jammed');
         return err(oneOf(ErrorCode.PaperJam, ErrorCode.PaperHeldBack));
       }
+      /* istanbul ignore next */
       case 'both_sides_have_paper': {
         debug('cannot scan, both sides have paper');
         return err(ErrorCode.ScanImpeded);
@@ -570,6 +602,10 @@ export class MockCustomScanner implements CustomScanner {
 
       case FormMovement.RETRACT_PAPER_BACKWARD:
         return await this.reject();
+
+      case FormMovement.LOAD_PAPER:
+        // This is done to stop the operation of other form movements.
+        return ok();
 
       /* istanbul ignore next */
       default:
@@ -618,6 +654,10 @@ export class MockCustomScanner implements CustomScanner {
           debug('accept failed, power off');
           return err(ErrorCode.ScannerOffline);
         }
+        /* if ((this.machine.state.value as string) === 'both_sides_have_paper') {
+          debug('accept failed, both sides have paper');
+          return err(ErrorCode.ScanImpeded);
+        } */
         debug('accept success');
         return ok();
       }
@@ -655,6 +695,7 @@ export class MockCustomScanner implements CustomScanner {
         return err(ErrorCode.NoDocumentScanned);
       }
       case 'ready_to_scan':
+      case 'both_sides_have_paper':
       case 'ready_to_eject': {
         this.machine.send({ type: 'REJECT' });
         await waitFor(this.machine, (state) => state.value !== 'rejecting');
@@ -666,16 +707,16 @@ export class MockCustomScanner implements CustomScanner {
           debug('reject failed, powered off');
           return err(ErrorCode.ScannerOffline);
         }
+        /* if ((this.machine.state.value as string) === 'both_sides_have_paper') {
+          debug('accept failed, both sides have paper');
+          return err(ErrorCode.ScanImpeded);
+        } */
         debug('reject success');
         return ok();
       }
       case 'jam': {
         debug('cannot reject, jammed');
         return err(ErrorCode.PaperJam);
-      }
-      case 'both_sides_have_paper': {
-        debug('cannot reject, both sides have paper');
-        return err(ErrorCode.ScanImpeded);
       }
       /* istanbul ignore next */
       default:
