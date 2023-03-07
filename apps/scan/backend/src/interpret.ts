@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
 import { err, ok, Result } from '@votingworks/basics';
+import { interpret as interpretNhNext } from './interpret_nh_next_adapter';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';
@@ -30,6 +31,7 @@ export interface InterpreterConfig {
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
+  readonly useNhNext: boolean;
 }
 
 /**
@@ -170,12 +172,16 @@ async function nhInterpret(
 
   const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
     config;
-  const result = await interpretNh(electionDefinition, sheet, {
-    isTestMode: config.testMode,
-    markThresholds: markThresholdOverrides,
-    adjudicationReasons:
-      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
-  });
+  const result = await (config.useNhNext ? interpretNhNext : interpretNh)(
+    electionDefinition,
+    sheet,
+    {
+      isTestMode: config.testMode,
+      markThresholds: markThresholdOverrides,
+      adjudicationReasons:
+        electionDefinition.election.precinctScanAdjudicationReasons ?? [],
+    }
+  );
 
   timer.checkpoint('finishedInterpretation');
 
