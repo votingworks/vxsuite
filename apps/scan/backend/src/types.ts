@@ -58,6 +58,7 @@ export type PrecinctScannerState =
   | 'accepted'
   | 'needs_review'
   | 'accepting_after_review'
+  | 'returning_to_rescan'
   | 'returning'
   | 'returned'
   | 'rejecting'

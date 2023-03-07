@@ -88,8 +88,12 @@ export class UsbChannel implements DuplexChannel {
       return;
     }
 
-    debug('releasing interface and closing device');
+    debug(
+      'releasing interface and closing device',
+      this.options.interfaceNumber
+    );
     await this.device.releaseInterface(this.options.interfaceNumber);
+    debug('closing device');
     await this.device.close();
 
     this.connected = false;
