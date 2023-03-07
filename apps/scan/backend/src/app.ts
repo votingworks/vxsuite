@@ -43,7 +43,7 @@ import {
 import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { CVR_EXPORT_FORMAT } from './globals';
+import { CVR_EXPORT_FORMAT, USE_NH_NEXT } from './globals';
 import { DefaultMarkThresholds } from './store';
 
 function constructInsertedSmartCardAuthMachineState(
@@ -330,6 +330,7 @@ function buildApi(
         testMode: store.getTestMode(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         ballotImagesPath: workspace.ballotImagesPath,
+        useNhNext: USE_NH_NEXT,
       });
       machine.scan();
     },

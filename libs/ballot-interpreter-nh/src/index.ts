@@ -6,5 +6,5 @@ export {
   type ConvertIssue,
 } from './convert';
 export * as templates from './data/templates';
-export { interpret } from './interpret';
+export { interpret, type InterpretFileResult } from './interpret';
 export * from './layout';

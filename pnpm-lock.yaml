@@ -1430,6 +1430,7 @@ importers:
       '@votingworks/backend': workspace:*
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/ballot-interpreter-nh': workspace:*
+      '@votingworks/ballot-interpreter-nh-next': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/basics': workspace:*
       '@votingworks/custom-scanner': workspace:*
@@ -1488,6 +1489,7 @@ importers:
       '@votingworks/backend': link:../../../libs/backend
       '@votingworks/ballot-encoder': link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter-nh': link:../../../libs/ballot-interpreter-nh
+      '@votingworks/ballot-interpreter-nh-next': link:../../../libs/ballot-interpreter-nh-next
       '@votingworks/ballot-interpreter-vx': link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics': link:../../../libs/basics
       '@votingworks/custom-scanner': link:../../../libs/custom-scanner
