@@ -5,12 +5,19 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
+  coveragePathIgnorePatterns: [
+    'src/index.ts',
+    'src/legacy/.*.ts',
+    'src/memory_card.ts',
+    'src/test_utils.ts',
+    'test/utils.ts,',
+  ],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      statements: 44,
+      branches: 31,
+      functions: 48,
+      lines: 44,
     },
   },
 };
