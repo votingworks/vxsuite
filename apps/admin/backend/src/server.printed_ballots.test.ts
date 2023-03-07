@@ -1,85 +1,49 @@
 import { Admin } from '@votingworks/api';
-import {
-  buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
-} from '@votingworks/auth';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { unsafeParse } from '@votingworks/types';
-import { assert, typedAs } from '@votingworks/basics';
-import { Application } from 'express';
-import request from 'supertest';
-import { dirSync } from 'tmp';
-import { buildApp } from './server';
-import { createWorkspace, Workspace } from './util/workspace';
-
-let app: Application;
-let auth: DippedSmartCardAuthApi;
-let workspace: Workspace;
+import {
+  buildTestEnvironment,
+  configureMachine,
+  mockElectionManagerAuth,
+} from '../test/app';
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name);
-  app = buildApp({ auth, workspace });
 });
 
 test('printed ballots', async () => {
-  await request(app)
-    .get(`/admin/elections/unknown-election-id/printed-ballots`)
-    .expect(404);
+  const { apiClient, auth } = await buildTestEnvironment();
 
-  await request(app)
-    .post(`/admin/elections/unknown-election-id/printed-ballots`)
-    .expect(404);
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const mockPrintedBallot: Admin.PrintedBallot = {
+    ballotStyleId: '12',
+    precinctId: '23',
+    locales: { primary: 'en-US' },
+    ballotMode: Admin.BallotMode.Official,
+    ballotType: 'standard',
+    numCopies: 4,
+  };
 
-  await request(app)
-    .get(`/admin/elections/${electionId}/printed-ballots?bad=query`)
-    .expect(400);
+  expect(await apiClient.getPrintedBallots()).toEqual([]);
+  await apiClient.addPrintedBallots({
+    printedBallot: mockPrintedBallot,
+  });
 
-  await request(app)
-    .post(`/admin/elections/${electionId}/printed-ballots`)
-    .send({ bad: 'body' })
-    .expect(400);
-
-  await request(app)
-    .get(`/admin/elections/${electionId}/printed-ballots`)
-    .expect(200, { status: 'ok', printedBallots: [] });
-
-  const response = await request(app)
-    .post(`/admin/elections/${electionId}/printed-ballots`)
-    .send(
-      typedAs<Admin.PrintedBallot>({
-        ballotStyleId: '12',
-        precinctId: '23',
-        locales: { primary: 'en-US' },
-        ballotMode: Admin.BallotMode.Official,
-        ballotType: 'standard',
-        numCopies: 4,
-      })
-    )
-    .expect(200);
-
-  const responseBody = unsafeParse(
-    Admin.PostPrintedBallotResponseSchema,
-    response.body
-  );
-
-  assert(responseBody.status === 'ok');
-  const { id } = responseBody;
-
-  expect(workspace.store.getPrintedBallots(electionId)).toEqual([
-    expect.objectContaining(
-      typedAs<Partial<Admin.PrintedBallotRecord>>({ id, electionId })
-    ),
+  expect(await apiClient.getPrintedBallots()).toEqual([
+    expect.objectContaining(mockPrintedBallot),
   ]);
-
-  await request(app)
-    .get(
-      `/admin/elections/${electionId}/printed-ballots?ballotMode=${Admin.BallotMode.Sample}`
-    )
-    .expect(200, { status: 'ok', printedBallots: [] });
+  expect(
+    await apiClient.getPrintedBallots({ ballotMode: Admin.BallotMode.Official })
+  ).toEqual([expect.objectContaining(mockPrintedBallot)]);
+  expect(
+    await apiClient.getPrintedBallots({ ballotMode: Admin.BallotMode.Draft })
+  ).toEqual([]);
+  expect(
+    await apiClient.getPrintedBallots({ ballotMode: Admin.BallotMode.Sample })
+  ).toEqual([]);
+  expect(
+    await apiClient.getPrintedBallots({ ballotMode: Admin.BallotMode.Test })
+  ).toEqual([]);
 });

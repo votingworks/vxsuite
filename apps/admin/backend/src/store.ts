@@ -13,6 +13,7 @@ import {
   ContestOptionId,
   Id,
   Iso8601Timestamp,
+  Optional,
   PrecinctId,
   safeParse,
   safeParseElectionDefinition,
@@ -82,7 +83,12 @@ type AddCvrFileResult = Result<Admin.CvrFileImportInfo, AddCastVoteRecordError>;
  * transcribed and adjudicated write-ins.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private constructor(private readonly client: DbClient) {
+    const settings = Boolean(this.client.one('select id from settings'));
+    if (!settings) {
+      this.client.run('insert into settings default values');
+    }
+  }
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -205,6 +211,33 @@ export class Store {
     if (!election) {
       throw new Error(`Election not found: ${electionId}`);
     }
+  }
+
+  /**
+   * Sets the id for the current election
+   */
+  setCurrentElectionId(currentElectionId?: Id): void {
+    if (currentElectionId) {
+      this.client.run(
+        'update settings set current_election_id = ?',
+        currentElectionId
+      );
+    } else {
+      this.client.run('update settings set current_election_id = NULL');
+    }
+  }
+
+  /**
+   * Gets the id for the current election
+   */
+  getCurrentElectionId(): Optional<Id> {
+    const settings = this.client.one(
+      `
+      select current_election_id as currentElectionId from settings
+    `
+    ) as { currentElectionId: Id } | null;
+
+    return settings?.currentElectionId ?? undefined;
   }
 
   private convertCvrParseErrorsToApiError(

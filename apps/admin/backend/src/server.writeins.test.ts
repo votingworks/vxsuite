@@ -1,75 +1,176 @@
 import { Admin } from '@votingworks/api';
 import {
-  buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
-} from '@votingworks/auth';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { unsafeParse } from '@votingworks/types';
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
-import { Application } from 'express';
-import request from 'supertest';
-import { dirSync } from 'tmp';
-import { buildApp } from './server';
-import { createWorkspace, Workspace } from './util/workspace';
-
-let app: Application;
-let auth: DippedSmartCardAuthApi;
-let workspace: Workspace;
+import { CastVoteRecord } from '@votingworks/types';
+import {
+  buildTestEnvironment,
+  configureMachine,
+  mockElectionManagerAuth,
+} from '../test/app';
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name);
-  app = buildApp({ auth, workspace });
+});
+
+test('getWriteIns', async () => {
+  const { apiClient, auth, workspace } = await buildTestEnvironment();
+
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  await apiClient.addCastVoteRecordFile({
+    path: standardCvrFile.asFilePath(),
+  });
+
+  expect(await apiClient.getWriteIns()).toHaveLength(
+    workspace.store.getWriteInRecords({ electionId }).length
+  );
+
+  expect(
+    await apiClient.getWriteIns({ contestId: 'zoo-council-mammal' })
+  ).toHaveLength(
+    workspace.store.getWriteInRecords({
+      electionId,
+      contestId: 'zoo-council-mammal',
+    }).length
+  );
+
+  expect(await apiClient.getWriteIns({ limit: 3 })).toHaveLength(3);
+});
+
+test('transcribeWriteIn', async () => {
+  const { apiClient, auth } = await buildTestEnvironment();
+
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  await apiClient.addCastVoteRecordFile({
+    path: standardCvrFile.asFilePath(),
+  });
+
+  const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
+  assert(writeInRecord);
+
+  const writeInRecords1 = await apiClient.getWriteIns();
+  expect(new Set(writeInRecords1.map(({ status }) => status))).toEqual(
+    new Set(['pending'])
+  );
+
+  await apiClient.transcribeWriteIn({
+    writeInId: writeInRecord.id,
+    transcribedValue: 'Mickey Mouse',
+  });
+
+  const writeInRecords2 = await apiClient.getWriteIns();
+
+  expect(new Set(writeInRecords2.map(({ status }) => status))).toEqual(
+    new Set(['pending', 'transcribed'])
+  );
+});
+
+test('getWriteInAdjudications', async () => {
+  const { auth, apiClient } = await buildTestEnvironment();
+
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  await apiClient.addCastVoteRecordFile({ path: standardCvrFile.asFilePath() });
+
+  expect(await apiClient.getWriteInAdjudications()).toEqual([]);
+
+  await apiClient.createWriteInAdjudication({
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Bob',
+    adjudicatedValue: 'Robert',
+  });
+
+  expect(await apiClient.getWriteInAdjudications()).toEqual(
+    typedAs<Admin.WriteInAdjudicationRecord[]>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Bob',
+        adjudicatedValue: 'Robert',
+      },
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Robert',
+        adjudicatedValue: 'Robert',
+      },
+    ])
+  );
+
+  // mismatched filter
+  expect(
+    await apiClient.getWriteInAdjudications({ contestId: 'zoo-council-fish' })
+  ).toEqual([]);
+
+  // matched filter
+  expect(
+    await apiClient.getWriteInAdjudications({
+      contestId: 'zoo-council-mammal',
+    })
+  ).toEqual(
+    typedAs<Admin.WriteInAdjudicationRecord[]>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Bob',
+        adjudicatedValue: 'Robert',
+      },
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Robert',
+        adjudicatedValue: 'Robert',
+      },
+    ])
+  );
 });
 
 test('write-in adjudication lifecycle', async () => {
   jest.setTimeout(20_000);
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const { apiClient, auth } = await buildTestEnvironment();
+
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
-    .attach(
-      'cvrFile',
-      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
-      'cvrFile.json'
-    )
-    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
-    .expect(200);
-  const postCvrResponse = unsafeParse(
-    Admin.PostCvrFileResponseSchema,
-    postCvrHttpResponse.body
-  );
-
-  assert(postCvrResponse.status === 'ok');
+  await apiClient.addCastVoteRecordFile({
+    path: standardCvrFile.asFilePath(),
+  });
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
 
   // view the adjudication table
-  const getWriteInAdjudicationTableHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
-    .expect(200);
-  const getWriteInAdjudicationTableResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInAdjudicationTableHttpResponse.body
-  );
-  expect(getWriteInAdjudicationTableResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
+  const writeInAdjudicationTable = await apiClient.getWriteInAdjudicationTable({
+    contestId,
+  });
+  expect(writeInAdjudicationTable).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount: 0,
+      adjudicated: [],
+      transcribed: {
         writeInCount: 0,
-        adjudicated: [],
-        transcribed: {
-          writeInCount: 0,
-          rows: [],
-        },
+        rows: [],
       },
     })
   );
@@ -77,71 +178,101 @@ test('write-in adjudication lifecycle', async () => {
   // process all the write-ins for the contest we're going to adjudicate
   let writeInCount = 0;
   for (;;) {
-    const getWriteInsHttpResponse = await request(app)
-      .get(
-        `/admin/elections/${electionId}/write-ins?status=pending&contestId=${contestId}&limit=1`
-      )
-      .expect(200);
-    const getWriteInsResponse = unsafeParse(
-      Admin.GetWriteInsResponseSchema,
-      getWriteInsHttpResponse.body
-    );
-    assert(Array.isArray(getWriteInsResponse));
+    const pendingWriteIn = await apiClient.getWriteIns({
+      status: 'pending',
+      contestId,
+      limit: 1,
+    });
 
-    if (getWriteInsResponse.length === 0) {
+    if (pendingWriteIn.length === 0) {
       break;
     }
 
-    const writeInRecord = getWriteInsResponse[0]!;
+    const writeInRecord = pendingWriteIn[0]!;
 
     // get the ballot image data for the write in
-    const getImageHttpResponse = await request(app)
-      .get(`/admin/write-in-image/${writeInRecord.id}`)
-      .expect(200);
-    const getImageResponse = unsafeParse(
-      Admin.GetWriteInImageResponseSchema,
-      getImageHttpResponse.body
-    );
-    assert(Array.isArray(getImageResponse));
-    expect(getImageResponse).toHaveLength(0); // the fixtures do not have ballot images
+    const writeInImageEntries = await apiClient.getWriteInImage({
+      writeInId: writeInRecord.id,
+    });
+    expect(writeInImageEntries).toHaveLength(0); // the fixtures do not have ballot images
 
     // transcribe it
-    await request(app)
-      .put(`/admin/write-ins/${writeInRecord.id}/transcription`)
-      .send(
-        typedAs<Admin.PutWriteInTranscriptionRequest>({
-          value: 'Mickey Mouse',
-        })
-      )
-      .expect(200);
+    await apiClient.transcribeWriteIn({
+      writeInId: writeInRecord.id,
+      transcribedValue: 'Mickey Mouse',
+    });
 
     writeInCount += 1;
   }
 
   // view the adjudication table
-  const getWriteInTableAfterTranscriptionHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
-    .expect(200);
-  const getWriteInTableAfterTranscriptionResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInTableAfterTranscriptionHttpResponse.body
+  const writeInAdjudicationTableAfterTranscription =
+    await apiClient.getWriteInAdjudicationTable({
+      contestId,
+    });
+
+  expect(writeInAdjudicationTableAfterTranscription).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount,
+      adjudicated: [],
+      transcribed: {
+        writeInCount,
+        rows: [
+          {
+            transcribedValue: 'Mickey Mouse',
+            writeInCount,
+            adjudicationOptionGroups: [
+              expect.objectContaining(
+                typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>({
+                  title: 'Official Candidates',
+                })
+              ),
+              {
+                title: 'Write-In Candidates',
+                options: [
+                  {
+                    adjudicatedValue: 'Mickey Mouse',
+                    enabled: true,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
   );
 
-  expect(getWriteInTableAfterTranscriptionResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
-        writeInCount,
-        adjudicated: [],
-        transcribed: {
+  const writeInAdjudicationsAfterTranscription =
+    await apiClient.getWriteInAdjudications({ contestId });
+
+  expect(writeInAdjudicationsAfterTranscription).toEqual([]);
+
+  // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
+  await apiClient.createWriteInAdjudication({
+    contestId,
+    transcribedValue: 'Mickey Mouse',
+    adjudicatedValue: 'Mickey Mouse',
+  });
+
+  // view the adjudication table
+  const writeInAdjudicationTableAfterAdjudication =
+    await apiClient.getWriteInAdjudicationTable({ contestId });
+  expect(writeInAdjudicationTableAfterAdjudication).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount,
+      adjudicated: [
+        {
+          adjudicatedValue: 'Mickey Mouse',
           writeInCount,
           rows: [
             {
               transcribedValue: 'Mickey Mouse',
+              writeInAdjudicationId: expect.any(String),
               writeInCount,
+              editable: true,
               adjudicationOptionGroups: [
                 expect.objectContaining(
                   typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>({
@@ -161,107 +292,19 @@ test('write-in adjudication lifecycle', async () => {
             },
           ],
         },
+      ],
+      transcribed: {
+        writeInCount: 0,
+        rows: [],
       },
     })
   );
 
-  const getWriteInAdjudicationsAfterTranscriptionHttpResponse = await request(
-    app
-  )
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
-    )
-    .expect(200);
-  const getWriteInAdjudicationsAfterTranscriptionResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationsResponseSchema,
-    getWriteInAdjudicationsAfterTranscriptionHttpResponse.body
-  );
+  const writeInAdjudicationsAfterAdjuducation =
+    await apiClient.getWriteInAdjudications({ contestId });
 
-  expect(getWriteInAdjudicationsAfterTranscriptionResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationsResponse>([])
-  );
-
-  // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
-  await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
-    .send(
-      typedAs<Admin.PostWriteInAdjudicationRequest>({
-        contestId,
-        transcribedValue: 'Mickey Mouse',
-        adjudicatedValue: 'Mickey Mouse',
-      })
-    )
-    .expect(200);
-
-  // view the adjudication table
-  const getWriteInAdjudicationTableAfterAdjudicationHttpResponse =
-    await request(app)
-      .get(
-        `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-      )
-      .expect(200);
-  const getWriteInAdjudicationTableAfterAdjudicationResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInAdjudicationTableAfterAdjudicationHttpResponse.body
-  );
-  expect(getWriteInAdjudicationTableAfterAdjudicationResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
-        writeInCount,
-        adjudicated: [
-          {
-            adjudicatedValue: 'Mickey Mouse',
-            writeInCount,
-            rows: [
-              {
-                transcribedValue: 'Mickey Mouse',
-                writeInAdjudicationId: expect.any(String),
-                writeInCount,
-                editable: true,
-                adjudicationOptionGroups: [
-                  expect.objectContaining(
-                    typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>(
-                      { title: 'Official Candidates' }
-                    )
-                  ),
-                  {
-                    title: 'Write-In Candidates',
-                    options: [
-                      {
-                        adjudicatedValue: 'Mickey Mouse',
-                        enabled: true,
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        transcribed: {
-          writeInCount: 0,
-          rows: [],
-        },
-      },
-    })
-  );
-
-  const getWriteInAdjudicationsAfterAdjudicationHttpResponse = await request(
-    app
-  )
-    .get(
-      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
-    )
-    .expect(200);
-  const getWriteInAdjudicationsAfterAdjudicationResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationsResponseSchema,
-    getWriteInAdjudicationsAfterAdjudicationHttpResponse.body
-  );
-
-  expect(getWriteInAdjudicationsAfterAdjudicationResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationsResponse>([
+  expect(writeInAdjudicationsAfterAdjuducation).toEqual(
+    typedAs<Admin.WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId,
@@ -271,230 +314,141 @@ test('write-in adjudication lifecycle', async () => {
     ])
   );
 
-  assert(getWriteInAdjudicationTableAfterAdjudicationResponse.status === 'ok');
   const writeInAdjudicationId =
-    getWriteInAdjudicationTableAfterAdjudicationResponse.table.adjudicated[0]
-      ?.rows[0]?.writeInAdjudicationId;
+    writeInAdjudicationTableAfterAdjudication.adjudicated[0]?.rows[0]
+      ?.writeInAdjudicationId;
+  assert(typeof writeInAdjudicationId === 'string');
 
   // update the adjudication
-  await request(app)
-    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
-    .send(
-      typedAs<Admin.PutWriteInAdjudicationRequest>({
-        adjudicatedValue: 'Modest Mouse',
-      })
-    )
-    .expect(200);
+  await apiClient.updateWriteInAdjudication({
+    writeInAdjudicationId,
+    adjudicatedValue: 'Modest Mouse',
+  });
 
   // view the adjudication table
-  const getWriteInAdjudicationTableAfterUpdateHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
-    .expect(200);
-  const getWriteInAdjudicationTableAfterUpdateResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInAdjudicationTableAfterUpdateHttpResponse.body
-  );
-  expect(getWriteInAdjudicationTableAfterUpdateResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
-        writeInCount,
-        adjudicated: [
-          expect.objectContaining(
-            typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>(
-              { adjudicatedValue: 'Modest Mouse' }
-            )
-          ),
-        ],
-        transcribed: {
-          writeInCount: 0,
-          rows: [],
-        },
+  const writeInAdjudicationTableAfterUpdate =
+    await apiClient.getWriteInAdjudicationTable({ contestId });
+  expect(writeInAdjudicationTableAfterUpdate).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount,
+      adjudicated: [
+        expect.objectContaining(
+          typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>({
+            adjudicatedValue: 'Modest Mouse',
+          })
+        ),
+      ],
+      transcribed: {
+        writeInCount: 0,
+        rows: [],
       },
     })
   );
 
-  // update the adjudication again to an official candidate
-  await request(app)
-    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
-    .send(
-      typedAs<Admin.PutWriteInAdjudicationRequest>({
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
-      })
-    )
-    .expect(200);
+  // update the adjudication again, to official candidate
+  await apiClient.updateWriteInAdjudication({
+    writeInAdjudicationId,
+    adjudicatedValue: 'Zebra',
+    adjudicatedOptionId: 'zebra',
+  });
 
   // view the adjudication table
-  const getWriteInAdjudicationTableAfterUpdateAgainHttpResponse = await request(
-    app
-  )
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
-    .expect(200);
-  const getWriteInAdjudicationTableAfterUpdateAgainResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInAdjudicationTableAfterUpdateAgainHttpResponse.body
-  );
-  expect(getWriteInAdjudicationTableAfterUpdateAgainResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
-        writeInCount,
-        adjudicated: [
-          expect.objectContaining(
-            typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>(
-              { adjudicatedValue: 'Zebra', adjudicatedOptionId: 'zebra' }
-            )
-          ),
-        ],
-        transcribed: {
-          writeInCount: 0,
-          rows: [],
-        },
+  const writeInAdjudicationTableAfterUpdateAgain =
+    await apiClient.getWriteInAdjudicationTable({ contestId });
+  expect(writeInAdjudicationTableAfterUpdateAgain).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount,
+      adjudicated: [
+        expect.objectContaining(
+          typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>({
+            adjudicatedValue: 'Zebra',
+            adjudicatedOptionId: 'zebra',
+          })
+        ),
+      ],
+      transcribed: {
+        writeInCount: 0,
+        rows: [],
       },
     })
   );
 
   // delete the adjudication
-  await request(app)
-    .delete(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
-    .expect(200);
+  await apiClient.deleteWriteInAdjudication({ writeInAdjudicationId });
 
   // view the adjudication table
-  const getWriteInAdjudicationTableAfterDeleteHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
-    )
-    .expect(200);
-  const getWriteInAdjudicationTableAfterDeleteResponse = unsafeParse(
-    Admin.GetWriteInAdjudicationTableResponseSchema,
-    getWriteInAdjudicationTableAfterDeleteHttpResponse.body
-  );
-  expect(getWriteInAdjudicationTableAfterDeleteResponse).toEqual(
-    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
-      status: 'ok',
-      table: {
-        contestId,
+  const writeInAdjudicationTableAfterDelete =
+    await apiClient.getWriteInAdjudicationTable({ contestId });
+  expect(writeInAdjudicationTableAfterDelete).toEqual(
+    typedAs<Admin.WriteInAdjudicationTable>({
+      contestId,
+      writeInCount,
+      adjudicated: [],
+      transcribed: {
         writeInCount,
-        adjudicated: [],
-        transcribed: {
-          writeInCount,
-          rows: [
-            expect.objectContaining(
-              typedAs<Partial<Admin.WriteInAdjudicationTableTranscribedRow>>({
-                transcribedValue: 'Mickey Mouse',
-                writeInCount,
-              })
-            ),
-          ],
-        },
+        rows: [
+          expect.objectContaining(
+            typedAs<Partial<Admin.WriteInAdjudicationTableTranscribedRow>>({
+              transcribedValue: 'Mickey Mouse',
+              writeInCount,
+            })
+          ),
+        ],
       },
     })
   );
 });
 
 test('write-in summary filtered by contestId & status', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const { apiClient, auth } = await buildTestEnvironment();
+
+  const { electionDefinition, standardCvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  const postCvrHttpResponse = await request(app)
-    .post(`/admin/elections/${electionId}/cvr-files`)
-    .attach(
-      'cvrFile',
-      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
-      'cvrFile.json'
-    )
-    .field('exportedTimestamp', '2021-09-02T22:27:58.327Z')
-    .expect(200);
-  const postCvrResponse = unsafeParse(
-    Admin.PostCvrFileResponseSchema,
-    postCvrHttpResponse.body
-  );
-
-  assert(postCvrResponse.status === 'ok');
+  await apiClient.addCastVoteRecordFile({
+    path: standardCvrFile.asFilePath(),
+  });
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
 
-  const getWriteInSummaryPendingHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=pending`
-    )
-    .expect(200);
-  const getWriteInSummaryPendingResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryPendingHttpResponse.body
-  );
-  expect(getWriteInSummaryPendingResponse).toHaveLength(1);
+  const pendingWriteInSummary = await apiClient.getWriteInSummary({
+    contestId,
+    status: 'pending',
+  });
+  expect(pendingWriteInSummary).toHaveLength(1);
 
-  const getWriteInSummaryTranscribedHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=transcribed`
-    )
-    .expect(200);
-  const getWriteInSummaryTranscribedResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryTranscribedHttpResponse.body
-  );
-  expect(getWriteInSummaryTranscribedResponse).toHaveLength(0);
+  const transcribedWriteInSummary = await apiClient.getWriteInSummary({
+    contestId,
+    status: 'transcribed',
+  });
+  expect(transcribedWriteInSummary).toHaveLength(0);
 
-  const getWriteInSummaryAdjudicatedHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=adjudicated`
-    )
-    .expect(200);
-  const getWriteInSummaryAdjudicatedResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAdjudicatedHttpResponse.body
-  );
-  expect(getWriteInSummaryAdjudicatedResponse).toHaveLength(0);
-});
-
-test('write-in adjudication table with a bad electionId', async () => {
-  await request(app)
-    .get(
-      `/admin/elections/invalid/contests/contest-1/write-in-adjudication-table`
-    )
-    .expect(404);
-});
-
-test('write-in adjudication table with a bad contestId', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-
-  await request(app)
-    .get(
-      `/admin/elections/${electionId}/contests/invalid-contest-id/write-in-adjudication-table`
-    )
-    .expect(404);
+  const adjudicatedWriteInSummary = await apiClient.getWriteInSummary({
+    contestId,
+    status: 'transcribed',
+  });
+  expect(adjudicatedWriteInSummary).toHaveLength(0);
 });
 
 test('create write-in adjudication for an unlisted candidate', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const { auth, apiClient } = await buildTestEnvironment();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
-  await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
-    .send(
-      typedAs<Admin.PostWriteInAdjudicationRequest>({
-        contestId: 'zoo-council-mammal',
-        transcribedValue: 'Zebra',
-        adjudicatedValue: 'Cyclops',
-      })
-    )
-    .expect(200);
+  await configureMachine(apiClient, auth, electionDefinition);
 
-  expect(workspace.store.getWriteInAdjudicationRecords({ electionId })).toEqual(
+  await apiClient.createWriteInAdjudication({
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Zebra',
+    adjudicatedValue: 'Cyclops',
+  });
+
+  expect(await apiClient.getWriteInAdjudications()).toEqual(
     typedAs<Admin.WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
@@ -513,23 +467,19 @@ test('create write-in adjudication for an unlisted candidate', async () => {
 });
 
 test('create write-in adjudication for an official candidate', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const { auth, apiClient } = await buildTestEnvironment();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
-  await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
-    .send(
-      typedAs<Admin.PostWriteInAdjudicationRequest>({
-        contestId: 'zoo-council-mammal',
-        transcribedValue: 'Zebra',
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
-      })
-    )
-    .expect(200);
+  await configureMachine(apiClient, auth, electionDefinition);
 
-  expect(workspace.store.getWriteInAdjudicationRecords({ electionId })).toEqual(
+  await apiClient.createWriteInAdjudication({
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Zebra',
+    adjudicatedValue: 'Zebra',
+    adjudicatedOptionId: 'zebra',
+  });
+
+  expect(await apiClient.getWriteInAdjudications()).toEqual(
     typedAs<Admin.WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
@@ -542,41 +492,62 @@ test('create write-in adjudication for an official candidate', async () => {
   );
 });
 
-test('create write-in adjudication with invalid request', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+test('getWriteInImage', async () => {
+  const { auth, apiClient } = await buildTestEnvironment();
+  const { electionDefinition, oneBallotCastVoteRecordFile } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
 
-  await request(app)
-    .post(`/admin/elections/${electionId}/write-in-adjudications`)
-    .send({})
-    .expect(400);
-});
-
-test('update write-in adjudication with invalid request', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-
-  const writeInAdjudicationId = workspace.store.createWriteInAdjudication({
-    electionId,
-    contestId: 'contest-1',
-    transcribedValue: 'Mickey Mouse',
-    adjudicatedValue: 'Mickey Mouse',
+  await apiClient.addCastVoteRecordFile({
+    path: oneBallotCastVoteRecordFile.asFilePath(),
   });
 
-  await request(app)
-    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
-    .send({})
-    .expect(400);
-});
+  const writeIns = await apiClient.getWriteIns();
+  expect(writeIns).toHaveLength(9);
 
-test('GET /admin/elections/:electionId/write-in-summary with bad query', async () => {
-  const electionId = workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const writeIn = writeIns[0];
+  assert(writeIn);
+  const writeInImageEntries = await apiClient.getWriteInImage({
+    writeInId: writeIn.id,
+  });
+  expect(writeInImageEntries).toHaveLength(1);
 
-  await request(app)
-    .get(`/admin/elections/${electionId}/write-in-summary?bad=query`)
-    .expect(400);
+  const writeInImageEntry = writeInImageEntries[0];
+  assert(writeInImageEntry);
+  const { image, ...coordinates } = writeInImageEntry;
+  expect(coordinates).toMatchInlineSnapshot(`
+    Object {
+      "ballotCoordinates": Object {
+        "height": 2200,
+        "width": 1696,
+        "x": 0,
+        "y": 0,
+      },
+      "contestCoordinates": Object {
+        "height": 151,
+        "maxX": 1672.25,
+        "maxY": 1048.75,
+        "minX": 322.25,
+        "minY": 898.75,
+        "width": 1351,
+        "x": 322.25,
+        "y": 898.75,
+      },
+      "writeInCoordinates": Object {
+        "height": 151,
+        "maxX": 1672.25,
+        "maxY": 1048.75,
+        "minX": 1322.25,
+        "minY": 898.75,
+        "width": 351,
+        "x": 1322.25,
+        "y": 898.75,
+      },
+    }
+  `);
+
+  const castVoteRecord = JSON.parse(
+    oneBallotCastVoteRecordFile.asText()
+  ) as CastVoteRecord;
+  expect(image).toEqual(castVoteRecord._ballotImages![0].normalized);
 });

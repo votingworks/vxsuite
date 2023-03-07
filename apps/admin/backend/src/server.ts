@@ -4,6 +4,8 @@ import {
   BallotPageLayout,
   CandidateContest,
   CastVoteRecord,
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -11,15 +13,19 @@ import {
   InlineBallotImage,
   Optional,
   Rect,
-  safeParse,
+  safeParseElectionDefinition,
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import { assert, zip } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Result,
+  zip,
+} from '@votingworks/basics';
 import express, { Application } from 'express';
-import compression from 'compression';
-import * as fs from 'fs/promises';
-import multer from 'multer';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
@@ -28,13 +34,12 @@ import {
 } from '@votingworks/auth';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
+import { promises as fs, Stats } from 'fs';
+import { basename } from 'path';
+import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
-
-type NoParams = never;
-
-const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
-const MAX_UPLOAD_FILE_SIZE = 2 * 1000 * 1024 * 1024; // 2GB
+import { AddCastVoteRecordError } from './store';
 
 function getMostRecentlyCreateElectionDefinition(
   workspace: Workspace
@@ -66,7 +71,54 @@ function constructDippedSmartCardAuthMachineState(
   };
 }
 
-function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
+function loadCurrentElectionIdOrThrow(workspace: Workspace) {
+  return assertDefined(workspace.store.getCurrentElectionId());
+}
+
+/**
+ * Result of attempt to configure the app with a new election definition
+ */
+export type ConfigureResult = Result<
+  { electionId: Id },
+  { type: 'parsing'; message: string }
+>;
+
+/**
+ * Errors that may occur when loading a cast vote record file from a path
+ */
+export type AddCastVoteRecordFileError =
+  | { type: 'invalid-file'; userFriendlyMessage: string }
+  | ({ type: 'invalid-record' } & AddCastVoteRecordError);
+
+/**
+ * Result of attempt to load a cast vote record file from a path
+ */
+export type AddCastVoteRecordFileResult = Result<
+  Admin.CvrFileImportInfo,
+  AddCastVoteRecordFileError
+>;
+
+function buildApi({
+  auth,
+  workspace,
+  logger,
+}: {
+  auth: DippedSmartCardAuthApi;
+  workspace: Workspace;
+  logger: Logger;
+}) {
+  const { store } = workspace;
+
+  async function getUserRole() {
+    const authStatus = await auth.getAuthStatus(
+      constructDippedSmartCardAuthMachineState(workspace)
+    );
+    if (authStatus.status === 'logged_in') {
+      return authStatus.user.role;
+    }
+    return undefined;
+  }
+
   return grout.createApi({
     getAuthStatus() {
       return auth.getAuthStatus(
@@ -109,528 +161,264 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
         constructDippedSmartCardAuthMachineState(workspace)
       );
     },
-  });
-}
 
-/**
- * A type to be used by the frontend to create a Grout API client
- */
-export type Api = ReturnType<typeof buildApi>;
-
-/**
- * Builds an express application.
- */
-export function buildApp({
-  auth,
-  workspace,
-}: {
-  auth: DippedSmartCardAuthApi;
-  workspace: Workspace;
-}): Application {
-  const { store } = workspace;
-
-  const app: Application = express();
-  const api = buildApi(auth, workspace);
-  app.use('/api', grout.buildRouter(api, express));
-
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: workspace.uploadsPath,
-    }),
-    limits: { fileSize: MAX_UPLOAD_FILE_SIZE },
-  });
-
-  const deprecatedApiRouter = express.Router();
-  deprecatedApiRouter.use(express.raw());
-  deprecatedApiRouter.use(
-    express.json({ limit: '50mb', type: 'application/json' })
-  );
-  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-  deprecatedApiRouter.use(compression());
-
-  deprecatedApiRouter.get<NoParams>(
-    '/admin/elections',
-    (_request, response) => {
-      response.json(store.getElections());
-    }
-  );
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Admin.PostElectionResponse,
-    Admin.PostElectionRequest
-  >('/admin/elections', (request, response) => {
-    const parseResult = safeParse(
-      Admin.PostElectionRequestSchema,
-      request.body
-    );
-
-    if (parseResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          { type: 'ValidationError', message: parseResult.err().message },
-        ],
-      });
-      return;
-    }
-
-    const electionDefinition = parseResult.ok();
-    const electionId = store.addElection(electionDefinition.electionData);
-    response.json({ status: 'ok', id: electionId });
-  });
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Admin.PatchElectionResponse,
-    Admin.PatchElectionRequest
-  >('/admin/elections/:electionId', (request, response) => {
-    const parseResult = safeParse(
-      Admin.PatchElectionRequestSchema,
-      request.body
-    );
-
-    if (parseResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          { type: 'ValidationError', message: parseResult.err().message },
-        ],
-      });
-      return;
-    }
-
-    const { electionId } = request.params;
-    const { isOfficialResults } = parseResult.ok();
-
-    const election = store.getElection(electionId);
-    if (!election) {
-      response.status(404).json({
-        status: 'error',
-        errors: [{ type: 'NotFound', message: 'Election not found' }],
-      });
-      return;
-    }
-
-    if (typeof isOfficialResults === 'boolean') {
-      store.setElectionResultsOfficial(electionId, isOfficialResults);
-    }
-
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.delete<{ electionId: Id }>(
-    '/admin/elections/:electionId',
-    (request, response) => {
-      store.deleteElection(request.params.electionId);
-      response.json({ status: 'ok' });
-    }
-  );
-
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrFilesResponse>(
-    '/admin/elections/:electionId/cvr-files',
-    (request, response) => {
-      response.json(store.getCvrFiles(request.params.electionId));
-    }
-  );
-
-  // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
-  // can be removed once we've moved tally computation to the server - it's
-  // currently only used as a stopgap while we migrate all app state to the
-  // server.
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetCvrsResponse>(
-    '/admin/elections/:electionId/cvrs',
-    (request, response) => {
-      response.json(
-        store
-          .getCastVoteRecordEntries(request.params.electionId)
-          .map(
-            (entry) =>
-              safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
-          )
-          .map((cvr) => ({
-            ...cvr,
-            // Strip out ballot images to keep the response size low, since
-            // they're not needed client-side.
-            _ballotImages: undefined,
-          }))
+    async configure(input: { electionData: string }): Promise<ConfigureResult> {
+      const parseResult = safeParseElectionDefinition(input.electionData);
+      if (parseResult.isErr()) {
+        return err({ type: 'parsing', message: parseResult.err().message });
+      }
+      const electionDefinition = parseResult.ok();
+      const electionId = store.addElection(electionDefinition.electionData);
+      store.setCurrentElectionId(electionId);
+      await logger.log(
+        LogEventId.ElectionConfigured,
+        assertDefined(await getUserRole()),
+        {
+          disposition: 'success',
+          newElectionHash: electionDefinition.electionHash,
+        }
       );
-    }
-  );
+      return ok({ electionId });
+    },
 
-  deprecatedApiRouter.post<
-    { electionId: Id },
-    Admin.PostCvrFileResponse,
-    Admin.PostCvrFileRequest
-  >(
-    '/admin/elections/:electionId/cvr-files',
-    upload.fields([{ name: CVR_FILE_ATTACHMENT_NAME, maxCount: 1 }]),
-    async (request, response) => {
-      /* istanbul ignore next */
-      const file = !Array.isArray(request.files)
-        ? request.files?.[CVR_FILE_ATTACHMENT_NAME]?.[0]
-        : undefined;
+    async unconfigure(): Promise<void> {
+      store.deleteElection(loadCurrentElectionIdOrThrow(workspace));
+      store.setCurrentElectionId();
+      await logger.log(
+        LogEventId.ElectionUnconfigured,
+        assertDefined(await getUserRole()),
+        {
+          disposition: 'success',
+        }
+      );
+    },
+
+    getCurrentElectionMetadata(): Admin.ElectionRecord | null {
+      const currentElectionId = store.getCurrentElectionId();
+      if (currentElectionId) {
+        const electionRecord = store.getElection(currentElectionId);
+        assert(electionRecord);
+        return electionRecord;
+      }
+
+      return null;
+    },
+
+    async markResultsOfficial(): Promise<void> {
+      store.setElectionResultsOfficial(
+        loadCurrentElectionIdOrThrow(workspace),
+        true
+      );
+
+      await logger.log(
+        LogEventId.MarkedTallyResultsOfficial,
+        assertDefined(await getUserRole()),
+        {
+          message:
+            'User has marked the tally results as official, no more cast vote record files can be loaded.',
+          disposition: 'success',
+        }
+      );
+    },
+
+    getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
+      return store.getCvrFiles(loadCurrentElectionIdOrThrow(workspace));
+    },
+
+    // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
+    // can be removed once we've moved tally computation to the server - it's
+    // currently only used as a stopgap while we migrate all app state to the
+    // server.
+    getCastVoteRecords(): CastVoteRecord[] {
+      const currentElectionId = store.getCurrentElectionId();
+      if (!currentElectionId) {
+        return [];
+      }
+
+      return store
+        .getCastVoteRecordEntries(currentElectionId)
+        .map(
+          (entry) => safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
+        )
+        .map((cvr) => ({
+          ...cvr,
+          // Strip out ballot images to keep the response size low, since
+          // they're not needed client-side.
+          _ballotImages: undefined,
+        }));
+    },
+
+    async addCastVoteRecordFile(input: {
+      path: string;
+    }): Promise<AddCastVoteRecordFileResult> {
+      const { path } = input;
+      const userRole = assertDefined(await getUserRole());
+      const filename = basename(path);
+      let fileStat: Stats;
       try {
-        const { electionId } = request.params;
-
-        if (!file) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'invalid-value',
-                message: `expected file field to be named "${CVR_FILE_ATTACHMENT_NAME}"`,
-              },
-            ],
-          });
-          return;
-        }
-
-        const parseQueryResult = safeParse(
-          Admin.PostCvrFileQueryParamsSchema,
-          request.query
-        );
-
-        if (parseQueryResult.isErr()) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'ValidationError',
-                message: parseQueryResult.err().message,
-              },
-            ],
-          });
-          return;
-        }
-
-        const { analyzeOnly } = parseQueryResult.ok();
-
-        const parseBodyResult = safeParse(
-          Admin.PostCvrFileRequestSchema,
-          request.body
-        );
-        if (parseBodyResult.isErr()) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'invalid-request-body',
-                message: parseBodyResult.err().message,
-              },
-            ],
-          });
-          return;
-        }
-
-        const result = await store.addCastVoteRecordFile({
-          electionId,
-          filePath: file.path,
-          originalFilename: file.originalname,
-          analyzeOnly,
-          exportedTimestamp: parseBodyResult.ok().exportedTimestamp,
+        fileStat = await fs.stat(path);
+      } catch (error) {
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message: `Failed to access cast vote record file for import.`,
+          disposition: 'failure',
+          filename,
+          error: (error as Error).message,
+          result: 'File not loaded, error shown to user.',
         });
-
-        if (result.isErr()) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: result.err().kind,
-                message:
-                  result.err().userFriendlyMessage ||
-                  JSON.stringify(result.err()),
-              },
-            ],
-          });
-          return;
-        }
-
-        const body: Admin.PostCvrFileResponse = {
-          ...result.ok(),
-          status: 'ok',
-        };
-
-        response.json(body);
-      } finally {
-        if (file) {
-          await fs.unlink(file.path);
-        }
-      }
-    }
-  );
-
-  deprecatedApiRouter.delete<
-    { electionId: Id },
-    Admin.DeleteCvrFileResponse,
-    Admin.DeleteCvrFileRequest
-  >('/admin/elections/:electionId/cvr-files', (request, response) => {
-    const { electionId } = request.params;
-    store.deleteCastVoteRecordFiles(electionId);
-    store.setElectionResultsOfficial(electionId, false);
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.get<
-    { electionId: Id },
-    Admin.GetCvrFileModeResponse,
-    Admin.GetCvrFileModeRequest
-  >('/admin/elections/:electionId/cvr-file-mode', (request, response) => {
-    const { electionId } = request.params;
-    const cvrFileMode = store.getCurrentCvrFileModeForElection(electionId);
-
-    response.json({
-      status: 'ok',
-      cvrFileMode,
-    });
-  });
-
-  deprecatedApiRouter.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
-    '/admin/elections/:electionId/write-ins',
-    (request, response) => {
-      const parseQueryResult = safeParse(
-        Admin.GetWriteInsQueryParamsSchema,
-        request.query
-      );
-
-      if (parseQueryResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseQueryResult.err().message,
-            },
-          ],
+        return err({
+          type: 'invalid-file',
+          userFriendlyMessage:
+            'the selected file could not be opened by the system',
         });
-        return;
       }
 
-      const { contestId, status, limit } = parseQueryResult.ok();
-      const { electionId } = request.params;
-      response.json(
-        store.getWriteInRecords({
-          electionId,
-          contestId,
-          status,
-          limit,
-        })
-      );
-    }
-  );
-
-  deprecatedApiRouter.put<
-    { writeInId: Id },
-    Admin.PutWriteInTranscriptionResponse,
-    Admin.PutWriteInTranscriptionRequest
-  >('/admin/write-ins/:writeInId/transcription', (request, response) => {
-    const { writeInId } = request.params;
-    const parseResult = safeParse(
-      Admin.PutWriteInTranscriptionRequestSchema,
-      request.body
-    );
-
-    if (parseResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'ValidationError',
-            message: parseResult.err().message,
-          },
-        ],
-      });
-      return;
-    }
-
-    store.transcribeWriteIn(writeInId, parseResult.ok().value);
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.get<
-    { electionId: Id },
-    Admin.GetWriteInAdjudicationsResponse,
-    Admin.GetWriteInAdjudicationsRequest,
-    Admin.GetWriteInAdjudicationsQueryParams
-  >(
-    '/admin/elections/:electionId/write-in-adjudications',
-    (request, response) => {
-      const parseQueryResult = safeParse(
-        Admin.GetWriteInAdjudicationsQueryParamsSchema,
-        request.query
-      );
-
-      if (parseQueryResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseQueryResult.err().message,
-            },
-          ],
-        });
-        return;
+      // try to get the exported timestamp from the filename
+      let exportedTimestamp: Date = fileStat.mtime;
+      try {
+        const parsedFileInfo = parseCvrFileInfoFromFilename(basename(path));
+        if (parsedFileInfo) {
+          exportedTimestamp = parsedFileInfo.timestamp;
+        }
+      } catch {
+        // file name was not in standard format, we'll try to import anyway
       }
 
-      const { electionId } = request.params;
-      const { contestId } = parseQueryResult.ok();
-
-      const writeInAdjudications = store.getWriteInAdjudicationRecords({
-        electionId,
-        contestId,
+      const addFileResult = await store.addCastVoteRecordFile({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        filePath: path,
+        originalFilename: basename(path),
+        exportedTimestamp: exportedTimestamp.toISOString(),
       });
 
-      response.json(writeInAdjudications);
-    }
-  );
-
-  deprecatedApiRouter.post<
-    { electionId: Id },
-    Admin.PostWriteInAdjudicationResponse,
-    Admin.PostWriteInAdjudicationRequest
-  >(
-    '/admin/elections/:electionId/write-in-adjudications',
-    (request, response) => {
-      const { electionId } = request.params;
-      const parseResult = safeParse(
-        Admin.PostWriteInAdjudicationRequestSchema,
-        request.body
-      );
-
-      if (parseResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseResult.err().message,
-            },
-          ],
+      if (addFileResult.isErr()) {
+        const errorMessage = addFileResult.err().userFriendlyMessage;
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message: `Failed to load CVR file: ${errorMessage}`,
+          disposition: 'failure',
+          filename,
+          error: errorMessage,
+          result: 'File not loaded, error shown to user.',
         });
-        return;
+        return err({ type: 'invalid-record', ...addFileResult.err() });
       }
 
-      const {
-        contestId,
-        transcribedValue,
-        adjudicatedValue,
-        adjudicatedOptionId,
-      } = parseResult.ok();
-
-      const id = store.createWriteInAdjudication({
-        electionId,
-        contestId,
-        transcribedValue,
-        adjudicatedValue,
-        adjudicatedOptionId,
-      });
-
-      response.json({ status: 'ok', id });
-    }
-  );
-
-  deprecatedApiRouter.put<
-    { writeInAdjudicationId: Id },
-    Admin.PutWriteInAdjudicationResponse,
-    Admin.PutWriteInAdjudicationRequest
-  >(
-    '/admin/write-in-adjudications/:writeInAdjudicationId',
-    (request, response) => {
-      const { writeInAdjudicationId } = request.params;
-      const parseResult = safeParse(
-        Admin.PutWriteInAdjudicationRequestSchema,
-        request.body
-      );
-
-      if (parseResult.isErr()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'ValidationError',
-              message: parseResult.err().message,
-            },
-          ],
+      if (addFileResult.ok().wasExistingFile) {
+        // log failure if the file was a duplicate
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message:
+            'CVR file was not loaded as it is a duplicate of a previously loaded file.',
+          disposition: 'failure',
+          filename,
+          result: 'File not loaded, error shown to user.',
         });
-        return;
+      } else {
+        // log success otherwise
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message: 'CVR file successfully loaded.',
+          disposition: 'success',
+          filename,
+          numberOfBallotsImported: addFileResult.ok().newlyAdded,
+          duplicateBallotsIgnored: addFileResult.ok().alreadyPresent,
+        });
       }
 
-      store.updateWriteInAdjudication(writeInAdjudicationId, parseResult.ok());
-      response.json({ status: 'ok' });
-    }
-  );
+      return addFileResult;
+    },
 
-  deprecatedApiRouter.delete<
-    { writeInAdjudicationId: Id },
-    Admin.DeleteWriteInAdjudicationResponse,
-    Admin.DeleteWriteInAdjudicationRequest
-  >(
-    '/admin/write-in-adjudications/:writeInAdjudicationId',
-    (request, response) => {
-      const { writeInAdjudicationId } = request.params;
-      store.deleteWriteInAdjudication(writeInAdjudicationId);
-      response.json({ status: 'ok' });
-    }
-  );
+    clearCastVoteRecordFiles(): void {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      store.deleteCastVoteRecordFiles(electionId);
+      store.setElectionResultsOfficial(electionId, false);
+    },
 
-  deprecatedApiRouter.get<
-    { electionId: Id },
-    Admin.GetWriteInSummaryResponse,
-    Admin.GetWriteInSummaryRequest,
-    Admin.GetWriteInSummaryQueryParams
-  >('/admin/elections/:electionId/write-in-summary', (request, response) => {
-    const { electionId } = request.params;
-    const parseQueryResult = safeParse(
-      Admin.GetWriteInSummaryQueryParamsSchema,
-      request.query
-    );
+    getCastVoteRecordFileMode(): Admin.CvrFileMode {
+      return store.getCurrentCvrFileModeForElection(
+        loadCurrentElectionIdOrThrow(workspace)
+      );
+    },
 
-    if (parseQueryResult.isErr()) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'ValidationError',
-            message: parseQueryResult.err().message,
-          },
-        ],
+    getWriteIns(
+      input: {
+        contestId?: ContestId;
+        status?: Admin.WriteInAdjudicationStatus;
+        limit?: number;
+      } = {}
+    ): Admin.WriteInRecord[] {
+      return store.getWriteInRecords({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
       });
-      return;
-    }
+    },
 
-    const { contestId, status } = parseQueryResult.ok();
-    response.json(
-      store.getWriteInAdjudicationSummary({
-        electionId,
-        contestId,
-        status,
-      })
-    );
-  });
+    transcribeWriteIn(input: {
+      writeInId: string;
+      transcribedValue: string;
+    }): void {
+      store.transcribeWriteIn(input.writeInId, input.transcribedValue);
+    },
 
-  deprecatedApiRouter.get<
-    Admin.GetWriteInAdjudicationTableUrlParams,
-    Admin.GetWriteInAdjudicationTableResponse,
-    Admin.GetWriteInAdjudicationTableRequest
-  >(
-    '/admin/elections/:electionId/contests/:contestId/write-in-adjudication-table',
-    (request, response) => {
-      const { electionId, contestId } = request.params;
+    // TODO: Not being used by frontend. Do we need it?
+    getWriteInAdjudications(
+      input: { contestId?: ContestId } = {}
+    ): Admin.WriteInAdjudicationRecord[] {
+      return store.getWriteInAdjudicationRecords({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        contestId: input.contestId,
+      });
+    },
+
+    createWriteInAdjudication(input: {
+      contestId: ContestId;
+      transcribedValue: string;
+      adjudicatedValue: string;
+      adjudicatedOptionId?: ContestOptionId;
+    }): string {
+      return store.createWriteInAdjudication({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    updateWriteInAdjudication(input: {
+      writeInAdjudicationId: string;
+      adjudicatedValue: string;
+      adjudicatedOptionId?: ContestOptionId;
+    }) {
+      store.updateWriteInAdjudication(input.writeInAdjudicationId, {
+        ...input,
+      });
+    },
+
+    deleteWriteInAdjudication(input: { writeInAdjudicationId: string }): void {
+      store.deleteWriteInAdjudication(input.writeInAdjudicationId);
+    },
+
+    // TODO: Frontend only uses with status "adjudicated". Change to improve typing?
+    getWriteInSummary(
+      input: {
+        contestId?: ContestId;
+        status?: Admin.WriteInAdjudicationStatus;
+      } = {}
+    ): Admin.WriteInSummaryEntry[] {
+      return store.getWriteInAdjudicationSummary({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getWriteInAdjudicationTable(input: {
+      contestId: ContestId;
+    }): Admin.WriteInAdjudicationTable {
+      const { contestId } = input;
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
       const electionRecord = store.getElection(electionId);
-
-      if (!electionRecord) {
-        return response.status(404).end();
-      }
+      assert(electionRecord);
 
       const contest = electionRecord.electionDefinition.election.contests.find(
         (c): c is CandidateContest =>
           c.type === 'candidate' && c.id === contestId
       );
-
-      if (!contest) {
-        return response.status(404).end();
-      }
+      assert(contest);
 
       const writeInSummaries = store
         .getWriteInAdjudicationSummary({
@@ -642,61 +430,31 @@ export function buildApp({
             s.status !== 'pending'
         );
 
-      const table = Admin.Views.writeInAdjudicationTable.render(
+      return Admin.Views.writeInAdjudicationTable.render(
         contest,
         writeInSummaries
       );
+    },
 
-      response.json({ status: 'ok', table });
-    }
-  );
+    getWriteInImage(input: { writeInId: string }): Admin.WriteInImageEntry[] {
+      const castVoteRecordData = store.getCastVoteRecordForWriteIn(
+        input.writeInId
+      );
+      assert(castVoteRecordData);
 
-  /* istanbul ignore next */
-  deprecatedApiRouter.get<
-    { writeInId: Id },
-    Admin.GetWriteInImageResponse,
-    Admin.GetWriteInImageRequest
-  >('/admin/write-in-image/:writeInId', (request, response) => {
-    const { writeInId } = request.params;
+      const { contestId, optionId, electionId, cvr } = castVoteRecordData;
 
-    const castVoteRecordData = store.getCastVoteRecordForWriteIn(writeInId);
-    if (!castVoteRecordData) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `invalid write in Id`,
-          },
-        ],
-      });
-      return;
-    }
-    const { contestId, optionId, electionId, cvr } = castVoteRecordData;
+      const electionRecord = store.getElection(electionId);
+      assert(electionRecord);
 
-    const electionRecord = store.getElection(electionId);
-    if (!electionRecord) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `invalid election Id`,
-          },
-        ],
-      });
-      return;
-    }
-    const { election } = electionRecord.electionDefinition;
+      const { election } = electionRecord.electionDefinition;
 
-    try {
       const ballotStyle = getBallotStyle({
         ballotStyleId: cvr._ballotStyleId,
         election,
       });
       if (cvr._layouts === undefined || cvr._ballotImages === undefined) {
-        response.json([]); // The CVR does not have ballot images.
-        return;
+        return []; // The CVR does not have ballot images.
       }
       if (!ballotStyle) {
         throw new Error('unexpected types');
@@ -761,117 +519,53 @@ export function buildApp({
         x: 0,
         y: 0,
       };
-      response.json([
+      return [
         {
           image: currentBallotImage.normalized,
           ballotCoordinates: fullBallotBounds,
           contestCoordinates: contestBounds,
           writeInCoordinates: writeInBounds,
         },
-      ]);
-    } catch (error: unknown) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'unexpected-error',
-            message:
-              error instanceof Error ? error.message : 'unexpected error',
-          },
-        ],
+      ];
+    },
+
+    getPrintedBallots(
+      input: { ballotMode?: Admin.BallotMode } = {}
+    ): Admin.PrintedBallotRecord[] {
+      return store.getPrintedBallots(loadCurrentElectionIdOrThrow(workspace), {
+        ...input,
       });
-    }
+    },
+
+    addPrintedBallots(input: { printedBallot: Admin.PrintedBallot }): string {
+      return store.addPrintedBallot(
+        loadCurrentElectionIdOrThrow(workspace),
+        input.printedBallot
+      );
+    },
   });
+}
 
-  deprecatedApiRouter.post<
-    { electionId: Id },
-    Admin.PostPrintedBallotResponse,
-    Admin.PostPrintedBallotRequest
-  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
-    const { electionId } = request.params;
-    const electionRecord = store.getElection(electionId);
+/**
+ * A type to be used by the frontend to create a Grout API client
+ */
+export type Api = ReturnType<typeof buildApi>;
 
-    if (!electionRecord) {
-      return response.status(404).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'not-found',
-            message: `No election found with id ${electionId}`,
-          },
-        ],
-      });
-    }
-
-    const parseBodyResult = safeParse(
-      Admin.PostPrintedBallotRequestSchema,
-      request.body
-    );
-
-    if (parseBodyResult.isErr()) {
-      return response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: parseBodyResult.err().message,
-          },
-        ],
-      });
-    }
-
-    const id = store.addPrintedBallot(electionId, parseBodyResult.ok());
-
-    response.json({ status: 'ok', id });
-  });
-
-  deprecatedApiRouter.get<
-    { electionId: Id },
-    Admin.GetPrintedBallotsResponse,
-    Admin.GetPrintedBallotsRequest
-  >('/admin/elections/:electionId/printed-ballots', (request, response) => {
-    const { electionId } = request.params;
-    const electionRecord = store.getElection(electionId);
-
-    if (!electionRecord) {
-      return response.status(404).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'not-found',
-            message: `No election found with id ${electionId}`,
-          },
-        ],
-      });
-    }
-
-    const parseQueryResult = safeParse(
-      Admin.GetPrintedBallotsQueryParamsSchema,
-      request.query
-    );
-
-    if (parseQueryResult.isErr()) {
-      return response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: parseQueryResult.err().message,
-          },
-        ],
-      });
-    }
-
-    const printedBallots = store.getPrintedBallots(
-      electionId,
-      parseQueryResult.ok()
-    );
-
-    response.json({ status: 'ok', printedBallots });
-  });
-
-  app.use(deprecatedApiRouter);
-
+/**
+ * Builds an express application.
+ */
+export function buildApp({
+  auth,
+  workspace,
+  logger,
+}: {
+  auth: DippedSmartCardAuthApi;
+  workspace: Workspace;
+  logger: Logger;
+}): Application {
+  const app: Application = express();
+  const api = buildApi({ auth, workspace, logger });
+  app.use('/api', grout.buildRouter(api, express));
   return app;
 }
 
@@ -929,6 +623,7 @@ export async function start({
         logger,
       }),
       workspace: resolvedWorkspace,
+      logger,
     });
 
   const server = resolvedApp.listen(port, async () => {

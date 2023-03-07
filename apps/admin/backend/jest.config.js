@@ -9,6 +9,14 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  coverageThreshold: {
+    global: {
+      statements: 95,
+      branches: 90,
+      functions: 100,
+      lines: 95,
+    },
+  },
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/*.d.ts',
