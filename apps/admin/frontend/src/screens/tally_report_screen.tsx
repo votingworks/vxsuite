@@ -6,11 +6,14 @@ import {
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
+import {
+  VotingMethod,
+  getLabelForVotingMethod,
+  getPrecinctById,
+} from '@votingworks/types';
 import {
   Button,
   Modal,
-  precinctNameFromId,
   printElement,
   printElementToPdf,
   Prose,
@@ -76,7 +79,7 @@ export function TallyReportScreen(): JSX.Element {
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
-  const precinctName = precinctNameFromId(election, precinctId);
+  const precinctName = getPrecinctById({ election, precinctId })?.name;
 
   const fileSuffix = useMemo(() => {
     if (scannerId) {

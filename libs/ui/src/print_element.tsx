@@ -2,14 +2,9 @@ import React, { useEffect } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
 
-import {
-  Election,
-  ElementWithCallback,
-  PrecinctId,
-  PrintOptions,
-} from '@votingworks/types';
+import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import { getPrinter } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 
 const PrintOnly = styled.div`
   @media screen {
@@ -162,16 +157,4 @@ export async function printElementToPdf(
   element: JSX.Element
 ): Promise<Uint8Array> {
   return printElementSuper(element, printToPdf);
-}
-
-export function precinctNameFromId(
-  election: Election,
-  precinctId: PrecinctId
-): string | undefined {
-  return (
-    (precinctId &&
-      precinctId !== 'all' &&
-      find(election.precincts, (p) => p.id === precinctId).name) ||
-    undefined
-  );
 }

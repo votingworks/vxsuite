@@ -17,7 +17,6 @@ import {
   Modal,
   Prose,
   HorizontalRule,
-  precinctNameFromId,
   printElement,
   printElementWhenReady,
   printElementToPdfWhenReady,
@@ -250,6 +249,10 @@ export function PrintTestDeckScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [precinctToSaveToPdf, setPrecinctToSaveToPdf] =
     useState<PrecinctId>('all');
+  const currentPrecinct = getPrecinctById({
+    election,
+    precinctId: precinctToSaveToPdf,
+  });
 
   const pageTitle = 'Precinct L&A Packages';
 
@@ -429,12 +432,10 @@ export function PrintTestDeckScreen(): JSX.Element {
             precinctId,
             generateBallotId,
           })}
-          <React.Fragment>
-            {handMarkedPaperBallotCallbacks.map(
-              (handMarkedPaperBallotWithCallback) =>
-                handMarkedPaperBallotWithCallback(onRendered)
-            )}
-          </React.Fragment>
+          {handMarkedPaperBallotCallbacks.map(
+            (handMarkedPaperBallotWithCallback) =>
+              handMarkedPaperBallotWithCallback(onRendered)
+          )}
         </React.Fragment>
       );
     },
@@ -612,7 +613,7 @@ export function PrintTestDeckScreen(): JSX.Element {
             election,
             precinctToSaveToPdf === 'all'
               ? 'all-precincts'
-              : precinctNameFromId(election, precinctToSaveToPdf)
+              : currentPrecinct?.name
           )}
           fileType={FileType.LogicAndAccuracyPackage}
         />

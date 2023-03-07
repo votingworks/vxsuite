@@ -72,13 +72,11 @@ test('prints appropriate report for general election', async () => {
 
 test('renders SaveFileToUsb component for saving PDF', async () => {
   const usbDrive = mockUsbDrive('mounted');
-  const { unmount } = renderInAppContext(<FullTestDeckTallyReportButton />, {
+  renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     usbDrive,
   });
   userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
-
-  unmount();
 });
