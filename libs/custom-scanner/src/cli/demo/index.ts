@@ -159,7 +159,7 @@ export async function main(): Promise<number> {
               Buffer.from('P5\n'),
               Buffer.from(`${sideB.imageWidth} ${sideB.imageHeight}\n`),
               Buffer.from('255\n'),
-              sideA.imageBuffer,
+              sideB.imageBuffer,
             ])
           );
         }
