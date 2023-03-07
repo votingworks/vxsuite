@@ -25,7 +25,11 @@ test('builds well-formed cast vote record report', () => {
     batchInfo: [
       {
         id: 'batch-1',
+        batchNumber: 1,
         label: 'Batch 1',
+        startedAt: new Date(1989, 11, 13).toISOString(),
+        endedAt: new Date(1989, 11, 14).toISOString(),
+        count: 2,
       },
     ],
   });
@@ -46,6 +50,11 @@ test('builds well-formed cast vote record report', () => {
     {
       '@id': 'batch-1',
       BatchLabel: 'Batch 1',
+      SequenceId: 1,
+      StartTime: new Date(1989, 11, 13).toISOString(),
+      EndTime: new Date(1989, 11, 14).toISOString(),
+      Size: 2,
+      CreatingDeviceId: scannerId,
     },
   ]);
 
