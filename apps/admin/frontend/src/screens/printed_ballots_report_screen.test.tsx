@@ -19,13 +19,11 @@ beforeEach(() => {
 
 test('renders SaveFileToUsb component for saving PDF', async () => {
   const usbDrive = mockUsbDrive('mounted');
-  const { unmount } = renderInAppContext(<PrintedBallotsReportScreen />, {
+  renderInAppContext(<PrintedBallotsReportScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     usbDrive,
   });
   userEvent.click(screen.getByText('Save Report to PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Printed Ballots Report');
-
-  unmount();
 });

@@ -80,3 +80,16 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
 });
+
+test('closes SaveFileToUsb modal', async () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<FullTestDeckTallyReportButton />, {
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    usbDrive,
+  });
+  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Test Deck Tally Report');
+  userEvent.click(screen.getByText('Cancel'));
+  expect(screen.queryByRole('alertdialog')).toEqual(null);
+});
