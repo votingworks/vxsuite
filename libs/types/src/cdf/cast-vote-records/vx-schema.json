@@ -1203,7 +1203,15 @@
     },
     "CVR.vxBatch": {
       "description": "Entity containing metadata about a scanned batch. Cast vote records link to batches via CVR::BatchId.",
-      "required": ["@id", "@type", "BatchLabel"],
+      "required": [
+        "@id",
+        "@type",
+        "BatchLabel",
+        "SequenceId",
+        "StartTime",
+        "Size",
+        "CreatingDeviceId"
+      ],
       "additionalProperties": false,
       "properties": {
         "@id": {
@@ -1214,7 +1222,31 @@
           "type": "string"
         },
         "BatchLabel": {
+          "description": "A human readable label for the batch.",
           "type": "string"
+        },
+        "SequenceId": {
+          "description": "The ordinal number of the batch in the tabulator's sequence of batches in a given election.",
+          "type": "integer"
+        },
+        "StartTime": {
+          "description": "The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "EndTime": {
+          "description": "The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete",
+          "type": "string",
+          "format": "date-time"
+        },
+        "Size": {
+          "description": "The number of sheets included in a batch.",
+          "type": "integer"
+        },
+        "CreatingDeviceId": {
+          "description": "The tabulator that created the batch.",
+          "type": "string",
+          "refTypes": ["CVR.ReportingDevice"]
         }
       },
       "type": "object"

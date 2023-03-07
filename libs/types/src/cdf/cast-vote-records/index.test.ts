@@ -19,7 +19,7 @@ const castVoteRecordReport: CastVoteRecordReport = {
   ReportingDevice: [
     {
       '@type': 'CVR.ReportingDevice',
-      '@id': '12345',
+      '@id': 'SC-01-000',
       Manufacturer: 'VotingWorks',
       Model: 'Test',
     },
@@ -51,6 +51,18 @@ const castVoteRecordReport: CastVoteRecordReport = {
       Type: ReportingUnitType.Precinct,
     },
   ],
+  vxBatch: [
+    {
+      '@type': 'CVR.vxBatch',
+      '@id': 'uuid',
+      BatchLabel: 'Batch 1',
+      SequenceId: 1,
+      StartTime: '2022-01-10T13:00:00.000Z',
+      EndTime: '2022-01-10T13:00:00.000Z',
+      Size: 1,
+      CreatingDeviceId: 'SC-01-000',
+    },
+  ],
   CVR: [
     {
       '@type': 'CVR.CVR',
@@ -58,7 +70,7 @@ const castVoteRecordReport: CastVoteRecordReport = {
       BallotStyleId: '1', // ballotStyleId
       BallotStyleUnitId: '6538', // precinctId
       BatchId: '1', // batchId
-      CreatingDeviceId: '000', // scannerId
+      CreatingDeviceId: 'SC-01-000', // scannerId
       CurrentSnapshotId: '1',
       // CVR snapshots come in three Types:
       // - original (what the scanner sees on the ballot)

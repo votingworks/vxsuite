@@ -1832,7 +1832,35 @@ export interface vxBatch {
 
   readonly '@type': 'CVR.vxBatch';
 
+  /**
+   * A human readable label for the batch.
+   */
   readonly BatchLabel: string;
+
+  /**
+   * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
+   */
+  readonly SequenceId: integer;
+
+  /**
+   * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
+   */
+  readonly StartTime: DateTime;
+
+  /**
+   * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
+   */
+  readonly EndTime?: DateTime;
+
+  /**
+   * The number of sheets included in a batch.
+   */
+  readonly Size: integer;
+
+  /**
+   * The tabulator that created the batch.
+   */
+  readonly CreatingDeviceId: string;
 }
 
 /**
@@ -1842,5 +1870,10 @@ export const vxBatchSchema: z.ZodSchema<vxBatch> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.vxBatch'),
   BatchLabel: z.string(),
+  SequenceId: integerSchema,
+  StartTime: DateTimeSchema,
+  EndTime: z.optional(DateTimeSchema),
+  Size: integerSchema,
+  CreatingDeviceId: z.string(),
 });
 
