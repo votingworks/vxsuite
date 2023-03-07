@@ -869,7 +869,7 @@ test('tabulating CVRs with manual data', async () => {
     'External Results (Manually Added Data)'
   ).closest('tr')!;
   domGetByText(manualRow, '100');
-  domGetByText(manualRow, 'Print District 5');
+  domGetByText(manualRow, 'District 5');
 
   fireEvent.click(getByText('Reports'));
   getByText('External Results (Manually Added Data)');
@@ -903,7 +903,7 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(await screen.findByText('Edit Manually Entered Results'));
 
   // Existing data is still there
-  const district5Row = getByText('Print District 5').closest('tr')!;
+  const district5Row = getByText('District 5').closest('tr')!;
   expect(domGetByTestId(district5Row, 'numBallots')!.textContent).toEqual(
     '100'
   );
