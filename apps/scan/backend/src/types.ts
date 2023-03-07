@@ -94,6 +94,7 @@ export type PrecinctScannerErrorType =
   | 'both_sides_have_paper'
   | 'paper_in_back_after_accept'
   | 'paper_in_front_after_reconnect'
+  | 'paper_in_both_sides_after_reconnect'
   | 'paper_in_back_after_reconnect'
   | 'unexpected_paper_status'
   | 'unexpected_event'

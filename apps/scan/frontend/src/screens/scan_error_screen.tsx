@@ -47,6 +47,7 @@ export function ScanErrorScreen({
       case 'scanning_failed':
       case 'both_sides_have_paper':
       case 'paper_in_front_after_reconnect':
+      case 'paper_in_both_sides_after_reconnect':
       case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
         return 'Remove ballot to continue.';
