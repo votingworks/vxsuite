@@ -34,7 +34,6 @@ import {
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
-  ResetElection,
 } from '../src/config/types';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
@@ -56,7 +55,6 @@ interface RenderInAppContextParams {
   isOfficialResults?: boolean;
   printer?: Printer;
   saveElection?: SaveElection;
-  resetElection?: ResetElection;
   resetFiles?: () => Promise<void>;
   usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
@@ -119,7 +117,6 @@ export function renderInAppContext(
     isOfficialResults = false,
     printer = new NullPrinter(),
     saveElection = jest.fn(),
-    resetElection = jest.fn(),
     resetFiles = jest.fn(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
@@ -164,7 +161,6 @@ export function renderInAppContext(
         isOfficialResults,
         printer,
         saveElection,
-        resetElection,
         resetFiles,
         usbDrive,
         fullElectionTally,

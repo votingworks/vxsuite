@@ -17,6 +17,8 @@ import {
   TallyReportPreview,
   Text,
 } from '@votingworks/ui';
+import { Admin } from '@votingworks/api';
+import { UseQueryResult } from '@tanstack/react-query';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -32,14 +34,16 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
-import { useMarkResultsOfficialMutation } from '../hooks/use_mark_results_official_mutation';
-import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
 import { PrintButton } from '../components/print_button';
+import {
+  getCastVoteRecordFiles,
+  getWriteInSummary,
+  markResultsOfficial,
+} from '../api';
 
 export function TallyReportScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -60,15 +64,17 @@ export function TallyReportScreen(): JSX.Element {
     auth,
     logger,
   } = useContext(AppContext);
-  const markResultsOfficialMutation = useMarkResultsOfficialMutation();
+  const markResultsOfficialMutation = markResultsOfficial.useMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
-  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
+  const writeInSummaryQuery = getWriteInSummary.useQuery({
+    status: 'adjudicated',
+  }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
   const screenAdjudicatedOfficialCandidateWriteInCounts =
     getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
 
-  const cvrFilesQuery = useCvrFilesQuery();
+  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const location = useLocation();
 
@@ -212,9 +218,9 @@ export function TallyReportScreen(): JSX.Element {
   function openMarkOfficialModal() {
     setIsMarkOfficialModalOpen(true);
   }
-  async function markOfficial() {
+  function markOfficial() {
     setIsMarkOfficialModalOpen(false);
-    await markResultsOfficialMutation.mutateAsync();
+    markResultsOfficialMutation.mutate();
   }
 
   if (isTabulationRunning) {
@@ -257,9 +263,8 @@ export function TallyReportScreen(): JSX.Element {
             <p>
               <Button
                 disabled={
-                  cvrFilesQuery.isLoading ||
-                  cvrFilesQuery.isError ||
-                  cvrFilesQuery.data.length === 0 ||
+                  !castVoteRecordFilesQuery.isSuccess ||
+                  castVoteRecordFilesQuery.data.length === 0 ||
                   isOfficialResults
                 }
                 onPress={openMarkOfficialModal}

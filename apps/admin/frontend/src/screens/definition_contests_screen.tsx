@@ -209,7 +209,8 @@ export function DefinitionContestsScreen({
           ...election.contests.slice(contestIndex + 1),
         ],
       };
-      await saveElection(JSON.stringify(newElection));
+      // expect stringified election to be valid election JSON
+      void (await saveElection(JSON.stringify(newElection)));
     }
   }
 

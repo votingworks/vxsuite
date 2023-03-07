@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { join } from 'path';
+import { basename, join } from 'path';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
@@ -24,11 +24,13 @@ import {
 } from '../config/types';
 import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
-import { useAddCastVoteRecordFileMutation } from '../hooks/use_add_cast_vote_record_file_mutation';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
-import { AddCastVoteRecordFileResult } from '../lib/backends';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import {
+  addCastVoteRecordFile,
+  getCastVoteRecordFileMode,
+  getCastVoteRecordFiles,
+} from '../api';
 
 const CvrFileTable = styled(Table)`
   margin-top: 20px;
@@ -52,21 +54,21 @@ const TestMode = styled.span`
 `;
 
 type ModalState =
-  | { state: 'error'; error: Error; filename: string }
+  | { state: 'error'; errorMessage?: string; filename: string }
   | { state: 'loading' }
-  | { state: 'duplicate'; result: AddCastVoteRecordFileResult }
+  | { state: 'duplicate'; result: Admin.CvrFileImportInfo }
   | { state: 'init' }
-  | { state: 'success'; result: AddCastVoteRecordFileResult };
+  | { state: 'success'; result: Admin.CvrFileImportInfo };
 
 export interface Props {
   onClose: () => void;
 }
 
-export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
+export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   const { usbDrive, electionDefinition, auth, logger } = useContext(AppContext);
-  const addCastVoteRecordFileMutation = useAddCastVoteRecordFileMutation();
-  const cvrFilesQuery = useCvrFilesQuery();
-  const fileMode = useCvrFileModeQuery().data;
+  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const addCastVoteRecordFileMutation = addCastVoteRecordFile.useMutation();
 
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
@@ -79,82 +81,61 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   >([]);
   const { election, electionHash } = electionDefinition;
 
-  async function importCvrFile(file: File) {
-    const filename = file.name;
+  async function importCastVoteRecordFile(path: string) {
+    const filename = basename(path);
     setCurrentState({ state: 'loading' });
 
-    try {
-      const addCastVoteRecordFileResult =
-        await addCastVoteRecordFileMutation.mutateAsync(file);
-
-      if (addCastVoteRecordFileResult.wasExistingFile) {
-        setCurrentState({
-          state: 'duplicate',
-          result: addCastVoteRecordFileResult,
-        });
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message:
-            'CVR file was not loaded as it is a duplicate of a previously loaded file.',
-          disposition: 'failure',
-          filename,
-          result: 'File not loaded, error shown to user.',
-        });
-      } else {
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: 'CVR file successfully loaded.',
-          disposition: 'success',
-          filename,
-          numberOfBallotsImported: addCastVoteRecordFileResult.newlyAdded,
-          duplicateBallotsIgnored: addCastVoteRecordFileResult.alreadyPresent,
-        });
-        setCurrentState({
-          state: 'success',
-          result: addCastVoteRecordFileResult,
-        });
-      }
-    } catch (error) {
-      assert(error instanceof Error);
-      setCurrentState({ state: 'error', error, filename });
-      await logger.log(LogEventId.CvrLoaded, userRole, {
-        message: `Failed to load CVR file: ${error.message}`,
-        disposition: 'failure',
-        filename,
-        error: error.message,
-        result: 'File not loaded, error shown to user.',
-      });
-    }
+    return new Promise<void>((resolve) => {
+      addCastVoteRecordFileMutation.mutate(
+        { path },
+        {
+          onSuccess: (addCastVoteRecordFileResult) => {
+            if (addCastVoteRecordFileResult.isErr()) {
+              setCurrentState({
+                state: 'error',
+                errorMessage:
+                  addCastVoteRecordFileResult.err().userFriendlyMessage,
+                filename,
+              });
+            } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
+              setCurrentState({
+                state: 'duplicate',
+                result: addCastVoteRecordFileResult.ok(),
+              });
+            } else {
+              setCurrentState({
+                state: 'success',
+                result: addCastVoteRecordFileResult.ok(),
+              });
+            }
+            resolve();
+          },
+        }
+      );
+    });
   }
 
   async function importSelectedFile(
     fileData: CastVoteRecordFilePreprocessedData
   ) {
-    assert(window.kiosk);
-    // TODO: To avoid unnecessarily loading potentially large CVR files into
-    // memory, we might want to add a file streaming API to kiosk-browser, or
-    // update the backend API to support importing files with just a file path
-    // instead of file attachments.
-    const fileContent = await window.kiosk.readFile(fileData.path, 'utf-8');
-
-    await importCvrFile(
-      new File([fileContent], fileData.name, {
-        lastModified: moment(fileData.exportTimestamp).valueOf(),
-      })
-    );
+    await importCastVoteRecordFile(fileData.path);
   }
 
   const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
     event
   ) => {
+    // electron adds a path field to the File object
+    assert(window.kiosk);
     const input = event.currentTarget;
     const files = Array.from(input.files || []);
-    const file = files[0];
+    const file = files[0] as File & { path: string };
 
     if (!file) {
       onClose();
       return;
     }
 
-    await importCvrFile(file);
+    await importCastVoteRecordFile(file.path);
   };
 
   async function fetchFilenames() {
@@ -214,6 +195,15 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDrive.status]);
 
+  if (
+    !castVoteRecordFilesQuery.isSuccess ||
+    !castVoteRecordFileModeQuery.isSuccess
+  ) {
+    return null;
+  }
+
+  const fileMode = castVoteRecordFileModeQuery.data;
+
   if (currentState.state === 'error') {
     return (
       <Modal
@@ -223,8 +213,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
             <p>
               There was an error reading the content of the file{' '}
               <strong>{currentState.filename}</strong>:{' '}
-              {currentState.error.message}. Please ensure this file only
-              contains valid CVR data for this election.
+              {currentState.errorMessage}. Please ensure this file only contains
+              valid CVR data for this election.
             </p>
           </Prose>
         }
@@ -276,7 +266,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   if (
-    cvrFilesQuery.isLoading ||
     currentState.state === 'loading' ||
     usbDrive.status === 'ejecting' ||
     usbDrive.status === 'mounting'
@@ -314,7 +303,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {(!window.kiosk || process.env.NODE_ENV === 'development') && (
+            {process.env.NODE_ENV === 'development' && (
               <FileInputButton
                 data-testid="manual-input"
                 onChange={processCastVoteRecordFileFromFilePicker}
@@ -336,7 +325,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
-    const cvrFiles = cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
+    const cvrFiles = castVoteRecordFilesQuery.data;
     const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
     for (const file of foundFiles) {
       const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =

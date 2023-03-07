@@ -22,8 +22,8 @@ import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
-import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 import { PrintButton } from '../components/print_button';
+import { getPrintedBallots } from '../api';
 
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
@@ -31,7 +31,7 @@ type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 export function PrintedBallotsReportScreen(): JSX.Element {
   const { electionDefinition, configuredAt, logger, auth } =
     useContext(AppContext);
-  const printedBallotsQuery = usePrintedBallotsQuery({
+  const printedBallotsQuery = getPrintedBallots.useQuery({
     ballotMode: Admin.BallotMode.Official,
   });
   const printedBallots = printedBallotsQuery.data ?? [];

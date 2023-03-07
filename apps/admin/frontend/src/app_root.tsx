@@ -30,15 +30,17 @@ import {
   ResultsFileType,
   MachineConfig,
   ExportableTallies,
-  ResetElection,
 } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
-import { useClearCastVoteRecordFilesMutation } from './hooks/use_clear_cast_vote_record_files_mutation';
-import { useCurrentElectionMetadata } from './hooks/use_current_election_metadata';
-import { useCvrsQuery } from './hooks/use_cvrs_query';
-import { getAuthStatus } from './api';
+import {
+  clearCastVoteRecordFiles,
+  configure,
+  getAuthStatus,
+  getCastVoteRecords,
+  getCurrentElectionMetadata,
+} from './api';
 
 export interface Props {
   printer: Printer;
@@ -69,16 +71,19 @@ export function AppRoot({
   });
 
   const authStatusQuery = getAuthStatus.useQuery();
+  const configureMutation = configure.useMutation();
+  const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
+  const castVoteRecordsQuery = getCastVoteRecords.useQuery();
   const currentUserRole =
     authStatusQuery.data?.status === 'logged_in'
       ? authStatusQuery.data.user.role
       : 'unknown';
 
   const store = useElectionManagerStore();
-  const currentElection = useCurrentElectionMetadata();
-  const cvrs = useCvrsQuery().data;
+  const cvrs = castVoteRecordsQuery.data;
 
-  const electionDefinition = currentElection.data?.electionDefinition;
+  const electionDefinition =
+    currentElectionMetadataQuery.data?.electionDefinition;
 
   store.setCurrentUserRole(currentUserRole);
 
@@ -142,15 +147,20 @@ export function AppRoot({
   );
 
   const saveElection: SaveElection = useCallback(
-    async (electionJson) => {
-      await store.configure(electionJson);
+    async (electionData) => {
+      return new Promise((resolve) => {
+        configureMutation.mutate(
+          {
+            electionData,
+          },
+          {
+            onSuccess: resolve,
+          }
+        );
+      });
     },
-    [store]
+    [configureMutation]
   );
-
-  const resetElection: ResetElection = useCallback(async () => {
-    await store.reset();
-  }, [store]);
 
   const generateExportableTallies = useCallback((): ExportableTallies => {
     assert(electionDefinition);
@@ -162,7 +172,7 @@ export function AppRoot({
   }, [electionDefinition, store, fullElectionTally]);
 
   const clearCastVoteRecordFilesMutation =
-    useClearCastVoteRecordFilesMutation();
+    clearCastVoteRecordFiles.useMutation();
 
   const resetFiles = useCallback(
     async (fileType: ResultsFileType) => {
@@ -202,7 +212,11 @@ export function AppRoot({
     [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
   );
 
-  if (!authStatusQuery.isSuccess || !currentElection.isSuccess) {
+  if (
+    !authStatusQuery.isSuccess ||
+    !currentElectionMetadataQuery.isSuccess ||
+    !castVoteRecordsQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -210,12 +224,12 @@ export function AppRoot({
     <AppContext.Provider
       value={{
         electionDefinition,
-        configuredAt: currentElection.data?.createdAt,
+        configuredAt: currentElectionMetadataQuery.data?.createdAt,
         converter,
-        isOfficialResults: currentElection.data?.isOfficialResults ?? false,
+        isOfficialResults:
+          currentElectionMetadataQuery.data?.isOfficialResults ?? false,
         printer,
         saveElection,
-        resetElection,
         resetFiles,
         usbDrive,
         fullElectionTally,

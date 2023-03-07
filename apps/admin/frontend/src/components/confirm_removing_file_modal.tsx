@@ -6,8 +6,7 @@ import { Modal, Prose, Button } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
-import { Loading } from './loading';
+import { getCastVoteRecordFiles } from '../api';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;
@@ -19,33 +18,25 @@ export function ConfirmRemovingFileModal({
   onConfirm,
   onCancel,
   fileType,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const { fullElectionExternalTallies } = useContext(AppContext);
 
   const manualData = fullElectionExternalTallies.get(
     ExternalTallySourceType.Manual
   );
 
-  const cvrFilesQuery = useCvrFilesQuery();
+  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
-  const isLoading =
-    (fileType === ResultsFileType.CastVoteRecord ||
-      fileType === ResultsFileType.All) &&
-    cvrFilesQuery.isLoading;
+  if (!castVoteRecordFilesQuery.isSuccess) {
+    return null;
+  }
 
   let mainContent: React.ReactNode = null;
   let fileTypeName = '';
   let singleFileRemoval = true;
   switch (fileType) {
     case ResultsFileType.CastVoteRecord: {
-      if (isLoading) {
-        return <Loading />;
-      }
-
-      const fileList =
-        cvrFilesQuery.isLoading || cvrFilesQuery.isError
-          ? []
-          : cvrFilesQuery.data;
+      const fileList = castVoteRecordFilesQuery.data;
       singleFileRemoval = fileList.length <= 1;
       fileTypeName = 'CVR Files';
       mainContent = (
@@ -65,16 +56,9 @@ export function ConfirmRemovingFileModal({
       break;
     }
     case ResultsFileType.All: {
-      if (isLoading) {
-        return <Loading />;
-      }
-
       fileTypeName = 'Data';
       singleFileRemoval = false;
-      const fileList =
-        cvrFilesQuery.isLoading || cvrFilesQuery.isError
-          ? []
-          : cvrFilesQuery.data;
+      const fileList = castVoteRecordFilesQuery.data;
       mainContent = (
         <React.Fragment>
           <p>
@@ -97,11 +81,7 @@ export function ConfirmRemovingFileModal({
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={
         <React.Fragment>
-          <Button
-            danger
-            disabled={isLoading}
-            onPress={() => onConfirm(fileType)}
-          >
+          <Button danger onPress={() => onConfirm(fileType)}>
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
           <Button onPress={onCancel}>Cancel</Button>

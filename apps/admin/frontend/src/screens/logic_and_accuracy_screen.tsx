@@ -7,12 +7,14 @@ import { routerPaths } from '../router_paths';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { getCastVoteRecordFileMode } from '../api';
 
-export function LogicAndAccuracyScreen(): JSX.Element {
+export function LogicAndAccuracyScreen(): JSX.Element | null {
   const { electionDefinition } = useContext(AppContext);
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
-  const isLiveMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Official;
+  const isLiveMode =
+    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Official;
 
   if (
     electionDefinition &&

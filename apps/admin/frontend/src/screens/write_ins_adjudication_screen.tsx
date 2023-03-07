@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { Navigation } from '../components/navigation';
 import { WriteInAdjudicationTable } from '../components/write_in_adjudication_table';
 import { AppContext } from '../contexts/app_context';
-import { useWriteInAdjudicationTableQuery } from '../hooks/use_write_in_adjudication_table_query';
+import { getWriteInAdjudicationTable } from '../api';
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -57,7 +57,7 @@ export function WriteInsAdjudicationScreen({
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
-  const writeInAdjudicationTableQuery = useWriteInAdjudicationTableQuery({
+  const writeInAdjudicationTableQuery = getWriteInAdjudicationTable.useQuery({
     contestId: contest.id,
   });
   const { isLoading } = writeInAdjudicationTableQuery;

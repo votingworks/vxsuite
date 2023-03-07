@@ -1,10 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { assert, typedAs } from '@votingworks/basics';
-import {
-  LogDispositionStandardTypes,
-  LogEventId,
-  LoggingUserRole,
-} from '@votingworks/logging';
+import { LoggingUserRole } from '@votingworks/logging';
 import {
   ElectionDefinition,
   ExternalTallySourceType,
@@ -13,15 +9,6 @@ import {
 } from '@votingworks/types';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
-import { getCurrentElectionMetadataResultsQueryKey } from './use_current_election_metadata';
-import { getCvrsQueryKey } from './use_cvrs_query';
-import { getCvrFilesQueryKey } from './use_cvr_files_query';
-import { getCvrFileModeQueryKey } from './use_cvr_file_mode_query';
-import { getPrintedBallotsQueryKey } from './use_printed_ballots_query';
-import { getWriteInsQueryKey } from './use_write_ins_query';
-import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
-import { getWriteInImageQueryKey } from './use_write_in_images_query';
-import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
 export interface ElectionManagerStore {
   /**
@@ -33,18 +20,6 @@ export interface ElectionManagerStore {
    * Tallies from external sources, e.g. manually entered tallies.
    */
   readonly fullElectionExternalTallies: FullElectionExternalTallies;
-
-  /**
-   * Resets all stored data, including the election definition and CVRs.
-   */
-  reset(): Promise<void>;
-
-  /**
-   * Configures with a new election definition after resetting.
-   *
-   * @param newElectionData election definition as JSON string
-   */
-  configure(newElectionData: string): Promise<ElectionDefinition>;
 
   /**
    * Updates the external tally for a given source.
@@ -72,14 +47,13 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
 /**
  * Manages the stored data for VxAdmin.
  */
 export function useElectionManagerStore(): ElectionManagerStore {
-  const { backend, logger } = useContext(ServicesContext);
+  const { backend } = useContext(ServicesContext);
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
 
@@ -90,55 +64,6 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
   const fullElectionExternalTallies = getExternalElectionTalliesQuery.data;
-
-  const reset = useCallback(async () => {
-    await backend.reset();
-    await logger.log(
-      LogEventId.ElectionUnconfigured,
-      currentUserRoleRef.current,
-      {
-        disposition: LogDispositionStandardTypes.Success,
-      }
-    );
-    await queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
-    await queryClient.invalidateQueries(getPrintedBallotsQueryKey());
-    await queryClient.invalidateQueries(getWriteInImageQueryKey());
-    await queryClient.invalidateQueries(getWriteInsQueryKey());
-    await queryClient.invalidateQueries(getWriteInSummaryQueryKey());
-    await queryClient.invalidateQueries(getWriteInAdjudicationTableQueryKey());
-    await queryClient.invalidateQueries(
-      getCurrentElectionMetadataResultsQueryKey()
-    );
-    await queryClient.invalidateQueries(getCvrFilesQueryKey(), {
-      // TODO(kofi): This is a pattern we're potentially adopting across the
-      // repo and will be make sweeping updates for soon. This specific case is
-      // needed to enable a test to pass after a recent change.
-      refetchType: 'all',
-    });
-    await queryClient.invalidateQueries(getCvrsQueryKey());
-    await queryClient.invalidateQueries(getCvrFileModeQueryKey());
-  }, [backend, logger, queryClient]);
-
-  const configure = useCallback(
-    async (newElectionData: string): Promise<ElectionDefinition> => {
-      await reset();
-      const newElectionDefinition = await backend.configure(newElectionData);
-      await logger.log(
-        LogEventId.ElectionConfigured,
-        currentUserRoleRef.current,
-        {
-          disposition: LogDispositionStandardTypes.Success,
-          newElectionHash: newElectionDefinition.electionHash,
-        }
-      );
-      await queryClient.invalidateQueries(
-        getCurrentElectionMetadataResultsQueryKey()
-      );
-      await queryClient.invalidateQueries([configuredAtStorageKey]);
-      return newElectionDefinition;
-    },
-    [backend, logger, queryClient, reset]
-  );
 
   const updateFullElectionExternalTallyMutation = useMutation(
     async (newFullElectionExternalTally: FullElectionExternalTally) => {
@@ -208,20 +133,15 @@ export function useElectionManagerStore(): ElectionManagerStore {
     () =>
       typedAs<ElectionManagerStore>({
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
-
         clearFullElectionExternalTallies,
-        configure,
-        reset,
         setCurrentUserRole,
         updateFullElectionExternalTally,
         removeFullElectionExternalTally,
       }),
     [
       clearFullElectionExternalTallies,
-      configure,
       fullElectionExternalTallies,
       removeFullElectionExternalTally,
-      reset,
       setCurrentUserRole,
       updateFullElectionExternalTally,
     ]

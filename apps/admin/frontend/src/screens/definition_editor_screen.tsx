@@ -62,7 +62,7 @@ export function DefinitionEditorScreen({
   async function handleSaveElection() {
     const valid = validateElectionDefinition();
     if (valid) {
-      await saveElection(electionString);
+      void (await saveElection(electionString));
       setDirty(false);
       setError('');
     }

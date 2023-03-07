@@ -23,6 +23,8 @@ import { Button, Modal, Prose, Table, TD, Text } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
+import { UseQueryResult } from '@tanstack/react-query';
+import { Admin } from '@votingworks/api';
 import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -37,11 +39,11 @@ import {
   getEmptyExternalTalliesByPrecinct,
   getTotalNumberOfBallots,
 } from '../utils/external_tallies';
-import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import {
   getAdjudicatedWriteInCandidate,
   isManuallyAdjudicatedWriteInCandidate,
 } from '../utils/write_ins';
+import { getWriteInSummary } from '../api';
 
 const MANUAL_DATA_NAME = 'Manually Added Data';
 
@@ -328,7 +330,9 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     existingPrecinctTally
   );
 
-  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
+  const writeInSummaryQuery = getWriteInSummary.useQuery({
+    status: 'adjudicated',
+  }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
   // Get empty tallies with previously adjudicated candidate names, only
   // when none already exist at initial page load
   useEffect(() => {

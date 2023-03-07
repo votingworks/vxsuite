@@ -8,7 +8,6 @@ import React, {
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { safeParseElection } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Button, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
@@ -79,18 +78,10 @@ export function UnconfiguredScreen(): JSX.Element {
     [converter]
   );
 
-  async function loadDemoElection() {
-    await saveElection(demoElection);
+  function loadDemoElection() {
+    void saveElection(demoElection);
     history.push(routerPaths.electionDefinition);
   }
-
-  const validateAndSaveElection = useCallback(
-    async (electionJson: string) => {
-      safeParseElection(electionJson).unsafeUnwrap();
-      await saveElection(electionJson);
-    },
-    [saveElection]
-  );
 
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true);
@@ -99,15 +90,18 @@ export function UnconfiguredScreen(): JSX.Element {
 
     if (file) {
       setVxElectionFileIsInvalid(false);
-      try {
-        const fileContent = await readFileAsync(file);
-        await validateAndSaveElection(fileContent);
-      } catch (error) {
+      // TODO: read file content from backend
+      const fileContent = await readFileAsync(file);
+      const configureResult = await saveElection(fileContent);
+      if (configureResult.isErr()) {
         setVxElectionFileIsInvalid(true);
-        console.error('handleVxElectionFile failed', error); // eslint-disable-line no-console
-      } finally {
-        setIsUploading(false);
+        // eslint-disable-next-line no-console
+        console.error(
+          'handleVxElectionFile failed',
+          configureResult.err().message
+        );
       }
+      setIsUploading(false);
     }
   };
 
@@ -127,15 +121,16 @@ export function UnconfiguredScreen(): JSX.Element {
         setIsLoading(true);
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
-        const electionJson = await new Response(blob).text();
-        await validateAndSaveElection(electionJson);
+        const electionData = await new Response(blob).text();
+        // expect our own converted elections to be valid
+        void (await saveElection(electionData));
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
         setIsLoading(false);
       }
     },
-    [client, resetServerFiles, validateAndSaveElection]
+    [client, resetServerFiles, saveElection]
   );
 
   const processInputFiles = useCallback(
