@@ -1,0 +1,48 @@
+{
+  "name": "@votingworks/ballot-interpreter-nh-next",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "pnpm build:ext && pnpm build:ts",
+    "build:ext": "cargo-cp-artifact -nc build/extension.node -- cargo build --message-format=json-render-diagnostics",
+    "build:ext:debug": "pnpm build:ext",
+    "build:ext:release": "pnpm build:ext --release",
+    "build:ts": "tsc --build tsconfig.build.json",
+    "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "install": "pnpm build:ext:release",
+    "test:ext": "cargo test",
+    "test:ts": "jest",
+    "test:ts:watch": "jest --watch",
+    "test": "pnpm test:ext && pnpm test:ts"
+  },
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@jest/types": "^29.5.0",
+    "@types/jest": "^29.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "@votingworks/fixtures": "workspace:*",
+    "cargo-cp-artifact": "^0.1",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vx": "workspace:*",
+    "jest": "^29.5.0",
+    "jest-watch-typeahead": "^0.6.4",
+    "ts-jest": "^29.0.5",
+    "typescript": "4.6.3"
+  }
+}
