@@ -22,7 +22,7 @@ import {
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UsbDrive } from '@votingworks/ui';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, UsbDrive } from '@votingworks/ui';
 import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
@@ -83,12 +83,13 @@ export function renderRootElement(
     logger = fakeLogger(),
     storage = new MemoryStorage(),
     apiClient = createMockApiClient(),
-    // TODO: Determine why tests fail when using createQueryClient and, by extension,
-    // QUERY_CLIENT_DEFAULT_OPTIONS
+    // TODO: Determine why tests fail when using useErrorBoundary = true
     queryClient = new QueryClient({
       defaultOptions: {
+        ...QUERY_CLIENT_DEFAULT_OPTIONS,
         queries: {
-          staleTime: Infinity,
+          ...(QUERY_CLIENT_DEFAULT_OPTIONS.queries ?? {}),
+          useErrorBoundary: false,
         },
       },
     }),
