@@ -3,10 +3,11 @@ import { LogEventType } from './log_event_types';
 import { LogSource } from './log_source';
 
 /**
- * In order to add a new log event you must do three things:
+ * In order to add a new log event you must do four things:
  * 1. Add the new event to the enum LogEventId
  * 2. Define a LogDetails object representing the information about that log event.
  * 3. Add a case statement to the switch in getDetailsForEventId returning your new LogDetails object when you see your new LogEventId.
+ * 4. Update the test expectation for number of EventIdDescriptions in libs/logging/src/log_documentation.test.ts
  * You will then be ready to use the log event from your code!
  */
 
@@ -67,6 +68,7 @@ export enum LogEventId {
   ConvertingResultsToSemsFormat = 'converting-to-sems',
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
+  TestDeckTallyReportSavedToPdf = 'test-deck-tally-report-saved-to-pdf',
   // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
@@ -463,6 +465,14 @@ const TestDeckTallyReportPrinted: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User printed the test deck tally report. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+
+const TestDeckTallyReportSavedToPdf: LogDetails = {
+  eventId: LogEventId.TestDeckTallyReportSavedToPdf,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -955,6 +965,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TestDeckPrinted;
     case LogEventId.TestDeckTallyReportPrinted:
       return TestDeckTallyReportPrinted;
+    case LogEventId.TestDeckTallyReportSavedToPdf:
+      return TestDeckTallyReportSavedToPdf;
     case LogEventId.TogglingTestMode:
       return TogglingTestMode;
     case LogEventId.ToggledTestMode:
