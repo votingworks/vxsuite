@@ -67,6 +67,7 @@ export enum LogEventId {
   ConvertingResultsToSemsFormat = 'converting-to-sems',
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
+  TestDeckTallyReportSavedToPdf = 'test-deck-tally-report-saved-to-pdf',
   // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
@@ -463,6 +464,14 @@ const TestDeckTallyReportPrinted: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User printed the test deck tally report. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+
+const TestDeckTallyReportSavedToPdf: LogDetails = {
+  eventId: LogEventId.TestDeckTallyReportSavedToPdf,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -955,6 +964,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TestDeckPrinted;
     case LogEventId.TestDeckTallyReportPrinted:
       return TestDeckTallyReportPrinted;
+    case LogEventId.TestDeckTallyReportSavedToPdf:
+      return TestDeckTallyReportSavedToPdf;
     case LogEventId.TogglingTestMode:
       return TogglingTestMode;
     case LogEventId.ToggledTestMode:

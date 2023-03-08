@@ -51,10 +51,9 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   }, [logger, userRole, fullTestDeckTallyReport]);
 
   const onClickSaveFullTestDeckTallyReportToPdf = useCallback(async () => {
-    // TODO add new logging event
-    await logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
+    await logger.log(LogEventId.TestDeckTallyReportSavedToPdf, userRole, {
       disposition: 'na',
-      message: 'User clicked "Save PDF"',
+      message: 'User attempted to save full test deck tally report to PDF',
     });
     setIsSaveModalOpen(true);
   }, [logger, userRole]);
