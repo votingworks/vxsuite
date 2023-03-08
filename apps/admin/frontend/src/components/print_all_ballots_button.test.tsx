@@ -155,15 +155,6 @@ test('print sequence proceeds as expected', async () => {
         disposition: 'success',
       })
     );
-    // const printedBallots = await backend.loadPrintedBallots();
-    // expect(printedBallots).toHaveLength(i + 1);
-    // expect(printedBallots[printedBallots.length - 1]).toEqual(
-    //   expect.objectContaining(
-    //     typedAs<Partial<Admin.PrintedBallotRecord>>({
-    //       numCopies: 1,
-    //     })
-    //   )
-    // );
     jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   }
 
