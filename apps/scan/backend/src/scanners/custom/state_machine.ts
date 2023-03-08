@@ -171,15 +171,6 @@ async function closeCustomClient({ client }: Context) {
   debug('Custom scanner client closed');
 }
 
-async function killCustomClient({ client }: Context) {
-  if (!client) return;
-  debug('Killing Custom scanner client');
-  await new Promise((resolve) => {
-    resolve(client.disconnect());
-  });
-  debug('Custom scanner client killed');
-}
-
 function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
@@ -1082,15 +1073,6 @@ function buildMachine({
             disconnecting: {
               invoke: {
                 src: closeCustomClient,
-                onDone: 'cooling_off',
-                onError: 'killing',
-              },
-              after: { DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 'killing' },
-            },
-            // If that doesn't work or takes too long, send a kill signal
-            killing: {
-              invoke: {
-                src: killCustomClient,
                 onDone: 'cooling_off',
                 onError: 'unexpected_error',
               },
