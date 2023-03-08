@@ -326,7 +326,7 @@ function buildApi({
       store.transcribeWriteIn(input.writeInId, input.transcribedValue);
     },
 
-    // TODO: Not being used by frontend. Do we need it?
+    // not being used by frontend, can be removed if determined unnecessary
     getWriteInAdjudications(
       input: { contestId?: ContestId } = {}
     ): Admin.WriteInAdjudicationRecord[] {
@@ -362,7 +362,8 @@ function buildApi({
       store.deleteWriteInAdjudication(input.writeInAdjudicationId);
     },
 
-    // TODO: Frontend only uses with status "adjudicated". Change to improve typing?
+    // frontend only using with status "adjudicated". this could be a more
+    // targeted query if the other status filters are determined unnecessary
     getWriteInSummary(
       input: {
         contestId?: ContestId;
