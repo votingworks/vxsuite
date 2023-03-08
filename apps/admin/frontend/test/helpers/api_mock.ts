@@ -103,7 +103,7 @@ export function createApiMock(
     },
 
     expectGetCurrentElectionMetadata(
-      metadata: {
+      metadata?: {
         electionDefinition: ElectionDefinition;
         isOfficialResults?: boolean;
         id?: string;
@@ -118,7 +118,7 @@ export function createApiMock(
               isOfficialResults: false,
               ...metadata,
             }
-          : undefined
+          : null
       );
     },
 

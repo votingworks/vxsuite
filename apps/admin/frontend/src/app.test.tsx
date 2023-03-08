@@ -1272,7 +1272,7 @@ test('usb formatting flows', async () => {
 
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCurrentElectionMetadata();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();

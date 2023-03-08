@@ -105,7 +105,7 @@ test('managing the current election', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  expect(await apiClient.getCurrentElectionMetadata()).toBeUndefined();
+  expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
 
   // try configuring with malformed election data
@@ -166,7 +166,7 @@ test('managing the current election', async () => {
       disposition: 'success',
     })
   );
-  expect(await apiClient.getCurrentElectionMetadata()).toBeUndefined();
+  expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
 
   // confirm we can reconfigure on same app instance
   void (await apiClient.configure({

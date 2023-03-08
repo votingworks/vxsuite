@@ -162,13 +162,15 @@ function buildApi({
       );
     },
 
-    getCurrentElectionMetadata(): Optional<Admin.ElectionRecord> {
+    getCurrentElectionMetadata(): Admin.ElectionRecord | null {
       const currentElectionId = store.getCurrentElectionId();
       if (currentElectionId) {
         const electionRecord = store.getElection(currentElectionId);
         assert(electionRecord);
         return electionRecord;
       }
+
+      return null;
     },
 
     async markResultsOfficial(): Promise<void> {
