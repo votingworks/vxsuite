@@ -57,7 +57,7 @@ export function expectGetCurrentElectionMetadata(
             isOfficialResults: false,
             ...metadata,
           }
-        : null
+        : undefined
     );
   }
 }
@@ -149,7 +149,7 @@ export function createApiMock(
                 isOfficialResults: false,
                 ...metadata,
               }
-            : null
+            : undefined
         );
       }
     },
