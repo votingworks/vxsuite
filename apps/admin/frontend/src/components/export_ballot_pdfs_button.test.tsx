@@ -28,9 +28,9 @@ afterEach(() => {
 });
 
 test('button renders properly when not clicked', () => {
-  const { getButton } = renderInAppContext(<ExportBallotPdfsButton />);
+  renderInAppContext(<ExportBallotPdfsButton />);
 
-  getButton('Save PDFs');
+  screen.getButton('Save PDFs');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 

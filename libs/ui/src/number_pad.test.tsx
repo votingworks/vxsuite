@@ -1,6 +1,6 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render } from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 
 import { NumberPad } from './number_pad';
 
@@ -8,7 +8,7 @@ test('click all pad buttons', () => {
   const onPress = jest.fn();
   const onBackspace = jest.fn();
   const onClear = jest.fn();
-  const { getButton } = render(
+  render(
     <NumberPad
       onButtonPress={onPress}
       onBackspace={onBackspace}
@@ -16,16 +16,16 @@ test('click all pad buttons', () => {
     />
   );
   for (let digit = 0; digit <= 9; digit += 1) {
-    userEvent.click(getButton(`${digit}`));
+    userEvent.click(screen.getButton(`${digit}`));
     expect(onPress).toHaveBeenCalledWith(digit);
   }
   expect(onPress).toHaveBeenCalledTimes(10);
 
-  const backspaceButton = getButton('backspace');
+  const backspaceButton = screen.getButton('backspace');
   userEvent.click(backspaceButton);
   expect(onBackspace).toHaveBeenCalledTimes(1);
 
-  const clearButton = getButton('clear');
+  const clearButton = screen.getButton('clear');
   userEvent.click(clearButton);
   expect(onClear).toHaveBeenCalledTimes(1);
 });

@@ -1673,7 +1673,7 @@ test('can reset polls to paused with system administrator card', async () => {
   const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
-  const { getButton } = renderApp();
+  renderApp();
   await screen.findByText('Polls Closed');
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
 
@@ -1685,7 +1685,7 @@ test('can reset polls to paused with system administrator card', async () => {
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  expect(getButton('Reset Polls to Paused')).toBeDisabled();
+  expect(screen.getButton('Reset Polls to Paused')).toBeDisabled();
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');

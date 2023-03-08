@@ -58,7 +58,7 @@ function renderApp(props: Partial<AppProps> = {}) {
   });
   const logger = fakeLogger();
   const storage = new MemoryStorage();
-  const renderResult = render(
+  render(
     <App
       hardware={hardware}
       logger={logger}
@@ -66,7 +66,7 @@ function renderApp(props: Partial<AppProps> = {}) {
       {...props}
     />
   );
-  return { hardware, logger, storage, ...renderResult };
+  return { hardware, logger, storage };
 }
 
 /**
@@ -194,7 +194,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper, 2);
-  const { logger, findButton, getButton } = renderApp();
+  const { logger } = renderApp();
   await screen.findByText('Polls Closed');
 
   // Calibrate scanner as Election Manager
@@ -219,8 +219,10 @@ test('election manager and poll worker configuration', async () => {
   await hackActuallyCleanUpReactModal();
 
   apiMock.expectGetConfig(config);
-  userEvent.click(await findButton('Official Ballot Mode'));
-  await waitFor(() => expect(getButton('Official Ballot Mode')).toBeDisabled());
+  userEvent.click(await screen.findButton('Official Ballot Mode'));
+  await waitFor(() =>
+    expect(screen.getButton('Official Ballot Mode')).toBeDisabled()
+  );
 
   // Change precinct as Election Manager
   const precinct = electionDefinition.election.precincts[0];

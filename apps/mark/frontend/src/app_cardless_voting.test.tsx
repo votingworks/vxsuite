@@ -47,7 +47,7 @@ test('Cardless Voting Flow', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  const { getButton } = render(
+  render(
     <App
       hardware={hardware}
       apiClient={apiMock.mockApiClient}
@@ -90,7 +90,7 @@ test('Cardless Voting Flow', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(getButton('Official Ballot Mode')).toBeDisabled();
+  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -356,7 +356,7 @@ test('poll worker must select a precinct first', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  const { getButton } = render(
+  render(
     <App
       hardware={hardware}
       apiClient={apiMock.mockApiClient}
@@ -396,7 +396,7 @@ test('poll worker must select a precinct first', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
   fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(getButton('Official Ballot Mode')).toBeDisabled();
+  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

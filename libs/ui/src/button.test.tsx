@@ -32,7 +32,7 @@ describe('renders Button', () => {
     for (const variant of ALL_BUTTON_VARIANTS) {
       const onPress = jest.fn();
 
-      const { getButton } = render(
+      render(
         <Button onPress={onPress} variant={variant}>
           {variant} button
         </Button>
@@ -40,7 +40,7 @@ describe('renders Button', () => {
 
       expect(onPress).not.toHaveBeenCalled();
 
-      fireEvent.click(getButton(`${variant} button`));
+      fireEvent.click(screen.getButton(`${variant} button`));
 
       expect(onPress).toHaveBeenCalled();
     }
@@ -50,14 +50,11 @@ describe('renders Button', () => {
     const onPress = jest.fn();
 
     function getButtonFontSizePx(sizeMode: SizeMode) {
-      const { getButton } = render(
-        <Button onPress={onPress}>{sizeMode} button</Button>,
-        {
-          vxTheme: { colorMode: 'contrastMedium', sizeMode },
-        }
-      );
+      render(<Button onPress={onPress}>{sizeMode} button</Button>, {
+        vxTheme: { colorMode: 'contrastMedium', sizeMode },
+      });
 
-      const button = getButton(`${sizeMode} button`);
+      const button = screen.getButton(`${sizeMode} button`);
       return remToPx(window.getComputedStyle(button).fontSize);
     }
 
@@ -77,7 +74,7 @@ describe('renders Button', () => {
     function verifyPrimaryButtonColor(colorMode: ColorMode) {
       const expectedTheme = makeTheme({ colorMode, sizeMode: 's' });
 
-      const { getButton } = render(
+      render(
         <Button onPress={onPress} variant="primary">
           {colorMode} button
         </Button>,
@@ -86,7 +83,7 @@ describe('renders Button', () => {
         }
       );
 
-      const button = getButton(`${colorMode} button`);
+      const button = screen.getButton(`${colorMode} button`);
       const buttonColor = window.getComputedStyle(button).backgroundColor;
 
       expect(parseCssColor(buttonColor)).toEqual(
@@ -104,19 +101,19 @@ describe('renders Button', () => {
   test('propagates click/tap events with specified event value', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const onPress = jest.fn((_value: [string, string]) => undefined);
-    const { getButton } = render(
+    render(
       <Button onPress={onPress} value={['foo', 'bar']}>
         Click me
       </Button>
     );
 
-    fireEvent.click(getButton('Click me'));
+    fireEvent.click(screen.getButton('Click me'));
 
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
 
   test('legacy fullWidth button', () => {
-    const { getButton } = render(
+    render(
       <Button onPress={jest.fn()} fullWidth>
         Full Width Button
       </Button>,
@@ -124,12 +121,12 @@ describe('renders Button', () => {
         vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
       }
     );
-    const button = getButton('Full Width Button');
+    const button = screen.getButton('Full Width Button');
     expect(button).toHaveStyleRule('width', '100%');
   });
 
   test('with options: big danger', () => {
-    const { getButton } = render(
+    render(
       <Button onPress={jest.fn()} large variant="danger">
         I’m a big button!
       </Button>,
@@ -137,7 +134,7 @@ describe('renders Button', () => {
         vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
       }
     );
-    const button = getButton('I’m a big button!');
+    const button = screen.getButton('I’m a big button!');
     expect(button).toHaveStyleRule('padding', '1em 1.75em');
     expect(button).toHaveStyleRule('font-size', '1.25em');
     expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_DANGER);
@@ -147,7 +144,7 @@ describe('renders Button', () => {
   test('disabled button', () => {
     const onPress = jest.fn();
 
-    const { getButton } = render(
+    render(
       <div>
         <Button onPress={onPress} variant="danger">
           Enabled Button
@@ -159,8 +156,8 @@ describe('renders Button', () => {
       { vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' } }
     );
 
-    const enabledButton = getButton('Enabled Button');
-    const disabledButton = getButton('Disabled Button');
+    const enabledButton = screen.getButton('Enabled Button');
+    const disabledButton = screen.getButton('Disabled Button');
 
     // Ignores click/tap events:
     fireEvent.click(disabledButton);
@@ -183,13 +180,13 @@ describe('renders Button', () => {
   test('focus()/blur() API', () => {
     const buttonRef = React.createRef<Button>();
 
-    const { getButton } = render(
+    render(
       <Button onPress={jest.fn()} ref={buttonRef}>
         Focus on me
       </Button>
     );
 
-    const buttonElement = getButton('Focus on me');
+    const buttonElement = screen.getButton('Focus on me');
     expect(buttonElement).not.toHaveFocus();
 
     assert(buttonRef.current);
@@ -203,7 +200,7 @@ describe('renders Button', () => {
   test('autoFocus option', () => {
     const onPress = jest.fn();
 
-    const { getButton } = render(
+    render(
       <div>
         <Button onPress={onPress}>Cancel</Button>
         <Button onPress={onPress} variant="primary" autoFocus>
@@ -212,7 +209,7 @@ describe('renders Button', () => {
       </div>
     );
 
-    expect(getButton('Confirm')).toHaveFocus();
+    expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
   test('as DecoyButton with options: small warning', () => {
@@ -231,10 +228,8 @@ describe('renders Button', () => {
 
   test('and tests clicks and touches', () => {
     const onPress = jest.fn();
-    const { getButton } = render(
-      <Button onPress={onPress}>Test Button</Button>
-    );
-    const button = getButton('Test Button');
+    render(<Button onPress={onPress}>Test Button</Button>);
+    const button = screen.getButton('Test Button');
 
     fireEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(1);

@@ -40,23 +40,20 @@ test('Tally results already marked as official', async () => {
     new File([abbreviatedCvrData], 'cvrs.jsonl')
   );
 
-  const { findAllButtons, getAllButtons } = renderInAppContext(
-    <WriteInsScreen />,
-    {
-      backend,
-      electionDefinition,
-      isOfficialResults: true,
-    }
-  );
+  renderInAppContext(<WriteInsScreen />, {
+    backend,
+    electionDefinition,
+    isOfficialResults: true,
+  });
 
   await screen.findByText(/No further changes may be made/);
 
-  const transcribeButtons = await findAllButtons(/Transcribe \d/);
+  const transcribeButtons = await screen.findAllButtons(/Transcribe \d/);
   for (const transcribeButton of transcribeButtons) {
     expect(transcribeButton).toBeDisabled();
   }
 
-  const adjudicateButtons = getAllButtons('Adjudicate');
+  const adjudicateButtons = screen.getAllButtons('Adjudicate');
   for (const adjudicateButton of adjudicateButtons) {
     expect(adjudicateButton).toBeDisabled();
   }
@@ -70,15 +67,15 @@ test('CVRs with write-ins loaded', async () => {
     new File([abbreviatedCvrData], 'cvrs.jsonl')
   );
 
-  const { findButton } = renderInAppContext(<WriteInsScreen />, {
+  renderInAppContext(<WriteInsScreen />, {
     backend,
     electionDefinition,
   });
 
-  const transcribeButton = await findButton('Transcribe 8');
+  const transcribeButton = await screen.findButton('Transcribe 8');
   expect(transcribeButton).not.toBeDisabled();
 
-  const adjudicateButton = await findButton('Adjudicate');
+  const adjudicateButton = await screen.findButton('Adjudicate');
   expect(adjudicateButton).toBeDisabled();
 });
 
@@ -90,7 +87,7 @@ test('ballot pagination', async () => {
     new File([abbreviatedCvrData], 'cvrs.jsonl')
   );
 
-  const { findButton } = renderInAppContext(<WriteInsScreen />, {
+  renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
     backend,
   });
@@ -100,17 +97,17 @@ test('ballot pagination', async () => {
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
-    const previousButton = await findButton('Previous');
+    const previousButton = await screen.findButton('Previous');
     if (pageNumber === 1) {
       expect(previousButton).toBeDisabled();
     } else {
       expect(previousButton).not.toBeDisabled();
     }
 
-    const nextButton = await findButton('Next');
+    const nextButton = await screen.findButton('Next');
     if (pageNumber === pageCount) {
       expect(nextButton).toBeDisabled();
-      const doneButton = await findButton('Back to All Write-Ins');
+      const doneButton = await screen.findButton('Back to All Write-Ins');
       doneButton.click();
     } else {
       expect(nextButton).not.toBeDisabled();

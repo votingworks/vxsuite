@@ -624,7 +624,7 @@ test('tabulating CVRs', async () => {
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const logger = fakeLogger();
-  const { getByText, getAllByText, getByTestId, queryByText, getButton } =
+  const { getByText, getAllByText, getByTestId, queryByText } =
     renderRootElement(
       <App
         hardware={hardware}
@@ -654,7 +654,7 @@ test('tabulating CVRs', async () => {
     expect.anything()
   );
 
-  const markOfficialButton = getButton('Mark Tally Results as Official');
+  const markOfficialButton = screen.getButton('Mark Tally Results as Official');
   await waitFor(() => expect(markOfficialButton).toBeEnabled());
   fireEvent.click(markOfficialButton);
   getByText('Mark Unofficial Tally Results as Official Tally Results?');

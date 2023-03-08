@@ -56,9 +56,9 @@ afterEach(() => {
 });
 
 test('button renders properly when not clicked', () => {
-  const { getButton } = renderInAppContext(<PrintAllBallotsButton />);
+  renderInAppContext(<PrintAllBallotsButton />);
 
-  getButton('Print All');
+  screen.getButton('Print All');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
