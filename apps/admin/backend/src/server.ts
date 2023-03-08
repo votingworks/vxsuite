@@ -162,6 +162,8 @@ function buildApi({
       );
     },
 
+    // use null instead of undefined because React Query does not allow
+    // undefined as a query result
     getCurrentElectionMetadata(): Admin.ElectionRecord | null {
       const currentElectionId = store.getCurrentElectionId();
       if (currentElectionId) {
