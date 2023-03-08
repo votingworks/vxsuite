@@ -438,6 +438,40 @@ test('printing ballots', async () => {
   await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
 });
 
+test('marking results as official', async () => {
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+  });
+  apiMock.expectGetOfficialPrintedBallots([]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  renderApp();
+
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+  userEvent.click(screen.getButton('Reports'));
+  userEvent.click(screen.getButton('Unofficial Full Election Tally Report'));
+  await screen.findByText('Unofficial Example Primary Election Tally Report');
+
+  apiMock.expectMarkResultsOfficial();
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: true,
+  });
+  await waitFor(() => {
+    expect(screen.getButton('Mark Tally Results as Official')).toBeEnabled();
+  });
+  userEvent.click(screen.getButton('Mark Tally Results as Official'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getButton(
+      'Mark Tally Results as Official'
+    )
+  );
+  await screen.findByText('Official Example Primary Election Tally Report');
+});
+
 test('tabulating CVRs', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp, logger } = buildApp(apiMock, 'ms-sems');
