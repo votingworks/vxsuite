@@ -107,7 +107,7 @@ export const unprogramCard = {
 
 // Queries
 
-type QueryProps<Method extends keyof ApiClient> = Parameters<
+type QueryInput<Method extends keyof ApiClient> = Parameters<
   ApiClient[Method]
 >[0];
 
@@ -155,7 +155,7 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInsProps = QueryProps<'getWriteIns'>;
+type GetWriteInsProps = QueryInput<'getWriteIns'>;
 export const getWriteIns = {
   queryKey(props?: GetWriteInsProps): QueryKey {
     return props ? ['getWriteIns', props] : ['getWriteIns'];
@@ -166,7 +166,7 @@ export const getWriteIns = {
   },
 } as const;
 
-type GetWriteInSummaryProps = QueryProps<'getWriteInSummary'>;
+type GetWriteInSummaryProps = QueryInput<'getWriteInSummary'>;
 export const getWriteInSummary = {
   queryKey(props?: GetWriteInSummaryProps): QueryKey {
     return props ? ['getWriteInSummary', props] : ['getWriteInSummary'];
@@ -180,7 +180,7 @@ export const getWriteInSummary = {
 } as const;
 
 type GetWriteInAdjudicationTableProps =
-  QueryProps<'getWriteInAdjudicationTable'>;
+  QueryInput<'getWriteInAdjudicationTable'>;
 export const getWriteInAdjudicationTable = {
   queryKey(props?: GetWriteInAdjudicationTableProps): QueryKey {
     return props
@@ -195,7 +195,7 @@ export const getWriteInAdjudicationTable = {
   },
 } as const;
 
-type GetWriteInImageProps = QueryProps<'getWriteInImage'>;
+type GetWriteInImageProps = QueryInput<'getWriteInImage'>;
 export const getWriteInImage = {
   queryKey(props?: GetWriteInImageProps): QueryKey {
     return props ? ['getWriteInImage', props] : ['getWriteInImage'];
@@ -208,7 +208,7 @@ export const getWriteInImage = {
   },
 } as const;
 
-type GetPrintedBallotsProps = QueryProps<'getPrintedBallots'>;
+type GetPrintedBallotsProps = QueryInput<'getPrintedBallots'>;
 export const getPrintedBallots = {
   queryKey(props?: GetPrintedBallotsProps): QueryKey {
     return props ? ['getPrintedBallots', props] : ['getPrintedBallots'];
