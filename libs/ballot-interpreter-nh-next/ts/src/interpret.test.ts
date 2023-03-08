@@ -1,7 +1,7 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { ElectionDefinition, SheetOf } from '@votingworks/types';
-import { interpret } from '.';
+import { interpret } from './interpret';
 import { InterpretError } from './types';
 
 test('interpret exists', () => {

@@ -5,6 +5,10 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  // look for tests in the `ts` directory
   testMatch: ['<rootDir>/ts/**/*.test.ts'],
+  collectCoverageFrom: [
+    '<rootDir>/ts/**/*.ts',
+    '!<rootDir>/**/*.d.ts',
+    '!<rootDir>/ts/src/cli.ts',
+  ],
 };
