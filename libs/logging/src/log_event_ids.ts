@@ -3,10 +3,11 @@ import { LogEventType } from './log_event_types';
 import { LogSource } from './log_source';
 
 /**
- * In order to add a new log event you must do three things:
+ * In order to add a new log event you must do four things:
  * 1. Add the new event to the enum LogEventId
  * 2. Define a LogDetails object representing the information about that log event.
  * 3. Add a case statement to the switch in getDetailsForEventId returning your new LogDetails object when you see your new LogEventId.
+ * 4. Update the test expectation for number of EventIdDescriptions in libs/logging/src/log_documentation.test.ts
  * You will then be ready to use the log event from your code!
  */
 
