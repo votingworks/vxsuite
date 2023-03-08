@@ -196,11 +196,10 @@ const colorThemeStyles = css<StyledButtonProps>`
   }
 
   &[disabled] {
-    border: ${(p) => p.theme.sizes.bordersRem.thin}rem dashed
+    border: ${(p) => p.theme.sizes.bordersRem.medium}rem dashed
       ${(p) => p.theme.colors.foregroundDisabled};
     box-shadow: none;
     cursor: not-allowed;
-    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   }
 `;
 
