@@ -83,12 +83,7 @@ type AddCvrFileResult = Result<Admin.CvrFileImportInfo, AddCastVoteRecordError>;
  * transcribed and adjudicated write-ins.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {
-    const settings = Boolean(this.client.one('select id from settings'));
-    if (!settings) {
-      this.client.run('insert into settings default values');
-    }
-  }
+  private constructor(private readonly client: DbClient) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();

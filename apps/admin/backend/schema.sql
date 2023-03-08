@@ -86,3 +86,5 @@ create table settings (
   current_election_id varchar(36),
   foreign key (current_election_id) references elections(id)
 );
+
+insert into settings default values;
