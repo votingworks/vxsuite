@@ -277,8 +277,8 @@ test('L&A (logic and accuracy) flow', async () => {
   userEvent.click(screen.getByText('L&A'));
 
   // Test printing L&A package
-  userEvent.click(await screen.findByText('List Precinct L&A Packages'));
-  userEvent.click(await screen.findByText('District 5'));
+  userEvent.click(await screen.findButton('List Precinct L&A Packages'));
+  userEvent.click(await screen.findButton('Print District 5'));
 
   // L&A package: Tally report
   await screen.findByText('Printing L&A Package for District 5', {

@@ -54,7 +54,23 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  apiMock.expectGetWriteIns([]);
+  apiMock.expectGetWriteIns([
+    {
+      id: '1',
+      contestId: 'zoo-council-mammal',
+      optionId: 'write-in-0',
+      castVoteRecordId: '1',
+      status: 'pending',
+    },
+    {
+      id: '2',
+      contestId: 'aquarium-council-fish',
+      optionId: 'write-in-0',
+      castVoteRecordId: '2',
+      status: 'transcribed',
+      transcribedValue: 'Seahorse',
+    },
+  ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
