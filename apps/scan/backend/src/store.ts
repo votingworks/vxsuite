@@ -971,9 +971,7 @@ export class Store {
   /**
    * Yields all sheets in the database that would be included in a CVR export.
    */
-  *forEachResultSheet(options?: {
-    orderBySheetId?: boolean;
-  }): Generator<ResultSheet> {
+  *forEachResultSheet(): Generator<ResultSheet> {
     const sql = `
       select
         sheets.id as id,
@@ -989,7 +987,7 @@ export class Store {
         (requires_adjudication = 0 or finished_adjudication_at is not null)
         and sheets.deleted_at is null
         and batches.deleted_at is null
-      ${options?.orderBySheetId ? 'order by sheets.id' : ''}
+      order by sheets.id
     `;
     for (const row of this.client.each(sql) as Iterable<{
       id: string;
