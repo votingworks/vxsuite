@@ -88,47 +88,42 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   >([]);
   const { election, electionHash } = electionDefinition;
 
-  async function importCastVoteRecordFile(path: string) {
+  function importCastVoteRecordFile(path: string) {
     const filename = basename(path);
     setCurrentState({ state: 'loading' });
 
-    return new Promise<void>((resolve) => {
-      addCastVoteRecordFileMutation.mutate(
-        { path },
-        {
-          onSuccess: (addCastVoteRecordFileResult) => {
-            if (addCastVoteRecordFileResult.isErr()) {
-              setCurrentState({
-                state: 'error',
-                errorMessage:
-                  addCastVoteRecordFileResult.err().userFriendlyMessage,
-                filename,
-              });
-            } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
-              setCurrentState({
-                state: 'duplicate',
-                result: addCastVoteRecordFileResult.ok(),
-              });
-            } else {
-              setCurrentState({
-                state: 'success',
-                result: addCastVoteRecordFileResult.ok(),
-              });
-            }
-            resolve();
-          },
-        }
-      );
-    });
+    addCastVoteRecordFileMutation.mutate(
+      { path },
+      {
+        onSuccess: (addCastVoteRecordFileResult) => {
+          if (addCastVoteRecordFileResult.isErr()) {
+            setCurrentState({
+              state: 'error',
+              errorMessage:
+                addCastVoteRecordFileResult.err().userFriendlyMessage,
+              filename,
+            });
+          } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
+            setCurrentState({
+              state: 'duplicate',
+              result: addCastVoteRecordFileResult.ok(),
+            });
+          } else {
+            setCurrentState({
+              state: 'success',
+              result: addCastVoteRecordFileResult.ok(),
+            });
+          }
+        },
+      }
+    );
   }
 
-  async function importSelectedFile(
-    fileData: CastVoteRecordFilePreprocessedData
-  ) {
-    await importCastVoteRecordFile(fileData.path);
+  function importSelectedFile(fileData: CastVoteRecordFilePreprocessedData) {
+    importCastVoteRecordFile(fileData.path);
   }
 
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = async (
+  const processCastVoteRecordFileFromFilePicker: InputEventFunction = (
     event
   ) => {
     // electron adds a path field to the File object
@@ -142,7 +137,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       return;
     }
 
-    await importCastVoteRecordFile(file.path);
+    importCastVoteRecordFile(file.path);
   };
 
   async function fetchFilenames() {
