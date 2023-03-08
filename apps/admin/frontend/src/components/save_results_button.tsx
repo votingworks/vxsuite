@@ -12,7 +12,7 @@ export function SaveResultsButton({
   disabled,
 }: {
   disabled?: boolean;
-}): JSX.Element | null {
+}): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { fullElectionTally, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
