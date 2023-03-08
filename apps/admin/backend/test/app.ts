@@ -18,7 +18,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { Api } from '../src';
 import { createWorkspace, Workspace } from '../src/util/workspace';
-import { buildApp, start } from '../src/server';
+import { buildApp } from '../src/app';
 
 export function mockAuthStatus(
   auth: DippedSmartCardAuthApi,
@@ -70,22 +70,23 @@ export async function configureMachine(
   return configureResult.ok().electionId;
 }
 
-export async function buildTestEnvironment(): Promise<{
+export function buildTestEnvironment(): {
   logger: Logger;
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   app: Application;
   apiClient: grout.Client<Api>;
-}> {
+} {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const app = buildApp({ auth, workspace, logger });
   // port 0 will bind to a random, free port assigned by the OS
-  const server = await start({ app, logger, workspace, port: 0 });
+  const server = app.listen();
   const { port } = server.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient<Api>({
-    baseUrl: `http://localhost:${port}/api`,
+    baseUrl,
   });
 
   mockMachineLocked(auth);

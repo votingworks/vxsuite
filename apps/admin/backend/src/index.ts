@@ -7,7 +7,7 @@ import * as dotenvExpand from 'dotenv-expand';
 import { NODE_ENV } from './globals';
 import * as server from './server';
 
-export type { Api } from './server';
+export type { Api } from './app';
 export * from './types';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use

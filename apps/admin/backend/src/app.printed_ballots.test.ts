@@ -11,7 +11,7 @@ beforeEach(() => {
 });
 
 test('printed ballots', async () => {
-  const { apiClient, auth } = await buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);

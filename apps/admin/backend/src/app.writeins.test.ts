@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 test('getWriteIns', async () => {
-  const { apiClient, auth, workspace } = await buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -48,7 +48,7 @@ test('getWriteIns', async () => {
 });
 
 test('transcribeWriteIn', async () => {
-  const { apiClient, auth } = await buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -80,7 +80,7 @@ test('transcribeWriteIn', async () => {
 });
 
 test('getWriteInAdjudications', async () => {
-  const { auth, apiClient } = await buildTestEnvironment();
+  const { auth, apiClient } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -144,7 +144,7 @@ test('getWriteInAdjudications', async () => {
 
 test('write-in adjudication lifecycle', async () => {
   jest.setTimeout(20_000);
-  const { apiClient, auth } = await buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -402,7 +402,7 @@ test('write-in adjudication lifecycle', async () => {
 });
 
 test('write-in summary filtered by contestId & status', async () => {
-  const { apiClient, auth } = await buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -437,7 +437,7 @@ test('write-in summary filtered by contestId & status', async () => {
 });
 
 test('create write-in adjudication for an unlisted candidate', async () => {
-  const { auth, apiClient } = await buildTestEnvironment();
+  const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
   await configureMachine(apiClient, auth, electionDefinition);
@@ -467,7 +467,7 @@ test('create write-in adjudication for an unlisted candidate', async () => {
 });
 
 test('create write-in adjudication for an official candidate', async () => {
-  const { auth, apiClient } = await buildTestEnvironment();
+  const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
   await configureMachine(apiClient, auth, electionDefinition);
@@ -493,7 +493,7 @@ test('create write-in adjudication for an official candidate', async () => {
 });
 
 test('getWriteInImage', async () => {
-  const { auth, apiClient } = await buildTestEnvironment();
+  const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, oneBallotCastVoteRecordFile } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
