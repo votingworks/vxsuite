@@ -12,6 +12,8 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Button, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { ConfigureResult } from '@votingworks/admin-backend';
 import {
   getElectionDefinitionConverterClient,
   VxFile,
@@ -27,6 +29,7 @@ import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
+import { configure } from '../api';
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -61,8 +64,25 @@ const demoElection =
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const isMounted = useMountedState();
+  const configureMutation = configure.useMutation();
 
-  const { converter, saveElection } = useContext(AppContext);
+  const configureMutateAsync = useCallback(
+    async (electionData) => {
+      return new Promise<ConfigureResult>((resolve) => {
+        configureMutation.mutate(
+          {
+            electionData,
+          },
+          {
+            onSuccess: resolve,
+          }
+        );
+      });
+    },
+    [configureMutation]
+  );
+
+  const { converter } = useContext(AppContext);
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -78,8 +98,8 @@ export function UnconfiguredScreen(): JSX.Element {
     [converter]
   );
 
-  function loadDemoElection() {
-    void saveElection(demoElection);
+  async function loadDemoElection() {
+    await configureMutateAsync(demoElection);
     history.push(routerPaths.electionDefinition);
   }
 
@@ -92,7 +112,7 @@ export function UnconfiguredScreen(): JSX.Element {
       setVxElectionFileIsInvalid(false);
       // TODO: read file content from backend
       const fileContent = await readFileAsync(file);
-      const configureResult = await saveElection(fileContent);
+      const configureResult = await configureMutateAsync(fileContent);
       if (configureResult.isErr()) {
         setVxElectionFileIsInvalid(true);
         // eslint-disable-next-line no-console
@@ -123,14 +143,14 @@ export function UnconfiguredScreen(): JSX.Element {
         await resetServerFiles();
         const electionData = await new Response(blob).text();
         // expect our own converted elections to be valid
-        void (await saveElection(electionData));
+        await configureMutateAsync(electionData);
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
         setIsLoading(false);
       }
     },
-    [client, resetServerFiles, saveElection]
+    [client, configureMutateAsync, resetServerFiles]
   );
 
   const processInputFiles = useCallback(

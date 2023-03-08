@@ -30,7 +30,6 @@ import {
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import {
-  SaveElection,
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
@@ -54,7 +53,6 @@ interface RenderInAppContextParams {
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
-  saveElection?: SaveElection;
   resetFiles?: () => Promise<void>;
   usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
@@ -122,7 +120,6 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
-    saveElection = jest.fn(),
     resetFiles = jest.fn(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
@@ -166,7 +163,6 @@ export function renderInAppContext(
         configuredAt,
         isOfficialResults,
         printer,
-        saveElection,
         resetFiles,
         usbDrive,
         fullElectionTally,

@@ -4,7 +4,6 @@ import {
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
-  Id,
   MachineId,
   Optional,
   PartyId,
@@ -12,7 +11,7 @@ import {
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
-import { Result, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
 
 // Events
@@ -26,11 +25,6 @@ export type TextareaEventFunction = (
 export type ButtonEventFunction = (
   event: React.MouseEvent<HTMLButtonElement>
 ) => PromiseOr<void>;
-
-// TODO: remove this type and remove from context once no longer necessary
-export type SaveElection = (
-  electionData: string
-) => Promise<Result<{ electionId: Id }, { type: 'parsing'; message: string }>>;
 
 export const PrintableBallotType = {
   Absentee: 'absentee',

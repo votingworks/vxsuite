@@ -8,6 +8,7 @@ import { NODE_ENV } from './globals';
 import * as server from './server';
 
 export type { Api } from './server';
+export * from './types';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvPath = '.env';

@@ -9,7 +9,6 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  Id,
   InlineBallotImage,
   Optional,
   Rect,
@@ -17,14 +16,7 @@ import {
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import {
-  assert,
-  assertDefined,
-  err,
-  ok,
-  Result,
-  zip,
-} from '@votingworks/basics';
+import { assert, assertDefined, err, ok, zip } from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
@@ -39,7 +31,7 @@ import { basename } from 'path';
 import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
-import { AddCastVoteRecordError } from './store';
+import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
 
 function getMostRecentlyCreateElectionDefinition(
   workspace: Workspace
@@ -74,29 +66,6 @@ function constructDippedSmartCardAuthMachineState(
 function loadCurrentElectionIdOrThrow(workspace: Workspace) {
   return assertDefined(workspace.store.getCurrentElectionId());
 }
-
-/**
- * Result of attempt to configure the app with a new election definition
- */
-export type ConfigureResult = Result<
-  { electionId: Id },
-  { type: 'parsing'; message: string }
->;
-
-/**
- * Errors that may occur when loading a cast vote record file from a path
- */
-export type AddCastVoteRecordFileError =
-  | { type: 'invalid-file'; userFriendlyMessage: string }
-  | ({ type: 'invalid-record' } & AddCastVoteRecordError);
-
-/**
- * Result of attempt to load a cast vote record file from a path
- */
-export type AddCastVoteRecordFileResult = Result<
-  Admin.CvrFileImportInfo,
-  AddCastVoteRecordFileError
->;
 
 function buildApi({
   auth,

@@ -26,7 +26,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
 import {
-  SaveElection,
   ResultsFileType,
   MachineConfig,
   ExportableTallies,
@@ -36,7 +35,6 @@ import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
 import {
   clearCastVoteRecordFiles,
-  configure,
   getAuthStatus,
   getCastVoteRecords,
   getCurrentElectionMetadata,
@@ -71,7 +69,6 @@ export function AppRoot({
   });
 
   const authStatusQuery = getAuthStatus.useQuery();
-  const configureMutation = configure.useMutation();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
   const castVoteRecordsQuery = getCastVoteRecords.useQuery();
   const currentUserRole =
@@ -146,22 +143,6 @@ export function AppRoot({
     [store]
   );
 
-  const saveElection: SaveElection = useCallback(
-    async (electionData) => {
-      return new Promise((resolve) => {
-        configureMutation.mutate(
-          {
-            electionData,
-          },
-          {
-            onSuccess: resolve,
-          }
-        );
-      });
-    },
-    [configureMutation]
-  );
-
   const generateExportableTallies = useCallback((): ExportableTallies => {
     assert(electionDefinition);
     return getExportableTallies(
@@ -229,7 +210,6 @@ export function AppRoot({
         isOfficialResults:
           currentElectionMetadataQuery.data?.isOfficialResults ?? false,
         printer,
-        saveElection,
         resetFiles,
         usbDrive,
         fullElectionTally,
