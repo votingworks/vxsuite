@@ -3,7 +3,7 @@ name = "ballot-interpreter-nh-next"
 version = "0.1.0"
 license = "AGPL-3.0"
 edition = "2018"
-exclude = ["build/extension.node"]
+exclude = ["build/addon.node"]
 
 [lib]
 crate-type = ["cdylib"]
