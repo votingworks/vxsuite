@@ -21,11 +21,7 @@ import {
   TWO_SIDED_PRINT_TIME,
 } from './print_all_ballots_button';
 import { MachineConfig } from '../config/types';
-import {
-  createMockApiClient,
-  createApiMock,
-  MockApiClient,
-} from '../../test/helpers/api_mock';
+import { createApiMock, ApiMock } from '../../test/helpers/api_mock';
 import { buildApp } from '../../test/helpers/build_app';
 
 jest.mock('../components/hand_marked_paper_ballot');
@@ -38,17 +34,17 @@ fetchMock.get(
   })
 );
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('button renders properly when not clicked', () => {
@@ -101,10 +97,8 @@ test('print sequence proceeds as expected', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     printer,
     logger,
-    apiClient: mockApiClient,
+    apiMock,
   });
-
-  const apiMock = createApiMock(mockApiClient);
 
   userEvent.click(screen.getByText('Print All'));
 
@@ -164,7 +158,7 @@ test('print sequence proceeds as expected', async () => {
 });
 
 test('initial modal state toggles based on printer state', async () => {
-  const { apiMock, renderApp, hardware } = buildApp(mockApiClient);
+  const { renderApp, hardware } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   hardware.setPrinterConnected(false);
@@ -189,7 +183,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  const { apiMock, renderApp, hardware, logger } = buildApp(mockApiClient);
+  const { renderApp, hardware, logger } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -228,7 +222,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
 });
 
 test('modal is different for system administrators', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();

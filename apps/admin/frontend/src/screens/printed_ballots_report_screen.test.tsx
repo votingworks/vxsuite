@@ -11,12 +11,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 
 import { Admin } from '@votingworks/api';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import {
-  ApiMock,
-  createApiMock,
-  createMockApiClient,
-  MockApiClient,
-} from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { PrintedBallotsReportScreen } from './printed_ballots_report_screen';
 import { mockPrintedBallotRecord } from '../../test/api_mock_data';
 
@@ -24,7 +19,6 @@ jest.mock('../components/hand_marked_paper_ballot');
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
-let apiClient: MockApiClient;
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -35,13 +29,12 @@ beforeEach(() => {
   ]);
   window.kiosk = mockKiosk;
   logger = fakeLogger();
-  apiClient = createMockApiClient();
-  apiMock = createApiMock(apiClient);
+  apiMock = createApiMock();
 });
 
 afterAll(() => {
   delete window.kiosk;
-  apiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('renders information, prints, and logs success', async () => {
@@ -60,7 +53,7 @@ test('renders information, prints, and logs success', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     configuredAt,
     logger,
-    apiClient,
+    apiMock,
   });
 
   await screen.findByText(/2 absentee ballots/);

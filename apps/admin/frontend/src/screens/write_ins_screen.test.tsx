@@ -6,10 +6,7 @@ import { Admin } from '@votingworks/api';
 import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsScreen } from './write_ins_screen';
-import {
-  createMockApiClient,
-  MockApiClient,
-} from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
@@ -36,20 +33,20 @@ afterEach(async () => {
   });
 });
 
-let apiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  apiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('No CVRs loaded', async () => {
-  apiClient.getWriteIns.expectCallWith().resolves([]);
-  apiClient.getCastVoteRecordFiles.expectCallWith().resolves([]);
-  renderInAppContext(<WriteInsScreen />, { electionDefinition, apiClient });
+  apiMock.expectGetWriteIns([]);
+  apiMock.expectGetCastVoteRecordFiles([]);
+  renderInAppContext(<WriteInsScreen />, { electionDefinition, apiMock });
   await screen.findByText(
     'Load CVRs to begin transcribing and adjudicating write-in votes.'
   );
@@ -57,12 +54,12 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  apiClient.getWriteIns.expectCallWith().resolves([]);
-  apiClient.getCastVoteRecordFiles.expectCallWith().resolves([]);
+  apiMock.expectGetWriteIns([]);
+  apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
     isOfficialResults: true,
-    apiClient,
+    apiMock,
   });
 
   await screen.findByText(/No further changes may be made/);
@@ -79,11 +76,11 @@ test('Tally results already marked as official', async () => {
 });
 
 test('CVRs with write-ins loaded', async () => {
-  apiClient.getWriteIns.expectCallWith().resolves(mockWriteInRecords);
-  apiClient.getCastVoteRecordFiles.expectCallWith().resolves([]);
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
-    apiClient,
+    apiMock,
   });
 
   const transcribeButton = await screen.findByText('Transcribe 3');
@@ -94,21 +91,19 @@ test('CVRs with write-ins loaded', async () => {
 });
 
 test('ballot pagination', async () => {
-  apiClient.getWriteIns.expectCallWith().resolves(mockWriteInRecords);
-  apiClient.getCastVoteRecordFiles.expectCallWith().resolves([]);
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
-    apiClient,
+    apiMock,
   });
 
   const pageCount = 3;
   userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
-    apiClient.getWriteInImage
-      .expectCallWith({ writeInId: mockWriteInRecords[pageNumber - 1].id })
-      .resolves([]);
+    apiMock.expectGetWriteInImage(mockWriteInRecords[pageNumber - 1].id);
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
     const previousButton = await screen.findByText<HTMLButtonElement>(
       'Previous'
@@ -130,40 +125,36 @@ test('ballot pagination', async () => {
 });
 
 test('adjudication', async () => {
-  apiClient.getWriteIns.expectCallWith().resolves(mockWriteInRecords);
-  apiClient.getCastVoteRecordFiles.expectCallWith().resolves([]);
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
-    apiClient,
+    apiMock,
   });
 
   // transcribe
-  apiClient.getWriteInImage
-    .expectCallWith({ writeInId: mockWriteInRecords[0].id })
-    .resolves([]);
+  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
   userEvent.click(await screen.findByText('Transcribe 3'));
   userEvent.type(
     await screen.findByPlaceholderText('transcribed write-in'),
     'Dark Helmet'
   );
-  apiClient.transcribeWriteIn
+  apiMock.apiClient.transcribeWriteIn
     .expectCallWith({
       writeInId: mockWriteInRecords[0].id,
       transcribedValue: 'Dark Helmet',
     })
     .resolves();
-  apiClient.getWriteIns // expecting refetch
-    .expectCallWith()
-    .resolves([
-      mockWriteInRecords[0],
-      mockWriteInRecords[1],
-      {
-        ...mockWriteInRecords[2],
-        status: 'transcribed',
-        transcribedValue: 'Dark Helmet',
-      },
-    ]);
+  apiMock.expectGetWriteIns([
+    mockWriteInRecords[0],
+    mockWriteInRecords[1],
+    {
+      ...mockWriteInRecords[2],
+      status: 'transcribed',
+      transcribedValue: 'Dark Helmet',
+    },
+  ]);
   userEvent.click(await screen.findByText('Add'));
 
   expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();
@@ -171,7 +162,7 @@ test('adjudication', async () => {
   userEvent.click(await screen.findByText('Back to All Write-Ins'));
 
   // set up the table for a single transcribed value
-  apiClient.getWriteInAdjudicationTable
+  apiMock.apiClient.getWriteInAdjudicationTable
     .expectCallWith({ contestId: 'zoo-council-mammal' })
     .resolves({
       contestId: 'zoo-council-mammal',
@@ -208,7 +199,7 @@ test('adjudication', async () => {
   userEvent.click(await screen.findByText('Adjudicate 1'));
   expect(await screen.findAllByText('Dark Helmet')).toHaveLength(2); // 1 in the table, 1 in the adjudication list
 
-  apiClient.createWriteInAdjudication
+  apiMock.apiClient.createWriteInAdjudication
     .expectCallWith({
       contestId: 'zoo-council-mammal',
       transcribedValue: 'Dark Helmet',
@@ -219,19 +210,17 @@ test('adjudication', async () => {
   userEvent.selectOptions(await screen.findByRole('combobox'), 'Zebra');
 
   // re-fetched data
-  apiClient.getWriteIns // expecting refetch
-    .expectCallWith()
-    .resolves([
-      mockWriteInRecords[0],
-      mockWriteInRecords[1],
-      {
-        ...mockWriteInRecords[2],
-        status: 'adjudicated',
-        transcribedValue: 'Dark Helmet',
-        adjudicatedValue: 'Zebra',
-      },
-    ]);
-  apiClient.getWriteInAdjudicationTable
+  apiMock.expectGetWriteIns([
+    mockWriteInRecords[0],
+    mockWriteInRecords[1],
+    {
+      ...mockWriteInRecords[2],
+      status: 'adjudicated',
+      transcribedValue: 'Dark Helmet',
+      adjudicatedValue: 'Zebra',
+    },
+  ]);
+  apiMock.apiClient.getWriteInAdjudicationTable
     .expectCallWith({ contestId: 'zoo-council-mammal' })
     .resolves({
       contestId: 'zoo-council-mammal',

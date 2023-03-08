@@ -5,7 +5,7 @@ import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
 import { Admin } from '@votingworks/api';
 import { screen, within } from '../test/react_testing_library';
-import { createMockApiClient, MockApiClient } from '../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
@@ -26,12 +26,12 @@ const nonOfficialAdjudicationSummaryMammal: Admin.WriteInSummaryEntryAdjudicated
   };
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
   fetchMock.reset();
   fetchMock.get(
     '/convert/tallies/files',
@@ -53,13 +53,13 @@ beforeEach(() => {
 
 afterEach(() => {
   delete window.kiosk;
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('manual write-in data end-to-end test', async () => {
   const { electionDefinition, partial1CvrFile } =
     electionMinimalExhaustiveSampleFixtures;
-  const { renderApp, apiMock } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(

@@ -9,19 +9,13 @@ import { screen } from '@testing-library/react';
 
 import { Admin } from '@votingworks/api';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import {
-  ApiMock,
-  createApiMock,
-  createMockApiClient,
-  MockApiClient,
-} from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { LogicAndAccuracyScreen } from './logic_and_accuracy_screen';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
-let apiClient: MockApiClient;
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -32,13 +26,12 @@ beforeEach(() => {
   ]);
   window.kiosk = mockKiosk;
   logger = fakeLogger();
-  apiClient = createMockApiClient();
-  apiMock = createApiMock(apiClient);
+  apiMock = createApiMock();
 });
 
 afterAll(() => {
   delete window.kiosk;
-  apiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('l&a documents accessible in unlocked mode', async () => {
@@ -47,7 +40,7 @@ test('l&a documents accessible in unlocked mode', async () => {
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger,
-    apiClient,
+    apiMock,
   });
   await screen.findByText('List Precinct L&A Packages');
   await screen.findByText('Print Full Test Deck Tally Report');
@@ -59,7 +52,7 @@ test('l&a documents accessible in test mode', async () => {
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger,
-    apiClient,
+    apiMock,
   });
   await screen.findByText('List Precinct L&A Packages');
   await screen.findByText('Print Full Test Deck Tally Report');
@@ -71,7 +64,7 @@ test('l&a documents not accessible in official mode', async () => {
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger,
-    apiClient,
+    apiMock,
   });
   await screen.findByText(
     'L&A testing documents are not available after official election CVRs have been loaded.'
@@ -91,7 +84,7 @@ test('l&a documents not accessible in gridLayouts election', async () => {
     electionDefinition:
       electionGridLayoutNewHampshireHudsonFixtures.electionDefinition,
     logger,
-    apiClient,
+    apiMock,
   });
   await screen.findByText(
     'VxAdmin does not produce ballots or L&A documents for this election.'

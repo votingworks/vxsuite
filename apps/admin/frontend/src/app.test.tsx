@@ -40,11 +40,7 @@ import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_ta
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
-import {
-  createMockApiClient,
-  MockApiClient,
-  setAuthStatus,
-} from '../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import {
   mockCastVoteRecordFileRecord,
   mockPrintedBallotRecord,
@@ -64,7 +60,7 @@ jest.mock('@votingworks/ballot-encoder', () => {
 });
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -82,7 +78,7 @@ beforeEach(() => {
   ]);
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
@@ -113,12 +109,12 @@ beforeEach(() => {
 afterEach(() => {
   delete window.kiosk;
   MockDate.reset();
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('configuring with a demo election definition', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
 
@@ -179,7 +175,7 @@ test('configuring with a demo election definition', async () => {
 
 test('authentication works', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp, hardware } = buildApp(mockApiClient);
+  const { renderApp, hardware } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -218,7 +214,7 @@ test('authentication works', async () => {
 
   // Remove card and insert an invalid card, e.g. a pollworker card.
   await apiMock.logOut();
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'user_role_not_allowed',
   });
@@ -268,7 +264,7 @@ test('authentication works', async () => {
 
 test('L&A (logic and accuracy) flow', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp, logger } = buildApp(mockApiClient);
+  const { renderApp, logger } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -379,7 +375,7 @@ test('printing ballots', async () => {
     ballotMode: Admin.BallotMode.Official,
   };
 
-  const { apiMock, renderApp, hardware, logger } = buildApp(mockApiClient);
+  const { renderApp, hardware, logger } = buildApp(apiMock);
   hardware.setPrinterConnected(false);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
@@ -444,7 +440,7 @@ test('printing ballots', async () => {
 
 test('tabulating CVRs', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp, logger } = buildApp(mockApiClient, 'ms-sems');
+  const { renderApp, logger } = buildApp(apiMock, 'ms-sems');
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
@@ -580,7 +576,7 @@ test('tabulating CVRs', async () => {
 
 test('tabulating CVRs with manual data', async () => {
   const electionDefinition = electionWithMsEitherNeitherDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
@@ -754,7 +750,7 @@ test('tabulating CVRs with manual data', async () => {
 test('reports screen shows appropriate summary data about ballot counts and printed ballots', async () => {
   const { electionDefinition, cvrData } =
     electionMinimalExhaustiveSampleFixtures;
-  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(cvrData, electionDefinition)
   );
@@ -799,7 +795,7 @@ test('reports screen shows appropriate summary data about ballot counts and prin
 
 test('removing election resets cvr and manual data files', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
@@ -846,7 +842,7 @@ test('removing election resets cvr and manual data files', async () => {
 
 test('clearing results', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  const { apiMock, renderApp, backend } = buildApp(mockApiClient);
+  const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -921,7 +917,7 @@ test('clearing results', async () => {
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -943,7 +939,7 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
 
 test('election manager UI has expected nav', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
@@ -974,7 +970,7 @@ test('election manager UI has expected nav', async () => {
 
 test('system administrator UI has expected nav', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -994,7 +990,7 @@ test('system administrator UI has expected nav', async () => {
 });
 
 test('system administrator UI has expected nav when no election', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
@@ -1049,7 +1045,7 @@ test('system administrator UI has expected nav when no election', async () => {
 
 test('system administrator Smartcards screen navigation', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -1067,7 +1063,7 @@ test('system administrator Smartcards screen navigation', async () => {
 });
 
 test('election manager cannot auth onto unconfigured machine', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
@@ -1088,7 +1084,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
 
 test('election manager cannot auth onto machine with different election hash', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -1111,7 +1107,7 @@ test('election manager cannot auth onto machine with different election hash', a
 
 test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -1197,7 +1193,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
 test('primary election with nonpartisan contests', async () => {
   const { electionDefinition, cvrData } =
     electionPrimaryNonpartisanContestsFixtures;
-  const { renderApp, apiMock } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords(
@@ -1274,7 +1270,7 @@ test('usb formatting flows', async () => {
     await advanceTimersAndPromises(1);
   });
 
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();

@@ -29,49 +29,6 @@ export function createMockApiClient(): MockApiClient {
   return mockApiClient as unknown as MockApiClient;
 }
 
-export function setAuthStatus(
-  mockApiClient: MockApiClient,
-  authStatus: DippedSmartCardAuth.AuthStatus
-): void {
-  mockApiClient.getAuthStatus.mockImplementation(() =>
-    Promise.resolve(authStatus)
-  );
-}
-
-export function expectGetCurrentElectionMetadata(
-  mockApiClient: MockApiClient,
-  metadata: {
-    electionDefinition: ElectionDefinition;
-    isOfficialResults?: boolean;
-    id?: string;
-    createdAt?: string;
-  } | null,
-  times = 1
-): void {
-  for (let i = 0; i < times; i += 1) {
-    mockApiClient.getCurrentElectionMetadata.expectCallWith().resolves(
-      metadata
-        ? {
-            id: 'election-id',
-            createdAt: new Date().toISOString(),
-            isOfficialResults: false,
-            ...metadata,
-          }
-        : undefined
-    );
-  }
-}
-
-export function expectGetCastVoteRecords(
-  mockApiClient: MockApiClient,
-  castVoteRecords: CastVoteRecord[] = [],
-  times = 1
-): void {
-  for (let i = 0; i < (times ?? 0); i += 1) {
-    mockApiClient.getCastVoteRecords.expectCallWith().resolves(castVoteRecords);
-  }
-}
-
 /**
  * Creates a VxAdmin specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
@@ -83,6 +40,8 @@ export function createApiMock(
   return {
     apiClient,
 
+    assertComplete: apiClient.assertComplete,
+
     setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus) {
       apiClient.getAuthStatus.mockImplementation(() =>
         Promise.resolve(authStatus)
@@ -92,7 +51,7 @@ export function createApiMock(
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
       await screen.findByText('VxAdmin is Locked');
-      setAuthStatus(apiClient, {
+      this.setAuthStatus({
         status: 'logged_in',
         user: fakeSystemAdministratorUser(),
         programmableCard: { status: 'no_card' },
@@ -106,7 +65,7 @@ export function createApiMock(
       // first verify that we're logged out
       await screen.findByText('VxAdmin is Locked');
 
-      setAuthStatus(apiClient, {
+      this.setAuthStatus({
         status: 'logged_in',
         user: fakeElectionManagerUser({
           electionHash: electionDefinition.electionHash,
@@ -131,33 +90,40 @@ export function createApiMock(
       apiClient.logOut.expectCallWith().resolves();
     },
 
+    expectProgramCard(
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker'
+    ) {
+      apiClient.programCard
+        .expectCallWith({ userRole })
+        .resolves(ok({ pin: '123456' }));
+    },
+
+    expectUnprogramCard() {
+      apiClient.unprogramCard.expectCallWith().resolves(ok());
+    },
+
     expectGetCurrentElectionMetadata(
       metadata: {
         electionDefinition: ElectionDefinition;
         isOfficialResults?: boolean;
         id?: string;
         createdAt?: string;
-      } | null,
-      times = 1
+      } | null
     ) {
-      for (let i = 0; i < times; i += 1) {
-        apiClient.getCurrentElectionMetadata.expectCallWith().resolves(
-          metadata
-            ? {
-                id: 'election-id',
-                createdAt: new Date().toISOString(),
-                isOfficialResults: false,
-                ...metadata,
-              }
-            : undefined
-        );
-      }
+      apiClient.getCurrentElectionMetadata.expectCallWith().resolves(
+        metadata
+          ? {
+              id: 'election-id',
+              createdAt: new Date().toISOString(),
+              isOfficialResults: false,
+              ...metadata,
+            }
+          : undefined
+      );
     },
 
-    expectGetCastVoteRecords(castVoteRecords: CastVoteRecord[], times = 1) {
-      for (let i = 0; i < (times ?? 0); i += 1) {
-        apiClient.getCastVoteRecords.expectCallWith().resolves(castVoteRecords);
-      }
+    expectGetCastVoteRecords(castVoteRecords: CastVoteRecord[]) {
+      apiClient.getCastVoteRecords.expectCallWith().resolves(castVoteRecords);
     },
 
     expectConfigure(electionData: string) {
@@ -204,6 +170,14 @@ export function createApiMock(
           status: 'adjudicated',
         })
         .resolves(writeInSummaryRecords);
+    },
+
+    expectGetWriteIns(writeInRecords: Admin.WriteInRecord[]) {
+      apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
+    },
+
+    expectGetWriteInImage(writeInId: string) {
+      apiClient.getWriteInImage.expectCallWith({ writeInId }).resolves([]);
     },
 
     expectMarkResultsOfficial() {

@@ -41,7 +41,7 @@ import {
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
 import { ApiClient, ApiClientContext } from '../src/api';
-import { createMockApiClient } from './helpers/api_mock';
+import { ApiMock, createMockApiClient } from './helpers/api_mock';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -72,7 +72,7 @@ interface RenderInAppContextParams {
   hasPrinterAttached?: boolean;
   logger?: Logger;
   backend?: ElectionManagerStoreBackend;
-  apiClient?: ApiClient;
+  apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
 
@@ -151,7 +151,7 @@ export function renderInAppContext(
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
     backend,
-    apiClient,
+    apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -183,6 +183,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { apiClient, backend, logger, queryClient }
+    { apiClient: apiMock?.apiClient, backend, logger, queryClient }
   );
 }

@@ -15,13 +15,10 @@ import {
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 
-import {
-  createMockApiClient,
-  MockApiClient,
-} from '../../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
 import { buildApp } from '../../../test/helpers/build_app';
@@ -30,10 +27,10 @@ const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 
   fetchMock.reset();
   fetchMock.get(
@@ -47,11 +44,11 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('Smartcard modal displays card details', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -162,7 +159,7 @@ test('Smartcard modal displays card details', async () => {
 });
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -261,7 +258,7 @@ test('Smartcard modal displays card details when no election definition on machi
 });
 
 test('Programming election manager and poll worker smartcards', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -314,9 +311,7 @@ test('Programming election manager and poll worker smartcards', async () => {
       name: 'Poll Worker Card',
     });
     within(modal).getByText('Remove card to cancel.');
-    mockApiClient.programCard
-      .expectCallWith({ userRole: role })
-      .resolves(ok({ pin: '123456' }));
+    apiMock.expectProgramCard(role);
     switch (role) {
       case 'election_manager': {
         userEvent.click(electionManagerCardButton);
@@ -360,7 +355,7 @@ test('Programming election manager and poll worker smartcards', async () => {
 });
 
 test('Programming system administrator smartcards', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -389,9 +384,7 @@ test('Programming system administrator smartcards', async () => {
     name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
-  mockApiClient.programCard
-    .expectCallWith({ userRole: 'system_administrator' })
-    .resolves(ok({ pin: '123456' }));
+  apiMock.expectProgramCard('system_administrator');
   userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
   apiMock.setAuthStatus({
@@ -423,7 +416,7 @@ test('Programming system administrator smartcards', async () => {
 });
 
 test('Programming smartcards when no election definition on machine', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -461,7 +454,7 @@ test('Programming smartcards when no election definition on machine', async () =
 });
 
 test('Resetting smartcard PINs', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -495,9 +488,7 @@ test('Resetting smartcard PINs', async () => {
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
-    mockApiClient.programCard
-      .expectCallWith({ userRole: programmedUser.role })
-      .resolves(ok({ pin: '123456' }));
+    apiMock.expectProgramCard(programmedUser.role);
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
@@ -521,7 +512,7 @@ test('Resetting smartcard PINs', async () => {
 });
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -540,9 +531,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
-  mockApiClient.programCard
-    .expectCallWith({ userRole: 'system_administrator' })
-    .resolves(ok({ pin: '123456' }));
+  apiMock.expectProgramCard('system_administrator');
   userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
@@ -565,7 +554,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
 });
 
 test('Unprogramming smartcards', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -608,7 +597,7 @@ test('Unprogramming smartcards', async () => {
     within(modal).getByRole('heading', {
       name: expectedHeadingBeforeUnprogramming,
     });
-    mockApiClient.unprogramCard.expectCallWith().resolves(ok());
+    apiMock.expectUnprogramCard();
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
@@ -638,7 +627,7 @@ test('Unprogramming smartcards', async () => {
 });
 
 test('Error handling', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -695,22 +684,22 @@ test('Error handling', async () => {
     },
   ];
 
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.unprogramCard
+  apiMock.apiClient.unprogramCard
     .expectCallWith()
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.unprogramCard
+  apiMock.apiClient.unprogramCard
     .expectCallWith()
     .resolves(err(new Error('Whoa!')));
 
@@ -757,7 +746,7 @@ test('Error handling', async () => {
 });
 
 test('Card inserted backwards is handled with message', async () => {
-  const { apiMock, renderApp } = buildApp(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();

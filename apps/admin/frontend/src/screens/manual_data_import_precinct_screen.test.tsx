@@ -29,19 +29,16 @@ import {
 } from '../utils/external_tallies';
 import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_screen';
 import { buildExternalTally } from '../../test/helpers/build_external_tally';
-import {
-  createMockApiClient,
-  MockApiClient,
-} from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
-let apiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  apiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  apiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('displays error screen for invalid precinct', async () => {
@@ -106,9 +103,7 @@ test('displays correct contests for each precinct', async () => {
     precinctName,
     expectedCommissionerRace,
   } of testcases) {
-    apiClient.getWriteInSummary
-      .expectCallWith({ status: 'adjudicated' })
-      .resolves([]);
+    apiMock.expectGetWriteInSummaryAdjudicated([]);
     const { unmount } = renderInAppContext(
       <Route path="/tally/manual-data-import/precinct/:precinctId">
         <ManualDataImportPrecinctScreen />
@@ -117,7 +112,7 @@ test('displays correct contests for each precinct', async () => {
         route: `/tally/manual-data-import/precinct/${precinctId}`,
         electionDefinition: electionWithMsEitherNeitherDefinition,
         updateExternalTally,
-        apiClient,
+        apiMock,
       }
     );
     await screen.findByText('Manually Entered Precinct Results:');
@@ -139,9 +134,7 @@ test('displays correct contests for each precinct', async () => {
 test('can edit counts and update totals', async () => {
   const updateExternalTally = jest.fn();
   const logger = fakeLogger();
-  apiClient.getWriteInSummary
-    .expectCallWith({ status: 'adjudicated' })
-    .resolves([]);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -151,7 +144,7 @@ test('can edit counts and update totals', async () => {
       updateExternalTally,
       electionDefinition: electionSampleDefinition,
       logger,
-      apiClient,
+      apiMock,
     }
   );
   await screen.findByText('Manually Entered Precinct Results:');
@@ -251,9 +244,7 @@ test('can edit counts and update totals', async () => {
 });
 
 test('can add and remove a write-in candidate when contest allows', async () => {
-  apiClient.getWriteInSummary
-    .expectCallWith({ status: 'adjudicated' })
-    .resolves([]);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -261,7 +252,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
     {
       route: '/tally/manual-data-import/precinct/23',
       electionDefinition: electionSampleDefinition,
-      apiClient,
+      apiMock,
     }
   );
   await screen.findByText('Manually Entered Precinct Results:');
@@ -345,22 +336,20 @@ test('can add and remove a write-in candidate when contest allows', async () => 
 
 test('loads pre-adjudicated write-in values', async () => {
   // Set up an existing adjudicated value
-  apiClient.getWriteInSummary
-    .expectCallWith({ status: 'adjudicated' })
-    .resolves([
-      {
-        status: 'adjudicated',
+  apiMock.expectGetWriteInSummaryAdjudicated([
+    {
+      status: 'adjudicated',
+      contestId: 'zoo-council-mammal',
+      writeInCount: 1,
+      transcribedValue: 'Chimera',
+      writeInAdjudication: {
+        id: 'id',
         contestId: 'zoo-council-mammal',
-        writeInCount: 1,
         transcribedValue: 'Chimera',
-        writeInAdjudication: {
-          id: 'id',
-          contestId: 'zoo-council-mammal',
-          transcribedValue: 'Chimera',
-          adjudicatedValue: 'Chimera',
-        },
+        adjudicatedValue: 'Chimera',
       },
-    ]);
+    },
+  ]);
 
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -369,7 +358,7 @@ test('loads pre-adjudicated write-in values', async () => {
     {
       route: '/tally/manual-data-import/precinct/precinct-1',
       electionDefinition: electionMinimalExhaustiveSampleDefinition,
-      apiClient,
+      apiMock,
     }
   );
 
@@ -379,9 +368,7 @@ test('loads pre-adjudicated write-in values', async () => {
 });
 
 test('can enter data for yes no contests as expected', async () => {
-  apiClient.getWriteInSummary
-    .expectCallWith({ status: 'adjudicated' })
-    .resolves([]);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   const updateExternalTally = jest.fn();
   const logger = fakeLogger();
   renderInAppContext(
@@ -393,7 +380,7 @@ test('can enter data for yes no contests as expected', async () => {
       updateExternalTally,
       electionDefinition: electionSampleDefinition,
       logger,
-      apiClient,
+      apiMock,
     }
   );
   await screen.findByText('Manually Entered Precinct Results:');
@@ -482,9 +469,7 @@ test('can enter data for yes no contests as expected', async () => {
 });
 
 test('loads preexisting manual data to edit', async () => {
-  apiClient.getWriteInSummary
-    .expectCallWith({ status: 'adjudicated' })
-    .resolves([]);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { election } = electionSampleDefinition;
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(election);
   talliesByPrecinct['23'] = buildExternalTally(election, 1, [
@@ -519,7 +504,7 @@ test('loads preexisting manual data to edit', async () => {
       fullElectionExternalTallies: new Map([
         [externalTally.source, externalTally],
       ]),
-      apiClient,
+      apiMock,
     }
   );
   await screen.findByText('Manually Entered Absentee Results:');
