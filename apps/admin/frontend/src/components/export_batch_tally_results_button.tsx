@@ -8,17 +8,13 @@ import { AppContext } from '../contexts/app_context';
 import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
 import { getCastVoteRecordFileMode } from '../api';
 
-export function ExportBatchTallyResultsButton(): JSX.Element | null {
+export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { fullElectionTally, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-
-  if (!castVoteRecordFileModeQuery.isSuccess) {
-    return null;
-  }
 
   const isTestMode =
     castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Test;
@@ -29,7 +25,11 @@ export function ExportBatchTallyResultsButton(): JSX.Element | null {
   );
   return (
     <React.Fragment>
-      <Button small onPress={() => setIsSaveModalOpen(true)}>
+      <Button
+        small
+        onPress={() => setIsSaveModalOpen(true)}
+        disabled={!castVoteRecordFileModeQuery.isSuccess}
+      >
         Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
