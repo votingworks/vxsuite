@@ -11,7 +11,7 @@ import {
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, err, find, ok, unique } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import { generateCvr } from '@votingworks/test-utils';
@@ -235,9 +235,10 @@ test('ballot batching', async () => {
   await scanBallot(mockPlustek, apiClient, 0);
   await scanBallot(mockPlustek, apiClient, 1);
   let cvrs = await apiClient.getCastVoteRecordsForTally();
+  let batchIds = unique(cvrs.map((cvr) => cvr._batchId));
   expect(cvrs).toHaveLength(2);
-  const batch1Id = cvrs[0]._batchId;
-  expect(cvrs[1]._batchId).toEqual(batch1Id);
+  expect(batchIds).toHaveLength(1);
+  const batch1Id = batchIds[0];
 
   // Pause polls, which should stop the current batch
   await apiClient.setPollsState({ pollsState: 'polls_paused' });
@@ -273,10 +274,10 @@ test('ballot batching', async () => {
   await scanBallot(mockPlustek, apiClient, 2);
   await scanBallot(mockPlustek, apiClient, 3);
   cvrs = await apiClient.getCastVoteRecordsForTally();
+  batchIds = unique(cvrs.map((cvr) => cvr._batchId));
   expect(cvrs).toHaveLength(4);
-  const batch2Id = cvrs[2]._batchId;
-  expect(batch2Id).not.toEqual(batch1Id);
-  expect(cvrs[3]._batchId).toEqual(batch2Id);
+  expect(batchIds).toHaveLength(2);
+  const batch2Id = find(batchIds, (batchId) => batchId !== batch1Id);
 
   // Replace the ballot bag, which should create a new batch
   await apiClient.recordBallotBagReplaced();
@@ -308,10 +309,9 @@ test('ballot batching', async () => {
   await scanBallot(mockPlustek, apiClient, 4);
   await scanBallot(mockPlustek, apiClient, 5);
   cvrs = await apiClient.getCastVoteRecordsForTally();
+  batchIds = unique(cvrs.map((cvr) => cvr._batchId));
   expect(cvrs).toHaveLength(6);
-  const batch3Id = cvrs[4]._batchId;
-  expect(cvrs[3]._batchId).not.toEqual(batch3Id);
-  expect(cvrs[5]._batchId).toEqual(batch3Id);
+  expect(batchIds).toHaveLength(3);
 });
 
 test('unconfiguring machine', async () => {

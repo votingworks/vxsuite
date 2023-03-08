@@ -432,7 +432,7 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
   expect(addBallotImagesToCvrMock).not.toHaveBeenCalled();
 });
 
-test('exportCvrs called with orderBySheetId actually orders by sheet ID', async () => {
+test('exportCvrs orders by sheet ID', async () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
@@ -476,10 +476,7 @@ test('exportCvrs called with orderBySheetId actually orders by sheet ID', async 
   }
 
   const stream = new streams.WritableStream();
-  await pipeline(
-    exportCastVoteRecordsAsNdJson({ store, orderBySheetId: true }),
-    stream
-  );
+  await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
   const exportedCvrs: CastVoteRecord[] = stream
     .toString()
     .split('\n')
