@@ -11,9 +11,17 @@ import {
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
-import JsZip, { JSZipObject } from 'jszip';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';
+import {
+  getFileByName,
+  readFile,
+  openZip,
+  getEntries,
+  readEntry,
+  readTextEntry,
+  readJsonEntry,
+} from './file_reading';
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;
@@ -44,61 +52,14 @@ export interface BallotConfig extends BallotStyleData {
   isAbsentee: boolean;
 }
 
-function readFile(file: File): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    /* istanbul ignore next */
-    reader.onerror = () => {
-      reject(reader.error);
-    };
-
-    reader.onload = () => {
-      resolve(Buffer.from(reader.result as ArrayBuffer));
-    };
-
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-async function openZip(data: Uint8Array): Promise<JsZip> {
-  return await new JsZip().loadAsync(data);
-}
-
-function getEntries(zipfile: JsZip): JSZipObject[] {
-  return Object.values(zipfile.files);
-}
-
-async function readEntry(entry: JSZipObject): Promise<Buffer> {
-  return entry.async('nodebuffer');
-}
-
-async function readTextEntry(entry: JSZipObject): Promise<string> {
-  const bytes = await readEntry(entry);
-  return new TextDecoder().decode(bytes);
-}
-
-async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
-  return JSON.parse(await readTextEntry(entry));
-}
-
-function getFileByName(entries: JSZipObject[], name: string): JSZipObject {
-  const result = entries.find((entry) => entry.name === name);
-
-  if (!result) {
-    throw new Error(`ballot package does not have a file called '${name}'`);
-  }
-
-  return result;
-}
-
 export async function readBallotPackageFromBuffer(
   source: Buffer
 ): Promise<BallotPackage> {
   const zipfile = await openZip(source);
+  const zipName = 'ballot package';
   const entries = getEntries(zipfile);
-  const electionEntry = getFileByName(entries, 'election.json');
-  const manifestEntry = getFileByName(entries, 'manifest.json');
+  const electionEntry = getFileByName(entries, 'election.json', zipName);
+  const manifestEntry = getFileByName(entries, 'manifest.json', zipName);
 
   const electionData = await readTextEntry(electionEntry);
   const manifest = (await readJsonEntry(
@@ -106,8 +67,16 @@ export async function readBallotPackageFromBuffer(
   )) as BallotPackageManifest;
   const ballots = await Promise.all(
     manifest.ballots.map<Promise<BallotPackageEntry>>(async (ballotConfig) => {
-      const ballotEntry = getFileByName(entries, ballotConfig.filename);
-      const layoutEntry = getFileByName(entries, ballotConfig.layoutFilename);
+      const ballotEntry = getFileByName(
+        entries,
+        ballotConfig.filename,
+        zipName
+      );
+      const layoutEntry = getFileByName(
+        entries,
+        ballotConfig.layoutFilename,
+        zipName
+      );
 
       const pdf = await readEntry(ballotEntry);
       const layout = safeParseJson(

@@ -3,11 +3,11 @@ import { CastVoteRecord, Election } from '@votingworks/types';
 import { parseCvrFileInfoFromFilename, parseCvrs } from '@votingworks/utils';
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
+import { readFileAsyncAsString } from '@votingworks/utils';
 import {
   CastVoteRecordFile,
   CastVoteRecordFilePreprocessedData,
 } from '../config/types';
-import { readFileAsync } from '../lib/read_file_async';
 
 /**
  * Adds elements to a set by creating a new set with the contents of the
@@ -219,7 +219,7 @@ export class CastVoteRecordFiles {
    */
   async add(file: File, election: Election): Promise<CastVoteRecordFiles> {
     try {
-      const fileContent = await readFileAsync(file);
+      const fileContent = await readFileAsyncAsString(file);
       const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
       const result = this.addFromFileContent(
         fileContent,

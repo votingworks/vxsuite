@@ -80,6 +80,12 @@ create table printed_ballots (
     on delete cascade
 );
 
+create table system_settings (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  are_poll_worker_card_pins_enabled boolean not null default false
+);
+
 create table settings (
   -- enforce singleton table
   id integer primary key check (id = 1),

@@ -521,3 +521,124 @@ test('auth before election definition has been configured', async () => {
     electionHash: undefined,
   });
 });
+
+test('setSystemSettings happy path', async () => {
+  const { apiClient, auth, logger } = buildTestEnvironment();
+
+  const { electionDefinition, systemSettings } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockSystemAdministratorAuth(auth);
+
+  const result = await apiClient.setSystemSettings({
+    systemSettings: systemSettings.asText(),
+  });
+  assert(result.isOk());
+
+  // Logger call 1 is made by configureMachine when loading the election definition
+  expect(logger.log).toHaveBeenNthCalledWith(
+    2,
+    LogEventId.SystemSettingsSaveInitiated,
+    'system_administrator',
+    { disposition: 'na' }
+  );
+  expect(logger.log).toHaveBeenNthCalledWith(
+    3,
+    LogEventId.SystemSettingsSaved,
+    'system_administrator',
+    { disposition: 'success' }
+  );
+});
+
+test('setSystemSettings throws error when store.addSystemSettings fails', async () => {
+  const { apiClient, auth, workspace, logger } = buildTestEnvironment();
+  const { electionDefinition, systemSettings } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  const errorString = 'db error at addSystemSettings';
+  workspace.store.addSystemSettings = jest.fn(() => {
+    throw new Error(errorString);
+  });
+
+  mockSystemAdministratorAuth(auth);
+  // https://jestjs.io/docs/expect#rejects
+  await expect(
+    apiClient.setSystemSettings({ systemSettings: systemSettings.asText() })
+  ).rejects.toThrow(errorString);
+
+  // Logger call 1 is made by configureMachine when loading the election definition
+  expect(logger.log).toHaveBeenNthCalledWith(
+    2,
+    LogEventId.SystemSettingsSaveInitiated,
+    'system_administrator',
+    { disposition: 'na' }
+  );
+  expect(logger.log).toHaveBeenNthCalledWith(
+    3,
+    LogEventId.SystemSettingsSaved,
+    'system_administrator',
+    { disposition: 'failure', error: errorString }
+  );
+});
+
+test('setSystemSettings returns an error for malformed input', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockSystemAdministratorAuth(auth);
+
+  const malformedInput = {
+    invalidField: 'hello',
+  } as const;
+
+  const result = await apiClient.setSystemSettings({
+    systemSettings: JSON.stringify(malformedInput),
+  });
+  assert(result.isErr());
+  const err = result.err();
+  expect(err.type).toEqual('parsing');
+  expect(JSON.parse(err.message)).toMatchObject([
+    {
+      code: 'invalid_type',
+      expected: 'boolean',
+      received: 'undefined',
+      path: ['arePollWorkerCardPinsEnabled'],
+      message: 'Required',
+    },
+  ]);
+});
+
+test('getSystemSettings happy path', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+
+  const { electionDefinition, systemSettings } =
+    electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockSystemAdministratorAuth(auth);
+
+  // configure with well-formed system settings
+  const setResult = await apiClient.setSystemSettings({
+    systemSettings: systemSettings.asText(),
+  });
+  assert(setResult.isOk());
+
+  const systemSettingsResult = await apiClient.getSystemSettings();
+  expect(systemSettingsResult).not.toBeUndefined();
+  expect(systemSettingsResult?.arePollWorkerCardPinsEnabled).toEqual(true);
+});
+
+test('getSystemSettings returns undefined when no `system settings` are found', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockSystemAdministratorAuth(auth);
+
+  const systemSettingsResult = await apiClient.getSystemSettings();
+  expect(systemSettingsResult).toBeUndefined();
+});

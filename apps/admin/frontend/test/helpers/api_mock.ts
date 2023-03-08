@@ -137,6 +137,18 @@ export function createApiMock(
       apiClient.unconfigure.expectCallWith().resolves();
     },
 
+    expectSetSystemSettings(systemSettings: string) {
+      apiClient.setSystemSettings
+        .expectCallWith({ systemSettings })
+        .resolves(ok({}));
+    },
+
+    expectGetSystemSettings() {
+      apiClient.getSystemSettings.expectCallWith().resolves({
+        arePollWorkerCardPinsEnabled: false,
+      });
+    },
+
     expectGetCastVoteRecordFileMode(fileMode: Admin.CvrFileMode) {
       apiClient.getCastVoteRecordFileMode.expectCallWith().resolves(fileMode);
     },

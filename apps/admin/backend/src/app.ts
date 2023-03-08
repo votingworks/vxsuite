@@ -15,6 +15,8 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
   safeParseNumber,
+  SystemSettings,
+  SystemSettingsSchema,
 } from '@votingworks/types';
 import { assert, assertDefined, err, ok, iter } from '@votingworks/basics';
 import express, { Application } from 'express';
@@ -26,7 +28,11 @@ import * as grout from '@votingworks/grout';
 import { promises as fs, Stats } from 'fs';
 import { basename } from 'path';
 import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
-import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
+import {
+  AddCastVoteRecordFileResult,
+  ConfigureResult,
+  SetSystemSettingsResult,
+} from './types';
 import { Workspace } from './util/workspace';
 import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 import { Usb } from './util/usb';
@@ -123,6 +129,68 @@ function buildApi({
       );
     },
 
+    async setSystemSettings(input: {
+      systemSettings: string;
+    }): Promise<SetSystemSettingsResult> {
+      await logger.log(
+        LogEventId.SystemSettingsSaveInitiated,
+        assertDefined(await getUserRole()),
+        { disposition: 'na' }
+      );
+
+      const { systemSettings } = input;
+      const validatedSystemSettings = safeParseJson(
+        systemSettings,
+        SystemSettingsSchema
+      );
+      if (validatedSystemSettings.isErr()) {
+        return err({
+          type: 'parsing',
+          message: validatedSystemSettings.err()?.message,
+        });
+      }
+
+      try {
+        store.addSystemSettings(validatedSystemSettings.ok());
+      } catch (error) {
+        const typedError = error as Error;
+        await logger.log(
+          LogEventId.SystemSettingsSaved,
+          assertDefined(await getUserRole()),
+          { disposition: 'failure', error: typedError.message }
+        );
+        throw error;
+      }
+
+      await logger.log(
+        LogEventId.SystemSettingsSaved,
+        assertDefined(await getUserRole()),
+        { disposition: 'success' }
+      );
+
+      return ok({});
+    },
+
+    async getSystemSettings(): Promise<SystemSettings | undefined> {
+      try {
+        const settings = store.getSystemSettings();
+        await logger.log(
+          LogEventId.SystemSettingsRetrieved,
+          assertDefined(await getUserRole()),
+          { disposition: 'success' }
+        );
+        return settings;
+      } catch (error) {
+        await logger.log(
+          LogEventId.SystemSettingsRetrieved,
+          assertDefined(await getUserRole()),
+          { disposition: 'failure' }
+        );
+        throw error;
+      }
+    },
+
+    // `configure` and `unconfigure` handle changes to the election definition
     async configure(input: { electionData: string }): Promise<ConfigureResult> {
       const parseResult = safeParseElectionDefinition(input.electionData);
       if (parseResult.isErr()) {

@@ -246,6 +246,16 @@ export const getPrintedBallots = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -400,6 +410,20 @@ export const addPrintedBallots = {
     return useMutation(apiClient.addPrintedBallots, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPrintedBallots.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setSystemSettings = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setSystemSettings, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getCurrentElectionMetadata.queryKey()
+        );
       },
     });
   },

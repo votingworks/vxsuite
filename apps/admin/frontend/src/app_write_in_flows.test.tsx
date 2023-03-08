@@ -61,6 +61,7 @@ test('manual write-in data end-to-end test', async () => {
     electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(
       partial1CvrFile.asText(),
