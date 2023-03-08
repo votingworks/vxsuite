@@ -231,7 +231,7 @@ test('can edit counts and update totals', async () => {
 });
 
 test('can add and remove a write-in candidate when contest allows', async () => {
-  const { getButton } = renderInAppContext(
+  renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
@@ -265,7 +265,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
     within(commissionerContest).queryByText('Add Write-In Candidate')
   ).not.toBeInTheDocument();
   // "Add" button should be disabled without anything entered
-  expect(getButton('Add')).toBeDisabled();
+  expect(within(commissionerContest).getButton('Add')).toBeDisabled();
   // "Add button should be disabled if an entry is an existing name"
   userEvent.type(
     within(commissionerContest).getByTestId(
@@ -273,7 +273,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
     ),
     'Camille Argent'
   );
-  expect(getButton('Add')).toBeDisabled();
+  expect(within(commissionerContest).getButton('Add')).toBeDisabled();
   // Cancel, re-open, and add new
   userEvent.click(within(commissionerContest).getByText('Cancel'));
   userEvent.click(

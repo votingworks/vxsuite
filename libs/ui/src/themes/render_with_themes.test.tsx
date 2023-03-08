@@ -1,7 +1,11 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import { renderWithThemes } from './render_with_themes';
+import {
+  renderWithThemes,
+  vxTestingLibraryScreen,
+  vxTestingLibraryWithinFn,
+} from './render_with_themes';
 import { H1, P } from '../typography';
 import { makeTheme } from './make_theme';
 import { Button } from '../button';
@@ -150,5 +154,49 @@ describe('RenderResult API', () => {
     expect(
       await findButton('Hidden Button', { useSparinglyIncludeHidden: true })
     ).toBeDefined();
+  });
+});
+
+describe('screen API', () => {
+  test('getButton()', () => {
+    const { getButton, getByRole } = vxTestingLibraryScreen;
+
+    renderWithThemes(
+      <div>
+        <Button onPress={jest.fn()}>Ignore me</Button>
+        <Button onPress={jest.fn()}>Find me</Button>
+      </div>
+    );
+
+    const expectedButton = getByRole('button', { name: 'Find me' });
+    const foundButton = getButton('Find me');
+    expect(foundButton).toEqual(expectedButton);
+
+    const otherButton = getButton('Ignore me');
+    expect(otherButton).not.toBe(foundButton);
+  });
+});
+
+describe('within() API', () => {
+  test('getButton()', () => {
+    const result = renderWithThemes(
+      <div>
+        <Button onPress={jest.fn()}>Non-Modal Button</Button>
+        <div role="alertdialog">
+          <Button onPress={jest.fn()}>Modal Button</Button>
+        </div>
+      </div>
+    );
+
+    const testModal = result.getByRole('alertdialog');
+    const withinModal = vxTestingLibraryWithinFn(testModal);
+
+    const expectedModalButton = withinModal.getByRole('button', {
+      name: 'Modal Button',
+    });
+    const foundModalButton = withinModal.getButton('Modal Button');
+    expect(foundModalButton).toEqual(expectedModalButton);
+
+    expect(() => withinModal.getButton('Non-Modal Button')).toThrow();
   });
 });
