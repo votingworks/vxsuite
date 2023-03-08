@@ -50,7 +50,7 @@ afterEach(() => {
 test('button renders properly when not clicked', () => {
   renderInAppContext(<PrintAllBallotsButton />);
 
-  expect(screen.queryByText('Print All')).toHaveProperty('type', 'button');
+  screen.getButton('Print All');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 

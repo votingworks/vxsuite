@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
 import jestFetchMock from 'jest-fetch-mock';
 import 'jest-styled-components';

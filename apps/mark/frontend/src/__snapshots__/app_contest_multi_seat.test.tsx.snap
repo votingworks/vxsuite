@@ -236,7 +236,7 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-fKVsgm gRfIaj"
+    class="sc-cxpRKc kkdBBo"
   >
     <div
       class="c1"
@@ -261,7 +261,7 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </div>
     <main
-      class="sc-bBHwJV hlTQmY"
+      class="sc-llYToB hxndVL"
     >
       <div
         class="c2"
@@ -315,268 +315,330 @@ exports[`Single Seat Contest 1`] = `
             class="c6"
           >
             <div
+              aria-multiselectable="true"
               class="c7"
+              role="listbox"
             >
               <button
                 aria-label="Selected, Camille Argent, Federalist."
+                aria-selected="true"
                 class="c8"
                 data-choice="argent"
                 data-selected="true"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Camille Argent
-                    </strong>
-                    <br />
-                    Federalist
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Camille Argent
+                      </strong>
+                      <br />
+                      Federalist
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label="Selected, Chloe Witherspoon-Smithson, Federalist."
+                aria-selected="true"
                 class="c8"
                 data-choice="witherspoonsmithson"
                 data-selected="true"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Chloe Witherspoon-Smithson
-                    </strong>
-                    <br />
-                    Federalist
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Chloe Witherspoon-Smithson
+                      </strong>
+                      <br />
+                      Federalist
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label="Selected, Clayton Bainbridge, Federalist."
+                aria-selected="true"
                 class="c8"
                 data-choice="bainbridge"
                 data-selected="true"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Clayton Bainbridge
-                    </strong>
-                    <br />
-                    Federalist
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Clayton Bainbridge
+                      </strong>
+                      <br />
+                      Federalist
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label="Selected, Charlene Hennessey, People’s."
+                aria-selected="true"
                 class="c8"
                 data-choice="hennessey"
                 data-selected="true"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Charlene Hennessey
-                    </strong>
-                    <br />
-                    People’s
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Charlene Hennessey
+                      </strong>
+                      <br />
+                      People’s
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Eric Savoy, People’s."
+                aria-selected="false"
                 class="c9"
                 data-choice="savoy"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Eric Savoy
-                    </strong>
-                    <br />
-                    People’s
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Eric Savoy
+                      </strong>
+                      <br />
+                      People’s
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Susan Tawa, People’s."
+                aria-selected="false"
                 class="c9"
                 data-choice="tawa"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Susan Tawa
-                    </strong>
-                    <br />
-                    People’s
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Susan Tawa
+                      </strong>
+                      <br />
+                      People’s
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Mary Tawa, People’s."
+                aria-selected="false"
                 class="c9"
                 data-choice="tawa-mary"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Mary Tawa
-                    </strong>
-                    <br />
-                    People’s
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Mary Tawa
+                      </strong>
+                      <br />
+                      People’s
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Damian Rangel, Liberty."
+                aria-selected="false"
                 class="c9"
                 data-choice="rangel"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Damian Rangel
-                    </strong>
-                    <br />
-                    Liberty
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Damian Rangel
+                      </strong>
+                      <br />
+                      Liberty
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Valarie Altman, Constitution."
+                aria-selected="false"
                 class="c9"
                 data-choice="altman"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Valarie Altman
-                    </strong>
-                    <br />
-                    Constitution
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Valarie Altman
+                      </strong>
+                      <br />
+                      Constitution
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Helen Moore, Constitution."
+                aria-selected="false"
                 class="c9"
                 data-choice="moore"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Helen Moore
-                    </strong>
-                    <br />
-                    Constitution
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Helen Moore
+                      </strong>
+                      <br />
+                      Constitution
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Martin Schreiner, Independent."
+                aria-selected="false"
                 class="c9"
                 data-choice="schreiner"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Martin Schreiner
-                    </strong>
-                    <br />
-                    Independent
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Martin Schreiner
+                      </strong>
+                      <br />
+                      Independent
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
+                aria-selected="false"
                 class="c9"
                 data-choice="write-in"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    aria-label="add write-in candidate."
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <em>
-                      add write-in candidate
-                    </em>
-                  </p>
-                </div>
+                    <p
+                      aria-label="add write-in candidate."
+                    >
+                      <em>
+                        add write-in candidate
+                      </em>
+                    </p>
+                  </div>
+                </span>
               </button>
             </div>
           </div>
@@ -588,36 +650,46 @@ exports[`Single Seat Contest 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-egiSv desLmk"
+        class="sc-bqiQRQ ihuxhx"
         id="next"
-        role="option"
         type="button"
       >
         <span
-          class="c11"
+          class="sc-hBURRC gusydx"
         >
-          Next
+          <span
+            class="c11"
+          >
+            Next
+          </span>
         </span>
       </button>
       <button
         aria-label="previous contest"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         id="previous"
-        role="option"
         type="button"
       >
         <span
-          class="c12"
+          class="sc-hBURRC gusydx"
         >
-          Back
+          <span
+            class="c12"
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         type="button"
       >
-        Settings
+        <span
+          class="sc-hBURRC gusydx"
+        >
+          Settings
+        </span>
       </button>
     </nav>
   </div>

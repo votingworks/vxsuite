@@ -20,6 +20,7 @@ import {
   Button,
   printElement,
   printElementToPdf,
+  LinkButton,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { UseQueryResult } from '@tanstack/react-query';
@@ -35,7 +36,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 
@@ -242,7 +242,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
                 election={election}
               />
               <p>
-                <PrintButton print={printWriteInTallyReport} primary>
+                <PrintButton print={printWriteInTallyReport} variant="primary">
                   Print Report
                 </PrintButton>{' '}
                 {window.kiosk && (

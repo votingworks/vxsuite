@@ -10,6 +10,7 @@ import {
   Table,
   TD,
   Prose,
+  Button,
   ElectronFile,
 } from '@votingworks/ui';
 import {
@@ -23,7 +24,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { AppContext } from '../contexts/app_context';
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import {
   CastVoteRecordFilePreprocessedData,
@@ -212,7 +212,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -230,7 +230,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -253,7 +253,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -270,9 +270,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         content={<Loading />}
         onOverlayClick={onClose}
         actions={
-          <LinkButton disabled onPress={onClose}>
+          <Button disabled onPress={onClose}>
             Cancel
-          </LinkButton>
+          </Button>
         }
       />
     );
@@ -306,7 +306,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
                 Select Files…
               </FileInputButton>
             )}
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />
@@ -346,14 +346,15 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
             </td>
           )}
           <TD textAlign="right">
-            <LinkButton
-              onPress={() => importSelectedFile(file)}
+            <Button
+              onPress={importSelectedFile}
+              value={file}
               disabled={!canImport}
               small
-              primary
+              variant="primary"
             >
               {canImport ? 'Load' : 'Loaded'}
-            </LinkButton>
+            </Button>
           </TD>
         </tr>
       );
@@ -433,7 +434,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
             >
               Select File Manually…
             </FileInputButton>
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />

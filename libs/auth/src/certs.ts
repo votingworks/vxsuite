@@ -41,7 +41,7 @@ const STANDARD_CERT_FIELDS = [
 /**
  * Parsed custom cert fields
  */
-interface CustomCertFields {
+export interface CustomCertFields {
   component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
   jurisdiction: string;
   cardType?: 'sa' | 'em' | 'pw';

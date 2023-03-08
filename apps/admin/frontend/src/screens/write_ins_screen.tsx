@@ -219,7 +219,7 @@ export function WriteInsScreen(): JSX.Element {
                       ) : (
                         <Button
                           disabled={isOfficialResults}
-                          primary={!!transcriptionQueue}
+                          variant={transcriptionQueue ? 'primary' : 'regular'}
                           onPress={() => setContestBeingTranscribed(contest)}
                         >
                           Transcribe
@@ -235,7 +235,7 @@ export function WriteInsScreen(): JSX.Element {
                         </Text>
                       ) : (
                         <Button
-                          primary={!!adjudicationQueue}
+                          variant={adjudicationQueue ? 'primary' : 'regular'}
                           disabled={
                             isOfficialResults ||
                             (!adjudicationQueue && !completedCount)

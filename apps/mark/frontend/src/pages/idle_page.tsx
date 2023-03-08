@@ -11,8 +11,6 @@ import {
 
 import { BallotContext } from '../contexts/ballot_context';
 
-import { EventTargetFunction } from '../config/types';
-
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 
 export function IdlePage(): JSX.Element {
@@ -20,9 +18,9 @@ export function IdlePage(): JSX.Element {
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
 
-  const onPress: EventTargetFunction = () => {
+  function onPress() {
     // do nothing
-  };
+  }
 
   useEffect(() => {
     async function reset() {
@@ -55,7 +53,7 @@ export function IdlePage(): JSX.Element {
                 <strong>{pluralize('second', countdown, true)}</strong>.
               </p>
             )}
-            <Button primary onPress={onPress}>
+            <Button variant="primary" onPress={onPress}>
               Yes, I’m still voting.
             </Button>
           </Prose>

@@ -5,13 +5,12 @@ import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { Prose, Text } from '@votingworks/ui';
+import { Button, LinkButton, Prose, Text } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
 import { RemoveElectionModal } from '../components/remove_election_modal';
 
 const ButtonListItem = styled.span`
@@ -102,13 +101,12 @@ export function DefinitionScreen(): JSX.Element {
               </LinkButton>
             </ButtonListItem>
             <ButtonListItem>
-              <LinkButton
-                danger
-                to={routerPaths.definitionEditor}
+              <Button
+                variant="danger"
                 onPress={() => setIsRemovingElection(true)}
               >
                 Remove Election
-              </LinkButton>
+              </Button>
             </ButtonListItem>
           </p>
         </Prose>

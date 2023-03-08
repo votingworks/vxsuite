@@ -24,7 +24,6 @@ import {
   ButtonFooterLandscape,
 } from '../components/button_footer';
 import { SettingsButton } from '../components/settings_button';
-import { LanguageSettingsButton } from '../components/language_settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -100,7 +99,7 @@ export function ContestPage(): JSX.Element {
     <LinkButton
       large
       id="next"
-      primary={isVoteComplete}
+      variant={isVoteComplete ? 'primary' : 'regular'}
       aria-label="next contest"
       to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
     >
@@ -127,7 +126,7 @@ export function ContestPage(): JSX.Element {
   const reviewScreenButton = (
     <LinkButton
       large
-      primary={isVoteComplete}
+      variant={isVoteComplete ? 'primary' : 'regular'}
       to={`/review#contest-${contest.id}`}
       id="next"
     >
@@ -139,22 +138,6 @@ export function ContestPage(): JSX.Element {
 
   const settingsButton = (
     <SettingsButton large={isPortrait} onPress={showSettingsModal} />
-  );
-
-  /* istanbul ignore next */
-  const languageSettingsButton = (
-    <LanguageSettingsButton
-      large={isPortrait}
-      onPress={() => {
-        // eslint-disable-next-line no-console
-        console.log(
-          'Replace with method to toggleCurrentLanguage (which toggles between secondaryLanguageKey and English, or shows language settings modal when secondaryLanaguageKey === "EN")'
-        );
-      }}
-      isSecondaryLanguageActive={false}
-      secondaryLanguageKey="EN"
-      isSupported={false}
-    />
   );
 
   return (
@@ -210,17 +193,13 @@ export function ContestPage(): JSX.Element {
               {previousContestButton}
             </React.Fragment>
           )}
-          {languageSettingsButton}
           {settingsButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
-              <ButtonFooterLandscape>
-                {languageSettingsButton}
-                {settingsButton}
-              </ButtonFooterLandscape>
+              <ButtonFooterLandscape>{settingsButton}</ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}

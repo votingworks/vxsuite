@@ -10,6 +10,7 @@ import {
   Table,
   TD,
   Text,
+  LinkButton,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import {
@@ -24,7 +25,6 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { convertTalliesByPrecinctToFullExternalTally } from '../utils/external_tallies';
-import { LinkButton } from '../components/link_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 
 const MANUAL_DATA_NAME = 'Manually Added Data';
@@ -193,7 +193,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
             </Table>
             <p>
               <Button
-                danger
+                variant="danger"
                 disabled={!hasManualData}
                 onPress={() => setIsClearing(true)}
               >

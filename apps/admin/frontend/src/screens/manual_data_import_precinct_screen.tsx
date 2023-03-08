@@ -19,7 +19,15 @@ import {
   Election,
   getContestDistrictName,
 } from '@votingworks/types';
-import { Button, Modal, Prose, Table, TD, Text } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  Prose,
+  Table,
+  TD,
+  Text,
+  LinkButton,
+} from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
@@ -29,7 +37,6 @@ import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
-import { LinkButton } from '../components/link_button';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { getContestsForPrecinct } from '../utils/election';
@@ -119,7 +126,7 @@ function AddWriteInRow({
         {isAddingWriteIn && (
           <Button
             small
-            primary
+            variant="primary"
             onPress={onAdd}
             disabled={
               writeInName.length === 0 ||
@@ -802,7 +809,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         })}
         <p>
           <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
-          <Button primary onPress={handleImportingData}>
+          <Button variant="primary" onPress={handleImportingData}>
             Save {votingMethodName} Results for {currentPrecinct.name}
           </Button>
         </p>
@@ -828,7 +835,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={onConfirmRemoveCandidate}>
+              <Button variant="danger" onPress={onConfirmRemoveCandidate}>
                 Remove Candidate
               </Button>
               <Button onPress={onCancelRemoveCandidate}>Cancel</Button>

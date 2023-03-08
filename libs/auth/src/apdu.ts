@@ -12,7 +12,13 @@ export const MAX_APDU_LENGTH = 260;
  * The max length of a command APDU's data. The `- 5` accounts for the CLA, INS, P1, P2, and Lc
  * (see CommandApdu below).
  */
-const MAX_COMMAND_APDU_DATA_LENGTH = MAX_APDU_LENGTH - 5;
+export const MAX_COMMAND_APDU_DATA_LENGTH = MAX_APDU_LENGTH - 5;
+
+/**
+ * The max length of a response APDU's data. The `- 2` accounts for the status word (see
+ * STATUS_WORD below).
+ */
+export const MAX_RESPONSE_APDU_DATA_LENGTH = MAX_APDU_LENGTH - 2;
 
 /**
  * Because APDUs have a max length, commands involving larger amounts of data have to be sent as
@@ -66,8 +72,10 @@ export const GET_RESPONSE = {
 } as const;
 
 function splitEvery2Characters(s: string): string[] {
-  assert(s.length % 2 === 0);
-  return s.match(/.{2}/g) || [];
+  assert(s.length > 0 && s.length % 2 === 0);
+  const sSplit = s.match(/.{2}/g);
+  assert(sSplit !== null);
+  return sSplit;
 }
 
 /**

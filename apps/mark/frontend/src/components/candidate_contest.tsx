@@ -20,11 +20,7 @@ import { assert } from '@votingworks/basics';
 
 import { stripQuotes } from '../utils/strip_quotes';
 
-import {
-  EventTargetFunction,
-  ScrollDirections,
-  UpdateVoteFunction,
-} from '../config/types';
+import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -176,10 +172,7 @@ export function CandidateContest({
     setDeselectedCandidate(id);
   }
 
-  const handleUpdateSelection: EventTargetFunction = (event) => {
-    const candidateId = (event.currentTarget as HTMLInputElement).dataset[
-      'choice'
-    ];
+  function handleUpdateSelection(candidateId: string) {
     /* istanbul ignore else */
     if (candidateId) {
       const candidate = findCandidateById(vote, candidateId);
@@ -193,7 +186,7 @@ export function CandidateContest({
         addCandidateToVote(candidateId);
       }
     }
-  };
+  }
 
   function handleChangeVoteAlert(candidate?: Candidate) {
     setAttemptedOvervoteCandidate(candidate);
@@ -241,8 +234,7 @@ export function CandidateContest({
     toggleWriteInCandidateModal(false);
   }
 
-  const onKeyboardInput: EventTargetFunction = (event) => {
-    const { key } = (event.target as HTMLElement).dataset;
+  function onKeyboardInput(key: string) {
     setWriteInCandidateName((prevName) => {
       let newName = prevName;
       if (key === 'space') {
@@ -254,7 +246,7 @@ export function CandidateContest({
       }
       return newName.slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH);
     });
-  };
+  }
 
   function keyDisabled(key: string) {
     return (
@@ -264,10 +256,7 @@ export function CandidateContest({
   }
 
   /* istanbul ignore next: Tested by Cypress */
-  const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset[
-      'direction'
-    ] as ScrollDirections;
+  function scrollContestChoices(direction: ScrollDirections) {
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;
@@ -286,7 +275,7 @@ export function CandidateContest({
         : currentScrollTop - idealScrollDistance;
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
-  };
+  }
 
   function handleDisabledAddWriteInClick() {
     handleChangeVoteAlert({
@@ -426,9 +415,9 @@ export function CandidateContest({
                 <Button
                   className="scroll-up"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="up"
+                  value="up"
                   disabled={isScrollAtTop}
                   onPress={scrollContestChoices}
                 >
@@ -437,9 +426,9 @@ export function CandidateContest({
                 <Button
                   className="scroll-down"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="down"
+                  value="down"
                   disabled={isScrollAtBottom}
                   onPress={scrollContestChoices}
                 >
@@ -468,7 +457,7 @@ export function CandidateContest({
           }
           actions={
             <Button
-              primary
+              variant="primary"
               autoFocus
               onPress={closeAttemptedVoteAlert}
               aria-label="use the select button to continue."
@@ -491,7 +480,10 @@ export function CandidateContest({
           }
           actions={
             <React.Fragment>
-              <Button danger onPress={confirmRemovePendingWriteInCandidate}>
+              <Button
+                variant="danger"
+                onPress={confirmRemovePendingWriteInCandidate}
+              >
                 Yes, Remove.
               </Button>
               <Button onPress={clearCandidateIdPendingRemoval}>Cancel</Button>
@@ -539,9 +531,7 @@ export function CandidateContest({
           actions={
             <React.Fragment>
               <Button
-                primary={
-                  normalizeCandidateName(writeInCandidateName).length > 0
-                }
+                variant="primary"
                 onPress={addWriteInCandidate}
                 disabled={
                   normalizeCandidateName(writeInCandidateName).length === 0

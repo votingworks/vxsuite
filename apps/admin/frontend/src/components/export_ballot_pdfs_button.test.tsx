@@ -30,7 +30,7 @@ afterEach(() => {
 test('button renders properly when not clicked', () => {
   renderInAppContext(<ExportBallotPdfsButton />);
 
-  expect(screen.queryByText('Save PDFs')).toHaveProperty('type', 'button');
+  screen.getButton('Save PDFs');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 

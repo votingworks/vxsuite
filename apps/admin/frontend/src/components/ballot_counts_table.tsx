@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { format } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Table, TD } from '@votingworks/ui';
+import { LinkButton, Table, TD } from '@votingworks/ui';
 import {
   BatchTally,
   TallyCategory,
@@ -14,7 +14,6 @@ import { getPartiesWithPrimaryElections } from '../utils/election';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import { ExportBatchTallyResultsButton } from './export_batch_tally_results_button';
-import { LinkButton } from './link_button';
 import { routerPaths } from '../router_paths';
 
 export interface Props {
@@ -122,7 +121,7 @@ export function BallotCountsTable({
               </TD>
               <TD>
                 <LinkButton
-                  primary
+                  variant="primary"
                   small
                   to={routerPaths.tallyPrecinctReport({
                     precinctId: 'all',

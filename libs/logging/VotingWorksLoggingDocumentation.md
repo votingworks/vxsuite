@@ -206,6 +206,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User printed the test deck tally report. Success or failure indicated by disposition.  
 **Machines:** vx-admin-frontend
+### test-deck-tally-report-saved-to-pdf
+**Type:** [user-action](#user-action)  
+**Description:** User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.  
+**Machines:** vx-admin-frontend
 ### toggle-test-mode-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated toggling between test mode and live mode in the current application.  

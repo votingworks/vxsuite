@@ -3,11 +3,22 @@ import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
-import { expectPrint } from '@votingworks/test-utils';
+import { expectPrint, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import React from 'react';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
+
+beforeEach(() => {
+  const mockKiosk = fakeKiosk();
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  const fileWriter = fakeFileWriter();
+  mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
+  mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
+  window.kiosk = mockKiosk;
+});
 
 test('prints appropriate reports for primary election', async () => {
   renderInAppContext(<FullTestDeckTallyReportButton />, {
@@ -57,4 +68,28 @@ test('prints appropriate report for general election', async () => {
 
     expect(printOptions).toMatchObject({ sides: 'one-sided' });
   });
+});
+
+test('renders SaveFileToUsb component for saving PDF', async () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<FullTestDeckTallyReportButton />, {
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    usbDrive,
+  });
+  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Test Deck Tally Report');
+});
+
+test('closes SaveFileToUsb modal', async () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<FullTestDeckTallyReportButton />, {
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    usbDrive,
+  });
+  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Test Deck Tally Report');
+  userEvent.click(screen.getByText('Cancel'));
+  expect(screen.queryByRole('alertdialog')).toEqual(null);
 });

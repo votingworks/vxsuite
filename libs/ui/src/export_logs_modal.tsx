@@ -22,7 +22,6 @@ import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
 
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { UsbImage } from './graphics';
@@ -175,7 +174,7 @@ export function ExportLogsModal({
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -198,7 +197,7 @@ export function ExportLogsModal({
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+        actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
@@ -275,7 +274,7 @@ export function ExportLogsModal({
         <Modal
           content={<Loading />}
           onOverlayClick={onClose}
-          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'mounted': {
@@ -293,10 +292,10 @@ export function ExportLogsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={() => exportLogs(false)}>
+              <Button variant="primary" onPress={() => exportLogs(false)}>
                 Save
               </Button>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={onClose}>Cancel</Button>
               <Button onPress={() => exportLogs(true)}>Save As…</Button>
             </React.Fragment>
           }

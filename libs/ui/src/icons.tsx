@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCircleLeft,
   faCircleRight,
+  faDeleteLeft,
   faPencil,
   faCheckCircle,
   faGear,
@@ -13,6 +14,7 @@ import {
   faExclamationTriangle,
   faInfoCircle,
   faTrashCan,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 
 interface InnerProps {
@@ -37,6 +39,10 @@ function FaIcon(props: InnerProps): JSX.Element {
  * colors.
  */
 export const Icons = {
+  Backspace(): JSX.Element {
+    return <FaIcon type={faDeleteLeft} />;
+  },
+
   Checkmark(): JSX.Element {
     return (
       <StyledSvgIcon
@@ -85,5 +91,9 @@ export const Icons = {
 
   Warning(): JSX.Element {
     return <FaIcon type={faExclamationTriangle} />;
+  },
+
+  X(): JSX.Element {
+    return <FaIcon type={faXmark} />;
   },
 } as const;

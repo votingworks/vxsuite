@@ -172,7 +172,7 @@ export function ChangePrecinctButton({
           actions={
             <React.Fragment>
               <Button
-                danger
+                variant="danger"
                 onPress={confirmPrecinctChange}
                 disabled={!unconfirmedPrecinctSelection}
               >

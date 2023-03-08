@@ -64,35 +64,41 @@ exports[`renders SettingsTextSize 1`] = `
     Text Size
   </label>
   <span
-    class="sc-bqiQRQ c1"
+    class="sc-fotPbf c1"
     data-testid="change-text-size-buttons"
   >
     <button
       aria-label=" Text Size: Small"
-      class="sc-egiSv feoAXt"
-      data-size="0"
+      class="sc-bqiQRQ DAAqi"
       type="button"
-      value="0"
     >
-      A
+      <span
+        class="sc-hBURRC gusydx"
+      >
+        A
+      </span>
     </button>
     <button
       aria-label="Selected Text Size: Medium"
-      class="sc-egiSv dGzrLr"
-      data-size="1"
+      class="sc-bqiQRQ dJzIjO"
       type="button"
-      value="1"
     >
-      A
+      <span
+        class="sc-hBURRC gusydx"
+      >
+        A
+      </span>
     </button>
     <button
       aria-label=" Text Size: Large"
-      class="sc-egiSv feoAXt"
-      data-size="2"
+      class="sc-bqiQRQ DAAqi"
       type="button"
-      value="2"
     >
-      A
+      <span
+        class="sc-hBURRC gusydx"
+      >
+        A
+      </span>
     </button>
   </span>
 </p>

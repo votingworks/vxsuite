@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 
@@ -7,8 +7,11 @@ import { Dictionary } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import {
+  Button,
+  LinkButton,
   LogoMark,
   printElement,
+  printElementToPdf,
   Prose,
   Table,
   TD,
@@ -21,9 +24,10 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
 import { PrintButton } from '../components/print_button';
 import { getPrintedBallots } from '../api';
+import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
@@ -39,6 +43,8 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth)); // TODO auth check permissions for printing printed ballot report
   const userRole = auth.user.role;
   const { election } = electionDefinition;
+
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const totalBallotsPrinted = printedBallots.reduce(
     (count, ballot) => count + ballot.numCopies,
@@ -231,19 +237,37 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen>
-      {printedBallotsReportHeaderAndMetadata}
-      <p>
-        <PrintButton primary print={printPrintedBallotsReport}>
-          Print Report
-        </PrintButton>
-      </p>
-      <p>
-        <LinkButton small to={routerPaths.reports}>
-          Back to Reports
-        </LinkButton>
-      </p>
-      {printedBallotsReportTable}
-    </NavigationScreen>
+    <React.Fragment>
+      <NavigationScreen>
+        {printedBallotsReportHeaderAndMetadata}
+        <p>
+          <PrintButton variant="primary" print={printPrintedBallotsReport}>
+            Print Report
+          </PrintButton>
+        </p>
+        <p>
+          <Button onPress={() => setIsSaveModalOpen(true)}>
+            Save Report to PDF
+          </Button>
+        </p>
+        <p>
+          <LinkButton small to={routerPaths.reports}>
+            Back to Reports
+          </LinkButton>
+        </p>
+        {printedBallotsReportTable}
+      </NavigationScreen>
+      {isSaveModalOpen && (
+        <SaveFileToUsb
+          onClose={() => setIsSaveModalOpen(false)}
+          generateFileContent={() => printElementToPdf(printedBallotsReport)}
+          defaultFilename={generateDefaultReportFilename(
+            'printed-ballots-report',
+            election
+          )}
+          fileType={FileType.PrintedBallotsReport}
+        />
+      )}
+    </React.Fragment>
   );
 }

@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import pcscLite from 'pcsclite';
+import newPcscLite from 'pcsclite';
 import { promisify } from 'util';
 import { assert } from '@votingworks/basics';
 import { isByte } from '@votingworks/types';
@@ -13,7 +13,10 @@ import {
   STATUS_WORD,
 } from './apdu';
 
-type PcscLite = ReturnType<typeof pcscLite>;
+/**
+ * A PCSC Lite instance
+ */
+export type PcscLite = ReturnType<typeof newPcscLite>;
 
 interface ReaderReady {
   status: 'ready';
@@ -38,7 +41,7 @@ export class CardReader {
 
   constructor(input: { onReaderStatusChange: OnReaderStatusChange }) {
     this.onReaderStatusChange = input.onReaderStatusChange;
-    this.pcscLite = pcscLite();
+    this.pcscLite = newPcscLite();
     this.reader = { status: 'no_card_reader' };
 
     this.pcscLite.on('error', () => {

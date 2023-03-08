@@ -25,6 +25,7 @@ import {
   useStoredState,
   printElementWhenReady,
   printElementToPdfWhenReady,
+  LinkButton,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
@@ -41,7 +42,6 @@ import {
 import { NavigationScreen } from '../components/navigation_screen';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
-import { LinkButton } from '../components/link_button';
 import { getBallotLayoutPageSizeReadableString } from '../utils/get_ballot_layout_page_size';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { BallotCopiesInput } from '../components/ballot_copies_input';
@@ -311,7 +311,7 @@ export function BallotScreen(): JSX.Element {
             )}
           </p>
           <p>
-            <PrintButton primary print={printBallot}>
+            <PrintButton variant="primary" print={printBallot}>
               <PrintBallotButtonText
                 ballotCopies={ballotCopies}
                 ballotMode={ballotMode}

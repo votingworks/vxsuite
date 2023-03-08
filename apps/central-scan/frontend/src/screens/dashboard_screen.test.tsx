@@ -127,10 +127,8 @@ test('allows deleting a batch', async () => {
   );
 
   expect(deleteBatch).not.toHaveBeenCalled();
-  const [deleteBatch1Button, deleteBatch2Button] = screen.getAllByText(
-    'Delete',
-    { selector: 'button' }
-  );
+  const [deleteBatch1Button, deleteBatch2Button] =
+    screen.getAllButtons('Delete');
 
   let deleteBatch1Resolve!: VoidFunction;
   let deleteBatch2Reject!: (error: unknown) => void;

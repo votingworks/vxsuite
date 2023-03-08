@@ -52,7 +52,7 @@ export function ResetPollsToPausedButton({
           onOverlayClick={hideModal}
           actions={
             <React.Fragment>
-              <Button danger onPress={doReset}>
+              <Button variant="danger" onPress={doReset}>
                 Reset Polls to Paused
               </Button>
               <Button onPress={hideModal}>Close</Button>

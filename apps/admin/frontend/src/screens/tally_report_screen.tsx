@@ -6,9 +6,14 @@ import {
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
+import {
+  VotingMethod,
+  getLabelForVotingMethod,
+  getPrecinctById,
+} from '@votingworks/types';
 import {
   Button,
+  LinkButton,
   Modal,
   printElement,
   printElementToPdf,
@@ -31,7 +36,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 
@@ -81,11 +85,7 @@ export function TallyReportScreen(): JSX.Element {
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
-  const precinctName =
-    (precinctId &&
-      precinctId !== 'all' &&
-      find(election.precincts, (p) => p.id === precinctId).name) ||
-    undefined;
+  const precinctName = getPrecinctById({ election, precinctId })?.name;
 
   const fileSuffix = useMemo(() => {
     if (scannerId) {
@@ -250,7 +250,7 @@ export function TallyReportScreen(): JSX.Element {
             election={election}
           />
           <p>
-            <PrintButton primary print={printTallyReport}>
+            <PrintButton variant="primary" print={printTallyReport}>
               Print Report
             </PrintButton>{' '}
             {window.kiosk && (
@@ -315,7 +315,7 @@ export function TallyReportScreen(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={markOfficial}>
+              <Button variant="primary" onPress={markOfficial}>
                 Mark Tally Results as Official
               </Button>
               <Button onPress={closeMarkOfficialModal}>Cancel</Button>

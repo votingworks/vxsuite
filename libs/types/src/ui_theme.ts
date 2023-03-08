@@ -30,6 +30,7 @@ export enum Color {
   LEGACY_ACCENT_DANGER = '#ff0000',
   LEGACY_ACCENT_WARNING = '#ff8c00',
   LEGACY_BACKGROUND = '#edeff0',
+  LEGACY_BUTTON_BACKGROUND = '#d3d3d3',
   LEGACY_FOREGROUND = '#263238',
   LEGACY_FOREGROUND_DISABLED = '#999999',
   LEGACY_PRIMARY_BLUE = '#2298de',
@@ -73,6 +74,7 @@ export interface SizeTheme {
   };
   readonly letterSpacingEm: number;
   readonly lineHeight: number;
+  readonly minTouchAreaSizePx: number;
 }
 
 /** UI theme configuration. */

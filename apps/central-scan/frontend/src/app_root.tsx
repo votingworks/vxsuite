@@ -29,13 +29,14 @@ import {
   UsbControllerButton,
   useDevices,
   useUsbDrive,
+  LinkButton,
+  Button,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, Result, ok, err } from '@votingworks/basics';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
-import { Button } from './components/button';
 import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
 
@@ -45,7 +46,6 @@ import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { AdminActionsScreen } from './screens/admin_actions_screen';
 
 import * as config from './api/config';
-import { LinkButton } from './components/link_button';
 import { MainNav } from './components/main_nav';
 
 import { ExportResultsModal } from './components/export_results_modal';
@@ -686,7 +686,7 @@ export function AppRoot({
                   disabled={
                     adjudication.remaining > 0 || status.batches.length === 0
                   }
-                  title={exportButtonTitle}
+                  nonAccessibleTitle={exportButtonTitle}
                 >
                   Save CVRs
                 </Button>

@@ -85,7 +85,9 @@ export function WriteInsAdjudicationScreen({
               )}
               <Button
                 small
-                primary={transcriptionsToAdjudicateCount === 0}
+                variant={
+                  transcriptionsToAdjudicateCount === 0 ? 'primary' : 'regular'
+                }
                 onPress={onClose}
               >
                 Back to All Write-Ins

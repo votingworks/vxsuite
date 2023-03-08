@@ -64,7 +64,7 @@ export function CalibrateScannerModal({
         actions={
           <React.Fragment>
             {scannerStatus?.state === 'ready_to_scan' ? (
-              <Button primary onPress={onCalibrate}>
+              <Button variant="primary" onPress={onCalibrate}>
                 Calibrate
               </Button>
             ) : scannerStatus?.state === 'no_paper' ? (
@@ -109,7 +109,11 @@ export function CalibrateScannerModal({
         }
         actions={
           <React.Fragment>
-            <Button primary onPress={() => setCalibrationState('ready')}>
+            <Button
+              variant="primary"
+              onPress={setCalibrationState}
+              value="ready"
+            >
               Try again
             </Button>
             <Button onPress={onCancel}>Cancel</Button>

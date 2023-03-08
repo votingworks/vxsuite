@@ -1,4 +1,5 @@
 import React from 'react';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
@@ -10,9 +11,12 @@ import {
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
+  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { screen, waitFor } from '../../test/react_testing_library';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 
 import {
   LAST_PRINT_JOB_SLEEP_MS,
@@ -37,10 +41,40 @@ beforeEach(() => {
   window.kiosk = mockKiosk;
   mockLogger = new Logger(LogSource.VxAdminFrontend, mockKiosk);
   mockPrinter = fakePrinter();
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  const fileWriter = fakeFileWriter();
+  mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
+  mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
 });
 
 afterAll(() => {
   delete window.kiosk;
+});
+
+test('Saving L&A package for one precinct', () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<PrintTestDeckScreen />, {
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    logger: mockLogger,
+    usbDrive,
+  });
+
+  userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
+  screen.getByText('Save Logic & Accuracy Package');
+  screen.getByText('Save');
+});
+
+test('Saving L&A package for all precincts', () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<PrintTestDeckScreen />, {
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    logger: mockLogger,
+    usbDrive,
+  });
+
+  userEvent.click(screen.getByText('Save Packages for All Precincts as PDF'));
+  screen.getByText('Save Logic & Accuracy Package');
+  screen.getByText('Save');
 });
 
 test('Printing L&A package for one precinct', async () => {
@@ -48,7 +82,7 @@ test('Printing L&A package for one precinct', async () => {
     logger: mockLogger,
   });
 
-  userEvent.click(screen.getByText('District 5'));
+  userEvent.click(screen.getByText('Print District 5'));
 
   await screen.findByText('Printing L&A Package for District 5');
   await expectPrint((printedElement, printOptions) => {
@@ -96,7 +130,7 @@ test('Printing L&A package for one precinct', async () => {
   );
   jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
 
-  await screen.findByText('District 5');
+  await screen.findByText('Print District 5');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });
 
@@ -202,7 +236,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
     printer: mockPrinter,
   });
 
-  userEvent.click(screen.getByText('District 5'));
+  userEvent.click(screen.getByText('Print District 5'));
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
@@ -257,7 +291,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   );
   jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
 
-  await screen.findByText('District 5');
+  await screen.findByText('Print District 5');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });
 

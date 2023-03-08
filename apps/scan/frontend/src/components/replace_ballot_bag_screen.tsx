@@ -65,7 +65,7 @@ export function ReplaceBallotBagScreen({
             Has the full ballot bag been replaced with a new empty ballot bag?
           </p>
           <p>
-            <Button primary onPress={() => setConfirmed(true)}>
+            <Button variant="primary" onPress={() => setConfirmed(true)}>
               Yes, New Ballot Bag is Ready
             </Button>
           </p>

@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   expectPrint,
+  fakeFileWriter,
   fakeKiosk,
   fakePrinterInfo,
+  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { fakeLogger, LogEventId, Logger } from '@votingworks/logging';
 import { screen, waitFor, within } from '@testing-library/react';
@@ -14,6 +16,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { PrintedBallotsReportScreen } from './printed_ballots_report_screen';
 import { mockPrintedBallotRecord } from '../../test/api_mock_data';
+import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -27,6 +30,10 @@ beforeEach(() => {
   mockKiosk.getPrinterInfo.mockResolvedValue([
     fakePrinterInfo({ connected: true, name: 'VxPrinter' }),
   ]);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  const fileWriter = fakeFileWriter();
+  mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
+  mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
   logger = fakeLogger();
   apiMock = createApiMock();
@@ -76,4 +83,15 @@ test('renders information, prints, and logs success', async () => {
     expect.any(String),
     expect.anything()
   );
+});
+
+test('renders SaveFileToUsb component for saving PDF', async () => {
+  const usbDrive = mockUsbDrive('mounted');
+  renderInAppContext(<PrintedBallotsReportScreen />, {
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    usbDrive,
+  });
+  userEvent.click(screen.getByText('Save Report to PDF'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Printed Ballots Report');
 });

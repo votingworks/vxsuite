@@ -168,7 +168,7 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={exportResults}>
+              <Button variant="primary" onPress={exportResults}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>

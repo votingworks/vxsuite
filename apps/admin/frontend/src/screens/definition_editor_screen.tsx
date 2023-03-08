@@ -102,7 +102,7 @@ export function DefinitionEditorScreen({
             <React.Fragment>
               <Button
                 small
-                primary={dirty && !error}
+                variant="primary"
                 onPress={handleSaveElection}
                 disabled={!dirty || !!error}
               >
@@ -121,7 +121,7 @@ export function DefinitionEditorScreen({
           </Button>
           <Button
             small
-            danger={!dirty}
+            variant="danger"
             disabled={dirty}
             onPress={initConfirmingUnconfig}
           >
