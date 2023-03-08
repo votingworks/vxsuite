@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import {
   Button,
   ElectionInfoBar,
+  LinkButton,
   Main,
   Screen,
   UsbControllerButton,
@@ -16,7 +17,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';
-import { LinkButton } from './link_button';
 import { logOut } from '../api';
 
 interface NavItem {

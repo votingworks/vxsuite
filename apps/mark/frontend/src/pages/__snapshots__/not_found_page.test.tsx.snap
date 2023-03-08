@@ -2,10 +2,10 @@
 
 exports[`renders NotFoundPage 1`] = `
 <div
-  class="sc-fKVsgm gRfIaj"
+  class="sc-cxpRKc kkdBBo"
 >
   <main
-    class="sc-bBHwJV vLZzE"
+    class="sc-llYToB tCtnT"
   >
     <div
       class="sc-hKwCoD dOmxmu"
@@ -22,10 +22,14 @@ exports[`renders NotFoundPage 1`] = `
       </p>
       <p>
         <button
-          class="sc-egiSv dHUDgX"
+          class="sc-bqiQRQ cvycME"
           type="button"
         >
-          Start Over
+          <span
+            class="sc-hBURRC gusydx"
+          >
+            Start Over
+          </span>
         </button>
       </p>
     </div>

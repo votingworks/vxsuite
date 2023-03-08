@@ -131,7 +131,7 @@ export function RebootFromUsbButton({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <Button primary onPress={reboot}>
+            <Button variant="primary" onPress={reboot}>
               Reboot
             </Button>
             <Button onPress={onClose}>Close</Button>

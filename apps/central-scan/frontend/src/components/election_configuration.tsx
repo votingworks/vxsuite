@@ -9,7 +9,13 @@ import {
   ElectionData,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { Main, Screen, Text, UsbControllerButton } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  Text,
+  UsbControllerButton,
+} from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Prose } from './prose';
@@ -17,7 +23,6 @@ import { MainNav } from './main_nav';
 import { Loading } from './loading';
 import { FileInputButton } from './file_input_button';
 import { AppContext } from '../contexts/app_context';
-import { Button } from './button';
 import { Table, TD } from './table';
 import { logOut } from '../api';
 
@@ -202,7 +207,7 @@ export function ElectionConfiguration({
           <td>{electionHash}</td>
           <TD textAlign="right">
             <Button
-              primary
+              variant="primary"
               onPress={() => acceptAutomaticallyChosenFile(fileEntry)}
             >
               Select

@@ -142,9 +142,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   userEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(
-    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
-  ).toBeTruthy();
+  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

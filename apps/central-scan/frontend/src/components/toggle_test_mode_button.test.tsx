@@ -39,9 +39,7 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
     />
   );
 
-  expect(
-    screen.getByText('Toggle to Test Ballot Mode').hasAttribute('disabled')
-  ).toEqual(true);
+  expect(screen.getButton('Toggle to Test Ballot Mode')).toBeDisabled();
 });
 
 test('shows a disabled button with "Toggling" when toggling', () => {
@@ -54,7 +52,9 @@ test('shows a disabled button with "Toggling" when toggling', () => {
     />
   );
 
-  expect(screen.getByText('Toggling…').hasAttribute('disabled')).toEqual(true);
+  expect(
+    screen.getButton('Toggling…', { useSparinglyIncludeHidden: true })
+  ).toBeDisabled();
 });
 
 test('calls the callback on confirmation', () => {
@@ -69,14 +69,10 @@ test('calls the callback on confirmation', () => {
   );
 
   // Click the button.
-  userEvent.click(screen.getByText('Toggle to Official Ballot Mode'));
+  userEvent.click(screen.getButton('Toggle to Official Ballot Mode'));
 
   // Then click the confirmation button inside the modal.
-  const [confirmButton] = screen
-    .getAllByText('Toggle to Official Ballot Mode')
-    .filter(
-      (element) => element instanceof HTMLButtonElement && !element.disabled
-    );
+  const confirmButton = screen.getButton('Toggle to Official Ballot Mode');
   expect(toggleTestMode).not.toHaveBeenCalled();
   userEvent.click(confirmButton);
   expect(toggleTestMode).toHaveBeenCalled();

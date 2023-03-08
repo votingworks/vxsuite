@@ -654,7 +654,7 @@ test('tabulating CVRs', async () => {
     expect.anything()
   );
 
-  const markOfficialButton = getByText('Mark Tally Results as Official');
+  const markOfficialButton = screen.getButton('Mark Tally Results as Official');
   await waitFor(() => expect(markOfficialButton).toBeEnabled());
   fireEvent.click(markOfficialButton);
   getByText('Mark Unofficial Tally Results as Official Tally Results?');

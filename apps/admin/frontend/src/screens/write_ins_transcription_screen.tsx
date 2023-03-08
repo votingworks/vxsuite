@@ -139,8 +139,8 @@ export function WriteInsTranscriptionScreen({
   assert(election);
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
-  const nextButton = useRef<HTMLButtonElement>(null);
-  const firstTranscriptionButton = useRef<HTMLButtonElement>(null);
+  const nextButton = useRef<Button>(null);
+  const firstTranscriptionButton = useRef<Button>(null);
 
   function getTranscribedValues(
     adjudicationSet: readonly Adjudication[]
@@ -225,7 +225,11 @@ export function WriteInsTranscriptionScreen({
                     transcriptionQueue
                   )} to transcribe.`}
             </Text>
-            <Button small primary={isEmptyTranscriptionQueue} onPress={onClose}>
+            <Button
+              small
+              variant={isEmptyTranscriptionQueue ? 'primary' : 'regular'}
+              onPress={onClose}
+            >
               Back to All Write-Ins
             </Button>
           </React.Fragment>
@@ -269,7 +273,7 @@ export function WriteInsTranscriptionScreen({
             </Text>
             <Button
               ref={nextButton}
-              primary={!!currentTranscribedValue}
+              variant={currentTranscribedValue ? 'primary' : 'regular'}
               disabled={isLastTranscription}
               onPress={goNext}
             >
@@ -303,7 +307,11 @@ export function WriteInsTranscriptionScreen({
                       <Button
                         key={val}
                         ref={i === 0 ? firstTranscriptionButton : undefined}
-                        primaryBlue={val === currentTranscribedValue}
+                        variant={
+                          val === currentTranscribedValue
+                            ? 'secondary'
+                            : 'regular'
+                        }
                         onPress={() => onPressSetTranscribedValue(val)}
                       >
                         {val}
@@ -327,7 +335,7 @@ export function WriteInsTranscriptionScreen({
                         }
                       }}
                     />
-                    <Button onPress={onSave} primaryBlue>
+                    <Button onPress={onSave} variant="secondary">
                       Add
                     </Button>
                   </InlineForm>

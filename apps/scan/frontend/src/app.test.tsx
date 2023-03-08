@@ -69,6 +69,22 @@ function renderApp(props: Partial<AppProps> = {}) {
   return { hardware, logger, storage };
 }
 
+/**
+ * HACK: The modal library we're using applies an `aria-hidden` attribute
+ * to the root element when a modal is open and removes it when the modal
+ * is closed, but this isn't happening in the jest environment, for some
+ * reason. Works as expected in production.
+ * We're removing the attribute here to make sure our getByRole queries work
+ * properly.
+ */
+async function hackActuallyCleanUpReactModal() {
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  window.document.body.firstElementChild?.removeAttribute('aria-hidden');
+}
+
 beforeEach(() => {
   jest.useFakeTimers();
 
@@ -199,10 +215,13 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: true };
+
+  await hackActuallyCleanUpReactModal();
+
   apiMock.expectGetConfig(config);
-  userEvent.click(await screen.findByText('Official Ballot Mode'));
+  userEvent.click(await screen.findButton('Official Ballot Mode'));
   await waitFor(() =>
-    expect(screen.getByText('Official Ballot Mode')).toBeDisabled()
+    expect(screen.getButton('Official Ballot Mode')).toBeDisabled()
   );
 
   // Change precinct as Election Manager

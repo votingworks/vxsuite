@@ -8,6 +8,7 @@ import { assert, find } from '@votingworks/basics';
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import {
   Button,
+  LinkButton,
   LogoMark,
   printElement,
   printElementToPdf,
@@ -23,7 +24,6 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
 import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 import { PrintButton } from '../components/print_button';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
@@ -241,7 +241,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
       <NavigationScreen>
         {printedBallotsReportHeaderAndMetadata}
         <p>
-          <PrintButton primary print={printPrintedBallotsReport}>
+          <PrintButton variant="primary" print={printPrintedBallotsReport}>
             Print Report
           </PrintButton>
         </p>

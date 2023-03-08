@@ -11,17 +11,12 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
-import { expectPrint } from '@votingworks/test-utils';
+import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
 
@@ -66,7 +61,7 @@ const ballotStyleId = '1';
 const precinctId = '6526';
 
 function expectPrintedVotes(
-  printedElement: RenderResult,
+  printedElement: PrintRenderResult,
   expectedVotes: {
     eitherNeither: string;
     pickOne: string;

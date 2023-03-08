@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { fakeSystemAdministratorUser } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import React from 'react';
-import { render, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
@@ -17,34 +17,34 @@ test('Unlock machine screen submits pin', async () => {
   );
   getByText('- - - - - -');
 
-  userEvent.click(getByText('0'));
+  userEvent.click(screen.getButton('0'));
   getByText('• - - - - -');
 
-  userEvent.click(getByText('✖'));
+  userEvent.click(screen.getButton('clear'));
   getByText('- - - - - -');
 
-  userEvent.click(getByText('0'));
+  userEvent.click(screen.getButton('0'));
   getByText('• - - - - -');
 
-  userEvent.click(getByText('1'));
+  userEvent.click(screen.getButton('1'));
   getByText('• • - - - -');
 
-  userEvent.click(getByText('2'));
+  userEvent.click(screen.getButton('2'));
   getByText('• • • - - -');
 
-  userEvent.click(getByText('3'));
+  userEvent.click(screen.getButton('3'));
   getByText('• • • • - -');
 
-  userEvent.click(getByText('4'));
+  userEvent.click(screen.getButton('4'));
   getByText('• • • • • -');
 
-  userEvent.click(getByText('⌫'));
+  userEvent.click(screen.getButton('backspace'));
   getByText('• • • • - -');
 
-  userEvent.click(getByText('4'));
+  userEvent.click(screen.getButton('4'));
   getByText('• • • • • -');
 
-  userEvent.click(getByText('5'));
+  userEvent.click(screen.getButton('5'));
 
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
   getByText('- - - - - -');

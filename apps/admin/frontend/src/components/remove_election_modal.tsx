@@ -30,7 +30,7 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
       onOverlayClick={onClose}
       actions={
         <React.Fragment>
-          <Button danger onPress={unconfigureElection}>
+          <Button variant="danger" onPress={unconfigureElection}>
             Remove Election Definition
           </Button>
           <Button onPress={onClose}>Cancel</Button>

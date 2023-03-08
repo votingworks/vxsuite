@@ -56,9 +56,7 @@ test('waiting for paper', async () => {
   apiMock.expectCheckCalibrationSupported(true);
   renderModal({ onCancel });
 
-  expect(
-    (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
-  ).toEqual(true);
+  expect(await screen.findButton('Waiting for Paper')).toBeDisabled();
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();
@@ -72,9 +70,7 @@ test('scanner not available', async () => {
     onCancel,
   });
 
-  expect(
-    (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
-  ).toEqual(true);
+  expect(await screen.findButton('Cannot Calibrate')).toBeDisabled();
 
   userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();

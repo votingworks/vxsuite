@@ -1,6 +1,5 @@
-import { Modal } from '@votingworks/ui';
+import { Button, Modal } from '@votingworks/ui';
 import React, { useCallback, useRef, useState } from 'react';
-import { Button } from './button';
 import { Prose } from './prose';
 
 export interface Props {
@@ -20,7 +19,7 @@ export function ToggleTestModeButton({
   toggleTestMode,
 }: Props): JSX.Element {
   const [isConfirming, setIsConfirming] = useState(isTogglingTestMode);
-  const defaultButtonRef = useRef<HTMLButtonElement>(null);
+  const defaultButtonRef = useRef<Button>(null);
 
   const toggleIsConfirming = useCallback(() => {
     /* istanbul ignore else - just catches the case of clicking the overlay when toggling */
@@ -76,7 +75,7 @@ export function ToggleTestModeButton({
                 <Button
                   data-testid="confirm-toggle"
                   ref={defaultButtonRef}
-                  primary
+                  variant="primary"
                   onPress={toggleTestMode}
                 >
                   {isTestMode

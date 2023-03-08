@@ -3,8 +3,6 @@ import styled from 'styled-components';
 
 import { Button } from '@votingworks/ui';
 
-import { EventTargetFunction } from '../config/types';
-
 const Keyboard = styled.div`
   & div {
     display: flex;
@@ -47,7 +45,7 @@ const Keyboard = styled.div`
 `;
 
 interface Props {
-  onKeyPress: EventTargetFunction;
+  onKeyPress: (key: string) => void;
   keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
 }
@@ -117,7 +115,7 @@ export function VirtualKeyboard({
             {row.map(({ label, ariaLabel }) => (
               <Button
                 key={label}
-                data-key={label}
+                value={label}
                 aria-label={ariaLabel ?? label.toLowerCase()}
                 onPress={onKeyPress}
                 disabled={keyDisabled(label)}

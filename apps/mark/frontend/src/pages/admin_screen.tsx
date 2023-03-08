@@ -135,14 +135,14 @@ export function AdminScreen({
                 <SegmentedButton>
                   <Button
                     onPress={toggleLiveMode}
-                    primary={!isLiveMode}
+                    variant={isLiveMode ? 'regular' : 'primary'}
                     disabled={!isLiveMode}
                   >
                     Test Ballot Mode
                   </Button>
                   <Button
                     onPress={toggleLiveMode}
-                    primary={isLiveMode}
+                    variant={isLiveMode ? 'primary' : 'regular'}
                     disabled={isLiveMode}
                   >
                     Official Ballot Mode
@@ -168,7 +168,7 @@ export function AdminScreen({
               <Text as="span" voteIcon>
                 Election Definition is loaded.
               </Text>{' '}
-              <Button danger small onPress={unconfigure}>
+              <Button variant="danger" small onPress={unconfigure}>
                 Unconfigure Machine
               </Button>
             </p>

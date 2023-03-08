@@ -281,7 +281,7 @@ export function DiagnosticsScreen({
           <Main padded>
             <Prose compact maxWidth={false}>
               <p>
-                <Button primary onPress={onBackButtonPress}>
+                <Button variant="primary" onPress={onBackButtonPress}>
                   Back to Poll Worker Actions
                 </Button>
               </p>

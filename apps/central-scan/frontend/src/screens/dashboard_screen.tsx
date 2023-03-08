@@ -4,12 +4,11 @@ import pluralize from 'pluralize';
 
 import { Scan } from '@votingworks/api';
 
-import { Modal, Text } from '@votingworks/ui';
+import { Button, Modal, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { BatchInfo } from '@votingworks/types';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
-import { Button } from '../components/button';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -173,7 +172,7 @@ export function DashboardScreen({
           actions={
             <React.Fragment>
               <Button
-                danger
+                variant="danger"
                 onPress={confirmDeleteBatch}
                 disabled={isDeletingBatch}
                 autoFocus

@@ -39,8 +39,10 @@ interface StyledFooterProps {
 
 const StyledFooter = styled.div<StyledFooterProps>`
   display: flex;
+  flex-wrap: wrap;
   justify-content: ${(p) => p.footerAlign};
   padding: 0.25rem 0.6rem 0.6rem;
+  gap: 0.5rem;
 `;
 
 /**

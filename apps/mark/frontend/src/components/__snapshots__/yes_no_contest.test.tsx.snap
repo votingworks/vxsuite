@@ -124,7 +124,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 
 <div>
   <main
-    class="sc-bBHwJV hlTQmY"
+    class="sc-llYToB hxndVL"
   >
     <div
       class="c0"
@@ -194,44 +194,56 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       class="c6"
     >
       <div
+        aria-multiselectable="true"
         class="c7"
         data-testid="contest-choices"
+        role="listbox"
       >
         <button
+          aria-selected="false"
           class="c8"
           data-choice="yes"
           data-selected="false"
           role="option"
           type="button"
         >
-          <div
-            class="sc-hKwCoD gmiWky"
+          <span
+            class="sc-hBURRC gusydx"
           >
-            <p
-              aria-label=" Yes on Ballot Measure 3"
-              class="sc-bdvvaa eSpfPW"
+            <div
+              class="sc-hKwCoD gmiWky"
             >
-              Yes
-            </p>
-          </div>
+              <p
+                aria-label=" Yes on Ballot Measure 3"
+                class="sc-bdvvaa eSpfPW"
+              >
+                Yes
+              </p>
+            </div>
+          </span>
         </button>
         <button
+          aria-selected="false"
           class="c8"
           data-choice="no"
           data-selected="false"
           role="option"
           type="button"
         >
-          <div
-            class="sc-hKwCoD gmiWky"
+          <span
+            class="sc-hBURRC gusydx"
           >
-            <p
-              aria-label=" No on Ballot Measure 3"
-              class="sc-bdvvaa eSpfPW"
+            <div
+              class="sc-hKwCoD gmiWky"
             >
-              No
-            </p>
-          </div>
+              <p
+                aria-label=" No on Ballot Measure 3"
+                class="sc-bdvvaa eSpfPW"
+              >
+                No
+              </p>
+            </div>
+          </span>
         </button>
       </div>
     </div>
@@ -411,7 +423,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 
 <div>
   <main
-    class="sc-bBHwJV hlTQmY"
+    class="sc-llYToB hxndVL"
   >
     <div
       class="c0"
@@ -481,44 +493,56 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       class="c6"
     >
       <div
+        aria-multiselectable="true"
         class="c7"
         data-testid="contest-choices"
+        role="listbox"
       >
         <button
+          aria-selected="true"
           class="c8"
           data-choice="yes"
           data-selected="true"
           role="option"
           type="button"
         >
-          <div
-            class="sc-hKwCoD gmiWky"
+          <span
+            class="sc-hBURRC gusydx"
           >
-            <p
-              aria-label="Selected, Yes on Ballot Measure 3"
-              class="sc-bdvvaa eSpfPW"
+            <div
+              class="sc-hKwCoD gmiWky"
             >
-              Yes
-            </p>
-          </div>
+              <p
+                aria-label="Selected, Yes on Ballot Measure 3"
+                class="sc-bdvvaa eSpfPW"
+              >
+                Yes
+              </p>
+            </div>
+          </span>
         </button>
         <button
+          aria-selected="false"
           class="c9"
           data-choice="no"
           data-selected="false"
           role="option"
           type="button"
         >
-          <div
-            class="sc-hKwCoD gmiWky"
+          <span
+            class="sc-hBURRC gusydx"
           >
-            <p
-              aria-label=" No on Ballot Measure 3"
-              class="sc-bdvvaa eSpfPW"
+            <div
+              class="sc-hKwCoD gmiWky"
             >
-              No
-            </p>
-          </div>
+              <p
+                aria-label=" No on Ballot Measure 3"
+                class="sc-bdvvaa eSpfPW"
+              >
+                No
+              </p>
+            </div>
+          </span>
         </button>
       </div>
     </div>

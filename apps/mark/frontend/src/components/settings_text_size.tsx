@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Button, SegmentedButton } from '@votingworks/ui';
 
 import {
-  EventTargetFunction,
   SetUserSettings,
   TextSizeSetting,
   UserSettings,
@@ -44,12 +43,9 @@ export function SettingsTextSize({
   userSettings,
   setUserSettings,
 }: Props): JSX.Element {
-  const adjustFontSize: EventTargetFunction = (event) => {
-    const target = event.currentTarget as HTMLButtonElement;
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const textSize = +target.value as TextSizeSetting;
+  function adjustFontSize(textSize: TextSizeSetting) {
     setUserSettings({ textSize });
-  };
+  }
   return (
     <p>
       <Label aria-hidden>Text Size</Label>
@@ -57,11 +53,10 @@ export function SettingsTextSize({
         {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
           <Button
             key={v}
-            data-size={i}
             small
             onPress={adjustFontSize}
-            value={i}
-            primary={userSettings.textSize === i}
+            value={i as TextSizeSetting}
+            variant={userSettings.textSize === i ? 'primary' : 'regular'}
             aria-label={`${
               userSettings.textSize === i ? 'Selected' : ''
             } Text Size: ${ariaLabels[i]}`}

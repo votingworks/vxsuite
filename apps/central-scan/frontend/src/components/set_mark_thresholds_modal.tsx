@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Modal, Text } from '@votingworks/ui';
+import { Button, Modal, Text } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Button } from './button';
 import { Prose } from './prose';
-import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { TextInput } from './text_input';
 
@@ -117,7 +115,7 @@ export function SetMarkThresholdsModal({
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={<LinkButton onPress={onClose}>Close</LinkButton>}
+          actions={<Button onPress={onClose}>Close</Button>}
         />
       );
     case ModalState.CONFIRM_INTENT:
@@ -138,13 +136,14 @@ export function SetMarkThresholdsModal({
             <React.Fragment>
               {
                 <Button
-                  danger
-                  onPress={() => setCurrentState(ModalState.SET_THRESHOLDS)}
+                  variant="danger"
+                  onPress={setCurrentState}
+                  value={ModalState.SET_THRESHOLDS}
                 >
                   Proceed to Override Thresholds
                 </Button>
               }{' '}
-              <LinkButton onPress={onClose}>Close</LinkButton>
+              <Button onPress={onClose}>Close</Button>
             </React.Fragment>
           }
         />
@@ -177,14 +176,14 @@ export function SetMarkThresholdsModal({
           actions={
             <React.Fragment>
               <Button
-                danger
+                variant="danger"
                 onPress={() =>
                   overrideThresholds(definiteThreshold, marginalThreshold)
                 }
               >
                 Override Thresholds
               </Button>{' '}
-              <LinkButton onPress={onClose}>Close</LinkButton>
+              <Button onPress={onClose}>Close</Button>
             </React.Fragment>
           }
         />
@@ -220,10 +219,10 @@ export function SetMarkThresholdsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={resetThresholds}>
+              <Button variant="primary" onPress={resetThresholds}>
                 Reset Thresholds
               </Button>{' '}
-              <LinkButton onPress={onClose}>Close</LinkButton>
+              <Button onPress={onClose}>Close</Button>
             </React.Fragment>
           }
         />

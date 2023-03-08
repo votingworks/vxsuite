@@ -90,9 +90,7 @@ test('Cardless Voting Flow', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(
-    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
-  ).toBeTruthy();
+  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -398,9 +396,7 @@ test('poll worker must select a precinct first', async () => {
   within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
   fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(
-    screen.getByText<HTMLButtonElement>('Official Ballot Mode').disabled
-  ).toBeTruthy();
+  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

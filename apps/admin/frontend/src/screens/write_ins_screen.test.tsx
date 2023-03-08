@@ -48,12 +48,12 @@ test('Tally results already marked as official', async () => {
 
   await screen.findByText(/No further changes may be made/);
 
-  const transcribeButtons = screen.queryAllByText(/Transcribe \d/);
+  const transcribeButtons = await screen.findAllButtons(/Transcribe \d/);
   for (const transcribeButton of transcribeButtons) {
     expect(transcribeButton).toBeDisabled();
   }
 
-  const adjudicateButtons = screen.queryAllByText('Adjudicate');
+  const adjudicateButtons = screen.getAllButtons('Adjudicate');
   for (const adjudicateButton of adjudicateButtons) {
     expect(adjudicateButton).toBeDisabled();
   }
@@ -72,10 +72,10 @@ test('CVRs with write-ins loaded', async () => {
     electionDefinition,
   });
 
-  const transcribeButton = await screen.findByText('Transcribe 8');
+  const transcribeButton = await screen.findButton('Transcribe 8');
   expect(transcribeButton).not.toBeDisabled();
 
-  const adjudicateButton = await screen.findByText('Adjudicate');
+  const adjudicateButton = await screen.findButton('Adjudicate');
   expect(adjudicateButton).toBeDisabled();
 });
 
@@ -97,17 +97,17 @@ test('ballot pagination', async () => {
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
-    const previousButton = await screen.findByText<HTMLButtonElement>(
-      'Previous'
-    );
-    expect(previousButton.disabled).toEqual(pageNumber === 1);
+    const previousButton = await screen.findButton('Previous');
+    if (pageNumber === 1) {
+      expect(previousButton).toBeDisabled();
+    } else {
+      expect(previousButton).not.toBeDisabled();
+    }
 
-    const nextButton = await screen.findByText<HTMLButtonElement>('Next');
+    const nextButton = await screen.findButton('Next');
     if (pageNumber === pageCount) {
       expect(nextButton).toBeDisabled();
-      const doneButton = await screen.findByText<HTMLButtonElement>(
-        'Back to All Write-Ins'
-      );
+      const doneButton = await screen.findButton('Back to All Write-Ins');
       doneButton.click();
     } else {
       expect(nextButton).not.toBeDisabled();

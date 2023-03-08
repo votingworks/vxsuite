@@ -48,7 +48,7 @@ export function VoterSettingsModal(): JSX.Element {
       actions={
         <React.Fragment>
           <Button
-            primary
+            variant="primary"
             onPress={closeUserSettingsModal}
             aria-label="Close Settings"
           >

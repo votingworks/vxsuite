@@ -188,7 +188,7 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-fKVsgm gRfIaj"
+    class="sc-cxpRKc kkdBBo"
   >
     <div
       class="c1"
@@ -213,7 +213,7 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </div>
     <main
-      class="sc-bBHwJV hlTQmY"
+      class="sc-llYToB hxndVL"
     >
       <div
         class="c2"
@@ -260,133 +260,165 @@ exports[`Single Seat Contest 1`] = `
             class="c6"
           >
             <div
+              aria-multiselectable="true"
               class="c7"
+              role="listbox"
             >
               <button
                 aria-label=" Joseph Barchi and Joseph Hallaren."
+                aria-selected="false"
                 class="c8"
                 data-choice="barchi-hallaren"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Joseph Barchi and Joseph Hallaren
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Joseph Barchi and Joseph Hallaren
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo."
+                aria-selected="false"
                 class="c8"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Adam Cramer and Greg Vuocolo
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Adam Cramer and Greg Vuocolo
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Daniel Court and Amy Blumhardt."
+                aria-selected="false"
                 class="c8"
                 data-choice="court-blumhardt"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Daniel Court and Amy Blumhardt
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Daniel Court and Amy Blumhardt
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Alvin Boone and James Lian."
+                aria-selected="false"
                 class="c8"
                 data-choice="boone-lian"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Alvin Boone and James Lian
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Alvin Boone and James Lian
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty."
+                aria-selected="false"
                 class="c8"
                 data-choice="hildebrand-garritty"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Ashley Hildebrand-McDougall and James Garritty
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Ashley Hildebrand-McDougall and James Garritty
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
               <button
                 aria-label=" Martin Patterson and Clay Lariviere."
+                aria-selected="false"
                 class="c8"
                 data-choice="patterson-lariviere"
                 data-selected="false"
                 role="option"
                 type="button"
               >
-                <div
-                  class="sc-hKwCoD gmiWky"
+                <span
+                  class="sc-hBURRC gusydx"
                 >
-                  <p
-                    class="sc-bdvvaa eSpfPW"
+                  <div
+                    class="sc-hKwCoD gmiWky"
                   >
-                    <strong>
-                      Martin Patterson and Clay Lariviere
-                    </strong>
-                    
-                  </p>
-                </div>
+                    <p
+                      class="sc-bdvvaa eSpfPW"
+                    >
+                      <strong>
+                        Martin Patterson and Clay Lariviere
+                      </strong>
+                      
+                    </p>
+                  </div>
+                </span>
               </button>
             </div>
           </div>
@@ -398,36 +430,46 @@ exports[`Single Seat Contest 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         id="next"
-        role="option"
         type="button"
       >
         <span
-          class="c10"
+          class="sc-hBURRC gusydx"
         >
-          Next
+          <span
+            class="c10"
+          >
+            Next
+          </span>
         </span>
       </button>
       <button
         aria-label="previous contest"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         id="previous"
-        role="option"
         type="button"
       >
         <span
-          class="c11"
+          class="sc-hBURRC gusydx"
         >
-          Back
+          <span
+            class="c11"
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-egiSv iFSayO"
+        class="sc-bqiQRQ jGTagp"
         type="button"
       >
-        Settings
+        <span
+          class="sc-hBURRC gusydx"
+        >
+          Settings
+        </span>
       </button>
     </nav>
   </div>

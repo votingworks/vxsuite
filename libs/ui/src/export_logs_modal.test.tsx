@@ -392,8 +392,8 @@ test('button row renders both buttons', () => {
     />
   );
 
-  expect(screen.getByText('Save Log File')).toBeEnabled();
+  expect(screen.getButton('Save Log File')).toBeEnabled();
 
   // without an election definition, CDF button should be disabled
-  expect(screen.getByText('Save CDF Log File')).toBeDisabled();
+  expect(screen.getButton('Save CDF Log File')).toBeDisabled();
 });

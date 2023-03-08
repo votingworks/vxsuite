@@ -32,7 +32,6 @@ import {
 import { assert } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
-  EventTargetFunction,
   MsEitherNeitherContestResultInterface,
   Scrollable,
   ScrollDirections,
@@ -50,7 +49,6 @@ import {
 } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 import { SettingsButton } from '../components/settings_button';
-import { LanguageSettingsButton } from '../components/language_settings_button';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
 
 const ContentHeader = styled.div`
@@ -377,10 +375,7 @@ export function ReviewPage(): JSX.Element {
   }, [updateContestChoicesScrollStates]);
 
   /* istanbul ignore next: Tested by Cypress */
-  const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset[
-      'direction'
-    ] as ScrollDirections;
+  function scrollContestChoices(direction: ScrollDirections) {
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;
@@ -399,7 +394,7 @@ export function ReviewPage(): JSX.Element {
         : currentScrollTop - idealScrollDistance;
     const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
-  };
+  }
 
   assert(
     electionDefinition,
@@ -419,22 +414,6 @@ export function ReviewPage(): JSX.Element {
 
   const settingsButton = (
     <SettingsButton large={isPortrait} onPress={showSettingsModal} />
-  );
-
-  /* istanbul ignore next */
-  const languageSettingsButton = (
-    <LanguageSettingsButton
-      large={isPortrait}
-      onPress={() => {
-        // eslint-disable-next-line no-console
-        console.log(
-          'Replace with method to toggleCurrentLanguage (which toggles between secondaryLanguageKey and English, or shows language settings modal when secondaryLanaguageKey === "EN")'
-        );
-      }}
-      isSecondaryLanguageActive={false}
-      secondaryLanguageKey="EN"
-      isSupported={false}
-    />
   );
 
   return (
@@ -523,9 +502,9 @@ export function ReviewPage(): JSX.Element {
                 <Button
                   className="scroll-up"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="up"
+                  value="up"
                   disabled={isScrollAtTop}
                   onPress={scrollContestChoices}
                 >
@@ -534,9 +513,9 @@ export function ReviewPage(): JSX.Element {
                 <Button
                   className="scroll-down"
                   large
-                  primary
+                  variant="primary"
                   aria-hidden
-                  data-direction="down"
+                  value="down"
                   disabled={isScrollAtBottom}
                   onPress={scrollContestChoices}
                 >
@@ -550,17 +529,13 @@ export function ReviewPage(): JSX.Element {
       {isPortrait ? (
         <ButtonFooter>
           {printMyBallotButton}
-          {languageSettingsButton}
           {settingsButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
-              <ButtonFooterLandscape>
-                {languageSettingsButton}
-                {settingsButton}
-              </ButtonFooterLandscape>
+              <ButtonFooterLandscape>{settingsButton}</ButtonFooterLandscape>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from './button';
+
+import { Button } from '@votingworks/ui';
 
 export interface Props {
   onPress(): void;
@@ -16,7 +17,7 @@ export function ScanButton({
     <Button
       small
       disabled={disabled || !isScannerAttached}
-      primary
+      variant="primary"
       onPress={onPress}
     >
       {isScannerAttached ? 'Scan New Batch' : 'No Scanner'}

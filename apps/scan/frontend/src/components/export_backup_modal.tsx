@@ -173,7 +173,7 @@ export function ExportBackupModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button primary onPress={exportBackup}>
+              <Button variant="primary" onPress={exportBackup}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>

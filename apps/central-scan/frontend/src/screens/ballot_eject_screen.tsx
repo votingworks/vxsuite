@@ -7,13 +7,19 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
-import { ElectionInfoBar, Main, Modal, Screen, Text } from '@votingworks/ui';
+import {
+  Button,
+  ElectionInfoBar,
+  Main,
+  Modal,
+  Screen,
+  Text,
+} from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
-import { Button } from '../components/button';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { AppContext } from '../contexts/app_context';
@@ -351,7 +357,7 @@ export function BallotEjectScreen({
                   <p>
                     <Button
                       fullWidth
-                      primary
+                      variant="primary"
                       onPress={() => setBallotState('removeBallot')}
                     >
                       Remove to Adjudicate
@@ -360,7 +366,7 @@ export function BallotEjectScreen({
                   <p>
                     <Button
                       fullWidth
-                      primary
+                      variant="primary"
                       onPress={() => setBallotState('acceptBallot')}
                     >
                       Tabulate As Is
@@ -399,7 +405,7 @@ export function BallotEjectScreen({
               )}
               {!allowBallotDuplication && (
                 <Button
-                  primary
+                  variant="primary"
                   fullWidth
                   onPress={() => continueScanning({ forceAccept: false })}
                 >
@@ -444,7 +450,7 @@ export function BallotEjectScreen({
           actions={
             <React.Fragment>
               <Button
-                primary
+                variant="primary"
                 onPress={() => continueScanning({ forceAccept: false })}
               >
                 Ballot has been removed
@@ -467,7 +473,7 @@ export function BallotEjectScreen({
           actions={
             <React.Fragment>
               <Button
-                primary
+                variant="primary"
                 onPress={() =>
                   continueScanning({
                     forceAccept: true,

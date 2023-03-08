@@ -143,9 +143,12 @@ export function CardDetailsView({
           )}{' '}
           {possibleActions.has('Unprogram') && (
             <Button
-              danger={doesCardElectionHashMatchMachineElectionHash}
+              variant={
+                doesCardElectionHashMatchMachineElectionHash
+                  ? 'danger'
+                  : 'primary'
+              }
               onPress={unprogramCard}
-              primary={!doesCardElectionHashMatchMachineElectionHash}
             >
               Unprogram Card
             </Button>

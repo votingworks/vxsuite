@@ -62,7 +62,7 @@ const colorThemes: Record<ColorMode, ColorTheme> = {
     accentPrimary: Color.PRIMARY_BLUE_MEDIUM_CONTRAST,
     accentSecondary: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
     accentSuccess: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
-    accentWarning: Color.WARNING_MEDIUM_CONTRAST,
+    accentWarning: Color.GRAY_DARK,
     background: Color.OFF_WHITE,
     foreground: Color.GRAY_DARK,
     foregroundDisabled: Color.GRAY_DARK,
@@ -115,6 +115,9 @@ function getFontSize(mode: SizeMode): number {
   return mmToPx(fullFontHeightMm);
 }
 
+const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
+const VVSG_MIN_TOUCH_AREA_SIZE_PX = mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM);
+
 const sizeThemes: Record<SizeMode, SizeTheme> = {
   s: {
     bordersRem: {
@@ -140,6 +143,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.3,
+    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   m: {
     bordersRem: {
@@ -165,6 +169,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.15,
+    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   l: {
     bordersRem: {
@@ -190,6 +195,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.005,
     lineHeight: 1.1,
+    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   xl: {
     bordersRem: {
@@ -215,6 +221,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.005,
     lineHeight: 1.1,
+    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
 
   legacy: {
@@ -241,6 +248,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0, // Browser default.
     lineHeight: 1.2,
+    minTouchAreaSizePx: 0,
   },
 };
 

@@ -3,6 +3,7 @@ import {
   expectPrint,
   getZeroCompressedTally,
   hasTextAcrossElements,
+  PrintRenderResult,
 } from '@votingworks/test-utils';
 import { err, ok, typedAs } from '@votingworks/basics';
 import {
@@ -30,7 +31,6 @@ import {
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import {
-  RenderResult,
   screen,
   waitFor,
   waitForElementToBeRemoved,
@@ -124,7 +124,7 @@ afterEach(() => {
 
 jest.setTimeout(15000);
 
-function checkPollsOpenedReport(printedElement: RenderResult) {
+function checkPollsOpenedReport(printedElement: PrintRenderResult) {
   const generalReport = printedElement.getByTestId('tally-report-undefined-23');
   within(generalReport).getByText(
     'Official Polls Opened Report for Center Springfield'
@@ -244,7 +244,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Pause Voting and Print Report'));
   await screen.findByText('Printing voting paused report');
-  function checkVotingPausedReport(printedElement: RenderResult) {
+  function checkVotingPausedReport(printedElement: PrintRenderResult) {
     // Check heading
     printedElement.getByText(
       'Official Voting Paused Report for Center Springfield'
@@ -315,7 +315,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Resume Voting and Print Report'));
   await screen.findByText('Printing voting resumed report');
-  function checkVotingResumedReport(printedElement: RenderResult) {
+  function checkVotingResumedReport(printedElement: PrintRenderResult) {
     // Check heading
     printedElement.getByText(
       'Official Voting Resumed Report for Center Springfield'
@@ -400,7 +400,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Close Polls and Print Report'));
   await screen.findByText('Printing polls closed report');
-  function checkPollsClosedReport(printedElement: RenderResult) {
+  function checkPollsClosedReport(printedElement: PrintRenderResult) {
     const generalReport = printedElement.getByTestId(
       'tally-report-undefined-23'
     );
@@ -705,7 +705,9 @@ const primaryElectionOverallTally: CompressedTally = [
   ]),
 ];
 
-function checkPrimaryElectionOverallTallyReports(printedElement: RenderResult) {
+function checkPrimaryElectionOverallTallyReports(
+  printedElement: PrintRenderResult
+) {
   // Check that the expected results are on the tally report for Mammal Party
   const allPrecinctMammalReport = printedElement.getByTestId(/tally-report-0-/);
   expectBallotCountsInReport(allPrecinctMammalReport, 1, 1, 2);
@@ -1683,7 +1685,7 @@ test('can reset polls to paused with system administrator card', async () => {
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  expect(screen.getByText('Reset Polls to Paused')).toBeDisabled();
+  expect(screen.getButton('Reset Polls to Paused')).toBeDisabled();
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
