@@ -13,15 +13,22 @@ import {
  */
 export function interpret(
   electionDefinition: ElectionDefinition,
-  ballotImagePaths: SheetOf<string>
+  ballotImagePaths: SheetOf<string>,
+  { debug = false } = {}
 ): InterpretResult {
   assert(typeof electionDefinition.electionData === 'string');
   assert(ballotImagePaths.length === 2);
   const [pathA, pathB] = ballotImagePaths;
   assert(typeof pathA === 'string');
   assert(typeof pathB === 'string');
+  assert(typeof debug === 'boolean');
 
-  const result = interpretImpl(electionDefinition.electionData, pathA, pathB);
+  const result = interpretImpl(
+    electionDefinition.electionData,
+    pathA,
+    pathB,
+    debug
+  );
   const value = result.json
     ? safeParseJson(result.value as string).assertOk('extension set json=true')
     : result.value;

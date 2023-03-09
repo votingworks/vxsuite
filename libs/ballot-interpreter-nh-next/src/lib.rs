@@ -35,6 +35,7 @@ fn make_interpret_result<'a>(
 /// 1. The election definition as a JSON string.
 /// 2. The path to the image of one side of the ballot card.
 /// 3. The path to the image of the other side of the ballot card.
+/// 4. A boolean indicating whether to output debug images.
 ///
 /// The return value is an object with the following properties:
 /// 1. `success`: a boolean indicating whether the interpretation succeeded.
@@ -44,6 +45,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let election_json = cx.argument::<JsString>(0)?.value(&mut cx);
     let side_a_path = cx.argument::<JsString>(1)?.value(&mut cx);
     let side_b_path = cx.argument::<JsString>(2)?.value(&mut cx);
+    let debug = cx.argument::<JsBoolean>(3)?.value(&mut cx);
 
     let election = match serde_json::from_str(election_json.as_str()) {
         Ok(election) => election,
@@ -61,7 +63,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         &Options {
             election,
             oval_template: load_oval_template().unwrap(),
-            debug: false,
+            debug,
         },
     );
 
