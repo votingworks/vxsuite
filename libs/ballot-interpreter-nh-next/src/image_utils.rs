@@ -3,6 +3,7 @@ use image::{
     GenericImage, GrayImage, ImageError, Luma, Rgb,
 };
 use logging_timer::time;
+use serde::Serialize;
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
@@ -21,6 +22,15 @@ pub const CYAN: Rgb<u8> = Rgb([0, 255, 255]);
 pub const DARK_CYAN: Rgb<u8> = Rgb([0, 127, 127]);
 pub const PINK: Rgb<u8> = Rgb([255, 0, 255]);
 pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET];
+
+/// An inset is a set of pixel offsets from the edges of an image.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct Inset {
+    pub top: u32,
+    pub bottom: u32,
+    pub left: u32,
+    pub right: u32,
+}
 
 /// Bleed the given luma value outwards from any pixels that match it.
 pub fn bleed(img: &GrayImage, luma: Luma<u8>) -> GrayImage {
@@ -126,4 +136,52 @@ pub fn expand_image(
     out.fill(background_color.0[0]);
     out.copy_from(img, border_size, border_size)?;
     Ok(out)
+}
+
+/// Finds the inset of a scanned document in an image such that each side of the
+/// inset has more than half of its pixels above the given threshold.
+pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Inset {
+    let (width, height) = image.dimensions();
+
+    let top = (0..height)
+        .find(|y| {
+            (0..width)
+                .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
+                .count()
+                > (width / 2) as usize
+        })
+        .unwrap_or(0);
+    let bottom = (0..height)
+        .rev()
+        .find(|y| {
+            (0..width)
+                .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
+                .count()
+                > (width / 2) as usize
+        })
+        .unwrap_or(0);
+    let left = (0..width)
+        .find(|x| {
+            (0..height)
+                .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
+                .count()
+                > (height / 2) as usize
+        })
+        .unwrap_or(0);
+    let right = (0..width)
+        .rev()
+        .find(|x| {
+            (0..height)
+                .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
+                .count()
+                > (height / 2) as usize
+        })
+        .unwrap_or(0);
+
+    Inset {
+        top,
+        bottom,
+        left,
+        right,
+    }
 }
