@@ -10,26 +10,24 @@ import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import { NoWrap } from './text';
-import { contrastTheme } from './themes';
 import { Seal } from './seal';
 import { Caption, Font, P } from './typography';
 import { LabelledText } from './labelled_text';
 
 const Bar = styled.div`
+  align-content: flex-end;
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.foreground};
   padding: 0.125rem 0.125rem;
-  gap: 0.25rem;
+  gap: 0.5rem;
   justify-content: space-between;
 `;
 
 const PrecinctInfoContainer = styled.div`
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   gap: 0.25rem;
   justify-content: space-between;
 `;
@@ -39,11 +37,14 @@ const SealContainer = styled.div`
 `;
 
 const SystemInfoContainer = styled.div`
+  align-content: flex-end;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  flex-grow: 1;
   gap: 0.5rem;
-  justify-content: space-between;
+  justify-content: end;
+  text-align: right;
 `;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
