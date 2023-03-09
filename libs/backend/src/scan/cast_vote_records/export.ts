@@ -118,6 +118,7 @@ function* getCastVoteRecordGenerator({
   for (const {
     id,
     batchId,
+    batchSequenceId,
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
@@ -146,6 +147,7 @@ function* getCastVoteRecordGenerator({
           canonicalizedSheet.interpretation.ballotId ||
           unsafeParse(BallotIdSchema, id),
         batchId,
+        batchSequenceId,
         ballotMarkingMode: 'machine',
         interpretation: canonicalizedSheet.interpretation,
       });
@@ -166,6 +168,7 @@ function* getCastVoteRecordGenerator({
       scannerId,
       castVoteRecordId: unsafeParse(BallotIdSchema, id),
       batchId,
+      batchSequenceId,
       ballotMarkingMode: 'hand',
       definiteMarkThreshold,
       pages: [
