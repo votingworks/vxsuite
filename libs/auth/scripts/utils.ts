@@ -20,8 +20,8 @@ export function getEnvVar(envVarName: string, required = true): string {
 }
 
 /**
- * Runs the provided shell command, returning the standard output. Throws an error if the shell
- * command's exit status is non-zero.
+ * Runs the provided shell command, returning the standard output. Throws an error if the process
+ * exits with a non-success status code.
  */
 export function runCommand(command: string[]): string {
   assert(command[0] !== undefined);
