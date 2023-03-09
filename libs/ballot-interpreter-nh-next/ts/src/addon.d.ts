@@ -16,5 +16,6 @@ export interface BridgeInterpretResult {
 export function interpret(
   electionJson: string,
   ballotImagePath1: string,
-  ballotImagePath2: string
+  ballotImagePath2: string,
+  debug: boolean
 ): BridgeInterpretResult;

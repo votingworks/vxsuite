@@ -46,6 +46,17 @@ pub fn draw_timing_mark_debug_image_mut(
     geometry: &Geometry,
     partial_timing_marks: &Partial,
 ) {
+    draw_legend(
+        canvas,
+        &vec![
+            (GREEN, "Top"),
+            (BLUE, "Bottom"),
+            (RED, "Left"),
+            (CYAN, "Right"),
+            (PINK, "Corner"),
+        ],
+    );
+
     draw_line_segment_mut(
         canvas,
         (
@@ -282,6 +293,14 @@ pub fn draw_scored_oval_marks_debug_image_mut(
     let font_scale = 20.0;
     let scale = Scale::uniform(font_scale);
 
+    draw_legend(
+        canvas,
+        &vec![
+            (original_oval_color, "Expected Oval Bounds"),
+            (matched_oval_color, "Matched Oval Bounds"),
+        ],
+    );
+
     for (grid_position, scored_oval_mark) in scored_oval_marks {
         if let Some(scored_oval_mark) = scored_oval_mark {
             let mut option_text = grid_position.to_string();
@@ -375,6 +394,34 @@ fn draw_text_with_background_mut(
         background_color,
     );
     draw_text_mut(canvas, text_color, x, y, scale, font, text);
+}
+
+fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
+    let font = &monospace_font();
+    let font_scale = 12.0;
+    let scale = Scale::uniform(font_scale);
+
+    let padding = 10;
+    let spacing = 5;
+    let legend_left = padding;
+    let legend_top = padding;
+
+    let mut legend_top = legend_top;
+    for (color, label) in colored_labels {
+        let (_, label_height) = text_size(scale, font, label);
+
+        draw_text_with_background_mut(
+            canvas,
+            label,
+            legend_left,
+            legend_top,
+            scale,
+            font,
+            *color,
+            WHITE_RGB,
+        );
+        legend_top += label_height + spacing;
+    }
 }
 
 #[derive(Debug)]
