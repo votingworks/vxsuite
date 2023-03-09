@@ -954,9 +954,7 @@ export class Store {
   /**
    * Yields all sheets in the database that would be included in a CVR export.
    */
-  *forEachResultSheet(options?: {
-    orderBySheetId?: boolean;
-  }): Generator<ResultSheet> {
+  *forEachResultSheet(): Generator<ResultSheet> {
     const sql = `
       select
         sheets.id as id,
@@ -965,14 +963,14 @@ export class Store {
         front_interpretation_json as frontInterpretationJson,
         back_interpretation_json as backInterpretationJson,
         front_normalized_filename as frontNormalizedFilename,
-        back_normalized_filename as backNormalizedFilename
+        back_normalized_filename as backNormalizedFilename,
+        row_number() over (partition by batches.id order by sheets.created_at) batchSequenceId
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
         (requires_adjudication = 0 or finished_adjudication_at is not null)
         and sheets.deleted_at is null
         and batches.deleted_at is null
-      ${options?.orderBySheetId ? 'order by sheets.id' : ''}
     `;
     for (const row of this.client.each(sql) as Iterable<{
       id: string;
@@ -982,10 +980,12 @@ export class Store {
       backInterpretationJson: string;
       frontNormalizedFilename: string;
       backNormalizedFilename: string;
+      batchSequenceId: number;
     }>) {
       yield {
         id: row.id,
         batchId: row.batchId,
+        batchSequenceId: row.batchSequenceId,
         batchLabel: row.batchLabel ?? undefined,
         interpretation: mapSheet(
           [row.frontInterpretationJson, row.backInterpretationJson],

@@ -57,7 +57,6 @@ async function loadImagePathShrinkBase64(
 export async function* exportCastVoteRecords({
   store,
   skipImages,
-  orderBySheetId,
 }: {
   store: Store;
   skipImages?: boolean;
@@ -74,7 +73,7 @@ export async function* exportCastVoteRecords({
     batchId,
     batchLabel,
     interpretation,
-  } of store.forEachResultSheet({ orderBySheetId })) {
+  } of store.forEachResultSheet()) {
     const frontImage: InlineBallotImage = { normalized: '' };
     const backImage: InlineBallotImage = { normalized: '' };
     const includeImages =

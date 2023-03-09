@@ -39,6 +39,7 @@ import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 export interface ResultSheet {
   readonly id: Id;
   readonly batchId: Id;
+  readonly batchSequenceId?: number; // central scanner only
   // TODO: remove once the deprecated CVR export is no longer using batchLabel
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;

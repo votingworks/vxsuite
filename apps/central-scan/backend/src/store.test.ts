@@ -817,6 +817,7 @@ test('iterating over all result sheets', () => {
       {
         id: expect.any(String),
         batchId,
+        batchSequenceId: 1,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
         frontNormalizedFilename: '/normalized.png',
