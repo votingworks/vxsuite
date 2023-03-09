@@ -26,9 +26,16 @@ pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIO
 /// An inset is a set of pixel offsets from the edges of an image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct Inset {
+    /// The number of pixels to remove from the top of the image.
     pub top: u32,
+
+    /// The number of pixels to remove from the bottom of the image.
     pub bottom: u32,
+
+    /// The number of pixels to remove from the left of the image.
     pub left: u32,
+
+    /// The number of pixels to remove from the right of the image.
     pub right: u32,
 }
 
@@ -140,48 +147,99 @@ pub fn expand_image(
 
 /// Finds the inset of a scanned document in an image such that each side of the
 /// inset has more than half of its pixels above the given threshold.
-pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Inset {
+pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Option<Inset> {
     let (width, height) = image.dimensions();
+    let (max_x, max_y) = (width - 1, height - 1);
 
-    let top = (0..height)
-        .find(|y| {
-            (0..width)
-                .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-                .count()
-                > (width / 2) as usize
-        })
-        .unwrap_or(0);
-    let bottom = (0..height)
-        .rev()
-        .find(|y| {
-            (0..width)
-                .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-                .count()
-                > (width / 2) as usize
-        })
-        .unwrap_or(0);
-    let left = (0..width)
-        .find(|x| {
-            (0..height)
-                .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-                .count()
-                > (height / 2) as usize
-        })
-        .unwrap_or(0);
-    let right = (0..width)
-        .rev()
-        .find(|x| {
-            (0..height)
-                .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-                .count()
-                > (height / 2) as usize
-        })
-        .unwrap_or(0);
+    let min_y_above_threshold = (0..height).find(|y| {
+        (0..width)
+            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
+            .count()
+            > (width / 2) as usize
+    });
+    let max_y_above_threshold = (0..height).rev().find(|y| {
+        (0..width)
+            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
+            .count()
+            > (width / 2) as usize
+    });
+    let min_x_above_threshold = (0..width).find(|x| {
+        (0..height)
+            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
+            .count()
+            > (height / 2) as usize
+    });
+    let max_x_above_threshold = (0..width).rev().find(|x| {
+        (0..height)
+            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
+            .count()
+            > (height / 2) as usize
+    });
 
-    Inset {
-        top,
-        bottom,
-        left,
-        right,
+    match (
+        min_x_above_threshold,
+        min_y_above_threshold,
+        max_x_above_threshold,
+        max_y_above_threshold,
+    ) {
+        (
+            Some(min_x_above_threshold),
+            Some(min_y_above_threshold),
+            Some(max_x_above_threshold),
+            Some(max_y_above_threshold),
+        ) => Some(Inset {
+            top: min_y_above_threshold,
+            bottom: max_y - max_y_above_threshold,
+            left: min_x_above_threshold,
+            right: max_x - max_x_above_threshold,
+        }),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use imageproc::contrast::otsu_level;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_find_scanned_document_inset_all_black() {
+        let image = GrayImage::new(100, 100);
+        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        assert_eq!(inset, None);
+    }
+
+    #[test]
+    fn test_find_scanned_document_inset_all_white() {
+        let image = GrayImage::from_pixel(100, 100, Luma([u8::MAX]));
+        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        assert_eq!(
+            inset,
+            Some(Inset {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+            })
+        );
+    }
+
+    #[test]
+    fn test_find_scanned_document_inset_ballot_image() {
+        let image_bytes = include_bytes!("../test/fixtures/scan-inset.jpeg");
+        let image = image::load(Cursor::new(image_bytes), image::ImageFormat::Jpeg)
+            .unwrap()
+            .into_luma8();
+        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        assert_eq!(
+            inset,
+            Some(Inset {
+                top: 121,
+                bottom: 48,
+                left: 24,
+                right: 0,
+            })
+        );
     }
 }

@@ -70,6 +70,9 @@ pub enum Error {
     ImageOpenFailure {
         path: String,
     },
+    BorderInsetNotFound {
+        path: String,
+    },
     #[serde(rename_all = "camelCase")]
     InvalidCardMetadata {
         side_a: BallotPageMetadata,
@@ -151,13 +154,21 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedB
     };
 
     let threshold = otsu_level(&image);
-    let border_inset = find_scanned_document_inset(&image, threshold);
+    let border_inset = match find_scanned_document_inset(&image, threshold) {
+        Some(inset) => inset,
+        None => {
+            return Err(Error::BorderInsetNotFound {
+                path: image_path.to_str().unwrap_or_default().to_string(),
+            });
+        }
+    };
+
     let image = image
         .sub_image(
             border_inset.left,
             border_inset.top,
-            border_inset.right - border_inset.left,
-            border_inset.bottom - border_inset.top,
+            image.width() - border_inset.left - border_inset.right,
+            image.height() - border_inset.top - border_inset.bottom,
         )
         .to_image();
 

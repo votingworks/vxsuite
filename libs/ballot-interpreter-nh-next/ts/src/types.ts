@@ -25,9 +25,16 @@ export type f32 = number;
 
 /** An inset is a set of pixel offsets from the edges of an image. */
 export interface Inset {
+  /** The number of pixels to remove from the top of the image. */
   top: u32;
+
+  /** The number of pixels to remove from the bottom of the image. */
   bottom: u32;
+
+  /** The number of pixels to remove from the left of the image. */
   left: u32;
+
+  /** The number of pixels to remove from the right of the image. */
   right: u32;
 }
 
@@ -268,6 +275,7 @@ export interface Size<T> {
  */
 export type InterpretError =
   | { type: 'imageOpenFailure'; path: string }
+  | { type: 'borderInsetNotFound'; path: string }
   | {
       type: 'invalidCardMetadata';
       side_a: BallotPageMetadata;
