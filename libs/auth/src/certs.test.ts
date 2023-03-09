@@ -96,7 +96,7 @@ test.each<{ description: string; subject: string }>([
       'subject=C = US, ST = CA, O = VotingWorks, ' +
       '1.3.6.1.4.1.59817.1 = admin',
   },
-])('parseCert validation, $description', async ({ subject }) => {
+])('parseCert validation - $description', async ({ subject }) => {
   mockOf(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );
@@ -178,7 +178,7 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = em',
   },
-])('parseUserDataFromCert validation, $description', async ({ subject }) => {
+])('parseUserDataFromCert validation - $description', async ({ subject }) => {
   mockOf(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );

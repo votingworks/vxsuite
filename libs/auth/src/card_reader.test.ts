@@ -169,7 +169,7 @@ test('CardReader status changes', () => {
   expect(onReaderStatusChange).toHaveBeenCalledTimes(6);
 });
 
-test('CardReader command transmission, reader not ready', async () => {
+test('CardReader command transmission - reader not ready', async () => {
   const cardReader = newCardReader();
 
   await expect(cardReader.transmit(simpleCommand.command)).rejects.toThrow(
@@ -177,7 +177,7 @@ test('CardReader command transmission, reader not ready', async () => {
   );
 });
 
-test('CardReader command transmission, success', async () => {
+test('CardReader command transmission - success', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -198,7 +198,7 @@ test('CardReader command transmission, success', async () => {
   );
 });
 
-test('CardReader command transmission, response APDU with non-success status word', async () => {
+test('CardReader command transmission - response APDU with non-success status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -225,7 +225,7 @@ test('CardReader command transmission, response APDU with non-success status wor
   );
 });
 
-test('CardReader command transmission, response APDU with no status', async () => {
+test('CardReader command transmission - response APDU with no status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(Buffer.from([]))
@@ -242,7 +242,7 @@ test('CardReader command transmission, response APDU with no status', async () =
   );
 });
 
-test('CardReader command transmission, chained command', async () => {
+test('CardReader command transmission - chained command', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -287,7 +287,7 @@ test('CardReader command transmission, chained command', async () => {
   );
 });
 
-test('CardReader command transmission, chained response', async () => {
+test('CardReader command transmission - chained response', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -337,7 +337,7 @@ test('CardReader command transmission, chained response', async () => {
   );
 });
 
-test('CardReader command transmission, transmit failure', async () => {
+test('CardReader command transmission - transmit failure', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(mockTransmitError);
 

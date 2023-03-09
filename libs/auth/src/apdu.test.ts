@@ -19,7 +19,7 @@ test.each<{
   { cla: { chained: true }, expectedFirstByte: 0x10 },
   { cla: { secure: true }, expectedFirstByte: 0x0c },
   { cla: { chained: true, secure: true }, expectedFirstByte: 0x1c },
-])('CommandApdu CLA handling, $cla', ({ cla, expectedFirstByte }) => {
+])('CommandApdu CLA handling - $cla', ({ cla, expectedFirstByte }) => {
   const apdu = new CommandApdu({
     cla,
     ins: 0x01,
@@ -158,7 +158,7 @@ test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
   { valueLength: 3017, expectedTlvLength: [0x82, 0x0b, 0xc9] },
   { valueLength: 65535, expectedTlvLength: [0x82, 0xff, 0xff] },
 ])(
-  'constructTlv value length handling ($valueLength)',
+  'constructTlv value length handling - $valueLength',
   ({ valueLength, expectedTlvLength }) => {
     const value = numericArray({ length: valueLength });
     const tlv = constructTlv(0x01, Buffer.from(value));
