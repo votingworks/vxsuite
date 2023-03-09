@@ -232,17 +232,21 @@ function convertNextInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: CurrentInterpretOptions,
   nextInterpretedBallotCard: next.InterpretedBallotCard,
-  nextInterpretation: next.InterpretedBallotPage
+  nextInterpretation: next.InterpretedBallotPage,
+  pageNumber: number
 ): current.InterpretFileResult {
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
-      metadata: buildInterpretedHmpbPageMetadata(
-        electionDefinition,
-        options,
-        nextInterpretedBallotCard.front.grid
-          .metadata as next.BallotPageMetadataFront
-      ),
+      metadata: {
+        ...buildInterpretedHmpbPageMetadata(
+          electionDefinition,
+          options,
+          nextInterpretedBallotCard.front.grid
+            .metadata as next.BallotPageMetadataFront
+        ),
+        pageNumber,
+      },
       markInfo: convertMarksToMarkInfo(
         nextInterpretation.grid.geometry,
         nextInterpretation.marks
@@ -277,13 +281,15 @@ function convertNextInterpretResult(
       electionDefinition,
       options,
       ballotCard,
-      front
+      front,
+      1
     ),
     convertNextInterpretedBallotPage(
       electionDefinition,
       options,
       ballotCard,
-      back
+      back,
+      2
     ),
   ];
   return ok(currentResult);
