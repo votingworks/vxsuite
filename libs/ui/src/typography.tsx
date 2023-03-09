@@ -6,13 +6,14 @@ import DomPurify from 'dompurify';
 import { Color, ColorTheme, SizeTheme } from '@votingworks/types';
 
 type Align = 'left' | 'center' | 'right';
-type AccentColor = 'danger' | 'default' | 'success' | 'warning';
+type AccentColor = 'danger' | 'default' | 'link' | 'success' | 'warning';
 type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 /** Props for {@link Font}, {@link P}, and {@link Caption}. */
 export interface FontProps {
   align?: Align;
   children?: React.ReactNode;
+  className?: string;
   color?: AccentColor;
   italic?: boolean;
   noWrap?: boolean;
@@ -43,12 +44,18 @@ function getColor(color: AccentColor, colorTheme: ColorTheme): Color {
   const fontColors: Record<AccentColor, Color> = {
     danger: colorTheme.accentDanger,
     default: colorTheme.foreground,
+    link: colorTheme.accentPrimary,
     success: colorTheme.accentSuccess,
     warning: colorTheme.accentWarning,
   };
 
   return fontColors[color];
 }
+
+const linkStyles = css<FontProps>`
+  box-shadow: 0rem 0.2rem 0 -0.05rem currentColor;
+  /* box-shadow: none; */
+`;
 
 const fontStyles = css<FontProps>`
   color: ${(p) => p.color && getColor(p.color, p.theme.colors)};
@@ -59,7 +66,10 @@ const fontStyles = css<FontProps>`
   line-height: ${(p) => p.theme.sizes.lineHeight};
   margin: 0;
   text-align: ${(p) => p.align};
+  /* text-decoration: ${(p) => p.color === 'link' && 'underline'}; */
   white-space: ${(p) => (p.noWrap ? 'nowrap' : undefined)};
+
+  ${(p) => p.color === 'link' && linkStyles};
 `;
 
 const StyledFont = styled.span<FontProps>`
@@ -70,7 +80,6 @@ const StyledCaption = styled.span<FontProps>`
   ${fontStyles}
 
   font-size: 0.75rem;
-  margin-bottom: 0.35em;
 `;
 
 const StyledP = styled.p<FontProps>`

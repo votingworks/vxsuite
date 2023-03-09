@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { Button, Text, useExternalStateChangeListener } from '@votingworks/ui';
+import {
+  Button,
+  Caption,
+  Font,
+  H1,
+  Icons,
+  P,
+  Section,
+  useExternalStateChangeListener,
+} from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { ScannedBallotCount } from './scanned_ballot_count';
-import { CenteredLargeProse, ScreenMainCenterChild } from './layout';
+import styled from 'styled-components';
+import { ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
-import { ExclamationTriangle } from './graphics';
 import { recordBallotBagReplaced } from '../api';
 
 interface Props {
@@ -12,6 +20,10 @@ interface Props {
   pollWorkerAuthenticated: boolean;
   logger: Logger;
 }
+
+const StyledIconContainer = styled(Font)`
+  font-size: 250px;
+`;
 
 export function ReplaceBallotBagScreen({
   scannedBallotCount,
@@ -42,53 +54,51 @@ export function ReplaceBallotBagScreen({
     if (!confirmed && !pollWorkerAuthenticated) {
       return (
         <React.Fragment>
-          <ExclamationTriangle />
-          <CenteredLargeProse>
-            <h1>Ballot Bag Full</h1>
-            <p>
+          <StyledIconContainer color="warning">
+            <Icons.Warning />
+          </StyledIconContainer>
+          <Section horizontalAlign="center">
+            <H1>Ballot Bag Full</H1>
+            <P>
               A poll worker must replace the full ballot bag with a new empty
               ballot bag.
-            </p>
-            <Text small italic>
-              Insert a poll worker card to continue.
-            </Text>
-          </CenteredLargeProse>
+            </P>
+            <Caption>Insert a poll worker card to continue.</Caption>
+          </Section>
         </React.Fragment>
       );
     }
 
     if (!confirmed && pollWorkerAuthenticated) {
       return (
-        <CenteredLargeProse>
-          <h1>Ballot Bag Replaced?</h1>
-          <p>
+        <Section horizontalAlign="center">
+          <H1>Ballot Bag Replaced?</H1>
+          <P>
             Has the full ballot bag been replaced with a new empty ballot bag?
-          </p>
-          <p>
-            <Button variant="primary" onPress={() => setConfirmed(true)}>
+          </P>
+          <P>
+            <Button variant="done" onPress={() => setConfirmed(true)}>
               Yes, New Ballot Bag is Ready
             </Button>
-          </p>
-          <Text small italic>
-            Remove card to go back.
-          </Text>
-        </CenteredLargeProse>
+          </P>
+          <Caption>Remove card to go back.</Caption>
+        </Section>
       );
     }
 
     return (
-      <CenteredLargeProse>
-        <h1>Resume Voting</h1>
-        <Text small italic>
-          Remove card to resume voting.
-        </Text>
-      </CenteredLargeProse>
+      <Section horizontalAlign="center">
+        <H1>Resume Voting</H1>
+        <Caption>Remove card to resume voting.</Caption>
+      </Section>
     );
   })();
 
   return (
-    <ScreenMainCenterChild infoBar={false}>
-      <ScannedBallotCount count={scannedBallotCount} />
+    <ScreenMainCenterChild
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
       {mainContent}
     </ScreenMainCenterChild>
   );

@@ -160,7 +160,7 @@ function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
 
 const sizeThemeStyles = css<StyledButtonProps>`
   align-items: center;
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
   font-family: inherit;
@@ -172,6 +172,7 @@ const sizeThemeStyles = css<StyledButtonProps>`
   padding: 0.5em 0.6em;
   width: auto;
   min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
+  min-width: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
   vertical-align: middle;
 `;
 
@@ -348,7 +349,10 @@ export class Button<T = undefined> extends PureComponent<
   }
 }
 
-export const SegmentedButton = styled.span`
+/**
+ * @deprecated Use @votingworks/ui/SegmentedButton instead.
+ */
+export const SegmentedButtonDeprecated = styled.span`
   display: inline-flex;
   white-space: nowrap;
   & > button {

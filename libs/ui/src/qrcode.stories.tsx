@@ -13,7 +13,7 @@ const QrCodeContainer = styled.div`
 `;
 
 const meta: Meta<typeof QrCode> = {
-  title: 'libs-ui/QrCode',
+  title: 'Atoms/QrCode',
   component: QrCode,
   args: initialProps,
   decorators: [

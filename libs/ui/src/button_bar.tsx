@@ -4,14 +4,15 @@ export const ButtonBar = styled('nav')`
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169, 169, 169);
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.25rem;
+  justify-content: center;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  padding: 0.75rem 0.75rem 0.75rem;
+  gap: 0.25rem;
 
   & > *:first-child {
     order: 2;
-    min-width: 50%;
+    min-width: 40%;
   }
 
   & > * {

@@ -9,7 +9,14 @@ import React, {
 import styled from 'styled-components';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
-import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
+import {
+  Button,
+  ContestChoiceButton,
+  Main,
+  Prose,
+  Text,
+  TextWithLineBreaks,
+} from '@votingworks/ui';
 
 import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import {
@@ -17,7 +24,6 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
 import { FONT_SIZES } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 import {
   ContentHeader,
   DistrictName,
@@ -300,50 +306,20 @@ export function MsEitherNeitherContest({
             </Text>
           </Prose>
         </GridLabel>
-        <ChoiceButton
-          choice="yes"
+        <ContestChoiceButton
+          value="yes"
           isSelected={eitherSelected}
-          onPress={handleUpdateEitherNeither}
-          style={{
-            gridArea: 'either-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                eitherSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'either'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.eitherOption.label}`}
-            >
-              {contest.eitherOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
-        <ChoiceButton
-          choice="no"
+          label={contest.eitherOption.label}
+          onSelect={handleUpdateEitherNeither}
+          gridArea="either-option"
+        />
+        <ContestChoiceButton
+          value="no"
           isSelected={neitherSelected}
-          onPress={handleUpdateEitherNeither}
-          style={{
-            gridArea: 'neither-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                neitherSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'neither'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.neitherOption.label}`}
-            >
-              {contest.neitherOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
+          label={contest.neitherOption.label}
+          onSelect={handleUpdateEitherNeither}
+          gridArea="neither-option"
+        />
         <GridLabel
           style={{
             gridArea: 'pick-one-label',
@@ -361,50 +337,20 @@ export function MsEitherNeitherContest({
             </Text>
           </Prose>
         </GridLabel>
-        <ChoiceButton
-          choice="yes"
+        <ContestChoiceButton
+          value="yes"
           isSelected={firstSelected}
-          onPress={handleUpdatePickOne}
-          style={{
-            gridArea: 'first-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                firstSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'first'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.firstOption.label}`}
-            >
-              {contest.firstOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
-        <ChoiceButton
-          choice="no"
+          label={contest.firstOption.label}
+          onSelect={handleUpdatePickOne}
+          gridArea="first-option"
+        />
+        <ContestChoiceButton
+          value="no"
           isSelected={secondSelected}
-          onPress={handleUpdatePickOne}
-          style={{
-            gridArea: 'second-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                secondSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'second'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.secondOption.label}`}
-            >
-              {contest.secondOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
+          label={contest.secondOption.label}
+          onSelect={handleUpdatePickOne}
+          gridArea="second-option"
+        />
         <Divider />
       </ChoicesGrid>
     </Main>

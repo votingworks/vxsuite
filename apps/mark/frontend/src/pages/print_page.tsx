@@ -4,11 +4,15 @@ import styled from 'styled-components';
 
 import {
   BmdPaperBallot,
+  H1,
+  H2,
+  H3,
+  LoadingAnimation,
   Main,
   printElement,
-  ProgressEllipsis,
-  Prose,
+  PrintingBallotImage,
   Screen,
+  Section,
   useLock,
 } from '@votingworks/ui';
 
@@ -90,22 +94,15 @@ export function PrintPage(): JSX.Element {
   }, []);
 
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild>
-        <Prose textCenter id="audiofocus">
-          <p>
-            <Graphic
-              src="/images/printing-ballot.svg"
-              alt="Printing Ballot"
-              aria-hidden
-            />
-          </p>
-          <h1>
-            <ProgressEllipsis aria-label="Printing your official ballot.">
-              Printing Your Official Ballot
-            </ProgressEllipsis>
-          </h1>
-        </Prose>
+        <Section horizontalAlign="center">
+          <PrintingBallotImage />
+          <H2 as="h1" aria-hidden>
+            <LoadingAnimation />
+          </H2>
+          <H3 as="h1">Printing Your Official Ballot</H3>
+        </Section>
       </Main>
     </Screen>
   );

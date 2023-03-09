@@ -9,6 +9,8 @@ import {
   SetClockButton,
   UsbDrive,
   ChangePrecinctButton,
+  H1,
+  P,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -17,7 +19,6 @@ import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
@@ -97,10 +98,13 @@ export function ElectionManagerScreen({
   }
 
   return (
-    <ScreenMainCenterChild infoBarMode="admin">
-      <Prose textCenter>
-        <h1>Election Manager Settings</h1>
-        {election.precincts.length > 1 && (
+    <ScreenMainCenterChild
+      infoBarMode="admin"
+      ballotCountOverride={scannerStatus.ballotsCounted}
+    >
+      <H1 align="center">Election Manager Settings</H1>
+      {election.precincts.length > 1 && (
+        <P>
           <ChangePrecinctButton
             appPrecinctSelection={precinctSelection}
             updatePrecinctSelection={async (newPrecinctSelection) => {
@@ -123,92 +127,74 @@ export function ElectionManagerScreen({
             }
             logger={logger}
           />
-        )}
-        <p>
-          <SegmentedButton>
-            <Button
-              large
-              onPress={handleTogglingTestMode}
-              disabled={isTestMode || setTestModeMutation.isLoading}
-            >
-              Test Ballot Mode
-            </Button>
-            <Button
-              large
-              onPress={handleTogglingTestMode}
-              disabled={!isTestMode || setTestModeMutation.isLoading}
-            >
-              Official Ballot Mode
-            </Button>
-          </SegmentedButton>
-        </p>
-        <p>
-          <SetClockButton large>
-            <span role="img" aria-label="Clock">
-              🕓
-            </span>{' '}
-            <CurrentDateAndTime />
-          </SetClockButton>
-        </p>
-        <p>
-          <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-          <Button onPress={() => setIsExportingBackup(true)}>
-            Save Backup
-          </Button>
-        </p>
-        <p>
-          <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
-            {markThresholdOverrides === undefined
-              ? 'Override Mark Thresholds'
-              : 'Reset Mark Thresholds'}
-          </Button>
-        </p>
-        <p>
-          <Button
-            disabled={supportsCalibrationQuery.data === false}
-            onPress={() => setIsCalibratingScanner(true)}
-            nonAccessibleTitle={
-              !supportsCalibrationQuery.data
-                ? 'This scanner does not support calibration.'
-                : undefined
-            }
-          >
-            Calibrate Scanner
-          </Button>
-        </p>
-        <p>
-          <Button
-            onPress={() =>
-              setIsSoundMutedMutation.mutate({
-                isSoundMuted: !isSoundMuted,
-              })
-            }
-          >
-            {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
-          </Button>
-        </p>
-        <p>
-          <Button
-            disabled={!scannerStatus.canUnconfigure}
-            variant="danger"
-            small
-            onPress={() => setConfirmUnconfigure(true)}
-          >
-            {/* TODO: Remove this icon when we start defaulting to the new VVSG themes: */}
-            <span role="img" aria-label="Warning">
-              ⚠️
-            </span>{' '}
-            Delete All Election Data from VxScan
-          </Button>
-        </p>
-        {!scannerStatus.canUnconfigure && (
-          <p>
-            You must “Save Backup” before you can delete election data from
-            VxScan.
-          </p>
-        )}
-      </Prose>
-      <ScannedBallotCount count={scannerStatus.ballotsCounted} />
+        </P>
+      )}
+      <P>
+        <SegmentedButton
+          onChange={handleTogglingTestMode}
+          options={[
+            { id: 'test', label: 'Testing Mode' },
+            { id: 'live', label: 'Live Election Mode' },
+          ]}
+          selectedOptionId={isTestMode ? 'test' : 'live'}
+        />
+      </P>
+      <P>
+        <SetClockButton large>
+          <CurrentDateAndTime />
+        </SetClockButton>
+      </P>
+      <P>
+        <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+        <Button onPress={() => setIsExportingBackup(true)}>Save Backup</Button>
+      </P>
+      <P>
+        <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
+          {markThresholdOverrides === undefined
+            ? 'Override Mark Thresholds'
+            : 'Reset Mark Thresholds'}
+        </Button>
+      </P>
+      <P>
+        <Button
+          disabled={supportsCalibrationQuery.data === false}
+          onPress={() => setIsCalibratingScanner(true)}
+          nonAccessibleTitle={
+            !supportsCalibrationQuery.data
+              ? 'This scanner does not support calibration.'
+              : undefined
+          }
+        >
+          Calibrate Scanner
+        </Button>
+      </P>
+      <P>
+        <Button
+          onPress={() =>
+            setIsSoundMutedMutation.mutate({
+              isSoundMuted: !isSoundMuted,
+            })
+          }
+        >
+          {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
+        </Button>
+      </P>
+      <P>
+        <Button
+          disabled={!scannerStatus.canUnconfigure}
+          variant="danger"
+          small
+          onPress={() => setConfirmUnconfigure(true)}
+        >
+          Delete All Election Data from VxScan
+        </Button>
+      </P>
+      {!scannerStatus.canUnconfigure && (
+        <P>
+          You must “Save Backup” before you can delete election data from
+          VxScan.
+        </P>
+      )}
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
           markThresholds={electionDefinition.election.markThresholds}
@@ -220,11 +206,11 @@ export function ElectionManagerScreen({
         <Modal
           content={
             <Prose>
-              <h1>Save Backup to switch to Test Ballot Mode</h1>
-              <p>
-                You must &quot;Save Backup&quot; before you may switch to Test
-                Ballot Mode.
-              </p>
+              <H1>Save Backup to switch to Test Mode</H1>
+              <P>
+                You must &quot;Save Backup&quot; before you may switch to
+                Testing Mode.
+              </P>
             </Prose>
           }
           actions={
@@ -255,11 +241,11 @@ export function ElectionManagerScreen({
               <Loading />
             ) : (
               <Prose>
-                <h1>Delete All Election Data?</h1>
-                <p>
+                <H1>Delete All Election Data?</H1>
+                <P>
                   Do you want to remove all election information and data from
                   this machine?
-                </p>
+                </P>
               </Prose>
             )
           }

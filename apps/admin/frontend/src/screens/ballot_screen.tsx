@@ -19,7 +19,7 @@ import pluralize from 'pluralize';
 import { LogEventId } from '@votingworks/logging';
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated,
   Monospace,
   Prose,
   useStoredState,
@@ -283,7 +283,7 @@ export function BallotScreen(): JSX.Element {
             {availableLocaleCodes.length > 1 && (
               <React.Fragment>
                 {' '}
-                <SegmentedButton>
+                <SegmentedButtonDeprecated>
                   {availableLocaleCodes.map((localeCode) => (
                     <Button
                       disabled={
@@ -304,7 +304,7 @@ export function BallotScreen(): JSX.Element {
                       })}
                     </Button>
                   ))}
-                </SegmentedButton>
+                </SegmentedButtonDeprecated>
               </React.Fragment>
             )}
           </p>
@@ -331,7 +331,7 @@ export function BallotScreen(): JSX.Element {
             )}
           </p>
           <p>
-            <LinkButton small to={routerPaths.ballotsList}>
+            <LinkButton small to={routerPaths.ballotsList} variant="previous">
               Back to List Ballots
             </LinkButton>
           </p>

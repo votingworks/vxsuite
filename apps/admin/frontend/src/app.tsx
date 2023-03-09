@@ -25,23 +25,24 @@ export function App({
   const printFontSizePx = 14;
 
   // TODO: Default to medium contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
+  const colorMode: ColorMode = 'contrastMedium';
 
   return (
     <BrowserRouter>
-      <AppBase
+      {/* <AppBase
         colorMode={colorMode}
-        legacyBaseFontSizePx={baseFontSizePx}
+        // legacyBaseFontSizePx={baseFontSizePx}
+        sizeMode="s"
         legacyPrintFontSizePx={printFontSizePx}
-      >
-        <AppRoot
-          printer={printer}
-          hardware={hardware}
-          machineConfigProvider={machineConfigProvider}
-          converter={converter}
-          generateBallotId={generateBallotId}
-        />
-      </AppBase>
+      > */}
+      <AppRoot
+        printer={printer}
+        hardware={hardware}
+        machineConfigProvider={machineConfigProvider}
+        converter={converter}
+        generateBallotId={generateBallotId}
+      />
+      {/* </AppBase> */}
     </BrowserRouter>
   );
 }

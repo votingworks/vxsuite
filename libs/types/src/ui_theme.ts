@@ -1,3 +1,5 @@
+import { ScreenType } from './screen';
+
 /** Options for supported UI color themes. */
 export type ColorMode =
   | 'contrastHighDark'
@@ -16,13 +18,15 @@ export enum Color {
   DANGER_MEDIUM_CONTRAST = '#820b0b',
   GRAY_DARK = '#222222',
   GRAY_LIGHT = '#8a8a8a',
-  GRAY_MEDIUM = '#5c5c5c',
+  GRAY_MEDIUM = '#424242',
   OFF_BLACK = '#080808',
   OFF_WHITE = '#fafafa',
   PRIMARY_BLUE_LOW_CONTRAST = '#5b8eb5',
-  PRIMARY_BLUE_MEDIUM_CONTRAST = '#0f426a',
+  PRIMARY_BLUE_MEDIUM_CONTRAST = '#00437d',
   PRIMARY_GREEN_LOW_CONTRAST = '#509a52',
-  PRIMARY_GREEN_MEDIUM_CONTRAST = '#174915',
+  PRIMARY_GREEN_MEDIUM_CONTRAST = '#1c4c19',
+  VX_PURPLE_LOW_CONTRAST = '#a977b5',
+  VX_PURPLE_MEDIUM_CONTRAST = '#593460',
   WARNING_LOW_CONTRAST = '#bc7c10',
   WARNING_MEDIUM_CONTRAST = '#5c3600',
   WHITE = '#ffffff',
@@ -43,6 +47,7 @@ export interface ColorTheme {
   readonly accentPrimary: Color;
   readonly accentSecondary: Color;
   readonly accentSuccess: Color;
+  readonly accentVxPurple: Color;
   readonly accentWarning: Color;
   readonly background: Color;
   readonly foreground: Color;
@@ -81,6 +86,7 @@ export interface SizeTheme {
 export interface UiTheme {
   readonly colorMode: ColorMode;
   readonly colors: ColorTheme;
+  readonly screenType: ScreenType;
   readonly sizeMode: SizeMode;
   readonly sizes: SizeTheme;
 }

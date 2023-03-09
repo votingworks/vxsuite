@@ -1,3 +1,4 @@
+/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React from 'react';
 
 import {
@@ -8,19 +9,41 @@ import {
 import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import { Prose } from './prose';
-import { Text, NoWrap } from './text';
+import { NoWrap } from './text';
 import { contrastTheme } from './themes';
 import { Seal } from './seal';
+import { Caption, Font, P } from './typography';
+import { LabelledText } from './labelled_text';
 
 const Bar = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  padding: 0.125rem 0.125rem;
+  gap: 0.25rem;
+  justify-content: space-between;
+`;
+
+const PrecinctInfoContainer = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: space-between;
+`;
+
+const SealContainer = styled.div`
+  width: 2.25rem;
+`;
+
+const SystemInfoContainer = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: end;
-  background: ${contrastTheme.dark.background};
-  padding: 0.5rem 0.75rem;
-  color: ${contrastTheme.dark.color};
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
 `;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
@@ -46,42 +69,47 @@ export function ElectionInfoBar({
 
   return (
     <Bar data-testid="electionInfoBar">
-      {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
-      <Prose maxWidth={false} compact style={{ flex: 1 }}>
-        <strong>{title}</strong> — <NoWrap>{electionDate}</NoWrap>
-        <Text as="div" small>
-          {precinctSelection && (
-            <React.Fragment>
-              <NoWrap>
-                {getPrecinctSelectionName(precincts, precinctSelection)},
-              </NoWrap>{' '}
-            </React.Fragment>
-          )}
-          <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
-        </Text>
-      </Prose>
-      {mode !== 'voter' && codeVersion && (
-        <Prose maxWidth={false} compact textRight>
-          <Text as="div" small noWrap>
-            Software Version
-          </Text>
-          <strong>{codeVersion}</strong>
-        </Prose>
-      )}
-      {mode !== 'voter' && machineId && (
-        <Prose maxWidth={false} compact textRight>
-          <Text as="div" small noWrap>
-            Machine ID
-          </Text>
-          <strong>{machineId}</strong>
-        </Prose>
-      )}
-      <Prose maxWidth={false} compact textRight>
-        <Text as="div" small>
-          Election ID
-        </Text>
-        <strong>{getDisplayElectionHash(electionDefinition)}</strong>
-      </Prose>
+      <PrecinctInfoContainer>
+        <SealContainer>
+          {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+        </SealContainer>
+        <Caption weight="regular">
+          <LabelledText
+            label={
+              <React.Fragment>
+                <Font weight="bold">{title}</Font> —{' '}
+                <NoWrap>{electionDate}</NoWrap>
+              </React.Fragment>
+            }
+          >
+            {precinctSelection && (
+              <React.Fragment>
+                <NoWrap>
+                  {getPrecinctSelectionName(precincts, precinctSelection)},
+                </NoWrap>{' '}
+              </React.Fragment>
+            )}
+            <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
+          </LabelledText>
+        </Caption>
+      </PrecinctInfoContainer>
+      <SystemInfoContainer>
+        {mode !== 'voter' && codeVersion && (
+          <Caption noWrap weight="bold">
+            <LabelledText label="Software Version">{codeVersion}</LabelledText>
+          </Caption>
+        )}
+        {mode !== 'voter' && machineId && (
+          <Caption noWrap weight="bold">
+            <LabelledText label="Machine ID">{machineId}</LabelledText>
+          </Caption>
+        )}
+        <Caption weight="bold">
+          <LabelledText label="Election ID">
+            {getDisplayElectionHash(electionDefinition)}
+          </LabelledText>
+        </Caption>
+      </SystemInfoContainer>
     </Bar>
   );
 }

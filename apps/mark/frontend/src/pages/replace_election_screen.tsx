@@ -2,9 +2,14 @@ import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   Button,
   ElectionInfoBar,
+  H1,
+  H2,
+  H3,
   Main,
+  P,
   Prose,
   Screen,
+  Section,
   Table,
   Text,
 } from '@votingworks/ui';
@@ -78,10 +83,10 @@ export function ReplaceElectionScreen({
   return (
     <Screen>
       <Main padded centerChild>
-        <Prose id="audiofocus">
-          <Text as="h1" error>
+        <Section horizontalAlign="center">
+          <H3 as="h1" color="danger">
             This card is configured for a different election.
-          </Text>
+          </H3>
           <Table>
             <thead>
               <tr>
@@ -119,32 +124,32 @@ export function ReplaceElectionScreen({
             </tbody>
           </Table>
           {ballotsPrintedCount === 0 ? (
-            <p>
+            <P>
               This machine has not printed any ballots for the current election.
-            </p>
+            </P>
           ) : (
-            <p>
+            <P>
               This machine has printed{' '}
               <strong>{pluralize('ballot', ballotsPrintedCount, true)}</strong>{' '}
               for the current election.
-            </p>
+            </P>
           )}
-          <h2>Cancel and Go Back</h2>
-          <p>Remove the inserted card to cancel.</p>
-          <h2>Remove the Current Election</h2>
-          <p>
+          <H2>Cancel and Go Back</H2>
+          <P>Remove the inserted card to cancel.</P>
+          <H2>Remove the Current Election</H2>
+          <P>
             You may remove the current election on this machine and then replace
             it with the election on the card.
-          </p>
-          <p>
+          </P>
+          <P>
             Removing the current election will replace all data on this machine.
-          </p>
-          <p>
+          </P>
+          <P>
             <Button variant="danger" small onPress={unconfigure}>
               Remove the Current Election and All Data
             </Button>
-          </p>
-        </Prose>
+          </P>
+        </Section>
       </Main>
       {election && (
         <ElectionInfoBar

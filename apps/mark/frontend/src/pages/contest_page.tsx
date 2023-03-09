@@ -1,7 +1,15 @@
 import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  Caption,
+  Font,
+  Icons,
+  LinkButton,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
@@ -23,7 +31,6 @@ import {
   ButtonFooter,
   ButtonFooterLandscape,
 } from '../components/button_footer';
-import { SettingsButton } from '../components/settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -92,7 +99,7 @@ export function ContestPage(): JSX.Element {
   }, [contest, vote, votes]);
 
   const Breadcrumbs = styled.div`
-    padding: 30px 30px 0;
+    padding: 0.125rem 30px 0;
   `;
 
   const nextContestButton = (
@@ -103,54 +110,42 @@ export function ContestPage(): JSX.Element {
       aria-label="next contest"
       to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
     >
-      <TextIcon arrowRight white={isVoteComplete}>
-        Next
-      </TextIcon>
+      <Icons.Next />
     </LinkButton>
   );
 
   const previousContestButton = (
     <LinkButton
-      small={isLandscape}
       large={isPortrait}
-      id="previous"
       aria-label="previous contest"
       to={prevContest ? `/contests/${prevContestIndex}` : '/'}
-    >
-      <TextIcon small={isLandscape} arrowLeft>
-        Back
-      </TextIcon>
-    </LinkButton>
+      variant="previous"
+    />
   );
 
   const reviewScreenButton = (
     <LinkButton
       large
-      variant={isVoteComplete ? 'primary' : 'regular'}
+      variant={isVoteComplete ? 'next' : 'regular'}
       to={`/review#contest-${contest.id}`}
-      id="next"
     >
-      <TextIcon arrowRight white={isVoteComplete}>
-        Review
-      </TextIcon>
+      Review
     </LinkButton>
   );
 
   const settingsButton = (
-    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
+    <Button variant="settings" large={isPortrait} onPress={showSettingsModal} />
   );
 
   return (
     <Screen navRight={isLandscape}>
       {isPortrait && (
         <Breadcrumbs>
-          <Prose>
-            <Text small>
-              This is the{' '}
-              <strong>{ordinal(ballotContestNumber)} contest</strong> of{' '}
-              {pluralize('contest', ballotContestsLength, true)} on your ballot.
-            </Text>
-          </Prose>
+          <Caption>
+            This is the{' '}
+            <Font weight="bold">{ordinal(ballotContestNumber)} contest</Font> of{' '}
+            {pluralize('contest', ballotContestsLength, true)} on your ballot.
+          </Caption>
         </Breadcrumbs>
       )}
       {contest.type === 'candidate' && (
@@ -209,11 +204,11 @@ export function ContestPage(): JSX.Element {
             </React.Fragment>
           }
         >
-          <Prose>
-            <Text center>
+          <div>
+            <P align="center">
               This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
               {pluralize('contest', contests.length, true)}.
-            </Text>
+            </P>
             {isReviewMode ? (
               <p>{reviewScreenButton}</p>
             ) : (
@@ -222,7 +217,7 @@ export function ContestPage(): JSX.Element {
                 <p>{previousContestButton}</p>
               </React.Fragment>
             )}
-          </Prose>
+          </div>
         </Sidebar>
       )}
     </Screen>

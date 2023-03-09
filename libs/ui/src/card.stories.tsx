@@ -16,7 +16,7 @@ const initialProps: Props = {
 };
 
 const meta: Meta<typeof Component> = {
-  title: 'libs-ui/Card',
+  title: 'Atoms/Card',
   component: Component,
   args: initialProps,
 };

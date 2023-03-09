@@ -1,19 +1,12 @@
 import React from 'react';
 
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { RotateCard } from '../components/graphics';
+import { InvalidCardScreen } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function CardErrorScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <RotateCard />
-      <CenteredLargeProse>
-        <h1>Card is Backwards</h1>
-        <p>Remove the card, turn it around, and insert it again.</p>
-      </CenteredLargeProse>
+      <InvalidCardScreen reason="card_error" />
     </ScreenMainCenterChild>
   );
 }

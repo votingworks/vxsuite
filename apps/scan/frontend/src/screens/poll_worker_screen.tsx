@@ -10,6 +10,11 @@ import {
   printElement,
   getSignedQuickResultsReportingUrl,
   PrecinctScannerBallotCountReport,
+  Font,
+  Icons,
+  Section,
+  H1,
+  P,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -48,6 +53,7 @@ import {
   Logger,
 } from '@votingworks/logging';
 import { assert, Result, sleep, throwIllegalValue } from '@votingworks/basics';
+import styled from 'styled-components';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -55,8 +61,7 @@ import {
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
-import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
+import { IndeterminateProgressBar } from '../components/graphics';
 import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
@@ -77,18 +82,25 @@ type PollWorkerFlowState =
 
 const debug = rootDebug.extend('pollworker-screen');
 
+const StyledErrorIconContainer = styled(Font)`
+  font-size: 250px;
+  margin-bottom: 0.1em;
+`;
+
 const BallotsAlreadyScannedScreen = (
   <ScreenMainCenterChild infoBarMode="pollworker">
-    <TimesCircle />
-    <CenteredLargeProse>
-      <h1>Ballots Already Scanned</h1>
-      <p>
+    <StyledErrorIconContainer color="danger">
+      <Icons.DangerX />
+    </StyledErrorIconContainer>
+    <Section horizontalAlign="center">
+      <H1>Ballots Already Scanned</H1>
+      <P>
         Ballots were scanned on this machine before polls were opened. This may
         indicate an internal error or tampering. The polls can no longer be
         opened on this machine. Please report this issue to an election
         administrator.
-      </p>
-    </CenteredLargeProse>
+      </P>
+    </Section>
   </ScreenMainCenterChild>
 );
 
@@ -485,7 +497,7 @@ export function PollWorkerScreen({
           </p>
           <p>
             <Button
-              variant="primary"
+              variant="done"
               onPress={transitionPolls}
               value={pollsTransition}
             >
@@ -661,7 +673,6 @@ export function PollWorkerScreen({
           </p>
         )}
       </Prose>
-      <ScannedBallotCount count={scannedBallotCount} />
       {isShowingLiveCheck && (
         <LiveCheckModal
           machineConfig={machineConfig}

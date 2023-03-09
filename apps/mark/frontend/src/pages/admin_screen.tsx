@@ -15,6 +15,7 @@ import {
   Prose,
   Screen,
   SegmentedButton,
+  SegmentedButtonOption,
   SetClockButton,
   TestMode,
   Text,
@@ -25,6 +26,8 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 import { assert } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
 import { getElectionDefinitionFromCard } from '../api';
+
+type ElectionMode = 'live' | 'test';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -82,6 +85,18 @@ export function AdminScreen({
     return () => screenReader.toggleMuted(initialMuted);
   }, [screenReader]);
 
+  const testModeOptions: ReadonlyArray<SegmentedButtonOption<ElectionMode>> = [
+    {
+      id: 'test',
+      label: 'Testing Mode',
+    },
+    {
+      id: 'live',
+      label: 'Live Election Mode',
+    },
+  ];
+  const currentElectionMode: ElectionMode = isLiveMode ? 'live' : 'test';
+
   return (
     <Screen>
       {election && !isLiveMode && <TestMode />}
@@ -132,22 +147,11 @@ export function AdminScreen({
               </p>
               <h2>Test Ballot Mode</h2>
               <p>
-                <SegmentedButton>
-                  <Button
-                    onPress={toggleLiveMode}
-                    variant={isLiveMode ? 'regular' : 'primary'}
-                    disabled={!isLiveMode}
-                  >
-                    Test Ballot Mode
-                  </Button>
-                  <Button
-                    onPress={toggleLiveMode}
-                    variant={isLiveMode ? 'primary' : 'regular'}
-                    disabled={isLiveMode}
-                  >
-                    Official Ballot Mode
-                  </Button>
-                </SegmentedButton>
+                <SegmentedButton
+                  onChange={toggleLiveMode}
+                  options={testModeOptions}
+                  selectedOptionId={currentElectionMode}
+                />
                 <br />
                 <Text small italic as="span">
                   Switching the mode will reset the Ballots Printed count.

@@ -4,18 +4,24 @@ import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCheckCircle,
   faCircleLeft,
   faCircleRight,
   faDeleteLeft,
-  faPencil,
-  faCheckCircle,
-  faGear,
   faExclamationCircle,
   faExclamationTriangle,
+  faGear,
   faInfoCircle,
+  faMinusCircle,
+  faPencil,
   faTrashCan,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  faXmarkCircle,
+  faPauseCircle,
+  faQuestionCircle,
+} from '@fortawesome/free-regular-svg-icons';
 
 interface InnerProps {
   type: IconDefinition;
@@ -57,8 +63,16 @@ export const Icons = {
     );
   },
 
+  Closed(): JSX.Element {
+    return <FaIcon type={faMinusCircle} />;
+  },
+
   Danger(): JSX.Element {
     return <FaIcon type={faExclamationCircle} />;
+  },
+
+  DangerX(): JSX.Element {
+    return <FaIcon type={faXmarkCircle} />;
   },
 
   Delete(): JSX.Element {
@@ -81,8 +95,16 @@ export const Icons = {
     return <FaIcon type={faCircleRight} />;
   },
 
+  Paused(): JSX.Element {
+    return <FaIcon type={faPauseCircle} />;
+  },
+
   Previous(): JSX.Element {
     return <FaIcon type={faCircleLeft} />;
+  },
+
+  QuestionCircle(): JSX.Element {
+    return <FaIcon type={faQuestionCircle} />;
   },
 
   Settings(): JSX.Element {

@@ -85,6 +85,7 @@ export function DefinitionScreen(): JSX.Element {
                       to={routerPaths.definitionContest({
                         contestId: contest.id,
                       })}
+                      variant="edit"
                     >
                       {contest.title}
                     </LinkButton>

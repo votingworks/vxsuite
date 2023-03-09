@@ -293,7 +293,7 @@ export function SetClockButton(props: SetClockButtonProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button {...props} onPress={() => setIsModalOpen(true)} />
+      <Button {...props} onPress={() => setIsModalOpen(true)} variant="edit" />
       {isModalOpen && (
         <PickDateTimeModal
           disabled={isSettingClock}

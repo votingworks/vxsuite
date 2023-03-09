@@ -8,18 +8,25 @@ import {
 import {
   Main,
   Screen,
-  Prose,
   TestMode,
-  Text,
   ElectionInfoBar,
+  P,
+  Caption,
+  H1,
+  InsertCardImage,
+  TextSizeSelector,
+  ColorModeSelector,
+  Section,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
-const InsertCardImage = styled.img`
-  margin: 0 auto -1rem;
-  height: 30vw;
+const SettingsContainer = styled(P)`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
 `;
 
 interface Props {
@@ -46,24 +53,24 @@ export function InsertCardScreen({
       case 'polls_closed_initial':
         return (
           <React.Fragment>
-            <h1>Polls Closed</h1>
-            <p>Insert Poll Worker card to open.</p>
+            <H1 align="center">Polls Closed</H1>
+            <P align="center">Insert Poll Worker card to open.</P>
           </React.Fragment>
         );
       case 'polls_open':
-        return <h1>Insert Card</h1>;
+        return <H1 align="center">Insert Card</H1>;
       case 'polls_paused':
         return (
           <React.Fragment>
-            <h1>Voting Paused</h1>
-            <p>Insert Poll Worker card to resume voting.</p>
+            <H1 align="center">Voting Paused</H1>
+            <P align="center">Insert Poll Worker card to resume voting.</P>
           </React.Fragment>
         );
       case 'polls_closed_final':
         return (
           <React.Fragment>
-            <h1>Polls Closed</h1>
-            <p>Voting is complete.</p>
+            <H1 align="center">Polls Closed</H1>
+            <P align="center">Voting is complete.</P>
           </React.Fragment>
         );
       /* istanbul ignore next - compile time check for completeness */
@@ -73,31 +80,38 @@ export function InsertCardScreen({
   })();
 
   return (
-    <Screen white>
+    <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
-        <Prose textCenter id="audiofocus">
+        <div id="audiofocus">
           {showNoChargerAttachedWarning && (
-            <Text warning small>
-              <strong>No Power Detected.</strong> Please ask a poll worker to
-              plug in the power cord for this machine.
-            </Text>
+            <P align="center">
+              <Caption color="warning">
+                <strong>No Power Detected.</strong> Please ask a poll worker to
+                plug in the power cord for this machine.
+              </Caption>
+            </P>
           )}
-          <p>
-            <InsertCardImage
-              aria-hidden
-              src="/images/insert-card.svg"
-              alt="Insert Card Diagram"
-            />
-          </p>
-          {mainText}
-          {showNoAccessibleControllerWarning && (
-            <Text muted small>
-              Voting with an accessible controller is not currently available.
-            </Text>
-          )}
-        </Prose>
+          <Section horizontalAlign="center">
+            <InsertCardImage />
+          </Section>
+          <div>
+            {mainText}
+            {showNoAccessibleControllerWarning && (
+              <P align="center">
+                <Caption>
+                  Voting with an accessible controller is not currently
+                  available.
+                </Caption>
+              </P>
+            )}
+          </div>
+        </div>
       </Main>
+      <SettingsContainer>
+        <TextSizeSelector />
+        <ColorModeSelector />
+      </SettingsContainer>
       <ElectionInfoBar
         electionDefinition={electionDefinition}
         precinctSelection={appPrecinct}

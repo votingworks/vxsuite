@@ -1,19 +1,19 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Section, Caption, Font, H1, Icons, P } from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
-import { DoNotEnter } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
+import styled from 'styled-components';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export interface PollsNotOpenScreenProps {
   isLiveMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
   showNoChargerWarning: boolean;
-  scannedBallotCount: number;
+  scannedBallotCount?: number;
 }
+
+const StyledIconContainer = styled(Font)`
+  font-size: 250px;
+`;
 
 export function PollsNotOpenScreen({
   isLiveMode,
@@ -22,25 +22,30 @@ export function PollsNotOpenScreen({
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
-    <ScreenMainCenterChild isLiveMode={isLiveMode} infoBarMode="pollworker">
-      <DoNotEnter />
-      <CenteredLargeProse>
-        <h1>
+    <ScreenMainCenterChild
+      isLiveMode={isLiveMode}
+      infoBarMode="pollworker"
+      ballotCountOverride={scannedBallotCount}
+    >
+      <StyledIconContainer>
+        {pollsState === 'polls_paused' ? <Icons.Paused /> : <Icons.Closed />}
+      </StyledIconContainer>
+      <Section horizontalAlign="center">
+        <H1>
           {pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}
-        </h1>
+        </H1>
         {pollsState === 'polls_closed_final' ? (
-          <p>Voting is complete.</p>
+          <P>Voting is complete.</P>
         ) : (
-          <p>Insert a poll worker card to open polls.</p>
+          <P>Insert a poll worker card to open polls.</P>
         )}
         {showNoChargerWarning && (
-          <Text warning small center>
-            <strong>No Power Detected.</strong> Please ask a poll worker to plug
-            in the power cord.
-          </Text>
+          <Caption align="center" color="warning">
+            <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
+            Please ask a poll worker to plug in the power cord.
+          </Caption>
         )}
-      </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
+      </Section>
     </ScreenMainCenterChild>
   );
 }

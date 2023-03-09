@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ThemeProvider } from 'styled-components';
 
-import { ColorMode, SizeMode, UiTheme } from '@votingworks/types';
+import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles';
 import { makeTheme } from './themes/make_theme';
@@ -28,8 +28,20 @@ export interface AppBaseProps {
   isTouchscreen?: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
+  screenType?: ScreenType;
   sizeMode?: SizeMode;
 }
+
+export interface UiThemeManagerContextInterface {
+  setColorMode: (mode: ColorMode) => void;
+  setSizeMode: (mode: SizeMode) => void;
+}
+
+export const UiThemeManagerContext =
+  React.createContext<UiThemeManagerContextInterface>({
+    setColorMode: () => undefined,
+    setSizeMode: () => undefined,
+  });
 
 /**
  * Common app container that sets up global Vx styles.
@@ -37,28 +49,39 @@ export interface AppBaseProps {
 export function AppBase(props: AppBaseProps): JSX.Element {
   const {
     children,
-    colorMode = 'legacy',
+    colorMode: defaultColorMode = 'legacy',
     enableScroll = false,
     isTouchscreen = false,
     legacyBaseFontSizePx,
     legacyPrintFontSizePx,
-    sizeMode = 'legacy',
+    screenType,
+    sizeMode: defaultSizeMode = 'legacy',
   } = props;
 
+  const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
+  const [sizeMode, setSizeMode] = React.useState<SizeMode>(defaultSizeMode);
+
   const theme = useMemo(
-    () => makeTheme({ colorMode, sizeMode }),
+    () => makeTheme({ colorMode, screenType, sizeMode }),
     [colorMode, sizeMode]
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyles
-        enableScroll={enableScroll}
-        isTouchscreen={isTouchscreen}
-        legacyBaseFontSizePx={legacyBaseFontSizePx}
-        legacyPrintFontSizePx={legacyPrintFontSizePx}
-      />
-      {children}
-    </ThemeProvider>
+    <UiThemeManagerContext.Provider
+      value={{
+        setColorMode,
+        setSizeMode,
+      }}
+    >
+      <ThemeProvider theme={theme}>
+        <GlobalStyles
+          enableScroll={enableScroll}
+          isTouchscreen={isTouchscreen}
+          legacyBaseFontSizePx={legacyBaseFontSizePx}
+          legacyPrintFontSizePx={legacyPrintFontSizePx}
+        />
+        {children}
+      </ThemeProvider>
+    </UiThemeManagerContext.Provider>
   );
 }

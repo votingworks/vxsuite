@@ -1,18 +1,17 @@
+import { H1, LoadingAnimation, P, Section } from '@votingworks/ui';
 import React from 'react';
-import { IndeterminateProgressBar } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanProcessingScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <IndeterminateProgressBar />
-      <CenteredLargeProse>
-        <h1>Please wait…</h1>
-        <p>Scanning the marks on your ballot.</p>
-      </CenteredLargeProse>
+      <H1 aria-hidden>
+        <LoadingAnimation />
+      </H1>
+      <Section horizontalAlign="center">
+        <H1>Please wait…</H1>
+        <P>Scanning the marks on your ballot.</P>
+      </Section>
     </ScreenMainCenterChild>
   );
 }

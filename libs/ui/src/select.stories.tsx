@@ -16,7 +16,7 @@ const initialProps: SelectProps = {
 };
 
 const meta: Meta<typeof Select> = {
-  title: 'libs-ui/Select',
+  title: 'Atoms/Select',
   component: Select,
   args: initialProps,
   argTypes: {

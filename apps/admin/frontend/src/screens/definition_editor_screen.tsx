@@ -6,11 +6,10 @@ import fileDownload from 'js-file-download';
 import dashify from 'dashify';
 
 import { safeParseElection } from '@votingworks/types';
-import { Button, Prose } from '@votingworks/ui';
+import { Button, ButtonBar, Prose } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { Textarea } from '../components/textarea';
-import { ButtonBar } from '../components/button_bar';
 import { NavigationScreen } from '../components/navigation_screen';
 import { TextareaEventFunction } from '../config/types';
 import { RemoveElectionModal } from '../components/remove_election_modal';
@@ -95,7 +94,7 @@ export function DefinitionEditorScreen({
             <Prose maxWidth={false}>{error}</Prose>
           </Header>
         )}
-        <ButtonBar padded dark>
+        <ButtonBar>
           {allowEditing && (
             <React.Fragment>
               <Button

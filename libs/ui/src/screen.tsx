@@ -12,8 +12,6 @@ export const Screen = styled.div<Props>`
   display: flex;
   flex-direction: ${({ navLeft, navRight }) =>
     (navLeft && 'row-reverse') || (navRight && 'row') || 'column'};
-  background-color: ${({ white, grey }) =>
-    white ? 'white' : grey ? contrastTheme.default.background : undefined};
   height: 100%;
   @media print {
     display: none;

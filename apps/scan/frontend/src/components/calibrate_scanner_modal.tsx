@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, H1, Modal, P, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -38,10 +38,10 @@ export function CalibrateScannerModal({
       <Modal
         centerContent
         content={
-          <Prose textCenter>
-            <h1>Calibration not supported</h1>
-            <p>This scanner does not support calibration.</p>
-          </Prose>
+          <React.Fragment>
+            <H1 align="center">Calibration not supported</H1>
+            <P align="center">This scanner does not support calibration.</P>
+          </React.Fragment>
         }
         actions={<Button onPress={onCancel}>Cancel</Button>}
       />
@@ -52,14 +52,14 @@ export function CalibrateScannerModal({
     return (
       <Modal
         content={
-          <Prose>
-            <h1>Calibrate Scanner</h1>
-            <p>
+          <React.Fragment>
+            <H1>Calibrate Scanner</H1>
+            <P>
               Insert a <strong>blank sheet of white paper</strong> to calibrate
               the scanner. The sheet will not be returned out the front of the
               scanner.
-            </p>
-          </Prose>
+            </P>
+          </React.Fragment>
         }
         actions={
           <React.Fragment>
@@ -87,11 +87,7 @@ export function CalibrateScannerModal({
     return (
       <Modal
         centerContent
-        content={
-          <Prose textCenter>
-            <h1>Calibration succeeded!</h1>
-          </Prose>
-        }
+        content={<H1 align="center">Calibration succeeded!</H1>}
         actions={<Button onPress={onCancel}>Close</Button>}
       />
     );
@@ -102,10 +98,10 @@ export function CalibrateScannerModal({
       <Modal
         centerContent
         content={
-          <Prose textCenter>
-            <h1>Calibration failed!</h1>
-            <p>There was an error while calibrating.</p>
-          </Prose>
+          <React.Fragment>
+            <H1 align="center">Calibration failed!</H1>
+            <P align="center">There was an error while calibrating.</P>
+          </React.Fragment>
         }
         actions={
           <React.Fragment>
@@ -124,14 +120,5 @@ export function CalibrateScannerModal({
   }
 
   assert(calibrationState === 'calibrating');
-  return (
-    <Modal
-      centerContent
-      content={
-        <Prose textCenter>
-          <h1>Calibrating…</h1>
-        </Prose>
-      }
-    />
-  );
+  return <Modal centerContent content={<H1 align="center">Calibrating…</H1>} />;
 }

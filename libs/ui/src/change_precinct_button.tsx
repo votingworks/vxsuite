@@ -16,6 +16,7 @@ import { Select } from './select';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { H1, P } from './typography';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
@@ -152,22 +153,22 @@ export function ChangePrecinctButton({
     precinctSelectDropdown
   ) : (
     <React.Fragment>
-      <Button onPress={openModal} large>
+      <Button onPress={openModal} variant="edit">
         Change Precinct
       </Button>
       {isConfirmationModalShowing && (
         <Modal
           content={
-            <Prose>
-              <h1>Change Precinct</h1>
-              <p>
+            <React.Fragment>
+              <H1>Change Precinct</H1>
+              <P>
                 WARNING: The polls are open on this machine. Changing the
                 precinct will reset the polls to closed. To resume voting, the
                 polls must be opened again. Please select a precinct and confirm
                 below.
-              </p>
-              <Prose textCenter>{precinctSelectDropdown}</Prose>
-            </Prose>
+              </P>
+              <P>{precinctSelectDropdown}</P>
+            </React.Fragment>
           }
           actions={
             <React.Fragment>

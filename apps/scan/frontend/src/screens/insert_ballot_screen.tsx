@@ -1,15 +1,17 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
-import { InsertBallot } from '../components/graphics';
 import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
+  Caption,
+  Font,
+  H2,
+  Icons,
+  InsertBallotImage,
+  Section,
+} from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
   isLiveMode: boolean;
-  scannedBallotCount: number;
+  scannedBallotCount?: number;
   showNoChargerWarning: boolean;
 }
 
@@ -19,19 +21,23 @@ export function InsertBallotScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild isLiveMode={isLiveMode}>
-      <InsertBallot />
-      <CenteredLargeProse>
-        <h1>Insert Your Ballot Below</h1>
-        <p>Scan one ballot sheet at a time.</p>
+    <ScreenMainCenterChild
+      isLiveMode={isLiveMode}
+      ballotCountOverride={scannedBallotCount}
+    >
+      <Section>
+        <InsertBallotImage />
+      </Section>
+      <Section horizontalAlign="center">
+        <H2 as="h1">Insert Your Ballot Below</H2>
+        <Caption>Scan one ballot sheet at a time.</Caption>
         {showNoChargerWarning && (
-          <Text warning small center>
-            <strong>No Power Detected.</strong> Please ask a poll worker to plug
-            in the power cord.
-          </Text>
+          <Caption color="warning">
+            <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
+            Please ask a poll worker to plug in the power cord.
+          </Caption>
         )}
-      </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
+      </Section>
     </ScreenMainCenterChild>
   );
 }

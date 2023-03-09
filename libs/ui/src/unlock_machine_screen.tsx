@@ -10,6 +10,8 @@ import { fontSizeTheme } from './themes';
 import { NumberPad } from './number_pad';
 
 import { SECURITY_PIN_LENGTH } from './globals';
+import { P } from './typography';
+import { Icons } from './icons';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -36,7 +38,7 @@ type CheckingPinAuth =
   | DippedSmartCardAuth.CheckingPin
   | InsertedSmartCardAuth.CheckingPin;
 
-interface Props {
+export interface UnlockkMachineScreenProps {
   auth: CheckingPinAuth;
   checkPin: (pin: string) => void;
   grayBackground?: boolean;
@@ -46,7 +48,7 @@ export function UnlockMachineScreen({
   auth,
   checkPin,
   grayBackground,
-}: Props): JSX.Element {
+}: UnlockkMachineScreenProps): JSX.Element {
   const [currentPin, setCurrentPin] = useState('');
 
   const handleNumberEntry = useCallback(
@@ -75,9 +77,9 @@ export function UnlockMachineScreen({
     .split('')
     .join(' ');
 
-  let primarySentence: JSX.Element = <p>Enter the card PIN to unlock.</p>;
+  let primarySentence: JSX.Element = <P>Enter the card PIN to unlock.</P>;
   if (auth.wrongPinEnteredAt) {
-    primarySentence = <Text warning>Invalid PIN. Please try again.</Text>;
+    primarySentence = <P color='warning' weight='semiBold'><Icons.Warning /> Invalid PIN. Please try again.</P>;
   }
 
   return (

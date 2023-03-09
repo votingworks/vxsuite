@@ -247,7 +247,7 @@ export function BmdPaperBallot({
   }, [seal, sealUrl, sealLoaded, onRendered]);
 
   return (
-    <Ballot aria-hidden>
+    <Ballot>
       <Header>
         {seal ? (
           <div

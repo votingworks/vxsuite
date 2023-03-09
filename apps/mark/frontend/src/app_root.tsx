@@ -38,6 +38,7 @@ import {
   usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
+  UiThemeManagerContext,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -281,6 +282,7 @@ export function AppRoot({
     votes,
   } = appState;
   const electionHash = optionalElectionDefinition?.electionHash;
+  const { setColorMode, setSizeMode } = React.useContext(UiThemeManagerContext);
 
   const history = useHistory();
 
@@ -350,6 +352,8 @@ export function AppRoot({
 
   const resetBallot = useCallback(
     (newShowPostVotingInstructions?: boolean) => {
+      setColorMode('contrastMedium');
+      setSizeMode('m');
       dispatchAppState({
         type: 'resetBallot',
         showPostVotingInstructions: newShowPostVotingInstructions,
@@ -411,14 +415,14 @@ export function AppRoot({
   );
 
   function useEffectToggleLargeDisplay() {
-    document.documentElement.style.fontSize = `${
-      GLOBALS.FONT_SIZES[GLOBALS.LARGE_DISPLAY_FONT_SIZE]
-    }px`;
-    return () => {
-      document.documentElement.style.fontSize = `${
-        GLOBALS.FONT_SIZES[GLOBALS.DEFAULT_FONT_SIZE]
-      }px`;
-    };
+    // document.documentElement.style.fontSize = `${
+    //   GLOBALS.FONT_SIZES[GLOBALS.LARGE_DISPLAY_FONT_SIZE]
+    // }px`;
+    // return () => {
+    //   document.documentElement.style.fontSize = `${
+    //     GLOBALS.FONT_SIZES[GLOBALS.DEFAULT_FONT_SIZE]
+    //   }px`;
+    // };
   }
 
   const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
@@ -506,6 +510,8 @@ export function AppRoot({
     assert(isPollWorkerAuth(authStatus));
     endCardlessVoterSessionMutation.mutate(undefined, {
       onSuccess() {
+        setColorMode('contrastMedium');
+        setSizeMode('m');
         history.push('/');
       },
     });

@@ -10,11 +10,15 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  Caption,
+  Font,
   fontSizeTheme,
+  H1,
+  Icons,
   Modal,
   ModalWidth,
-  Prose,
-  Text,
+  P,
+  Section,
 } from '@votingworks/ui';
 import {
   isFeatureFlagEnabled,
@@ -24,17 +28,13 @@ import { assert, find, integers, take } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 
-import { ExclamationTriangle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 import { toSentence } from '../utils/to_sentence';
 import { acceptBallot, returnBallot } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 
-const ResponsiveButtonParagraph = styled.p`
+const ResponsiveButtonParagraph = styled(P)`
   @media (orientation: portrait) {
     display: flex;
     align-items: center;
@@ -42,11 +42,21 @@ const ResponsiveButtonParagraph = styled.p`
     gap: 0.5em;
     & > button {
       flex: 1 auto;
-      padding-right: 0.25em;
-      padding-left: 0.25em;
     }
   }
 `;
+
+const StyledIconContainer = styled(Font)`
+  font-size: 250px;
+`;
+
+function LargeWarningIcon(): JSX.Element {
+  return (
+    <StyledIconContainer color="warning">
+      <Icons.Warning />
+    </StyledIconContainer>
+  );
+}
 
 interface ConfirmModalProps {
   content?: React.ReactNode;
@@ -65,7 +75,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
       actions={
         <React.Fragment>
           <Button
-            variant="primary"
+            variant="done"
             onPress={() => {
               setConfirmed(true);
               onConfirm();
@@ -114,17 +124,17 @@ function OvervoteWarningScreen({
 
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
-      <CenteredLargeProse>
-        <h1>Too Many Votes</h1>
-        <Text>
+      <LargeWarningIcon />
+      <Section horizontalAlign="center">
+        <H1>Too Many Votes</H1>
+        <P>
           There are too many votes marked in the{' '}
           {pluralize('contest', contestNames.length)}:{' '}
           {toSentence(contestNames)}.
-        </Text>
+        </P>
         <ResponsiveButtonParagraph>
           <Button
-            variant="primary"
+            variant="previousPrimary"
             onPress={() => returnBallotMutation.mutate()}
           >
             Return Ballot
@@ -139,20 +149,18 @@ function OvervoteWarningScreen({
             </React.Fragment>
           )}
         </ResponsiveButtonParagraph>
-        <Text italic small>
-          Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+        <Caption>Ask a poll worker if you need help.</Caption>
+      </Section>
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>
+            <Section horizontalAlign="center">
+              <H1>Are you sure?</H1>
+              <P>
                 Your votes in {pluralize('contest', contestNames.length, true)}{' '}
                 will not be counted.
-              </p>
-            </Prose>
+              </P>
+            </Section>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
@@ -203,47 +211,47 @@ function UndervoteWarningScreen({
 
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
-      <CenteredLargeProse>
-        <h1>Review Your Ballot</h1>
+      <LargeWarningIcon />
+      <Section horizontalAlign="center">
+        <H1>Review Your Ballot</H1>
         {blankContestNames.length > 0 && (
-          <p>
+          <P>
             No votes detected in{' '}
             {pluralize('contest', blankContestNames.length)}:{' '}
             {toSentence(truncateContestNames(blankContestNames))}.
-          </p>
+          </P>
         )}
         {partiallyVotedContestNames.length > 0 && (
-          <p>
+          <P>
             You may vote for more candidates in the{' '}
             {pluralize('contest', partiallyVotedContestNames.length)}:{' '}
             {toSentence(truncateContestNames(partiallyVotedContestNames))}.
-          </p>
+          </P>
         )}
         <ResponsiveButtonParagraph>
           <Button
-            variant="primary"
+            variant="previous"
             onPress={() => returnBallotMutation.mutate()}
           >
             Return Ballot
           </Button>{' '}
           or{' '}
-          <Button variant="primary" onPress={() => setConfirmTabulate(true)}>
+          <Button variant="done" onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
-        <Text italic small>
+        <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+        </Caption>
+      </Section>
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>
+            <Section horizontalAlign="center">
+              <H1>Are you sure?</H1>
+              <P>
                 {blankContestNames.length > 0 && (
                   <span>
                     You did not vote in{' '}
@@ -262,11 +270,11 @@ function UndervoteWarningScreen({
                     .
                   </span>
                 )}
-              </p>
-              <Text italic small>
+              </P>
+              <Caption>
                 Your votes will count, even if you leave some blank.
-              </Text>
-            </Prose>
+              </Caption>
+            </Section>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
@@ -282,13 +290,13 @@ function BlankBallotWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
-      <CenteredLargeProse>
-        <h1>Review Your Ballot</h1>
-        <p>No votes were found when scanning this ballot.</p>
+      <LargeWarningIcon />
+      <Section horizontalAlign="center">
+        <H1>Review Your Ballot</H1>
+        <P>No votes were found when scanning this ballot.</P>
         <ResponsiveButtonParagraph>
           <Button
-            variant="primary"
+            variant="previousPrimary"
             onPress={() => returnBallotMutation.mutate()}
           >
             Return Ballot
@@ -298,19 +306,19 @@ function BlankBallotWarningScreen(): JSX.Element {
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
-        <Text small italic>
+        <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+        </Caption>
+      </Section>
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>No votes will be counted from this ballot.</p>
-            </Prose>
+            <Section horizontalAlign="center">
+              <H1>Are you sure?</H1>
+              <P>No votes will be counted from this ballot.</P>
+            </Section>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
@@ -326,13 +334,13 @@ function OtherReasonWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
-      <CenteredLargeProse>
-        <h1>Scanning Failed</h1>
-        <p>There was a problem scanning this ballot.</p>
-        <ResponsiveButtonParagraph>
+      <LargeWarningIcon />
+      <Section horizontalAlign="center">
+        <H1>Scanning Failed</H1>
+        <P>There was a problem scanning this ballot.</P>
+        <P>
           <Button
-            variant="primary"
+            variant="previousPrimary"
             onPress={() => returnBallotMutation.mutate()}
           >
             Return Ballot
@@ -341,18 +349,16 @@ function OtherReasonWarningScreen(): JSX.Element {
           <Button onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
-        </ResponsiveButtonParagraph>
-        <Text small italic>
-          Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+        </P>
+        <Caption>Ask a poll worker if you need help.</Caption>
+      </Section>
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>No votes will be recorded for this ballot.</p>
-            </Prose>
+            <Section horizontalAlign="center">
+              <H1>Are you sure?</H1>
+              <P>No votes will be counted from this ballot.</P>
+            </Section>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}

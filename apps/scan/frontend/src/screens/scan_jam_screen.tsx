@@ -1,28 +1,31 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
-import { TimesCircle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
+import { Caption, Font, H1, Icons, P, Section } from '@votingworks/ui';
+import styled from 'styled-components';
+import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
-  scannedBallotCount: number;
+  scannedBallotCount?: number;
 }
+
+const StyledIconContainer = styled(Font)`
+  font-size: 250px;
+  margin-bottom: 0.1em;
+`;
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
-      <TimesCircle />
-      <CenteredLargeProse>
-        <h1>Ballot Not Counted</h1>
-        <p>The ballot is jammed in the scanner.</p>
-        <Text small italic>
-          Ask a poll worker for help.
-        </Text>
-      </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
+    <ScreenMainCenterChild
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
+      <StyledIconContainer color="danger">
+        <Icons.DangerX />
+      </StyledIconContainer>
+      <Section horizontalAlign="center">
+        <H1>Ballot Not Counted</H1>
+        <P>The ballot is jammed in the scanner.</P>
+        <Caption>Ask a poll worker for help.</Caption>
+      </Section>
     </ScreenMainCenterChild>
   );
 }

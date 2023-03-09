@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { H2 } from './typography';
 
 const TestingModeContainer = styled.div`
   border-bottom: 4px solid #333333;
@@ -31,7 +32,9 @@ const TestingModeContainer = styled.div`
 export function TestMode(): JSX.Element {
   return (
     <TestingModeContainer>
-      <div>Machine is in Test Ballot Mode</div>
+      <div>
+        <H2 as="h1">Testing Mode</H2>
+      </div>
     </TestingModeContainer>
   );
 }

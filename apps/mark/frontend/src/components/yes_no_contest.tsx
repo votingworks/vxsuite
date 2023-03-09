@@ -15,11 +15,11 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  ContestChoiceButton,
   DisplayTextForYesOrNo,
   Main,
   Modal,
   Prose,
-  Text,
   TextWithLineBreaks,
 } from '@votingworks/ui';
 
@@ -30,7 +30,6 @@ import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { FONT_SIZES } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 
 import {
   ContentHeader,
@@ -48,6 +47,11 @@ interface Props {
   contest: YesNoContestInterface;
   vote: OptionalYesNoVote;
   updateVote: UpdateVoteFunction;
+}
+
+interface Answer {
+  label: string;
+  vote: YesOrNo;
 }
 
 export function YesNoContest({
@@ -214,8 +218,8 @@ export function YesNoContest({
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
             {[
-              { label: 'Yes', vote: 'yes' } as const,
-              { label: 'No', vote: 'no' } as const,
+              { label: 'Yes', vote: 'yes' } as Answer,
+              { label: 'No', vote: 'no' } as Answer,
             ].map((answer) => {
               const isChecked = getSingleYesNoVote(vote) === answer.vote;
               const isDisabled = !isChecked && !!vote;
@@ -229,23 +233,15 @@ export function YesNoContest({
                 prefixAudioText = 'Deselected,';
               }
               return (
-                <ChoiceButton
+                <ContestChoiceButton
                   key={answer.vote}
-                  choice={answer.vote}
+                  label={answer.label}
+                  value={answer.vote}
                   isSelected={isChecked}
-                  onPress={
+                  onSelect={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                >
-                  <Prose>
-                    <Text
-                      aria-label={`${prefixAudioText} ${answer.label} on ${contest.title}`}
-                      wordBreak
-                    >
-                      {answer.label}
-                    </Text>
-                  </Prose>
-                </ChoiceButton>
+                />
               );
             })}
           </ChoicesGrid>

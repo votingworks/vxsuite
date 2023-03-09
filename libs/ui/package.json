@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
+    "@fortawesome/free-regular-svg-icons": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@testing-library/react": "^12.1.5",
@@ -91,6 +92,8 @@
     "@typescript-eslint/parser": "^5.37.0",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "assert": "^2.0.0",
+    "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
@@ -107,6 +110,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-storybook": "^0.6.10",
     "eslint-plugin-vx": "workspace:*",
+    "events": "^3.3.0",
     "fast-check": "2.18.0",
     "history": "4",
     "is-ci-cli": "^2.2.0",
@@ -123,6 +127,7 @@
     "prettier": "^2.6.2",
     "react": "^17.0.1",
     "sort-package-json": "^1.50.0",
+    "stream-browserify": "^3.0.0",
     "stylelint": "^13.1.0",
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",
@@ -130,6 +135,7 @@
     "stylelint-processor-styled-components": "^1.9.0",
     "ts-jest": "^27.0.7",
     "typescript": "4.6.3",
+    "util": "^0.12.4",
     "vite": "^4.0.4"
   },
   "peerDependencies": {

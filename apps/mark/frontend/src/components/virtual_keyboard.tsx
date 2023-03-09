@@ -115,10 +115,10 @@ export function VirtualKeyboard({
             {row.map(({ label, ariaLabel }) => (
               <Button
                 key={label}
-                value={label}
                 aria-label={ariaLabel ?? label.toLowerCase()}
                 onPress={onKeyPress}
                 disabled={keyDisabled(label)}
+                value={label}
               >
                 {label}
               </Button>

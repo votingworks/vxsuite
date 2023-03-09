@@ -25,7 +25,7 @@ const loremIpsum = new LoremIpsum({
 });
 
 const meta: Meta<typeof Font> = {
-  title: 'libs-ui/Typography',
+  title: 'Atoms/Typography',
   component: Font,
   args: {
     children: 'Sample text',

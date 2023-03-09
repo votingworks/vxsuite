@@ -7,7 +7,7 @@ import { Icons } from './icons';
 import { H1, H5, P } from './typography';
 
 const meta: Meta = {
-  title: 'libs-ui/Icons',
+  title: 'Atoms/Icons',
 };
 export default meta;
 

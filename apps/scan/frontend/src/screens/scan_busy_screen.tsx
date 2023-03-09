@@ -1,22 +1,27 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Caption, Font, H1, Icons, P, Section, Text } from '@votingworks/ui';
+import styled from 'styled-components';
 import { ExclamationTriangle } from '../components/graphics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
 
+const StyledIconContainer = styled(Font)`
+  font-size: 250px;
+`;
+
 export function ScanBusyScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
-      <CenteredLargeProse>
-        <h1>Remove Your Ballot</h1>
-        <p>Another ballot is being scanned.</p>
-        <Text small italic>
-          Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+      <StyledIconContainer color="warning">
+        <Icons.Warning />
+      </StyledIconContainer>
+      <Section horizontalAlign="center">
+        <H1>Remove Your Ballot</H1>
+        <P>Another ballot is being scanned.</P>
+        <Caption>Ask a poll worker if you need help.</Caption>
+      </Section>
     </ScreenMainCenterChild>
   );
 }

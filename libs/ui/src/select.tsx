@@ -1,3 +1,5 @@
+/* stylelint-disable */
+
 // Inspiration: https://www.filamentgroup.com/lab/select-css.html
 import React from 'react';
 import styled from 'styled-components';
@@ -34,7 +36,7 @@ const StyledSelect = styled.select<SelectProps>`
   background-size: ${({ large, small }) =>
       (small && '0.5em') || (large && '0.85em') || '0.75em'}
     auto;
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : undefined)};
+  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
   max-width: 100%;
   padding: ${({ large, small }) =>
     (small && '0.35em 1.25em 0.35em 0.5em') ||
@@ -42,11 +44,42 @@ const StyledSelect = styled.select<SelectProps>`
     '0.75rem 1.75rem 0.75rem 1rem'};
   line-height: 1.25;
   color: ${({ primary }) => (primary && '#FFFFFF') || 'black'};
-  font-size: ${({ large }) => large && '1.25em'};
+  font-size: ${(p) => (p.large ? '1.25rem' : '1rem')};
   appearance: none;
   &:disabled {
     background: #dddddd;
     color: rgb(170, 170, 170);
+  }
+
+  font-weight: 400;
+  letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
+  padding: 0.4em 0.7em;
+  vertical-align: middle;
+
+  background: ${(p) => p.theme.colors.background};
+  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
+    ${(p) => p.theme.colors.foreground};
+  border-radius: 0.25rem;
+  box-shadow: none;
+  color: ${(p) => p.theme.colors.foreground};
+  cursor: pointer;
+  text-shadow: none;
+  transition: all 100ms ease-in;
+
+  &:hover,
+  &:active {
+    outline: none;
+  }
+
+  &:active {
+    box-shadow: inset 0 0 0 0.035rem ${(p) => p.theme.colors.foreground};
+  }
+
+  &[disabled] {
+    border-style: dashed;
+    box-shadow: none;
+    cursor: not-allowed;
+    font-weight: ${(p) => p.theme.sizes.fontWeight.light};
   }
 `;
 

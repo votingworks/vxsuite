@@ -1,20 +1,15 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { H1, P, Section } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanReturnedBallotScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
       {/* TODO: make a graphic for this screen */}
-      <CenteredLargeProse>
-        <h1>Remove Your Ballot</h1>
-        <Text small italic>
-          Ask a poll worker if you need help.
-        </Text>
-      </CenteredLargeProse>
+      <Section horizontalAlign="center">
+        <H1>Remove Your Ballot</H1>
+        <P>Ask a poll worker if you need help.</P>
+      </Section>
     </ScreenMainCenterChild>
   );
 }

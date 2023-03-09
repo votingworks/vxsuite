@@ -124,7 +124,7 @@ export function App({
   const baseFontSizePx = 24;
 
   // TODO: Default to high contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
+  const colorMode: ColorMode = 'contrastMedium';
 
   return (
     <BrowserRouter>
@@ -146,8 +146,10 @@ export function App({
             <QueryClientProvider client={queryClient}>
               <AppBase
                 colorMode={colorMode}
+                screenType="elo15"
+                sizeMode="m"
                 isTouchscreen
-                legacyBaseFontSizePx={baseFontSizePx}
+                // legacyBaseFontSizePx={baseFontSizePx}
               >
                 <AppRoot
                   hardware={hardware}

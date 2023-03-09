@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, SegmentedButton } from '@votingworks/ui';
+import { Button, SegmentedButtonDeprecated } from '@votingworks/ui';
 
 interface Props {
   isAbsentee: boolean;
@@ -31,8 +31,8 @@ export function BallotTypeToggle({
     </Button>,
   ];
   return (
-    <SegmentedButton>
+    <SegmentedButtonDeprecated>
       {absenteeFirst ? buttons : buttons.reverse()}
-    </SegmentedButton>
+    </SegmentedButtonDeprecated>
   );
 }

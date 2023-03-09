@@ -15,8 +15,13 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  Card,
+  ContestVote,
+  ContestVoterSummary,
   DecoyButton,
   DisplayTextForYesOrNo,
+  H1,
+  Icons,
   LinkButton,
   Main,
   NoWrap,
@@ -48,13 +53,12 @@ import {
   ButtonFooterLandscape,
 } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
-import { SettingsButton } from '../components/settings_button';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
 
 const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 5rem 0.5rem 3rem;
+  padding: 1rem 0.5rem 0;
 `;
 const DistrictName = styled.div`
   text-transform: uppercase;
@@ -168,18 +172,13 @@ const ScrollableContentWrapper = styled.div<Scrollable>`
 `;
 
 const Contest = styled.button`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
-    0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
-    0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
-  background: #ffffff;
-  width: 100%; /* reset Button default here at component rather than pass 'fullWidth' param. */
-  padding: 0.375rem 0.5rem;
-  text-decoration: inherit;
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
   white-space: normal; /* reset Button default */
+  width: 100%; /* reset Button default here at component rather than pass 'fullWidth' param. */
   color: inherit;
   button& {
     cursor: pointer;
@@ -188,10 +187,33 @@ const Contest = styled.button`
   &:last-child {
     margin-bottom: 0;
   }
-  @media (min-width: 480px) {
-    padding: 0.75rem 1rem;
-  }
 `;
+// const Contest = styled.button`
+//   display: flex;
+//   align-items: center;
+//   margin-bottom: 20px;
+//   border-radius: 0.125rem;
+//   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.14),
+//     0 0.1875rem 0.0625rem -0.125rem rgba(0, 0, 0, 0.12),
+//     0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.2);
+//   background: #ffffff;
+//   width: 100%; /* reset Button default here at component rather than pass 'fullWidth' param. */
+//   padding: 0.375rem 0.5rem;
+//   text-decoration: inherit;
+//   white-space: normal; /* reset Button default */
+//   color: inherit;
+//   button& {
+//     cursor: pointer;
+//     text-align: left;
+//   }
+//   &:last-child {
+//     margin-bottom: 0;
+//   }
+//   @media (min-width: 480px) {
+//     padding: 0.75rem 1rem;
+//   }
+// `;
+
 const ContestProse = styled(Prose)`
   flex: 1;
   & > h3 {
@@ -200,7 +222,7 @@ const ContestProse = styled(Prose)`
 `;
 const ContestActions = styled.div`
   display: none;
-  padding-left: 1rem;
+  /* padding-left: 1rem; */
   @media (min-width: 480px) {
     display: block;
   }
@@ -226,57 +248,66 @@ function CandidateContestResult({
 }: CandidateContestResultInterface): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
 
-  return vote === undefined || vote.length === 0 ? (
-    <NoSelection />
-  ) : (
-    <React.Fragment>
-      {vote.map((candidate, index, array) => {
+  return (
+    <ContestVoterSummary
+      districtName={getContestDistrictName(election, contest)}
+      title={contest.title}
+      titleType="h2"
+      undervoteWarning={
+        remainingChoices > 0
+          ? `You may still vote for ${remainingChoices} more ${pluralize(
+              'candidate',
+              remainingChoices
+            )}.`
+          : undefined
+      }
+      votes={vote.map((candidate, index, array) => {
         const partiesDescription = getCandidatePartiesDescription(
           election,
           candidate
         );
-        return (
-          <Text
-            key={candidate.id}
-            aria-label={`${candidate.name}${
-              partiesDescription ? `, ${partiesDescription}` : ''
-            }${candidate.isWriteIn ? ', write-in' : ''}${
-              array.length - 1 === index ? '.' : ','
-            }`}
-            wordBreak
-            voteIcon
-          >
-            <strong>{candidate.name}</strong>{' '}
-            {partiesDescription && `/ ${partiesDescription}`}
-            {candidate.isWriteIn && '(write-in)'}
-          </Text>
-        );
+
+        return {
+          id: candidate.id,
+          caption: candidate.isWriteIn ? '(Write-In)' : partiesDescription,
+          label: candidate.name,
+        };
       })}
-      {!!remainingChoices && (
-        <Text bold warning warningIcon wordBreak>
-          You may still vote for {remainingChoices} more{' '}
-          {pluralize('candidate', remainingChoices)}.
-        </Text>
-      )}
-    </React.Fragment>
+    />
   );
 }
 
 function YesNoContestResult({
   vote,
+  contest,
+  election,
 }: YesNoContestResultInterface): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
-  return yesNo ? (
-    <Text bold wordBreak voteIcon>
-      {DisplayTextForYesOrNo[yesNo]}
-    </Text>
-  ) : (
-    <NoSelection />
+
+  const votes: ContestVote[] = [];
+  if (yesNo) {
+    votes.push({
+      id: 'yesNo',
+      label: DisplayTextForYesOrNo[yesNo],
+    });
+  }
+
+  return (
+    <ContestVoterSummary
+      districtName={getContestDistrictName(election, contest)}
+      title={contest.title}
+      titleType="h2"
+      undervoteWarning={
+        !yesNo ? 'You may still vote in this contest.' : undefined
+      }
+      votes={votes}
+    />
   );
 }
 
 function MsEitherNeitherContestResult({
   contest,
+  election,
   eitherNeitherContestVote,
   pickOneContestVote,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
@@ -284,29 +315,39 @@ function MsEitherNeitherContestResult({
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   /* istanbul ignore next */
   const pickOneVote = pickOneContestVote?.[0];
-  return eitherNeitherVote || pickOneVote ? (
-    <React.Fragment>
-      {eitherNeitherVote ? (
-        <Text bold wordBreak voteIcon>
-          {eitherNeitherVote === 'yes'
-            ? contest.eitherOption.label
-            : contest.neitherOption.label}
-        </Text>
-      ) : (
-        <NoSelection />
-      )}
-      {pickOneVote ? (
-        <Text bold wordBreak voteIcon>
-          {pickOneVote === 'yes'
-            ? contest.firstOption.label
-            : contest.secondOption.label}
-        </Text>
-      ) : (
-        <NoSelection />
-      )}
-    </React.Fragment>
-  ) : (
-    <NoSelection />
+
+  const votes: ContestVote[] = [];
+  if (eitherNeitherVote) {
+    votes.push({
+      id: 'eitherNeither',
+      label:
+        eitherNeitherVote === 'yes'
+          ? contest.eitherOption.label
+          : contest.neitherOption.label,
+    });
+  }
+  if (pickOneVote) {
+    votes.push({
+      id: 'pickOne',
+      label:
+        pickOneVote === 'yes'
+          ? contest.firstOption.label
+          : contest.secondOption.label,
+    });
+  }
+
+  return (
+    <ContestVoterSummary
+      districtName={getContestDistrictName(election, contest)}
+      title={contest.title}
+      titleType="h2"
+      undervoteWarning={
+        !eitherNeitherVote || !pickOneVote
+          ? 'You may still vote in this contest.'
+          : undefined
+      }
+      votes={votes}
+    />
   );
 }
 
@@ -407,31 +448,27 @@ export function ReviewPage(): JSX.Element {
   const { election } = electionDefinition;
 
   const printMyBallotButton = (
-    <LinkButton large primary to="/print" id="next">
-      I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+    <LinkButton large to="/print" variant="done">
+      <NoWrap>Print my ballot</NoWrap>
     </LinkButton>
   );
 
   const settingsButton = (
-    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
+    <Button variant="settings" large={isPortrait} onPress={showSettingsModal} />
   );
 
   return (
     <Screen navRight={isLandscape}>
       <Main flexColumn>
         <ContentHeader>
-          <Prose id="audiofocus">
-            <h1>
-              <span aria-label="Review Your Votes.">Review Your Votes</span>
-              <span className="screen-reader-only">
-                To review your votes, advance through the ballot contests using
-                the up and down buttons. To change your vote in any contest, use
-                the select button to navigate to that contest. When you are
-                finished making your ballot selections and ready to print your
-                ballot, use the right button to print your ballot.
-              </span>
-            </h1>
-          </Prose>
+          <H1>Review Your Votes</H1>
+          <span className="screen-reader-only">
+            To review your votes, advance through the ballot contests using the
+            up and down buttons. To change your vote in any contest, use the
+            select button to navigate to that contest. When you are finished
+            making your ballot selections and ready to print your ballot, use
+            the right button to print your ballot.
+          </span>
         </ContentHeader>
         <VariableContentContainer
           showTopShadow={!isScrollAtTop}
@@ -445,23 +482,36 @@ export function ReviewPage(): JSX.Element {
               {contests.map((contest, i) => (
                 <LinkButton
                   component={Contest}
-                  id={`contest-${contest.id}`}
                   key={contest.id}
                   to={`/contests/${i}#review`}
                 >
-                  <ContestProse compact>
-                    <h2
-                      aria-label={`${getContestDistrictName(
-                        election,
-                        contest
-                      )} ${contest.title},`}
-                    >
-                      <DistrictName>
-                        {getContestDistrictName(election, contest)}
-                      </DistrictName>
-                      {contest.title}
-                    </h2>
+                  {/* <H4
+                    as="h2"
+                    aria-label={`${getContestDistrictName(
+                      election,
+                      contest
+                    )} ${contest.title},`}
+                  >
+                    <P>
+                  <Caption>
+                    {getContestDistrictName(election, contest).toUpperCase()}
+                  </Caption>
 
+                    </P>
+                    {contest.title}
+                  </H4> */}
+
+                  <Card
+                    footer={
+                      <ContestActions aria-label="Press the select button to change your votes for this contest.">
+                        <div style={{ textAlign: 'right' }}>
+                          <DecoyButton>
+                            <Icons.Edit /> Change
+                          </DecoyButton>
+                        </div>
+                      </ContestActions>
+                    }
+                  >
                     {contest.type === 'candidate' && (
                       <CandidateContestResult
                         contest={contest}
@@ -473,11 +523,14 @@ export function ReviewPage(): JSX.Element {
                     {contest.type === 'yesno' && (
                       <YesNoContestResult
                         vote={votes[contest.id] as YesNoVote}
+                        contest={contest}
+                        election={election}
                       />
                     )}
                     {contest.type === 'ms-either-neither' && (
                       <MsEitherNeitherContestResult
                         contest={contest}
+                        election={election}
                         eitherNeitherContestVote={
                           votes[
                             contest.eitherNeitherContestId
@@ -488,10 +541,7 @@ export function ReviewPage(): JSX.Element {
                         }
                       />
                     )}
-                  </ContestProse>
-                  <ContestActions aria-label="Press the select button to change your votes for this contest.">
-                    <DecoyButton aria-hidden>Change</DecoyButton>
-                  </ContestActions>
+                  </Card>
                 </LinkButton>
               ))}
             </ScrollableContentWrapper>

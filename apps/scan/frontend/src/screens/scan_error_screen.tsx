@@ -1,24 +1,25 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { Caption, Font, H1, Icons, P, Section } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {
   InvalidInterpretationReason,
   PrecinctScannerErrorType,
 } from '@votingworks/scan-backend';
-import { TimesCircle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
+import styled from 'styled-components';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
   isTestMode: boolean;
-  scannedBallotCount: number;
+  scannedBallotCount?: number;
   restartRequired?: boolean;
 }
+
+const StyledErrorIconContainer = styled(Font)`
+  font-size: 250px;
+  margin-bottom: 0.25em;
+`;
 
 export function ScanErrorScreen({
   error,
@@ -64,20 +65,23 @@ export function ScanErrorScreen({
     }
   })();
   return (
-    <ScreenMainCenterChild isLiveMode={!isTestMode} infoBar={false}>
-      <TimesCircle />
-      <CenteredLargeProse>
-        <h1>Ballot Not Counted</h1>
-        <p>{errorMessage}</p>
+    <ScreenMainCenterChild
+      isLiveMode={!isTestMode}
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
+      <StyledErrorIconContainer color="danger">
+        <Icons.DangerX />
+      </StyledErrorIconContainer>
+      <Section horizontalAlign="center">
+        <H1>Ballot Not Counted</H1>
+        <P>{errorMessage}</P>
         {restartRequired ? (
-          <Text>Ask a poll worker to restart the scanner.</Text>
+          <P>Ask a poll worker to restart the scanner.</P>
         ) : (
-          <Text small italic>
-            Ask a poll worker if you need help.
-          </Text>
+          <Caption>Ask a poll worker if you need help.</Caption>
         )}
-      </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
+      </Section>
     </ScreenMainCenterChild>
   );
 }

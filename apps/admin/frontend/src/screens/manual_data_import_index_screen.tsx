@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated,
   Prose,
   Table,
   TD,
@@ -148,7 +148,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
             </p>
             <p>Select the voting method for manually entered results:</p>
             <p>
-              <SegmentedButton>
+              <SegmentedButtonDeprecated>
                 <Button
                   data-testid="ballottype-precinct"
                   disabled={manualTallyVotingMethod === VotingMethod.Precinct}
@@ -163,7 +163,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
                 >
                   Absentee Results
                 </Button>
-              </SegmentedButton>
+              </SegmentedButtonDeprecated>
             </p>
             <h1>Manually Entered {votingMethodName} Results</h1>
             <Table condensed data-testid="summary-data">

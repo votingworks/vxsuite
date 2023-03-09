@@ -1,6 +1,11 @@
 import React from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
+  H1,
+  H2,
+  LoadingAnimation,
+  P,
+  Section,
   UsbDriveStatus,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
@@ -43,17 +48,21 @@ export function UnconfiguredElectionScreen({
 
   return (
     <ScreenMainCenterChild infoBar={false}>
-      {errorMessage ? (
-        <CenteredLargeProse>
-          <h1>VxScan is not configured</h1>
-          <p>{errorMessage}</p>
-        </CenteredLargeProse>
-      ) : (
-        <CenteredLargeProse>
-          <h1>Configuring VxScan from USB drive…</h1>
-          <IndeterminateProgressBar />
-        </CenteredLargeProse>
-      )}
+      <Section horizontalAlign="center">
+        {errorMessage ? (
+          <React.Fragment>
+            <H1>VxScan is not configured</H1>
+            <P>{errorMessage}</P>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <H1>Configuring VxScan from USB drive…</H1>
+            <H1 aria-hidden>
+              <LoadingAnimation />
+            </H1>
+          </React.Fragment>
+        )}
+      </Section>
     </ScreenMainCenterChild>
   );
 }

@@ -11,7 +11,8 @@ import {
   LocalStorage,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { ErrorBoundary, Prose, Text } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, Prose, Text } from '@votingworks/ui';
+import { ColorMode } from '@votingworks/types';
 import { App } from './app';
 import { ElectionManagerStoreAdminBackend } from './lib/backends';
 import { ServicesContext } from './contexts/services_context';
@@ -25,27 +26,40 @@ const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
 
+// Copied from old App.css
+const baseFontSizePx = 20;
+const printFontSizePx = 14;
+
 ReactDom.render(
   <React.StrictMode>
-    {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
+    <AppBase
+      // TODO: Default to medium contrast and vary based on user selection.
+      colorMode="legacy"
+      sizeMode="legacy"
+      legacyBaseFontSizePx={baseFontSizePx}
+      screenType="browser"
+      legacyPrintFontSizePx={printFontSizePx}
+    >
+      {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
       and 2) be more consistent with other Vx apps. This will require updating test utils to not
       render their own providers when rendering <App> */}
-    <ErrorBoundary
-      errorMessage={
-        <Prose textCenter>
-          <h1>Something went wrong</h1>
-          <Text>Please restart the machine.</Text>
-        </Prose>
-      }
-    >
-      <ServicesContext.Provider value={{ backend, logger, storage }}>
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </ServicesContext.Provider>
-    </ErrorBoundary>
+      <ErrorBoundary
+        errorMessage={
+          <Prose textCenter>
+            <h1>Something went wrong</h1>
+            <Text>Please restart the machine.</Text>
+          </Prose>
+        }
+      >
+        <ServicesContext.Provider value={{ backend, logger, storage }}>
+          <ApiClientContext.Provider value={apiClient}>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </ApiClientContext.Provider>
+        </ServicesContext.Provider>
+      </ErrorBoundary>
+    </AppBase>
     {isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
     ) && (

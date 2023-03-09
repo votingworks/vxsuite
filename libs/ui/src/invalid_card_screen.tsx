@@ -1,16 +1,14 @@
+/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React from 'react';
 import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
-import { fontSizeTheme } from './themes';
 import { Main } from './main';
-import { Prose } from './prose';
 import { Screen } from './screen';
-
-const RotateCardImage = styled.img`
-  margin-bottom: 1rem;
-  width: 300px;
-`;
+import { RotateCardImage } from './rotate_card_image';
+import { Section } from './section';
+import { Caption, Font, H1 } from './typography';
+import { Icons } from './icons';
 
 type LoggedOutReason =
   | DippedSmartCardAuth.LoggedOut['reason']
@@ -21,23 +19,29 @@ export interface Props {
   recommendedAction?: string;
 }
 
+const StyledErrorIconContainer = styled(Font)`
+  font-size: 250px;
+  margin-bottom: 0.1em;
+`;
+
+const DEFAULT_ERROR_ICON = (
+  <StyledErrorIconContainer color="danger">
+    <Icons.DangerX />
+  </StyledErrorIconContainer>
+);
+
 export function InvalidCardScreen({
   reason,
   recommendedAction: recommendedActionOverride,
 }: Props): JSX.Element {
-  let graphic: JSX.Element | null = null;
+  let graphic = DEFAULT_ERROR_ICON;
   let heading = 'Invalid Card';
   let errorDescription = '';
   let recommendedAction =
     'Please insert a valid Election Manager or System Administrator card.';
 
   if (reason === 'card_error') {
-    graphic = (
-      <RotateCardImage
-        alt="" // Technically a decorative image given other text on the page
-        src="/assets/rotate-card.svg"
-      />
-    );
+    graphic = <RotateCardImage />;
     // The only cause we currently know of for a card error
     heading = 'Card is Backwards';
     recommendedAction = 'Remove the card, turn it around, and insert it again.';
@@ -58,12 +62,12 @@ export function InvalidCardScreen({
     <Screen white>
       <Main centerChild padded>
         {graphic}
-        <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-          <h1>{heading}</h1>
-          <p>
+        <Section horizontalAlign="center">
+          <H1>{heading}</H1>
+          <Caption>
             {errorDescription} {recommendedActionOverride || recommendedAction}
-          </p>
-        </Prose>
+          </Caption>
+        </Section>
       </Main>
     </Screen>
   );

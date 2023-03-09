@@ -1,64 +1,18 @@
 import React from 'react';
-import { DecoratorFunction, GlobalTypes, InputType, Parameters } from '@storybook/types';
+import styled, { css, ThemeConsumer } from 'styled-components';
+import {
+  DecoratorFunction,
+  GlobalTypes,
+  InputType,
+  Parameters,
+} from '@storybook/types';
 
-import { AppBase } from '../src';
+import { AppBase, ColorModeSelector, P, TextSizeSelector } from '../src';
 import { ColorMode, SizeMode } from '@votingworks/types';
+import { rgba } from 'polished';
 
-// TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
-// the @storybook/types repo.
-interface ToolbarItem<T> {
-  value: T, title: string, left?: string
-}
-
-type ColorModeToolBarItem = ToolbarItem<ColorMode>;
-
-type SizeModeToolBarItem = ToolbarItem<SizeMode>;
-
-const DEFAULT_SIZE_MODE: SizeMode = "m";
-const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  s: { title: 'Size Theme - S', value: 's'},
-  m: { title: 'Size Theme - M', value: 'm'},
-  l: { title: 'Size Theme - L', value: 'l'},
-  xl: { title: 'Size Theme - XL', value: 'xl'},
-  legacy: { title: 'Size Theme - Legacy', value: 'legacy'},
-}
-
-const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
-const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
-  contrastHighLight: { title: 'High Contrast - Light', value: 'contrastHighLight'},
-  contrastHighDark: { title: 'High Contrast - Dark', value: 'contrastHighDark'},
-  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium'},
-  contrastLow: { title: 'Low Contrast', value: 'contrastLow'},
-  legacy: { title: 'Legacy Colors', value: 'legacy'},
-}
-
-/**
- * Defines global types that are passed through the story context to all stories
- * rendered in the storybook UI.
- *
- * The theme types are consumed below in {@link decorators} to set the VX theme
- * for all components that support theming.
- */
-export const globalTypes: GlobalTypes = {
-  colorMode: {
-    name: 'Color Theme',
-    toolbar: {
-      icon: 'sun',
-      items: Object.values(colorThemeToolBarItems),
-      dynamicTitle: true,
-    },
-    defaultValue: DEFAULT_COLOR_MODE,
-  },
-  sizeMode: {
-    name: 'Size Theme',
-    toolbar: {
-      icon: 'ruler',
-      items: Object.values(sizeThemeToolBarItems),
-      dynamicTitle: true,
-    },
-    defaultValue: DEFAULT_SIZE_MODE,
-  },
-};
+const DEFAULT_SIZE_MODE: SizeMode = 'm';
+const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
 
 export const parameters: Parameters = {
   // This defines which prop name patterns are recognized as event handler
@@ -77,7 +31,43 @@ export const parameters: Parameters = {
       date: /Date$/,
     },
   },
+
+  // Remove the default padding storybook applies to the preview body:
+  layout: 'fullscreen',
+
+  options: {
+    storySort: {
+      method: 'alphabetical',
+      order: ['Atoms', 'Molecules', 'Organisms', 'libs-ui'],
+    },
+  },
 };
+
+// Sizes are in px here, since we want these styles to stay consistent
+// across all size modes.
+const StyledPreviewContainer = styled.div`
+  /* Top padding makes room for absolute-positioned header: */
+  padding: 148px 27px 18px;
+`;
+
+// Sizes are in px and em here, since we want these styles to stay consistent
+// across all size modes.
+const StyledHeader = styled.div`
+  background: ${p => p.theme.colors.background};
+  border-bottom: 5px ${p => p.theme.colors.foreground};
+  box-shadow: 0 0.25em 0.25em ${p => rgba(p.theme.colors.foreground, 0.25)};
+  box-sizing: border-box;
+  display: flex;
+  font-size: 24px !important;
+  gap: 1.5em;
+  padding: 9px 27px 18px;
+  position: absolute;
+  width: 100%;
+
+  & * {
+    font-size: 1em !important;
+  }
+`;
 
 // Decorators allow us to wrap stories in custom components, provide context
 // data, or modify the existing story context, if needed, to enable proper
@@ -87,15 +77,29 @@ export const decorators: DecoratorFunction[] = [
     Story: any, // Original type here isn't inferred as a React render function
     context
   ) => {
+    // const [colorMode, setColorMode] = React.useState<ColorMode>(DEFAULT_COLOR_MODE);
+
     return (
       <AppBase
-        colorMode={context.globals.colorMode}
+        colorMode={DEFAULT_COLOR_MODE}
         enableScroll
-        sizeMode={context.globals.sizeMode}
+        screenType="browser"
+        sizeMode={DEFAULT_SIZE_MODE}
       >
-        <Story />
+          <StyledHeader>
+            <TextSizeSelector devOnlyShowLegacyOption />
+            <ColorModeSelector visibleModes={[
+              'contrastHighDark',
+              'contrastHighLight',
+              'contrastLow',
+              'contrastMedium',
+              'legacy',
+            ]} />
+          </StyledHeader>
+        <StyledPreviewContainer>
+            <Story />
+        </StyledPreviewContainer>
       </AppBase>
     );
   },
 ];
-

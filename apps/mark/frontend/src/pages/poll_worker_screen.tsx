@@ -12,14 +12,13 @@ import {
   PollsTransition,
   getPartyIdsWithContests,
   InsertedSmartCardAuth,
+  BallotStyle,
 } from '@votingworks/types';
 import {
   Button,
-  ButtonList,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
   Devices,
   getSignedQuickResultsReportingUrl,
-  HorizontalRule,
   Loading,
   Main,
   Modal,
@@ -33,6 +32,15 @@ import {
   TestMode,
   NoWrap,
   useQueryChangeListener,
+  H1,
+  Font,
+  H3,
+  SegmentedButton,
+  P,
+  H6,
+  H4,
+  Caption,
+  H5,
 } from '@votingworks/ui';
 
 import {
@@ -271,7 +279,7 @@ function ScannerReportModal({
     case 'initial':
       modalContent = (
         <Prose id="modalaudiofocus">
-          <h1>{reportTitle} on Card</h1>
+          <H1>{reportTitle} on Card</H1>
           {willUpdatePollsToMatchScanner ? (
             <p>
               This poll worker card contains a {reportTitle.toLowerCase()}.
@@ -307,7 +315,7 @@ function ScannerReportModal({
     case 'reprint':
       modalContent = (
         <Prose id="modalaudiofocus">
-          <h1>{reportTitle} Printed</h1>
+          <H1>{reportTitle} Printed</H1>
           {willUpdatePollsToMatchScanner ? (
             <p>
               The polls are now {newPollsStateName.toLowerCase()}. If needed,
@@ -416,10 +424,10 @@ function UpdatePollsDirectlyButton({
         <Modal
           centerContent
           content={
-            <Prose textCenter id="modalaudiofocus">
-              <h1>No {reportTitle} on Card</h1>
-              <p>{suggestVxScanText}</p>
-            </Prose>
+            <React.Fragment>
+              <H1>No {reportTitle} on Card</H1>
+              <P>{suggestVxScanText}</P>
+            </React.Fragment>
           }
           actions={
             <UpdatePollsDirectlyActionsSpan>
@@ -514,7 +522,7 @@ export function PollWorkerScreen({
       appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
     );
 
-  const precinctBallotStyles = selectedCardlessVoterPrecinctId
+  const precinctBallotStyles: BallotStyle[] = selectedCardlessVoterPrecinctId
     ? election.ballotStyles.filter((bs) =>
         bs.precincts.includes(selectedCardlessVoterPrecinctId)
       )
@@ -558,11 +566,11 @@ export function PollWorkerScreen({
       <Screen white>
         <Main centerChild>
           <Prose textCenter>
-            <h1
+            <H1
               aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
             >
               Ballot Contains Votes
-            </h1>
+            </H1>
             <p>
               Remove card to allow voter to continue voting, or reset ballot.
             </p>
@@ -583,29 +591,32 @@ export function PollWorkerScreen({
 
     return (
       <Screen white>
-        <Main centerChild>
-          <Prose id="audiofocus">
-            <h1>
-              {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
-            </h1>
-            <ol>
-              <li>
+        <Main centerChild padded>
+          <H1 align="center">
+            Voting Session Active: {ballotStyleId} at{' '}
+            <Font noWrap>{precinct.name}</Font>
+          </H1>
+          <ol>
+            <li>
+              <P>
                 Instruct the voter to press the{' '}
-                <Text as="span" bold noWrap>
+                <Font weight="bold" noWrap>
                   Start Voting
-                </Text>{' '}
+                </Font>{' '}
                 button on the next screen.
-              </li>
-              <li>Remove the poll worker card to continue.</li>
-            </ol>
-            <HorizontalRule>or</HorizontalRule>
-            <Text center>Deactivate this voter session to start over.</Text>
-            <Text center>
-              <Button small onPress={resetCardlessVoterSession}>
-                Deactivate Voting Session
-              </Button>
-            </Text>
-          </Prose>
+              </P>
+            </li>
+            <li>
+              <P>Remove the poll worker card to continue.</P>
+            </li>
+          </ol>
+          <H6 as="h2">OR</H6>
+          <Text center>Deactivate this voter session to start over.</Text>
+          <Text center>
+            <Button small onPress={resetCardlessVoterSession}>
+              Deactivate Voting Session
+            </Button>
+          </Text>
         </Main>
       </Screen>
     );
@@ -627,155 +638,131 @@ export function PollWorkerScreen({
       <Screen white>
         {!isLiveMode && <TestMode />}
         <Main padded>
-          <Prose maxWidth={false}>
-            <h1>
-              VxMark{' '}
-              <Text as="span" light noWrap>
-                Poll Worker Actions
-              </Text>
-            </h1>
-            <h2>
-              <NoWrap>
-                <Text light as="span">
-                  Ballots Printed:
-                </Text>{' '}
-                <strong>{ballotsPrintedCount}</strong>
-              </NoWrap>
-              <br />
-
-              <NoWrap>
-                <Text light as="span">
-                  Polls:
-                </Text>{' '}
-                <strong>{getPollsStateName(pollsState)}</strong>
-              </NoWrap>
-            </h2>
-            {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
-              <React.Fragment>
-                <VotingSession>
-                  <h1>Start a New Voting Session</h1>
-                  {appPrecinct.kind === 'AllPrecincts' && (
-                    <React.Fragment>
-                      <h2>1. Select Voter’s Precinct</h2>
-                      <ButtonList data-testid="precincts">
-                        {election.precincts.map((precinct) => (
-                          <Button
-                            fullWidth
-                            key={precinct.id}
-                            aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                            onPress={() =>
-                              setSelectedCardlessVoterPrecinctId(precinct.id)
-                            }
-                            variant={
-                              selectedCardlessVoterPrecinctId === precinct.id
-                                ? 'primary'
-                                : 'regular'
-                            }
-                          >
-                            {precinct.name}
-                          </Button>
-                        ))}
-                      </ButtonList>
-                    </React.Fragment>
-                  )}
-                  <h2>
-                    {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
-                    Voter’s Ballot Style
-                  </h2>
-                  {selectedCardlessVoterPrecinctId ? (
-                    <ButtonList data-testid="ballot-styles">
-                      {precinctBallotStyles.map((ballotStyle) => (
-                        <Button
-                          fullWidth
-                          key={ballotStyle.id}
-                          aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
-                          onPress={() =>
-                            activateCardlessVoterSession(
-                              selectedCardlessVoterPrecinctId,
-                              ballotStyle.id
-                            )
-                          }
-                        >
-                          {ballotStyle.id}
-                        </Button>
-                      ))}
-                    </ButtonList>
-                  ) : (
-                    <Text italic>
-                      Select the voter’s precinct above to view ballot styles
-                      for the precinct.
-                    </Text>
-                  )}
-                </VotingSession>
-                <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
-                  View More Actions
-                </Button>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <div /> {/* Enforces css margin from the following P tag. */}
-                {canSelectBallotStyle && (
+          <H1>
+            VxMark{' '}
+            <Text as="span" light noWrap>
+              Poll Worker Actions
+            </Text>
+          </H1>
+          <H4 as="h2" noWrap>
+            <Font weight="light">Ballots Printed:</Font> {ballotsPrintedCount}
+          </H4>
+          <H4 as="h2" noWrap>
+            <Font weight="light">Polls:</Font>
+            {getPollsStateName(pollsState)}
+          </H4>
+          {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
+            <React.Fragment>
+              <VotingSession>
+                <H3>Start a New Voting Session</H3>
+                {appPrecinct.kind === 'AllPrecincts' && (
                   <React.Fragment>
-                    <p>
-                      <Button
-                        variant="primary"
-                        onPress={() => setIsHidingSelectBallotStyle(false)}
-                      >
-                        Back to Ballot Style Selection
-                      </Button>
-                    </p>
-                    <h1>More Actions</h1>
+                    <H5 as="h4">1. Select Voter’s Precinct</H5>
+                    <SegmentedButton
+                      onChange={setSelectedCardlessVoterPrecinctId}
+                      options={election.precincts.map((precinct) => ({
+                        ariaLabel: `Activate Voter Session for Precinct ${precinct.name}`,
+                        id: precinct.id,
+                        label: precinct.name,
+                      }))}
+                      selectedOptionId={selectedCardlessVoterPrecinctId}
+                      vertical
+                    />
                   </React.Fragment>
                 )}
-                <p>
-                  {getPollTransitionsFromState(pollsState).map(
-                    (pollsTransition, index) => {
-                      return (
-                        <React.Fragment
-                          key={`${pollsTransition}-directly-button`}
-                        >
-                          {index > 0 && ' or '}
-                          <UpdatePollsDirectlyButton
-                            pollsTransition={pollsTransition}
-                            updatePollsState={updatePollsState}
-                          />
-                        </React.Fragment>
-                      );
+                <H5 as="h4">
+                  {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
+                  Voter’s Ballot Style
+                </H5>
+                {selectedCardlessVoterPrecinctId ? (
+                  <SegmentedButton
+                    data-testid="ballot-styles"
+                    onChange={(id) =>
+                      activateCardlessVoterSession(
+                        selectedCardlessVoterPrecinctId,
+                        id
+                      )
                     }
-                  )}
-                </p>
-                <p>
-                  <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                    System Diagnostics
-                  </Button>
-                </p>
-                <p>
-                  <Button onPress={reload}>Reset Accessible Controller</Button>
-                </p>
-              </React.Fragment>
-            )}
-          </Prose>
+                    options={precinctBallotStyles.map((ballotStyle) => ({
+                      id: ballotStyle.id,
+                      label: ballotStyle.id,
+                    }))}
+                  />
+                ) : (
+                  <Caption italic>
+                    Select the voter’s precinct above to view ballot styles for
+                    the precinct.
+                  </Caption>
+                )}
+              </VotingSession>
+              <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
+                View More Actions
+              </Button>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <div /> {/* Enforces css margin from the following P tag. */}
+              {canSelectBallotStyle && (
+                <React.Fragment>
+                  <p>
+                    <Button
+                      onPress={() => setIsHidingSelectBallotStyle(false)}
+                      variant="previous"
+                    >
+                      Back to Ballot Style Selection
+                    </Button>
+                  </p>
+                  <H1>More Actions</H1>
+                </React.Fragment>
+              )}
+              <p>
+                {getPollTransitionsFromState(pollsState).map(
+                  (pollsTransition, index) => {
+                    return (
+                      <React.Fragment
+                        key={`${pollsTransition}-directly-button`}
+                      >
+                        {index > 0 && ' or '}
+                        <UpdatePollsDirectlyButton
+                          pollsTransition={pollsTransition}
+                          updatePollsState={updatePollsState}
+                        />
+                      </React.Fragment>
+                    );
+                  }
+                )}
+              </p>
+              <p>
+                <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                  System Diagnostics
+                </Button>
+              </p>
+              <p>
+                <Button onPress={reload}>Reset Accessible Controller</Button>
+              </p>
+            </React.Fragment>
+          )}
         </Main>
         {isConfirmingEnableLiveMode && (
           <Modal
             centerContent
             content={
-              <Prose textCenter id="modalaudiofocus">
-                <h1>
-                  Switch to Official Ballot Mode and reset the Ballots Printed
+              <div id="modalaudiofocus">
+                <H1>
+                  Switch to Live Election Mode and reset the Ballots Printed
                   count?
-                </h1>
-                <p>
+                </H1>
+                <P>
                   Today is election day and this machine is in{' '}
                   <strong>
                     <NoWrap>Test Ballot Mode.</NoWrap>
                   </strong>
-                </p>
+                </P>
                 <Text small italic>
                   Note: Switching back to Test Ballot Mode requires an{' '}
                   <NoWrap>Election Manager Card.</NoWrap>
                 </Text>
-              </Prose>
+              </div>
             }
             actions={
               <React.Fragment>

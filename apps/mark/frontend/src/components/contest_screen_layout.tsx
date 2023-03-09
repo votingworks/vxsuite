@@ -4,7 +4,7 @@ import { Scrollable, ScrollShadows } from '../config/types';
 export const ContentHeader = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 30px 0.5rem;
+  padding: 0.125rem 30px 0.125rem;
 `;
 export const ContestFooter = styled.div`
   margin: 0 auto;
@@ -54,16 +54,16 @@ export const ScrollControls = styled.div`
   z-index: 2;
   & > button {
     position: absolute;
-    right: 1.5rem;
+    right: 0.25rem;
     transform: opacity 1s linear;
     visibility: visible;
     opacity: 1;
     outline: none;
     box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
-    width: 8rem;
-    height: 5rem;
-    padding: 0;
-    font-weight: 700;
+    /* width: 8rem; */
+    height: 3rem;
+    /* padding: 0; */
+    /* font-weight: 700; */
     transition: visibility 0s linear 0s, opacity 500ms;
     &[disabled] {
       visibility: hidden;
@@ -85,25 +85,25 @@ export const ScrollControls = styled.div`
     }
     &:first-child {
       top: 0;
-      border-radius: 0 0 4rem 4rem;
+      border-radius: 0 0 5rem 5rem;
       & > span {
-        top: -1.25rem;
+        top: -0.5rem;
       }
-      &::before {
+      /* &::before {
         bottom: 0.75rem;
         background: url('/images/arrow-up.svg') no-repeat;
-      }
+      } */
     }
     &:last-child {
       bottom: 0;
-      border-radius: 4rem 4rem 0 0;
+      border-radius: 3rem 3rem 0 0;
       & > span {
-        top: 1.25rem;
+        top: 0.5rem;
       }
-      &::before {
+      /* &::before {
         top: 0.75rem;
         background: url('/images/arrow-down.svg') no-repeat;
-      }
+      } */
     }
   }
 `;
@@ -129,6 +129,5 @@ export const ChoicesGrid = styled.div.attrs({
 })`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 20px;
-  margin-bottom: 40px;
+  grid-gap: 0.75rem;
 `;

@@ -47,6 +47,7 @@ export function App({
             <AppBase
               colorMode={colorMode}
               legacyBaseFontSizePx={baseFontSizePx}
+              screenType="browser"
             >
               <AppRoot hardware={hardware} logger={logger} />
             </AppBase>

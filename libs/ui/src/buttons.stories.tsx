@@ -19,7 +19,7 @@ const initialProps: Partial<React.ComponentProps<typeof Button>> = {
 };
 
 const meta: Meta<typeof Button> = {
-  title: 'libs-ui/Button',
+  title: 'Atoms/Button',
   component: Button,
   args: initialProps,
   argTypes: {

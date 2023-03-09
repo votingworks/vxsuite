@@ -26,6 +26,12 @@ export function usePreviewContext(): PreviewContextValues {
   return context;
 }
 
+const StyledPageContainer = styled.div`
+  height: 100%;
+  overflow: scroll;
+  width: 100%;
+`;
+
 const PreviewColumns = styled.div`
   columns: 2;
   @media (orientation: landscape) {
@@ -163,25 +169,27 @@ export function PreviewDashboard({
         <QueryClientProvider client={createQueryClient()}>
           <BrowserRouter>
             <Route path="/preview" exact>
-              <h1>Previews</h1>
-              <PreviewColumns>
-                {previewables.map(({ componentName, previews }) => {
-                  return (
-                    <Prose key={componentName}>
-                      <h4>{componentName}</h4>
-                      <ul>
-                        {previews.map((preview) => (
-                          <li key={preview.previewName}>
-                            <Link to={getPreviewUrl(preview)}>
-                              {preview.previewName}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </Prose>
-                  );
-                })}
-              </PreviewColumns>
+              <StyledPageContainer>
+                <h1>Previews</h1>
+                <PreviewColumns>
+                  {previewables.map(({ componentName, previews }) => {
+                    return (
+                      <Prose key={componentName}>
+                        <h4>{componentName}</h4>
+                        <ul>
+                          {previews.map((preview) => (
+                            <li key={preview.previewName}>
+                              <Link to={getPreviewUrl(preview)}>
+                                {preview.previewName}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </Prose>
+                    );
+                  })}
+                </PreviewColumns>
+              </StyledPageContainer>
               <ConfigBox>
                 <Select
                   value={electionDefinition.electionHash}

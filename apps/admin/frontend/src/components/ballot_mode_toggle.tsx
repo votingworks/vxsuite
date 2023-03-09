@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, SegmentedButton } from '@votingworks/ui';
+import { Button, SegmentedButtonDeprecated } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 
 interface Props {
@@ -12,7 +12,7 @@ export function BallotModeToggle({
   setBallotMode,
 }: Props): JSX.Element {
   return (
-    <SegmentedButton>
+    <SegmentedButtonDeprecated>
       <Button
         disabled={ballotMode === Admin.BallotMode.Official}
         onPress={() => setBallotMode(Admin.BallotMode.Official)}
@@ -34,6 +34,6 @@ export function BallotModeToggle({
       >
         Sample
       </Button>
-    </SegmentedButton>
+    </SegmentedButtonDeprecated>
   );
 }

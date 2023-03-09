@@ -15,6 +15,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -216,11 +217,10 @@ export const getScannerStatus = {
   },
   useQuery(options?: UseQueryOptions<PrecinctScannerStatus>) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getScannerStatus(),
-      options
-    );
+    return useQuery(this.queryKey(), () => apiClient.getScannerStatus(), {
+      refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+      ...(options || {}),
+    });
   },
 } as const;
 

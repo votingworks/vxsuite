@@ -14,7 +14,12 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButtonDeprecated,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { readFileAsync } from '../lib/read_file_async';
 import { InputEventFunction, TextareaEventFunction } from '../config/types';
 
@@ -158,7 +163,7 @@ function ToggleField({
           falseLabel
         )
       ) : (
-        <SegmentedButton>
+        <SegmentedButtonDeprecated>
           <Button
             small
             disabled={value}
@@ -175,7 +180,7 @@ function ToggleField({
           >
             {falseLabel}
           </Button>
-        </SegmentedButton>
+        </SegmentedButtonDeprecated>
       )}
     </StyledField>
   );

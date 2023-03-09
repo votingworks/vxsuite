@@ -5,12 +5,13 @@ import pluralize from 'pluralize';
 import { assert, find } from '@votingworks/basics';
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated,
   NoWrap,
   Prose,
   Table,
   TD,
   LinkButton,
+  SegmentedButtonOption,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -100,7 +101,7 @@ export function BallotListScreen(): JSX.Element {
         <Prose maxWidth={false}>
           <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
-            <SegmentedButton>
+            <SegmentedButtonDeprecated>
               <Button
                 small
                 onPress={sortByPrecinct}
@@ -111,7 +112,7 @@ export function BallotListScreen(): JSX.Element {
               <Button small onPress={sortByStyle} disabled={ballotView === 0}>
                 Style
               </Button>
-            </SegmentedButton>
+            </SegmentedButtonDeprecated>
           </p>
         </Prose>
 

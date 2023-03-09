@@ -1,7 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  Prose,
+  Text,
+  Section,
+  H1,
+  P,
+  H3,
+} from '@votingworks/ui';
 
 const SingleGraphic = styled.img`
   margin: 0 auto 1em;
@@ -39,36 +49,34 @@ export function CastBallotPage({
   hidePostVotingInstructions,
 }: Props): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild>
-        <Prose textCenter maxWidth={false} id="audiofocus">
-          <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
-          <p>Your official ballot is printing. To finish voting you need to…</p>
-          <Instructions>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Verify Your Printed Ballot"
-                src="/images/instructions-1-verify.svg"
-                style={{ left: '-0.75em' }}
-              />
-              <Text>1. Verify your official ballot.</Text>
-            </li>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Scan Your Ballot"
-                src="/images/instructions-2-scan.svg"
-              />
-              <Text>2. Scan your official ballot.</Text>
-            </li>
-          </Instructions>
-          <h3>
-            <strong>Need help?</strong> Ask a poll worker.
-          </h3>
-        </Prose>
+        <H1>You’re Almost Done</H1>
+        <P>Your official ballot is printing. To finish voting you need to…</P>
+        <Instructions>
+          <li>
+            <SingleGraphic
+              aria-hidden
+              alt="Verify Your Printed Ballot"
+              src="/images/instructions-1-verify.svg"
+              style={{ left: '-0.75em' }}
+            />
+            <Text>1. Verify your official ballot.</Text>
+          </li>
+          <li>
+            <SingleGraphic
+              aria-hidden
+              alt="Scan Your Ballot"
+              src="/images/instructions-2-scan.svg"
+            />
+            <Text>2. Scan your official ballot.</Text>
+          </li>
+        </Instructions>
+        <H3 as="h2">Need help? Ask a poll worker.</H3>
         <Done>
-          <Button onPress={hidePostVotingInstructions}>Done</Button>
+          <Button variant="done" onPress={hidePostVotingInstructions}>
+            Done
+          </Button>
         </Done>
       </Main>
     </Screen>

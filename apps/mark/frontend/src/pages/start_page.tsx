@@ -3,7 +3,21 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { Main, Screen, Prose, Button } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  Prose,
+  H1,
+  P,
+  Font,
+  H2,
+  H3,
+  H4,
+  TextSizeSelector,
+  ColorModeSelector,
+  UiThemeManagerContext,
+} from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
@@ -12,7 +26,6 @@ import { BallotContext } from '../contexts/ballot_context';
 import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
-import { SettingsTextSize } from '../components/settings_text_size';
 import { screenOrientation } from '../lib/screen_orientation';
 
 const SidebarSpacer = styled.div`
@@ -20,19 +33,18 @@ const SidebarSpacer = styled.div`
 `;
 
 const Footer = styled.nav`
-  background-color: #333333;
-  padding: 60px 40px;
-  color: #ffffff;
+  /* background-color: #333333; */
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  /* box-shadow: 0 -0rem 0.5rem ${(p) => p.theme.colors.foreground}; */
+  padding: 0.125rem 0.25rem 0.25rem;
 `;
 
 const SettingsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  border: 1px solid #808080;
-  border-width: 1px 0;
-  padding: 1rem 0;
-  gap: 2em;
+  gap: 0.25rem;
 `;
 
 export function StartPage(): JSX.Element {
@@ -43,10 +55,10 @@ export function StartPage(): JSX.Element {
     electionDefinition,
     machineConfig,
     precinctId,
-    setUserSettings,
-    userSettings,
     forceSaveVote,
+    votes,
   } = useContext(BallotContext);
+  const { setColorMode, setSizeMode } = React.useContext(UiThemeManagerContext);
   assert(
     electionDefinition,
     'electionDefinition is required to render StartPage'
@@ -76,29 +88,29 @@ export function StartPage(): JSX.Element {
   useEffect(() => {
     /* istanbul ignore next */
     audioFocus.current?.click();
+
+    if (!votes || Object.entries(votes).length === 0) {
+      setColorMode('contrastMedium');
+      setSizeMode('m');
+    } else {
+      console.warn(votes);
+    }
   }, []);
 
   const settingsContainer = (
-    <React.Fragment>
-      <h1>Voter Settings</h1>
-      <SettingsContainer>
-        <SettingsTextSize
-          userSettings={userSettings}
-          setUserSettings={setUserSettings}
-        />
-      </SettingsContainer>
-    </React.Fragment>
+    <SettingsContainer>
+      <TextSizeSelector />
+      <ColorModeSelector />
+    </SettingsContainer>
   );
 
   const startVotingButton = (
     <Wobble as="p">
       <Button
-        large
-        variant="primary"
         fullWidth={isLandscape}
         onPress={onStart}
-        id="next"
         aria-label="Press the right button to advance to the first contest."
+        variant="next"
       >
         Start Voting
       </Button>
@@ -117,35 +129,35 @@ export function StartPage(): JSX.Element {
             contestCount={contests.length}
           />
         ) : (
-          <Prose textCenter>
-            <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
+          <React.Fragment>
+            <H1
+              align="center"
+              aria-label={`${partyPrimaryAdjective} ${title}.`}
+            >
               {partyPrimaryAdjective} {title}
-            </h1>
+            </H1>
             <hr />
-            <p>
-              <span>
-                Your ballot has{' '}
-                <strong>{pluralize('contest', contests.length, true)}</strong>.
-              </span>
-            </p>
+            <P align="center">
+              Your ballot has{' '}
+              <Font weight="bold">
+                {pluralize('contest', contests.length, true)}
+              </Font>
+              .
+            </P>
             {settingsContainer}
-          </Prose>
+          </React.Fragment>
         )}
-        <p className="screen-reader-only">
+        <P className="screen-reader-only">
           When voting with the text-to-speech audio, use the accessible
           controller to navigate your ballot. To navigate through the contests,
           use the left and right buttons. To navigate through contest choices,
           use the up and down buttons. To select or unselect a contest choice as
           your vote, use the select button.
-        </p>
+        </P>
+        {isPortrait && <React.Fragment>{startVotingButton}</React.Fragment>}
       </Main>
       {isPortrait ? (
-        <Footer>
-          <Prose textCenter>
-            {startVotingButton}
-            {settingsContainer}
-          </Prose>
-        </Footer>
+        <Footer>{settingsContainer}</Footer>
       ) : (
         <Sidebar
           footer={

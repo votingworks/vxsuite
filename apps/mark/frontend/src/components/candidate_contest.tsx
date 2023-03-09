@@ -15,7 +15,24 @@ import {
   getCandidatePartiesDescription,
   getContestDistrictName,
 } from '@votingworks/types';
-import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  Caption,
+  ContestChoiceButton,
+  Font,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  Icons,
+  Main,
+  Modal,
+  P,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
 import { stripQuotes } from '../utils/strip_quotes';
@@ -26,7 +43,6 @@ import { BallotContext } from '../contexts/ballot_context';
 
 import { Blink } from './animations';
 import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
@@ -290,29 +306,28 @@ export function CandidateContest({
     <React.Fragment>
       <Main flexColumn>
         <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <h1 aria-label={`${districtName} ${contest.title}.`}>
-              <DistrictName>{districtName}</DistrictName>
-              {contest.title}
-            </h1>
-            <p>
-              <Text as="span">Vote for {contest.seats}.</Text>{' '}
+          <H3 as="h1" aria-label={`${districtName} ${contest.title}.`}>
+            <Caption weight="regular">{districtName}</Caption>
+            <br />
+            {contest.title}
+          </H3>
+          <P>
+            <Caption>
+              Vote for {contest.seats}.{' '}
               {vote.length === contest.seats && (
-                <Text as="span" bold>
-                  You have selected {contest.seats}.
-                </Text>
+                <Font weight="bold">You have selected {contest.seats}.</Font>
               )}
               {vote.length < contest.seats && vote.length !== 0 && (
-                <Text as="span" bold>
+                <Font weight="bold">
                   You may select {contest.seats - vote.length} more.
-                </Text>
+                </Font>
               )}
-              <span className="screen-reader-only">
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </p>
-          </Prose>
+            </Caption>
+            <span className="screen-reader-only">
+              To navigate through the contest choices, use the down button. To
+              move to the next contest, use the right button.
+            </span>
+          </P>
         </ContentHeader>
         <VariableContentContainer
           showTopShadow={!isScrollAtTop}
@@ -341,31 +356,21 @@ export function CandidateContest({
                     prefixAudioText = 'Deselected,';
                   }
                   return (
-                    <ChoiceButton
+                    <ContestChoiceButton
                       key={candidate.id}
                       isSelected={isChecked}
-                      onPress={
+                      label={candidate.name}
+                      caption={partiesDescription}
+                      onSelect={
                         isDisabled ? handleDisabledClick : handleUpdateSelection
                       }
-                      choice={candidate.id}
+                      value={candidate.id}
                       aria-label={`${prefixAudioText} ${stripQuotes(
                         candidate.name
                       )}${
                         partiesDescription ? `, ${partiesDescription}` : ''
                       }.`}
-                    >
-                      <Prose>
-                        <Text wordBreak>
-                          <strong>{candidate.name}</strong>
-                          {partiesDescription && (
-                            <React.Fragment>
-                              <br />
-                              {partiesDescription}
-                            </React.Fragment>
-                          )}
-                        </Text>
-                      </Prose>
-                    </ChoiceButton>
+                    />
                   );
                 })}
                 {contest.allowWriteIns &&
@@ -373,38 +378,31 @@ export function CandidateContest({
                     .filter((c) => c.isWriteIn)
                     .map((candidate) => {
                       return (
-                        <ChoiceButton
+                        <ContestChoiceButton
                           key={candidate.id}
                           isSelected
-                          choice={candidate.id}
-                          onPress={handleUpdateSelection}
-                        >
-                          <Prose>
-                            <p
-                              aria-label={`Selected, write-in: ${candidate.name}.`}
-                            >
-                              <strong>{candidate.name}</strong>
-                            </p>
-                          </Prose>
-                        </ChoiceButton>
+                          label={candidate.name}
+                          caption="Write-In"
+                          value={candidate.id}
+                          onSelect={handleUpdateSelection}
+                        />
                       );
                     })}
                 {contest.allowWriteIns && (
-                  <ChoiceButton
-                    choice="write-in"
+                  <ContestChoiceButton
+                    value="write-in"
                     isSelected={false}
-                    onPress={
+                    label={
+                      <React.Fragment>
+                        <Icons.Edit /> Add write-in candidate
+                      </React.Fragment>
+                    }
+                    onSelect={
                       hasReachedMaxSelections
                         ? handleDisabledAddWriteInClick
                         : initWriteInCandidate
                     }
-                  >
-                    <Prose>
-                      <p aria-label="add write-in candidate.">
-                        <em>add write-in candidate</em>
-                      </p>
-                    </Prose>
-                  </ChoiceButton>
+                  />
                 )}
               </ChoicesGrid>
             </ScrollableContentWrapper>
@@ -445,7 +443,7 @@ export function CandidateContest({
           centerContent
           content={
             <Prose>
-              <Text id="modalaudiofocus">
+              <Text id="modalaudiofocus" role="paragraph">
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
                 contest. To vote for {attemptedOvervoteCandidate.name}, you must
@@ -469,14 +467,11 @@ export function CandidateContest({
       )}
       {candidatePendingRemoval && (
         <Modal
-          centerContent
           content={
-            <Prose>
-              <Text id="modalaudiofocus">
-                Do you want to unselect and remove{' '}
-                {candidatePendingRemoval.name}?
-              </Text>
-            </Prose>
+            <P>
+              Do you want to unselect and remove{' '}
+              <Font weight="bold">{candidatePendingRemoval.name}?</Font>
+            </P>
           }
           actions={
             <React.Fragment>
@@ -484,7 +479,7 @@ export function CandidateContest({
                 variant="danger"
                 onPress={confirmRemovePendingWriteInCandidate}
               >
-                Yes, Remove.
+                Yes, remove
               </Button>
               <Button onPress={clearCandidateIdPendingRemoval}>Cancel</Button>
             </React.Fragment>
@@ -531,11 +526,11 @@ export function CandidateContest({
           actions={
             <React.Fragment>
               <Button
-                variant="primary"
                 onPress={addWriteInCandidate}
                 disabled={
                   normalizeCandidateName(writeInCandidateName).length === 0
                 }
+                variant="done"
               >
                 Accept
               </Button>

@@ -55,7 +55,7 @@ import { checkPin, getAuthStatus, logOut } from './api';
 
 const Buttons = styled.div`
   padding: 10px 0;
-  & * {
+  & > * {
     margin-right: 10px;
   }
 `;
