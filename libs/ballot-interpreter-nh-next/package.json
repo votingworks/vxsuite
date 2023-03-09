@@ -25,10 +25,12 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
+    "better-sqlite3": "^8.2.0",
     "chalk": "^4.1.2"
   },
   "devDependencies": {
     "@jest/types": "^29.5.0",
+    "@types/better-sqlite3": "^7.6.3",
     "@types/chalk": "^2.2.0",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.6",
