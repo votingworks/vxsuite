@@ -1,5 +1,6 @@
 import {
   AnyContest,
+  BatchInfo,
   CandidateContest,
   CVR,
   Election,
@@ -138,7 +139,7 @@ interface BuildCastVoteRecordReportMetadataParams {
   scannerIds: string[];
   reportTypes: CVR.ReportType[];
   isTestMode: boolean;
-  batchInfo: Array<{ id: string; label: string }>;
+  batchInfo: BatchInfo[];
 }
 
 /**
@@ -213,6 +214,11 @@ export function buildCastVoteRecordReportMetadata({
       '@type': 'CVR.vxBatch',
       '@id': batch.id,
       BatchLabel: batch.label,
+      SequenceId: batch.batchNumber,
+      StartTime: batch.startedAt,
+      EndTime: batch.endedAt,
+      NumberSheets: batch.count,
+      CreatingDeviceId: generatingDeviceId,
     })),
   };
 }

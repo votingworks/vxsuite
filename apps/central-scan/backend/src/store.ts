@@ -885,6 +885,7 @@ export class Store {
   batchStatus(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
+      batchNumber: number;
       label: string;
       startedAt: string;
       endedAt: string | null;
@@ -894,6 +895,7 @@ export class Store {
     const batchInfo = this.client.all(`
       select
         batches.id as id,
+        batches.batch_number as batchNumber,
         batches.label as label,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
@@ -917,6 +919,7 @@ export class Store {
     `) as SqliteBatchInfo[];
     return batchInfo.map((info) => ({
       id: info.id,
+      batchNumber: info.batchNumber,
       label: info.label,
       // eslint-disable-next-line vx/gts-safe-number-parse
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),

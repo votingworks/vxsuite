@@ -966,6 +966,7 @@ export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
 
 export interface BatchInfo {
   id: string;
+  batchNumber: number;
   label: string;
   startedAt: Iso8601Timestamp;
   endedAt?: Iso8601Timestamp;
@@ -975,6 +976,7 @@ export interface BatchInfo {
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   id: IdSchema,
+  batchNumber: z.number().int().positive(),
   label: z.string(),
   startedAt: Iso8601TimestampSchema,
   endedAt: z.optional(Iso8601TimestampSchema),

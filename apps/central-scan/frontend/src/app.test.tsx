@@ -255,6 +255,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
     batches: [
       {
         id: 'test-batch',
+        batchNumber: 1,
         label: 'Batch 1',
         count: 2,
         startedAt: '2021-05-13T13:19:42.353Z',

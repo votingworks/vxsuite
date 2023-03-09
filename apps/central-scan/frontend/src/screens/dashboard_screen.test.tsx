@@ -41,6 +41,7 @@ test('shows scanned ballot count', () => {
     batches: [
       {
         id: 'a',
+        batchNumber: 1,
         count: 1,
         label: 'Batch 1',
         startedAt: new Date(0).toISOString(),
@@ -48,6 +49,7 @@ test('shows scanned ballot count', () => {
       },
       {
         id: 'b',
+        batchNumber: 2,
         count: 3,
         label: 'Batch 2',
         startedAt: new Date(0).toISOString(),
@@ -78,6 +80,7 @@ test('shows whether a batch is scanning', () => {
     batches: [
       {
         id: 'a',
+        batchNumber: 1,
         label: 'Batch 1',
         count: 3,
         startedAt: new Date(0).toISOString(),
@@ -101,6 +104,7 @@ test('allows deleting a batch', async () => {
     batches: [
       {
         id: 'a',
+        batchNumber: 1,
         label: 'Batch 1',
         count: 1,
         startedAt: new Date(0).toISOString(),
@@ -108,6 +112,7 @@ test('allows deleting a batch', async () => {
       },
       {
         id: 'b',
+        batchNumber: 2,
         label: 'Batch 2',
         count: 3,
         startedAt: new Date(0).toISOString(),
