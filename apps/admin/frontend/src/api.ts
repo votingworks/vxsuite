@@ -155,68 +155,68 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInsProps = QueryInput<'getWriteIns'>;
+type GetWriteInsInput = QueryInput<'getWriteIns'>;
 export const getWriteIns = {
-  queryKey(props?: GetWriteInsProps): QueryKey {
-    return props ? ['getWriteIns', props] : ['getWriteIns'];
+  queryKey(input?: GetWriteInsInput): QueryKey {
+    return input ? ['getWriteIns', input] : ['getWriteIns'];
   },
-  useQuery(props?: GetWriteInsProps) {
+  useQuery(input?: GetWriteInsInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(props), () => apiClient.getWriteIns(props));
+    return useQuery(this.queryKey(input), () => apiClient.getWriteIns(input));
   },
 } as const;
 
-type GetWriteInSummaryProps = QueryInput<'getWriteInSummary'>;
+type GetWriteInSummaryInput = QueryInput<'getWriteInSummary'>;
 export const getWriteInSummary = {
-  queryKey(props?: GetWriteInSummaryProps): QueryKey {
-    return props ? ['getWriteInSummary', props] : ['getWriteInSummary'];
+  queryKey(input?: GetWriteInSummaryInput): QueryKey {
+    return input ? ['getWriteInSummary', input] : ['getWriteInSummary'];
   },
-  useQuery(props?: GetWriteInSummaryProps) {
+  useQuery(input?: GetWriteInSummaryInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(props), () =>
-      apiClient.getWriteInSummary(props)
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInSummary(input)
     );
   },
 } as const;
 
-type GetWriteInAdjudicationTableProps =
+type GetWriteInAdjudicationTableInput =
   QueryInput<'getWriteInAdjudicationTable'>;
 export const getWriteInAdjudicationTable = {
-  queryKey(props?: GetWriteInAdjudicationTableProps): QueryKey {
-    return props
-      ? ['getWriteInAdjudicationTable', props]
+  queryKey(input?: GetWriteInAdjudicationTableInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationTable', input]
       : ['getWriteInAdjudicationTable'];
   },
-  useQuery(props: GetWriteInAdjudicationTableProps) {
+  useQuery(input: GetWriteInAdjudicationTableInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(props), () =>
-      apiClient.getWriteInAdjudicationTable(props)
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInAdjudicationTable(input)
     );
   },
 } as const;
 
-type GetWriteInImageProps = QueryInput<'getWriteInImage'>;
+type GetWriteInImageInput = QueryInput<'getWriteInImage'>;
 export const getWriteInImage = {
-  queryKey(props?: GetWriteInImageProps): QueryKey {
-    return props ? ['getWriteInImage', props] : ['getWriteInImage'];
+  queryKey(input?: GetWriteInImageInput): QueryKey {
+    return input ? ['getWriteInImage', input] : ['getWriteInImage'];
   },
-  useQuery(props: GetWriteInImageProps) {
+  useQuery(input: GetWriteInImageInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(props), () =>
-      apiClient.getWriteInImage(props)
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInImage(input)
     );
   },
 } as const;
 
-type GetPrintedBallotsProps = QueryInput<'getPrintedBallots'>;
+type GetPrintedBallotsInput = QueryInput<'getPrintedBallots'>;
 export const getPrintedBallots = {
-  queryKey(props?: GetPrintedBallotsProps): QueryKey {
-    return props ? ['getPrintedBallots', props] : ['getPrintedBallots'];
+  queryKey(input?: GetPrintedBallotsInput): QueryKey {
+    return input ? ['getPrintedBallots', input] : ['getPrintedBallots'];
   },
-  useQuery(props?: GetPrintedBallotsProps) {
+  useQuery(input?: GetPrintedBallotsInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(props), () =>
-      apiClient.getPrintedBallots(props)
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getPrintedBallots(input)
     );
   },
 } as const;
