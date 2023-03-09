@@ -59,7 +59,7 @@ const castVoteRecordReport: CastVoteRecordReport = {
       SequenceId: 1,
       StartTime: '2022-01-10T13:00:00.000Z',
       EndTime: '2022-01-10T13:00:00.000Z',
-      Size: 1,
+      NumberSheets: 1,
       CreatingDeviceId: 'SC-01-000',
     },
   ],

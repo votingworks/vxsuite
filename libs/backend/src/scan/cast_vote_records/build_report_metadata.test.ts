@@ -53,7 +53,7 @@ test('builds well-formed cast vote record report', () => {
       SequenceId: 1,
       StartTime: new Date(1989, 11, 13).toISOString(),
       EndTime: new Date(1989, 11, 14).toISOString(),
-      Size: 2,
+      NumberSheets: 2,
       CreatingDeviceId: scannerId,
     },
   ]);

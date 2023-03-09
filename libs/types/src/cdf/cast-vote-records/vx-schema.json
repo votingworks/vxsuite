@@ -1209,7 +1209,7 @@
         "BatchLabel",
         "SequenceId",
         "StartTime",
-        "Size",
+        "NumberSheets",
         "CreatingDeviceId"
       ],
       "additionalProperties": false,
@@ -1239,7 +1239,7 @@
           "type": "string",
           "format": "date-time"
         },
-        "Size": {
+        "NumberSheets": {
           "description": "The number of sheets included in a batch.",
           "type": "integer"
         },

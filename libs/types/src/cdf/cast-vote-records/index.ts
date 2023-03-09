@@ -1855,7 +1855,7 @@ export interface vxBatch {
   /**
    * The number of sheets included in a batch.
    */
-  readonly Size: integer;
+  readonly NumberSheets: integer;
 
   /**
    * The tabulator that created the batch.
@@ -1873,7 +1873,7 @@ export const vxBatchSchema: z.ZodSchema<vxBatch> = z.object({
   SequenceId: integerSchema,
   StartTime: DateTimeSchema,
   EndTime: z.optional(DateTimeSchema),
-  Size: integerSchema,
+  NumberSheets: integerSchema,
   CreatingDeviceId: z.string(),
 });
 

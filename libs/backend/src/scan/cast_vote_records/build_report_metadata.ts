@@ -217,7 +217,7 @@ export function buildCastVoteRecordReportMetadata({
       SequenceId: batch.batchNumber,
       StartTime: batch.startedAt,
       EndTime: batch.endedAt,
-      Size: batch.count,
+      NumberSheets: batch.count,
       CreatingDeviceId: generatingDeviceId,
     })),
   };
