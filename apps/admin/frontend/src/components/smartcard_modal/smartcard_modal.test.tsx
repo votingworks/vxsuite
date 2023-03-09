@@ -1,5 +1,4 @@
 import fetchMock from 'fetch-mock';
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import {
   ElectionManagerUser,
@@ -16,34 +15,22 @@ import {
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
-import { ok, err, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 
-import { App } from '../../app';
-import { authenticateAsSystemAdministrator } from '../../../test/util/authenticate';
-import {
-  createMockApiClient,
-  MockApiClient,
-  setAuthStatus,
-} from '../../../test/helpers/api';
-import { ElectionManagerStoreMemoryBackend } from '../../lib/backends';
+import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
 import { MachineConfig } from '../../config/types';
-import { renderRootElement } from '../../../test/render_in_app_context';
 import { VxFiles } from '../../lib/converters';
+import { buildApp } from '../../../test/helpers/build_app';
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 
-let mockApiClient: MockApiClient;
-let mockBackend: ElectionManagerStoreMemoryBackend;
-let mockHardware: MemoryHardware;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
-  mockBackend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  mockHardware = MemoryHardware.buildStandard();
+  apiMock = createApiMock();
 
   fetchMock.reset();
   fetchMock.get(
@@ -57,15 +44,15 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('Smartcard modal displays card details', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     programmedUser: User;
@@ -132,7 +119,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter,
     } = testCase;
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -159,7 +146,7 @@ test('Smartcard modal displays card details', async () => {
     }
     within(modal).getByText(expectedFooter);
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -172,12 +159,11 @@ test('Smartcard modal displays card details', async () => {
 });
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
-  mockBackend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     programmedUser: User;
@@ -225,7 +211,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter,
     } = testCase;
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -259,7 +245,7 @@ test('Smartcard modal displays card details when no election definition on machi
     }
     within(modal).getByText(expectedFooter);
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -272,11 +258,11 @@ test('Smartcard modal displays card details when no election definition on machi
 });
 
 test('Programming election manager and poll worker smartcards', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     role: ElectionManagerUser['role'] | PollWorkerUser['role'];
@@ -309,7 +295,7 @@ test('Programming election manager and poll worker smartcards', async () => {
       expectedSuccessText,
     } = testCase;
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser: undefined },
@@ -325,9 +311,7 @@ test('Programming election manager and poll worker smartcards', async () => {
       name: 'Poll Worker Card',
     });
     within(modal).getByText('Remove card to cancel.');
-    mockApiClient.programCard
-      .expectCallWith({ userRole: role })
-      .resolves(ok({ pin: '123456' }));
+    apiMock.expectProgramCard(role);
     switch (role) {
       case 'election_manager': {
         userEvent.click(electionManagerCardButton);
@@ -342,7 +326,7 @@ test('Programming election manager and poll worker smartcards', async () => {
       }
     }
     await screen.findByText(/Programming card/);
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -356,7 +340,7 @@ test('Programming election manager and poll worker smartcards', async () => {
     }
     within(modal).getByText('Remove card to continue.');
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -371,18 +355,18 @@ test('Programming election manager and poll worker smartcards', async () => {
 });
 
 test('Programming system administrator smartcards', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   // Programming system administrator smartcards requires being on a specific screen
   userEvent.click(await screen.findByText('Smartcards'));
   userEvent.click(await screen.findByText('Create System Administrator Cards'));
   await screen.findByRole('heading', { name: 'System Administrator Cards' });
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'ready', programmedUser: undefined },
@@ -400,12 +384,10 @@ test('Programming system administrator smartcards', async () => {
     name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
-  mockApiClient.programCard
-    .expectCallWith({ userRole: 'system_administrator' })
-    .resolves(ok({ pin: '123456' }));
+  apiMock.expectProgramCard('system_administrator');
   userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: {
@@ -420,7 +402,7 @@ test('Programming system administrator smartcards', async () => {
   within(modal).getByText('123-456');
   within(modal).getByText('Remove card to continue.');
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'no_card' },
@@ -434,16 +416,14 @@ test('Programming system administrator smartcards', async () => {
 });
 
 test('Programming smartcards when no election definition on machine', async () => {
-  mockBackend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
-
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'ready', programmedUser: undefined },
@@ -462,7 +442,7 @@ test('Programming smartcards when no election definition on machine', async () =
   ).not.toBeInTheDocument();
   within(modal).getByText('Remove card to leave this screen.');
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'no_card' },
@@ -474,11 +454,11 @@ test('Programming smartcards when no election definition on machine', async () =
 });
 
 test('Resetting smartcard PINs', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     programmedUser: SystemAdministratorUser | ElectionManagerUser;
@@ -500,7 +480,7 @@ test('Resetting smartcard PINs', async () => {
   for (const testCase of testCases) {
     const { programmedUser, expectedHeading } = testCase;
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -508,9 +488,7 @@ test('Resetting smartcard PINs', async () => {
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
-    mockApiClient.programCard
-      .expectCallWith({ userRole: programmedUser.role })
-      .resolves(ok({ pin: '123456' }));
+    apiMock.expectProgramCard(programmedUser.role);
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
@@ -519,7 +497,7 @@ test('Resetting smartcard PINs', async () => {
     await within(modal).findByText('123-456');
     within(modal).getByText('Remove card to continue.');
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -534,16 +512,15 @@ test('Resetting smartcard PINs', async () => {
 });
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
-  mockBackend = new ElectionManagerStoreMemoryBackend();
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: {
@@ -554,9 +531,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
-  mockApiClient.programCard
-    .expectCallWith({ userRole: 'system_administrator' })
-    .resolves(ok({ pin: '123456' }));
+  apiMock.expectProgramCard('system_administrator');
   userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
@@ -565,7 +540,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
   await within(modal).findByText('123-456');
   within(modal).getByText('Remove card to continue.');
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'no_card' },
@@ -579,11 +554,11 @@ test('Resetting system administrator smartcard PINs when no election definition 
 });
 
 test('Unprogramming smartcards', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
   await screen.findByRole('heading', { name: 'Election Definition' });
@@ -612,7 +587,7 @@ test('Unprogramming smartcards', async () => {
       expectedSuccessText,
     } = testCase;
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -622,12 +597,12 @@ test('Unprogramming smartcards', async () => {
     within(modal).getByRole('heading', {
       name: expectedHeadingBeforeUnprogramming,
     });
-    mockApiClient.unprogramCard.expectCallWith().resolves(ok());
+    apiMock.expectUnprogramCard();
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
     await screen.findByText(/Unprogramming card/);
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser: undefined },
@@ -637,7 +612,7 @@ test('Unprogramming smartcards', async () => {
     });
     within(modal).getByText(expectedSuccessText);
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -652,11 +627,11 @@ test('Unprogramming smartcards', async () => {
 });
 
 test('Error handling', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     beginFromSuperAdminCardsScreen?: boolean;
@@ -709,22 +684,22 @@ test('Error handling', async () => {
     },
   ];
 
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.programCard
+  apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.unprogramCard
+  apiMock.apiClient.unprogramCard
     .expectCallWith()
     .resolves(err(new Error('Whoa!')));
-  mockApiClient.unprogramCard
+  apiMock.apiClient.unprogramCard
     .expectCallWith()
     .resolves(err(new Error('Whoa!')));
 
@@ -748,7 +723,7 @@ test('Error handling', async () => {
       await screen.findByText('Election Cards');
     }
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'ready', programmedUser },
@@ -759,7 +734,7 @@ test('Error handling', async () => {
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByText(expectedErrorText);
 
-    setAuthStatus(mockApiClient, {
+    apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
       programmableCard: { status: 'no_card' },
@@ -771,20 +746,20 @@ test('Error handling', async () => {
 });
 
 test('Card inserted backwards is handled with message', async () => {
-  renderRootElement(<App hardware={mockHardware} />, {
-    apiClient: mockApiClient,
-    backend: mockBackend,
-  });
-  await authenticateAsSystemAdministrator(mockApiClient);
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+  await apiMock.authenticateAsSystemAdministrator();
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'error' },
   });
   await screen.findByText('Card is Backwards');
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     programmableCard: { status: 'no_card' },

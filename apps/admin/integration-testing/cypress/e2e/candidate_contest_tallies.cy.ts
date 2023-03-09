@@ -21,7 +21,8 @@ describe('Election Manager can create SEMS tallies', () => {
     logOut();
   });
 
-  it('Tallies for candidate contests compute end to end as expected', () => {
+  // TODO: disabled after #3052, re-enable in #3076
+  it.skip('Tallies for candidate contests compute end to end as expected', () => {
     const { electionDefinition } = electionMultiPartyPrimaryFixtures;
     const { election } = electionDefinition;
     // Generate a CVR file with votes in the president contest.

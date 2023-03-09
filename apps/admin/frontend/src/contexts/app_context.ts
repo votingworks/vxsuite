@@ -13,12 +13,10 @@ import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/ui';
 import {
-  SaveElection,
   Iso8601Timestamp,
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
-  ResetElection,
 } from '../config/types';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
@@ -28,8 +26,6 @@ export interface AppContextInterface {
   converter?: ConverterClientType;
   isOfficialResults: boolean;
   printer: Printer;
-  saveElection: SaveElection;
-  resetElection: ResetElection;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDrive: UsbDrive;
   fullElectionTally: FullElectionTally;
@@ -56,8 +52,6 @@ const appContext: AppContextInterface = {
   configuredAt: undefined,
   isOfficialResults: false,
   printer: new NullPrinter(),
-  saveElection: async () => undefined,
-  resetElection: async () => undefined,
   resetFiles: async () => undefined,
   usbDrive: {
     status: 'absent',

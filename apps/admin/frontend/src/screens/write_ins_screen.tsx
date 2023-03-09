@@ -17,11 +17,13 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
-import { useWriteInsQuery } from '../hooks/use_write_ins_query';
-import { useTranscribeWriteInMutation } from '../hooks/use_transcribe_write_in_mutation';
-import { useAdjudicateTranscriptionMutation } from '../hooks/use_adjudicate_transcription_mutation';
-import { useUpdateWriteInAdjudicationMutation } from '../hooks/use_update_write_in_adjudication_mutation';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+import {
+  adjudicateWriteInTranscription,
+  getCastVoteRecordFiles,
+  getWriteIns,
+  transcribeWriteIn,
+  updateWriteInAdjudication,
+} from '../api';
 
 const ContentWrapper = styled.div`
   display: inline-block;
@@ -41,12 +43,13 @@ export function WriteInsScreen(): JSX.Element {
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
     useState<CandidateContest>();
 
-  const transcribeWriteInMutation = useTranscribeWriteInMutation();
-  const adjudicateTranscriptionMutation = useAdjudicateTranscriptionMutation();
+  const transcribeWriteInMutation = transcribeWriteIn.useMutation();
+  const adjudicateTranscriptionMutation =
+    adjudicateWriteInTranscription.useMutation();
   const updateWriteInAdjudicationMutation =
-    useUpdateWriteInAdjudicationMutation();
-  const writeInsQuery = useWriteInsQuery();
-  const cvrFilesQuery = useCvrFilesQuery();
+    updateWriteInAdjudication.useMutation();
+  const writeInsQuery = getWriteIns.useQuery();
+  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   // Get write-in counts grouped by contest
   const writeInCountsByContest = useMemo(() => {
@@ -140,7 +143,10 @@ export function WriteInsScreen(): JSX.Element {
       );
     }
 
-    if (cvrFilesQuery.isSuccess && cvrFilesQuery.data.length === 0) {
+    if (
+      castVoteRecordFilesQuery.isSuccess &&
+      castVoteRecordFilesQuery.data.length === 0
+    ) {
       return (
         <p>
           <em>

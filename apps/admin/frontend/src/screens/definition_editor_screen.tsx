@@ -14,6 +14,7 @@ import { ButtonBar } from '../components/button_bar';
 import { NavigationScreen } from '../components/navigation_screen';
 import { TextareaEventFunction } from '../config/types';
 import { RemoveElectionModal } from '../components/remove_election_modal';
+import { configure } from '../api';
 
 const Header = styled.div`
   margin: 1rem;
@@ -34,7 +35,8 @@ export function DefinitionEditorScreen({
 }: {
   allowEditing: boolean;
 }): JSX.Element {
-  const { electionDefinition, saveElection } = useContext(AppContext);
+  const configureMutation = configure.useMutation();
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionData } = electionDefinition;
   const stringifiedElection = JSON.stringify(election, undefined, 2);
@@ -59,10 +61,10 @@ export function DefinitionEditorScreen({
     setDirty(true);
     setElectionString(event.currentTarget.value);
   };
-  async function handleSaveElection() {
+  function handleSaveElection() {
     const valid = validateElectionDefinition();
     if (valid) {
-      await saveElection(electionString);
+      configureMutation.mutate({ electionData: electionString });
       setDirty(false);
       setError('');
     }

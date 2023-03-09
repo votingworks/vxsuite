@@ -6,15 +6,21 @@ import { Admin } from '@votingworks/api';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
 import { generateResultsCsv } from '../utils/generate_results_csv';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { getCastVoteRecordFileMode } from '../api';
 
-export function SaveResultsButton(): JSX.Element {
+export function SaveResultsButton({
+  disabled,
+}: {
+  disabled?: boolean;
+}): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { fullElectionTally, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const isTestMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Test;
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const isTestMode =
+    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Test;
 
   const defaultFilename = generateFinalExportDefaultFilename(
     isTestMode,
@@ -22,7 +28,12 @@ export function SaveResultsButton(): JSX.Element {
   );
   return (
     <React.Fragment>
-      <Button onPress={() => setIsSaveModalOpen(true)}>Save Results</Button>
+      <Button
+        disabled={disabled || !castVoteRecordFileModeQuery.isSuccess}
+        onPress={() => setIsSaveModalOpen(true)}
+      >
+        Save Results
+      </Button>
       {isSaveModalOpen && (
         <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}

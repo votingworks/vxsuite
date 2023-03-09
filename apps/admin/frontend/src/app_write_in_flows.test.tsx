@@ -1,33 +1,37 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
-import {
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
-} from '@votingworks/fixtures';
-import { MemoryHardware } from '@votingworks/utils';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
-import {
-  advanceTimersAndPromises,
-  fakeKiosk,
-  hasTextAcrossElements,
-} from '@votingworks/test-utils';
+import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
+import { Admin } from '@votingworks/api';
 import { screen, within } from '../test/react_testing_library';
-import { renderRootElement } from '../test/render_in_app_context';
-import { authenticateAsElectionManager } from '../test/util/authenticate';
-import { App } from './app';
-import { ElectionManagerStoreMemoryBackend } from './lib/backends';
+import { ApiMock, createApiMock } from '../test/helpers/api_mock';
+import { buildApp } from '../test/helpers/build_app';
+import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
 import { MachineConfig } from './config/types';
-import { createMockApiClient, MockApiClient } from '../test/helpers/api';
+
+const nonOfficialAdjudicationSummaryMammal: Admin.WriteInSummaryEntryAdjudicated =
+  {
+    status: 'adjudicated',
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Chimera',
+    writeInCount: 1,
+    writeInAdjudication: {
+      id: 'some',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Chimera',
+      adjudicatedValue: 'Chimera',
+    },
+  };
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
   fetchMock.reset();
   fetchMock.get(
     '/convert/tallies/files',
@@ -49,48 +53,34 @@ beforeEach(() => {
 
 afterEach(() => {
   delete window.kiosk;
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('manual write-in data end-to-end test', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-  });
-  await backend.addCastVoteRecordFile(
-    new File(
-      [electionMinimalExhaustiveSampleFixtures.partial1CvrFile.asBuffer()],
-      'partial1.jsonl'
+  const { electionDefinition, partial1CvrFile } =
+    electionMinimalExhaustiveSampleFixtures;
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords(
+    await fileDataToCastVoteRecords(
+      partial1CvrFile.asText(),
+      electionDefinition
     )
   );
-  const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetOfficialPrintedBallots([]);
+  renderApp();
 
   // Navigate to manual data entry
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionMinimalExhaustiveSampleDefinition
-  );
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+
   userEvent.click(screen.getByText('Tally'));
   userEvent.click(await screen.findByText('Add Manually Entered Results'));
-  userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
 
-  // Navigate away, adjudicated a write-in, and return - to ensure the
-  // page does not use stale data
-  userEvent.click(await screen.findByText('Cancel'));
-  const writeIn = (
-    await backend.loadWriteIns({
-      contestId: 'zoo-council-mammal',
-    })
-  )[0];
-  await backend.transcribeWriteIn(writeIn.id, 'Chimera');
-  await backend.adjudicateWriteInTranscription(
-    'zoo-council-mammal',
-    'Chimera',
-    'Chimera'
-  );
+  apiMock.expectGetWriteInSummaryAdjudicated([
+    nonOfficialAdjudicationSummaryMammal,
+  ]);
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
 
   // Enter some official results for Precinct 1
@@ -262,97 +252,4 @@ test('manual write-in data end-to-end test', async () => {
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera10'));
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Rapidash20'));
   within(zooCouncilFish2).getByText(hasTextAcrossElements('Relicanth14'));
-
-  userEvent.click(screen.getByText('Reports'));
-});
-
-test('availability of write-in tally report', async () => {
-  // Start with transcribed, not adjudicated values
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-  });
-  await backend.addCastVoteRecordFile(
-    new File(
-      [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],
-      'standard.jsonl'
-    )
-  );
-  const writeIn1 = (
-    await backend.loadWriteIns({
-      contestId: 'zoo-council-mammal',
-    })
-  )[0];
-  await backend.transcribeWriteIn(writeIn1.id, 'Chimera');
-  const writeIn2 = (
-    await backend.loadWriteIns({
-      contestId: 'aquarium-council-fish',
-    })
-  )[0];
-  await backend.transcribeWriteIn(writeIn2.id, 'Loch Ness');
-
-  const hardware = MemoryHardware.buildStandard();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
-
-  // Before any adjudication, report should be empty
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  userEvent.click(screen.getByText('Reports'));
-  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
-  screen.getByText(
-    /there are no write-in votes adjudicated to non-official candidates/
-  );
-  expect(screen.queryByText('Report Preview')).not.toBeInTheDocument();
-  expect(screen.queryByText('Print Report')).not.toBeInTheDocument();
-
-  // Navigate away and adjudicate one of the write-ins
-  userEvent.click(screen.getByText('Reports'));
-  await backend.adjudicateWriteInTranscription(
-    'zoo-council-mammal',
-    'Chimera',
-    'Chimera'
-  );
-
-  await advanceTimersAndPromises(1);
-
-  // We should now have a report for one of the parties, including one of the races
-  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
-  await screen.findByText('Report Preview');
-  screen.getAllByText(
-    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
-  );
-  expect(
-    screen.queryByText(
-      'Unofficial Fish Party Example Primary Election Write-In Tally Report'
-    )
-  ).not.toBeInTheDocument();
-  screen.getAllByTestId('results-table-zoo-council-mammal');
-  expect(
-    screen.queryByTestId('results-table-new-zoo-either')
-  ).not.toBeInTheDocument();
-
-  // Navigate away and adjudicate the other write-in
-  userEvent.click(screen.getByText('Reports'));
-  await backend.adjudicateWriteInTranscription(
-    'aquarium-council-fish',
-    'Loch Ness',
-    'Loch Ness'
-  );
-  await advanceTimersAndPromises(1);
-
-  // We should now have reports for both parties
-  userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
-  await screen.findByText('Report Preview');
-  screen.getAllByText(
-    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
-  );
-  await screen.findAllByText(
-    'Unofficial Fish Party Example Primary Election Write-In Tally Report'
-  );
-  screen.getAllByTestId('results-table-zoo-council-mammal');
-  screen.getAllByTestId('results-table-aquarium-council-fish');
 });

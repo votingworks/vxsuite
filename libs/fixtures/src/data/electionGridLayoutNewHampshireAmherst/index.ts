@@ -22,3 +22,4 @@ export * as scanUnmarkedBack from './scan-unmarked-back.jpeg';
 export * as templateFront from './template-front.jpeg';
 export * as templateBack from './template-back.jpeg';
 export * as templatePdf from './template.pdf';
+export * as oneBallotCastVoteRecordFile from './cvrFiles/TEST__machine_0000__1_ballots__2022-11-29_12-51-23.jsonl';

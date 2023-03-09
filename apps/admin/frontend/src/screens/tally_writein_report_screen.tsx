@@ -22,6 +22,8 @@ import {
   printElementToPdf,
   LinkButton,
 } from '@votingworks/ui';
+import { Admin } from '@votingworks/api';
+import { UseQueryResult } from '@tanstack/react-query';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -40,13 +42,13 @@ import { routerPaths } from '../router_paths';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerWriteInTallyReport } from '../components/election_manager_writein_tally_report';
 
-import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import {
   getManualWriteInCounts,
   getScreenAdjudicatedWriteInCounts,
   writeInCountsAreEmpty,
 } from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
+import { getWriteInSummary } from '../api';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -72,7 +74,9 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
+  const writeInSummaryQuery = getWriteInSummary.useQuery({
+    status: 'adjudicated',
+  }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
   const screenAdjudicatedWriteInCounts = getScreenAdjudicatedWriteInCounts(
     writeInSummaryQuery.data ?? []
   );

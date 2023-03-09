@@ -2,13 +2,27 @@ import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import React from 'react';
-import { act, screen, waitFor } from '../../test/react_testing_library';
+import { Admin } from '@votingworks/api';
+import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 import { WriteInsScreen } from './write_ins_screen';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
-const { electionDefinition, cvrData } = electionMinimalExhaustiveSampleFixtures;
-const abbreviatedCvrData = cvrData.split('\n').slice(0, 20).join('\n');
+const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+
+function getMockPendingWriteInRecord(id: string): Admin.WriteInRecord {
+  return {
+    id,
+    contestId: 'zoo-council-mammal',
+    optionId: 'write-in-0',
+    castVoteRecordId: 'id',
+    status: 'pending',
+  };
+}
+
+const mockWriteInRecords = [0, 1, 2].map((num) =>
+  getMockPendingWriteInRecord(num.toString())
+);
 
 afterEach(async () => {
   // Several tests on this page create test warnings because hooks run after
@@ -19,12 +33,20 @@ afterEach(async () => {
   });
 });
 
-test('No CVRs loaded', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
+let apiMock: ApiMock;
 
-  renderInAppContext(<WriteInsScreen />, { backend, electionDefinition });
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
+
+test('No CVRs loaded', async () => {
+  apiMock.expectGetWriteIns([]);
+  apiMock.expectGetCastVoteRecordFiles([]);
+  renderInAppContext(<WriteInsScreen />, { electionDefinition, apiMock });
   await screen.findByText(
     'Load CVRs to begin transcribing and adjudicating write-in votes.'
   );
@@ -32,18 +54,28 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
-
-  await backend.addCastVoteRecordFile(
-    new File([abbreviatedCvrData], 'cvrs.jsonl')
-  );
-
+  apiMock.expectGetWriteIns([
+    {
+      id: '1',
+      contestId: 'zoo-council-mammal',
+      optionId: 'write-in-0',
+      castVoteRecordId: '1',
+      status: 'pending',
+    },
+    {
+      id: '2',
+      contestId: 'aquarium-council-fish',
+      optionId: 'write-in-0',
+      castVoteRecordId: '2',
+      status: 'transcribed',
+      transcribedValue: 'Seahorse',
+    },
+  ]);
+  apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
-    backend,
     electionDefinition,
     isOfficialResults: true,
+    apiMock,
   });
 
   await screen.findByText(/No further changes may be made/);
@@ -60,19 +92,14 @@ test('Tally results already marked as official', async () => {
 });
 
 test('CVRs with write-ins loaded', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
-  await backend.addCastVoteRecordFile(
-    new File([abbreviatedCvrData], 'cvrs.jsonl')
-  );
-
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
-    backend,
     electionDefinition,
+    apiMock,
   });
 
-  const transcribeButton = await screen.findButton('Transcribe 8');
+  const transcribeButton = await screen.findButton('Transcribe 3');
   expect(transcribeButton).not.toBeDisabled();
 
   const adjudicateButton = await screen.findButton('Adjudicate');
@@ -80,22 +107,19 @@ test('CVRs with write-ins loaded', async () => {
 });
 
 test('ballot pagination', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
-  await backend.addCastVoteRecordFile(
-    new File([abbreviatedCvrData], 'cvrs.jsonl')
-  );
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
-    backend,
+    apiMock,
   });
 
-  const pageCount = 8;
+  const pageCount = 3;
   userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+    apiMock.expectGetWriteInImage(mockWriteInRecords[pageNumber - 1].id);
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
     const previousButton = await screen.findButton('Previous');
     if (pageNumber === 1) {
@@ -117,90 +141,55 @@ test('ballot pagination', async () => {
 });
 
 test('adjudication', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition,
-  });
-  await backend.addCastVoteRecordFile(
-    new File([abbreviatedCvrData], 'cvrs.jsonl')
-  );
+  apiMock.expectGetWriteIns(mockWriteInRecords);
+  apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
     electionDefinition,
-    backend,
+    apiMock,
   });
 
   // transcribe
-  userEvent.click(await screen.findByText('Transcribe 8'));
+  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
+  userEvent.click(await screen.findByText('Transcribe 3'));
   userEvent.type(
     await screen.findByPlaceholderText('transcribed write-in'),
     'Dark Helmet'
   );
-
-  jest.spyOn(backend, 'transcribeWriteIn');
+  apiMock.apiClient.transcribeWriteIn
+    .expectCallWith({
+      writeInId: mockWriteInRecords[0].id,
+      transcribedValue: 'Dark Helmet',
+    })
+    .resolves();
+  apiMock.expectGetWriteIns([
+    mockWriteInRecords[0],
+    mockWriteInRecords[1],
+    {
+      ...mockWriteInRecords[2],
+      status: 'transcribed',
+      transcribedValue: 'Dark Helmet',
+    },
+  ]);
   userEvent.click(await screen.findByText('Add'));
-  await waitFor(() => {
-    expect(backend.transcribeWriteIn).toHaveBeenCalledWith(
-      expect.any(String),
-      'Dark Helmet'
-    );
-  });
 
   expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();
 
   userEvent.click(await screen.findByText('Back to All Write-Ins'));
 
   // set up the table for a single transcribed value
-  jest.spyOn(backend, 'getWriteInAdjudicationTable').mockResolvedValue({
-    contestId: 'zoo-council-mammal',
-    writeInCount: 1,
-    adjudicated: [],
-    transcribed: {
+  apiMock.apiClient.getWriteInAdjudicationTable
+    .expectCallWith({ contestId: 'zoo-council-mammal' })
+    .resolves({
+      contestId: 'zoo-council-mammal',
       writeInCount: 1,
-      rows: [
-        {
-          transcribedValue: 'Dark Helmet',
-          writeInCount: 1,
-          adjudicationOptionGroups: [
-            {
-              title: 'Official Candidates',
-              options: [
-                {
-                  adjudicatedValue: 'Zebra',
-                  adjudicatedOptionId: 'zebra',
-                  enabled: true,
-                },
-              ],
-            },
-            {
-              title: 'Original Transcription',
-              options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
-            },
-          ],
-        },
-      ],
-    },
-  });
-
-  // adjudicate
-  userEvent.click(await screen.findByText('Adjudicate 1'));
-  expect(await screen.findAllByText('Dark Helmet')).toHaveLength(2); // 1 in the table, 1 in the adjudication list
-
-  userEvent.selectOptions(await screen.findByRole('combobox'), 'Zebra');
-
-  jest.spyOn(backend, 'getWriteInAdjudicationTable').mockResolvedValue({
-    contestId: 'zoo-council-mammal',
-    writeInCount: 1,
-    adjudicated: [
-      {
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
+      adjudicated: [],
+      transcribed: {
         writeInCount: 1,
         rows: [
           {
             transcribedValue: 'Dark Helmet',
             writeInCount: 1,
-            writeInAdjudicationId: 'test-id',
-            editable: true,
             adjudicationOptionGroups: [
               {
                 title: 'Official Candidates',
@@ -220,12 +209,74 @@ test('adjudication', async () => {
           },
         ],
       },
-    ],
-    transcribed: {
-      writeInCount: 1,
-      rows: [],
+    });
+
+  // adjudicate
+  userEvent.click(await screen.findByText('Adjudicate 1'));
+  expect(await screen.findAllByText('Dark Helmet')).toHaveLength(2); // 1 in the table, 1 in the adjudication list
+
+  apiMock.apiClient.createWriteInAdjudication
+    .expectCallWith({
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Dark Helmet',
+      adjudicatedValue: 'Zebra',
+      adjudicatedOptionId: 'zebra',
+    })
+    .resolves('id');
+  userEvent.selectOptions(await screen.findByRole('combobox'), 'Zebra');
+
+  // re-fetched data
+  apiMock.expectGetWriteIns([
+    mockWriteInRecords[0],
+    mockWriteInRecords[1],
+    {
+      ...mockWriteInRecords[2],
+      status: 'adjudicated',
+      transcribedValue: 'Dark Helmet',
+      adjudicatedValue: 'Zebra',
     },
-  });
+  ]);
+  apiMock.apiClient.getWriteInAdjudicationTable
+    .expectCallWith({ contestId: 'zoo-council-mammal' })
+    .resolves({
+      contestId: 'zoo-council-mammal',
+      writeInCount: 1,
+      adjudicated: [
+        {
+          adjudicatedValue: 'Zebra',
+          adjudicatedOptionId: 'zebra',
+          writeInCount: 1,
+          rows: [
+            {
+              transcribedValue: 'Dark Helmet',
+              writeInCount: 1,
+              writeInAdjudicationId: 'test-id',
+              editable: true,
+              adjudicationOptionGroups: [
+                {
+                  title: 'Official Candidates',
+                  options: [
+                    {
+                      adjudicatedValue: 'Zebra',
+                      adjudicatedOptionId: 'zebra',
+                      enabled: true,
+                    },
+                  ],
+                },
+                {
+                  title: 'Original Transcription',
+                  options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transcribed: {
+        writeInCount: 1,
+        rows: [],
+      },
+    });
 
   expect(await screen.findByText('Change')).toBeInTheDocument();
   expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();

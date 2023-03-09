@@ -8,7 +8,9 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { ElectronFile, UsbDriveStatus } from '@votingworks/ui';
+import userEvent from '@testing-library/user-event';
+import { ok } from '@votingworks/basics';
 import {
   waitFor,
   fireEvent,
@@ -17,54 +19,102 @@ import {
   screen,
 } from '../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import {
-  renderInAppContext,
-  eitherNeitherElectionDefinition,
-} from '../../test/render_in_app_context';
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
-import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
+import { renderInAppContext } from '../../test/render_in_app_context';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
 const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
-test('No USB screen shows when there is no valid USB drive', async () => {
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
+const mockCastVoteRecordImportInfo: Admin.CvrFileImportInfo = {
+  wasExistingFile: false,
+  newlyAdded: 0,
+  alreadyPresent: 0,
+  exportedTimestamp: new Date().toISOString(),
+  fileMode: Admin.CvrFileMode.Test,
+  fileName: 'cvrs.jsonl',
+  id: 'cvr-file-1',
+  scannerIds: ['scanner-2', 'scanner-3'],
+};
 
+const mockFileEntries = [
+  {
+    name: LIVE_FILE1,
+    type: 1,
+    path: 'live1',
+  },
+  {
+    name: TEST_FILE1,
+    type: 1,
+    path: 'test1',
+  },
+  {
+    name: TEST_FILE2,
+    type: 1,
+    path: 'test2',
+  },
+];
+
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
+
+test('when USB is not present or valid', async () => {
   const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
-    const { unmount, getByText } = renderInAppContext(
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFiles([]);
+    const { unmount } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
-      { backend, usbDrive: mockUsbDrive(usbStatus) }
+      {
+        usbDrive: mockUsbDrive(usbStatus),
+        apiMock,
+      }
     );
     await screen.findByText('No USB Drive Detected');
 
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
     unmount();
   }
 });
 
-test('Loading screen show while usb is mounting or ejecting', () => {
+test('when USB is mounting or ejecting', async () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFiles([]);
     const closeFn = jest.fn();
-    const { unmount, getByText } = renderInAppContext(
+    const { unmount } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
-      { usbDrive: mockUsbDrive(usbStatus) }
+      {
+        usbDrive: mockUsbDrive(usbStatus),
+        apiMock,
+      }
     );
-    getByText('Loading');
+    // screen is initially loading due to waiting on queries
+    screen.getByText('Loading');
+    await waitFor(() => {
+      apiMock.assertComplete();
+    });
+    // screen is still loading after queries complete
+    await screen.findByText('Loading');
     unmount();
   }
 });
 
-describe('Screens display properly when USB is mounted', () => {
+describe('when USB is properly mounted', () => {
   beforeEach(() => {
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
@@ -75,93 +125,71 @@ describe('Screens display properly when USB is mounted', () => {
     delete window.kiosk;
   });
 
-  test('No files found screen shows when mounted usb has no valid files', async () => {
+  test('no files found screen & manual load', async () => {
     const closeFn = jest.fn();
     const logger = fakeLogger();
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
+      usbDrive: mockUsbDrive('mounted'),
+      logger,
+      apiMock,
     });
-    const { getByText, getByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive('mounted'),
-        logger,
-        backend,
-      }
-    );
     await waitFor(() =>
-      getByText(
+      screen.getByText(
         /There were no new CVR files automatically found on this USB drive/
       )
     );
-
-    fireEvent.click(getByText('Cancel'));
-    expect(closeFn).toHaveBeenCalledTimes(1);
-
-    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
-      wasExistingFile: false,
-      newlyAdded: 0,
-      alreadyPresent: 0,
-      exportedTimestamp: new Date().toISOString(),
-      fileMode: Admin.CvrFileMode.Test,
-      fileName: 'cvrs.jsonl',
-      id: 'cvr-file-1',
-      scannerIds: ['scanner-2', 'scanner-3'],
-    });
-
-    // You can still manually load files
-    fireEvent.change(getByTestId('manual-input'), {
-      target: { files: [new File([''], 'file.jsonl')] },
-    });
-    await screen.findByText('0 new CVRs Loaded');
-    expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
+
+    userEvent.click(screen.getByText('Cancel'));
+    expect(closeFn).toHaveBeenCalledTimes(1);
+
+    apiMock.apiClient.addCastVoteRecordFile
+      .expectCallWith({ path: '/tmp/cast-vote-record.jsonl' })
+      .resolves(ok(mockCastVoteRecordImportInfo));
+
+    // You can still manually load files
+    const file: ElectronFile = {
+      ...new File([''], 'cast-vote-record.jsonl'),
+      path: '/tmp/cast-vote-record.jsonl',
+    };
+    fireEvent.change(screen.getByTestId('manual-input'), {
+      target: { files: [file] },
+    });
+
+    // modal refetches after adding cast vote record
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    await screen.findByText('0 new CVRs Loaded');
   });
 
-  test('Load CVR files screen shows table with test and live CVRs', async () => {
+  test('shows table with both test and live CVR files & allows loading', async () => {
     const closeFn = jest.fn();
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-        path: 'live1',
-      },
-      {
-        name: TEST_FILE1,
-        type: 1,
-        path: 'test1',
-      },
-      {
-        name: TEST_FILE2,
-        type: 1,
-        path: 'test2',
-      },
-    ];
     window.kiosk!.getFileSystemEntries = jest
       .fn()
-      .mockResolvedValue(fileEntries);
+      .mockResolvedValue(mockFileEntries);
     const logger = fakeLogger();
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
+      usbDrive: mockUsbDrive('mounted'),
+      logger,
+      apiMock,
     });
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive('mounted'),
-        logger,
-        backend,
-      }
-    );
     await screen.findByText('Load CVR Files');
-    getByText(
+    screen.getByText(
       /The following CVR files were automatically found on this USB drive./
     );
 
-    const tableRows = getAllByTestId('table-row');
+    const tableRows = screen.getAllByTestId('table-row');
     expect(tableRows).toHaveLength(3);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
@@ -184,100 +212,42 @@ describe('Screens display properly when USB is mounted', () => {
       expect.objectContaining({ disposition: 'success' })
     );
 
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
-      wasExistingFile: false,
-      newlyAdded: 0,
-      alreadyPresent: 0,
-      exportedTimestamp: new Date().toISOString(),
-      fileMode: Admin.CvrFileMode.Test,
-      fileName: 'cvrs.jsonl',
-      id: 'cvr-file-1',
-      scannerIds: ['scanner-2', 'scanner-3'],
-    });
-    fireEvent.click(domGetByText(tableRows[0], 'Load'));
+    apiMock.apiClient.addCastVoteRecordFile
+      .expectCallWith({ path: 'live1' })
+      .resolves(ok(mockCastVoteRecordImportInfo));
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+    apiMock.expectGetCastVoteRecordFiles([]);
+
+    userEvent.click(domGetByText(tableRows[0], 'Load'));
     await screen.findByText('Loading');
-    await waitFor(() => {
-      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
-      expect(window.kiosk!.readFile).toHaveBeenCalledTimes(1);
-      getByText('0 new CVRs Loaded');
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrLoaded,
-        'election_manager',
-        expect.objectContaining({ disposition: 'success' })
-      );
-    });
+    await screen.findByText('0 new CVRs Loaded');
   });
 
-  test('Load CVR files screen locks to test mode when test files have been loaded', async () => {
+  test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
     const closeFn = jest.fn();
     const logger = fakeLogger();
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-        path: 'live1',
-      },
-      {
-        name: TEST_FILE1,
-        type: 1,
-        path: 'test1',
-      },
-      {
-        name: TEST_FILE2,
-        type: 1,
-        path: 'test2',
-      },
-    ];
     window.kiosk!.getFileSystemEntries = jest
       .fn()
-      .mockResolvedValue(fileEntries);
-    const cvr: CastVoteRecord = {
-      _ballotId: unsafeParse(BallotIdSchema, 'abc'),
-      _ballotStyleId: '5',
-      _ballotType: 'standard',
-      _precinctId: '6522',
-      _testBallot: true,
-      _scannerId: 'abc',
-      _batchId: 'batch-1',
-      _batchLabel: 'Batch 1',
-    };
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], TEST_FILE1)],
-      eitherNeitherElectionDefinition.election
-    );
-
-    window.kiosk!.readFile = jest.fn().mockImplementation((path) => {
-      if (path === 'live1') {
-        return JSON.stringify({
-          ...cvr,
-          _testBallot: false,
-        });
-      }
-      return JSON.stringify(cvr);
+      .mockResolvedValue(mockFileEntries);
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+    apiMock.expectGetCastVoteRecordFiles([
+      { ...mockCastVoteRecordFileRecord, filename: TEST_FILE1 },
+    ]);
+    renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
+      usbDrive: mockUsbDrive('mounted'),
+      logger,
+      apiMock,
     });
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
-      castVoteRecordFiles: added,
-    });
-    const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive('mounted'),
-        logger,
-        backend,
-      }
-    );
-    await waitFor(() =>
-      expect(getByTestId('modal-title')).toHaveTextContent(
+    await waitFor(() => {
+      expect(screen.getByTestId('modal-title')).toHaveTextContent(
         'Load Test Ballot Mode CVR Files'
-      )
-    );
+      );
+    });
 
-    const tableRows = getAllByTestId('table-row');
+    const tableRows = screen.getAllByTestId('table-row');
     expect(tableRows).toHaveLength(2);
     domGetByText(tableRows[0], '12/09/2020 03:49:32 PM');
     domGetByText(tableRows[0], '0001');
@@ -292,58 +262,14 @@ describe('Screens display properly when USB is mounted', () => {
       domGetByText(tableRows[1], 'Load').closest('button')!.disabled
     ).toEqual(false);
 
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
-
-    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
-      wasExistingFile: true,
-      newlyAdded: 0,
-      alreadyPresent: 0,
-      exportedTimestamp: new Date().toISOString(),
-      fileMode: Admin.CvrFileMode.Test,
-      fileName: 'cvrs.jsonl',
-      id: 'cvr-file-1',
-      scannerIds: ['scanner-2', 'scanner-3'],
-    });
-    fireEvent.click(domGetByText(tableRows[1], 'Load'));
-    await screen.findByText('Loading');
-    await waitFor(() => {
-      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
-      // There should be a message about loading a duplicate file displayed.
-      getByText('Duplicate File');
-      getByText(
-        'The selected file was ignored as a duplicate of a previously loaded file.'
-      );
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrLoaded,
-        'election_manager',
-        expect.objectContaining({ disposition: 'failure' })
-      );
-    });
   });
 
-  test('Load CVR files screen locks to live mode when live files have been loaded', async () => {
-    const closeFn = jest.fn();
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-        path: 'live1',
-      },
-      {
-        name: TEST_FILE1,
-        type: 1,
-        path: 'test1',
-      },
-      {
-        name: TEST_FILE2,
-        type: 1,
-        path: 'test2',
-      },
-    ];
+  test('locks to live mode when live files have been loaded', async () => {
     window.kiosk!.getFileSystemEntries = jest
       .fn()
-      .mockResolvedValue(fileEntries);
+      .mockResolvedValue(mockFileEntries);
     const cvr: CastVoteRecord = {
       _ballotId: unsafeParse(BallotIdSchema, 'abc'),
       _ballotStyleId: '5',
@@ -355,115 +281,22 @@ describe('Screens display properly when USB is mounted', () => {
       _batchLabel: 'Batch 1',
     };
 
-    const mockFiles = CastVoteRecordFiles.empty;
-
-    // Add initial "live" CVR file to lock the file mode:
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], 'randomname')],
-      eitherNeitherElectionDefinition.election
-    );
-
-    window.kiosk!.readFile = jest.fn().mockImplementation((path) =>
-      JSON.stringify({
-        ...cvr,
-        _testBallot: path !== 'live1',
-      })
-    );
-
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
-      castVoteRecordFiles: added,
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+    apiMock.expectGetCastVoteRecordFiles([
+      { ...mockCastVoteRecordFileRecord, filename: 'random' },
+    ]);
+    renderInAppContext(<ImportCvrFilesModal onClose={jest.fn()} />, {
+      usbDrive: mockUsbDrive('mounted'),
+      apiMock,
     });
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive('mounted'),
-        backend,
-      }
-    );
     await screen.findByText('Load Official Ballot Mode CVR Files');
 
-    const tableRows = getAllByTestId('table-row');
+    const tableRows = screen.getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], cvr._scannerId);
-    jest.spyOn(backend, 'addCastVoteRecordFile').mockResolvedValueOnce({
-      wasExistingFile: false,
-      newlyAdded: 0,
-      alreadyPresent: 0,
-      exportedTimestamp: new Date().toISOString(),
-      fileMode: Admin.CvrFileMode.Test,
-      fileName: 'cvrs.jsonl',
-      id: 'cvr-file-1',
-      scannerIds: ['scanner-2', 'scanner-3'],
-    });
     expect(
       domGetByText(tableRows[0], 'Load').closest('button')!.disabled
     ).toEqual(false);
-
-    fireEvent.click(getByText('Cancel'));
-    expect(closeFn).toHaveBeenCalledTimes(1);
-
-    fireEvent.click(domGetByText(tableRows[0], 'Load'));
-    await screen.findByText('Loading');
-    await waitFor(() => {
-      expect(backend.addCastVoteRecordFile).toHaveBeenCalledTimes(1);
-      getByText('0 new CVRs Loaded');
-    });
-  });
-
-  test('Shows previously loaded files when all files have already been loaded', async () => {
-    const closeFn = jest.fn();
-    const fileEntries = [
-      {
-        name: LIVE_FILE1,
-        type: 1,
-        path: 'live1',
-      },
-    ];
-    window.kiosk!.getFileSystemEntries = jest
-      .fn()
-      .mockResolvedValue(fileEntries);
-    const cvr: CastVoteRecord = {
-      _ballotId: unsafeParse(BallotIdSchema, 'abc'),
-      _ballotStyleId: '5',
-      _ballotType: 'standard',
-      _precinctId: '6522',
-      _testBallot: false,
-      _scannerId: 'abc',
-      _batchId: 'batch-1',
-      _batchLabel: 'Batch 1',
-    };
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], LIVE_FILE1)],
-      eitherNeitherElectionDefinition.election
-    );
-    const backend = new ElectionManagerStoreMemoryBackend({
-      electionDefinition: eitherNeitherElectionDefinition,
-      castVoteRecordFiles: added,
-    });
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive('mounted'),
-        backend,
-      }
-    );
-    await screen.findByText('Load Official Ballot Mode CVR Files');
-    getByText(
-      /There were no new Official Ballot Mode CVR files automatically found on this USB drive./
-    );
-
-    const tableRows = getAllByTestId('table-row');
-    expect(tableRows).toHaveLength(1);
-    domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
-    domGetByText(tableRows[0], '0002');
-    expect(
-      domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
-    ).toEqual(true);
-
-    fireEvent.click(getByText('Cancel'));
-    expect(closeFn).toHaveBeenCalledTimes(1);
   });
 });

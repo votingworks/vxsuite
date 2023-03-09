@@ -28,6 +28,7 @@ import { TextInput } from '../components/text_input';
 import { TextareaAutosize } from '../components/textarea';
 import { BubbleMark } from '../components/bubble_mark';
 import { FileInputButton } from '../components/file_input_button';
+import { configure } from '../api';
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
@@ -186,14 +187,15 @@ export function DefinitionContestsScreen({
 }: {
   allowEditing: boolean;
 }): JSX.Element {
-  const { electionDefinition, saveElection } = useContext(AppContext);
+  const configureMutation = configure.useMutation();
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
   const { contestId } = useParams<{ contestId: ContestId }>();
   const contestIndex = election.contests.findIndex((c) => c.id === contestId);
   const contest = election.contests[contestIndex];
 
-  async function saveContest(newContest: AnyContest) {
+  function saveContest(newContest: AnyContest) {
     if (allowEditing) {
       const newElection: Election = {
         ...election,
@@ -203,11 +205,12 @@ export function DefinitionContestsScreen({
           ...election.contests.slice(contestIndex + 1),
         ],
       };
-      await saveElection(JSON.stringify(newElection));
+      // we expect a stringified election to be valid election JSON
+      configureMutation.mutate({ electionData: JSON.stringify(newElection) });
     }
   }
 
-  const saveTextField: InputEventFunction = async (event) => {
+  const saveTextField: InputEventFunction = (event) => {
     const { name, value: targetValue, type } = event.currentTarget;
     let value: string | number = targetValue;
     if (type === 'number') {
@@ -217,21 +220,21 @@ export function DefinitionContestsScreen({
     if (name === 'seats' && value < 1) {
       value = 1;
     }
-    await saveContest({
+    saveContest({
       ...contest,
       [name]: value,
     });
   };
 
-  async function saveToggleField(field: { name: string; value: boolean }) {
+  function saveToggleField(field: { name: string; value: boolean }) {
     const { name, value } = field;
-    await saveContest({
+    saveContest({
       ...contest,
       [name]: value,
     });
   }
 
-  const saveCandidateTextField: InputEventFunction = async (event) => {
+  const saveCandidateTextField: InputEventFunction = (event) => {
     const { name, value: targetValue } = event.currentTarget;
     const nameParts = name.split('.');
     // eslint-disable-next-line vx/gts-safe-number-parse
@@ -269,7 +272,7 @@ export function DefinitionContestsScreen({
         throw new Error(`Unknown candidate key: ${candidateKey}`);
     }
 
-    await saveContest({
+    saveContest({
       ...candidateContest,
       candidates: newCandidates,
     });
@@ -285,7 +288,7 @@ export function DefinitionContestsScreen({
         const description = `${yesNoContest.description}
 
 ${fileContent}`;
-        await saveContest({
+        saveContest({
           ...yesNoContest,
           description,
         });

@@ -16,11 +16,9 @@ import { routerPaths } from '../router_paths';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
-import { Loading } from '../components/loading';
+import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../api';
 
-export function TallyScreen(): JSX.Element {
+export function TallyScreen(): JSX.Element | null {
   const {
     electionDefinition,
     isOfficialResults,
@@ -53,16 +51,30 @@ export function TallyScreen(): JSX.Element {
       .join(', ');
   }
 
-  const cvrFilesQuery = useCvrFilesQuery();
-  const castVoteRecordFileList =
-    cvrFilesQuery.isLoading || cvrFilesQuery.isError ? [] : cvrFilesQuery.data;
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
+
+  if (
+    !castVoteRecordFilesQuery.isSuccess ||
+    !castVoteRecordFileModeQuery.isSuccess
+  ) {
+    return (
+      <NavigationScreen>
+        <Prose maxWidth={false}>
+          <h1>Cast Vote Record (CVR) Management</h1>
+        </Prose>
+      </NavigationScreen>
+    );
+  }
+
+  const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles =
     castVoteRecordFileList.length > 0 || fullElectionExternalTallies.size > 0;
   const hasExternalManualData = fullElectionExternalTallies.has(
     ExternalTallySourceType.Manual
   );
 
-  const fileMode = useCvrFileModeQuery().data;
+  const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
     fileMode === Admin.CvrFileMode.Test
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying official ballots remove all of the loaded CVR files before loading official ballot results.'
@@ -120,9 +132,7 @@ export function TallyScreen(): JSX.Element {
             </Button>{' '}
             <Button
               disabled={
-                cvrFilesQuery.isLoading ||
-                castVoteRecordFileList.length === 0 ||
-                isOfficialResults
+                fileMode === Admin.CvrFileMode.Unlocked || isOfficialResults
               }
               onPress={() =>
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
@@ -149,34 +159,26 @@ export function TallyScreen(): JSX.Element {
                       Precinct
                     </TD>
                   </tr>
-                  {cvrFilesQuery.isLoading ? (
-                    <tr>
-                      <TD>
-                        <Loading />
-                      </TD>
-                    </tr>
-                  ) : (
-                    castVoteRecordFileList.map(
-                      ({
-                        filename,
-                        exportTimestamp,
-                        numCvrsImported,
-                        scannerIds,
-                        precinctIds,
-                      }) => (
-                        <tr key={filename}>
-                          <TD narrow nowrap>
-                            {moment(exportTimestamp).format(
-                              'MM/DD/YYYY hh:mm:ss A'
-                            )}
-                          </TD>
-                          <TD nowrap>{format.count(numCvrsImported)} </TD>
-                          <TD narrow nowrap>
-                            {scannerIds.join(', ')}
-                          </TD>
-                          <TD>{getPrecinctNames(precinctIds)}</TD>
-                        </tr>
-                      )
+                  {castVoteRecordFileList.map(
+                    ({
+                      filename,
+                      exportTimestamp,
+                      numCvrsImported,
+                      scannerIds,
+                      precinctIds,
+                    }) => (
+                      <tr key={filename}>
+                        <TD narrow nowrap>
+                          {moment(exportTimestamp).format(
+                            'MM/DD/YYYY hh:mm:ss A'
+                          )}
+                        </TD>
+                        <TD nowrap>{format.count(numCvrsImported)} </TD>
+                        <TD narrow nowrap>
+                          {scannerIds.join(', ')}
+                        </TD>
+                        <TD>{getPrecinctNames(precinctIds)}</TD>
+                      </tr>
                     )
                   )}
                   {externalTallyRows}

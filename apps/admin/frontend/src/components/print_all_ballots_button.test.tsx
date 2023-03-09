@@ -1,11 +1,9 @@
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { MemoryHardware } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
-import React from 'react';
-import { Admin } from '@votingworks/api';
 import {
   expectPrint,
   fakeKiosk,
@@ -13,26 +11,18 @@ import {
   hasTextAcrossElements,
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
-import { BallotStyleId } from '@votingworks/types';
+import { BallotStyleId, PrecinctId } from '@votingworks/types';
+import { Admin } from '@votingworks/api';
 import { act, screen, waitFor, within } from '../../test/react_testing_library';
-import {
-  renderInAppContext,
-  renderRootElement,
-} from '../../test/render_in_app_context';
-import {
-  authenticateAsElectionManager,
-  authenticateAsSystemAdministrator,
-  logOut,
-} from '../../test/util/authenticate';
-import { App } from '../app';
+import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   PrintAllBallotsButton,
   PRINTER_WARMUP_TIME,
   TWO_SIDED_PRINT_TIME,
 } from './print_all_ballots_button';
 import { MachineConfig } from '../config/types';
-import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
-import { createMockApiClient, MockApiClient } from '../../test/helpers/api';
+import { createApiMock, ApiMock } from '../../test/helpers/api_mock';
+import { buildApp } from '../../test/helpers/build_app';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -44,15 +34,17 @@ fetchMock.get(
   })
 );
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
+
+const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('button renders properly when not clicked', () => {
@@ -101,15 +93,11 @@ test('modal allows editing print options', async () => {
 test('print sequence proceeds as expected', async () => {
   const printer = fakePrinter();
   const logger = fakeLogger();
-  const backend = new ElectionManagerStoreMemoryBackend();
-  await backend.configure(
-    electionMinimalExhaustiveSampleDefinition.electionData
-  );
   renderInAppContext(<PrintAllBallotsButton />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     printer,
     logger,
-    backend,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print All'));
@@ -121,14 +109,22 @@ test('print sequence proceeds as expected', async () => {
     )
   );
 
-  const expectedBallotStyles: Array<[string, BallotStyleId]> = [
-    ['Precinct 1', '1M'],
-    ['Precinct 1', '2F'],
-    ['Precinct 2', '1M'],
-    ['Precinct 2', '2F'],
+  const expectedBallotStyles: Array<[string, BallotStyleId, PrecinctId]> = [
+    ['Precinct 1', '1M', 'precinct-1'],
+    ['Precinct 1', '2F', 'precinct-1'],
+    ['Precinct 2', '1M', 'precinct-2'],
+    ['Precinct 2', '2F', 'precinct-2'],
   ];
 
   for (const [i, expectedBallotStyle] of expectedBallotStyles.entries()) {
+    apiMock.expectAddPrintedBallot({
+      ballotStyleId: expectedBallotStyle[1],
+      precinctId: expectedBallotStyle[2],
+      locales: { primary: 'en-US' },
+      numCopies: 1,
+      ballotType: 'absentee',
+      ballotMode: Admin.BallotMode.Official,
+    });
     await within(modal).findByText(`Printing Official Ballot (${i + 1} of 4)`);
     within(modal).getByText(
       hasTextAcrossElements(
@@ -153,15 +149,6 @@ test('print sequence proceeds as expected', async () => {
         disposition: 'success',
       })
     );
-    const printedBallots = await backend.loadPrintedBallots();
-    expect(printedBallots).toHaveLength(i + 1);
-    expect(printedBallots[printedBallots.length - 1]).toEqual(
-      expect.objectContaining(
-        typedAs<Partial<Admin.PrintedBallotRecord>>({
-          numCopies: 1,
-        })
-      )
-    );
     jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   }
 
@@ -171,19 +158,13 @@ test('print sequence proceeds as expected', async () => {
 });
 
 test('initial modal state toggles based on printer state', async () => {
-  const hardware = MemoryHardware.build({
-    connectCardReader: true,
-  });
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  const { renderApp, hardware } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  hardware.setPrinterConnected(false);
+  renderApp();
 
-  await authenticateAsElectionManager(
-    mockApiClient,
+  await apiMock.authenticateAsElectionManager(
     electionMinimalExhaustiveSampleDefinition
   );
   await screen.findByText('Print All');
@@ -201,24 +182,21 @@ test('initial modal state toggles based on printer state', async () => {
 test('modal shows "Printer Disconnected" if printer disconnected while printing', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  const hardware = MemoryHardware.build({
-    connectCardReader: true,
-    connectPrinter: true,
-  });
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-  });
-  const logger = fakeLogger();
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-    logger,
-  });
 
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionMinimalExhaustiveSampleDefinition
-  );
+  const { renderApp, hardware, logger } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
+
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+  apiMock.expectAddPrintedBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    locales: { primary: 'en-US' },
+    numCopies: 1,
+    ballotType: 'absentee',
+    ballotMode: Admin.BallotMode.Official,
+  });
   userEvent.click(await screen.findByText('Print All'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -244,22 +222,12 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
 });
 
 test('modal is different for system administrators', async () => {
-  const hardware = MemoryHardware.build({
-    connectCardReader: true,
-    connectPrinter: true,
-  });
-  const backend = new ElectionManagerStoreMemoryBackend({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
-  });
-  renderRootElement(<App hardware={hardware} />, {
-    apiClient: mockApiClient,
-    backend,
-  });
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetCastVoteRecords([]);
+  renderApp();
 
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionMinimalExhaustiveSampleDefinition
-  );
+  await apiMock.authenticateAsElectionManager(electionDefinition);
   userEvent.click(await screen.findByText('Print All'));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
@@ -269,8 +237,8 @@ test('modal is different for system administrators', async () => {
 
   const electionManagerOptions = ['Official', 'Test', 'Sample'];
 
-  await logOut(mockApiClient);
-  await authenticateAsSystemAdministrator(mockApiClient);
+  await apiMock.logOut();
+  await apiMock.authenticateAsSystemAdministrator();
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
@@ -283,11 +251,8 @@ test('modal is different for system administrators', async () => {
   }
   userEvent.click(within(modal).getByText('Cancel'));
 
-  await logOut(mockApiClient);
-  await authenticateAsElectionManager(
-    mockApiClient,
-    electionMinimalExhaustiveSampleDefinition
-  );
+  await apiMock.logOut();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(

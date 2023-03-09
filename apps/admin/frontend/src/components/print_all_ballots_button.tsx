@@ -38,7 +38,7 @@ import { BallotModeToggle } from './ballot_mode_toggle';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { BallotCopiesInput } from './ballot_copies_input';
 import { PrintBallotButtonText } from './print_ballot_button_text';
-import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
+import { addPrintedBallots } from '../api';
 
 export const PRINTER_WARMUP_TIME = 8300;
 export const TWO_SIDED_PRINT_TIME = 3300;
@@ -59,7 +59,7 @@ export function PrintAllBallotsButton(): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const { electionDefinition, auth, logger, hasPrinterAttached } =
     useContext(AppContext);
-  const addPrintedBallotMutation = useAddPrintedBallotMutation();
+  const addPrintedBallotMutation = addPrintedBallots.useMutation();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
@@ -142,15 +142,17 @@ export function PrintAllBallotsButton(): JSX.Element {
       precinctId,
     });
 
-    void addPrintedBallotMutation.mutateAsync({
-      ballotStyleId,
-      precinctId,
-      locales: defaultBallotLocales,
-      numCopies: ballotCopies,
-      ballotType: isAbsentee
-        ? PrintableBallotType.Absentee
-        : PrintableBallotType.Precinct,
-      ballotMode,
+    addPrintedBallotMutation.mutate({
+      printedBallot: {
+        ballotStyleId,
+        precinctId,
+        locales: defaultBallotLocales,
+        numCopies: ballotCopies,
+        ballotType: isAbsentee
+          ? PrintableBallotType.Absentee
+          : PrintableBallotType.Precinct,
+        ballotMode,
+      },
     });
   }
 

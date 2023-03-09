@@ -623,7 +623,9 @@ test('getCvrFiles', async () => {
     })
   ).unsafeUnwrap();
 
-  expect(store.getCvrFiles(electionId)).toEqual<Admin.GetCvrFilesResponse>([
+  expect(store.getCvrFiles(electionId)).toEqual<
+    Admin.CastVoteRecordFileRecord[]
+  >([
     {
       id: IdFileWithCvrs1And2,
       createdAt: expect.any(String),
@@ -646,7 +648,9 @@ test('getCvrFiles', async () => {
     })
   ).unsafeUnwrap();
 
-  expect(store.getCvrFiles(electionId)).toEqual<Admin.GetCvrFilesResponse>([
+  expect(store.getCvrFiles(electionId)).toEqual<
+    Admin.CastVoteRecordFileRecord[]
+  >([
     {
       id: IdFileWithCvrs2And3,
       createdAt: expect.any(String),
@@ -1113,6 +1117,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvrs" => 2,
       "elections" => 1,
       "printed_ballots" => 0,
+      "settings" => 1,
       "write_in_adjudications" => 1,
       "write_ins" => 1,
     }
@@ -1127,6 +1132,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvrs" => 0,
       "elections" => 1,
       "printed_ballots" => 0,
+      "settings" => 1,
       "write_in_adjudications" => 0,
       "write_ins" => 0,
     }
@@ -1225,4 +1231,19 @@ test('printed ballots', () => {
       }
     )
   );
+});
+
+test('current election id', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  expect(store.getCurrentElectionId()).toBeUndefined();
+
+  store.setCurrentElectionId(electionId);
+  expect(store.getCurrentElectionId()).toEqual(electionId);
+
+  store.setCurrentElectionId(undefined);
+  expect(store.getCurrentElectionId()).toBeUndefined();
 });

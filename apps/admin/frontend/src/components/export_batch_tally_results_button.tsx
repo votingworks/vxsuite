@@ -6,7 +6,7 @@ import { assert } from '@votingworks/basics';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
 import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { getCastVoteRecordFileMode } from '../api';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -14,7 +14,10 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const isTestMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Test;
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+
+  const isTestMode =
+    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Test;
 
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,
@@ -22,7 +25,11 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
   );
   return (
     <React.Fragment>
-      <Button small onPress={() => setIsSaveModalOpen(true)}>
+      <Button
+        small
+        onPress={() => setIsSaveModalOpen(true)}
+        disabled={!castVoteRecordFileModeQuery.isSuccess}
+      >
         Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (

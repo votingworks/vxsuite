@@ -24,8 +24,8 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
 import { PrintButton } from '../components/print_button';
+import { getPrintedBallots } from '../api';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
@@ -35,7 +35,7 @@ type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 export function PrintedBallotsReportScreen(): JSX.Element {
   const { electionDefinition, configuredAt, logger, auth } =
     useContext(AppContext);
-  const printedBallotsQuery = usePrintedBallotsQuery({
+  const printedBallotsQuery = getPrintedBallots.useQuery({
     ballotMode: Admin.BallotMode.Official,
   });
   const printedBallots = printedBallotsQuery.data ?? [];

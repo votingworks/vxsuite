@@ -22,7 +22,7 @@ import {
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UsbDrive } from '@votingworks/ui';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, UsbDrive } from '@votingworks/ui';
 import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
@@ -30,11 +30,9 @@ import {
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import {
-  SaveElection,
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
-  ResetElection,
 } from '../src/config/types';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
@@ -43,7 +41,7 @@ import {
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
 import { ApiClient, ApiClientContext } from '../src/api';
-import { createMockApiClient } from './helpers/api';
+import { ApiMock, createMockApiClient } from './helpers/api_mock';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -55,8 +53,6 @@ interface RenderInAppContextParams {
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
-  saveElection?: SaveElection;
-  resetElection?: ResetElection;
   resetFiles?: () => Promise<void>;
   usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
@@ -76,7 +72,7 @@ interface RenderInAppContextParams {
   hasPrinterAttached?: boolean;
   logger?: Logger;
   backend?: ElectionManagerStoreBackend;
-  apiClient?: ApiClient;
+  apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
 
@@ -87,9 +83,16 @@ export function renderRootElement(
     logger = fakeLogger(),
     storage = new MemoryStorage(),
     apiClient = createMockApiClient(),
-    // TODO: Determine why tests fail when using createQueryClient and, by extension,
-    // QUERY_CLIENT_DEFAULT_OPTIONS
-    queryClient = new QueryClient(),
+    // TODO: Determine why tests fail when using useErrorBoundary = true
+    queryClient = new QueryClient({
+      defaultOptions: {
+        ...QUERY_CLIENT_DEFAULT_OPTIONS,
+        queries: {
+          ...(QUERY_CLIENT_DEFAULT_OPTIONS.queries ?? {}),
+          useErrorBoundary: false,
+        },
+      },
+    }),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;
@@ -118,8 +121,6 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
-    saveElection = jest.fn(),
-    resetElection = jest.fn(),
     resetFiles = jest.fn(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
@@ -151,7 +152,7 @@ export function renderInAppContext(
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
     backend,
-    apiClient,
+    apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -163,8 +164,6 @@ export function renderInAppContext(
         configuredAt,
         isOfficialResults,
         printer,
-        saveElection,
-        resetElection,
         resetFiles,
         usbDrive,
         fullElectionTally,
@@ -185,6 +184,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { apiClient, backend, logger, queryClient }
+    { apiClient: apiMock?.apiClient, backend, logger, queryClient }
   );
 }

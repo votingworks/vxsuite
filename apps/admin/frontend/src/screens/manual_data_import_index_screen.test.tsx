@@ -25,9 +25,18 @@ import {
   getEmptyExternalTalliesByPrecinct,
   getEmptyExternalTally,
 } from '../utils/external_tallies';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
+
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
 });
 
 test('toggling ballot types before data has been added does not update tallies', async () => {
@@ -234,7 +243,8 @@ test('loads preexisting manual data to edit', async () => {
     timestampCreated: new Date(),
   };
   const resetFiles = jest.fn();
-  const { getByText, getByTestId } = renderInAppContext(
+  apiMock.expectGetCastVoteRecordFiles([]);
+  const { getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import">
       <ManualDataImportIndexScreen />
     </Route>,
@@ -246,6 +256,7 @@ test('loads preexisting manual data to edit', async () => {
       fullElectionExternalTallies: new Map([
         [externalTally.source, externalTally],
       ]),
+      apiMock,
     }
   );
   await screen.findByText('Manually Entered Absentee Results');
@@ -279,8 +290,8 @@ test('loads preexisting manual data to edit', async () => {
     '7'
   );
 
-  fireEvent.click(getByText('Clear Manual Data'));
-  fireEvent.click(getByText('Remove Manual Data'));
+  userEvent.click(await screen.findByText('Clear Manual Data'));
+  userEvent.click(await screen.findByText('Remove Manual Data'));
 
   expect(resetFiles).toHaveBeenCalledWith(ResultsFileType.Manual);
 

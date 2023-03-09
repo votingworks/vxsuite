@@ -3623,10 +3623,6 @@ exports[`tabulating CVRs 1`] = `
 
 }
 
-@media (min-width:480px) {
-
-}
-
 @media print {
   .c7 {
     border-top: 1px solid rgb(194,200,203);

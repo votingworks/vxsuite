@@ -79,3 +79,12 @@ create table printed_ballots (
   foreign key (election_id) references elections(id)
     on delete cascade
 );
+
+create table settings (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  current_election_id varchar(36),
+  foreign key (current_election_id) references elections(id)
+);
+
+insert into settings default values;

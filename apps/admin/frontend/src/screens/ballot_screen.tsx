@@ -48,9 +48,9 @@ import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
 import { BallotTypeToggle } from '../components/ballot_type_toggle';
 import { PrintBallotButtonText } from '../components/print_ballot_button_text';
-import { useAddPrintedBallotMutation } from '../hooks/use_add_printed_ballot_mutation';
 import { ServicesContext } from '../contexts/services_context';
 import { PrintButton } from '../components/print_button';
+import { addPrintedBallots } from '../api';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -88,7 +88,7 @@ export function BallotScreen(): JSX.Element {
   } = useParams<BallotScreenProps>();
   const { electionDefinition, logger, auth } = useContext(AppContext);
   const { storage } = useContext(ServicesContext);
-  const addPrintedBallotMutation = useAddPrintedBallotMutation();
+  const addPrintedBallotMutation = addPrintedBallots.useMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition);
@@ -199,13 +199,15 @@ export function BallotScreen(): JSX.Element {
         : PrintableBallotType.Precinct;
 
       // Update the printed ballot count
-      await addPrintedBallotMutation.mutateAsync({
-        ballotStyleId,
-        precinctId,
-        locales,
-        numCopies: ballotCopies,
-        ballotType,
-        ballotMode,
+      addPrintedBallotMutation.mutate({
+        printedBallot: {
+          ballotStyleId,
+          precinctId,
+          locales,
+          numCopies: ballotCopies,
+          ballotType,
+          ballotMode,
+        },
       });
 
       await logger.log(LogEventId.BallotPrinted, userRole, {

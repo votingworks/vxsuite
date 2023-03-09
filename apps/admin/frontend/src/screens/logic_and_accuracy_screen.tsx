@@ -7,34 +7,23 @@ import { routerPaths } from '../router_paths';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
+import { getCastVoteRecordFileMode } from '../api';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
-
-  const isLiveMode = useCvrFileModeQuery().data === Admin.CvrFileMode.Official;
-
-  if (
-    electionDefinition &&
-    !canViewAndPrintBallots(electionDefinition.election)
-  ) {
-    return (
-      <NavigationScreen>
-        <Prose>
-          <h1>L&A Testing Documents</h1>
-          <p>
-            VxAdmin does not produce ballots or L&A documents for this election.
-          </p>
-        </Prose>
-      </NavigationScreen>
-    );
-  }
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
   return (
     <NavigationScreen>
-      <Prose maxWidth={false}>
+      <Prose>
         <h1>L&A Testing Documents</h1>
-        {isLiveMode ? (
+        {electionDefinition &&
+        !canViewAndPrintBallots(electionDefinition.election) ? (
+          <p>
+            VxAdmin does not produce ballots or L&A documents for this election.
+          </p>
+        ) : !castVoteRecordFileModeQuery.isSuccess ? null : castVoteRecordFileModeQuery.data ===
+          Admin.CvrFileMode.Official ? (
           <p>
             L&A testing documents are not available after official election CVRs
             have been loaded.

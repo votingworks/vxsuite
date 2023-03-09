@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { Button, Modal, Prose } from '@votingworks/ui';
-import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
+import { unconfigure } from '../api';
+import { useElectionManagerStore } from '../hooks/use_election_manager_store';
 
 export interface Props {
   onClose: () => void;
@@ -11,11 +12,17 @@ export interface Props {
 
 export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
-  const { resetElection } = useContext(AppContext);
+  const unconfigureMutation = unconfigure.useMutation();
+  const store = useElectionManagerStore();
 
   async function unconfigureElection() {
-    await resetElection();
-    history.push(routerPaths.root);
+    // TODO: remove line once external tallies are in the backend
+    await store.clearFullElectionExternalTallies();
+    unconfigureMutation.mutate(undefined, {
+      onSuccess: () => {
+        history.push(routerPaths.root);
+      },
+    });
   }
 
   return (

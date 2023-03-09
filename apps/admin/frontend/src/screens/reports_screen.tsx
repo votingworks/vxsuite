@@ -29,9 +29,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
-import { usePrintedBallotsQuery } from '../hooks/use_printed_ballots_query';
-import { useCvrFileModeQuery } from '../hooks/use_cvr_file_mode_query';
-import { useCvrFilesQuery } from '../hooks/use_cvr_files_query';
+import { getCastVoteRecordFileMode, getPrintedBallots } from '../api';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -48,8 +46,8 @@ export function ReportsScreen(): JSX.Element {
     logger,
     auth,
   } = useContext(AppContext);
-  const cvrFilesQuery = useCvrFilesQuery();
-  const printedBallotsQuery = usePrintedBallotsQuery({
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const printedBallotsQuery = getPrintedBallots.useQuery({
     ballotMode: Admin.BallotMode.Official,
   });
   const printedBallots = printedBallotsQuery.data ?? [];
@@ -79,11 +77,6 @@ export function ReportsScreen(): JSX.Element {
     0
   );
   const totalBallotCount = totalBallotCountInternal + totalBallotCountExternal;
-
-  const totalBallotsPrinted = printedBallots.reduce(
-    (count, ballot) => count + ballot.numCopies,
-    0
-  );
 
   const [converterName, setConverterName] = useState('');
   useEffect(() => {
@@ -171,7 +164,7 @@ export function ReportsScreen(): JSX.Element {
     tallyResultsInfo = resultTables;
   }
 
-  const fileMode = useCvrFileModeQuery().data;
+  const fileMode = castVoteRecordFileModeQuery.data;
   const ballotCountSummaryText = (
     <p>
       <strong>
@@ -184,10 +177,15 @@ export function ReportsScreen(): JSX.Element {
     </p>
   );
 
+  const totalBallotsPrinted = printedBallots.reduce(
+    (count, ballot) => count + ballot.numCopies,
+    0
+  );
+
+  // saving results is enabled once a cast vote record file is loaded
   const canSaveResults =
-    !cvrFilesQuery.isLoading &&
-    !cvrFilesQuery.isError &&
-    cvrFilesQuery.data.length > 0;
+    castVoteRecordFileModeQuery.isSuccess &&
+    castVoteRecordFileModeQuery.data !== Admin.CvrFileMode.Unlocked;
 
   return (
     <React.Fragment>
@@ -199,35 +197,36 @@ export function ReportsScreen(): JSX.Element {
             <LinkButton primary to={routerPaths.tallyFullReport}>
               {statusPrefix} Full Election Tally Report
             </LinkButton>{' '}
-            {canSaveResults && (
+            {converterName !== '' && (
               <React.Fragment>
-                {converterName !== '' && (
-                  <React.Fragment>
-                    <Button onPress={() => setIsExportResultsModalOpen(true)}>
-                      Save {converterName} Results
-                    </Button>{' '}
-                  </React.Fragment>
-                )}
-                <SaveResultsButton />
+                <Button
+                  onPress={() => setIsExportResultsModalOpen(true)}
+                  disabled={!canSaveResults}
+                >
+                  Save {converterName} Results
+                </Button>{' '}
               </React.Fragment>
             )}
+            <SaveResultsButton disabled={!canSaveResults} />
           </p>
           <p>
             <LinkButton to={routerPaths.printedBallotsReport}>
               Printed Ballots Report
             </LinkButton>
-            <span
-              style={{ marginLeft: '1em' }}
-              data-testid="printed-ballots-summary"
-            >
-              <strong>
-                {pluralize(
-                  `${format.count(totalBallotsPrinted)} ballots`,
-                  totalBallotsPrinted
-                )}
-              </strong>{' '}
-              {`${pluralize('have', totalBallotsPrinted)} been printed`}.
-            </span>
+            {printedBallotsQuery.isSuccess && (
+              <span
+                style={{ marginLeft: '1em' }}
+                data-testid="printed-ballots-summary"
+              >
+                <strong>
+                  {pluralize(
+                    `${format.count(totalBallotsPrinted)} ballots`,
+                    totalBallotsPrinted
+                  )}
+                </strong>{' '}
+                {`${pluralize('have', totalBallotsPrinted)} been printed`}.
+              </span>
+            )}
           </p>
           <p>
             <LinkButton to={routerPaths.tallyWriteInReport}>

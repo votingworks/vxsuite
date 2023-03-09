@@ -23,7 +23,7 @@ import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
-import { useWriteInImageQuery } from '../hooks/use_write_in_images_query';
+import { getWriteInImage } from '../api';
 
 const IMAGE_SCALE = 0.5; // The images are downscaled by 50% in the export, this is to adjust for that.
 
@@ -191,7 +191,7 @@ export function WriteInsTranscriptionScreen({
       setShowNewTranscriptionForm(false);
     }
   }
-  const imageDataQuery = useWriteInImageQuery({
+  const imageDataQuery = getWriteInImage.useQuery({
     writeInId: currentAdjudication.id,
   });
   const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
