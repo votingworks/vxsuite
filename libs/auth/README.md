@@ -37,10 +37,12 @@ Someone could trigger an action in a valid state but then remove their card
 right after, switching to an invalid state. We wouldn't want this to trigger the
 frontend error boundary, which throwing errors on the backend typically does.
 
-## Initial Java Card Configuration Script
+## Scripts
 
-This library also contains an initial Java Card configuration script to be run
-at the Bakery.
+### Initial Java Card Configuration Script
+
+This script is an initial Java Card configuration script to be run at the
+Bakery.
 
 ```
 # Install script dependencies
@@ -48,4 +50,22 @@ make install-script-dependencies
 
 # With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
 ./scripts/configure-java-card
+```
+
+The script can also be used to prepare Java Cards for local development.
+
+```
+VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
+VX_OPENSSL_CONFIG_PATH=./certs/openssl.cnf \
+VX_PRIVATE_KEY_PASSWORD=1234 \
+VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
+./scripts/configure-java-card
+```
+
+### Dev Keys and Certs Generation Script
+
+This script generates the dev keys and certs located in `./certs/dev/`.
+
+```
+./scripts/generate_dev_keys_and_certs
 ```
