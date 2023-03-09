@@ -1008,6 +1008,9 @@ function buildMachine({
                 onDone: {
                   target: 'disconnect_after_reset',
                 },
+                onError: {
+                  target: 'disconnect_after_reset',
+                },
               },
             },
             disconnect_after_reset: {
