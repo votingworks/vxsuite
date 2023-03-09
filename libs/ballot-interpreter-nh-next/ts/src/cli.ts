@@ -1,6 +1,7 @@
-import { find, groupBy } from '@votingworks/basics';
+import { assert, err, find, groupBy, ok, Result } from '@votingworks/basics';
 import {
   ElectionDefinition,
+  mapSheet,
   Optional,
   safeParseElectionDefinition,
   SheetOf,
@@ -9,8 +10,8 @@ import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
-import { join } from 'path';
-import { pipeline } from 'stream/promises';
+import { basename, dirname, isAbsolute, join } from 'path';
+import { once } from 'stream';
 import { interpret } from './interpret';
 import { InterpretedBallotCard, InterpretError } from './types';
 
@@ -19,6 +20,22 @@ function usage(out: NodeJS.WritableStream): void {
     `Usage: interpret <election.json> <ballot-side-a.jpeg> <ballot-side-b.jpeg>\n` +
       `       interpret <scan-workspace> [<sheet-id> …]\n`
   );
+}
+
+/**
+ * Similar to using the promise version of `pipeline`, but does not
+ * automatically close the destination stream.
+ */
+async function writeIterToStream(
+  source: Iterable<string> | AsyncIterable<string>,
+  out: NodeJS.WritableStream
+) {
+  for await (const chunk of source) {
+    if (!out.write(chunk)) {
+      // handle backpressure
+      await once(out, 'drain');
+    }
+  }
 }
 
 function prettyPrintInterpretation({
@@ -140,13 +157,20 @@ async function interpretFiles(
   );
 
   if (result.isErr()) {
-    stderr.write(`Error interpreting ballot:\n`);
-    await pipeline(jsonStream<InterpretError>(result.err()), stderr);
+    stderr.write(chalk.red(`Error interpreting ballot:\n`));
+    await writeIterToStream(
+      jsonStream<InterpretError>(result.err(), { compact: false }),
+      stderr
+    );
+    stderr.write(`\n\n`);
     return 1;
   }
 
   if (json) {
-    await pipeline(jsonStream(result.ok(), { compact: false }), stdout);
+    await writeIterToStream(
+      jsonStream(result.ok(), { compact: false }),
+      stdout
+    );
   } else {
     prettyPrintInterpretation({
       electionDefinition,
@@ -214,17 +238,78 @@ async function interpretWorkspace(
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;
 
-  for (const { id, frontPath, backPath } of sheets) {
-    stdout.write(`${chalk.bold('Sheet ID:')} ${id}\n`);
-    await interpretFiles(electionDefinition, [frontPath, backPath], {
-      stdout,
-      stderr,
-      json,
-      debug,
+  /**
+   * Look for the ballot images where the database says they are, and if not
+   * found, look in the `ballot-images` directory in the workspace.
+   */
+  async function correctBallotImagePaths(
+    paths: SheetOf<string>
+  ): Promise<Result<SheetOf<string>, { attemptedPaths: string[] }>> {
+    const attemptedPaths: string[] = [];
+
+    const [frontPath, backPath] = await mapSheet(paths, async (path) => {
+      const pathsToTry = [
+        isAbsolute(path) ? path : join(dirname(dbPath), path),
+        join(workspacePath, 'ballot-images', basename(path)),
+      ];
+
+      for (const pathToTry of pathsToTry) {
+        try {
+          assert((await fs.stat(pathToTry)).isFile());
+          return pathToTry;
+        } catch {
+          attemptedPaths.push(path);
+        }
+      }
+
+      return undefined;
     });
+
+    return frontPath && backPath
+      ? ok([frontPath, backPath])
+      : err({ attemptedPaths });
   }
 
-  return 0;
+  let count = 0;
+  let errorCount = 0;
+
+  for (const { id, frontPath, backPath } of sheets) {
+    stdout.write(`${chalk.bold('Sheet ID:')} ${id}\n`);
+
+    const correctionResult = await correctBallotImagePaths([
+      frontPath,
+      backPath,
+    ]);
+
+    if (correctionResult.isErr()) {
+      stderr.write(
+        chalk.red(`Error finding ballot images; attempted paths:\n`)
+      );
+      for (const path of correctionResult.err().attemptedPaths) {
+        stderr.write(`- ${path}\n`);
+      }
+      return 1;
+    }
+
+    const exitCode = await interpretFiles(
+      electionDefinition,
+      correctionResult.ok(),
+      { stdout, stderr, json, debug }
+    );
+
+    count += 1;
+    if (exitCode !== 0) {
+      errorCount += 1;
+    }
+  }
+
+  stdout.write(
+    `\n${chalk.bold('Summary:')} ${count} sheets${
+      errorCount > 0 ? `, ${chalk.red(`${errorCount} errors`)}` : ''
+    }\n`
+  );
+
+  return errorCount > 0 ? 1 : 0;
 }
 
 /**
