@@ -10,6 +10,7 @@ import {
 import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
+  constructMachineCertSubject,
   CustomCertFields,
   parseCert,
   parseUserDataFromCert,
@@ -229,5 +230,11 @@ test.each<{
 test('constructCardCertSubjectWithoutJurisdictionAndCardType', () => {
   expect(constructCardCertSubjectWithoutJurisdictionAndCardType()).toEqual(
     '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=card/'
+  );
+});
+
+test('constructMachineCertSubject', () => {
+  expect(constructMachineCertSubject('admin', jurisdiction)).toEqual(
+    `/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=admin/1.3.6.1.4.1.59817.2=${jurisdiction}/`
   );
 });
