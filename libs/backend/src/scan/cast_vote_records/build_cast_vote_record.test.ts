@@ -1,6 +1,6 @@
 /* eslint-disable vx/gts-identifiers */
 
-import { assert, find } from '@votingworks/basics';
+import { assert, find, typedAs } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
@@ -10,6 +10,7 @@ import {
   CVR,
   getBallotStyle,
   getContests,
+  InterpretedHmpbPage,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -26,6 +27,7 @@ import {
   toCdfBallotType,
   getOptionPosition,
   hasWriteIns,
+  getWriteInCount,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -453,6 +455,49 @@ describe('buildCVRContestsFromVotes', () => {
   });
 });
 
+test('getWriteInCount', () => {
+  expect(getWriteInCount({ fishing: ['yes'] })).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'zebra',
+          name: 'Zebra',
+        },
+      ],
+    })
+  ).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(1);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+      board: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(2);
+});
+
 test('hasWriteIns', () => {
   expect(hasWriteIns({ fishing: ['yes'] })).toEqual(false);
   expect(
@@ -640,7 +685,16 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
   });
 });
 
-test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
+test('buildCastVoteRecord - HMPB ballot with write-in', () => {
+  const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
+    ...interpretedHmpbPage1,
+    votes: {
+      [fishCouncilContest.id]: [
+        { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+      ],
+    },
+  };
+
   const castVoteRecord = buildCastVoteRecord({
     election,
     electionId,
@@ -650,7 +704,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
     ballotMarkingMode: 'hand',
     pages: [
       {
-        interpretation: interpretedHmpbPage1,
+        interpretation: interpretedHmpbPage1WithWriteIn,
         imageFileUri: 'file:./ballot-images/front.jpg',
       },
       {
@@ -661,6 +715,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
     ballotPageLayoutsLookup: [],
   });
 
+  // image references are included
   expect(castVoteRecord.BallotImage).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -672,4 +727,16 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
       },
     ]
   `);
+
+  // total write-in count is included
+  expect(castVoteRecord.CVRSnapshot).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining(
+        typedAs<Partial<CVR.CVRSnapshot>>({
+          Type: CVR.CVRType.Modified,
+          vxWriteIns: 1,
+        })
+      ),
+    ])
+  );
 });

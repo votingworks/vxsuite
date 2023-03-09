@@ -384,6 +384,28 @@ function buildOriginalSnapshot({
 }
 
 /**
+ * Determines the number of write-in candidates in a {@link VotesDict}
+ */
+export function getWriteInCount(votes: VotesDict): number {
+  let count = 0;
+  for (const vote of Object.values(votes)) {
+    if (vote) {
+      for (const voteOption of vote) {
+        if (
+          voteOption !== 'yes' &&
+          voteOption !== 'no' &&
+          voteOption.isWriteIn
+        ) {
+          count += 1;
+        }
+      }
+    }
+  }
+
+  return count;
+}
+
+/**
  * Determines whether a {@link VotesDict} contains any write-in candidates
  */
 export function hasWriteIns(votes: VotesDict): boolean {
@@ -473,6 +495,7 @@ export function buildCastVoteRecord({
     });
     assert(ballotStyle);
     const contests = getContests({ election, ballotStyle });
+    const writeInCount = getWriteInCount(interpretation.votes);
 
     return {
       ...cvrMetadata,
@@ -489,6 +512,7 @@ export function buildCastVoteRecord({
               ballotMarkingMode: 'machine',
             },
           }),
+          vxWriteIns: writeInCount > 0 ? writeInCount : undefined,
         },
       ],
     };
@@ -506,6 +530,9 @@ export function buildCastVoteRecord({
   ).toString();
 
   const hasImageFileUris = pages[0].imageFileUri || pages[1].imageFileUri;
+  const writeInCount =
+    getWriteInCount(pages[0].interpretation.votes) +
+    getWriteInCount(pages[1].interpretation.votes);
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with
   // scores for all marks and "modified" snapshot with contest rules applied.
@@ -544,6 +571,7 @@ export function buildCastVoteRecord({
             },
           }),
         ],
+        vxWriteIns: writeInCount > 0 ? writeInCount : undefined,
       },
       buildOriginalSnapshot({
         castVoteRecordId,
