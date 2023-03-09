@@ -384,8 +384,6 @@ export class JavaCard implements Card {
 
     // Verify that the VxAdmin cert authority cert is 1) a valid VxAdmin cert, 2) for the correct
     // jurisdiction, and 3) signed by VotingWorks
-    // TODO: Figure out how to sign the VxAdmin cert authority cert with the VotingWorks cert
-    // authority cert
     const vxAdminCertAuthorityCertDetails = await parseCert(
       vxAdminCertAuthorityCert
     );

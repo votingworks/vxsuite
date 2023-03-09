@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
-import { spawnSync } from 'child_process';
-import { assert, sleep } from '@votingworks/basics';
+import { existsSync } from 'fs';
+import { sleep } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../src/apdu';
@@ -20,6 +20,7 @@ import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
 } from '../src/piv';
+import { errorContains, getEnvVar, runCommand } from './utils';
 
 const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
 const GLOBAL_PLATFORM_PATH = 'scripts/gp.jar';
@@ -64,22 +65,10 @@ const PUT_DATA_ADMIN = {
   KEY_ATTRIBUTE_NONE: 0x00,
 } as const;
 
-function getEnvVar(envVarName: string, required = true): string {
-  const value = process.env[envVarName];
-  if (required) {
-    assert(value !== undefined, `Missing required ${envVarName} env var`);
-  }
-  return value || '';
-}
-
 const vxCertAuthorityCertPath = getEnvVar('VX_CERT_AUTHORITY_CERT_PATH');
 const vxOpensslConfigPath = getEnvVar('VX_OPENSSL_CONFIG_PATH');
 const vxPrivateKeyPassword = getEnvVar('VX_PRIVATE_KEY_PASSWORD');
 const vxPrivateKeyPath = getEnvVar('VX_PRIVATE_KEY_PATH');
-
-function errorContains(error: unknown, message: string): boolean {
-  return error instanceof Error && error.message.includes(message);
-}
 
 function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
@@ -87,23 +76,12 @@ function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
 }
 
-function runCommand(command: string[]): string {
-  assert(command[0] !== undefined);
-  const { status, stderr, stdout } = spawnSync(command[0], command.slice(1));
-  if (status !== 0) {
-    throw new Error(stderr.toString());
-  }
-  return stdout.toString();
-}
-
 function globalPlatformCommand(command: string[]): string[] {
   return ['java', '-jar', GLOBAL_PLATFORM_PATH, ...command];
 }
 
 function checkForScriptDependencies(): void {
-  try {
-    runCommand(['ls', GLOBAL_PLATFORM_PATH]);
-  } catch {
+  if (!existsSync(GLOBAL_PLATFORM_PATH)) {
     throw new Error(
       'Missing script dependencies; install using `make install-script-dependencies`'
     );
@@ -315,7 +293,7 @@ export async function main(): Promise<void> {
     runAppletConfigurationCommands();
     await createAndStoreCardVxCert();
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}\n` : error);
+    console.error(error instanceof Error ? `❌ ${error.message}` : error);
     process.exit(1);
   }
   sectionLog('✅', 'Done!');

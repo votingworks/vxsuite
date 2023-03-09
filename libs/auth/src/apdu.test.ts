@@ -226,7 +226,7 @@ test.each<{
 test('ResponseApduError', () => {
   const error = new ResponseApduError([0x6a, 0x82]);
   expect(error.message).toEqual(
-    'Received response APDU with non-success status: 6a 82'
+    'Received response APDU with non-success status word: 6a 82'
   );
   expect(error.statusWord()).toEqual([0x6a, 0x82]);
   expect(error.hasStatusWord([0x6a, 0x82])).toEqual(true);

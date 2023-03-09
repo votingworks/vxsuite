@@ -153,7 +153,9 @@ export function verifyFirstCertWasSignedBySecondCert(
   cert1: FilePathOrBuffer,
   cert2: FilePathOrBuffer
 ): Promise<Buffer> {
-  return openssl(['verify', '-CAfile', cert2, cert1]);
+  // -partial_chain allows for verification without a full cert chain (i.e. a chain of certs that
+  // ends with a self-signed cert)
+  return openssl(['verify', '-partial_chain', '-CAfile', cert2, cert1]);
 }
 
 /**
@@ -186,6 +188,8 @@ export async function verifySignature({
  */
 export async function createCert({
   certSubject,
+  certType = 'standard',
+  expiryInDays = 365,
   opensslConfig,
   publicKeyToSign,
   signingCertAuthorityCert,
@@ -193,6 +197,8 @@ export async function createCert({
   signingPrivateKeyPassword,
 }: {
   certSubject: string;
+  certType?: 'standard' | 'certAuthorityCert';
+  expiryInDays?: number;
   opensslConfig: FilePathOrBuffer;
   publicKeyToSign: FilePathOrBuffer;
   signingCertAuthorityCert: FilePathOrBuffer;
@@ -225,6 +231,11 @@ export async function createCert({
     certSigningRequest,
     '-force_pubkey',
     publicKeyToSign,
+    '-days',
+    `${expiryInDays}`,
+    ...(certType === 'certAuthorityCert'
+      ? ['-extensions', 'v3_ca', '-extfile', opensslConfig]
+      : []),
   ]);
   return cert;
 }

@@ -278,7 +278,7 @@ export class ResponseApduError extends Error {
   constructor(statusWord: [Byte, Byte]) {
     const [sw1, sw2] = statusWord;
     super(
-      'Received response APDU with non-success status: ' +
+      'Received response APDU with non-success status word: ' +
         `${asHexString(sw1)} ${asHexString(sw2)}`
     );
     this.sw1 = sw1;
