@@ -23,6 +23,14 @@ export type i32 = number;
 /** Rust f32 mapped to TypeScript. */
 export type f32 = number;
 
+/** An inset is a set of pixel offsets from the edges of an image. */
+export interface Inset {
+  top: u32;
+  bottom: u32;
+  left: u32;
+  right: u32;
+}
+
 /** Top-level result of interpretation. */
 export type InterpretResult = Result<InterpretedBallotCard, InterpretError>;
 
@@ -34,6 +42,7 @@ export interface InterpretedBallotCard {
 
 /** A successfully imported ballot page. */
 export interface InterpretedBallotPage {
+  borderInset: Inset;
   grid: TimingMarkGrid;
   marks: ScoredOvalMarks;
 }
