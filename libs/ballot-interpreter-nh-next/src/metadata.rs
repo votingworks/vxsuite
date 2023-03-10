@@ -1,4 +1,7 @@
-use std::{fmt::{Debug, Formatter}, convert::TryInto};
+use std::{
+    convert::TryInto,
+    fmt::{Debug, Formatter},
+};
 
 use serde::Serialize;
 

@@ -46,7 +46,6 @@ pub struct LoadedBallotCard {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
-    border_inset: Inset,
     grid: TimingMarkGrid,
     marks: ScoredOvalMarks,
 }
@@ -227,34 +226,66 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         geometry,
     } = load_ballot_card_images(side_a_path, side_b_path)?;
 
-    let side_a_debug = if options.debug {
+    let mut side_a_debug = if options.debug {
         ImageDebugWriter::new(side_a_path.to_path_buf(), side_a.image.clone())
     } else {
         ImageDebugWriter::disabled()
     };
-    let side_b_debug = if options.debug {
+    let mut side_b_debug = if options.debug {
         ImageDebugWriter::new(side_b_path.to_path_buf(), side_b.image.clone())
     } else {
         ImageDebugWriter::disabled()
     };
 
     let (side_a_result, side_b_result) = rayon::join(
-        || find_timing_mark_grid(side_a_path, &geometry, &side_a.image, &side_a_debug),
-        || find_timing_mark_grid(side_b_path, &geometry, &side_b.image, &side_b_debug),
+        || {
+            find_timing_mark_grid(
+                side_a_path,
+                &geometry,
+                &side_a.image,
+                side_a.border_inset,
+                &mut side_a_debug,
+            )
+        },
+        || {
+            find_timing_mark_grid(
+                side_b_path,
+                &geometry,
+                &side_b.image,
+                side_b.border_inset,
+                &mut side_b_debug,
+            )
+        },
     );
 
-    let side_a_grid = side_a_result?;
-    let side_b_grid = side_b_result?;
+    let (side_a_grid, side_a_normalized_img) = side_a_result?;
+    let (side_b_grid, side_b_normalized_img) = side_b_result?;
 
     let ((front_image, front_grid, front_debug), (back_image, back_grid, back_debug)) =
         match (&side_a_grid.metadata, &side_b_grid.metadata) {
             (BallotPageMetadata::Front(_), BallotPageMetadata::Back(_)) => (
-                (side_a.image, side_a_grid, side_a_debug),
-                (side_b.image, side_b_grid, side_b_debug),
+                (
+                    side_a_normalized_img.unwrap_or(side_a.image),
+                    side_a_grid,
+                    side_a_debug,
+                ),
+                (
+                    side_b_normalized_img.unwrap_or(side_b.image),
+                    side_b_grid,
+                    side_b_debug,
+                ),
             ),
             (BallotPageMetadata::Back(_), BallotPageMetadata::Front(_)) => (
-                (side_b.image, side_b_grid, side_b_debug),
-                (side_a.image, side_a_grid, side_a_debug),
+                (
+                    side_b_normalized_img.unwrap_or(side_b.image),
+                    side_b_grid,
+                    side_b_debug,
+                ),
+                (
+                    side_a_normalized_img.unwrap_or(side_a.image),
+                    side_a_grid,
+                    side_a_debug,
+                ),
             ),
             _ => {
                 return Err(Error::InvalidCardMetadata {
@@ -312,12 +343,10 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
 
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
-            border_inset: side_a.border_inset,
             grid: front_grid,
             marks: front_scored_oval_marks,
         },
         back: InterpretedBallotPage {
-            border_inset: side_b.border_inset,
             grid: back_grid,
             marks: back_scored_oval_marks,
         },
