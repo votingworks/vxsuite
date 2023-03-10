@@ -746,6 +746,63 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
+const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
+  {
+    originalFilename: '/original.png',
+    normalizedFilename: '/normalized.png',
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 800, height: 1000 },
+        marks: [],
+      },
+      metadata: {
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 1,
+        locales: { primary: 'en-US' },
+        ballotType: BallotType.Standard,
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+  {
+    originalFilename: '/original.png',
+    normalizedFilename: '/normalized.png',
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      votes: {},
+      markInfo: {
+        ballotSize: { width: 800, height: 1000 },
+        marks: [],
+      },
+      metadata: {
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotStyleId: '12',
+        precinctId: '23',
+        isTestMode: false,
+        pageNumber: 2,
+        locales: { primary: 'en-US' },
+        ballotType: BallotType.Standard,
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    },
+  },
+];
+
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition.electionData);
@@ -755,62 +812,6 @@ test('iterating over all result sheets', () => {
 
   // add a batch with a sheet
   const batchId = store.addBatch();
-  const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
-    {
-      originalFilename: '/original.png',
-      normalizedFilename: '/normalized.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [],
-        },
-        metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-    {
-      originalFilename: '/original.png',
-      normalizedFilename: '/normalized.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [],
-        },
-        metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 2,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-  ];
   store.addSheet(uuid(), batchId, sheetWithFiles);
   store.finishBatch({ batchId });
 
@@ -820,6 +821,7 @@ test('iterating over all result sheets', () => {
       {
         id: expect.any(String),
         batchId,
+        indexInBatch: 1,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
         frontNormalizedFilename: '/normalized.png',
@@ -858,6 +860,67 @@ test('iterating over all result sheets', () => {
     sheetWithFiles[1],
   ]);
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
+});
+
+test('iterating over each result sheet includes correct batch sequence id', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // the filenames must be unique in the database so, to insert multiple sheets
+  // for this test we must include random filenames with the fixture
+  function generateSheet(): SheetOf<PageInterpretationWithFiles> {
+    return [
+      {
+        ...sheetWithFiles[0],
+        originalFilename: uuid(),
+        normalizedFilename: uuid(),
+      },
+      {
+        ...sheetWithFiles[1],
+        originalFilename: uuid(),
+        normalizedFilename: uuid(),
+      },
+    ];
+  }
+
+  const batch1Id = store.addBatch();
+  const batch1Sheet1Id = store.addSheet(uuid(), batch1Id, generateSheet());
+  const batch1Sheet2Id = store.addSheet(uuid(), batch1Id, generateSheet());
+  const batch1Sheet3Id = store.addSheet(uuid(), batch1Id, generateSheet());
+  store.finishBatch({ batchId: batch1Id });
+
+  const batch2Id = store.addBatch();
+  const batch2Sheet1Id = store.addSheet(uuid(), batch2Id, generateSheet());
+  store.finishBatch({ batchId: batch2Id });
+
+  const batch3Id = store.addBatch();
+  const batch3Sheet1Id = store.addSheet(uuid(), batch3Id, generateSheet());
+  const batch3Sheet2Id = store.addSheet(uuid(), batch3Id, generateSheet());
+  store.finishBatch({ batchId: batch3Id });
+
+  const resultSheets = Array.from(store.forEachResultSheet());
+  expect(resultSheets).toHaveLength(6);
+  const expectedResultSheets: Array<
+    [id: string, batchId: string, indexInBatch: number]
+  > = [
+    [batch1Sheet1Id, batch1Id, 1],
+    [batch1Sheet2Id, batch1Id, 2],
+    [batch1Sheet3Id, batch1Id, 3],
+    [batch2Sheet1Id, batch2Id, 1],
+    [batch3Sheet1Id, batch3Id, 1],
+    [batch3Sheet2Id, batch3Id, 2],
+  ];
+  for (const expectedResultSheet of expectedResultSheets) {
+    expect(resultSheets).toMatchObject(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expectedResultSheet[0],
+          batchId: expectedResultSheet[1],
+          indexInBatch: expectedResultSheet[2],
+        }),
+      ])
+    );
+  }
 });
 
 test('resetElectionSession', async () => {

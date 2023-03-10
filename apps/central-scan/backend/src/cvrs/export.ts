@@ -57,11 +57,9 @@ async function loadImagePathShrinkBase64(
 export async function* exportCastVoteRecords({
   store,
   skipImages,
-  orderBySheetId,
 }: {
   store: Store;
   skipImages?: boolean;
-  orderBySheetId?: boolean;
 }): AsyncGenerator<CastVoteRecord> {
   const electionDefinition = store.getElectionDefinition();
 
@@ -74,7 +72,7 @@ export async function* exportCastVoteRecords({
     batchId,
     batchLabel,
     interpretation,
-  } of store.forEachResultSheet({ orderBySheetId })) {
+  } of store.forEachResultSheet()) {
     const frontImage: InlineBallotImage = { normalized: '' };
     const backImage: InlineBallotImage = { normalized: '' };
     const includeImages =
@@ -170,15 +168,13 @@ export async function* exportCastVoteRecords({
 export function exportCastVoteRecordsAsNdJson({
   store,
   skipImages,
-  orderBySheetId,
 }: {
   store: Store;
   skipImages?: boolean;
-  orderBySheetId?: boolean;
 }): NodeJS.ReadableStream {
   return Readable.from(
     mapAsync(
-      exportCastVoteRecords({ store, skipImages, orderBySheetId }),
+      exportCastVoteRecords({ store, skipImages }),
       (cvr) => `${JSON.stringify(cvr)}\n`
     )
   );

@@ -496,6 +496,7 @@ jest.mock('./page_layouts', () => {
 const electionId = '0000000000'; // fixed for resiliency to hash change
 const scannerId = 'SC-00-000';
 const batchId = 'batch-1';
+const indexInBatch = 19;
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
 const definiteMarkThreshold = 0.15;
 
@@ -518,6 +519,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
     BatchId: batchId,
+    BatchSequenceId: undefined,
     UniqueId: castVoteRecordId,
     vxBallotType: CVR.vxBallotType.Precinct,
   });
@@ -544,6 +546,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     castVoteRecordId,
     scannerId,
     batchId,
+    indexInBatch,
     ballotMarkingMode: 'hand',
     pages: [
       {
@@ -565,6 +568,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       CreatingDeviceId: scannerId,
       ElectionId: electionId,
       BatchId: batchId,
+      BatchSequenceId: indexInBatch,
       UniqueId: castVoteRecordId,
       vxBallotType: CVR.vxBallotType.Precinct,
       BallotSheetId: '1',

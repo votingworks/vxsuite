@@ -413,6 +413,7 @@ type BuildCastVoteRecordParams = {
   scannerId: string;
   castVoteRecordId: BallotId;
   batchId: string;
+  indexInBatch?: number;
 } & (
   | {
       ballotMarkingMode: 'machine';
@@ -438,6 +439,7 @@ export function buildCastVoteRecord({
   scannerId,
   castVoteRecordId,
   batchId,
+  indexInBatch,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
   const ballotMetadata =
@@ -458,6 +460,7 @@ export function buildCastVoteRecord({
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
     BatchId: batchId, // VVSG 2.0 1.1.5-G.6
+    BatchSequenceId: indexInBatch, // VVSG 2.0 1.1.5-G.7
     UniqueId: castVoteRecordId,
     vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
   } as const;

@@ -10,6 +10,7 @@ Object {
       "BallotStyleId": "2F",
       "BallotStyleUnitId": "precinct-1",
       "BatchId": "batch-1",
+      "BatchSequenceId": 1,
       "CVRSnapshot": Array [
         Object {
           "@id": "ballot-1-modified",
@@ -149,6 +150,7 @@ Object {
       "BallotStyleId": "2F",
       "BallotStyleUnitId": "precinct-1",
       "BatchId": "batch-1",
+      "BatchSequenceId": 2,
       "CVRSnapshot": Array [
         Object {
           "@id": "ballot-2-original",

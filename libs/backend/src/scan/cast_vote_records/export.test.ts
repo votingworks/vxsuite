@@ -76,6 +76,7 @@ test('getCastVoteRecordReportStream', async () => {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
+      indexInBatch: 1,
       frontNormalizedFilename: 'front.jpg',
       backNormalizedFilename: 'back.jpg',
       interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
@@ -84,6 +85,7 @@ test('getCastVoteRecordReportStream', async () => {
     yield {
       id: 'ballot-2',
       batchId: 'batch-1',
+      indexInBatch: 2,
       frontNormalizedFilename: 'front.jpg',
       backNormalizedFilename: 'back.jpg',
       interpretation: [interpretedBmdPage, { type: 'BlankPage' }],

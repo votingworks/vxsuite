@@ -39,6 +39,12 @@ import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 export interface ResultSheet {
   readonly id: Id;
   readonly batchId: Id;
+  /**
+   * `indexInBatch` only applies to the central scanner. It is required in cast
+   * vote records per VVSG 2.0 1.1.5-G.7, but is not included for the precinct
+   * scanner because that would compromise voter privacy.
+   */
+  readonly indexInBatch?: number;
   // TODO: remove once the deprecated CVR export is no longer using batchLabel
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;
@@ -117,6 +123,7 @@ function* getCastVoteRecordGenerator({
   for (const {
     id,
     batchId,
+    indexInBatch,
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
@@ -145,6 +152,7 @@ function* getCastVoteRecordGenerator({
           canonicalizedSheet.interpretation.ballotId ||
           unsafeParse(BallotIdSchema, id),
         batchId,
+        indexInBatch,
         ballotMarkingMode: 'machine',
         interpretation: canonicalizedSheet.interpretation,
       });
@@ -165,6 +173,7 @@ function* getCastVoteRecordGenerator({
       scannerId,
       castVoteRecordId: unsafeParse(BallotIdSchema, id),
       batchId,
+      indexInBatch,
       ballotMarkingMode: 'hand',
       definiteMarkThreshold,
       pages: [
