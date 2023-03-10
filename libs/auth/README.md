@@ -39,6 +39,9 @@ frontend error boundary, which throwing errors on the backend typically does.
 
 ## Scripts
 
+Note that all scripts are meant to be run from `libs/auth/` and not
+`libs/auth/scripts/`.
+
 ### Initial Java Card Configuration Script
 
 This script configures a Java Card for use with VotingWorks machines. The script
@@ -53,7 +56,7 @@ make install-script-dependencies
 ./scripts/configure-java-card
 ```
 
-For local development, run the command as follows:
+For local development, use this command:
 
 ```
 VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
@@ -62,6 +65,12 @@ VX_PRIVATE_KEY_PASSWORD=1234 \
 VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
 ./scripts/configure-java-card
 ```
+
+This command needs to be run on all Java Cards before they can be used in any
+local development capacity, including before they can be programmed through
+VxAdmin. This same command can be used to unprogram a card. This can come in
+handy if you ever need to unprogram a system administrator card, the one type of
+card that can't be unprogrammed through VxAdmin.
 
 ### Dev System Administrator Java Card Programming Script
 
@@ -75,11 +84,20 @@ cards, through VxAdmin.
 ```
 
 The initial Java Card configuration script needs to be run before this script
-can be run.
+can be run. This script will remind you if you haven't done so.
+
+### Common Java Card Script Gotchas
+
+This library's card reader code only allows one process to access the card
+reader at a time, so make sure you quit any locally running backends before you
+try to run the above scripts. Even if you don't think any backends are running,
+you might have to `ps aux | grep node` for lingering Node processes.
 
 ### Dev Keys and Certs Generation Script
 
-This script generates the dev keys and certs located in `./certs/dev/`.
+This script generates the dev keys and certs located in `./certs/dev/`. We
+shouldn't have to update the current dev certs until they expire in 2123 ⏳😝,
+so this script is mostly just a way to document how the certs were created.
 
 ```
 ./scripts/generate_dev_keys_and_certs
