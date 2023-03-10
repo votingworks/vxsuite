@@ -118,9 +118,9 @@ describe('buildCVRContestsFromVotes', () => {
           },
         ],
         "ContestId": "fishing",
-        "Overvotes": undefined,
+        "Overvotes": 0,
         "Status": undefined,
-        "Undervotes": undefined,
+        "Undervotes": 0,
       }
     `);
   });
@@ -135,6 +135,8 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
+      Undervotes: 0,
       CVRContestSelection: [
         expect.objectContaining({
           ContestSelectionId: 'no',
@@ -160,6 +162,7 @@ describe('buildCVRContestsFromVotes', () => {
         CVR.ContestStatus.Overvoted,
       ]),
       Overvotes: 1,
+      Undervotes: 0,
       CVRContestSelection: expect.anything(),
     });
     for (const contestSelection of cvrContest!.CVRContestSelection!) {
@@ -184,6 +187,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 1,
       Status: expect.arrayContaining([
         CVR.ContestStatus.NotIndicated,
@@ -257,10 +261,10 @@ describe('buildCVRContestsFromVotes', () => {
           },
         ],
         "ContestId": "zoo-council-mammal",
-        "Overvotes": undefined,
+        "Overvotes": 0,
         "Status": undefined,
-        "Undervotes": undefined,
-        "WriteIns": undefined,
+        "Undervotes": 0,
+        "WriteIns": 0,
       }
     `);
   });
@@ -275,6 +279,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 3,
       Status: expect.arrayContaining([
         CVR.ContestStatus.NotIndicated,
@@ -295,6 +300,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 2,
       Status: expect.arrayContaining([CVR.ContestStatus.Undervoted]),
     });
@@ -313,6 +319,7 @@ describe('buildCVRContestsFromVotes', () => {
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
       Overvotes: 1,
+      Undervotes: 0,
       Status: expect.arrayContaining([
         CVR.ContestStatus.Overvoted,
         CVR.ContestStatus.InvalidatedRules,

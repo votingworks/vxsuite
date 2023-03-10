@@ -59,8 +59,8 @@ function buildCVRBallotMeasureContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: overvoted ? 1 : undefined,
-    Undervotes: undervoted ? 1 : undefined,
+    Overvotes: Math.max(vote.length - 1, 0),
+    Undervotes: Math.max(1 - vote.length, 0),
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
       : undervoted
@@ -214,9 +214,9 @@ function buildCVRCandidateContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: overvoted ? vote.length - contest.seats : undefined, // VVSG 2.0 1.1.5-E.2
-    Undervotes: undervoted ? contest.seats - vote.length : undefined, // VVSG 2.0 1.1.5-E.2
-    WriteIns: numWriteIns > 0 ? numWriteIns : undefined, // VVSG 2.0 1.1.5-E.3
+    Overvotes: Math.max(vote.length - contest.seats, 0), // VVSG 2.0 1.1.5-E.2
+    Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
+    WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
     Status: statuses.length > 0 ? statuses : undefined,
     CVRContestSelection: voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
@@ -512,7 +512,7 @@ export function buildCastVoteRecord({
               ballotMarkingMode: 'machine',
             },
           }),
-          vxWriteIns: writeInCount > 0 ? writeInCount : undefined,
+          vxWriteIns: writeInCount,
         },
       ],
     };
@@ -571,7 +571,7 @@ export function buildCastVoteRecord({
             },
           }),
         ],
-        vxWriteIns: writeInCount > 0 ? writeInCount : undefined,
+        vxWriteIns: writeInCount,
       },
       buildOriginalSnapshot({
         castVoteRecordId,
