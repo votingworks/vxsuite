@@ -275,9 +275,9 @@ export class JavaCard implements Card {
 
     const chunks: Buffer[] = [];
     for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
-      let response: Buffer;
+      let chunk: Buffer;
       try {
-        response = await this.getData(objectId);
+        chunk = await this.getData(objectId);
       } catch (error) {
         if (
           error instanceof ResponseApduError &&
@@ -294,7 +294,6 @@ export class JavaCard implements Card {
         }
         throw error;
       }
-      const [, , chunk] = parseTlv(PUT_DATA.DATA_TAG, response);
       chunks.push(chunk);
     }
     return Buffer.concat(chunks);
@@ -314,13 +313,7 @@ export class JavaCard implements Card {
         // Okay if this is larger than data.length as .subarray() automatically caps
         MAX_DATA_OBJECT_SIZE_BYTES * i + MAX_DATA_OBJECT_SIZE_BYTES
       );
-      await this.putData(
-        objectId,
-        Buffer.concat([
-          constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
-          constructTlv(PUT_DATA.DATA_TAG, chunk),
-        ])
-      );
+      await this.putData(objectId, chunk);
     }
   }
 
@@ -428,8 +421,9 @@ export class JavaCard implements Card {
    * Retrieves a cert in PEM format
    */
   private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
-    const getDataResult = await this.getData(certObjectId);
-    const certInDerFormat = getDataResult.subarray(8, -5); // Trim metadata
+    const data = await this.getData(certObjectId);
+    const certTlv = data.subarray(0, -5); // Trim metadata
+    const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
     const certInPemFormat = await certDerToPem(certInDerFormat);
     return certInPemFormat;
   }
@@ -576,8 +570,8 @@ export class JavaCard implements Card {
     );
   }
 
-  private getData(objectId: Buffer): Promise<Buffer> {
-    return this.cardReader.transmit(
+  private async getData(objectId: Buffer): Promise<Buffer> {
+    const dataTlv = await this.cardReader.transmit(
       new CardCommand({
         ins: GET_DATA.INS,
         p1: GET_DATA.P1,
@@ -585,6 +579,8 @@ export class JavaCard implements Card {
         data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
       })
     );
+    const [, , data] = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
+    return data;
   }
 
   private async putData(objectId: Buffer, data: Buffer): Promise<void> {
