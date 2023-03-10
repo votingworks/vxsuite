@@ -77,7 +77,7 @@ card, you can program all other cards, including additional system administrator
 cards, through VxAdmin.
 
 ```
-./scripts/program_dev_system_administrator_java_card
+./scripts/program-dev-system-administrator-java-card
 ```
 
 The initial Java Card configuration script needs to be run before this script
@@ -97,5 +97,5 @@ shouldn't have to update the current dev certs until they expire in 2123 ⏳😝
 so this script is mostly just a way to document how the certs were created.
 
 ```
-./scripts/generate_dev_keys_and_certs
+./scripts/generate-dev-keys-and-certs
 ```
