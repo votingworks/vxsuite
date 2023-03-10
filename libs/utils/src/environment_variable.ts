@@ -17,6 +17,8 @@ export enum BooleanEnvironmentVariableName {
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
   // Skips PIN entry during authentication
   SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
+  // Enable auth with Java Cards (as opposed to our existing memory cards)
+  ENABLE_JAVA_CARDS = 'REACT_APP_VX_ENABLE_JAVA_CARDS',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -57,6 +59,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
     case BooleanEnvironmentVariableName.SKIP_PIN_ENTRY:
       return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
+    case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
+      return process.env.REACT_APP_VX_ENABLE_JAVA_CARDS;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* istanbul ignore next compile time check */
@@ -106,6 +110,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.SKIP_PIN_ENTRY:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
       return {
         name,
         allowInProduction: false,
