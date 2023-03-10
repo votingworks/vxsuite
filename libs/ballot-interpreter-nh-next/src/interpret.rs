@@ -153,13 +153,10 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedB
     };
 
     let threshold = otsu_level(&image);
-    let border_inset = match find_scanned_document_inset(&image, threshold) {
-        Some(inset) => inset,
-        None => {
-            return Err(Error::BorderInsetNotFound {
-                path: image_path.to_str().unwrap_or_default().to_string(),
-            });
-        }
+    let Some(border_inset) = find_scanned_document_inset(&image, threshold) else {
+        return Err(Error::BorderInsetNotFound {
+            path: image_path.to_str().unwrap_or_default().to_string(),
+        });
     };
 
     let image = image
@@ -171,9 +168,7 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedB
         )
         .to_image();
 
-    let geometry = if let Some(geometry) = get_scanned_ballot_card_geometry(image.dimensions()) {
-        geometry
-    } else {
+    let Some(geometry) = get_scanned_ballot_card_geometry(image.dimensions()) else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
             path: image_path.to_str().unwrap_or_default().to_string(),
@@ -303,19 +298,15 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
     };
 
     // TODO: discover this from the ballot card metadata
-    let grid_layout = match options
+    let Some(grid_layout) = options
         .election
         .grid_layouts
         .iter()
-        .find(|layout| layout.ballot_style_id == ballot_style_id)
-    {
-        Some(layout) => layout,
-        None => {
+        .find(|layout| layout.ballot_style_id == ballot_style_id) else {
             return Err(Error::MissingGridLayout {
                 front: front_grid.metadata,
                 back: back_grid.metadata,
             })
-        }
     };
 
     let (front_scored_oval_marks, back_scored_oval_marks) = rayon::join(

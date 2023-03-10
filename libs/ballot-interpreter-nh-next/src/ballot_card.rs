@@ -20,7 +20,7 @@ pub enum BallotPaperSize {
 
 /// Ballot card orientation.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub enum BallotCardOrientation {
+pub enum Orientation {
     /// The ballot card is portrait and right-side up.
     #[serde(rename = "portrait")]
     Portrait,

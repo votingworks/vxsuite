@@ -51,7 +51,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         Ok(election) => election,
         Err(err) => {
             let error = cx
-                .string(format!("Failed to parse election JSON: {}", err))
+                .string(format!("Failed to parse election JSON: {err}"))
                 .upcast();
             return make_interpret_result(&mut cx, false, false, error);
         }
@@ -90,8 +90,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         Err(err) => {
             let error = cx
                 .string(format!(
-                    "Ballot card interpretation succeeded, but serialization as JSON failed: {}",
-                    err
+                    "Ballot card interpretation succeeded, but serialization as JSON failed: {err}"
                 ))
                 .upcast();
             return make_interpret_result(&mut cx, false, false, error);

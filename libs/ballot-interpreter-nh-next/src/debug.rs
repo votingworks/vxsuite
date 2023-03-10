@@ -127,7 +127,7 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
         let center = center_of_rect(rect);
-        let text = format!("{}", i);
+        let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), GREEN);
         draw_text_mut(
@@ -143,7 +143,7 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, rect) in partial_timing_marks.bottom_rects.iter().enumerate() {
         let center = center_of_rect(rect);
-        let text = format!("{}", i);
+        let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), BLUE);
         draw_text_mut(
@@ -159,14 +159,14 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, rect) in partial_timing_marks.left_rects.iter().enumerate() {
         let center = center_of_rect(rect);
-        let text = format!("{}", i);
+        let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), RED);
         draw_text_mut(
             canvas,
             DARK_RED,
             (rect.right() as f32 + text_height as f32 / 4.0) as i32,
-            (center.y as f32 - text_height as f32 / 2.0) as i32,
+            (center.y - text_height as f32 / 2.0) as i32,
             scale,
             font,
             text.as_str(),
@@ -175,14 +175,14 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, rect) in partial_timing_marks.right_rects.iter().enumerate() {
         let center = center_of_rect(rect);
-        let text = format!("{}", i);
+        let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), CYAN);
         draw_text_mut(
             canvas,
             DARK_CYAN,
             (rect.left() as f32 - text_width as f32 - text_height as f32 / 4.0) as i32,
-            (center.y as f32 - text_height as f32 / 2.0) as i32,
+            (center.y - text_height as f32 / 2.0) as i32,
             scale,
             font,
             text.as_str(),
