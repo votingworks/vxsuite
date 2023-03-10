@@ -352,3 +352,43 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         },
     })
 }
+
+#[cfg(test)]
+mod test {
+    use std::{fs::File, io::BufReader};
+
+    use crate::ballot_card::load_oval_template;
+
+    use super::*;
+
+    #[test]
+    fn test_interpret_ballot_card() {
+        let fixture_path = Path::new(file!())
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let oval_template = load_oval_template().unwrap();
+        for (side_a_name, side_b_name) in vec![
+            ("scan-side-a.jpeg", "scan-side-b.jpeg"),
+            ("scan-rotated-side-b.jpeg", "scan-rotated-side-a.jpeg"),
+        ] {
+            let side_a_path = fixture_path.join(side_a_name);
+            let side_b_path = fixture_path.join(side_b_name);
+            interpret_ballot_card(
+                side_a_path.as_path(),
+                side_b_path.as_path(),
+                &Options {
+                    debug: false,
+                    oval_template: oval_template.clone(),
+                    election: election.clone(),
+                },
+            )
+            .unwrap();
+        }
+    }
+}

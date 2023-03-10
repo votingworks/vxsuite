@@ -212,29 +212,22 @@ pub fn find_timing_mark_grid(
         } else {
             let (width, height) = img.dimensions();
             debug.rotate180();
-            match rotate_partial_timing_marks(&Size { width, height }, partial_timing_marks) {
-                Some(partial_timing_marks) => {
-                    debug.write("rotated_partial_timing_marks", |canvas| {
-                        draw_timing_mark_debug_image_mut(canvas, geometry, &partial_timing_marks)
-                    });
-                    (
-                        partial_timing_marks,
-                        Some(rotate180(img)),
-                        Inset {
-                            top: border_inset.bottom,
-                            bottom: border_inset.top,
-                            left: border_inset.right,
-                            right: border_inset.left,
-                        },
-                    )
-                }
-                None => {
-                    return Err(Error::MissingTimingMarks {
-                        rects: candidate_timing_marks,
-                    })
-                }
-            }
+            (
+                rotate_partial_timing_marks(&Size { width, height }, partial_timing_marks),
+                Some(rotate180(img)),
+                Inset {
+                    top: border_inset.bottom,
+                    bottom: border_inset.top,
+                    left: border_inset.right,
+                    right: border_inset.left,
+                },
+            )
         };
+
+    debug.write(
+        "partial_timing_marks_after_orientation_correction",
+        |canvas| draw_timing_mark_debug_image_mut(canvas, geometry, &partial_timing_marks),
+    );
 
     let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
         geometry,
@@ -514,39 +507,25 @@ impl Rotator180 {
         }
     }
 
-    pub fn rotate_rect(&self, rect: &Rect) -> Option<Rect> {
-        match (
+    pub fn rotate_rect(&self, rect: &Rect) -> Rect {
+        Rect::from_points(
             self.rotate_point_i32(&rect.bottom_right()),
             self.rotate_point_i32(&rect.top_left()),
-        ) {
-            (Some(top_left), Some(bottom_right)) => Some(Rect::from_points(top_left, bottom_right)),
-            _ => None,
-        }
+        )
     }
 
-    fn rotate_point_i32(&self, point: &Point<i32>) -> Option<Point<i32>> {
-        if !self.canvas_area.contains(point) {
-            return None;
-        }
-
-        Some(Point::new(
+    fn rotate_point_i32(&self, point: &Point<i32>) -> Point<i32> {
+        Point::new(
             self.canvas_area.width() as i32 - 1 - point.x,
             self.canvas_area.height() as i32 - 1 - point.y,
-        ))
+        )
     }
 
-    fn rotate_point_f32(&self, point: &Point<f32>) -> Option<Point<f32>> {
-        if !self
-            .canvas_area
-            .contains(&Point::new(point.x as i32, point.y as i32))
-        {
-            return None;
-        }
-
-        Some(Point::new(
+    fn rotate_point_f32(&self, point: &Point<f32>) -> Point<f32> {
+        Point::new(
             (self.canvas_area.width() as i32 - 1) as f32 - point.x,
             (self.canvas_area.height() as i32 - 1) as f32 - point.y,
-        ))
+        )
     }
 }
 
@@ -554,7 +533,7 @@ impl Rotator180 {
 pub fn rotate_partial_timing_marks(
     image_size: &Size<u32>,
     partial_timing_marks: Partial,
-) -> Option<Partial> {
+) -> Partial {
     let Partial {
         geometry,
         top_left_corner,
@@ -573,77 +552,37 @@ pub fn rotate_partial_timing_marks(
 
     let rotator = Rotator180::new(image_size);
 
-    let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = match (
-        rotator.rotate_point_f32(&top_left_corner),
-        rotator.rotate_point_f32(&top_right_corner),
-        rotator.rotate_point_f32(&bottom_left_corner),
+    let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
         rotator.rotate_point_f32(&bottom_right_corner),
-    ) {
-        (
-            Some(top_left_corner),
-            Some(top_right_corner),
-            Some(bottom_left_corner),
-            Some(bottom_right_corner),
-        ) => (
-            bottom_right_corner,
-            bottom_left_corner,
-            top_right_corner,
-            top_left_corner,
-        ),
-        _ => return None,
-    };
+        rotator.rotate_point_f32(&bottom_left_corner),
+        rotator.rotate_point_f32(&top_right_corner),
+        rotator.rotate_point_f32(&top_left_corner),
+    );
 
-    let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = match (
-        top_left_rect.map(|r| rotator.rotate_rect(&r)),
-        top_right_rect.map(|r| rotator.rotate_rect(&r)),
-        bottom_left_rect.map(|r| rotator.rotate_rect(&r)),
+    let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
         bottom_right_rect.map(|r| rotator.rotate_rect(&r)),
-    ) {
-        (
-            Some(top_left_rect),
-            Some(top_right_rect),
-            Some(bottom_left_rect),
-            Some(bottom_right_rect),
-        ) => (
-            top_left_rect,
-            top_right_rect,
-            bottom_left_rect,
-            bottom_right_rect,
-        ),
-        _ => return None,
-    };
+        bottom_left_rect.map(|r| rotator.rotate_rect(&r)),
+        top_right_rect.map(|r| rotator.rotate_rect(&r)),
+        top_left_rect.map(|r| rotator.rotate_rect(&r)),
+    );
 
-    let mut rotated_top_rects: Vec<Rect> = top_rects
-        .iter()
-        .flat_map(|r| rotator.rotate_rect(r))
-        .collect();
+    let mut rotated_top_rects: Vec<Rect> =
+        top_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
     let mut rotated_bottom_rects: Vec<Rect> = bottom_rects
         .iter()
-        .flat_map(|r| rotator.rotate_rect(r))
+        .map(|r| rotator.rotate_rect(r))
         .collect();
-    let mut rotated_left_rects: Vec<Rect> = left_rects
-        .iter()
-        .flat_map(|r| rotator.rotate_rect(r))
-        .collect();
-    let mut rotated_right_rects: Vec<Rect> = right_rects
-        .iter()
-        .flat_map(|r| rotator.rotate_rect(r))
-        .collect();
-
-    if rotated_top_rects.len() != top_rects.len()
-        || rotated_bottom_rects.len() != bottom_rects.len()
-        || rotated_left_rects.len() != left_rects.len()
-        || rotated_right_rects.len() != right_rects.len()
-    {
-        return None;
-    }
+    let mut rotated_left_rects: Vec<Rect> =
+        left_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
+    let mut rotated_right_rects: Vec<Rect> =
+        right_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
 
     rotated_bottom_rects.sort_by_key(Rect::left);
     rotated_top_rects.sort_by_key(Rect::left);
     rotated_left_rects.sort_by_key(Rect::top);
     rotated_right_rects.sort_by_key(Rect::top);
 
-    Some(Partial {
+    Partial {
         geometry,
         top_left_corner,
         top_right_corner,
@@ -657,7 +596,7 @@ pub fn rotate_partial_timing_marks(
         bottom_rects: rotated_top_rects,
         left_rects: rotated_right_rects,
         right_rects: rotated_left_rects,
-    })
+    }
 }
 
 #[time]

@@ -11,7 +11,7 @@ use rusttype::{Font, Scale};
 use crate::{
     ballot_card::Geometry,
     election::GridPosition,
-    geometry::{segment_with_length, Rect, Segment},
+    geometry::{center_of_rect, segment_with_length, Rect, Segment},
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, PINK, RAINBOW, RED,
         WHITE_RGB,
@@ -49,11 +49,23 @@ pub fn draw_timing_mark_debug_image_mut(
     draw_legend(
         canvas,
         &vec![
-            (GREEN, "Top"),
-            (BLUE, "Bottom"),
-            (RED, "Left"),
-            (CYAN, "Right"),
-            (PINK, "Corner"),
+            (
+                GREEN,
+                format!("Top ({})", partial_timing_marks.top_rects.len()).as_str(),
+            ),
+            (
+                BLUE,
+                format!("Bottom ({})", partial_timing_marks.bottom_rects.len()).as_str(),
+            ),
+            (
+                RED,
+                format!("Left ({})", partial_timing_marks.left_rects.len()).as_str(),
+            ),
+            (
+                CYAN,
+                format!("Right ({})", partial_timing_marks.right_rects.len()).as_str(),
+            ),
+            (PINK, format!("Corners ({})", 4).as_str()),
         ],
     );
 
@@ -109,17 +121,72 @@ pub fn draw_timing_mark_debug_image_mut(
         CYAN,
     );
 
-    for rect in &partial_timing_marks.top_rects {
+    let font = &monospace_font();
+    let font_scale = 15.0;
+    let scale = Scale::uniform(font_scale);
+
+    for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
+        let center = center_of_rect(rect);
+        let text = format!("{}", i);
+        let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), GREEN);
+        draw_text_mut(
+            canvas,
+            DARK_GREEN,
+            (center.x - text_width as f32 / 2.0) as i32,
+            (rect.bottom() as f32 + text_height as f32 / 4.0) as i32,
+            scale,
+            font,
+            text.as_str(),
+        );
     }
-    for rect in &partial_timing_marks.bottom_rects {
+
+    for (i, rect) in partial_timing_marks.bottom_rects.iter().enumerate() {
+        let center = center_of_rect(rect);
+        let text = format!("{}", i);
+        let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), BLUE);
+        draw_text_mut(
+            canvas,
+            DARK_BLUE,
+            (center.x - text_width as f32 / 2.0) as i32,
+            (rect.top() as f32 - text_height as f32 * 5.0 / 4.0) as i32,
+            scale,
+            font,
+            text.as_str(),
+        );
     }
-    for rect in &partial_timing_marks.left_rects {
+
+    for (i, rect) in partial_timing_marks.left_rects.iter().enumerate() {
+        let center = center_of_rect(rect);
+        let text = format!("{}", i);
+        let (_, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), RED);
+        draw_text_mut(
+            canvas,
+            DARK_RED,
+            (rect.right() as f32 + text_height as f32 / 4.0) as i32,
+            (center.y as f32 - text_height as f32 / 2.0) as i32,
+            scale,
+            font,
+            text.as_str(),
+        );
     }
-    for rect in &partial_timing_marks.right_rects {
+
+    for (i, rect) in partial_timing_marks.right_rects.iter().enumerate() {
+        let center = center_of_rect(rect);
+        let text = format!("{}", i);
+        let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), CYAN);
+        draw_text_mut(
+            canvas,
+            DARK_CYAN,
+            (rect.left() as f32 - text_width as f32 - text_height as f32 / 4.0) as i32,
+            (center.y as f32 - text_height as f32 / 2.0) as i32,
+            scale,
+            font,
+            text.as_str(),
+        );
     }
 
     if let Some(top_left_corner) = partial_timing_marks.top_left_rect {
