@@ -62,7 +62,7 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
  * Cert expiries in days
  */
 export const CERT_EXPIRY_IN_DAYS = {
-  DEV: 36500, // 100 years
+  DEV: 36500, // ~100 years
 } as const;
 
 /**
