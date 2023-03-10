@@ -132,6 +132,7 @@ test('CardReader status changes', () => {
   newCardReader();
 
   mockPcscLite.emit('error');
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(1);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(1, 'unknown_error');
 
   mockPcscLite.emit('reader', mockPcscLiteReader);
@@ -145,6 +146,7 @@ test('CardReader status changes', () => {
     { share_mode: mockPcscLiteReader.SCARD_SHARE_EXCLUSIVE },
     expect.anything()
   );
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(2);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(2, 'card_error');
 
   mockOf(mockPcscLiteReader.connect).mockImplementationOnce(mockConnectSuccess);
@@ -153,23 +155,24 @@ test('CardReader status changes', () => {
     { share_mode: mockPcscLiteReader.SCARD_SHARE_EXCLUSIVE },
     expect.anything()
   );
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(3);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(3, 'ready');
 
   mockPcscLiteReader.emit('status', { state: 0 });
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(4);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(4, 'no_card');
   expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(1);
 
   mockPcscLiteReader.emit('error');
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(5);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(5, 'unknown_error');
 
   mockPcscLiteReader.emit('end');
-  expect(onReaderStatusChange).toHaveBeenNthCalledWith(6, 'no_card_reader');
-
-  // Verify that onReaderStatusChange hasn't been called any additional times
   expect(onReaderStatusChange).toHaveBeenCalledTimes(6);
+  expect(onReaderStatusChange).toHaveBeenNthCalledWith(6, 'no_card_reader');
 });
 
-test('CardReader command transmission, reader not ready', async () => {
+test('CardReader command transmission - reader not ready', async () => {
   const cardReader = newCardReader();
 
   await expect(cardReader.transmit(simpleCommand.command)).rejects.toThrow(
@@ -177,7 +180,7 @@ test('CardReader command transmission, reader not ready', async () => {
   );
 });
 
-test('CardReader command transmission, success', async () => {
+test('CardReader command transmission - success', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -189,6 +192,7 @@ test('CardReader command transmission, success', async () => {
     Buffer.from([])
   );
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(1);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     simpleCommand.buffer,
@@ -198,7 +202,7 @@ test('CardReader command transmission, success', async () => {
   );
 });
 
-test('CardReader command transmission, response APDU with non-success status word', async () => {
+test('CardReader command transmission - response APDU with non-success status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -216,6 +220,7 @@ test('CardReader command transmission, response APDU with non-success status wor
     ])
   );
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(1);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     simpleCommand.buffer,
@@ -225,7 +230,7 @@ test('CardReader command transmission, response APDU with non-success status wor
   );
 });
 
-test('CardReader command transmission, response APDU with no status', async () => {
+test('CardReader command transmission - response APDU with no status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(Buffer.from([]))
@@ -233,6 +238,7 @@ test('CardReader command transmission, response APDU with no status', async () =
 
   await expect(cardReader.transmit(simpleCommand.command)).rejects.toThrow();
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(1);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     simpleCommand.buffer,
@@ -242,7 +248,7 @@ test('CardReader command transmission, response APDU with no status', async () =
   );
 });
 
-test('CardReader command transmission, chained command', async () => {
+test('CardReader command transmission - chained command', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -264,6 +270,7 @@ test('CardReader command transmission, chained command', async () => {
     Buffer.from([0x00])
   );
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(3);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     commandWithLotsOfData.buffers[0],
@@ -287,7 +294,7 @@ test('CardReader command transmission, chained command', async () => {
   );
 });
 
-test('CardReader command transmission, chained response', async () => {
+test('CardReader command transmission - chained response', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
@@ -315,6 +322,7 @@ test('CardReader command transmission, chained response', async () => {
     ])
   );
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(2);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     simpleCommand.buffer,
@@ -337,7 +345,7 @@ test('CardReader command transmission, chained response', async () => {
   );
 });
 
-test('CardReader command transmission, transmit failure', async () => {
+test('CardReader command transmission - transmit failure', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(mockTransmitError);
 
@@ -345,6 +353,7 @@ test('CardReader command transmission, transmit failure', async () => {
     'Failed to transmit data to card'
   );
 
+  expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(1);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     1,
     simpleCommand.buffer,
