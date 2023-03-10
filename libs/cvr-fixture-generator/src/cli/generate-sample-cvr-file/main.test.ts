@@ -1,11 +1,24 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { z } from 'zod';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { safeParseJson } from '@votingworks/types';
+import { safeParseJson, CVR } from '@votingworks/types';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { fileSync } from 'tmp';
+import fs from 'fs/promises';
+import { join, resolve } from 'path';
+import { dirSync } from 'tmp';
+import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { main } from './main';
+import { BATCH_ID } from '../../utils';
+
+function reportFromFile(directory: string) {
+  const filename = join(directory, CAST_VOTE_RECORD_REPORT_FILENAME);
+  const reportParseResult = safeParseJson(
+    readFileSync(filename, 'utf8'),
+    CVR.CastVoteRecordReportSchema
+  );
+  expect(reportParseResult.isOk()).toBeTruthy();
+  return reportParseResult.unsafeUnwrap();
+}
 
 async function run(
   args: string[]
@@ -43,150 +56,210 @@ test('invalid option', async () => {
 });
 
 test('missing ballot package', async () => {
-  expect(await run([])).toEqual({
+  expect(await run(['--outputPath', '/tmp/test'])).toEqual({
     exitCode: 1,
     stdout: '',
     stderr: expect.stringContaining('Missing ballot package'),
   });
 });
 
+test('missing output path', async () => {
+  expect(await run(['--ballotPackage', '/tmp/test'])).toEqual({
+    exitCode: 1,
+    stdout: '',
+    stderr: expect.stringContaining('Missing output path'),
+  });
+});
+
 test('generate with defaults', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-  const outputFile = fileSync({ postfix: '.jsonl' });
+  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--ballotPackage',
       ballotPackagePath,
       '--outputPath',
-      outputFile.name,
+      outputDirectory.name,
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 168 cast vote records to ${outputFile.name}\n`,
+    stdout: `Wrote 112 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 
-  expect(
-    readFileSync(outputFile.name, 'utf8').split('\n').filter(Boolean)
-  ).toHaveLength(168);
+  const report = reportFromFile(outputDirectory.name);
+  expect(report.CVR).toHaveLength(112);
 });
 
 test('generate with custom number of records below the suggested number', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-  const outputFile = fileSync({ postfix: '.jsonl' });
+  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--ballotPackage',
       ballotPackagePath,
       '--outputPath',
-      outputFile.name,
+      outputDirectory.name,
       '--numBallots',
       '100',
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 100 cast vote records to ${outputFile.name}\n`,
+    stdout: `Wrote 100 cast vote records to ${outputDirectory.name}\n`,
     stderr: expect.stringContaining('WARNING:'),
   });
 
-  expect(
-    readFileSync(outputFile.name, 'utf8').split('\n').filter(Boolean)
-  ).toHaveLength(100);
+  const report = reportFromFile(outputDirectory.name);
+  expect(report.CVR).toHaveLength(100);
 });
 
 test('generate with custom number of records above the suggested number', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-  const outputFile = fileSync({ postfix: '.jsonl' });
+  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--ballotPackage',
       ballotPackagePath,
       '--outputPath',
-      outputFile.name,
+      outputDirectory.name,
       '--numBallots',
       '3000',
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 3000 cast vote records to ${outputFile.name}\n`,
+    stdout: `Wrote 3000 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 
-  expect(
-    readFileSync(outputFile.name, 'utf8').split('\n').filter(Boolean)
-  ).toHaveLength(3000);
+  // TODO (drew): build utility for VxAdmin to stream in large JSON file
+  // to allow this to work. Currently it exceeds memory limits.
+
+  // const report = reportFromFile(outputFile.name);
+  // expect(report.CVR).toHaveLength(3000);
 });
 
 test('generate live mode CVRs', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-  const outputFile = fileSync({ postfix: '.jsonl' });
+  const outputDirectory = dirSync();
 
   await run([
     '--ballotPackage',
     ballotPackagePath,
     '--outputPath',
-    outputFile.name,
+    outputDirectory.name,
     '--liveBallots',
     '--numBallots',
     '10',
   ]);
 
-  const contents = readFileSync(outputFile.name, 'utf8')
-    .split('\n')
-    .filter(Boolean);
-  for (const cvr of contents) {
-    expect(
-      safeParseJson(cvr, z.object({ _testBallot: z.boolean() })).unsafeUnwrap()[
-        '_testBallot'
-      ]
-    ).toEqual(false);
-  }
+  const report = reportFromFile(outputDirectory.name);
+  expect(report.OtherReportType).toBeUndefined();
 });
 
-test('output to stdout', async () => {
+test('generate test mode CVRs', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-
-  const { exitCode, stdout } = await run([
-    '--ballotPackage',
-    ballotPackagePath,
-    '--numBallots',
-    '10',
-  ]);
-
-  expect(exitCode).toEqual(0);
-  expect(stdout.split('\n').filter(Boolean)).toHaveLength(10);
-});
-
-test('specifying scanner names', async () => {
-  const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
-  const outputFile = fileSync({ postfix: '.jsonl' });
+  const outputDirectory = dirSync();
 
   await run([
     '--ballotPackage',
     ballotPackagePath,
     '--outputPath',
-    outputFile.name,
+    outputDirectory.name,
+    '--numBallots',
+    '10',
+  ]);
+
+  const report = reportFromFile(outputDirectory.name);
+  expect(report.OtherReportType?.split(',')).toContain('test');
+});
+
+test('specifying scanner names', async () => {
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+  const outputDirectory = dirSync();
+
+  await run([
+    '--ballotPackage',
+    ballotPackagePath,
+    '--outputPath',
+    outputDirectory.name,
     '--scannerNames',
     'scanner1,scanner2',
   ]);
 
-  const contents = readFileSync(outputFile.name, 'utf8')
-    .split('\n')
-    .filter(Boolean);
-  for (const cvr of contents) {
-    expect(
-      safeParseJson(cvr, z.object({ _scannerId: z.string() })).unsafeUnwrap()[
-        '_scannerId'
-      ]
-    ).toMatch(/scanner[12]/);
+  const report = reportFromFile(outputDirectory.name);
+  for (const cvr of report.CVR!) {
+    expect(cvr.CreatingDeviceId).toMatch(/scanner[12]/);
   }
+});
+
+test('including ballot images', async () => {
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+  const outputDirectory = dirSync();
+
+  await run([
+    '--ballotPackage',
+    ballotPackagePath,
+    '--outputPath',
+    outputDirectory.name,
+    '--includeBallotImages',
+  ]);
+
+  const report = reportFromFile(outputDirectory.name);
+  const imageFileUris = new Set<string>();
+  assert(report.CVR);
+  for (const cvr of report.CVR) {
+    const ballotImages = cvr.BallotImage;
+    if (ballotImages) {
+      if (ballotImages[0]?.Location) {
+        imageFileUris.add(ballotImages[0]?.Location);
+      }
+      if (ballotImages[1]?.Location) {
+        imageFileUris.add(ballotImages[1]?.Location);
+      }
+    }
+  }
+
+  // files referenced from the report
+  expect(Array.from(imageFileUris)).toMatchInlineSnapshot(`
+    Array [
+      "file:./ballot-images/batch-1/1M__precinct-1__1.jpg",
+      "file:./ballot-images/batch-1/1M__precinct-2__1.jpg",
+      "file:./ballot-images/batch-1/2F__precinct-1__1.jpg",
+      "file:./ballot-images/batch-1/2F__precinct-2__1.jpg",
+    ]
+  `);
+
+  // images exported
+  expect(
+    await fs.readdir(join(outputDirectory.name, 'ballot-images', BATCH_ID))
+  ).toMatchInlineSnapshot(`
+    Array [
+      "1M__precinct-1__1.jpg",
+      "1M__precinct-2__1.jpg",
+      "2F__precinct-1__1.jpg",
+      "2F__precinct-2__1.jpg",
+    ]
+  `);
+
+  // layouts exported
+  expect(
+    await fs.readdir(join(outputDirectory.name, 'ballot-layouts', BATCH_ID))
+  ).toMatchInlineSnapshot(`
+    Array [
+      "1M__precinct-1__1.layout.json",
+      "1M__precinct-2__1.layout.json",
+      "2F__precinct-1__1.layout.json",
+      "2F__precinct-2__1.layout.json",
+    ]
+  `);
 });
