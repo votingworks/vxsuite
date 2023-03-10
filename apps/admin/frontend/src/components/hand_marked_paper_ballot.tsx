@@ -1114,7 +1114,7 @@ export function HandMarkedPaperBallot({
                           }}
                         />
                       )}
-                      <Text bold noWrap>
+                      <Text bold>
                         <BubbleMark
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'yes')}
@@ -1126,7 +1126,7 @@ export function HandMarkedPaperBallot({
                           </span>
                         </BubbleMark>
                       </Text>
-                      <Text bold noWrap>
+                      <Text bold>
                         <BubbleMark
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'no')}
