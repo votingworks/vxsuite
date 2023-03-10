@@ -1,8 +1,16 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-
 import { Application } from 'express';
-import { DippedSmartCardAuth, MemoryCard } from '@votingworks/auth';
+import {
+  DippedSmartCardAuth,
+  MemoryCard,
+  JavaCard,
+  constructDevJavaCardConfig,
+} from '@votingworks/auth';
 import { Server } from 'http';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -26,6 +34,22 @@ export async function start({
   port = PORT,
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
+  const auth = new DippedSmartCardAuth({
+    card: isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
+      ? /* istanbul ignore next */
+        new JavaCard(
+          constructDevJavaCardConfig({
+            includeCardProgrammingConfig: true,
+            pathToAuthLibRoot: '../../../libs/auth',
+          })
+        )
+      : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: false,
+    },
+    logger,
+  });
+
   let resolvedWorkspace = workspace;
 
   if (workspace) {
@@ -53,13 +77,7 @@ export async function start({
   const resolvedApp =
     app ??
     buildApp({
-      auth: new DippedSmartCardAuth({
-        card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-        config: {
-          allowElectionManagersToAccessUnconfiguredMachines: false,
-        },
-        logger,
-      }),
+      auth,
       workspace: resolvedWorkspace,
       logger,
     });
