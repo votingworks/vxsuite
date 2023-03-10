@@ -95,13 +95,6 @@ impl Rect {
     pub const fn bottom_right(&self) -> Point<i32> {
         Point::new(self.right(), self.bottom())
     }
-
-    pub const fn contains(&self, point: &Point<i32>) -> bool {
-        point.x >= self.left
-            && point.x <= self.right()
-            && point.y >= self.top
-            && point.y <= self.bottom()
-    }
 }
 
 impl From<Rect> for imageproc::rect::Rect {

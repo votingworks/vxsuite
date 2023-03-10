@@ -15,7 +15,7 @@ use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 
 use crate::{
-    ballot_card::{BallotCardOrientation, BallotSide, Geometry},
+    ballot_card::{BallotSide, Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     election::{GridLayout, GridLocation, GridPosition},
@@ -99,7 +99,7 @@ pub struct TimingMarkGrid {
     pub geometry: Geometry,
 
     /// The orientation of the ballot card.
-    pub orientation: BallotCardOrientation,
+    pub orientation: Orientation,
 
     /// Inset to crop to exclude the border.
     pub border_inset: Inset,
@@ -123,7 +123,7 @@ pub struct TimingMarkGrid {
 impl TimingMarkGrid {
     pub fn new(
         geometry: Geometry,
-        orientation: BallotCardOrientation,
+        orientation: Orientation,
         border_inset: Inset,
         scaled_size: Size<u32>,
         partial_timing_marks: Partial,
@@ -186,28 +186,25 @@ pub fn find_timing_mark_grid(
 ) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, debug);
 
-    let partial_timing_marks = match find_partial_timing_marks_from_candidate_rects(
+    let Some(partial_timing_marks) = find_partial_timing_marks_from_candidate_rects(
         geometry,
         &candidate_timing_marks,
         debug,
-    ) {
-        Some(partial_timing_marks) => partial_timing_marks,
-        None => {
-            return Err(Error::MissingTimingMarks {
-                rects: candidate_timing_marks,
-            })
-        }
+    ) else {
+        return Err(Error::MissingTimingMarks {
+            rects: candidate_timing_marks,
+        })
     };
 
     let orientation =
         if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
-            BallotCardOrientation::Portrait
+            Orientation::Portrait
         } else {
-            BallotCardOrientation::PortraitReversed
+            Orientation::PortraitReversed
         };
 
     let (partial_timing_marks, normalized_img, border_inset) =
-        if orientation == BallotCardOrientation::Portrait {
+        if orientation == Orientation::Portrait {
             (partial_timing_marks, None, border_inset)
         } else {
             let (width, height) = img.dimensions();
@@ -229,17 +226,14 @@ pub fn find_timing_mark_grid(
         |canvas| draw_timing_mark_debug_image_mut(canvas, geometry, &partial_timing_marks),
     );
 
-    let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
+    let Some(complete_timing_marks) = find_complete_timing_marks_from_partial_timing_marks(
         geometry,
         &partial_timing_marks,
         debug,
-    ) {
-        Some(complete_timing_marks) => complete_timing_marks,
-        None => {
-            return Err(Error::MissingTimingMarks {
-                rects: candidate_timing_marks,
-            })
-        }
+    ) else {
+        return Err(Error::MissingTimingMarks {
+            rects: candidate_timing_marks,
+        })
     };
 
     let metadata =
@@ -325,9 +319,7 @@ pub fn find_timing_mark_shapes(
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
     // around the edges to ensure no timing marks are on the edge of the image
-    let img = if let Ok(img) = expand_image(img, BORDER_SIZE.into(), WHITE) {
-        img
-    } else {
+    let Ok(img) =  expand_image(img, BORDER_SIZE.into(), WHITE) else {
         return vec![];
     };
 
@@ -501,7 +493,7 @@ struct Rotator180 {
 }
 
 impl Rotator180 {
-    pub const fn new(canvas_size: &Size<u32>) -> Self {
+    pub const fn new(canvas_size: Size<u32>) -> Self {
         Self {
             canvas_area: Rect::new(0, 0, canvas_size.width, canvas_size.height),
         }
@@ -509,19 +501,19 @@ impl Rotator180 {
 
     pub fn rotate_rect(&self, rect: &Rect) -> Rect {
         Rect::from_points(
-            self.rotate_point_i32(&rect.bottom_right()),
-            self.rotate_point_i32(&rect.top_left()),
+            self.rotate_point_i32(rect.bottom_right()),
+            self.rotate_point_i32(rect.top_left()),
         )
     }
 
-    fn rotate_point_i32(&self, point: &Point<i32>) -> Point<i32> {
+    fn rotate_point_i32(&self, point: Point<i32>) -> Point<i32> {
         Point::new(
             self.canvas_area.width() as i32 - 1 - point.x,
             self.canvas_area.height() as i32 - 1 - point.y,
         )
     }
 
-    fn rotate_point_f32(&self, point: &Point<f32>) -> Point<f32> {
+    fn rotate_point_f32(&self, point: Point<f32>) -> Point<f32> {
         Point::new(
             (self.canvas_area.width() as i32 - 1) as f32 - point.x,
             (self.canvas_area.height() as i32 - 1) as f32 - point.y,
@@ -550,13 +542,13 @@ pub fn rotate_partial_timing_marks(
         right_rects,
     } = partial_timing_marks;
 
-    let rotator = Rotator180::new(image_size);
+    let rotator = Rotator180::new(*image_size);
 
     let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
-        rotator.rotate_point_f32(&bottom_right_corner),
-        rotator.rotate_point_f32(&bottom_left_corner),
-        rotator.rotate_point_f32(&top_right_corner),
-        rotator.rotate_point_f32(&top_left_corner),
+        rotator.rotate_point_f32(bottom_right_corner),
+        rotator.rotate_point_f32(bottom_left_corner),
+        rotator.rotate_point_f32(top_right_corner),
+        rotator.rotate_point_f32(top_left_corner),
     );
 
     let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
@@ -671,24 +663,13 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         return None;
     }
 
-    let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = match (
+    let (Some(top_left_rect), Some(top_right_rect), Some(bottom_left_rect), Some(bottom_right_rect)) = (
         top_line.first().copied(),
         top_line.last().copied(),
         bottom_line.first().copied(),
         bottom_line.last().copied(),
-    ) {
-        (
-            Some(top_left_rect),
-            Some(top_right_rect),
-            Some(bottom_left_rect),
-            Some(bottom_right_rect),
-        ) => (
-            top_left_rect,
-            top_right_rect,
-            bottom_left_rect,
-            bottom_right_rect,
-        ),
-        _ => return None,
+    ) else {
+        return None;
     };
 
     let complete_timing_marks = Complete {
@@ -904,22 +885,24 @@ pub fn score_oval_marks_from_grid_layout(
                 return vec![];
             }
 
-            match timing_mark_grid.point_for_location(location.column, location.row) {
-                Some(expected_oval_center) => {
-                    vec![(
-                        grid_position.clone(),
-                        score_oval_mark(
-                            img,
-                            oval_template,
-                            expected_oval_center,
-                            &location,
-                            DEFAULT_MAXIMUM_SEARCH_DISTANCE,
-                            threshold,
-                        ),
-                    )]
-                }
-                None => vec![(grid_position.clone(), None)],
-            }
+            timing_mark_grid
+                .point_for_location(location.column, location.row)
+                .map_or_else(
+                    || vec![(grid_position.clone(), None)],
+                    |expected_oval_center| {
+                        vec![(
+                            grid_position.clone(),
+                            score_oval_mark(
+                                img,
+                                oval_template,
+                                expected_oval_center,
+                                &location,
+                                DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+                                threshold,
+                            ),
+                        )]
+                    },
+                )
         })
         .collect::<ScoredOvalMarks>();
 
@@ -927,7 +910,7 @@ pub fn score_oval_marks_from_grid_layout(
         debug::draw_scored_oval_marks_debug_image_mut(canvas, scored_ovals);
     });
 
-    scored_ovals.to_vec()
+    scored_ovals.clone()
 }
 
 /// Scores an oval mark within a scanned ballot image.

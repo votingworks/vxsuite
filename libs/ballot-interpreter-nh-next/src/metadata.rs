@@ -205,10 +205,9 @@ pub fn compute_bits_from_bottom_timing_marks(
     complete_iter.next();
     partial_iter.next();
 
-    let (mut current_complete, mut current_partial) =
-        match (complete_iter.next(), partial_iter.next()) {
-            (Some(complete), Some(partial)) => (complete, partial),
-            _ => unreachable!("There are at least 2 partial timing marks."),
+    let (Some(mut current_complete), Some(mut current_partial)) =
+        (complete_iter.next(), partial_iter.next()) else {
+            unreachable!("There are at least 2 partial timing marks.");
         };
 
     for bit in &mut bits {

@@ -70,7 +70,7 @@ export interface TimingMarkGrid {
   geometry: Geometry;
 
   /** The orientation of the ballot card. */
-  orientation: BallotCardOrientation;
+  orientation: Orientation;
 
   /**
    * Inset to crop to exclude the border. The units are in pixels, and the
@@ -270,7 +270,7 @@ export enum BallotPaperSize {
 }
 
 /** Ballot card orientation. */
-export enum BallotCardOrientation {
+export enum Orientation {
   /** The ballot card is portrait and right-side up. */
   Portrait = 'portrait',
 
