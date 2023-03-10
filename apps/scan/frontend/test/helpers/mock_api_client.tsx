@@ -152,10 +152,8 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectGetScannerStatus(status: PrecinctScannerStatus, times = 1): void {
-      for (let i = 0; i < times; i += 1) {
-        mockApiClient.getScannerStatus.expectCallWith().resolves(status);
-      }
+    expectGetScannerStatus(status: PrecinctScannerStatus): void {
+      mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
     },
 
     expectSetPollsState(pollsState: PollsState): void {

@@ -153,7 +153,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({ connectPrinter: true });
   await screen.findByText('Polls Closed');
 
@@ -205,7 +205,7 @@ test('printing: polls open, All Precincts, primary election + check additional r
 test('saving to card: polls open, All Precincts, primary election + test failed card write', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   apiMock.expectGetConfig({ electionDefinition });
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({ connectPrinter: false });
   await screen.findByText('Polls Closed');
 
@@ -352,7 +352,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -582,7 +582,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   const electionDefinition =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -707,7 +707,7 @@ test('printing: polls closed, primary election, single precinct + check addition
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 3);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -855,7 +855,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -937,7 +937,7 @@ const GENERAL_ALL_PRECINCTS_CVRS = [
 test('printing: polls closed, general election, all precincts', async () => {
   const electionDefinition = electionSample2Definition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1025,7 +1025,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   const electionDefinition = electionSample2Definition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1114,7 +1114,7 @@ test('printing: polls closed, general election, single precinct', async () => {
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1179,7 +1179,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1283,7 +1283,7 @@ test('printing: polls closed, general election with non-partisan contests, all p
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1367,7 +1367,7 @@ test('saving to card: polls closed, general election with non-partisan contests,
     precinctSelection,
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1451,7 +1451,7 @@ test('printing: polls paused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1491,7 +1491,7 @@ test('saving to card: polls paused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_open',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Insert Your Ballot Below');
 
@@ -1538,7 +1538,7 @@ test('printing: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
@@ -1577,7 +1577,7 @@ test('saving to card: polls unpaused', async () => {
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
 
   // Unpause the polls
@@ -1621,7 +1621,7 @@ test('printing: polls closed from paused, general election, single precinct', as
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 3);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
   await screen.findByText('Polls Paused');
 
@@ -1693,7 +1693,7 @@ test('saving to card: polls closed from paused, general election, single precinc
     precinctSelection: singlePrecinctSelectionFor('23'),
     pollsState: 'polls_paused',
   });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 }, 4);
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
   await screen.findByText('Polls Paused');
 

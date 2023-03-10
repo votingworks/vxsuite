@@ -124,7 +124,7 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('VxScan is not configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
@@ -158,7 +158,7 @@ test('election manager must set precinct', async () => {
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('No Precinct Selected');
 
@@ -193,7 +193,7 @@ test('election manager and poll worker configuration', async () => {
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
   apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig(config);
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   const { logger } = renderApp();
   await screen.findByText('Polls Closed');
 
@@ -253,7 +253,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
 
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetPollsState('polls_open');
   config = { ...config, pollsState: 'polls_open' };
   apiMock.expectGetConfig(config);
@@ -298,7 +298,7 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('South Springfield,');
 
   // Open the polls again
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
@@ -316,14 +316,11 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Remove card and insert election manager card to unconfigure
-  apiMock.expectGetScannerStatus(
-    {
-      ...statusNoPaper,
-      canUnconfigure: true,
-      ballotsCounted: 1,
-    },
-    4
-  );
+  apiMock.expectGetScannerStatus({
+    ...statusNoPaper,
+    canUnconfigure: true,
+    ballotsCounted: 1,
+  });
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
   // Confirm we can't unconfigure just by changing precinct
@@ -401,7 +398,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await scanBallot();
 
   // Insert a pollworker card
-  apiMock.expectGetScannerStatus(statusBallotCounted, 4);
+  apiMock.expectGetScannerStatus(statusBallotCounted);
   const mockCvrs = [
     generateCvr(
       electionSample,
@@ -602,7 +599,7 @@ test('voter can cast another ballot while the success screen is showing', async 
 
 test('scanning is not triggered when polls closed or cards present', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }), 3);
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   renderApp();
   await screen.findByText('Polls Closed');
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -624,7 +621,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -658,7 +655,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
 
 test('with printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_closed_initial' });
-  apiMock.expectGetScannerStatus(statusNoPaper, 7);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   const hardware = MemoryHardware.build({
     connectCardReader: true,
     connectPrinter: true,
@@ -711,7 +708,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
 
 test('no printer: open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -792,7 +789,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
 
 test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 8);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -854,7 +851,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();
@@ -897,7 +894,7 @@ test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_closed_final',
   });
-  apiMock.expectGetScannerStatus(statusNoPaper, 3);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -946,8 +943,7 @@ test('replace ballot bag flow', async () => {
     scannerStatus({
       state: 'no_paper',
       ballotsCounted: BALLOT_BAG_CAPACITY,
-    }),
-    6
+    })
   );
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Ballot Bag Full');
