@@ -521,6 +521,7 @@ function buildMachine({
           // wait for the scanner to tell us that the ballot has been ejected
           // before we can move on.
           onDone: 'checking_completed',
+          onError: '#error',
         },
       },
       checking_completed: {
